@@ -1,18 +1,11 @@
-import isEmpty from 'lodash/isEmpty';
 import type { FilterTag } from './filterSettings';
-// We initialize these public settings to make it available on both the client and the server,
-// but they get initialized via separate pathways on the client and on the server
-// Server: See databaseSettings.ts in the server directory
-// Client: See publicSettings.ts in the client directory
-export const publicSettings:Record<string, any> = {}
+import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
-
-export const registeredSettings:Record<string, "server" | "public" | "instance"> = {}
 
 export function initializeSetting(settingName: string, settingType: "server" | "public" | "instance")  {
   if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
@@ -44,8 +37,8 @@ export class DatabasePublicSetting<SettingValueType> {
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    if (isEmpty(publicSettings)) throw Error("Tried to access public setting before it was initialized")
-    const cacheValue = getNestedProperty(publicSettings, this.settingName)
+    if (!getPublicSettingsLoaded()) throw Error("Tried to access public setting before it was initialized")
+    const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
   }

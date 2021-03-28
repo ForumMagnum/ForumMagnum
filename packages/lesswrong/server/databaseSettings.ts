@@ -1,11 +1,12 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
-import { isDevelopment, runAtInterval } from '../lib/executionEnvironment';
-import { publicSettings, initializeSetting, registeredSettings } from '../lib/publicSettings'
+import { isDevelopment, isAnyTest, runAtInterval } from '../lib/executionEnvironment';
+import { initializeSetting } from '../lib/publicSettings'
+import { getPublicSettings, getServerSettingsCache, getServerSettingsLoaded, registeredSettings } from '../lib/settingsCache';
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
 import { ensureIndex } from '../lib/collectionUtils';
+import { refreshSettingsCaches } from './loadDatabaseSettings';
 
-let serverSettingsCache:Record<string, any> = {}
 const runValidateSettings = false
 
 ensureIndex(DatabaseMetadata, {
@@ -13,24 +14,19 @@ ensureIndex(DatabaseMetadata, {
 }, {
   unique: true
 })
-function refreshSettingsCaches() {
-  // Note: This is using Fibers to make this database call synchronous. This is kind of bad, but I don't know how to avoid it 
-  // without doing tons of work to make everything work properly in an asynchronous context
-  const serverSettingsObject = DatabaseMetadata.findOne({name: "serverSettings"})
-  const publicSettingsObject  = DatabaseMetadata.findOne({name: "publicSettings"})
-  
-  serverSettingsCache = serverSettingsObject?.value || {__initialized: true}
-  // We modify the publicSettings object that is made available in lib to allow both the client and the server to access it
-  Object.assign(publicSettings, publicSettingsObject?.value || {__initialized: true})
-  if (isDevelopment && runValidateSettings) {
-    // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
-    setTimeout(() => validateSettings(registeredSettings, publicSettings, serverSettingsCache), 30000)
-  }
+
+if (!getServerSettingsLoaded())
+  void refreshSettingsCaches()
+
+if (isDevelopment && runValidateSettings) {
+  // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
+  setTimeout(() => validateSettings(registeredSettings, getPublicSettings(), getServerSettingsCache()), 30000)
 }
 
-refreshSettingsCaches()
 // We use Meteor.setInterval to make sure the code runs in a Fiber
-runAtInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+if (!isAnyTest) {
+  runAtInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+}
 
 /* 
   A setting which is stored in the database in the "databasemetadata" collection, with the key "serverSettings"
@@ -57,8 +53,10 @@ export class DatabaseServerSetting<SettingValueType> {
     initializeSetting(settingName, "server")
   }
   get(): SettingValueType {
+    if (!getServerSettingsLoaded())
+      throw new Error("Requested database setting before settings loaded");
     // eslint-disable-next-line no-console
-    const cacheValue = get(serverSettingsCache, this.settingName)
+    const cacheValue = get(getServerSettingsCache(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
   }

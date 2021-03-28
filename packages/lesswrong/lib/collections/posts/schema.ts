@@ -9,6 +9,14 @@ import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
+import SimpleSchema from 'simpl-schema'
+
+const STICKY_PRIORITIES = {
+  1: "Low",
+  2: "Normal",
+  3: "Elevated",
+  4: "Max",
+}
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -99,20 +107,14 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: (post) => {
-      return Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
+    onInsert: async (post) => {
+      return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
-    onEdit: (modifier, post) => {
+    onEdit: async (modifier, post) => {
       if (modifier.$set.title) {
-        return Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
+        return await Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
     }
-  },
-  // Post Excerpt
-  excerpt: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
   },
   // Count of how many times the post's page was viewed
   viewCount: {
@@ -218,6 +220,23 @@ const schema: SchemaType<DbPost> = {
       }
     }
   },
+  // Priority of the stickied post. Higher priorities will be sorted before
+  // lower priorities.
+  stickyPriority: {
+    type: SimpleSchema.Integer,
+    ...schemaDefaultValue(2),
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    control: 'select',
+    options: () => Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
+      value: parseInt(level),
+      label: name
+    })),
+    group: formGroups.adminOptions,
+    order: 11,
+    optional: true,
+  },
   // Save info for later spam checking on a post. We will use this for the akismet package
   userIP: {
     type: String,
@@ -240,10 +259,10 @@ const schema: SchemaType<DbPost> = {
     denormalized: true,
     optional: true,
     viewableBy: ['guests'],
-    onEdit: (modifier, document, currentUser) => {
+    onEdit: async (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
-        return userGetDisplayNameById(modifier.$set.userId)
+        return await userGetDisplayNameById(modifier.$set.userId)
       }
     }
   },
@@ -261,13 +280,6 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     hidden: true,
-  },
-
-  // Used to keep track of when a post has been included in a newsletter
-  scheduledAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['admins'],
   },
 
   // GraphQL-only fields
@@ -427,7 +439,7 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
     resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const postRelations = await Posts.rawCollection().aggregate([
+      const postRelations = await Posts.aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
             from: "postrelations", 
@@ -477,10 +489,10 @@ const schema: SchemaType<DbPost> = {
   canonicalSource: {
     type: String,
     optional: true,
-    hidden: true,
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
+    group: formGroups.adminOptions,
   },
 
   nominationCount2018: {
@@ -611,7 +623,7 @@ const schema: SchemaType<DbPost> = {
           const comment = await Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{promotedAt: -1}})
           return await accessFilterSingle(currentUser, Comments, comment, context)
         } else {
-          const comment = Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+          const comment = await Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
           return await accessFilterSingle(currentUser, Comments, comment, context)
         }
       }

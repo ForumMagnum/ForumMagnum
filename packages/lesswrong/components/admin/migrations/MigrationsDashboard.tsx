@@ -2,8 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { useQuery } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useQuery, gql } from '@apollo/client';
 import { rowStyles } from './MigrationsDashboardRow';
 
 const styles = (theme: ThemeType): JssStyles => ({

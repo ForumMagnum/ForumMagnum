@@ -35,13 +35,11 @@ export const Sequences: ExtendedSequencesCollection = createCollection({
   mutations: getDefaultMutations('Sequences', options)
 })
 
-export const makeEditableOptions = {
-  order: 20
-}
-
 makeEditable({
   collection: Sequences,
-  options: makeEditableOptions
+  options: {
+    order: 20,
+  }
 })
 addUniversalFields({collection: Sequences})
 

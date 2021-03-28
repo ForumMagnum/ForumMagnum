@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import * as Sentry from '@sentry/core';
+import { configureScope, captureException }from '@sentry/core';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode,
@@ -17,12 +17,12 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps,ErrorBoundaryStat
 
   componentDidCatch(error, info) {
     this.setState({ error: error.toString() });
-    Sentry.configureScope(scope => {
+    configureScope(scope => {
       Object.keys(info).forEach(key => {
         scope.setExtra(key, info[key]);
       });
     });
-    Sentry.captureException(error);
+    captureException(error);
   }
 
   render() {

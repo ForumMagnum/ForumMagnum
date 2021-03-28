@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements } from 'react-instantsearch-dom';
-import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
 
@@ -112,7 +112,7 @@ const SearchPage = ({classes}:{
 
   const {query} = useLocation()
 
-  if(!isAlgoliaEnabled) {
+  if(!isAlgoliaEnabled()) {
     return <div className={classes.root}>
       Search is disabled (Algolia App ID not configured on server)
     </div>
@@ -120,7 +120,7 @@ const SearchPage = ({classes}:{
 
   return <div className={classes.root}>
     <InstantSearch
-      indexName={algoliaIndexNames.Posts}
+      indexName={getAlgoliaIndexName("Posts")}
       searchClient={getSearchClient()}
     >
       <div className={classes.searchInputArea}>
@@ -134,7 +134,7 @@ const SearchPage = ({classes}:{
       <div className={classes.columns}>
       <ErrorBoundary>
         <div className={classes.usersList}>
-          <Index indexName={algoliaIndexNames.Users}>
+          <Index indexName={getAlgoliaIndexName("Users")}>
             <div className={classes.header}>
               <Typography variant="body1">
                 Users
@@ -148,7 +148,7 @@ const SearchPage = ({classes}:{
       </ErrorBoundary>
       <ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Posts}>
+            <Index indexName={getAlgoliaIndexName("Posts")}>
               <div className={classes.header}>
                 <Typography variant="body1">
                   Posts
@@ -163,7 +163,7 @@ const SearchPage = ({classes}:{
         </ErrorBoundary>
         <ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={algoliaIndexNames.Comments}>
+            <Index indexName={getAlgoliaIndexName("Comments")}>
               <div className={classes.header}>
                 <Typography variant="body1">
                   Comments
@@ -177,7 +177,7 @@ const SearchPage = ({classes}:{
         </ErrorBoundary>
         <ErrorBoundary>
           <div className={classes.tagsList}>
-            <Index indexName={algoliaIndexNames.Tags}>
+            <Index indexName={getAlgoliaIndexName("Tags")}>
               <div className={classes.header}>
                 <Typography variant="body1">
                   Tags

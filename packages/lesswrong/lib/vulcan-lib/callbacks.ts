@@ -1,8 +1,12 @@
 import { isServer, runAfterDelay, deferWithoutDelay } from '../executionEnvironment';
 import * as _ from 'underscore';
 
-import { debug } from './debug';
 import { isPromise } from './utils';
+import { isAnyQueryPending } from '../mongoCollection';
+import { loggerConstructor } from '../utils/logging'
+
+// TODO: It would be nice if callbacks could be enabled or disabled by collection
+const logger = loggerConstructor(`callbacks`)
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -128,13 +132,13 @@ export const runCallbacks = function (this: any, options: {
   if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
 
     const runCallback = (accumulator, callback) => {
-      debug(`\x1b[32m>> Running callback [${callback.name}] on hook [${formattedHook}]\x1b[0m`);
+      logger(`\x1b[32m>> Running callback [${callback.name}] on hook [${formattedHook}]\x1b[0m`);
       try {
         const result = callback.apply(this, [accumulator].concat(args));
 
         if (typeof result === 'undefined') {
           // if result of current iteration is undefined, don't pass it on
-          // debug(`// Warning: Sync callback [${callback.name}] in hook [${hook}] didn't return a result!`)
+          // logger(`// Warning: Sync callback [${callback.name}] in hook [${hook}] didn't return a result!`)
           return accumulator;
         } else {
           return result;
@@ -156,7 +160,7 @@ export const runCallbacks = function (this: any, options: {
     return callbacks.reduce(function (accumulator, callback, index) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
-          debug(`\x1b[32m>> Started async context in hook [${formattedHook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
+          logger(`\x1b[32m>> Started async context in hook [${formattedHook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
           asyncContext = true;
         }
         return new Promise((resolve, reject) => {
@@ -272,7 +276,7 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
     deferWithoutDelay(function () {
       // run all post submit server callbacks on post object successively
       callbacks.forEach(function (this: any, callback) {
-        debug(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
+        logger(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
         
         let pendingAsyncCallback = markCallbackStarted(hook);
         try {
@@ -325,9 +329,9 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
 // should have been await'ed without the await, effectively spawning a new
 // thread which isn't tracked.
 export const waitUntilCallbacksFinished = () => {
-  return new Promise(resolve => {
+  return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending()) {
+      if (callbacksArePending() || isAnyQueryPending()) {
         runAfterDelay(finishOrWait, 20);
       } else {
         resolve();

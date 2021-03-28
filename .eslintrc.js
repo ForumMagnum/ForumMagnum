@@ -3,7 +3,6 @@ module.exports = {
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:meteor/recommended",
     "plugin:react/recommended",
 
     // Uncomment to enable cycle-detection. Note that caching doesn't seem to
@@ -18,7 +17,7 @@ module.exports = {
     "allowImportExportEverywhere": true,
     "ecmaVersion": 6,
     "sourceType": "module",
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
   },
   "rules": {
     "babel/generator-star-spacing": 0,
@@ -62,7 +61,6 @@ module.exports = {
     "react/jsx-equals-spacing": 1,
     "react/jsx-pascal-case": 1,
     "react/jsx-child-element-spacing": 1,
-    "meteor/audit-argument-checks": 0,
     "no-case-declarations": 0,
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
@@ -91,6 +89,7 @@ module.exports = {
       { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
       { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
       { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
+      { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
     ]}],
@@ -206,29 +205,20 @@ module.exports = {
     "browser": true,
     "commonjs": true,
     "es6": true,
-    "meteor": true,
     "node": true
   },
   "plugins": [
     "@typescript-eslint",
     "babel",
-    "meteor",
     "react",
     "react-hooks",
     "import"
   ],
   "settings": {
-    "import/resolver": {
-      "meteor": {
-        "extensions": [ ".js", ".jsx", ".ts", ".tsx" ]
-      }
-    },
     "import/core-modules": [
-      "meteor/practicalmeteor:chai",
       "sinon",
       "sinon-chai",
       "chai-enzyme",
-      "meteor/meteorhacks:picker"
     ],
     "react": {
       "version": "16.4.1"
@@ -244,5 +234,7 @@ module.exports = {
     "after": true,
     "beforeEach": true,
     "afterEach": true
-  }
+  },
+  "ignorePatterns": [
+  ]
 }

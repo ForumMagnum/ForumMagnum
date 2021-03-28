@@ -21,7 +21,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   });
   if (!loading && results) {
     return <>{results.map((event) =>
-        <MenuItem key={event._id} dense onClick={() => clickCallback(event.createdAt)}>Visit at: <Components.CalendarDate date={event.createdAt}/> </MenuItem>
+        <MenuItem key={event._id} dense onClick={() => clickCallback(event.createdAt)}>Visit at:&nbsp;<Components.CalendarDate date={event.createdAt}/> </MenuItem>
       )}</>
   } else {
     return <Components.Loading />

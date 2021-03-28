@@ -1,35 +1,54 @@
-import { addCronJob } from './cronUtil';
+import { addCronJob, removeCronJob } from './cronUtil';
 import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
-import { isProduction } from '../lib/executionEnvironment';
+import { isProduction, onStartup } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
-const gatherTownWebsocketServer = new DatabaseServerSetting<string>("gatherTownWebsocketServer", "premium-009.gather.town")
+
+// Version number of the GatherTown bot in this file. This matches the version
+// number field in the GatherTown connection header, ie it tracks their releases.
+// If this is a non-integer, the integer part is the GatherTown version number and
+// the fractional part is our internal iteration on the bot.
+const currentGatherTownTrackerVersion = 7;
+
+// Minimum version number of the GatherTown bot that should run. If this is higher
+// than the bot version in this file, then the cronjob shuts off so some other
+// server can update it instead.
+const minGatherTownTrackerVersion = new DatabaseServerSetting<number>("gatherTownTrackerVersion", currentGatherTownTrackerVersion);
 
 if (isProduction && forumTypeSetting.get() === "LessWrong") {
-  addCronJob({
-    name: 'gatherTownGetUsers',
-    interval: "every 3 minutes",
-    job() {
-      void pollGatherTownUsers();
+  onStartup(() => {
+    if (currentGatherTownTrackerVersion >= minGatherTownTrackerVersion.get()) {
+      addCronJob({
+        name: 'gatherTownBot'+currentGatherTownTrackerVersion,
+        interval: "every 3 minutes",
+        job() {
+          void pollGatherTownUsers();
+        }
+      });
     }
   });
 }
 
 const pollGatherTownUsers = async () => {
+  if (currentGatherTownTrackerVersion < minGatherTownTrackerVersion.get()) {
+    removeCronJob("gatherTownBot");
+  }
+  
   const roomName = gatherTownRoomName.get();
   const roomId = gatherTownRoomId.get();
   if (!roomName || !roomId) return;
-  const gatherTownUsers = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
+  const result = await getGatherTownUsers(gatherTownRoomPassword.get(), roomId, roomName);
+  const {gatherTownUsers, checkFailed, failureReason} = result;
   // eslint-disable-next-line no-console
-  console.log(gatherTownUsers);
+  console.log(`GatherTown users: ${JSON.stringify(result)}`);
   void createMutator({
     collection: LWEvents,
     document: {
@@ -37,7 +56,8 @@ const pollGatherTownUsers = async () => {
       important: false,
       properties: {
         time: new Date(),
-        gatherTownUsers
+        trackerVersion: currentGatherTownTrackerVersion,
+        gatherTownUsers, checkFailed, failureReason
       }
     },
     validate: false,
@@ -46,8 +66,15 @@ const pollGatherTownUsers = async () => {
 Globals.pollGatherTownUsers = pollGatherTownUsers;
 
 type GatherTownPlayerInfo = any;
+interface GatherTownCheckResult {
+  gatherTownUsers: Record<string,GatherTownPlayerInfo>,
+  checkFailed: boolean,
+  failureReason: string|null,
+}
 
-const getGatherTownUsers = async (password: string|null, roomId: string, roomName: string): Promise<Record<string,GatherTownPlayerInfo>> => {
+const ignoredJsonMessages = ["message"];
+
+const getGatherTownUsers = async (password: string|null, roomId: string, roomName: string): Promise<GatherTownCheckResult> => {
   // Register new user to Firebase
   const authResponse = await fetch("https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCifrUkqu11lgjkz2jtp4Fx_GJh58HDlFQ", {
     "headers": {
@@ -64,6 +91,14 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "body": "{\"returnSecureToken\":true}",
     "method": "POST"
   });
+  
+  if (!authResponse.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during OAuth signin step 1: "+authResponse.status,
+    }
+  }
 
   const parsedResponse = await authResponse.json();
   const token = parsedResponse.idToken;
@@ -88,12 +123,20 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "method": "POST",
   });
 
+  if (!userInformation.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during OAuth signin step 2: "+userInformation.status,
+    }
+  }
+
   const parsedUserInformation = await userInformation.json()
 
   const localId = parsedUserInformation.users[0].localId
 
   // Register user to Gather Town
-  await fetch(`https://gather.town/api/registerUser?roomId=${roomId}%5C${roomName}&authToken=${token}`, {
+  const registerUserResponse = await fetch(`https://gather.town/api/registerUser?roomId=${roomId}%5C${roomName}&authToken=${token}`, {
     "headers": {
       "accept": "application/json, text/plain, */*",
       "accept-language": "en-US,en;q=0.9,de-DE;q=0.8,de;q=0.7",
@@ -106,6 +149,15 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "body": undefined,
     "method": "GET",
   });
+  
+  if (!registerUserResponse.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during registerUser step: "+registerUserResponse.status,
+    }
+  }
+
 
   // Enter password
   await fetch("https://gather.town/api/submitPassword", {
@@ -122,14 +174,45 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
     "body": `{"roomId":"${roomId}\\\\${roomName}","password":"${password}","authUser":"${localId}"}`,
     "method": "POST"
   });
+  // Response NOT checked, because we removed the password and that makes this fail, but that's actually ok
 
+  // Find out what websocket server we're supposed to connect to
+  const getGameServerResponse = await fetch("https://gather.town/api/getGameServer", {
+    "headers": {
+      "accept": "application/json, text/plain, */*",
+      "accept-language": "en-US,en;q=0.9,de-DE;q=0.8,de;q=0.7",
+      "cache-control": "no-cache",
+      "content-type": "application/json;charset=UTF-8",
+      "pragma": "no-cache",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+    },
+    "body": `{"room":"${roomId}\\\\${roomName}"}`,
+    method: "POST",
+  });
+  if (!getGameServerResponse.ok) {
+    return {
+      gatherTownUsers: [],
+      checkFailed: true,
+      failureReason: "Error during getGameServer step: "+registerUserResponse.status,
+    }
+  }
+  const websocketServerUrl = await getGameServerResponse.text();
+  
   // Create WebSocket connection.
-  const socket = new WebSocket(`wss://${gatherTownWebsocketServer.get()}`);
+  let socketConnectedSuccessfully = false;
+  let socketReceivedAnyMessage = false;
+  let reloadRequested = false;
+  // eslint-disable-next-line no-console
+  console.log(`Connecting to websocket server ${websocketServerUrl}`);
+  const socket = new WebSocket(websocketServerUrl);
   socket.on('open', function (data) {
+    socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
       event: "init",
       token: token,
-      version: 3,
+      version: Math.floor(currentGatherTownTrackerVersion),
     });
   });
 
@@ -137,6 +220,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   let playerInfoByName: Record<string,GatherTownPlayerInfo> = {};
 
   socket.on('message', function (data: any) {
+    socketReceivedAnyMessage = true;
     const firstByte: any = data.readUInt8(0);
     if (firstByte === 0) {
       // A JSON message
@@ -151,6 +235,15 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
               space: `${roomId}\\${roomName}`
             }
           });
+        } else {
+          if (jsonResponse.event === "reload") {
+            reloadRequested = true;
+          } else if (ignoredJsonMessages.indexOf(jsonResponse.event) >= 0) {
+            // Ignore this message
+          } else {
+            // eslint-disable-next-line no-console
+            console.log(`Unrecognized message type: ${jsonResponse.event}`);
+          }
         }
       }
     } else if (firstByte === 1) {
@@ -162,8 +255,6 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
           playerInfoByName[player.name] = player;
         }
       }
-    } else {
-      // Unrecognized message type
     }
   });
 
@@ -171,8 +262,32 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   await wait(3000);
 
   socket.close();
-  const playerNames = _.values(playerNamesById);
-  return toDictionary(playerNames, name=>name, name=>playerInfoByName[name]);
+  if (reloadRequested) {
+    return {
+      checkFailed: true,
+      gatherTownUsers: [],
+      failureReason: "Version number mismatch",
+    };
+  } else if (socketConnectedSuccessfully && socketReceivedAnyMessage) {
+    const playerNames = _.values(playerNamesById);
+    return {
+      checkFailed: false,
+      gatherTownUsers: toDictionary(playerNames, name=>name, name=>playerInfoByName[name]),
+      failureReason: null,
+    };
+  } else if (socketConnectedSuccessfully) {
+    return {
+      checkFailed: true,
+      gatherTownUsers: [],
+      failureReason: "WebSocket connected but did not receive any messages (check gatherTownWebsocketServer setting)",
+    };
+  } else {
+    return {
+      checkFailed: true,
+      gatherTownUsers: [],
+      failureReason: "Websocket connection failed",
+    };
+  }
 }
 
 function stringToArrayBuffer(string) {
@@ -208,12 +323,13 @@ function isJson(str: string): boolean {
   return true;
 }
 
-const playerMessageHeaderLen = 29;
-const mapNameOffset = 17
-const playerNameOffset = 19
-const playerStatusOffset = 23
-const playerIconOffset = 25
-const playerIdOffset = 27;
+const playerMessageHeaderLen = 32;
+const mapNameOffset = 18
+const playerNameOffset = 20
+const playerStatusOffset = 24
+const playerIconOffset = 26
+const unknownStringFieldOffset = 28;
+const playerIdOffset = 30
 
 // Decoded using echo AS...<rest of base64 message> | base64 -d | hexdump -C
 
@@ -236,28 +352,34 @@ function interpretBinaryMessage(data: any): {players: {map: string, name: string
   while (pos < buf.length) {
     const messageType = buf.readUInt8(pos);
     if (messageType === 0) {
+      // eslint-disable-next-line no-console
+      console.log("Parsing players-list message");
       const mapNameLen = buf.readUInt8(pos+mapNameOffset);
       const playerNameLen = buf.readUInt8(pos+playerNameOffset);
       const playerStatusLen = buf.readUInt8(pos+playerStatusOffset)
       const playerIconLen = buf.readUInt8(pos+playerIconOffset);
+      const unknownStringFieldLen = buf.readUInt8(pos+unknownStringFieldOffset);
       const playerIdLen = buf.readUInt8(pos+playerIdOffset);
       
       const mapNameStart = pos+playerMessageHeaderLen;
       const playerNameStart = mapNameStart+mapNameLen;
       const playerStatusStart = playerNameStart+playerNameLen;
       const playerIconStart = playerStatusStart+playerIconLen;
-      const playerIdStart = playerIconStart+playerStatusLen;
+      const unknownStringFieldStart = playerIconStart+unknownStringFieldLen;
+      const playerIdStart = unknownStringFieldStart+playerStatusLen;
       
       const mapName = buf.slice(mapNameStart, mapNameStart+mapNameLen).toString("utf8");
       const playerName = buf.slice(playerNameStart, playerNameStart+playerNameLen).toString("utf8");
       const playerstatus = buf.slice(playerStatusStart, playerStatusStart+playerStatusLen).toString("utf8");
+      const unknownField = buf.slice(unknownStringFieldStart, unknownStringFieldStart+unknownStringFieldLen).toString("utf8");
       const playerId = buf.slice(playerIdStart, playerIdStart+playerIdLen).toString("utf8");
       
       players.push({
         map: mapName,
         name: playerName,
         id: playerId,
-        status: playerstatus
+        status: playerstatus,
+        unknownField,
       });
       
       pos = playerIdStart+playerIdLen;

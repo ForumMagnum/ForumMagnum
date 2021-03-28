@@ -1,6 +1,6 @@
 import Users from '../../lib/collections/users/collection';
 import { Vulcan, updateMutator, getCollection, Utils } from '../vulcan-lib';
-import { Revisions } from '../../lib/index';
+import { Revisions } from '../../lib/collections/revisions/collection';
 import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { Votes } from '../../lib/collections/votes/index';
@@ -55,17 +55,17 @@ const transferEditableField = async ({documentId, targetUserId, collection, fiel
     validate: false
   })
   // Update the revisions themselves
-  Revisions.update({ documentId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
+  await Revisions.update({ documentId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
 }
 
-const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}: {sourceUserId: string, targetUserId: string, postId: string}) => {
-  const sourceUserStatus = ReadStatuses.findOne({userId: sourceUserId, postId})
-  const targetUserStatus = ReadStatuses.findOne({userId: targetUserId, postId})
+const mergeReadStatusForPost = async ({sourceUserId, targetUserId, postId}: {sourceUserId: string, targetUserId: string, postId: string}) => {
+  const sourceUserStatus = await ReadStatuses.findOne({userId: sourceUserId, postId})
+  const targetUserStatus = await ReadStatuses.findOne({userId: targetUserId, postId})
   const sourceMostRecentlyUpdated = (sourceUserStatus && targetUserStatus) ? (new Date(sourceUserStatus.lastUpdated) > new Date(targetUserStatus.lastUpdated)) : !!sourceUserStatus
   const readStatus = sourceMostRecentlyUpdated ? sourceUserStatus?.isRead : targetUserStatus?.isRead
   const lastUpdated = sourceMostRecentlyUpdated ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
   if (targetUserStatus) {
-    ReadStatuses.update({_id: targetUserStatus._id}, {$set: {isRead: readStatus, lastUpdated}})
+    await ReadStatuses.update({_id: targetUserStatus._id}, {$set: {isRead: readStatus, lastUpdated}})
   } else if (sourceUserStatus) {
     // eslint-disable-next-line no-unused-vars
     const {_id, ...sourceUserStatusWithoutId} = sourceUserStatus
@@ -74,8 +74,8 @@ const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}: {sourceUse
 }
 
 Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
-  const sourceUser = Users.findOne({_id: sourceUserId})
-  const targetUser = Users.findOne({_id: targetUserId})
+  const sourceUser = await Users.findOne({_id: sourceUserId})
+  const targetUser = await Users.findOne({_id: targetUserId})
   if (!sourceUser) throw Error(`Can't find sourceUser with Id: ${sourceUserId}`)
   if (!targetUser) throw Error(`Can't find targetUser with Id: ${targetUserId}`)
 
@@ -97,8 +97,8 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // Transfer readStatuses
   const readStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
   const readPostIds = readStatuses.map((status) => status.postId)
-  readPostIds.forEach((postId) => {
-    mergeReadStatusForPost({sourceUserId, targetUserId, postId})
+  await asyncForeachSequential(readPostIds, async (postId) => {
+    await mergeReadStatusForPost({sourceUserId, targetUserId, postId})
   })
 
   // Transfer sequences
@@ -137,7 +137,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // Change slug of source account by appending "old" and reset oldSlugs array
   // eslint-disable-next-line no-console
   console.log("Change slugs of source account")
-  await Users.update({_id: sourceUserId}, {slug: Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)})
+  await Users.update({_id: sourceUserId}, {slug: await Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)})
 
   // Add slug to oldSlugs array of target account
   const newOldSlugs = [

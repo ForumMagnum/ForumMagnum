@@ -1,14 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useMutation, gql } from '@apollo/client';
 import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
 import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
-import { algoliaIndexNames, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, getSearchClient } from '../../lib/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
@@ -128,7 +127,7 @@ const AddPostsToTag = ({classes, tag}: {
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch
-        indexName={algoliaIndexNames.Posts}
+        indexName={getAlgoliaIndexName("Posts")}
         searchClient={getSearchClient()}
       > 
         <div className={classes.searchHeader}>

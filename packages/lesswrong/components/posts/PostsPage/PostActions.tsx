@@ -161,6 +161,7 @@ const PostActions = ({post, closeMenu, classes}: {
         post
       }
     });
+    closeMenu();
   }
 
   const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components

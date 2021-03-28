@@ -1,42 +1,28 @@
-/*
-
-Default mutations
-
-*/
-
 import { Utils, getTypeName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 
 export interface MutationOptions<T extends DbObject> {
-  create?: boolean
-  update?: boolean
-  upsert?: boolean
-  delete?: boolean
-  
-  newCheck?: (user: DbUser|null, docment: T|null) => boolean|Promise<boolean>
-  editCheck?: (user: DbUser|null, docment: T|null) => boolean|Promise<boolean>
-  removeCheck?: (user: DbUser|null, docment: T|null) => boolean|Promise<boolean>
+  newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
+  editCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
+  removeCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
+  create?: boolean,
+  update?: boolean,
+  upsert?: boolean,
+  delete?: boolean,
 }
-const defaultOptions = { create: true, update: true, upsert: true, delete: true };
 
-/**
- * Safe getter
- * Must returns null if the document is absent (eg in case of validation failure)
- * @param {*} mutation
- * @param {*} mutationName
- */
+const defaultOptions = { create: true, update: true, upsert: true, delete: true };
 
 const getCreateMutationName = (typeName: string): string => `create${typeName}`;
 const getUpdateMutationName = (typeName: string): string => `update${typeName}`;
 const getDeleteMutationName = (typeName: string): string => `delete${typeName}`;
 const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
-
 export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
   type T = ObjectsByCollectionName[N];
   const typeName = getTypeName(collectionName);
-  const mutationOptions: MutationOptions<T> = { ...defaultOptions, ...options };
+  const mutationOptions: MutationOptions<T> = {...defaultOptions, ...options};
 
   const mutations: any = {};
 
@@ -50,7 +36,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       name: mutationName,
 
       // check function called on a user to see if they can perform the operation
-      async check(user: DbUser|null, document: T|null) {
+      async check(user: DbUser|null, document: T|null): Promise<boolean> {
         // OpenCRUD backwards compatibility
         const check = mutationOptions.newCheck;
         if (check) {
@@ -64,7 +50,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         ]);
       },
 
-      async mutation(root, { data }, context: ResolverContext) {
+      async mutation(root: void, { data }, context: ResolverContext) {
         const collection = context[collectionName];
 
         // check if current user can pass check function; else throw error
@@ -127,7 +113,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           ]);
       },
 
-      async mutation(root, { selector, data }, context: ResolverContext) {
+      async mutation(root: void, { selector, data }, context: ResolverContext) {
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {
@@ -180,7 +166,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       description: `Mutation for upserting a ${typeName} document`,
       name: mutationName,
 
-      async mutation(root, { selector, data }, context) {
+      async mutation(root: void, { selector, data }, context: ResolverContext) {
         const collection = context[collectionName];
 
         // check if document exists already
@@ -229,7 +215,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           ]);
       },
 
-      async mutation(root, { selector }, context: ResolverContext) {
+      async mutation(root: void, { selector }, context: ResolverContext) {
         const collection = context[collectionName];
 
         if (isEmpty(selector)) {

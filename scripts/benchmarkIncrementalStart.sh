@@ -23,13 +23,17 @@ END
 # Time how long until we get a successful page refresh
 time (
   # Delay to make sure the server has noticed the change
-  sleep 8
+  # This is necessary under Meteor, which will keep routing requests to the old
+  # version for a little while after the change has happened. Make sure this
+  # minimum delay is shorter than the actual incremental reload time, but
+  # long enough to avoid this issue.
+  sleep 5
   # Retry until successful. The request that eventually succeeds will be a long
   # one (it gets picked up by meteor's proxy and held idle while compilation
   # happens), so the delay between retries doesn't matter.
   while ! curl --silent --show-error --user-agent "$user_agent" -o tmp/localFrontPage http://localhost:3000/
   do
-    sleep 2
+    sleep 0.5
   done
 )
 

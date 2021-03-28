@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from './hooks/useUpdateCurrentUser';
 import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
@@ -21,6 +20,7 @@ import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { globalStyles } from '../lib/globalStyles';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
@@ -36,7 +36,7 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaSequencesHome'],
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -82,6 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: "white",
   },
   '@global': {
+    ...globalStyles(theme),
     p: pBodyStyle,
     '.mapboxgl-popup': {
       willChange: 'auto !important',
@@ -267,7 +268,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
-              <CssBaseline />
               <Helmet>
                 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>

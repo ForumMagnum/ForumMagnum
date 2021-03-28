@@ -1,39 +1,43 @@
-/*
-
-Generic mutation wrapper to remove a document from a collection.
-
-Sample mutation:
-
-  mutation deleteMovie($input: DeleteMovieInput) {
-    deleteMovie(input: $input) {
-      data {
-        _id
-        name
-        __typename
-      }
-      __typename
-    }
-  }
-
-Arguments:
-
-  - input
-    - input.selector: the id of the document to remove
-
-Child Props:
-
-  - deleteMovie({ selector })
-
-*/
-
 import React from 'react';
-import gql from 'graphql-tag';
-import { deleteClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
 import { updateCacheAfterDelete } from './cacheUpdates';
 import { getExtraVariables } from './utils'
+import { gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 
+// Delete mutation query used on the client. Eg:
+//
+// mutation deleteMovie($selector: MovieSelectorUniqueInput!) {
+//   deleteMovie(selector: $selector) {
+//     data {
+//       _id
+//       name
+//       __typename
+//     }
+//     __typename
+//   }
+// }
+const deleteClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
+  typeName: string,
+  fragmentName: string,
+  extraVariablesString?: string,
+}) =>
+`mutation delete${typeName}($selector: ${typeName}SelectorUniqueInput!, ${extraVariablesString || ''}) {
+  delete${typeName}(selector: $selector) {
+    data {
+      ...${fragmentName}
+    }
+  }
+}`;
+
+// Generic mutation wrapper to remove a document from a collection.
+//
+// Arguments:
+//   - input
+//     - input.selector: the id of the document to remove
+// Child Props:
+//   - deleteMovie({ selector })
 export const withDelete = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);

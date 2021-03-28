@@ -6,6 +6,7 @@ import Messages from "../../lib/collections/messages/collection";
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -47,7 +48,15 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     fragmentName: 'conversationsListFragment',
   });
   const loading = loadingMessages || loadingConversation;
-  
+
+  const { query } = useLocation()
+
+  const { document: template, loading: loadingTemplate } = useSingle({
+    documentId: query.templateCommentId,
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+  });
+
   const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
   
   const renderMessages = () => {
@@ -59,7 +68,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     </div>
   }
 
-  if (loading) return <Loading />
+  if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
   if (!conversation) return <Error404 />
 
   return (
@@ -74,7 +83,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
         <div className={classes.editor}>
           <WrappedSmartForm
             collection={Messages}
-            prefilledProps={ {conversationId: conversation._id} }
+            prefilledProps={ {conversationId: conversation._id, contents: { ckEditorMarkup: template?.contents?.html}}}
             mutationFragment={getFragment("messageListFragment")}
             errorCallback={(message: any) => {
               //eslint-disable-next-line no-console

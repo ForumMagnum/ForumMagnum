@@ -5,14 +5,14 @@ import { useHover } from '../common/withHover';
 const EventVicinity = ({post}: {
   post: PostsBase
 }) => {
-  const { eventHandlers, hover, anchorEl, stopHover } = useHover();
+  const { eventHandlers, hover, anchorEl } = useHover();
   const { LWPopper } = Components
   if (post.googleLocation && post.googleLocation.vicinity) {
     return <span {...eventHandlers}>
       <LWPopper 
         open={hover}
         anchorEl={anchorEl}
-        onMouseEnter={stopHover}
+        clickable={false}
         placement="top"
         tooltip
       >

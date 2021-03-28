@@ -5,6 +5,19 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import * as _ from 'underscore';
 
+const styles = (theme: ThemeType): JssStyles => ({
+  editor: {
+    "& .ais-InstantSearch__root": {
+      margin: "20px 0",
+    },
+    "& .posts-list-editor-item": {
+      listStyle: "none",
+      position: "relative",
+      padding: 5,
+      cursor: "pointer",
+    },
+  },
+});
 
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
@@ -88,7 +101,8 @@ class PostsListEditor extends Component<any,any> {
   }
 
   render() {
-    return <div className="posts-list-editor">
+    const { classes } = this.props;
+    return <div className={classes.editor}>
       <SortableList
         items={this.state.postIds}
         onSortEnd={this.onSortEnd}
@@ -111,6 +125,7 @@ class PostsListEditor extends Component<any,any> {
 // TODO: Does not work in nested contexts because it doesn't use the
 // vulcan-forms APIs correctly.
 const PostsListEditorComponent = registerComponent("PostsListEditor", PostsListEditor, {
+  styles,
   hocs: [withUser]
 });
 

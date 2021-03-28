@@ -2,12 +2,16 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const ChaptersList = ({terms, canEdit}: {
-  terms: ChaptersViewTerms,
+const ChaptersList = ({sequenceId, canEdit}: {
+  sequenceId: string,
   canEdit: boolean,
 }) => {
   const { results, loading } = useMulti({
-    terms,
+    terms: {
+      view: "SequenceChapters",
+      sequenceId,
+      limit: 100
+    },
     collectionName: "Chapters",
     fragmentName: 'ChaptersFragment',
     enableTotal: false,

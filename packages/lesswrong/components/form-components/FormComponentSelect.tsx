@@ -23,4 +23,3 @@ declare global {
     FormComponentSelect: typeof FormComponentSelectComponent
   }
 }
-

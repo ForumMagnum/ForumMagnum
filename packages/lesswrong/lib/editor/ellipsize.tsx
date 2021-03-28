@@ -31,11 +31,12 @@ export const truncate = (html: string|null|undefined, truncateLength: number, tr
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
-  return truncatise(htmlRemovedStyles, {
+  const truncatedHtml = truncatise(htmlRemovedStyles, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: newTruncateBy,
-    Suffix: `${newSuffix} ${styles}`,
+    Suffix: `${newSuffix}`,
   });
+  return styles + truncatedHtml;
 }
 
 export function getTruncationCharCount (comment, currentUser?: UsersCurrent|null, postPage?: boolean) {

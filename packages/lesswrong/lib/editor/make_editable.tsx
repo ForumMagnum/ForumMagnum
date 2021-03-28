@@ -16,15 +16,40 @@ export const RevisionStorageType = new SimpleSchema({
   wordCount: {type: SimpleSchema.Integer, optional: true, denormalized: true}
 })
 
-SimpleSchema.extendOptions([ 'inputType' ]);
+export interface MakeEditableOptions {
+  commentEditor?: boolean,
+  commentStyles?: boolean,
+  commentLocalStorage?: boolean,
+  getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
+  formGroup?: any,
+  permissions?: {
+    viewableBy?: any,
+    editableBy?: any,
+    insertableBy?: any,
+  },
+  fieldName?: string,
+  order?: number,
+  hideControls?: boolean,
+  hintText?: any,
+  pingbacks?: boolean,
+  revisionsHaveCommitMessages?: boolean,
+}
 
-const defaultOptions = {
+const defaultOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: false,
   // Determines whether to use the comment editor styles (e.g. Fonts)
   commentStyles: false,
   // Determines whether to use the comment local storage restoration system
   commentLocalStorage: false,
+  // Given a document and a field name, return:
+  // {
+  //   id: The name to use for storing drafts related to this document in
+  //     localStorage. This may be combined with an editor-type prefix.
+  //   verify: Whether to prompt before restoring a draft (as opposed to just
+  //     always restoring it).
+  // }
+  getLocalStorageId: null,
   permissions: {
     viewableBy: ['guests'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
@@ -45,17 +70,21 @@ const defaultOptions = {
 
 export const editableCollections = new Set<CollectionNameString>()
 export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
-export const editableCollectionsFieldOptions: Record<CollectionNameString,any> = {} as any;
+export const editableCollectionsFieldOptions: Record<CollectionNameString,MakeEditableOptions> = {} as any;
+let editableFieldsSealed = false;
+export function sealEditableFields() { editableFieldsSealed=true }
 
 export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
-  options: any,
+  options: MakeEditableOptions,
 }) => {
+  if (editableFieldsSealed)
+    throw new Error("Called makeEditable after addAllEditableCallbacks already ran; this indicates a problem with import order");
+  
   options = {...defaultOptions, ...options}
   const {
     commentEditor,
     commentStyles,
-    getLocalStorageId,
     formGroup,
     permissions,
     fieldName,
@@ -67,6 +96,17 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   } = options
 
   const collectionName = collection.options.collectionName;
+  const getLocalStorageId = options.getLocalStorageId || ((doc: any, name: string): {id: string, verify: boolean} => {
+    const { _id, conversationId } = doc
+    if (_id && name) { return {id: `${_id}${name}`, verify: true}}
+    else if (_id) { return {id: _id, verify: true }}
+    else if (conversationId) { return {id: conversationId, verify: true }}
+    else if (name) { return {id: `${collectionName}_new_${name}`, verify: true }}
+    else {
+      throw Error(`Can't get storage ID for this document: ${doc}`)
+    }
+  });
+  
   editableCollections.add(collectionName)
   editableCollectionsFields[collectionName] = [
     ...(editableCollectionsFields[collectionName] || []),
@@ -74,13 +114,16 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   ]
   editableCollectionsFieldOptions[collectionName] = {
     ...editableCollectionsFieldOptions[collectionName],
-    [fieldName || "contents"]: options,
+    [fieldName || "contents"]: {
+      ...options,
+      fieldName: fieldName||"contents",
+      getLocalStorageId
+    },
   };
 
   addFieldsDict(collection, {
     [fieldName || "contents"]: {
       type: RevisionStorageType,
-      inputType: 'UpdateRevisionDataInput',
       optional: true,
       typescriptType: "EditableFieldContents",
       group: formGroup,
@@ -121,7 +164,6 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         commentEditor,
         commentStyles,
         hideControls,
-        getLocalStorageId
       },
     },
     

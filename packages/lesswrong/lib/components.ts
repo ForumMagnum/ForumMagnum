@@ -1,8 +1,7 @@
 import '../components/alignment-forum/withSetAlignmentPost';
 import '../components/posts/PostsPage';
 import '../components/posts/TableOfContents';
-// vulcan:accounts
-import '../components/vulcan-accounts';
+
 import '../components/vulcan-core/vulcan-core-components';
 import { forumTypeSetting } from './instanceSettings';
 // vulcan:forms
@@ -78,7 +77,6 @@ importComponent("NoContent", () => require('../components/common/NoContent'));
 importComponent("SearchBar", () => require('../components/common/SearchBar'));
 importComponent("DialogGroup", () => require('../components/common/DialogGroup'));
 importComponent("Divider", () => require('../components/common/Divider'));
-importComponent("HoverOver", () => require('../components/common/HoverOver'));
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary'));
 importComponent("ErrorMessage", () => require('../components/common/ErrorMessage'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage'));
@@ -113,6 +111,7 @@ importComponent("TabNavigationCompressedItem", () => require('../components/comm
 importComponent("TabNavigationSubItem", () => require('../components/common/TabNavigationMenu/TabNavigationSubItem'));
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
+importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
@@ -123,11 +122,9 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "MetaculusPreview", "ArbitalPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
-importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail'));
-importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
@@ -148,13 +145,13 @@ importComponent("LoginPopupButton", () => require('../components/users/LoginPopu
 importComponent("LoginPopup", () => require('../components/users/LoginPopup'));
 importComponent("KarmaChangeNotifier", () => require('../components/users/KarmaChangeNotifier'));
 importComponent("KarmaChangeNotifierSettings", () => require('../components/users/KarmaChangeNotifierSettings'));
-importComponent("AccountsResetPassword", () => require('../components/users/AccountsResetPassword'));
 importComponent("EmailTokenPage", () => require('../components/users/EmailTokenPage'));
 importComponent("EmailTokenResult", () => require('../components/users/EmailTokenResult'));
 importComponent("SignupSubscribeToCurated", () => require('../components/users/SignupSubscribeToCurated'));
 importComponent("UserNameDeleted", () => require('../components/users/UserNameDeleted'));
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
+importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
@@ -352,8 +349,8 @@ importComponent("SearchPage", () => require('../components/search/SearchPage'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
-importComponent("AdminHome", () => require('../components/sunshineDashboard/AdminHome'));
-importComponent("AdminMetadata", () => require('../components/sunshineDashboard/AdminMetadata'));
+importComponent("AdminHome", () => require('../components/admin/AdminHome'));
+importComponent("AdminMetadata", () => require('../components/admin/AdminMetadata'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog'));
 importComponent("ReportForm", () => require('../components/sunshineDashboard/ReportForm'));
 importComponent("SunshineCommentsItemOverview", () => require('../components/sunshineDashboard/SunshineCommentsItemOverview'));
@@ -562,8 +559,6 @@ importComponent("FormComponentTextarea", () => require('../components/vulcan-ui-
 importComponent("FormComponentUrl", () => require('../components/vulcan-ui-bootstrap/forms/Url'));
 importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Alert'));
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
-importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal'));
-importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger'));
 
 // Review Book related components
 importComponent("BookLanding", () => require('../components/books/BookLanding'));

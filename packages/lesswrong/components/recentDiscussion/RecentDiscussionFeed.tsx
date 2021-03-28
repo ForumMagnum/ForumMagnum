@@ -72,24 +72,24 @@ const RecentDiscussionFeed = ({
         renderers={{
           postCommented: {
             fragmentName: "PostsRecentDiscussion",
-            render: (post: PostsRecentDiscussion) => <div>
+            render: (post: PostsRecentDiscussion) => (
               <RecentDiscussionThread
                 post={post}
                 refetch={refetch}
                 comments={post.recentComments}
                 expandAllThreads={expandAll}
               />
-            </div>
+            )
           },
           tagDiscussed: {
             fragmentName: "TagRecentDiscussion",
-            render: (tag: TagRecentDiscussion) => <div>
+            render: (tag: TagRecentDiscussion) => (
               <RecentDiscussionTag
                 tag={tag}
                 comments={tag.recentComments}
                 expandAllThreads={expandAll}
               />
-            </div>
+            )
           },
           tagRevised: {
             fragmentName: "RevisionTagFragment",

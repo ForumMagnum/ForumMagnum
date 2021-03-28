@@ -203,22 +203,20 @@ addFieldsDict(Comments, {
   },
 });
 
-export const makeEditableOptions = {
-  // Determines whether to use the comment editor configuration (e.g. Toolbars)
-  commentEditor: true,
-  // Determines whether to use the comment editor styles (e.g. Fonts)
-  commentStyles: true,
-  // Sets the algorithm for determing what storage ids to use for local storage management
-  getLocalStorageId: (comment, name) => {
-    if (comment._id) { return {id: comment._id, verify: true} }
-    if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
-    return {id: ('post:' + comment.postId), verify: false}
-  },
-  order: 25
-}
-
 makeEditable({
   collection: Comments,
-  options: makeEditableOptions
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    // Sets the algorithm for determing what storage ids to use for local storage management
+    getLocalStorageId: (comment, name) => {
+      if (comment._id) { return {id: comment._id, verify: true} }
+      if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
+      return {id: ('post:' + comment.postId), verify: false}
+    },
+    order: 25
+  }
 })
 

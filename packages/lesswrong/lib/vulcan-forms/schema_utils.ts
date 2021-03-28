@@ -8,21 +8,21 @@ import * as _ from 'underscore';
 
 /* getters */
 // filter out fields with "." or "$"
-export const getValidFields = schema => {
+export const getValidFields = <T extends DbObject>(schema: SchemaType<T>) => {
   return Object.keys(schema).filter(fieldName => !fieldName.includes('$') && !fieldName.includes('.'));
 };
 
-export const getReadableFields = schema => {
+export const getReadableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
   return getValidFields(schema).filter(fieldName => schema[fieldName].canRead || schema[fieldName].viewableBy);
 };
 
-export const getCreateableFields = schema => {
+export const getCreateableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
   return getValidFields(schema).filter(fieldName => schema[fieldName].canCreate || schema[fieldName].insertableBy);
 };
 
-export const getUpdateableFields = schema => {
+export const getUpdateableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
   return getValidFields(schema).filter(fieldName => schema[fieldName].canUpdate || schema[fieldName].editableBy);
 };
@@ -34,7 +34,7 @@ export const getUpdateableFields = schema => {
  * Get an array of all fields editable by a specific user for a given collection
  * @param {Object} user – the user for which to check field permissions
  */
-export const getInsertableFields = function(schema, user): Array<string> {
+export const getInsertableFields = function<T extends DbObject>(schema: SchemaType<T>, user: UsersCurrent|null): Array<string> {
   const fields: Array<string> = _filter(_keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     return userCanCreateField(user, field);
@@ -47,7 +47,7 @@ export const getInsertableFields = function(schema, user): Array<string> {
  * Get an array of all fields editable by a specific user for a given collection (and optionally document)
  * @param {Object} user – the user for which to check field permissions
  */
-export const getEditableFields = function(schema, user, document): Array<string> {
+export const getEditableFields = function<T extends DbObject>(schema: SchemaType<T>, user: UsersCurrent|null, document): Array<string> {
   const fields = _.filter(_.keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     return userCanUpdateField(user, field, document);
@@ -61,7 +61,7 @@ Convert a nested SimpleSchema schema into a JSON object
 If flatten = true, will create a flat object instead of nested tree
 
 */
-export const convertSchema = (schema, flatten = false) => {
+export const convertSchema = <T extends DbObject>(schema: SimpleSchemaType<T>, flatten = false) => {
   if (schema._schema) {
     let jsonSchema = {};
 
@@ -106,7 +106,7 @@ export const convertSchema = (schema, flatten = false) => {
 Get a JSON object representing a field's schema
 
 */
-export const getFieldSchema = (fieldName, schema) => {
+export const getFieldSchema = <T extends DbObject>(fieldName: string, schema: SimpleSchemaType<T>) => {
   let fieldSchema = {};
   schemaProperties.forEach(property => {
     const propertyValue = schema.get(fieldName, property);
@@ -121,7 +121,7 @@ export const getFieldSchema = (fieldName, schema) => {
 // right now we support only fields with one type
 export const getSchemaType = schema => schema.type.definitions[0].type;
 
-const getArrayNestedSchema = (fieldName, schema) => {
+const getArrayNestedSchema = <T extends DbObject>(fieldName: keyof T, schema: SchemaType<T>) => {
   const arrayItemSchema = schema._schema[`${fieldName}.$`];
   const nestedSchema = arrayItemSchema && getSchemaType(arrayItemSchema);
   return nestedSchema;

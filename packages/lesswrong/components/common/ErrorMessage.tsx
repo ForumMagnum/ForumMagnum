@@ -16,7 +16,10 @@ const ErrorMessage = ({message, classes}: {
     className={classes.errorText}
     variant="body1"
   >
-    Error: {message}
+    {message.startsWith("Error:")
+      ? message
+      : `Error: ${message}`
+    }
   </Components.Typography>
 }
 

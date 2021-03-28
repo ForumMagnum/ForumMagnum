@@ -50,7 +50,6 @@ interface WithGlobalKeydownProps {
 interface WithHoverProps {
   hover: boolean,
   anchorEl: HTMLElement|null,
-  stopHover: ()=>void,
 }
 
 interface WithApolloProps {

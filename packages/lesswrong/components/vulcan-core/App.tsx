@@ -25,7 +25,6 @@ interface AppProps extends ExternalProps {
   
   // From withCurrentUser HoC
   currentUser: UsersCurrent
-  currentUserLoading: boolean
 }
 
 class App extends PureComponent<AppProps,any> {
@@ -142,10 +141,7 @@ class App extends PureComponent<AppProps,any> {
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
           <Components.Layout currentUser={currentUser} messages={messages}>
-            {this.props.currentUserLoading
-              ? <Components.Loading />
-              : <RouteComponent />
-            }
+            <RouteComponent />
           </Components.Layout>
         </MessageContext.Provider>
       </IntlProvider>
@@ -157,16 +153,12 @@ class App extends PureComponent<AppProps,any> {
   }
 }
 
-(App as any).propTypes = {
-  currentUserLoading: PropTypes.bool,
-};
-
 (App as any).childContextTypes = {
   intl: intlShape,
   getLocale: PropTypes.func,
 };
 
-//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
+//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent('App', App, {
   hocs: [

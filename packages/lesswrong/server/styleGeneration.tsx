@@ -4,19 +4,28 @@ import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/componen
 import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import * as _ from 'underscore';
+import filter from 'lodash/filter'
+import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
+import datetimeStyles from '../styles/datetimeStyles';
+import draftjsStyles from '../styles/draftjsStyles';
+import miscStyles from '../styles/miscStyles';
 
 const generateMergedStylesheet = (): string => {
   importAllComponents();
   
   const context: any = {};
-  const componentsWithStyles = _.filter(Object.keys(ComponentsTable),
-    componentName=>ComponentsTable[componentName].options?.styles);
+  
+  // Sort components by stylePriority, tiebroken by name (alphabetical)
+  const componentsWithStyles = filter(Object.keys(ComponentsTable),
+    componentName => ComponentsTable[componentName].options?.styles
+  ) as Array<string>;
+  const componentsWithStylesByName = sortBy(componentsWithStyles, n=>n);
+  const componentsWithStylesByPriority = sortBy(componentsWithStylesByName, (componentName: string) => ComponentsTable[componentName].options?.stylePriority || 0);
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
-    {componentsWithStyles.map(componentName => {
+    {componentsWithStylesByPriority.map((componentName: string) => {
       const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
     })}
@@ -24,8 +33,14 @@ const generateMergedStylesheet = (): string => {
   const WrappedTree = wrapWithMuiTheme(DummyTree, context);
   
   ReactDOM.renderToString(WrappedTree);
-  const stylesheet = context.sheetsRegistry.toString()
-  return stylesheet;
+  const jssStylesheet = context.sheetsRegistry.toString()
+  
+  return [
+    datetimeStyles,
+    draftjsStyles,
+    miscStyles,
+    jssStylesheet
+  ].join("\n");
 }
 
 let mergedStylesheet: string|null = null;

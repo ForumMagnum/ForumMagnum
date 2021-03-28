@@ -163,6 +163,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       "authorList info"
     `
   },
+  availabilityNotice: {
+    ...theme.typography.commentStyle,
+    height: 36,
+    fontSize: '0.83rem',
+    color: 'rgba(0,0,0,0.6)'
+  },
   mobileParagraph: {
     display: "none",
     padding: "0px 15px"
@@ -194,14 +200,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 36,
     fontSize: '1.2rem',
     marginLeft: 16,
-    marginRight: 16,
-    color: 'rgba(0,0,0,0.6)'
-  },
-  shippingNotice: {
-    ...theme.typography.commentStyle,
-    height: 36,
-    fontSize: '0.83rem',
-    marginTop: 7,
     marginRight: 16,
     color: 'rgba(0,0,0,0.6)'
   },
@@ -375,8 +373,8 @@ const BookLanding = ({classes}: {
                   Read the FAQ
                 </Link>
               </div>
-              <div className={classes.shippingNotice}>
-                (Orders placed today arrive after Christmas)
+              <div className={classes.availabilityNotice}>
+                (International orders temporarily out of stock.) 
               </div>
             </div>
           </div>

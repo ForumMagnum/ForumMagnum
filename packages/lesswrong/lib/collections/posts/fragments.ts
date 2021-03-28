@@ -23,6 +23,7 @@ registerFragment(`
     createdAt
     sticky
     metaSticky
+    stickyPriority
     status
     frontpageDate
     meta
@@ -100,6 +101,13 @@ registerFragment(`
     currentUserVote
   }
 `);
+
+registerFragment(`
+  fragment PostsListWithVotes on Post {
+    ...PostsList
+    currentUserVote
+  }
+`)
 
 
 registerFragment(`
@@ -388,6 +396,7 @@ registerFragment(`
       html
       htmlHighlight
       wordCount
+      version
     }
     
     user {

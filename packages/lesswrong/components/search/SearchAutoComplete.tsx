@@ -35,7 +35,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   classes: ClassesType,
   renderInputComponent?: any,
 }) => {
-  if (!isAlgoliaEnabled) {
+  if (!isAlgoliaEnabled()) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
     // to test other things.

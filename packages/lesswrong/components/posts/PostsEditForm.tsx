@@ -6,13 +6,7 @@ import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
-
-const styles = (theme: ThemeType): JssStyles => ({
-  formSubmit: {
-    display: "flex",
-    flexWrap: "wrap",
-  }
-})
+import { styles } from './PostsNewForm';
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
@@ -41,7 +35,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   }
 
   return (
-    <div className="posts-edit-form">
+    <div className={classes.postForm}>
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}

@@ -11,20 +11,22 @@ import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
-import { commentGetPageUrl } from '../lib/collections/comments/helpers'
-import { reasonUserCantReceiveEmails } from './emails/renderEmail';
+import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
+import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PrivateMessagesEmail';
 import { EventDebouncer, DebouncerTiming } from './debouncer';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
-import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching';
+import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
 import { isServer } from '../lib/executionEnvironment';
-import { Components, createMutator, updateMutator } from './vulcan-lib';
+import { Components } from '../lib/vulcan-lib/components';
+import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
+import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
@@ -116,7 +118,7 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
 }
 
 const createNotification = async (userId: string, notificationType: string, documentType, documentId) => {
-  let user = Users.findOne({ _id:userId });
+  let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
   const notificationTypeSettings = (userSettingField && user[userSettingField]) ? user[userSettingField] : defaultNotificationTypeSettings;
@@ -125,12 +127,10 @@ const createNotification = async (userId: string, notificationType: string, docu
     userId: userId,
     documentId: documentId,
     documentType: documentType,
-    message: notificationMessage(notificationType, documentType, documentId),
+    message: await notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
-    link: getLink(notificationType, documentType, documentId),
+    link: await getLink(notificationType, documentType, documentId),
   }
-
-  
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
   {
@@ -201,8 +201,8 @@ const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: str
   }
 }
 
-const getLink = (notificationType: string, documentType: string|null, documentId: string|null) => {
-  let document = getDocument(documentType, documentId);
+const getLink = async (notificationType: string, documentType: string|null, documentId: string|null) => {
+  let document = await getDocument(documentType, documentId);
 
   switch(notificationType) {
     case "emailVerificationRequired":
@@ -216,13 +216,13 @@ const getLink = (notificationType: string, documentType: string|null, documentId
     case "post":
       return postGetPageUrl(document as DbPost);
     case "comment":
-      return commentGetPageUrl(document as DbComment);
+      return await commentGetPageUrlFromDB(document as DbComment);
     case "user":
       return userGetProfileUrl(document as DbUser);
     case "message":
       return messageGetLink(document as DbMessage);
     case "tagRel":
-      const post = Posts.findOne({_id: (document as DbTagRel).postId})
+      const post = await Posts.findOne({_id: (document as DbTagRel).postId})
       return postGetPageUrl(post as DbPost);
     default:
       //eslint-disable-next-line no-console
@@ -230,25 +230,25 @@ const getLink = (notificationType: string, documentType: string|null, documentId
   }
 }
 
-const notificationMessage = (notificationType, documentType, documentId) => {
-  return getNotificationTypeByName(notificationType)
+const notificationMessage = async (notificationType, documentType, documentId) => {
+  return await getNotificationTypeByName(notificationType)
     .getMessage({documentType, documentId});
 }
 
-const getDocument = (documentType: string|null, documentId: string|null) => {
+const getDocument = async (documentType: string|null, documentId: string|null) => {
   if (!documentId) return null;
   
   switch(documentType) {
     case "post":
-      return Posts.findOne(documentId);
+      return await Posts.findOne(documentId);
     case "comment":
-      return Comments.findOne(documentId);
+      return await Comments.findOne(documentId);
     case "user":
-      return Users.findOne(documentId);
+      return await Users.findOne(documentId);
     case "message":
-      return Messages.findOne(documentId);
+      return await Messages.findOne(documentId);
     case "tagRel": 
-      return TagRels.findOne(documentId)
+      return await TagRels.findOne(documentId)
     default:
       //eslint-disable-next-line no-console
       console.error(`Invalid documentType type: ${documentType}`);
@@ -333,15 +333,15 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
     postNotifications.forEach(notification => removeNotification(notification._id))
     // delete tagRel notifications
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
-    tagRels.forEach(tagRel => {
-      const tagRelNotifications = Notifications.find({documentId: tagRel._id}).fetch()
+    await asyncForeachSequential(tagRels, async (tagRel) => {
+      const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
       tagRelNotifications.forEach(notification => removeNotification(notification._id))
     })
   }
 });
 
-function findUsersToEmail(filter) {
-  let usersMatchingFilter = Users.find(filter).fetch();
+async function findUsersToEmail(filter) {
+  let usersMatchingFilter = await Users.find(filter).fetch();
 
   let usersToEmail = usersMatchingFilter.filter(u => {
     if (u.email && u.emails && u.emails.length) {
@@ -374,7 +374,7 @@ const curationEmailDelay = new EventDebouncer<string,null>({
     if (post?.curatedDate) {
       // Email only non-admins (admins get emailed immediately, without the
       // delay).
-      let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
+      let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
       await sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
     } else {
       //eslint-disable-next-line no-console
@@ -388,7 +388,7 @@ getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email.
     
-    const adminsToEmail = findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
+    const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
     await sendPostByEmail(adminsToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
     
     await curationEmailDelay.recordEvent({
@@ -405,7 +405,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
     collectionName: "Tags",
     type: subscriptionTypes.newTagPosts
   })
-  const post = Posts.findOne({_id:tagRel.postId})
+  const post = await Posts.findOne({_id:tagRel.postId})
   if (post && postIsPublic(post)) {
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
@@ -427,7 +427,7 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
 
     // 1. Notify users who are subscribed to the parent comment
     if (comment.parentCommentId) {
-      const parentComment = Comments.findOne(comment.parentCommentId)
+      const parentComment = await Comments.findOne(comment.parentCommentId)
       if (parentComment) {
         const subscribedUsers = await getSubscribedUsers({
           documentId: comment.parentCommentId,
@@ -490,7 +490,7 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
 
 getCollectionHooks("Messages").newAsync.add(async function messageNewNotification(message: DbMessage) {
   const conversationId = message.conversationId;
-  const conversation = Conversations.findOne(conversationId);
+  const conversation = await Conversations.findOne(conversationId);
   if (!conversation) throw Error(`Can't find conversation for message: ${message}`)
   
   // For on-site notifications, notify everyone except the sender of the
@@ -524,7 +524,7 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
 });
 
 async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
-  return await Users.rawCollection().aggregate([
+  return await Users.aggregate([
     {
       "$geoNear": {
         "near": location, 

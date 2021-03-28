@@ -1,16 +1,14 @@
 import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { tagStyle } from './FooterTag';
+import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { curatedUrl } from '../recommendations/RecommendationsAndCurated'
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
@@ -40,6 +38,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 450,
     padding: 16,
     paddingBottom: 8
+  },
+  smallText: {
+    ...smallTagTextStyle(theme),
   }
 });
 
@@ -47,12 +48,11 @@ export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|
   return _.sortBy(list, item=>toTag(item)?.core);
 }
 
-const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFrontpage, smallText=false}: {
+const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   classes: ClassesType,
   hideScore?: boolean,
   hideAddTag?: boolean,
-  hidePersonalOrFrontpage?: boolean,
   smallText?: boolean
 
 }) => {
@@ -97,23 +97,44 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, hidePersonalOrFron
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
 
   const { Loading, FooterTag } = Components
-
-  let postType = <></>
-  if (!hidePersonalOrFrontpage) {
-    postType = post.curatedDate
-      ? <Link to={curatedUrl}>
-          <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].curated.tooltipBody}</Card>} tooltip={false}>
-            <div className={classes.frontpageOrPersonal}>Curated</div>
-          </LWTooltip>
-        </Link>
-      : post.frontpageDate
-        ? <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].frontpage.tooltipBody}</Card>} tooltip={false}>
-            <div className={classes.frontpageOrPersonal}>Frontpage</div>
-          </LWTooltip>
-        : <LWTooltip title={<Card className={classes.card}>{contentTypes[forumTypeSetting.get()].personal.tooltipBody}</Card>} tooltip={false}>
-            <div className={classNames(classes.tag, classes.frontpageOrPersonal)}>Personal Blog</div>
-          </LWTooltip>
+  
+  const MaybeLink = ({to, children}: {
+    to: string|null
+    children: React.ReactNode
+  }) => {
+    if (to) {
+      return <Link to={to}>{children}</Link>
+    } else {
+      return <>{children}</>;
+    }
   }
+  
+  const contentTypeInfo = contentTypes[forumTypeSetting.get()];
+
+  // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
+  // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
+  // have reviewedByUserId set to anything.
+  let postType = post.curatedDate
+    ? <Link to={contentTypeInfo.curated.linkTarget}>
+        <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.curated.tooltipBody}</Card>} tooltip={false}>
+          <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Curated</div>
+        </LWTooltip>
+      </Link>
+    : (post.frontpageDate
+      ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
+          <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.frontpage.tooltipBody}</Card>} tooltip={false}>
+            <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Frontpage</div>
+          </LWTooltip>
+        </MaybeLink>
+      : (post.reviewedByUserId
+        ? <MaybeLink to={contentTypeInfo.personal.linkTarget}>
+            <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.personal.tooltipBody}</Card>} tooltip={false}>
+              <div className={classNames(classes.tag, classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Personal Blog</div>
+            </LWTooltip>
+          </MaybeLink>
+        : null
+      )
+    )
 
   if (loading || !results) {
     return <div className={classes.root}>

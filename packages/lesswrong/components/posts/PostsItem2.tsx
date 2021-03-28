@@ -315,6 +315,7 @@ const PostsItem2 = ({
   dismissRecommendation,
   showBottomBorder=true,
   showQuestionTag=true,
+  showDraftTag=true,
   showIcons=true,
   showPostedAt=true,
   defaultToShowUnreadComments=false,
@@ -342,6 +343,7 @@ const PostsItem2 = ({
   dismissRecommendation?: any,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
+  showDraftTag?: boolean,
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -398,7 +400,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -431,13 +433,16 @@ const PostsItem2 = ({
             [classes.isRead]: isRead
           })}
         >
-          <PostsItemTooltipWrapper post={post}>
-            <div className={classes.withGrayHover}>
-
-              <div className={classNames(classes.postsItem, {
+          <PostsItemTooltipWrapper
+            post={post}
+            className={classNames(
+              classes.postsItem,
+              classes.withGrayHover, {
                 [classes.dense]: dense,
                 [classes.withRelevanceVoting]: !!tagRel
-              })}>
+              }
+            )}
+          >
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classes.karma}>
                   <PostsItemKarma post={post} />
@@ -455,6 +460,7 @@ const PostsItem2 = ({
                       read={isRead}
                       sticky={isSticky(post, terms)}
                       showQuestionTag={showQuestionTag}
+                      showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}
                     />
                   </AnalyticsTracker>
@@ -496,14 +502,13 @@ const PostsItem2 = ({
                   <PostsItemIcons post={post}/>
                 </div>}
 
-                {!resumeReading && <div className={classes.commentsIcon}>
-                  <PostsItemComments
-                    post={post}
-                    onClick={toggleComments}
-                    unreadComments={hasUnreadComments()}
-                    newPromotedComments={hasNewPromotedComments()}
-                  />
-                </div>}
+                {!resumeReading && <PostsItemComments
+                  post={post}
+                  onClick={toggleComments}
+                  unreadComments={hasUnreadComments()}
+                  newPromotedComments={hasNewPromotedComments()}
+                  className={classes.commentsIcon}
+                />}
 
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
@@ -513,10 +518,6 @@ const PostsItem2 = ({
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
-
-                {(post.nominationCount2019 >= 2) && (new Date() > new Date("2020-12-14")) && <Link to={postGetPageUrl(post)}>
-                  <ReviewPostButton post={post} year="2019"/>
-                </Link>}
 
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
@@ -535,10 +536,8 @@ const PostsItem2 = ({
                           || "sequences/vnyzzznenju0hzdv6pqb.jpg"
                       }`}
                     />
-                  </div>}
-
-              </div>
-            </div>
+                  </div>
+                }
           </PostsItemTooltipWrapper>
 
           {<div className={classes.actions}>

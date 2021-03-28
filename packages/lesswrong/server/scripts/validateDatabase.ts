@@ -1,6 +1,6 @@
 import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
-import { getSchema } from '../../lib/utils/getSchema';
+import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 
 // customValidators: Mapping from collection name to array of
 // {validatorName,validateBatch} tuples.
@@ -51,7 +51,7 @@ export async function validateCollection(collection)
     return;
   }
   
-  const validationContext = collection.simpleSchema();
+  const validationContext = getSimpleSchema(collection).newContext();
   
   // Dictionary field=>type=>count
   const errorsByField = {};

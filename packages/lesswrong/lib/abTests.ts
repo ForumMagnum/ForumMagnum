@@ -1,4 +1,5 @@
-import { ABTest } from './abTestImpl';
+import { ABTest, useABTest, useABTestProperties } from './abTestImpl';
+export { useABTest, useABTestProperties };
 
 // An A/B test which doesn't do anything (other than randomize you), for testing
 // the A/B test infrastructure.
@@ -15,23 +16,4 @@ export const noEffectABTest = new ABTest({
       weight: 2,
     },
   }
-});
-
-export const numPostsOnHomePage = new ABTest({
-  name: "numPostsOnHomePage",
-  description: "Number of Posts in Latest Posts Section of Home Page",
-  groups: {
-    "10": {
-      description: "Ten posts",
-      weight: 1,
-    },
-    "13": {
-      description: "Thirteen posts",
-      weight: 4,
-    },
-    "16": {
-      description: "Sixteen posts",
-      weight: 1,
-    },
-  },
 });

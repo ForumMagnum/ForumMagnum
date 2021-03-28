@@ -11,13 +11,11 @@ export const Collections: CollectionsCollection = createCollection({
   mutations: getDefaultMutations('Collections'),
 });
 
-export const makeEditableOptions = {
-  order: 20
-}
-
 makeEditable({
   collection: Collections,
-  options: makeEditableOptions
+  options: {
+    order: 20
+  }
 })
 addUniversalFields({collection: Collections})
 

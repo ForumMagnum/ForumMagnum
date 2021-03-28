@@ -44,7 +44,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   classes: ClassesType,
 }) => {
   const { LWPopper, ContentItemBody } = Components;
-  const {eventHandlers, hover, anchorEl, stopHover } = useHover();
+  const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
     documentId,
@@ -91,11 +91,11 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
     
   return <span {...eventHandlers} className={rootStyles}>
     <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        onMouseEnter={stopHover}
-        placement="bottom-start"
-      >
+      open={hover}
+      anchorEl={anchorEl}
+      clickable={false}
+      placement="bottom-start"
+    >
         {(["allPages", "userPages"].includes(itemType) || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">
           <Card className={classes.hoverCard}>
             <ContentItemBody

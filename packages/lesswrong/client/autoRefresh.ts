@@ -1,64 +1,63 @@
-import { onStartup, isClient } from '../lib/executionEnvironment';
-import { disconnectDdp, reconnectDdp } from '../lib/meteorDdp';
-import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
-import { Reload } from 'meteor/reload';
+import { onStartup } from '../lib/executionEnvironment';
 
-var disconnectTimer: any = null;
-
-// 60 seconds by default
-var disconnectTime = 60 * 1000;
-
-onStartup(disconnectIfHidden);
-
-document.addEventListener('visibilitychange', disconnectIfHidden);
-
-function disconnectIfHidden() {
-    removeDisconnectTimeout();
-
-    if (document.hidden) {
-      createDisconnectTimeout();
-    } else {
-      reconnectDdp();
-    }
+declare global {
+  var buildId: string; //Preprocessor-replaced with an ID in the bundle
 }
 
-function createDisconnectTimeout() {
-    removeDisconnectTimeout();
+// In development, make a websocket connection (on a different port) to get
+// notified when the server has restarted with a new version.
 
-    disconnectTimer = setTimeout(function () {
-        disconnectDdp();
-    }, disconnectTime);
-}
+const websocketPort = 3001;
+let connectedWebsocket: any = null;
 
-function removeDisconnectTimeout() {
-    if (disconnectTimer) {
-        clearTimeout(disconnectTimer);
-    }
-}
+function connectWebsocket() {
+  if (connectedWebsocket) return;
+  connectedWebsocket = new WebSocket(`ws://localhost:${websocketPort}`);
 
-function shouldAutoRefresh() {
-  const parsedUrl = parseRoute({
-    location: parsePath(window.location.pathname),
-  });
-  if (!parsedUrl?.currentRoute)
-    return true;
-  return !parsedUrl.currentRoute.disableAutoRefresh;
-}
-
-
-if (isClient) {
-  onStartup(() => {
-    Reload._onMigrate((retry) => {
-      // eslint-disable-next-line no-console
-      console.log("New version available");
-      if (shouldAutoRefresh()) {
-        // eslint-disable-next-line no-console
-        console.log("Refreshing to get new version");
-        return [true, {}];
+  connectedWebsocket.addEventListener("message", (event: MessageEvent) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.latestBuildId) {
+        if (data.latestBuildId !== buildId) {
+          // eslint-disable-next-line no-console
+          console.log(`There is a newer build (my build: ${buildId}; new build: ${data.latestBuildId}. Refreshing.`);
+          window.location.reload();
+        }
       } else {
         // eslint-disable-next-line no-console
-        console.log("Not refreshing");
-        return [false];
+        console.error("Websocket message is unrecognized");
+      }
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.error("Got invalid message on websocket", e);
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  });
+  connectedWebsocket.addEventListener("open", (event) => {
+  });
+  connectedWebsocket.addEventListener("error", (event) => {
+  });
+}
+
+function disconnectWebsocket() {
+  if (connectedWebsocket) {
+    connectedWebsocket.close();
+    connectedWebsocket = null;
+  }
+}
+
+if (!bundleIsProduction) {
+  onStartup(() => {
+    setTimeout(() => {
+      connectWebsocket();
+    }, 3000);
+    
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        disconnectWebsocket();
+      } else {
+        connectWebsocket();
       }
     });
   });

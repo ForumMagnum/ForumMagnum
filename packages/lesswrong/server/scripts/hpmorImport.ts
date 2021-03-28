@@ -2,10 +2,11 @@ import fs from 'fs';
 import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
 import { createMutator } from '../vulcan-lib';
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 const hpmorImport = false;
 
-if (hpmorImport) {
+if (hpmorImport) { void (async ()=>{
   let filepath = process.env["PWD"] + "/packages/lesswrong/assets/hpmor_data.json";
   let f = fs.readFileSync(filepath, 'utf8');
   //eslint-disable-next-line no-console
@@ -24,7 +25,7 @@ if (hpmorImport) {
   console.log(Object.keys(hpmor_data));
   //eslint-disable-next-line no-console
   console.log(hpmor_data.chapters[1]);
-  Object.keys(hpmor_data.chapters).forEach(chapterNumber => {
+  await asyncForeachSequential(Object.keys(hpmor_data.chapters), async (chapterNumber) => {
     var post = {
       title: "HPMOR Chapter: " + chapterNumber,
       userId: eliezerId,
@@ -37,8 +38,8 @@ if (hpmorImport) {
       },
     };
 
-    const lwUser = Users.findOne({_id: eliezerId});
-    const oldPost = Posts.findOne({title: post.title});
+    const lwUser = await Users.findOne({_id: eliezerId});
+    const oldPost = await Posts.findOne({title: post.title});
 
     if (!oldPost){
       void createMutator({
@@ -52,4 +53,4 @@ if (hpmorImport) {
       console.log("Post already imported: ", oldPost);
     }
   })
-}
+})() }

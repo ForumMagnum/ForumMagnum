@@ -10,26 +10,26 @@
  * @see https://github.com/apollographql/apollo-server/issues/420
  */
 
-import Sentry from '@sentry/node';
+import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { Accounts } from '../../../lib/meteorAccounts';
-import Cookies from 'universal-cookie';
 import { userIdentifiedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
+import { hashLoginToken, tokenExpiration } from '../../loginTokens';
+import type { Request, Response } from 'express';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
-const getUser = async (loginToken: string): Promise<DbUser|null> => {
+export const getUser = async (loginToken: string): Promise<DbUser|null> => {
   if (loginToken) {
     if (typeof loginToken !== 'string')
       throw new Error("Login token is not a string");
 
-    const hashedToken = Accounts._hashLoginToken(loginToken)
+    const hashedToken = hashLoginToken(loginToken)
 
-    const user = Users.findOne({
+    const user = await Users.findOne({
       'services.resume.loginTokens.hashedToken': hashedToken
     })
 
@@ -40,7 +40,7 @@ const getUser = async (loginToken: string): Promise<DbUser|null> => {
         tokenInfo => tokenInfo.hashedToken === hashedToken
       )
 
-      const expiresAt = Accounts._tokenExpiration(tokenInformation.when)
+      const expiresAt = tokenExpiration(tokenInformation.when)
 
       const isExpired = expiresAt < new Date()
 
@@ -53,18 +53,13 @@ const getUser = async (loginToken: string): Promise<DbUser|null> => {
   return null;
 }
 
-// initial request will get the login token from a cookie, subsequent requests from
-// the header
-const getAuthToken = req => {
-  return req.headers.authorization || new Cookies(req.cookies).get('meteor_login_token');
-};
 // @see https://www.apollographql.com/docs/react/recipes/meteor#Server
 const setupAuthToken = async (user: DbUser|null): Promise<{
   userId: string|null,
   currentUser: DbUser|null,
 }> => {
   if (user) {
-    Sentry.configureScope(scope => {
+    configureScope(scope => {
       scope.setUser({
         id: user._id,
         email: user.email,
@@ -108,12 +103,14 @@ export const generateDataLoaders = (): {
 };
 
 
-export const computeContextFromUser = async (user: DbUser|null, headers): Promise<ResolverContext> => {
+export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
   let context: ResolverContext = {
     ...getCollectionsByName(),
     ...generateDataLoaders(),
-    headers,
-    locale: getHeaderLocale(headers, null),
+    req: req as any,
+    res,
+    headers: (req as any)?.headers,
+    locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     ...await setupAuthToken(user),
   };
 
@@ -132,11 +129,12 @@ export const getCollectionsByName = (): CollectionsByName => {
 }
 
 export const getUserFromReq = async (req) => {
-  return getUser(getAuthToken(req));
+  return req.user
+  // return getUser(getAuthToken(req));
 }
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = async (req): Promise<ResolverContext> => {
+export const computeContextFromReq = async (req: Request, res: Response): Promise<ResolverContext> => {
   const user = await getUserFromReq(req);
-  return computeContextFromUser(user, req.headers);
+  return computeContextFromUser(user, req, res);
 };

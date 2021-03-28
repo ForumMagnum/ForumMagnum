@@ -1,7 +1,7 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
-import { Mongo } from 'meteor/mongo';
+import { isAnyTest, onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
+import { MongoCollection } from '../../../lib/mongoCollection';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {
@@ -70,6 +70,7 @@ function createLogger(prefix: string) {
 var log;
 
 onStartup(function() {
+  if (isAnyTest) return;
   var options = SyncedCron.options;
 
   log = createLogger('SyncedCron');
@@ -89,7 +90,7 @@ onStartup(function() {
     later.date.localTime();
 
   // collection holding the job history records
-  SyncedCron._collection = new Mongo.Collection(options.collectionName);
+  SyncedCron._collection = new MongoCollection(options.collectionName);
   SyncedCron._collection._ensureIndex({intendedAt: 1, name: 1}, {unique: true});
 
   if (options.collectionTTL) {
@@ -116,7 +117,7 @@ var scheduleEntry = function(entry) {
 //   schedule: function(laterParser) {},//*required* when to run the job
 //   job: function() {}, //*required* the code to run
 // });
-SyncedCron.add = function(entry: {
+SyncedCron.add = async function(entry: {
   name: string,
   schedule: (parser: any)=>any,
   job: ()=>void,
@@ -142,7 +143,7 @@ SyncedCron.add = function(entry: {
 SyncedCron.start = function() {
   var self = this;
 
-  onStartup(function() {
+  onStartup(async function() {
     // Schedule each job with later.js
     _.each(self._entries, function(entry) {
       scheduleEntry(entry);
@@ -196,7 +197,7 @@ SyncedCron.stop = function() {
 SyncedCron._entryWrapper = function(entry) {
   var self = this;
 
-  return function(intendedAt) {
+  return async function(intendedAt) {
     intendedAt = new Date(intendedAt.getTime());
     intendedAt.setMilliseconds(0);
 
@@ -212,7 +213,7 @@ SyncedCron._entryWrapper = function(entry) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = self._collection.insert(jobHistory);
+        jobHistory._id = await self._collection.insert(jobHistory);
       } catch(e) {
         // http://www.mongodb.org/about/contributors/error-codes/
         // 11000 == duplicate key error
@@ -232,7 +233,7 @@ SyncedCron._entryWrapper = function(entry) {
 
       log.info('Finished "' + entry.name + '".');
       if(entry.persist) {
-        self._collection.update({_id: jobHistory._id}, {
+        await self._collection.update({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             result: output
@@ -242,7 +243,7 @@ SyncedCron._entryWrapper = function(entry) {
     } catch(e) {
       log.info('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
       if(entry.persist) {
-        self._collection.update({_id: jobHistory._id}, {
+        await self._collection.update({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             error: (e && e.stack) ? e.stack : e
@@ -254,9 +255,9 @@ SyncedCron._entryWrapper = function(entry) {
 }
 
 // for tests
-SyncedCron._reset = function() {
+SyncedCron._reset = async function() {
   this._entries = {};
-  this._collection.remove({});
+  await this._collection.remove({});
   this.running = false;
 }
 

@@ -195,7 +195,7 @@ export const createMutator = async <T extends DbObject>({
   DB Operation
 
   */
-  document._id = await Connectors.create(collection, document as unknown as T);
+  (document as any)._id = await Connectors.create(collection, document as unknown as T);
 
   /*
 
