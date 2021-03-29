@@ -26,7 +26,7 @@ export const sanitize = function(s: string): string {
       span: ['style'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
       a: ['href', 'name', 'target', 'rel'],
-      iframe: ['src', 'allowfullscreen', 'allow','style']
+      iframe: ['src', 'allowfullscreen', 'allow']
     },
     allowedIframeHostnames: [
       'www.youtube.com', 'youtube.com', 
@@ -83,10 +83,6 @@ export const sanitize = function(s: string): string {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
         color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
       },
-      iframe: {
-        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
-      }
     }
   });
 };
