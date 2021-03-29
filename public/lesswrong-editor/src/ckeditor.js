@@ -177,7 +177,7 @@ const embedConfig = {
 		},
 		{
 		  name: 'Thoughtsaver',
-		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_-]*)/,
+		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
 		  html: ([match,urlParams]) => `
 		    <div class="thoughtSaverFrameWrapper">
 		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
