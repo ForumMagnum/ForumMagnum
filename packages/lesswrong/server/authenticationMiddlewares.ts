@@ -22,9 +22,7 @@ const githubOAuthSecretSetting = new DatabaseServerSetting('oAuth.github.secret'
 
 function createOAuthUserHandler(idPath, getIdFromProfile, getUserDataFromProfile) {
   return async (accessToken, refreshToken, profile, done) => {
-    console.log(profile)
     const user = await Users.findOne({[idPath]: getIdFromProfile(profile)})
-    console.log(user, idPath, getIdFromProfile(profile))
     if (!user) {
       const { data: user } = await createMutator({
         collection: Users,

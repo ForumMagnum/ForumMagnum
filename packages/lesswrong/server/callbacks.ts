@@ -13,7 +13,7 @@ import { VoteableCollections } from '../lib/make_voteable';
 
 import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
-import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
+import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
