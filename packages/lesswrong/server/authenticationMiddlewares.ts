@@ -22,11 +22,13 @@ const githubOAuthSecretSetting = new DatabaseServerSetting('oAuth.github.secret'
 
 function createOAuthUserHandler(idPath, getIdFromProfile, getUserDataFromProfile) {
   return async (accessToken, refreshToken, profile, done) => {
+    console.log(profile)
     const user = await Users.findOne({[idPath]: getIdFromProfile(profile)})
+    console.log(user, idPath, getIdFromProfile(profile))
     if (!user) {
       const { data: user } = await createMutator({
         collection: Users,
-        document: getUserDataFromProfile(profile),
+        document: await getUserDataFromProfile(profile),
         validate: false,
         currentUser: null
       })
@@ -103,13 +105,13 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       callbackURL: `${getSiteUrl()}auth/google/callback`,
       proxy: true
     },
-    createOAuthUserHandler('services.google.id', profile => profile.id, profile => ({
+    createOAuthUserHandler('services.google.id', profile => profile.id, async profile => ({
       email: profile.emails[0].address,
       services: {
         google: profile
       },
       emails: profile.emails,
-      username: Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
+      username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
       displayName: profile.displayName,
       emailSubscribedToCurated: true
     }))
@@ -124,12 +126,12 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       profileFields: ['id', 'emails', 'name', 'displayName'],
       proxy: true
     },
-      createOAuthUserHandler('services.facebook.id', profile => profile.id, profile => ({
+      createOAuthUserHandler('services.facebook.id', profile => profile.id, async profile => ({
         email: profile.emails[0].value,
         services: {
           facebook: profile
         },
-        username: Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
+        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
         displayName: profile.displayName,
         emailSubscribedToCurated: true
       }))
@@ -144,12 +146,12 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       callbackURL: `${getSiteUrl()}auth/github/callback`,
       scope: [ 'user:email' ], // fetches non-public emails as well
     },
-      createOAuthUserHandler('services.github.id', profile => profile.id, profile => ({
+      createOAuthUserHandler('services.github.id', profile => parseInt(profile.id), async profile => ({
         email: profile.emails[0].value,
         services: {
           github: profile
         },
-        username: Utils.getUnusedSlugByCollectionName("Users", slugify(profile.username)),
+        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.username)),
         displayName: profile.username || profile.displayName,
         emailSubscribedToCurated: true
       }))
@@ -194,6 +196,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/github/callback', (req, res, next) => {
     passport.authenticate('github', {}, (err, user, info) => {
+      console.log(err, user, info)
       if (err) return next(err)
       if (!user) return next()
       req.logIn(user, async (err) => {
