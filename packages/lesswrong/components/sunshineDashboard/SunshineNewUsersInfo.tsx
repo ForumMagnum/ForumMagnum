@@ -116,7 +116,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 }) => {
   const currentUser = useCurrentUser();
 
-  const [notes, setNotes] = useState(user.sunshineNotes)
+  const [notes, setNotes] = useState(user.sunshineNotes || "")
 
   const handleReview = () => {
     updateUser({

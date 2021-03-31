@@ -174,7 +174,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -264,7 +264,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </SingleColumnSection>
 
           <SingleColumnSection>
-            <SunshineNewUsersInfo user={user} />
+            <SunshineNewUsersProfileInfo userId={user._id} />
           </SingleColumnSection>
 
           {/* Sequences Section */}
