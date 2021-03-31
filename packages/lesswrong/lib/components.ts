@@ -363,6 +363,7 @@ importComponent("AFSuggestUsersList", () => require('../components/sunshineDashb
 importComponent("SunshineNewUserPostsList", () => require('../components/sunshineDashboard/SunshineNewUserPostsList'));
 importComponent("SunshineNewUserCommentsList", () => require('../components/sunshineDashboard/SunshineNewUserCommentsList'));
 importComponent("SunshineNewUsersItem", () => require('../components/sunshineDashboard/SunshineNewUsersItem'));
+importComponent("SunshineNewUsersInfo", () => require('../components/sunshineDashboard/SunshineNewUsersInfo'));
 importComponent("SunshineNewUsersList", () => require('../components/sunshineDashboard/SunshineNewUsersList'));
 importComponent("SunshineNewPostsList", () => require('../components/sunshineDashboard/SunshineNewPostsList'));
 importComponent("SunshineNewPostsItem", () => require('../components/sunshineDashboard/SunshineNewPostsItem'));
