@@ -194,7 +194,6 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/github/callback', (req, res, next) => {
     passport.authenticate('github', {}, (err, user, info) => {
-      console.log(err, user, info)
       if (err) return next(err)
       if (!user) return next()
       req.logIn(user, async (err) => {
