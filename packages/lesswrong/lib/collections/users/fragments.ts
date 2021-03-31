@@ -205,6 +205,7 @@ registerFragment(`
     signUpReCaptchaRating
     needsReview
     sunshineSnoozed
+    sunshineNotes
   }
 `);
 

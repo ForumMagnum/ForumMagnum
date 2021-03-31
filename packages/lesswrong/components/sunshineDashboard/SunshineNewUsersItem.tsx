@@ -21,6 +21,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Select, MenuItem } from '@material-ui/core';
+import Input from '@material-ui/core/Input';
 
 type ModeratorCommentRecord = {label: string, id: string}
 export const defaultModeratorComments = new DatabasePublicSetting<ModeratorCommentRecord[]>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
@@ -107,6 +108,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   editIcon: {
     width: 20,
     color: theme.palette.grey[400]
+  },
+  notes: {
+    border: "solid 1px rgba(0,0,0,.2)",
+    borderRadius: 2,
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 4,
+    paddingBottom: 4,
+    marginTop: 8,
+    marginBottom: 8
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser }: {
@@ -116,6 +127,8 @@ const SunshineNewUsersItem = ({ user, classes, updateUser }: {
 }) => {
   const currentUser = useCurrentUser();
   const [hidden, setHidden] = useState(false)
+
+  const [notes, setNotes] = useState(user.sunshineNotes)
   const { eventHandlers, hover, anchorEl } = useHover();
 
   const handleReview = () => {
@@ -126,6 +139,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser }: {
         reviewedAt: new Date(),
         sunshineSnoozed: false,
         needsReview: false,
+        sunshineNotes: notes
       }
     })
   }
@@ -137,7 +151,8 @@ const SunshineNewUsersItem = ({ user, classes, updateUser }: {
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
-        sunshineSnoozed: true
+        sunshineSnoozed: true,
+        sunshineNotes: notes
       }
     })
   }
@@ -152,7 +167,8 @@ const SunshineNewUsersItem = ({ user, classes, updateUser }: {
           voteBanned: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(3, 'months').toDate()
+          banned: moment().add(3, 'months').toDate(),
+          sunshineNotes: notes
         }
       })
     }
@@ -170,7 +186,8 @@ const SunshineNewUsersItem = ({ user, classes, updateUser }: {
           deleteContent: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(12, 'months').toDate()
+          banned: moment().add(12, 'months').toDate(),
+          sunshineNotes: notes
         }
       })
     }
@@ -212,7 +229,15 @@ const SunshineNewUsersItem = ({ user, classes, updateUser }: {
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-              <hr className={classes.hr}/>
+              <div className={classes.notes}>
+                <Input 
+                  value={notes} 
+                  onChange={(e) => { setNotes(e.target.value)}} 
+                  disableUnderline 
+                  placeholder="Notes for other moderators"
+                  multiline
+                />
+              </div>
               <div className={classes.row}>
                 <div className={classes.row}>
                   {!!(user.maxCommentCount || user.maxPostCount) && <LWTooltip title="Approve">
