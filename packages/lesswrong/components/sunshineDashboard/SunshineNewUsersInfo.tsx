@@ -215,6 +215,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
             <div className={classes.notes}>
               <Input 
                 value={notes} 
+                fullWidth
                 onChange={(e) => { setNotes(e.target.value)}} 
                 disableUnderline 
                 placeholder="Notes for other moderators"
