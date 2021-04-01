@@ -1012,7 +1012,7 @@ addFieldsDict(Users, {
 
   sunshineNotes: {
     type: String,
-    canRead: ['guests'],
+    canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
