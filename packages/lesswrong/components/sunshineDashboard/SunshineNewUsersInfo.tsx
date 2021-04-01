@@ -260,7 +260,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                     <DeleteForeverIcon />
                   </Button>
                 </LWTooltip>}
-                <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : "Flag this user for more review"}>
+                <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
+                  <div>Flag this user for more review</div>
+                  <div><em>(This will not remove them from sidebar)</em></div>
+                </div>}>
                   <Button onClick={handleFlag}>
                     {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
                   </Button>
