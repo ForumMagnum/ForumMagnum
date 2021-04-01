@@ -1019,6 +1019,15 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
 
+  sunshineFlagged: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
   needsReview: {
     type: Boolean,
     canRead: ['guests'],

@@ -206,6 +206,7 @@ registerFragment(`
     needsReview
     sunshineSnoozed
     sunshineNotes
+    sunshineFlagged
   }
 `);
 
