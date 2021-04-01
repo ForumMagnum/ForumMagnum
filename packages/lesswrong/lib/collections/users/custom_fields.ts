@@ -1016,7 +1016,7 @@ addFieldsDict(Users, {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
-    ...schemaDefaultValue(false),
+    ...schemaDefaultValue(""),
   },
 
   sunshineFlagged: {
