@@ -30,10 +30,10 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
   if (!userCanDo(currentUser, 'posts.moderate.all')) return null
   if (user.reviewedByUserId && !user.sunshineSnoozed) return null
   return <div className={classes.root}>
-      <NoSsr>
-        <SunshineNewUsersInfo user={user}/>
-      </NoSsr>
-    </div>
+    <NoSsr>
+      <SunshineNewUsersInfo user={user}/>
+    </NoSsr>
+  </div>
 }
 
 const SunshineNewUsersProfileInfoComponent = registerComponent('SunshineNewUsersProfileInfo', SunshineNewUsersProfileInfo, {styles});
