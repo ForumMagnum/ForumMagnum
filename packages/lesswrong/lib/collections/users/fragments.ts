@@ -106,6 +106,7 @@ registerFragment(`
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
+    hideSubscribePoke
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments

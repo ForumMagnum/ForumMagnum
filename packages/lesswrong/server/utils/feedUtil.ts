@@ -2,6 +2,12 @@ import * as _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 
+type FeedSubquery<SortKeyType, ResultType> = {
+  type: string
+  getSortKey: (result: ResultType) => SortKeyType
+  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>
+}
+
 export function feedSubquery<ResultType, SortKeyType>(params: {
   type: string,
   getSortKey: (result: ResultType) => SortKeyType,
@@ -40,10 +46,24 @@ export function fixedResultSubquery<ResultType extends DbObject, SortKeyType>({t
   });
 }
 
+export function fixedIndexSubquery({type, index, result}: {
+  type: string,
+  index: number,
+  result: any,
+}) {
+  return feedSubquery({
+    type,
+    getSortKey: ()=>index,
+    doQuery: async ()=>[result],
+  });
+}
+
 export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
   name: string,
   resolver: ({limit, cutoff, args, context}: {
-    limit?: number, cutoff?: CutoffType|null,
+    limit?: number,
+    cutoff?: CutoffType|null,
+    offset?: number,
     args: any, context: ResolverContext
   }) => Promise<{
     cutoff: CutoffType|null,
@@ -56,6 +76,7 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   addGraphQLSchema(`
     type ${name}QueryResults {
       cutoff: Date
+      endOffset: Int!
       results: [${name}EntryType!]
     }
     type ${name}EntryType {
@@ -63,16 +84,21 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
       ${resultTypesGraphQL}
     }
   `);
-  addGraphQLQuery(`${name}(limit: Int, cutoff: ${cutoffTypeGraphQL}${isNonEmptyObject(args)?", ":""}${args}): ${name}QueryResults!`);
+  addGraphQLQuery(`${name}(
+    limit: Int,
+    cutoff: ${cutoffTypeGraphQL},
+    offset: Int,
+    ${isNonEmptyObject(args)?", ":""}${args}
+  ): ${name}QueryResults!`);
   
   addGraphQLResolvers({
     Query: {
       [name]: async (root: void, args: any, context: ResolverContext) => {
-        const {limit, cutoff, ...rest} = args;
+        const {limit, cutoff, offset, ...rest} = args;
         return {
           __typename: `${name}QueryResults`,
           ...await resolver({
-            limit, cutoff,
+            limit, cutoff, offset,
             args: rest,
             context
           })
@@ -82,9 +108,10 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   });
 }
 
-export async function mergeFeedQueries<SortKeyType>({limit, cutoff, subqueries}: {
+export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, subqueries}: {
   limit: number
   cutoff?: SortKeyType,
+  offset?: number,
   subqueries: Array<any>
 }) {
   // Perform the subqueries
@@ -102,20 +129,49 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, subqueries}:
   // Merge the result lists
   const unsortedResults = _.flatten(unsortedSubqueryResults);
   
+  // Split into results with numeric indexes and results with sort-key indexes
+  const numericallyPositionedResults = _.filter(unsortedResults, r=>typeof r.sortKey==="number")
+  const orderedResults = _.filter(unsortedResults, r=>typeof r.sortKey!=="number")
+  
   // Sort by shared sort key
-  const sortedResults = _.sortBy(unsortedResults, r=>r.sortKey);
+  const sortedResults = _.sortBy(orderedResults, r=>r.sortKey);
   sortedResults.reverse();
   
-  // Apply limit and cutoff
+  // Apply cutoff
   const withCutoffApplied = cutoff
     ? _.filter(sortedResults, r=>r.sortKey<cutoff)
     : sortedResults;
-  const withLimitApplied = _.first(withCutoffApplied, limit);
+  
+  // Merge in the numerically positioned results
+  const bothResultKinds = mergeSortedAndNumericallyPositionedResults(withCutoffApplied, numericallyPositionedResults, offset||0);
+  
+  // Apply limit
+  const withLimitApplied = _.first(bothResultKinds, limit);
   
   return {
     results: withLimitApplied,
     cutoff: withLimitApplied.length>0 ? withLimitApplied[withLimitApplied.length-1].sortKey : null,
+    endOffset: (offset||0)+withLimitApplied.length
   };
+}
+
+// Take a list of results that are sorted by a sort key (ie a date), and a list
+// of results that have numeric indexes instead, and merge them. Eg, Recent
+// Discussion contains posts sorted by date, but with some things mixed in
+// with their position defined as "index 5".
+function mergeSortedAndNumericallyPositionedResults(sortedResults: Array<any>, numericallyPositionedResults: Array<any>, offset: number) {
+  // Take the numerically positioned results. Sort them by index, discard ones
+  // from below the offset, and resolve collisions.
+  const sortedNumericallyPositionedResults = _.sortBy(numericallyPositionedResults, r=>r.sortKey);
+  
+  let mergedResults: Array<any> = [...sortedResults];
+  for (let i=0; i<sortedNumericallyPositionedResults.length; i++) {
+    const insertedResult = sortedNumericallyPositionedResults[i];
+    if (insertedResult.sortKey >= offset)
+    mergedResults.splice(insertedResult.sortKey-offset, 0, insertedResult);
+  }
+  
+  return mergedResults;
 }
 
 function isNonEmptyObject(obj: {}): boolean {
