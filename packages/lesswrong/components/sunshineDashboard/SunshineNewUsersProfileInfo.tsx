@@ -4,6 +4,7 @@ import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
+import NoSsr from '@material-ui/core/NoSsr';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,7 +30,9 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
   if (!userCanDo(currentUser, 'posts.moderate.all')) return null
   if (user.reviewedByUserId && !user.sunshineSnoozed) return null
   return <div className={classes.root}>
-      <SunshineNewUsersInfo user={user}/>
+      <NoSsr>
+        <SunshineNewUsersInfo user={user}/>
+      </NoSsr>
     </div>
 }
 
