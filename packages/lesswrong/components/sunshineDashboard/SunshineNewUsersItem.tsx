@@ -8,7 +8,6 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
 import DescriptionIcon from '@material-ui/icons/Description'
-import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {

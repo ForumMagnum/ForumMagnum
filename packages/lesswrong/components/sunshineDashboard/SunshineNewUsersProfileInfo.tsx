@@ -1,7 +1,6 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import * as _ from 'underscore';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
