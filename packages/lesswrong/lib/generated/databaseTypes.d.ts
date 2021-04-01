@@ -672,6 +672,7 @@ interface DbUser extends DbObject {
   hideFrontpageMap: boolean
   hideTaggingProgressBar: boolean
   hideFrontpageBookAd: boolean
+  sunshineNotes: string
   needsReview: boolean
   sunshineSnoozed: boolean
   reviewedByUserId: string

@@ -1010,6 +1010,15 @@ addFieldsDict(Users, {
     label: "Hide the frontpage book ad"
   },
 
+  sunshineNotes: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
