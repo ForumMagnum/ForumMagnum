@@ -174,7 +174,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   
   const render = () => {
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -261,6 +261,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </Typography>
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+          </SingleColumnSection>
+
+          <SingleColumnSection>
+            <SunshineNewUsersProfileInfo userId={user._id} />
           </SingleColumnSection>
 
           {/* Sequences Section */}

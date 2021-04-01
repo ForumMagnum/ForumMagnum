@@ -1499,6 +1499,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly needsReview: boolean,
   readonly sunshineSnoozed: boolean,
   readonly sunshineNotes: string,
+  readonly sunshineFlagged: boolean,
 }
 
 interface SharedUserBooleans { // fragment on Users
