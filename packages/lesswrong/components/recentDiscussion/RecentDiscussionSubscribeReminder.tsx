@@ -87,11 +87,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     </Button>}
   </span>
   
-  const buttons = <div>
-    {maybeLaterButton}
-    {dontAskAgainButton}
-  </div>
-  
   if (hide || currentUser?.hideSubscribePoke) {
     return null;
   }
@@ -145,7 +140,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.
       </div>
     </Wrapper>
-    return null;
   } else if (!currentUser) {
     // Not logged in. Show a create-account form and a brief pitch.
     return <Wrapper>
