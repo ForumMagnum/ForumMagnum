@@ -1016,12 +1016,21 @@ addFieldsDict(Users, {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
+    ...schemaDefaultValue(""),
+  },
+
+  sunshineFlagged: {
+    type: Boolean,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
     ...schemaDefaultValue(false),
   },
 
   needsReview: {
     type: Boolean,
-    canRead: ['guests'],
+    canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
@@ -1030,7 +1039,7 @@ addFieldsDict(Users, {
 
   sunshineSnoozed: {
     type: Boolean,
-    canRead: ['guests'],
+    canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,

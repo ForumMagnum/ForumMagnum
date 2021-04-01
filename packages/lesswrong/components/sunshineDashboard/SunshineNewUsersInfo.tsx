@@ -7,9 +7,11 @@ import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
+import FlagIcon from '@material-ui/icons/Flag';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
+import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
 import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
@@ -122,6 +124,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     updateUser({
       selector: {_id: user._id},
       data: {
+        sunshineFlagged: false,
         reviewedByUserId: currentUser!._id,
         reviewedAt: new Date(),
         sunshineSnoozed: false,
@@ -135,6 +138,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     updateUser({
       selector: {_id: user._id},
       data: {
+        sunshineFlagged: false,
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
@@ -149,6 +153,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
       await updateUser({
         selector: {_id: user._id},
         data: {
+          sunshineFlagged: false,
           reviewedByUserId: currentUser!._id,
           voteBanned: true,
           needsReview: false,
@@ -165,6 +170,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
       await updateUser({
         selector: {_id: user._id},
         data: {
+          sunshineFlagged: false,
           reviewedByUserId: currentUser!._id,
           nullifyVotes: true,
           voteBanned: true,
@@ -176,6 +182,16 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         }
       })
     }
+  }
+
+  const handleFlag = () => {
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        sunshineFlagged: !user.sunshineFlagged,
+        sunshineNotes: notes
+      }
+    })
   }
 
   const { results: posts, loading: postsLoading } = useMulti({
@@ -244,6 +260,14 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                     <DeleteForeverIcon />
                   </Button>
                 </LWTooltip>}
+                <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
+                  <div>Flag this user for more review</div>
+                  <div><em>(This will not remove them from sidebar)</em></div>
+                </div>}>
+                  <Button onClick={handleFlag}>
+                    {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
+                  </Button>
+                </LWTooltip>
               </div>
               <div className={classes.row}>
                 {currentUser && <Select value={0} variant="outlined">

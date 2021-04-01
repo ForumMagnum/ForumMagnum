@@ -8,6 +8,7 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
 import DescriptionIcon from '@material-ui/icons/Description'
+import FlagIcon from '@material-ui/icons/Flag'
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -54,6 +55,7 @@ const SunshineNewUsersItem = ({ user, classes }: {
             <FormatDate date={user.createdAt}/>
           </MetaInfo>
           {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+          {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
           {!user.reviewedByUserId && <MetaInfo className={classes.info}>
             { user.email }
           </MetaInfo>}
