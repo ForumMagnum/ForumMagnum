@@ -5,6 +5,7 @@ import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { captureEvent, AnalyticsUtil, userIdentifiedCallback } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
+import { gtag } from './ga';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -36,8 +37,10 @@ userIdentifiedCallback.add(function identifyUserToSentry(user: UsersCurrent) {
 });
 
 userIdentifiedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent) {
-  if (window && (window as any).ga) {
-    (window as any).ga('set', 'userId', user._id); // Set the user ID using signed-in user_id.
+  const dataLayer = (window as any).dataLayer
+  if (!dataLayer) console.warn("Trying to call gtag before dataLayer has been initialized")
+  else {
+    dataLayer.push({userId: user._id})
   }
 });
 
