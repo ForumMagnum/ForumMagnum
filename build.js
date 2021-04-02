@@ -5,7 +5,8 @@ const WebSocket = require('ws');
 const fetch = require("node-fetch");
 const crypto = require('crypto');
 
-let buildId = generateBuildId();
+let latestCompletedBuildId = generateBuildId();
+let inProgressBuildId = null;
 let clientRebuildInProgress = false;
 let serverRebuildInProgress = false;
 const serverPort = 3000;
@@ -58,7 +59,7 @@ const bundleDefinitions = {
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
-  "buildId": `"${buildId}"`,
+  "buildId": `"${latestCompletedBuildId}"`,
 };
 
 build({
@@ -73,12 +74,18 @@ build({
   run: false,
   onStart: (config, changedFiles, ctx, esbuildOptions) => {
     clientRebuildInProgress = true;
-    buildId = generateBuildId();
-    esbuildOptions.define.buildId = `"${buildId}"`;
+    inProgressBuildId = generateBuildId();
+    esbuildOptions.define.buildId = `"${inProgressBuildId}"`;
   },
-  onEnd: () => {
+  onEnd: (config, buildResult, ctx) => {
     clientRebuildInProgress = false;
-    initiateRefresh();
+    if (buildResult?.errors?.length > 0) {
+      console.log("Skipping browser refresh notification because there were build errors");
+    } else {
+      latestCompletedBuildId = inProgressBuildId;
+      initiateRefresh();
+    }
+    inProgressBuildId = null;
   },
   define: {
     ...bundleDefinitions,
@@ -161,7 +168,7 @@ async function initiateRefresh() {
     await waitForServerReady();
     console.log("Notifying connected browser windows to refresh");
     for (let connection of openWebsocketConnections) {
-      connection.send(`{"latestBuildId": "${buildId}"}`);
+      connection.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
     }
     refreshIsPending = false;
   }
@@ -182,7 +189,7 @@ function startWebsocketServer() {
         openWebsocketConnections.splice(connectionIndex, 1);
       }
     });
-    ws.send(`{"latestBuildId": "${buildId}"}`);
+    ws.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
   });
 }
 
