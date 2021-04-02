@@ -5,6 +5,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { userEmailAddressIsVerified, userHasEmailAddress } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
+import { randInt } from '../../lib/random';
 import SimpleSchema from 'simpl-schema';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
@@ -27,6 +28,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: 500,
+  },
+  adminNotice: {
+    fontStyle: "italic",
+    textAlign: "left",
+    marginTop: 8,
+    fontSize: 12,
+    lineHeight: 1.3,
   },
   loginForm: {
     margin: "0 auto",
@@ -67,6 +75,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const { flash } = useMessages();
   const {WrappedLoginForm, SignupSubscribeToCurated, Loading} = Components;
   const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)'
+  
+  // Show admins a random version of the widget. Makes sure we notice if it's intrusive/bad.
+  const [adminBranch] = useState(currentUser?.isAdmin ? randInt(5) : -1);
+  const adminUiMessage = currentUser?.isAdmin ? <div className={classes.adminNotice}>
+    You are seeing this UI element because you're an admin. Admins are shown a random version of the
+    subscribe-reminder even if they're already subscribed, to make sure it still works and isn't
+    annoying.
+  </div>: null
   
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
@@ -140,7 +156,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.
       </div>
     </Wrapper>
-  } else if (!currentUser) {
+  } else if (!currentUser || adminBranch===0) {
     // Not logged in. Show a create-account form and a brief pitch.
     return <Wrapper>
       <div className={classes.message}>
@@ -149,12 +165,13 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <div className={classes.loginForm}>
         <WrappedLoginForm startingState="signup" />
       </div>
+      {adminUiMessage}
       <div className={classes.buttons}>
         {maybeLaterButton}
         {dontAskAgainButton}
       </div>
     </Wrapper>
-  } else if (!userHasEmailAddress(currentUser)) {
+  } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
     // Logged in, but no email address associated. Probably a legacy account.
     // Show a text box for an email address, with a submit button and a subscribe
     // checkbox.
@@ -194,13 +211,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             flash("Please enter a valid email address.");
           }
         }}>Submit</Button>
+        {adminUiMessage}
         <div className={classes.buttons}>
           {maybeLaterButton}
           {dontAskAgainButton}
         </div>
       </div>
     </Wrapper>
-  } else if (currentUser.unsubscribeFromAll) {
+  } else if (currentUser.unsubscribeFromAll || adminBranch===2) {
     // User has clicked unsubscribe-from-all at some point in the past. Pitch
     // on re-subscribing. A big Subscribe button, which clears the
     // unsubscribe-from-all option, activates curation emails (if not already
@@ -212,14 +230,13 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
       }}>Subscribe</Button>
+      {adminUiMessage}
       <div className={classes.buttons}>
-        <div className={classes.buttons}>
-          {maybeLaterButton}
-          {dontAskAgainButton}
-        </div>
+        {maybeLaterButton}
+        {dontAskAgainButton}
       </div>
     </Wrapper>
-  } else if (!currentUser.emailSubscribedToCurated) {
+  } else if (!currentUser.emailSubscribedToCurated || adminBranch===3) {
     // User is logged in, and has an email address associated with their
     // account, but is not subscribed to curated posts. A Subscribe button which
     // sets the subscribe-to-curated option, and (if their email address isn't
@@ -231,16 +248,17 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
       }}>Subscribe</Button>
+      {adminUiMessage}
       <div className={classes.buttons}>
         {maybeLaterButton}
         {dontAskAgainButton}
       </div>
     </Wrapper>
-  } else if (!userEmailAddressIsVerified(currentUser)) {
+  } else if (!userEmailAddressIsVerified(currentUser) || adminBranch===4) {
     // User is subscribed, but they haven't verified their email address. Show
     // a resend-verification-email button.
     return <Wrapper>
-      {!verificationEmailSent && <div>
+      <div>
         <div className={classes.message}>
           Please verify your email address to activate your subscription to curated posts.
         </div>
@@ -257,17 +275,13 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             setLoading(false);
             setVerificationEmailSent(true);
           }}>Resend Verification Email</Button>
+          {adminUiMessage}
           <div className={classes.buttons}>
             {maybeLaterButton}
             {dontAskAgainButton}
           </div>
         </div>
-      </div>}
-      {verificationEmailSent && <div>
-        <div className={classes.message}>
-          Verification email sent. Check your email.
-        </div>
-      </div>}
+      </div>
     </Wrapper>
   } else {
     // Everything looks good-already subscribed to curated. No need to show anything.
