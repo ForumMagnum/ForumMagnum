@@ -9,6 +9,7 @@ import SimpleSchema from 'simpl-schema';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -65,12 +66,16 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const [emailAddressInput, setEmailAddressInput] = useState("");
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
-  const {WrappedLoginForm, SignupSubscribeToCurated, Loading} = Components;
+  const {WrappedLoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
   const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)'
+  const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
   
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
-    onClick={() => setHide(true)}
+    onClick={() => {
+      setHide(true)
+      captureEvent("subscribeReminderButtonClicked",{buttonType: "maybeLaterButton"})
+    }}
   >
     Maybe Later
   </Button>
@@ -81,6 +86,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       onClick={() => {
         void updateCurrentUser({hideSubscribePoke: true});
         setHide(true)
+        captureEvent("subscribeReminderButtonClicked",{buttonType: "dontAskAgainButton"})
       }}
     >
       Don't Ask Again
@@ -117,32 +123,36 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     setLoading(false);
   }
   
-  const Wrapper = ({children}: {children: React.ReactNode}) => {
-    return <div className={classes.root}>
-      {children}
-    </div>
+  const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
+    return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
+      <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
+        <div className={classes.root}>
+          {children}
+        </div>
+      </AnalyticsInViewTracker>
+    </AnalyticsContext>
   }
   
   if (loading) {
-    return <Wrapper>
+    return <div>
       <Loading/>
-    </Wrapper>
+    </div>
   } else if (subscriptionConfirmed) {
-    return <Wrapper>
+    return <AnalyticsWrapper branch="already-subscribed">
       You are subscribed to the best posts of LessWrong!
-    </Wrapper>
+    </AnalyticsWrapper>
   } else if (verificationEmailSent) {
     // Clicked Subscribe in one of the other branches, and a confirmation email
     // was sent. You need to verify your email address to complete the subscription.
     const yourEmail = currentUser?.emails[0]?.address;
-    return <Wrapper>
+    return <AnalyticsWrapper branch="needs-email-verification-subscribed-in-other-branch">
       <div className={classes.message}>
         We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.
       </div>
-    </Wrapper>
+    </AnalyticsWrapper>
   } else if (!currentUser) {
     // Not logged in. Show a create-account form and a brief pitch.
-    return <Wrapper>
+    return <AnalyticsWrapper branch="logged-out">
       <div className={classes.message}>
         To get the best posts emailed to you, create an account! {subscriptionDescription}
       </div>
@@ -153,12 +163,12 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         {maybeLaterButton}
         {dontAskAgainButton}
       </div>
-    </Wrapper>
+    </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser)) {
     // Logged in, but no email address associated. Probably a legacy account.
     // Show a text box for an email address, with a submit button and a subscribe
     // checkbox.
-    return <Wrapper>
+    return <AnalyticsWrapper branch="missing-email">
       <div className={classes.message}>
         Your account does not have an email address associated. Add an email address to subscribe to curated posts and enable notifications.
       </div>
@@ -193,24 +203,26 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
           } else {
             flash("Please enter a valid email address.");
           }
+          captureEvent("subscribeReminderButtonClicked", {buttonType: "subscribeButton"});
         }}>Submit</Button>
         <div className={classes.buttons}>
           {maybeLaterButton}
           {dontAskAgainButton}
         </div>
       </div>
-    </Wrapper>
+    </AnalyticsWrapper>
   } else if (currentUser.unsubscribeFromAll) {
     // User has clicked unsubscribe-from-all at some point in the past. Pitch
     // on re-subscribing. A big Subscribe button, which clears the
     // unsubscribe-from-all option, activates curation emails (if not already
     // activated), and sends a confirmation email (if needed).
-    return <Wrapper>
+    return <AnalyticsWrapper branch="previously-unsubscribed">
       <div className={classes.message}>
         You previously unsubscribed from all emails from LessWrong. Re-subscribe to get the best posts emailed to you! {subscriptionDescription}
       </div>
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
+        captureEvent("subscribeReminderButtonClicked", {buttonType: "subscribeButton"});
       }}>Subscribe</Button>
       <div className={classes.buttons}>
         <div className={classes.buttons}>
@@ -218,28 +230,29 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
           {dontAskAgainButton}
         </div>
       </div>
-    </Wrapper>
+    </AnalyticsWrapper>
   } else if (!currentUser.emailSubscribedToCurated) {
     // User is logged in, and has an email address associated with their
     // account, but is not subscribed to curated posts. A Subscribe button which
     // sets the subscribe-to-curated option, and (if their email address isn't
     // verified) resends the verification email.
-    return <Wrapper>
+    return <AnalyticsWrapper branch="logged-in-not-subscribed">
       <div className={classes.message}>
         Subscribe to get the best of LessWrong emailed to you. {subscriptionDescription}
       </div>
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
+        captureEvent("subscribeReminderButtonClicked", {buttonType: "subscribeButton"});
       }}>Subscribe</Button>
       <div className={classes.buttons}>
         {maybeLaterButton}
         {dontAskAgainButton}
       </div>
-    </Wrapper>
+    </AnalyticsWrapper>
   } else if (!userEmailAddressIsVerified(currentUser)) {
     // User is subscribed, but they haven't verified their email address. Show
     // a resend-verification-email button.
-    return <Wrapper>
+    return <AnalyticsWrapper branch="needs-email-verification">
       {!verificationEmailSent && <div>
         <div className={classes.message}>
           Please verify your email address to activate your subscription to curated posts.
@@ -256,6 +269,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             }
             setLoading(false);
             setVerificationEmailSent(true);
+            captureEvent("subscribeReminderButtonClicked", {buttonType: "resendVerificationEmailButton"});
           }}>Resend Verification Email</Button>
           <div className={classes.buttons}>
             {maybeLaterButton}
@@ -268,7 +282,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
           Verification email sent. Check your email.
         </div>
       </div>}
-    </Wrapper>
+    </AnalyticsWrapper>
   } else {
     // Everything looks good-already subscribed to curated. No need to show anything.
     return null;
