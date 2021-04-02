@@ -47,6 +47,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     alignItems: "center"
   },
+  disabled: {
+    opacity: .2,
+    cursor: "default"
+  },
   bigDownvotes: {
     color: theme.palette.error.dark,
     padding: 6,
@@ -120,18 +124,22 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 
   const [notes, setNotes] = useState(user.sunshineNotes || "")
 
+  const canReview = !!(user.maxCommentCount || user.maxPostCount)
+
   const handleReview = () => {
-    updateUser({
-      selector: {_id: user._id},
-      data: {
-        sunshineFlagged: false,
-        reviewedByUserId: currentUser!._id,
-        reviewedAt: new Date(),
-        sunshineSnoozed: false,
-        needsReview: false,
-        sunshineNotes: notes
-      }
-    })
+    if (canReview) {
+      updateUser({
+        selector: {_id: user._id},
+        data: {
+          sunshineFlagged: false,
+          reviewedByUserId: currentUser!._id,
+          reviewedAt: new Date(),
+          sunshineSnoozed: false,
+          needsReview: false,
+          sunshineNotes: notes
+        }
+      })
+    }
   }
 
   const handleSnooze = () => {
@@ -240,11 +248,11 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
             </div>
             <div className={classes.row}>
               <div className={classes.row}>
-                {!!(user.maxCommentCount || user.maxPostCount) && <LWTooltip title="Approve">
-                  <Button onClick={handleReview}>
-                    <DoneIcon />
+                <LWTooltip title="Approve">
+                  <Button onClick={handleReview} className={canReview ? null : classes.disabled }>
+                    <DoneIcon/>
                   </Button>
-                </LWTooltip>}
+                </LWTooltip>
                 <LWTooltip title="Snooze (approve all posts)">
                   <Button title="Snooze" onClick={handleSnooze}>
                     <SnoozeIcon />
