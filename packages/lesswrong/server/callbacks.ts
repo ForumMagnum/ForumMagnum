@@ -13,7 +13,7 @@ import { VoteableCollections } from '../lib/make_voteable';
 
 import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
-import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
+import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
@@ -218,29 +218,20 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   await Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 
-getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user: DbUser) {
-  if (!user.username) {
-    user.username = user.slug;
-  }
-  return user;
-});
-
-getCollectionHooks("Users").newSync.add(async function fixUsernameOnGithubLogin(user: DbUser) {
-  if (user.services && user.services.github) {
-    //eslint-disable-next-line no-console
-    console.info("Github login detected, setting username and slug manually");
-    user.username = user.services.github.username
-    const basicSlug = slugify(user.services.github.username)
-    user.slug = await Utils.getUnusedSlugByCollectionName('Users', basicSlug)
-  }
-  return user;
-});
 
 getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event: DbLWEvent) {
   if (event.userId && event.documentId) {
+    // Upsert. This operation is subtle and fragile! We have a unique index on
+    // (postId,userId,tagId). If two copies of a page-view event fire at the
+    // same time, this creates a race condition. In order to not have this throw
+    // an exception, we need to meet the conditions in
+    //   https://docs.mongodb.com/manual/core/retryable-writes/#retryable-update-upsert
+    // In particular, this means the selector has to exactly match the unique
+    // index's keys.
     await ReadStatuses.update({
       postId: event.documentId,
       userId: event.userId,
+      tagId: null,
     }, {
       $set: {
         isRead: true,

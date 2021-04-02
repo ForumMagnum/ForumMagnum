@@ -46,6 +46,7 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
 
 addUniversalFields({collection: ReadStatuses});
 
+ensureIndex(ReadStatuses, {userId:1, postId:1, tagId:1}, {unique: true})
 ensureIndex(ReadStatuses, {userId:1, postId:1, isRead:1, lastUpdated:1})
 ensureIndex(ReadStatuses, {userId:1, tagId:1, isRead:1, lastUpdated:1})
 
