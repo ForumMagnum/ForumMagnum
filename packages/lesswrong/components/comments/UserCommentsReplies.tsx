@@ -33,14 +33,14 @@ const UserCommentsReplies = ({ classes }) => {
     skip: !user
   });
   
-  if (loadingInitial) return <Loading />
+  if (loadingInitial || !user) return <Loading />
   if (!results || results.length < 1) return <SingleColumnSection>
     This user has not made any comments
   </SingleColumnSection>
 
   return (
     <SingleColumnSection>
-      <SectionTitle title="All Your Comments + Rplies"/>
+      <SectionTitle title={`All of ${user?.displayName} Comments + Replies`}/>
       <div className={classes.root}>
         {results.map(comment =>
           <div key={comment._id}>
