@@ -4,17 +4,23 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 
-const RepliesToCommentList = ({ post, parentCommentId }: {
+const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: {
   post: PostsBase,
   parentCommentId: string,
+  directReplies?: boolean
 }) => {
   const { CommentsList, Loading } = Components;
+  const terms : CommentsViewTerms = directReplies ? {
+    view: "commentReplies",
+    parentCommentId,
+    limit: 500
+  } : {
+    view: "repliesToCommentThread",
+    topLevelCommentId: parentCommentId,
+    limit: 500,
+  }
   const { loading, results } = useMulti({
-    terms: {
-      view: "repliesToCommentThread",
-      topLevelCommentId: parentCommentId,
-      limit: 500,
-    },
+    terms,
     collectionName: "Comments",
     fragmentName: "CommentsList",
   });
