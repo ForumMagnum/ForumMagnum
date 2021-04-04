@@ -40,7 +40,7 @@ const UserCommentsReplies = ({ classes }) => {
 
   return (
     <SingleColumnSection>
-      <SectionTitle title={`All of ${user?.displayName} Comments + Replies`}/>
+      <SectionTitle title={`All of ${user?.displayName}'s Comments + Replies`}/>
       <div className={classes.root}>
         {results.map(comment =>
           <div key={comment._id}>
