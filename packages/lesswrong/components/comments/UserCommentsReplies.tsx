@@ -1,7 +1,6 @@
 import { Components, registerComponent, slugify } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getUserFromResults } from '../users/UsersProfile';
 
