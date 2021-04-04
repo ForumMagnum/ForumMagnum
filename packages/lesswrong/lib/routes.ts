@@ -821,6 +821,12 @@ addRoute(
     title: "User Reviews",
   },
   {
+    name: 'userReplies',
+    path:'/users/:slug/replies',
+    componentName: 'UserCommentsReplies',
+    title: "User Comment Replies",
+  },
+  {
     name: 'reviews2018',
     path: '/reviews2018',
     componentName: 'Reviews2018',
