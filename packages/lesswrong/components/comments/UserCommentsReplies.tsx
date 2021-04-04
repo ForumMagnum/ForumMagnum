@@ -14,13 +14,12 @@ const styles = (theme: ThemeType): JssStyles =>  ({
 })
 
 const UserCommentsReplies = ({ classes }) => {
-  const { query } = useLocation();
   const { SingleColumnSection, SectionTitle, Loading } = Components
 
-  const { params, pathname } = useLocation();
+  const { params } = useLocation();
   const slug = slugify(params.slug);
 
-  const {loading, results: userResults} = useMulti({
+  const {results: userResults} = useMulti({
     terms: {view: 'usersProfile', slug},
     collectionName: "Users",
     fragmentName: 'UsersProfile',
