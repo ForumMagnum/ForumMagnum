@@ -150,7 +150,7 @@ const getGraphQLType = (schema, fieldName, isInput = false) => {
 
 // for a given schema, return main type fields, selector fields,
 // unique selector fields, orderBy fields, creatable fields, and updatable fields
-const getFields = (schema, typeName) => {
+const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string) => {
   const fields: any = {
     mainType: [],
     create: [],
@@ -208,7 +208,7 @@ const getFields = (schema, typeName) => {
               // check that current user has permission to access the original non-resolved field
               const canReadField = userCanReadField(currentUser, field, document);
               return canReadField
-                ? field.resolveAs.resolver(document, args, context, info)
+                ? field.resolveAs!.resolver(document, args, context, info)
                 : null;
             },
           },

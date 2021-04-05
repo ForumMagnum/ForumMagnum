@@ -8,16 +8,18 @@ declare global {
 
 interface CollectionFieldSpecification<T extends DbObject> {
   type?: any,
+  description?: string,
   optional?: boolean,
   defaultValue?: any,
   graphQLType?: string,
   typescriptType?: string,
   resolveAs?: {
     type: string,
+    description?: string,
     fieldName?: string,
     addOriginalField?: boolean,
     arguments?: string|null,
-    resolver: (root: T, args: any, context: ResolverContext)=>any,
+    resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
   },
   blackbox?: boolean,
   denormalized?: boolean,

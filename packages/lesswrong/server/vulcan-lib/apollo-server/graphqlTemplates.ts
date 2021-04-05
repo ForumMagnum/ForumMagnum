@@ -125,7 +125,7 @@ A query for a single document
 movie(input: SingleMovieInput) : SingleMovieOutput
 
 */
-export const singleQueryTemplate = ({ typeName }) => `${camelCaseify(typeName)}(input: Single${typeName}Input): Single${typeName}Output`;
+export const singleQueryTemplate = ({ typeName }: {typeName: string}) => `${camelCaseify(typeName)}(input: Single${typeName}Input): Single${typeName}Output`;
 
 
 /*
@@ -135,7 +135,7 @@ A query for multiple documents
 movies(input: MultiMovieInput) : MultiMovieOutput
 
 */
-export const multiQueryTemplate = ({ typeName }) => `${camelCaseify(pluralize(typeName))}(input: Multi${typeName}Input): Multi${typeName}Output`;
+export const multiQueryTemplate = ({ typeName }: {typeName: string}) => `${camelCaseify(pluralize(typeName))}(input: Multi${typeName}Input): Multi${typeName}Output`;
 
 /* ------------------------------------- Query Input Types ------------------------------------- */
 
@@ -153,7 +153,7 @@ type SingleMovieInput {
 }
 
 */
-export const singleInputTemplate = ({ typeName }) =>
+export const singleInputTemplate = ({ typeName }: {typeName: string}) =>
 `input Single${typeName}Input {
   selector: ${typeName}SelectorUniqueInput
   # Whether to enable caching for this query
@@ -174,7 +174,7 @@ type MultiMovieInput {
 }
 
 */
-export const multiInputTemplate = ({ typeName }) =>
+export const multiInputTemplate = ({ typeName }: {typeName: string}) =>
 `input Multi${typeName}Input {
   # A JSON object that contains the query terms used to fetch data
   terms: JSON,
@@ -207,7 +207,7 @@ type SingleMovieOuput{
 }
 
 */
-export const singleOutputTemplate = ({ typeName }) =>
+export const singleOutputTemplate = ({ typeName }: {typeName: string}) =>
 `type Single${typeName}Output{
   result: ${typeName}
 }`;
@@ -222,7 +222,7 @@ type MultiMovieOuput{
 }
 
 */
-export const multiOutputTemplate = ({ typeName }) =>
+export const multiOutputTemplate = ({ typeName }: {typeName: string}) =>
 `type Multi${typeName}Output{
   results: [${typeName}]
   totalCount: Int
@@ -237,7 +237,7 @@ Mutation for creating a new document
 createMovie(input: CreateMovieInput) : MovieOutput
 
 */
-export const createMutationTemplate = ({ typeName }) =>
+export const createMutationTemplate = ({ typeName }: {typeName: string}) =>
 `create${typeName}(data: Create${typeName}DataInput!) : ${typeName}Output`;
 
 /*
@@ -247,7 +247,7 @@ Mutation for updating an existing document
 updateMovie(input: UpdateMovieInput) : MovieOutput
 
 */
-export const updateMutationTemplate = ({ typeName }) =>
+export const updateMutationTemplate = ({ typeName }: {typeName: string}) =>
 `update${typeName}(selector: ${typeName}SelectorUniqueInput!, data: Update${typeName}DataInput! ) : ${typeName}Output`;
 
 /*
@@ -257,7 +257,7 @@ Mutation for updating an existing document; or creating it if it doesn't exist y
 upsertMovie(input: UpsertMovieInput) : MovieOutput
 
 */
-export const upsertMutationTemplate = ({ typeName }) =>
+export const upsertMutationTemplate = ({ typeName }: {typeName: string}) =>
 `upsert${typeName}(selector: ${typeName}SelectorUniqueInput!, data: Update${typeName}DataInput! ) : ${typeName}Output`;
 
 /*
@@ -267,7 +267,7 @@ Mutation for deleting an existing document
 deleteMovie(input: DeleteMovieInput) : MovieOutput
 
 */
-export const deleteMutationTemplate = ({ typeName }) =>
+export const deleteMutationTemplate = ({ typeName }: {typeName: string}) =>
 `delete${typeName}(selector: ${typeName}SelectorUniqueInput!) : ${typeName}Output`;
 
 /* ------------------------------------- Mutation Input Types ------------------------------------- */
@@ -283,7 +283,7 @@ type CreateMovieInput {
 }
 
 */
-export const createInputTemplate = ({ typeName }) =>
+export const createInputTemplate = ({ typeName }: {typeName: string}) =>
 `input Create${typeName}Input{
   data: Create${typeName}DataInput!
 }`;
@@ -298,7 +298,7 @@ type UpdateMovieInput {
 }
 
 */
-export const updateInputTemplate = ({ typeName }) =>
+export const updateInputTemplate = ({ typeName }: {typeName: string}) =>
 `input Update${typeName}Input{
   selector: ${typeName}SelectorUniqueInput!
   data: Update${typeName}DataInput!
@@ -316,7 +316,7 @@ type UpsertMovieInput {
 }
 
 */
-export const upsertInputTemplate = ({ typeName }) =>
+export const upsertInputTemplate = ({ typeName }: {typeName: string}) =>
 `input Upsert${typeName}Input{
   selector: ${typeName}SelectorUniqueInput!
   data: Update${typeName}DataInput!
@@ -331,7 +331,7 @@ type DeleteMovieInput {
 }
 
 */
-export const deleteInputTemplate = ({ typeName }) =>
+export const deleteInputTemplate = ({ typeName }: {typeName: string}) =>
 `input Delete${typeName}Input{
   selector: ${typeName}SelectorUniqueInput!
 }`;
@@ -377,7 +377,7 @@ type MovieOutput {
 }
 
 */
-export const mutationOutputTemplate = ({ typeName }) =>
+export const mutationOutputTemplate = ({ typeName }: {typeName: string}) =>
 `type ${typeName}Output{
   data: ${typeName}
 }`;
