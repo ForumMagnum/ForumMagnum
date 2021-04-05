@@ -8,7 +8,7 @@ import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import getVoyagerConfig from './vulcan-lib/apollo-server/voyager';
-import { graphiqlMiddleware, getGraphiqlConfig } from './vulcan-lib/apollo-server/graphiql';
+import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
@@ -139,7 +139,10 @@ export function startWebserver() {
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
   // Setup GraphiQL
-  app.use("/graphiql", graphiqlMiddleware(getGraphiqlConfig(config)));
+  app.use("/graphiql", graphiqlMiddleware({
+    endpointURL: config.path,
+    passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
+  }));
   
 
   app.get('*', async (request, response) => {

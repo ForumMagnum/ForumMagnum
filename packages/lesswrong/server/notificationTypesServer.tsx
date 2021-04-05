@@ -22,9 +22,9 @@ interface ServerNotificationType {
   name: string,
   from?: string,
   canCombineEmails?: boolean,
-  loadData?: ({user, notifications}) => Promise<any>,
-  emailSubject: ({user, notifications}) => Promise<string>,
-  emailBody: ({user, notifications}) => Promise<React.ReactNode>,
+  loadData?: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<any>,
+  emailSubject: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<string>,
+  emailBody: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<React.ReactNode>,
 }
 
 const notificationTypes: {string?: ServerNotificationType} = {};
@@ -205,7 +205,7 @@ export const NewUserNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null,
 });
 
-const newMessageEmails = {
+const newMessageEmails: Partial<Record<string,string>> = {
   EAForum: 'forum-noreply@effectivealtruism.org'
 }
 const forumNewMessageEmail = newMessageEmails[forumTypeSetting.get()]
@@ -237,7 +237,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
   emailSubject: async function({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) {
     const { conversations, otherParticipants } = await this.loadData!({ user, notifications });
     
-    const otherParticipantNames = otherParticipants.map(u=>userGetDisplayName(u)).join(', ');
+    const otherParticipantNames = otherParticipants.map((u: DbUser)=>userGetDisplayName(u)).join(', ');
     
     return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
   },

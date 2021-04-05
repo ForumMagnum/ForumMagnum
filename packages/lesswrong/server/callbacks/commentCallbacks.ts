@@ -389,5 +389,8 @@ getCollectionHooks("Comments").createAfter.add(async function updateTopLevelComm
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(newDocumentMaybeTriggerReview)
+getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
+  await newDocumentMaybeTriggerReview(document);
+  return document;
+})
 

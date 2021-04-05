@@ -1,8 +1,3 @@
-export const getGraphiqlConfig = currentConfig => ({
-  endpointURL: currentConfig.path,
-  passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
-});
-
 // LEGACY SUPPORT FOR GRAPHIQL
 // Code is taken from apollo 1.4 code and
 // @see https://github.com/eritikass/express-graphiql-middleware

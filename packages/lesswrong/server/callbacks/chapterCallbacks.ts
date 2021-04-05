@@ -20,7 +20,7 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
     }});
   })
 
-  await asyncForeachSequential(posts, async (currentPost, i) => {
+  await asyncForeachSequential(posts, async (currentPost: DbPost, i: number) => {
     const validSequenceId = (currentPost, sequence) => {
       // Only update a post if it either doesn't have a canonicalSequence, or if we're editing
       // chapters *from* its canonicalSequence
