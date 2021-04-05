@@ -24,6 +24,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500],
     position: "relative",
     top: 3
+  },
+  flagged: {
+    background: "rgba(150,0,0,.05)"
   }
 })
 const SunshineNewUsersItem = ({ user, classes }: {
@@ -37,7 +40,7 @@ const SunshineNewUsersItem = ({ user, classes }: {
 
 
   return (
-    <span {...eventHandlers}>
+    <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : null}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <SunshineNewUsersInfo user={user} />
@@ -61,7 +64,7 @@ const SunshineNewUsersItem = ({ user, classes }: {
           </MetaInfo>}
         </div>
       </SunshineListItem>
-    </span>
+    </div>
   )
 }
 
