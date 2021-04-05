@@ -25,7 +25,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 
 export const defaultModeratorPMsTag = new DatabasePublicSetting<string>('defaultModeratorPMsTag', "HTSg8QDKop33L29oe")
 
-export const getTitle = (s) => s.split("\\")[0]
+export const getTitle = (s) => s ? s.split("\\")[0] : ""
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -304,7 +304,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                       >
                         <MenuItem>
                           <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id}>
-                            {getTitle(comment?.contents?.plaintextMainText)}
+                            {getTitle(comment.contents?.plaintextMainText)}
                           </NewConversationButton>
                         </MenuItem>
                       </LWTooltip>
