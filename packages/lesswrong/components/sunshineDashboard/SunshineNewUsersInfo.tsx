@@ -23,7 +23,7 @@ import { Select, MenuItem } from '@material-ui/core';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 
-export const defaultModeratorPMsTag = new DatabasePublicSetting<string>('defaultModeratorPMsTag', "HTSg8QDKop33L29oe")
+export const defaultModeratorPMsTag = new DatabasePublicSetting<string>('defaultModeratorPMsTag', "HTSg8QDKop33L29oe") // ea-forum-look-here
 
 export const getTitle = (s) => s ? s.split("\\")[0] : ""
 
