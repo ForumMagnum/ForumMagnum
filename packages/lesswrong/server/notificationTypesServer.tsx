@@ -115,11 +115,11 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
   name: "newTagPosts",
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    const [documentId, documentType] = notifications[0]
+    const {documentId, documentType} = notifications[0]
     return await taggedPostMessage({documentId, documentType})
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    const [documentId, documentType] = notifications[0]
+    const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
       return <Components.NewPostEmail documentId={ tagRel.postId}/>
@@ -230,7 +230,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
     const participantsRaw = await Users.find({ _id: {$in: participantIds} }).fetch();
     const participants = await accessFilterMultiple(user, Users, participantsRaw, null);
     const participantsById = keyBy(participants, u=>u._id);
-    const otherParticipants = _.filter(participants, id=>id!=user._id);
+    const otherParticipants = _.filter(participants, participant=>participant._id!=user._id);
     
     return { conversations, messages, participantsById, otherParticipants };
   },
