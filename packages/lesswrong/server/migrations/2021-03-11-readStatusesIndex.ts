@@ -22,7 +22,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     // Ensure that the tagId field is not missing (ie replace missing with null)
-    ReadStatuses.update({tagId: {$exists: false}}, {$set: {tagId: null}}, {multi: true})
+    await ReadStatuses.update({tagId: {$exists: false}}, {$set: {tagId: null}}, {multi: true})
     
     // Download all ReadStatuses, and identify the duplicates
     const allReadStatuses = await ReadStatuses.find().fetch();
