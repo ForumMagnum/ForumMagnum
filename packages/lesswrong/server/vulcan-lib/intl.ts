@@ -18,7 +18,7 @@ export const getHeaderLocale = (headers, userLocale) => {
   // get locale from cookies
   if (headers['cookie']) {
     const cookies: any = {};
-    headers['cookie'].split('; ').forEach(c => {
+    headers['cookie'].split('; ').forEach((c: string) => {
       const cookieArray = c.split('=');
       cookies[cookieArray[0]] = cookieArray[1];
     });
@@ -27,7 +27,7 @@ export const getHeaderLocale = (headers, userLocale) => {
 
   // get locale from accepted-language header
   if (headers['accept-language']) {
-    const acceptedLanguages = headers['accept-language'].split(',').map(l => l.split(';')[0]);
+    const acceptedLanguages = headers['accept-language'].split(',').map((l: string) => l.split(';')[0]);
     acceptedLocale = acceptedLanguages[0]; // for now only use the highest-priority accepted language
   }
 

@@ -164,9 +164,9 @@ export const checkNested: any = function(obj /*, level1, level2, ... levelN*/) {
 };
 
 // see http://stackoverflow.com/questions/8051975/access-object-child-properties-using-a-dot-notation-string
-export const getNestedProperty = function (obj, desc) {
+export const getNestedProperty = function (obj: any, desc: string) {
   var arr = desc.split('.');
-  while(arr.length && (obj = obj[arr.shift()]));
+  while(arr.length && (obj = obj[arr.shift()!]));
   return obj;
 };
 
@@ -217,8 +217,6 @@ export const decodeIntlError = (error, options = {stripped: false}) => {
     return error;
   }
 };
-
-export const findWhere = (array, criteria) => array.find(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
 
 export const isPromise = (value: any): boolean => isFunction(get(value, 'then'));
 

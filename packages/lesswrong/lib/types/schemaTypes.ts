@@ -38,7 +38,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   
   form?: any,
   input?: any,
-  beforeComponent?: string,
+  beforeComponent?: keyof ComponentTypes,
   order?: number,
   label?: string,
   tooltip?: string,
@@ -46,6 +46,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   placeholder?: string,
   hidden?: any,
   group?: any,
+  inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
   //  * onInsert, onEdit, and onRemove are deprecated (but still used) because

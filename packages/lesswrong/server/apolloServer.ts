@@ -7,7 +7,6 @@ import { renderWithCache } from './vulcan-lib/apollo-ssr/renderPage';
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import getVoyagerConfig from './vulcan-lib/apollo-server/voyager';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
@@ -81,7 +80,7 @@ export function startWebserver() {
   // given options contains the schema
   const apolloServer = new ApolloServer({
     // graphql playground (replacement to graphiql), available on the app path
-    playground: getPlaygroundConfig(config),
+    playground: getPlaygroundConfig(config.path),
     introspection: true,
     debug: isDevelopment,
     
@@ -137,7 +136,9 @@ export function startWebserver() {
   app.use(express.static(path.join(__dirname, '../../../public')))
   
   // Voyager is a GraphQL schema visual explorer
-  app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
+  app.use("/graphql-voyager", voyagerMiddleware({
+    endpointUrl: config.path,
+  }));
   // Setup GraphiQL
   app.use("/graphiql", graphiqlMiddleware({
     endpointURL: config.path,

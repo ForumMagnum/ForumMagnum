@@ -56,7 +56,7 @@ export class EmailTokenType
     return `${prefix}/${this.path}/${token}`;
   }
   
-  handleToken = async (token: DbEmailTokens, args) => {
+  handleToken = async (token: DbEmailTokens, args: any) => {
     const user = await Users.findOne({_id: token.userId});
     if (!user) throw new Error(`Invalid userId on email token ${token._id}`);
     const actionResult = await this.onUseAction(user, token.params, args);
@@ -87,7 +87,7 @@ addGraphQLMutation('useEmailToken(token: String, args: JSON): JSON');
 addGraphQLQuery('getTokenParams(token: String): JSON');
 addGraphQLResolvers({
   Mutation: {
-    async useEmailToken(root: void, {token, args}, context: ResolverContext) {
+    async useEmailToken(root: void, {token, args}: {token: string, args: any}, context: ResolverContext) {
       try {
         const { tokenObj, tokenType } = await getAndValidateToken(token)
 

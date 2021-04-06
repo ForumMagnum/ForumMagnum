@@ -50,7 +50,7 @@ interface ComponentsTableEntry {
 }
 
 const componentsProxyHandler = {
-  get: function(obj, prop) {
+  get: function(obj: {}, prop: string) {
     if (prop == "__isProxy") {
       return true;
     } else if (prop in PreparedComponents) {
@@ -64,17 +64,14 @@ const componentsProxyHandler = {
 // Acts like a mapping from component-name to component, based on
 // registerComponents calls. Lazily loads those components when you dereference,
 // using a proxy.
-export const Components: ComponentTypes = new Proxy({}, componentsProxyHandler);
+export const Components: ComponentTypes = new Proxy({} as any, componentsProxyHandler);
 
-const PreparedComponents = {};
+const PreparedComponents: Record<string,any> = {};
 
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-const DeferredComponentsTable = {};
-
-type C<T=any> = React.ComponentType<T>
-type HoC<O,T> = (component: C<O>) => C<T>
+const DeferredComponentsTable: Record<string,()=>void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -94,7 +91,7 @@ const addClassnames = (componentName: string, styles: any) => {
         return `${componentName}-invalid`;
     }
   });
-  return (WrappedComponent) => (props) => {
+  return (WrappedComponent: any) => (props: any) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
       const withStylesHoc = withStyles(styles, {name: componentName})
@@ -148,7 +145,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName, importFn) {
+export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: ()=>void) {
   if (Array.isArray(componentName)) {
     for (let name of componentName) {
       DeferredComponentsTable[name] = importFn;
@@ -164,7 +161,7 @@ export function importAllComponents() {
   }
 }
 
-function prepareComponent(componentName: string)
+function prepareComponent(componentName: string): any
 {
   if (componentName in PreparedComponents) {
     return PreparedComponents[componentName];
@@ -299,7 +296,7 @@ export const populateComponentsApp = (): void => {
 //
 // @param {string|function} component  A component or registered component name
 // @param {Object} [props]  Optional properties to pass to the component
-export const instantiateComponent = (component, props) => {
+export const instantiateComponent = (component: any, props: any) => {
   if (!component) {
     return null;
   } else if (typeof component === 'string') {
@@ -322,14 +319,14 @@ export const instantiateComponent = (component, props) => {
 // Given an optional set of override-components, return a Components object
 // which wraps the main Components table, preserving Components'
 // proxy/deferred-execution tricks.
-export const mergeWithComponents = myComponents => {
+export const mergeWithComponents = (myComponents: any) => {
   if (!myComponents) return Components;
   
   if (myComponents.__isProxy)
     return myComponents;
   
   const mergedComponentsProxyHandler = {
-    get: function(obj, prop) {
+    get: function(obj: any, prop: string) {
       if (prop === "__isProxy") {
         return true;
       } else if (prop in myComponents) {

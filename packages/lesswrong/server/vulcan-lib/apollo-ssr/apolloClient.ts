@@ -5,7 +5,7 @@ import { getExecutableSchema } from '../apollo-server/initGraphQL';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
-export const createClient = async (context) => {
+export const createClient = async (context: ResolverContext) => {
   const cache = new InMemoryCache({
     possibleTypes: {
       ...apolloCacheVoteablePossibleTypes()

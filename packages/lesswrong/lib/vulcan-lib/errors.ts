@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 Get whatever word is contained between the first two double quotes
 
 */
-const getFirstWord = input => {
+const getFirstWord = (input: string) => {
   const parts = /"([^"]*)"/.exec(input);
   if (parts === null) {
     return null;

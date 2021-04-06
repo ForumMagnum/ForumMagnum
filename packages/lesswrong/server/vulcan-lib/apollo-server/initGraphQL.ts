@@ -2,7 +2,7 @@
 // addGraphQLResolvers &c.
 
 import { makeExecutableSchema } from 'apollo-server';
-import { getAdditionalSchemas, queries, mutations, getDirectives, getResolvers, getCollections } from '../../../lib/vulcan-lib/graphql';
+import { getAdditionalSchemas, queries, mutations, getResolvers, getCollections, QueryAndDescription, MutationAndDescription } from '../../../lib/vulcan-lib/graphql';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -34,7 +34,7 @@ import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
 import * as _ from 'underscore';
 
-const queriesToGraphQL = (queries): string =>
+const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
 ${queries.map(q =>
         `${
@@ -48,7 +48,7 @@ ${queries.map(q =>
 }
 
 `;
-const mutationsToGraphQL = (mutations): string =>
+const mutationsToGraphQL = (mutations: MutationAndDescription[]): string =>
   mutations.length > 0
     ? `
 ${
@@ -102,7 +102,7 @@ const getTypeDefs = () => {
 }
 
 // get GraphQL type for a given schema and field name
-const getGraphQLType = (schema, fieldName, isInput = false) => {
+const getGraphQLType = <T extends DbObject>(schema: SchemaType<T>, fieldName: string, isInput = false): string|null => {
   const field = schema[fieldName];
   const type = field.type.singleType;
   const typeName =
@@ -203,7 +203,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string) 
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
-            [resolverName]: (document, args, context: ResolverContext, info) => {
+            [resolverName]: (document: T, args: any, context: ResolverContext, info: any) => {
               const { currentUser } = context;
               // check that current user has permission to access the original non-resolved field
               const canReadField = userCanReadField(currentUser, field, document);
@@ -315,7 +315,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
     schemaFragments.push(orderByInputTemplate({ typeName, fields: orderBy }));
 
     if (!_.isEmpty(resolvers)) {
-      const queryResolvers = {};
+      const queryResolvers: Partial<Record<string,any>> = {};
 
       // single
       if (resolvers.single) {
@@ -336,7 +336,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
     }
 
     if (!_.isEmpty(mutations)) {
-      const mutationResolvers = {};
+      const mutationResolvers: Partial<Record<string,any>> = {};
       // create
       if (mutations.create) {
         // e.g. "createMovie(input: CreateMovieInput) : Movie"
@@ -425,7 +425,6 @@ export const initGraphQL = () => {
   executableSchema = makeExecutableSchema({
     typeDefs: schemaText,
     resolvers: allResolvers,
-    schemaDirectives: getDirectives(),
   });
 
   return executableSchema;
