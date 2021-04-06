@@ -11,6 +11,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentPreview: {
     maxWidth: 600
+  },
+  deleted: {
+    color: theme.palette.grey[400]
+  },
+  default: {
+    color: theme.palette.grey[900],
   }
 })
 
@@ -25,7 +31,11 @@ const CommentKarmaWithPreview = ({ comment, classes }: {
   if (!comment) return null 
 
   return <span className={classes.root} {...eventHandlers}>
-    <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.baseScore}</Link>
+    <Link className={comment.deleted ? classes.deleted : classes.default}
+      to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}
+    >
+      {comment.baseScore}
+    </Link>
     <LWPopper
         open={hover}
         anchorEl={anchorEl}
