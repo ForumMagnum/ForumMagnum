@@ -21,18 +21,32 @@ function domBuilder(html) {
 }
 
 
-export function htmlToDraftServer(...args) {
+export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
   const jsdom = new JSDOM();
   const globalHTMLElement = jsdom.window.HTMLElement;
   (global as any).HTMLElement = globalHTMLElement;
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
   (global as any).document = jsdom.window.document
-  const result = htmlToDraft(...args)
+  
+  // On the server have to pass in a JS-DOM implementation to make htmlToDraft work
+  //
+  // The DefinitelyTyped annotation of htmlToDraft, which comes from convertFromHTML
+  // in the draft-convert library, is wrong. This actually takes optional second and
+  // third arguments, the second being options, and the third being a DOMBuilder
+  // (verified by quick source-dive into draft-convert).
+  // @ts-ignore
+  const result = htmlToDraft(html, {}, domBuilder)
+  
   // We do however at least remove it right afterwards
   delete (global as any).document
   delete (global as any).HTMLElement
-  return result
+  
+  // convertToRaw wants a Draft.ContentState, but htmlToDraft produced a
+  // Draft.Model.ImmutableData.ContentState. AFAICT this is the DefinitelyTyped
+  // people not being careful with the const plague, not a real issue.
+  // @ts-ignore
+  return convertToRaw(result)
 }
 
 export function dataToDraftJS(data, type) {
@@ -43,18 +57,15 @@ export function dataToDraftJS(data, type) {
       return data
     }
     case "html": {
-      const draftJSContentState = htmlToDraftServer(data, {}, domBuilder)
-      return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
+      return htmlToDraftServer(data)
     }
     case "ckEditorMarkup": {
       // CK Editor markup is just html with extra tags, so we just remove them and then handle it as html
-      const draftJSContentState = htmlToDraftServer(sanitize(data), {}, domBuilder)
-      return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
+      return htmlToDraftServer(sanitize(data))
     }
     case "markdown": {
       const html = markdownToHtmlNoLaTeX(data)
-      const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
-      return convertToRaw(draftJSContentState)
+      return htmlToDraftServer(html)
     }
     default: {
       throw new Error(`Unrecognized type: ${type}`);

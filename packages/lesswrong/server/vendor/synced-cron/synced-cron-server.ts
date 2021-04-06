@@ -317,8 +317,9 @@ SyncedCron._laterSetTimeout = function(fn, sched) {
   * attempting to schedule the timeout again.
   */
   function scheduleTimeout() {
-    var now = Date.now(),
-        next = s.next(2, now);
+    var now = Date.now();
+    // @ts-ignore
+    var next = s.next(2, now);
 
     // don't schedlue another occurence if no more exist synced-cron#41
     if (! next[0])
