@@ -1,4 +1,5 @@
 import type { GraphQLScalarType } from 'graphql';
+import type { SimpleSchema } from 'simpl-schema';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -76,10 +77,6 @@ interface CollectionFieldSpecification<T extends DbObject> {
 
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
-type SimpleSchemaType<T extends DbObject> = {
-  _schema: SchemaType<T>
-  get: (fieldName: string, property: string) => any
-  newContext: ()=>any
-}
+type SimpleSchemaType<T extends DbObject> = SimpleSchema & {_schema: SchemaType<T>};
 
 }

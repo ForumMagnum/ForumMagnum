@@ -83,7 +83,7 @@ const getInitialStateFromProps = nextProps => {
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
     : getSimpleSchema(collection);
-  const convertedSchema = convertSchema(schema)!;
+  const convertedSchema = convertSchema(schema as any)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
   const defaultValues =
@@ -116,7 +116,7 @@ const getInitialStateFromProps = nextProps => {
     // convert SimpleSchema schema into JSON object
     schema: convertedSchema,
     // Also store all field schemas (including nested schemas) in a flat structure
-    flatSchema: convertSchema(schema, true),
+    flatSchema: convertSchema(schema as any, true),
     // the initial document passed as props
     initialDocument,
     // initialize the current document to be the same as the initial document

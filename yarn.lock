@@ -2900,6 +2900,16 @@
   resolved "https://registry.yarnpkg.com/@types/mdurl/-/mdurl-1.0.2.tgz#e2ce9d83a613bacf284c7be7d491945e39e1f8e9"
   integrity sha512-eC4U9MlIcu2q0KQmXszyn5Akca/0jrQmwDRgpAMJai7qBWq4amIQhZyNau4VYGtCeALvW1/NtjzJJ567aZxfKA==
 
+"@types/meteor@*":
+  version "1.4.67"
+  resolved "https://registry.yarnpkg.com/@types/meteor/-/meteor-1.4.67.tgz#f49bcb137e12b94067cb84784128ad17686e3bc5"
+  integrity sha512-FY+jmYR/3YgkKF7yGPqMyCYK4M0Omf6ithIs4oG56Zqi2yjzRcXwZH3ZPXD4h2aBYh5HOH4EovQUO2DgTEu2ow==
+  dependencies:
+    "@types/connect" "*"
+    "@types/mongodb" "*"
+    "@types/react" "*"
+    "@types/underscore" "*"
+
 "@types/meteor@^1.4.42":
   version "1.4.64"
   resolved "https://registry.yarnpkg.com/@types/meteor/-/meteor-1.4.64.tgz"
@@ -3317,6 +3327,13 @@
   dependencies:
     "@types/mime" "*"
     "@types/node" "*"
+
+"@types/simpl-schema@^1.10.4":
+  version "1.10.4"
+  resolved "https://registry.yarnpkg.com/@types/simpl-schema/-/simpl-schema-1.10.4.tgz#c481ca9674e95da4da0ba1719f043e16ad5c0d5e"
+  integrity sha512-0UzMuUK7vjb+SnoYNcEN/LQvAQUHb1RqbxYxds9DZq/YpYmoyq+kTqmRJzOVQaMQYX/BknwdNF2OL47BlWZ1Fg==
+  dependencies:
+    "@types/meteor" "*"
 
 "@types/speakingurl@^13.0.2":
   version "13.0.2"
