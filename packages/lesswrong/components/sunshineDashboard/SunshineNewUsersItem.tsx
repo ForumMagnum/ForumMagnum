@@ -38,7 +38,6 @@ const SunshineNewUsersItem = ({ user, classes }: {
 
   const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate } = Components
 
-
   return (
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : null}>
       <SunshineListItem hover={hover}>
@@ -60,7 +59,7 @@ const SunshineNewUsersItem = ({ user, classes }: {
           {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
           {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
           {!user.reviewedByUserId && <MetaInfo className={classes.info}>
-            { user.email }
+            { user.email || "This user has no email" }
           </MetaInfo>}
         </div>
       </SunshineListItem>

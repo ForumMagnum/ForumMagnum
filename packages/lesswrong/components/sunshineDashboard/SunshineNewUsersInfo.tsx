@@ -1,7 +1,7 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
@@ -126,6 +126,19 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
+  const handleNotes = () => {
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        sunshineNotes: notes
+      }
+    })
+  }
+
+  useEffect(() => {
+    handleNotes()
+  });
+
   const handleReview = () => {
     if (canReview) {
       updateUser({
@@ -156,8 +169,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     })
   }
 
+  const banMonths = 3
+
   const handleBan = async () => {
-    if (confirm("Ban this user for 3 months?")) {
+    if (confirm(`Ban this user for ${banMonths} months?`)) {
       await updateUser({
         selector: {_id: user._id},
         data: {
@@ -166,7 +181,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           voteBanned: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(3, 'months').toDate(),
+          banned: moment().add(banMonths, 'months').toDate(),
           sunshineNotes: notes
         }
       })
@@ -185,7 +200,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           deleteContent: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(12, 'months').toDate(),
+          banned: moment().add(99, 'months').toDate(),
           sunshineNotes: notes
         }
       })
@@ -263,11 +278,11 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                     <RemoveCircleOutlineIcon />
                   </Button>
                 </LWTooltip>
-                {!user.reviewedByUserId && <LWTooltip title="Purge (delete and ban)">
+                <LWTooltip title="Purge (delete and ban)">
                   <Button onClick={handlePurge}>
                     <DeleteForeverIcon />
                   </Button>
-                </LWTooltip>}
+                </LWTooltip>
                 <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
                   <div>Flag this user for more review</div>
                   <div><em>(This will not remove them from sidebar)</em></div>

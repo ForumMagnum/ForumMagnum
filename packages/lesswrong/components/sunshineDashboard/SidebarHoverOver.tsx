@@ -3,11 +3,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    position:"relative",
+    position:"sticky",
     zIndex: theme.zIndexes.sidebarHoverOver,
   },
   hoverInfo: {
-    position: "relative",
+    position: "sticky",
     backgroundColor: theme.palette.grey[50],
     padding: theme.spacing.unit*2,
     border: "solid 1px rgba(0,0,0,.1)",
