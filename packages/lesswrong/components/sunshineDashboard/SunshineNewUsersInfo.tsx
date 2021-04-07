@@ -136,7 +136,9 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   }
 
   useEffect(() => {
-    handleNotes()
+    return () => {
+      handleNotes();
+    }
   });
 
   const handleReview = () => {
