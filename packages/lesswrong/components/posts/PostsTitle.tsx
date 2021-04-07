@@ -93,7 +93,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
   const { pathname } = useLocation();
   const { PostsItemIcons, CuratedIcon } = Components
 
-  const shared = post.draft && (post.userId !== currentUser?._id)
+  const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = pathname !== "/community"
