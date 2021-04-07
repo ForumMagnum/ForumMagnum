@@ -5,7 +5,10 @@ import React, { useContext, useEffect, useState, useRef, useCallback } from 'rea
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isDevelopment } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
+import { DatabasePublicSetting } from './publicSettings';
 import * as _ from 'underscore';
+
+const alwaysShowAnalyticsDebug = new DatabasePublicSetting<boolean>("alwaysShowAnalyticsDebug ", false);
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -50,7 +53,7 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
           ...eventProps
         }
       }
-      if (isDevelopment) {
+      if (isDevelopment || alwaysShowAnalyticsDebug.get()) {
         serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
@@ -275,7 +278,7 @@ const throttledStoreEvent = (event) => {
   if (limiters.eventCount.canConsumeResource(1)
     && limiters.eventBandwidth.canConsumeResource(eventSize))
   {
-    if (isDevelopment) {
+    if (isDevelopment || alwaysShowAnalyticsDebug.get()) {
       browserConsoleLogAnalyticsEvent(event, false);
     }
 
@@ -283,7 +286,7 @@ const throttledStoreEvent = (event) => {
     limiters.eventBandwidth.consumeResource(eventSize);
     pendingAnalyticsEvents.push(event);
   } else {
-    if (isDevelopment) {
+    if (isDevelopment || alwaysShowAnalyticsDebug.get()) {
       browserConsoleLogAnalyticsEvent(event, true);
     }
     limiters.exceeded();
