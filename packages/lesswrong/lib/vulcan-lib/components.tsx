@@ -300,7 +300,7 @@ export const instantiateComponent = (component: any, props: any) => {
   if (!component) {
     return null;
   } else if (typeof component === 'string') {
-    const Component = Components[component];
+    const Component: any = Components[component];
     return <Component {...props} />;
   } else if (
     typeof component === 'function' &&

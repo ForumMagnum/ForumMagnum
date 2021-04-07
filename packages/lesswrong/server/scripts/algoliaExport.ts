@@ -24,7 +24,7 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   // eslint-disable-next-line no-console
   console.log("Initiated Index connection")
   
-  let totalErrors = [];
+  let totalErrors: any[] = [];
   const totalItems = collection.find(selector||{}).count();
   let exportedSoFar = 0;
   

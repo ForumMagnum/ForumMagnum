@@ -27,26 +27,26 @@ import { addStaticRoute } from '../vulcan-lib';
 // through other UI).
 const subredditPrefixRoute = "/:section(r)?/:subreddit(all|discussion|lesswrong)?";
 
-async function findPostByLegacyId(legacyId) {
+async function findPostByLegacyId(legacyId: string) {
   const parsedId = parseInt(legacyId, 36);
   return await Posts.findOne({"legacyId": parsedId.toString()});
 }
 
-async function findCommentByLegacyId(legacyId) {
+async function findCommentByLegacyId(legacyId: string) {
   const parsedId = parseInt(legacyId, 36);
   return await Comments.findOne({"legacyId": parsedId.toString()});
 }
 
-function makeRedirect(res, destination) {
+function makeRedirect(res, destination: string) {
   res.writeHead(301, {"Location": destination});
   res.end();
 }
 
-async function findPostByLegacyAFId(legacyId) {
+async function findPostByLegacyAFId(legacyId: string) {
   return await Posts.findOne({"agentFoundationsId": legacyId})
 }
 
-async function findCommentByLegacyAFId(legacyId) {
+async function findCommentByLegacyAFId(legacyId: string) {
   return await Comments.findOne({"agentFoundationsId": legacyId})
 }
 

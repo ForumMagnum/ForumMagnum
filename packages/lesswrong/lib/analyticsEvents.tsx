@@ -124,7 +124,10 @@ The best way to ensure you are tracking correctly with is to insert a console.lo
 in captureEvent in this file, e.g. console.log({eventType: eventProps}).
 */
 
-export const AnalyticsContext = ({children, ...props}) => {
+export const AnalyticsContext = ({children, ...props}: {
+  children: React.ReactNode,
+  props: any
+}) => {
   const existingContextData = useContext(ReactTrackingContext)
   
   // Create a child context, which is the parent context plus the provided props
