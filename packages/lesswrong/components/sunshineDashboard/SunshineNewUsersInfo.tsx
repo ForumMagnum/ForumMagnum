@@ -200,7 +200,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           deleteContent: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(99, 'months').toDate(),
+          banned: moment().add(1000, 'years').toDate(),
           sunshineNotes: notes
         }
       })
@@ -370,4 +370,3 @@ declare global {
     SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
   }
 }
-
