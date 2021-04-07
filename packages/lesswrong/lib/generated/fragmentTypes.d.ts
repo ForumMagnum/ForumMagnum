@@ -1434,6 +1434,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly unsubscribeFromAll: boolean,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly whenConfirmationEmailSent: Date,
+  readonly hideSubscribePoke: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,

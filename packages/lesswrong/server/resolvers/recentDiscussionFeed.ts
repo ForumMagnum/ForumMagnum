@@ -1,4 +1,4 @@
-import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery } from '../utils/feedUtil';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
@@ -12,16 +12,16 @@ defineFeedResolver<Date>({
     tagDiscussed: Tag
     tagRevised: Revision
   `,
-  resolver: async ({limit=20, cutoff, args, context}: {
-    limit?: number, cutoff?: Date,
+  resolver: async ({limit=20, cutoff, offset, args, context}: {
+    limit?: number, cutoff?: Date, offset?: number,
     args: {af: boolean},
     context: ResolverContext
   }) => {
     type SortKeyType = Date;
     const {af} = args;
     
-    const result = await mergeFeedQueries<SortKeyType>({
-      limit, cutoff,
+    return await mergeFeedQueries<SortKeyType>({
+      limit, cutoff, offset,
       subqueries: [
         // Post commented
         viewBasedSubquery({
@@ -61,8 +61,13 @@ defineFeedResolver<Date>({
             "changeMetrics.added": {$gt: 100},
           },
         }),
+        // Suggestion to subscribe to curated
+        fixedIndexSubquery({
+          type: "subscribeReminder",
+          index: 6,
+          result: {},
+        }),
       ],
     });
-    return result;
   }
 });

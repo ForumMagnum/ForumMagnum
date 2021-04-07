@@ -15,9 +15,10 @@ defineFeedResolver<Date>({
     tagRevision: Revision
     tagDiscussionComment: Comment
   `,
-  resolver: async ({limit=50, cutoff, args, context}: {
+  resolver: async ({limit=50, cutoff, offset, args, context}: {
     limit?: number,
     cutoff?: Date,
+    offset?: number,
     args: {tagId: string},
     context: ResolverContext
   }) => {
@@ -31,8 +32,7 @@ defineFeedResolver<Date>({
     type SortKeyType = Date
     
     const result = await mergeFeedQueries<SortKeyType>({
-      limit,
-      cutoff,
+      limit, cutoff, offset,
       subqueries: [
         // Tag creation
         fixedResultSubquery({
