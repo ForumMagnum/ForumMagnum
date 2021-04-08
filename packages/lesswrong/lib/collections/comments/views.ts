@@ -298,6 +298,16 @@ Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({userId:1, postedAt:1}));
 
+Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      tagId: terms.tagId,
+    }
+  };
+});
+ensureIndex(Comments, augmentForDefaultView({tagId:1}));
+
+
 Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
   return {
     selector: {parentAnswerId: terms.parentAnswerId},

@@ -312,6 +312,7 @@ importComponent("CommentPermalink", () => require('../components/comments/Commen
 importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
 importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
+importComponent("RecentDiscussionSubscribeReminder", () => require('../components/recentDiscussion/RecentDiscussionSubscribeReminder'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
