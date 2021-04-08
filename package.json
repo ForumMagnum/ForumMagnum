@@ -25,7 +25,14 @@
     "rebuild-reinstall-ckeditor": "cd ./public/lesswrong-editor && yarn install && yarn run build && cd ../.. && yarn add ./public/lesswrong-editor",
     "reinstall-ckeditor-after-git-checkout": "yarn add ./public/lesswrong-editor",
     "reinstall-ckeditor": "yarn add ./public/lesswrong-editor",
-    "production": "scripts/runProduction.sh"
+    "production": "scripts/runProduction.sh",
+    "ea-start": "./build.js -run -watch --settings ../ForumCredentials/settings-dev.json --mongoUrlFile ../ForumCredentials/dev-db-conn.txt",
+    "ea-start-staging-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --settings ../ForumCredentials/settings-local-dev-staging-db.json",
+    "ea-start-prod-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/prod-db-conn.txt --settings ../ForumCredentials/settings-local-dev-prod-db.json",
+    "ea-mongod": "mongod --dbpath .meteor/local/db --port 3001",
+    "ea-load-dev-db": "mongo $(< ../ForumCredentials/dev-db-conn.txt) ../ForumCredentials/loadDevDbSettings.js",
+    "ea-load-staging-db": "mongo $(< ../ForumCredentials/staging-db-conn.txt) ../ForumCredentials/loadStagingDbSettings.js",
+    "ea-load-prod-db": "mongo $(< ../ForumCredentials/prod-db-conn.txt) ../ForumCredentials/loadProdDbSettings.js"
   },
   "dependencies": {
     "@apollo/client": "^3.2.0",
