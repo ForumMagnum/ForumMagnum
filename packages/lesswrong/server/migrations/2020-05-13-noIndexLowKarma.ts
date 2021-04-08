@@ -1,5 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Posts from '../../lib/collections/posts/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import moment from 'moment'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -23,7 +24,7 @@ export function makeLowKarmaSelector (karmaThreshold: number): MongoSelector<DbP
     isFuture: false,
     draft: false,
     baseScore: {$lt: karmaThreshold},
-    status: 2, // Others are not shown
+    status: postStatuses.STATUS_APPROVED, // Others are not shown
   }
 }
 

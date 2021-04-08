@@ -6,7 +6,8 @@ import { Bans } from '../lib/collections/bans/collection';
 import Users from '../lib/collections/users/collection';
 import { Votes } from '../lib/collections/votes';
 import { clearVotesServer } from './voteServer';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
+import { postStatuses } from '../lib/collections/posts/constants';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
@@ -95,7 +96,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
     await updateMutator({
       collection: Posts,
       documentId: post._id,
-      set: {status: 5},
+      set: {status: postStatuses.STATUS_DELETED},
       unset: {},
       currentUser: deletingUser,
       validate: false,
