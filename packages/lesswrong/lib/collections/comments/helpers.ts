@@ -24,7 +24,7 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
     if (!tag) throw Error(`Unable to find tag for comment: ${comment}`)
     return `${prefix}/tag/${tag.slug}/discussion#${comment._id}`;
   } else {
-    throw Error(`Unable to find document for comment: ${comment}`)
+    throw Error(`Unable to find document for comment: ${comment._id}`)
   }
 };
 
