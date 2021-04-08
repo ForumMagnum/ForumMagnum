@@ -30,6 +30,9 @@
     "ea-start-staging-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --settings ../ForumCredentials/settings-local-dev-staging-db.json",
     "ea-start-prod-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/prod-db-conn.txt --settings ../ForumCredentials/settings-local-dev-prod-db.json",
     "ea-mongod": "mongod --dbpath .meteor/local/db --port 3001",
+    "ea-mongo": "mongo $(< ../ForumCredentials/dev-db-conn.txt)",
+    "ea-mongo-staging": "mongo $(< ../ForumCredentials/staging-db-conn.txt)",
+    "ea-mongo-prod": "mongo $(< ../ForumCredentials/prod-db-conn.txt)",
     "ea-load-dev-db": "mongo $(< ../ForumCredentials/dev-db-conn.txt) ../ForumCredentials/loadDevDbSettings.js",
     "ea-load-staging-db": "mongo $(< ../ForumCredentials/staging-db-conn.txt) ../ForumCredentials/loadStagingDbSettings.js",
     "ea-load-prod-db": "mongo $(< ../ForumCredentials/prod-db-conn.txt) ../ForumCredentials/loadProdDbSettings.js"
