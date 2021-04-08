@@ -8,11 +8,6 @@ const Home2 = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <SingleColumnSection>
-            <AnalyticsContext pageSectionContext="gatherTownWelcome">
-              <GatherTown/>
-            </AnalyticsContext>
-          </SingleColumnSection>
           <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
