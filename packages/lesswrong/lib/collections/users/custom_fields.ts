@@ -1467,14 +1467,14 @@ addFieldsDict(Users, {
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
   },
-  // hideWalledGardenUI: {
-  //   type: Boolean,
-  //   optional:true,
-  //   canRead: ['guests'],
-  //   canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-  //   group: formGroups.siteCustomizations,
-  //   hidden: forumTypeSetting.get() === "EAForum",
-  // },
+  hideWalledGardenUI: {
+    type: Boolean,
+    optional:true,
+    canRead: ['guests'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() === "EAForum",
+  },
   walledGardenPortalOnboarded: {
     type: Boolean,
     optional:true,
