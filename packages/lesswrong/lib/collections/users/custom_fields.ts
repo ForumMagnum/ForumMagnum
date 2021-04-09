@@ -1099,7 +1099,7 @@ addFieldsDict(Users, {
     type: Number,
     graphQLtype: "Float",
     canRead: ['guests'],
-    resolver: (user, args, context: ResolverContext) => {
+    resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
 
@@ -1325,7 +1325,7 @@ addFieldsDict(Users, {
   signUpReCaptchaRating: {
     type: Number,
     optional: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins']
+    canRead: ['guests'],
   },
   // Unique user slug for URLs, copied over from Vulcan-Accounts
   slug: {
