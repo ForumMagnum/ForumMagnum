@@ -10,6 +10,7 @@ import { Strategy as GithubOAuthStrategy } from 'passport-github2';
 import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator } from './vulcan-lib/mutators';
 import { getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
+import { AuthenticationError } from 'apollo-server'
 
 const googleClientIdSetting = new DatabaseServerSetting('oAuth.google.clientId', null)
 const googleOAuthSecretSetting = new DatabaseServerSetting('oAuth.google.secret', null)
@@ -31,6 +32,9 @@ function createOAuthUserHandler(idPath, getIdFromProfile, getUserDataFromProfile
         currentUser: null
       })
       return done(null, user)
+    }
+    if (user.banned && new Date(user.banned) > new Date()) {
+      return done("banned", null)
     }
     return done(null, user)
   }
@@ -156,19 +160,30 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     ));
   }
   
+  const handleAuthenticate = (req, res, next, err, user, info) => { //ea-forum-lookhere
+    if (err) {
+      if (err=="banned") {
+        res.redirect(301, '/banNotice');
+        return res.end();
+      } else {
+        return next(err)
+      }
+    }
+    if (!user) return next()
+    req.logIn(user, async (err) => {
+      if (err) return next(err)
+      await createAndSetToken(req, res, user)
+      res.statusCode=302;
+      res.setHeader('Location', '/')
+      return res.end();
+    })
+  }
+  
   addConnectHandler('/auth/google/callback', (req, res, next) => {
     passport.authenticate('google', {}, (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, async (err) => {
-        if (err) return next(err)
-        await createAndSetToken(req, res, user)
-        res.statusCode=302;
-        res.setHeader('Location', '/')
-        return res.end();
-      })
+      handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
-  } )
+  })
 
   addConnectHandler('/auth/google', (req, res, next) => {
     passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/userinfo.email'], accessType: "offline", prompt: "consent"})(req, res, next)
@@ -176,17 +191,9 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/facebook/callback', (req, res, next) => {
     passport.authenticate('facebook', {}, (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, async (err) => {
-        if (err) return next(err)
-        await createAndSetToken(req, res, user)
-        res.statusCode=302;
-        res.setHeader('Location', '/')
-        return res.end();
-      })
+      handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
-  } )
+  })
 
   addConnectHandler('/auth/facebook', (req, res, next) => {
     passport.authenticate('facebook')(req, res, next)
@@ -194,17 +201,9 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/github/callback', (req, res, next) => {
     passport.authenticate('github', {}, (err, user, info) => {
-      if (err) return next(err)
-      if (!user) return next()
-      req.logIn(user, async (err) => {
-        if (err) return next(err)
-        await createAndSetToken(req, res, user)
-        res.statusCode=302;
-        res.setHeader('Location', '/')
-        return res.end();
-      })
+      handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
-  } )
+  })
 
   addConnectHandler('/auth/github', (req, res, next) => {
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)

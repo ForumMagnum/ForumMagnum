@@ -151,6 +151,11 @@ addRoute(
     path:'/abTestGroups',
     componentName: 'UsersViewABTests',
   },
+  {
+    name: "users.banNotice",
+    path: "/banNotice",
+    componentName: "BannedNotice",
+  },
 
   // Miscellaneous LW2 routes
   {
