@@ -8,7 +8,7 @@ import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import * as _ from 'underscore';
 
-const alwaysShowAnalyticsDebug = new DatabasePublicSetting<boolean>("alwaysShowAnalyticsDebug ", false);
+const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug ", "dev");
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -41,6 +41,15 @@ export const AnalyticsUtil: any = {
   serverPendingEvents: [],
 };
 
+function getShowAnalyticsDebug() {
+  if (showAnalyticsDebug.get()==="always")
+    return true;
+  else if (showAnalyticsDebug.get()==="dev")
+    return isDevelopment;
+  else
+    return false;
+}
+
 export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
   try {
     if (isServer) {
@@ -53,7 +62,7 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
           ...eventProps
         }
       }
-      if (isDevelopment || alwaysShowAnalyticsDebug.get()) {
+      if (getShowAnalyticsDebug()) {
         serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
@@ -278,7 +287,7 @@ const throttledStoreEvent = (event) => {
   if (limiters.eventCount.canConsumeResource(1)
     && limiters.eventBandwidth.canConsumeResource(eventSize))
   {
-    if (isDevelopment || alwaysShowAnalyticsDebug.get()) {
+    if (getShowAnalyticsDebug()) {
       browserConsoleLogAnalyticsEvent(event, false);
     }
 
@@ -286,7 +295,7 @@ const throttledStoreEvent = (event) => {
     limiters.eventBandwidth.consumeResource(eventSize);
     pendingAnalyticsEvents.push(event);
   } else {
-    if (isDevelopment || alwaysShowAnalyticsDebug.get()) {
+    if (getShowAnalyticsDebug()) {
       browserConsoleLogAnalyticsEvent(event, true);
     }
     limiters.exceeded();
