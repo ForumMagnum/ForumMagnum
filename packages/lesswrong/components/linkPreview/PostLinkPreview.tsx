@@ -297,7 +297,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={false}>
         <Card>
           <div className={classes.hovercard}>
-            {decodeURIComponent(href)}
+            {href}
           </div>
         </Card>
       </LWPopper>
