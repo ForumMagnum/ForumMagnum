@@ -10,7 +10,6 @@ import { Strategy as GithubOAuthStrategy } from 'passport-github2';
 import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator } from './vulcan-lib/mutators';
 import { getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
-import { AuthenticationError } from 'apollo-server'
 
 const googleClientIdSetting = new DatabaseServerSetting('oAuth.google.clientId', null)
 const googleOAuthSecretSetting = new DatabaseServerSetting('oAuth.google.secret', null)
