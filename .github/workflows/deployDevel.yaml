@@ -1,17 +1,17 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Deploy Devel
+name: Deploy Staging
 on:
   push:
-    branches: [ expressNotMeteor, tryDeploying, deployLessestWrong, devel ]
+    branches: [ ea-dev, mergeLWMaster ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
     strategy:
       matrix: 
         node-version: [15.x]
-        environment: [LessestWrong, LessWrong2Express-dev4]
+        environment: [EAForum-Staging]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2

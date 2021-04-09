@@ -1,11 +1,11 @@
 branch-defaults:
-  devel:
-    environment: LessestWrong
+  ea-dev:
+    environment: EAForum-Staging
     group_suffix: null
 global:
-  application_name: LessWrongExpress
+  application_name: EAForum
   branch: null
-  default_ec2_keyname: LessWrong-Express-SSH
+  default_ec2_keyname: cea_devops
   default_platform: Docker
   default_region: us-east-1
   include_git_submodules: true
