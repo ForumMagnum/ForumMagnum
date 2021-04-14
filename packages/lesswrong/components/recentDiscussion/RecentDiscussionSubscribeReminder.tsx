@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -79,12 +79,22 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
   
   // Show admins a random version of the widget. Makes sure we notice if it's intrusive/bad.
-  const [adminBranch] = useState(currentUser?.isAdmin ? randInt(5) : -1);
+  const [adminBranch, setAdminBranch] = useState(-1);
   const adminUiMessage = currentUser?.isAdmin ? <div className={classes.adminNotice}>
     You are seeing this UI element because you're an admin. Admins are shown a random version of the
     subscribe-reminder even if they're already subscribed, to make sure it still works and isn't
     annoying.
   </div>: null
+  
+  useEffect(() => {
+    if (adminBranch == -1 && currentUser?.isAdmin) {
+      setAdminBranch(randInt(5));
+    }
+  }, [adminBranch, currentUser?.isAdmin]);
+  
+  // Placeholder to prevent SSR mismatch, changed on load.
+  if (adminBranch == -1)
+    return <div/>
   
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
