@@ -71,7 +71,7 @@ const VoteButton = <T extends VoteableTypeClient>({
   theme,
   classes,
 }: {
-  vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent, voteId?: string})=>void,
+  vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
   collectionName: CollectionNameString,
   document: T,
   

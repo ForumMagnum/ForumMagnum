@@ -126,7 +126,7 @@ importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSe
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
 importComponent("ThemePickerMenu", () => require('../components/themes/ThemePickerMenu'));
-
+importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
@@ -314,6 +314,7 @@ importComponent("CommentPermalink", () => require('../components/comments/Commen
 importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
 importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
+importComponent("RecentDiscussionSubscribeReminder", () => require('../components/recentDiscussion/RecentDiscussionSubscribeReminder'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
@@ -324,6 +325,7 @@ importComponent("CommentFrame", () => require('../components/comments/CommentFra
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews'));
 importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
+importComponent("UserCommentsReplies", () => require('../components/comments/UserCommentsReplies'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
@@ -365,7 +367,9 @@ importComponent("AFSuggestUsersList", () => require('../components/sunshineDashb
 importComponent("SunshineNewUserPostsList", () => require('../components/sunshineDashboard/SunshineNewUserPostsList'));
 importComponent("SunshineNewUserCommentsList", () => require('../components/sunshineDashboard/SunshineNewUserCommentsList'));
 importComponent("SunshineNewUsersItem", () => require('../components/sunshineDashboard/SunshineNewUsersItem'));
+importComponent("SunshineNewUsersInfo", () => require('../components/sunshineDashboard/SunshineNewUsersInfo'));
 importComponent("SunshineNewUsersList", () => require('../components/sunshineDashboard/SunshineNewUsersList'));
+importComponent("SunshineNewUsersProfileInfo", () => require('../components/sunshineDashboard/SunshineNewUsersProfileInfo'));
 importComponent("SunshineNewPostsList", () => require('../components/sunshineDashboard/SunshineNewPostsList'));
 importComponent("SunshineNewPostsItem", () => require('../components/sunshineDashboard/SunshineNewPostsItem'));
 importComponent("SunshineNewCommentsItem", () => require('../components/sunshineDashboard/SunshineNewCommentsItem'));

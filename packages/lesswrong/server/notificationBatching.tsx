@@ -62,12 +62,14 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   if (notificationTypeRenderer.canCombineEmails) {
     return [{
       user,
+      from: notificationTypeRenderer.from,
       subject: await notificationTypeRenderer.emailSubject({ user, notifications }),
       body: await notificationTypeRenderer.emailBody({ user, notifications }),
     }];
   } else {
     return await Promise.all(notifications.map(async (notification: DbNotification) => ({
       user,
+      from: notificationTypeRenderer.from,
       subject: await notificationTypeRenderer.emailSubject({ user, notifications:[notification] }),
       body: await notificationTypeRenderer.emailBody({ user, notifications:[notification] }),
     })));

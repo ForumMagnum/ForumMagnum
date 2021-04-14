@@ -23,9 +23,12 @@ registerFragment(`
     createdAt
     sticky
     metaSticky
+    stickyPriority
     status
     frontpageDate
     meta
+
+    shareWithUsers
     
     commentCount
     voteCount
@@ -129,7 +132,6 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
-    shareWithUsers
     moderationGuidelines {
       _id
       html

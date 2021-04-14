@@ -70,9 +70,9 @@ const ProductDisplay = ({ handleClickAmazon, handleClickStripe, text="Buy", clas
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
       {`${text} (US) - $29`}
     </button>
-    <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
+    {/* <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
       {`${text} (international) - $29`}
-    </button>
+    </button> */}
   </>
 };
 const Message = ({ message, classes }) => (

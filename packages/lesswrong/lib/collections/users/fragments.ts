@@ -106,6 +106,7 @@ registerFragment(`
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
+    hideSubscribePoke
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
@@ -115,10 +116,14 @@ registerFragment(`
     viewUnreviewedComments
     recommendationSettings
 
+    bookmarkedPostsMetadata
+    bookmarkedPosts {
+      ...PostsList
+    }
+    
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
-    bookmarkedPostsMetadata
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     reviewVotesQuadratic2019
@@ -134,16 +139,6 @@ registerFragment(`
     petrovPressedButtonDate
     petrovLaunchCodeDate
     ...SharedUserBooleans
-  }
-`);
-
-registerFragment(`
-  fragment UserBookmarks on User {
-    _id
-    bookmarkedPostsMetadata
-    bookmarkedPosts {
-      ...PostsList
-    }
   }
 `);
 
@@ -205,6 +200,8 @@ registerFragment(`
     signUpReCaptchaRating
     needsReview
     sunshineSnoozed
+    sunshineNotes
+    sunshineFlagged
   }
 `);
 

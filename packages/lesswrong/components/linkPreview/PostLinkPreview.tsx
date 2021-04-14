@@ -146,14 +146,10 @@ const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, co
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
 export const linkStyle = (theme: ThemeType) => ({
-  position: "relative",
-  marginRight: 6,
   '&:after': {
     content: '"°"',
     marginLeft: 1,
-    marginRight: 1,
     color: theme.palette.primary.main,
-    position: "absolute"
   }
 })
 
@@ -301,7 +297,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={false}>
         <Card>
           <div className={classes.hovercard}>
-            {decodeURIComponent(href)}
+            {href}
           </div>
         </Card>
       </LWPopper>

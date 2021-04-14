@@ -2,6 +2,7 @@ import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { userCanDo } from '../../vulcan-users/permissions';
+import { extractVersionsFromSemver } from '../../editor/utils';
 
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
@@ -24,6 +25,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   if ((user && user._id) === revision.userId) return true
   if (userCanDo(user, 'posts.view.all')) return true
   
+  
   // Get the document that this revision is a field of, and check for access to
   // it. This is necessary for correctly handling things like posts' draft
   // status and sharing settings.
@@ -33,6 +35,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // case, this will hit in the cache 100% of the time. If we don't have a
   // ResolverContext, use a findOne query; this is slow, but doesn't come up
   // in any contexts where speed matters.
+  const { major: majorVersion } = extractVersionsFromSemver(revision.version)
   const collectionName= revision.collectionName as CollectionNameString;
   const documentId = revision.documentId;
   const collection = getCollection(collectionName);
@@ -40,8 +43,8 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
     ? await context.loaders[collectionName].load(documentId)
     : await collection.findOne(documentId);
   
-  if (!await collection.checkAccess(user, document, context))
-    return false;
+  if (majorVersion < 1 && document.userId !== (user && user._id)) return false // We only allow access to draft revisions to the author of the document
+  if (!await collection.checkAccess(user, document, context)) return false; // Everyone who can see the post can get access to non-draft revisions
   
   return true;
 }

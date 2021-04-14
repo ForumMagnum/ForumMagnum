@@ -24,8 +24,8 @@ const computeForwardedWhitelist = () => {
 
 export const getForwardedWhitelist = () => ({
   getClientIP: (req) => {
-    // From: https://stackoverflow.com/a/19524949
-    const ip = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
+    // From: https://stackoverflow.com/a/19524949 (which contains incorrect sample code!)
+    const ip = (req.headers['x-forwarded-for'] || '').split(',').shift().trim() || 
       req.connection.remoteAddress || 
       req.socket.remoteAddress || 
       req.connection.socket.remoteAddress

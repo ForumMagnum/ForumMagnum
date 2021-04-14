@@ -41,7 +41,7 @@ const ElicitBlockDataType = `type ElicitBlockData {
 
 addGraphQLSchema(ElicitBlockDataType);
 
-const elicitAPIUrl = "https://elicit.org/api/v1"
+const elicitAPIUrl = "https://forecast.elicit.org/api/v1"
 const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 // const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 

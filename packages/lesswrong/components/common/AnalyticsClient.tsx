@@ -29,7 +29,7 @@ export const AnalyticsClient = () => {
   }, [mutate]);
  
   const currentUserId = currentUser?._id;
-  const clientId = cookies.cilentId;
+  const clientId = cookies.clientId;
   useEffect(() => {
     AnalyticsUtil.clientWriteEvents = flushEvents;
     AnalyticsUtil.clientContextVars.userId = currentUserId;

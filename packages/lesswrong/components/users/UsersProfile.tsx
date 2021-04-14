@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userCanEdit, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
@@ -174,7 +174,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   
   const render = () => {
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -263,6 +263,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
           </SingleColumnSection>
 
+          <SingleColumnSection>
+            <SunshineNewUsersProfileInfo userId={user._id} />
+          </SingleColumnSection>
+
           {/* Sequences Section */}
           { displaySequenceSection(ownPage, user) && <SingleColumnSection>
             <SectionTitle title="Sequences">
@@ -313,7 +317,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={"Comments"} />
+              <Link to={`${userGetProfileUrl(user)}/replies`}>
+                <SectionTitle title={"Comments"} />
+              </Link>
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>

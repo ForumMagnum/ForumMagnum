@@ -319,6 +319,7 @@ interface DbPost extends DbObject {
   status: number
   isFuture: boolean
   sticky: boolean
+  stickyPriority: number
   userIP: string
   userAgent: string
   referrer: string
@@ -654,6 +655,7 @@ interface DbUser extends DbObject {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: boolean
   unsubscribeFromAll: boolean
+  hideSubscribePoke: boolean
   frontpagePostCount: number
   sequenceCount: number
   sequenceDraftCount: number
@@ -672,6 +674,8 @@ interface DbUser extends DbObject {
   hideFrontpageMap: boolean
   hideTaggingProgressBar: boolean
   hideFrontpageBookAd: boolean
+  sunshineNotes: string
+  sunshineFlagged: boolean
   needsReview: boolean
   sunshineSnoozed: boolean
   reviewedByUserId: string

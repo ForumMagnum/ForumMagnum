@@ -138,7 +138,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
 
   if (loading || !results) {
     return <div className={classes.root}>
-     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText}/>)}
      {postType}
     </div>;
   }
