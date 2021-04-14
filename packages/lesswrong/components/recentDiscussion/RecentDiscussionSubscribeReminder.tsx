@@ -11,7 +11,6 @@ import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { isClient } from '../../lib/executionEnvironment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -91,7 +90,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     if (adminBranch == -1 && currentUser?.isAdmin) {
       setAdminBranch(randInt(5));
     }
-  }, []);
+  }, [adminBranch, currentUser?.isAdmin]);
   
   // Placeholder to prevent SSR mismatch, changed on load.
   if (adminBranch == -1)

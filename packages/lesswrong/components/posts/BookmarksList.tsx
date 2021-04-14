@@ -1,5 +1,4 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -8,7 +7,7 @@ const BookmarksList = ({limit=null}: {
   limit?: number|null
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem2, Loading } = Components
+  const { PostsItem2 } = Components
 
   let bookmarkedPosts = currentUser?.bookmarkedPosts || []
   let truncated = false;
