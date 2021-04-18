@@ -17,10 +17,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     // Create a stacking context and set z-index to be higher than the vote
-    // buttoms, which are to the right of this and have a click-target that
+    // buttons, which are to the right of this and have a click-target that
     // partially overlaps.
     position: "relative",
-    zIndex: 1000,
+    zIndex: theme.zIndexes.commentPermalinkIcon,
   },
   answerDate: {},
   date: {
