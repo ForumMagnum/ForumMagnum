@@ -268,7 +268,7 @@ Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
 Comments.addView("legacyIdComment", (terms: CommentsViewTerms) => {
   if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
   const legacyId = parseInt(terms.legacyId, 36)
-  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36");
+  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
   
   return {
     selector: {
