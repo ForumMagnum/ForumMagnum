@@ -26,6 +26,24 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment sunshineLWEventFragment on LWEvent {
+    _id
+    createdAt
+    documentId
+    userId
+    name
+    important
+    properties
+    intercom
+    post {
+      _id
+      title
+      slug
+    }
+  }
+`);
+
+registerFragment(`
   fragment lwEventsAdminPageFragment on LWEvent {
     _id
     createdAt

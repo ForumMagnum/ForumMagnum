@@ -45,6 +45,16 @@ LWEvents.addView("emailHistory", (terms: LWEventsViewTerms) => {
 
 ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
 
+LWEvents.addView("userPostVisits", (terms: LWEventsViewTerms) => {
+  return {
+    selector: {
+      userId: terms.userId,
+      name: "post-view",
+    },
+    options: {sort: {createdAt: -1}, limit: terms.limit || 1},
+  };
+});
+
 // Used in constructAkismetReport
 ensureIndex(LWEvents, {name:1, userId:1, createdAt:-1})
 

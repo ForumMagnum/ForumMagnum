@@ -231,7 +231,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     collectionName: "Posts",
     fragmentName: 'SunshinePostsList',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 25
   });
 
   const { results: comments, loading: commentsLoading } = useMulti({
@@ -239,7 +239,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 25
   });
 
   const { results: defaultResponses } = useMulti({
@@ -247,8 +247,19 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-and-network',
-    limit: 50
+    limit: 25
   });
+
+  // const oneMonthAgo = moment().subtract(7, 'days').toDate();
+  const { results: lwEvents } = useMulti({
+    terms:{view:"userPostVisits", userId: user._id},
+    collectionName: "LWEvents",
+    fragmentName: 'lastEventFragment',
+    fetchPolicy: 'cache-and-network',
+    limit: 20
+  });
+
+  console.log(user.displayName, lwEvents)
 
   const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []

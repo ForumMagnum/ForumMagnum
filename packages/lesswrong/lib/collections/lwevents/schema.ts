@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { accessFilterSingle, foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbLWEvent> = {
   createdAt: {
@@ -31,6 +31,15 @@ const schema: SchemaType<DbLWEvent> = {
     viewableBy: ['members'],
     insertableBy: ['members'],
   },
+  post: resolverOnlyField({
+    type: Object,
+    viewableBy: ['guests'],
+    resolver: async (document: DbLWEvent, args: void, context: ResolverContext) => {
+      const { currentUser, Posts } = context;
+      const post = await context.loaders.Posts.load(document.documentId);
+      return await accessFilterSingle(currentUser, Posts, post, context);
+    },
+  }),
   important: { // marking an event as important means it should never be erased
     type: Boolean,
     optional: true,
