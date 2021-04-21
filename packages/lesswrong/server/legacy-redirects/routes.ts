@@ -9,6 +9,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
 import { onStartup } from '../../lib/executionEnvironment';
 import { addStaticRoute } from '../vulcan-lib';
+import type { ServerResponse } from 'http';
 
 // Some legacy routes have an optional subreddit prefix, which is either
 // omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by
@@ -37,16 +38,16 @@ async function findCommentByLegacyId(legacyId: string) {
   return await Comments.findOne({"legacyId": parsedId.toString()});
 }
 
-function makeRedirect(res, destination: string) {
+function makeRedirect(res: ServerResponse, destination: string) {
   res.writeHead(301, {"Location": destination});
   res.end();
 }
 
-async function findPostByLegacyAFId(legacyId: string) {
+async function findPostByLegacyAFId(legacyId: number) {
   return await Posts.findOne({"agentFoundationsId": legacyId})
 }
 
-async function findCommentByLegacyAFId(legacyId: string) {
+async function findCommentByLegacyAFId(legacyId: number) {
   return await Comments.findOne({"agentFoundationsId": legacyId})
 }
 

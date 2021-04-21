@@ -9,6 +9,7 @@ import { isProduction, onStartup } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import type { OpenEvent } from 'ws';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
@@ -207,7 +208,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   // eslint-disable-next-line no-console
   console.log(`Connecting to websocket server ${websocketServerUrl}`);
   const socket = new WebSocket(websocketServerUrl);
-  socket.on('open', function (data) {
+  socket.on('open', function (data: OpenEvent) {
     socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
       event: "init",

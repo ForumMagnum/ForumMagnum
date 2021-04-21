@@ -13,7 +13,7 @@ import * as _ from 'underscore';
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 
-function domBuilder(html) {
+function domBuilder(html: string) {
   const jsdom = new JSDOM(html)
   const document = jsdom.window.document;
   const bodyEl = document.body; // implicitly created
@@ -49,7 +49,7 @@ export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
   return convertToRaw(result)
 }
 
-export function dataToDraftJS(data, type) {
+export function dataToDraftJS(data: any, type: string) {
   if (data===undefined || data===null) return null;
 
   switch (type) {
