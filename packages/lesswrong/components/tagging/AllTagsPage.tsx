@@ -66,7 +66,7 @@ const AllTagsPage = ({classes}: {
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title="Tags Portal">
+            <SectionTitle title="EA Forum Wiki">
               <SectionButton>
                 <AddBoxIcon/>
                 {currentUser ? 
