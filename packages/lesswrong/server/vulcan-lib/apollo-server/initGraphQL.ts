@@ -26,6 +26,7 @@ import {
   upsertMutationTemplate,
   deleteMutationTemplate,
 } from './graphqlTemplates';
+import type { GraphQLScalarType } from 'graphql';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib/utils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -148,10 +149,32 @@ const getGraphQLType = <T extends DbObject>(schema: SchemaType<T>, fieldName: st
   }
 };
 
+export type SchemaGraphQLFieldArgument = {name:string, type: string|GraphQLScalarType|null}
+export type SchemaGraphQLFieldDescription = {
+  description?: string
+  name: string
+  args?: SchemaGraphQLFieldArgument[]|string|null|undefined
+  type: string|GraphQLScalarType|null
+  directive?: string
+  required?: boolean
+};
+
+type SchemaGraphQLFields = {
+  mainType: SchemaGraphQLFieldDescription[],
+  create: SchemaGraphQLFieldDescription[],
+  update: SchemaGraphQLFieldDescription[],
+  selector: SchemaGraphQLFieldDescription[],
+  selectorUnique: SchemaGraphQLFieldDescription[],
+  orderBy: SchemaGraphQLFieldDescription[],
+}
+
 // for a given schema, return main type fields, selector fields,
 // unique selector fields, orderBy fields, creatable fields, and updatable fields
-const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string) => {
-  const fields: any = {
+const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string): {
+  fields: SchemaGraphQLFields
+  resolvers: any
+}=> {
+  const fields: SchemaGraphQLFields = {
     mainType: [],
     create: [],
     update: [],

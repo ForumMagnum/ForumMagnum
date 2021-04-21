@@ -1,17 +1,18 @@
 import { camelCaseify, pluralize } from '../../../lib/vulcan-lib/utils';
+import type { SchemaGraphQLFieldDescription, SchemaGraphQLFieldArgument } from './initGraphQL';
 
-const convertToGraphQL = (fields, indentation) => {
+const convertToGraphQL = (fields: SchemaGraphQLFieldDescription[], indentation: string) => {
   return fields.length > 0 ? fields.map(f => fieldTemplate(f, indentation)).join('\n') : '';
 };
 
-export const arrayToGraphQL = fields => fields.map(f => `${f.name}: ${f.type}`).join(', ');
+export const arrayToGraphQL = (fields: SchemaGraphQLFieldArgument[]) => fields.map(f => `${f.name}: ${f.type}`).join(', ');
 
 /*
 
 For backwards-compatibility reasons, args can either be a string or an array of objects
 
 */
-const getArguments = args => {
+const getArguments = (args: string|SchemaGraphQLFieldArgument[]|null|undefined) => {
   if (Array.isArray(args) && args.length > 0) {
     return `(${arrayToGraphQL(args)})`;
   } else if (typeof args === 'string') {
@@ -27,7 +28,7 @@ const getArguments = args => {
 // `${description ?  `${indentation}# ${description}\n` : ''}${indentation}${name}${getArguments(args)}: ${type}${required ? '!' : ''} ${directive ? directive : ''}`;
 
 // version that does not make any fields required
-const fieldTemplate = ({ name, type, args, directive, description, required }, indentation = '') =>
+const fieldTemplate = ({ name, type, args, directive, description, required }: SchemaGraphQLFieldDescription, indentation = '') =>
 `${description ?  `${indentation}# ${description}\n` : ''}${indentation}${name}${getArguments(args)}: ${type} ${directive ? directive : ''}`;
 
 /* ------------------------------------- Main Type ------------------------------------- */
@@ -44,7 +45,12 @@ type Movie{
 }
 
 */
-export const mainTypeTemplate = ({ typeName, description, interfaces, fields }) =>
+export const mainTypeTemplate = ({ typeName, description, interfaces, fields }: {
+  typeName: string,
+  description?: string,
+  interfaces: string[],
+  fields: SchemaGraphQLFieldDescription[],
+}) =>
 `# ${description}
 type ${typeName} ${interfaces.length ? `implements ${interfaces.join(', ')} ` : ''}{
 ${convertToGraphQL(fields, '  ')}
@@ -75,7 +81,7 @@ type MovieSelectorInput {
 see https://www.opencrud.org/#sec-Data-types
 
 */
-export const selectorInputTemplate = ({ typeName, fields }) =>
+export const selectorInputTemplate = ({ typeName, fields }: { typeName: string, fields: SchemaGraphQLFieldDescription[] }) =>
 `input ${typeName}SelectorInput {
   AND: [${typeName}SelectorInput]
   OR: [${typeName}SelectorInput]
@@ -92,7 +98,7 @@ type MovieSelectorUniqueInput {
 }
 
 */
-export const selectorUniqueInputTemplate = ({ typeName, fields }) =>
+export const selectorUniqueInputTemplate = ({ typeName, fields }: { typeName: string, fields: SchemaGraphQLFieldDescription[] }) =>
 `input ${typeName}SelectorUniqueInput {
   _id: String
   documentId: String # OpenCRUD backwards compatibility
@@ -110,7 +116,7 @@ enum MovieOrderByInput {
 }
 
 */
-export const orderByInputTemplate = ({ typeName, fields }) =>
+export const orderByInputTemplate = ({ typeName, fields }: { typeName: string, fields: SchemaGraphQLFieldDescription[] }) =>
 `enum ${typeName}OrderByInput {
   foobar
   ${fields.join('\n  ')}
@@ -346,7 +352,7 @@ type CreateMovieDataInput {
 }
 
 */
-export const createDataInputTemplate = ({ typeName, fields }) =>
+export const createDataInputTemplate = ({ typeName, fields }: { typeName: string, fields: SchemaGraphQLFieldDescription[] }) =>
 `input Create${typeName}DataInput {
 ${convertToGraphQL(fields, '  ')}
 }`;
@@ -361,7 +367,7 @@ type UpdateMovieDataInput {
 }
 
 */
-export const updateDataInputTemplate = ({ typeName, fields }) =>
+export const updateDataInputTemplate = ({ typeName, fields }: { typeName: string, fields: SchemaGraphQLFieldDescription[] }) =>
 `input Update${typeName}DataInput {
 ${convertToGraphQL(fields, '  ')}
 }`;

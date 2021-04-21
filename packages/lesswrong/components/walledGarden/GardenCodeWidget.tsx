@@ -10,7 +10,7 @@ import moment from 'moment';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 
-export const gardenForm = theme => ({
+export const gardenForm = (theme: ThemeType) => ({
   ...commentBodyStyles(theme, true),
   border: "solid 1px rgba(0,0,0,.2)",
   borderRadius: 3,
