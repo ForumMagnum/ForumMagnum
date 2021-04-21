@@ -134,12 +134,14 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
   const handleNotes = () => {
-    updateUser({
-      selector: {_id: user._id},
-      data: {
-        sunshineNotes: notes
-      }
-    })
+    if (notes != user.sunshineNotes) {
+      updateUser({
+        selector: {_id: user._id},
+        data: {
+          sunshineNotes: notes
+        }
+      })
+    }
   }
 
   useEffect(() => {
