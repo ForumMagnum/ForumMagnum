@@ -257,6 +257,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly status: number,
   readonly frontpageDate: Date,
   readonly meta: boolean,
+  readonly shareWithUsers: Array<string>,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
@@ -333,7 +334,6 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
-  readonly shareWithUsers: Array<string>,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -1434,6 +1434,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly unsubscribeFromAll: boolean,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly whenConfirmationEmailSent: Date,
+  readonly hideSubscribePoke: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
@@ -1442,10 +1443,11 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly shortformFeedId: string,
   readonly viewUnreviewedComments: boolean,
   readonly recommendationSettings: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"frontpage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage"},"frontpageEA":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage ea"},"recommendationspage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Recommendationspage"}},"_depsLabels":{},"_schemaKeys":["frontpage","frontpageEA","recommendationspage"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["frontpage","frontpageEA","recommendationspage"],"_objectKeys":{"frontpage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"frontpageEA.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"recommendationspage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2},"blackbox":true}]}*/,
+  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPosts: Array<PostsList>,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly reviewVotesQuadratic2019: boolean,
@@ -1457,12 +1459,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
-}
-
-interface UserBookmarks { // fragment on Users
-  readonly _id: string,
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly bookmarkedPosts: Array<PostsList>,
 }
 
 interface UserKarmaChanges { // fragment on Users
@@ -1740,7 +1736,6 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
-  UserBookmarks: UserBookmarks
   UserKarmaChanges: UserKarmaChanges
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
   SunshineUsersList: SunshineUsersList
@@ -1871,7 +1866,6 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
-  UserBookmarks: "Users"
   UserKarmaChanges: "Users"
   UsersBannedFromUsersModerationLog: "Users"
   SunshineUsersList: "Users"

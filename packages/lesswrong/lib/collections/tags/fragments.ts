@@ -67,7 +67,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagRevisionFragment on Tag {
-    ...TagFragment
+    ...TagDetailsFragment
     isRead
     description(version: $version) {
       _id

@@ -1,10 +1,14 @@
-import { addGraphQLSchema, Vulcan } from './vulcan-lib';
+import { addGraphQLSchema, Globals } from './vulcan-lib';
 import { CallbackChainHook } from './vulcan-lib/callbacks';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
-import { isClient, isServer } from './executionEnvironment';
+import { isClient, isServer, isDevelopment } from './executionEnvironment';
+import { ColorHash } from './vendor/colorHash';
+import { DatabasePublicSetting } from './publicSettings';
 import * as _ from 'underscore';
+
+const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug ", "dev");
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -37,6 +41,15 @@ export const AnalyticsUtil: any = {
   serverPendingEvents: [],
 };
 
+function getShowAnalyticsDebug() {
+  if (showAnalyticsDebug.get()==="always")
+    return true;
+  else if (showAnalyticsDebug.get()==="dev")
+    return isDevelopment;
+  else
+    return false;
+}
+
 export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
   try {
     if (isServer) {
@@ -48,6 +61,9 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
         props: {
           ...eventProps
         }
+      }
+      if (getShowAnalyticsDebug()) {
+        serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
         AnalyticsUtil.serverWriteEvent(event);
@@ -244,7 +260,6 @@ const throttledStoreEvent = (event) => {
   const now = new Date();
   const eventType = event.type;
   const eventSize = JSON.stringify(event).length;
-
   if (!(eventType in eventTypeLimiters)) {
     eventTypeLimiters[eventType] = {
       eventCount: new RateLimiter({
@@ -275,15 +290,47 @@ const throttledStoreEvent = (event) => {
   if (limiters.eventCount.canConsumeResource(1)
     && limiters.eventBandwidth.canConsumeResource(eventSize))
   {
+    if (getShowAnalyticsDebug()) {
+      browserConsoleLogAnalyticsEvent(event, false);
+    }
+
     limiters.eventCount.consumeResource(1);
     limiters.eventBandwidth.consumeResource(eventSize);
     pendingAnalyticsEvents.push(event);
   } else {
+    if (getShowAnalyticsDebug()) {
+      browserConsoleLogAnalyticsEvent(event, true);
+    }
     limiters.exceeded();
   }
 };
 
-Vulcan.captureEvent = captureEvent;
+// Print an analytics event to the browser console, neatly formatted and folded
+// up into one line.
+function browserConsoleLogAnalyticsEvent(event: any, rateLimitExceeded: boolean) {
+  // eslint-disable-next-line no-console
+  const c = console;
+  if (rateLimitExceeded) {
+    c.groupCollapsed(`%cRate limit exceeded: ${event.type}`, "color:#c00000");
+  } else {
+    const color = new ColorHash({lightness: 0.5}).hex(event.type);
+    c.groupCollapsed(`Analytics: %c${event.type}`, `color:${color}`);
+  }
+  for (let fieldName of Object.keys(event.props)) {
+    c.log(`${fieldName}:`, event.props[fieldName]);
+  }
+  c.groupEnd();
+}
+
+function serverConsoleLogAnalyticsEvent(event: any) {
+  const [r,g,b] = new ColorHash({lightness: 0.5}).rgb(event.type);
+  const colorEscapeSeq = `\x1b[38;2;0;${r};${g};${b}m`;
+  const endColorEscapeSeq = '\x1b[0m';
+  // eslint-disable-next-line no-console
+  console.log(`Analytics event: ${colorEscapeSeq}${event.type}${endColorEscapeSeq}`, event.props);
+}
+
+Globals.captureEvent = captureEvent;
 
 let pendingAnalyticsEvents: Array<any> = [];
 

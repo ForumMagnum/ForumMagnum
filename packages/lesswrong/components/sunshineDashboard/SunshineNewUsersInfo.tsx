@@ -1,7 +1,7 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
@@ -23,8 +23,9 @@ import { Select, MenuItem } from '@material-ui/core';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 
-type ModeratorCommentRecord = {label: string, id: string}
-export const defaultModeratorComments = new DatabasePublicSetting<ModeratorCommentRecord[]>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
+export const defaultModeratorPMsTag = new DatabasePublicSetting<string>('defaultModeratorPMsTag', "HTSg8QDKop33L29oe") // ea-forum-look-here
+
+export const getTitle = (s) => s ? s.split("\\")[0] : ""
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -113,6 +114,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 4,
     marginTop: 8,
     marginBottom: 8
+  },
+  defaultMessage: {
+    maxWidth: 500,
+    backgroundColor: "white",
+    padding:12,
+    boxShadow: "0 0 10px rgba(0,0,0,0.5)"
   }
 })
 const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
@@ -125,6 +132,21 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   const [notes, setNotes] = useState(user.sunshineNotes || "")
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
+
+  const handleNotes = () => {
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        sunshineNotes: notes
+      }
+    })
+  }
+
+  useEffect(() => {
+    return () => {
+      handleNotes();
+    }
+  });
 
   const handleReview = () => {
     if (canReview) {
@@ -156,8 +178,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     })
   }
 
+  const banMonths = 3
+
   const handleBan = async () => {
-    if (confirm("Ban this user for 3 months?")) {
+    if (confirm(`Ban this user for ${banMonths} months?`)) {
       await updateUser({
         selector: {_id: user._id},
         data: {
@@ -166,7 +190,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           voteBanned: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(3, 'months').toDate(),
+          banned: moment().add(banMonths, 'months').toDate(),
           sunshineNotes: notes
         }
       })
@@ -185,7 +209,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           deleteContent: true,
           needsReview: false,
           reviewedAt: new Date(),
-          banned: moment().add(12, 'months').toDate(),
+          banned: moment().add(1000, 'years').toDate(),
           sunshineNotes: notes
         }
       })
@@ -218,10 +242,18 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     limit: 50
   });
 
+  const { results: defaultResponses } = useMulti({
+    terms:{view:"defaultModeratorResponses", tagId: defaultModeratorPMsTag.get()},
+    collectionName: "Comments",
+    fragmentName: 'CommentsListWithParentMetadata',
+    fetchPolicy: 'cache-and-network',
+    limit: 50
+  });
+
   const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
 
-  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
+  const { CommentBody, MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
 
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
@@ -263,11 +295,11 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                     <RemoveCircleOutlineIcon />
                   </Button>
                 </LWTooltip>
-                {!user.reviewedByUserId && <LWTooltip title="Purge (delete and ban)">
+                <LWTooltip title="Purge (delete and ban)">
                   <Button onClick={handlePurge}>
                     <DeleteForeverIcon />
                   </Button>
-                </LWTooltip>}
+                </LWTooltip>
                 <LWTooltip title={user.sunshineFlagged ? "Unflag this user" : <div>
                   <div>Flag this user for more review</div>
                   <div><em>(This will not remove them from sidebar)</em></div>
@@ -280,11 +312,20 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
               <div className={classes.row}>
                 {currentUser && <Select value={0} variant="outlined">
                   <MenuItem value={0}>Start a message</MenuItem>
-                  {defaultModeratorComments.get().map((template, i) => <MenuItem key={`template-${template.label}`}>
-                    <NewConversationButton user={user} currentUser={currentUser} templateCommentId={template.id}>
-                      {template.label}
-                    </NewConversationButton>
-                  </MenuItem>)}
+                  {defaultResponses && defaultResponses.map((comment, i) => 
+                    <div key={`template-${comment._id}`}>
+                      <LWTooltip tooltip={false} placement="left" title={
+                        <div className={classes.defaultMessage}>
+                          <CommentBody comment={comment}/>
+                        </div>} 
+                      >
+                        <MenuItem>
+                          <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id}>
+                            {getTitle(comment.contents?.plaintextMainText)}
+                          </NewConversationButton>
+                        </MenuItem>
+                      </LWTooltip>
+                    </div>)}
                 </Select>}
                 <Link to="/tag/moderator-default-responses/discussion"><EditIcon className={classes.editIcon}/></Link>
               </div>
@@ -355,4 +396,3 @@ declare global {
     SunshineNewUsersInfo: typeof SunshineNewUsersInfoComponent
   }
 }
-

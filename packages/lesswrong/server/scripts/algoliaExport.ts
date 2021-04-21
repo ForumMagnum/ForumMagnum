@@ -1,5 +1,6 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
+import { postStatuses } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments'
 import { Tags } from '../../lib/collections/tags/collection'
 import Users from '../../lib/collections/users/collection'
@@ -49,7 +50,7 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
 async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
   switch (collectionName) {
     case 'Posts':
-      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: 2})
+      await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
       break
     case 'Comments':
       await algoliaExport(Comments, {baseScore: {$gt: 0}, isDeleted: {$ne: true}})

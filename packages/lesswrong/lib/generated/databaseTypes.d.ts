@@ -654,6 +654,7 @@ interface DbUser extends DbObject {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: boolean
   unsubscribeFromAll: boolean
+  hideSubscribePoke: boolean
   frontpagePostCount: number
   sequenceCount: number
   sequenceDraftCount: number

@@ -784,6 +784,16 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  
+  hideSubscribePoke: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
 
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
@@ -1089,7 +1099,7 @@ addFieldsDict(Users, {
     type: Number,
     graphQLtype: "Float",
     canRead: ['guests'],
-    resolver: (user, args, context: ResolverContext) => {
+    resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
 
@@ -1315,7 +1325,7 @@ addFieldsDict(Users, {
   signUpReCaptchaRating: {
     type: Number,
     optional: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins']
+    canRead: ['guests'],
   },
   // Unique user slug for URLs, copied over from Vulcan-Accounts
   slug: {
