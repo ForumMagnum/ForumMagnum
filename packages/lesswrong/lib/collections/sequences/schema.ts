@@ -35,6 +35,29 @@ const schema: SchemaType<DbSequence> = {
     control: 'EditSequenceTitle',
   },
 
+  // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
+  chaptersDummy: {
+    type: Array,
+    optional: true,
+    viewableBy: ['guests'],
+    resolveAs: {
+      fieldName: 'chapters',
+      type: '[Chapter]',
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
+        const books = await context.Chapters.find(
+          {sequenceId: sequence._id},
+        ).fetch();
+        return books;
+      }
+    }
+  },
+
+  'chaptersDummy.$': {
+    type: String,
+    foreignKey: "Chapters",
+    optional: true,
+  },
+  
   //Cloudinary image id for the grid Image
   gridImageId: {
     type: String,
