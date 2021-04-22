@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.secondary.main, // grey[500],
     fontSize: ".9em",
     position: "relative",
-    marginLeft: 0,
+    marginLeft: 3,
     marginRight: 0
   }
 });
