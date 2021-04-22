@@ -80,6 +80,8 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
   ".thoughtSaverFrame": {
     width: "100%",
     height: "500px",
+    border: "none",
+    borderRadius: 5
   },
 });
 
