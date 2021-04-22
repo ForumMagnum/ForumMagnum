@@ -1,6 +1,6 @@
 echo "Running Production Site"
 
-git clone https://jpaddison3:$GITHUB_CREDENTIALS_REPO_PAT@github.com/$GITHUB_CREDENTIALS_REPO_NAME.git Credentials
+git clone https://forum-read-only:$GITHUB_CREDENTIALS_REPO_PAT@github.com/$GITHUB_CREDENTIALS_REPO_NAME.git Credentials
 
 # Decrypt credentials
 cd Credentials
