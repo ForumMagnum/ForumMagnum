@@ -308,7 +308,7 @@ addRoute(
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
-    title: "Tags Portal",
+    title: "The EA Forum Wiki",
   },
   {
     name: "Concepts",

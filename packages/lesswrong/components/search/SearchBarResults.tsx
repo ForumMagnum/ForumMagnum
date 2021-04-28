@@ -108,7 +108,7 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
           <div className={classes.searchList}>
             <Index indexName={getAlgoliaIndexName("Tags")}>
               <div className={classes.header}>
-                <Typography variant="body1">Tags</Typography>
+                <Typography variant="body1">Tags and Wiki</Typography>
               </div>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />
