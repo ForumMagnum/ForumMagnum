@@ -208,6 +208,7 @@ const schema: SchemaType<DbComment> = {
     denormalized: true,
     canRead: ['guests'],
     optional: true, hidden: true,
+    ...schemaDefaultValue(0),
   },
   
   latestChildren: resolverOnlyField({
