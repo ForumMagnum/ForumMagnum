@@ -154,6 +154,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly answer: boolean,
   readonly parentAnswerId: string,
   readonly directChildrenCount: number,
+  readonly descendentCount: number,
   readonly shortform: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
@@ -1264,7 +1265,7 @@ interface TagCreationHistoryFragment_description { // fragment on Revisions
   readonly html: string,
 }
 
-interface TagRevisionFragment extends TagFragment { // fragment on Tags
+interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
   readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
 }

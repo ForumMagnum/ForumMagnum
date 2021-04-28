@@ -202,6 +202,14 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
   },
   
+  // Number of descendent comments (including indirect descendents).
+  descendentCount: {
+    type: Number,
+    denormalized: true,
+    canRead: ['guests'],
+    optional: true, hidden: true,
+  },
+  
   latestChildren: resolverOnlyField({
     type: Array,
     graphQLtype: '[Comment]',
