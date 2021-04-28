@@ -19,6 +19,7 @@ import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpe
 import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
+import { forumTitleSetting } from '../../../lib/instanceSettings';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -136,10 +137,10 @@ export async function sendVerificationEmail(user: DbUser) {
   const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
   await wrapAndSendEmail({
     user, 
-    subject: "Verify your LessWrong email",
+    subject: `Verify your ${forumTitleSetting.get()} email`,
     body: <div>
       <p>
-        Click here to verify your LessWrong email 
+        Click here to verify your {forumTitleSetting.get()} email
       </p>
       <p>
         <a href={verifyEmailLink}>
