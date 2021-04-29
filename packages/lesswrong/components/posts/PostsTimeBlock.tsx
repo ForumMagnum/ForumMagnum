@@ -103,7 +103,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   }
 
   const render = () => {
-    const { PostsItem2, LoadMore, ShortformTimeBlock, ContentType, Divider, Typography } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType, Divider, Typography } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -182,6 +182,11 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
               after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
             }}
+          />}
+          
+          {timeframe==="daily" && <TagEditsTimeBlock
+            before={moment.tz(startDate, timezone).endOf(timeBlock).toString()}
+            after={moment.tz(startDate, timezone).startOf(timeBlock).toString()}
           />}
         </div>
         {!loading && <div className={classes.divider}>

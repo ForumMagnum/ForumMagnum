@@ -4,6 +4,7 @@ import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
+import TagIcon from '@material-ui/icons/LocalOffer';
 import { forumTypeSetting, ForumTypeString } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform";
+export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags";
 
 interface ContentTypeSettings {
   tooltipTitle: string,
@@ -86,7 +87,16 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
       </div>,
       linkTarget: "/shortform",
       Icon: SubjectIcon
-    }
+    },
+    tags: {
+      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipBody: <div>
+        Tag and wiki pages, which organize LessWrong posts and concepts in a more
+        durable format.
+      </div>,
+      Icon: TagIcon,
+      linkTarget: '/tags/all',
+    },
   },
   AlignmentForum: {
     frontpage: {
@@ -135,7 +145,17 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
       </div>,
       linkTarget: "/shortform",
       Icon: SubjectIcon
-    }
+    },
+    tags: {
+      //ea-forum-lookhere
+      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipBody: <div>
+        Tag and wiki pages, which organize LessWrong posts and concepts in a more
+        durable format.
+      </div>,
+      Icon: TagIcon,
+      linkTarget: '/tags/all',
+    },
   },
   EAForum: {
     frontpage: {
@@ -183,7 +203,16 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
       </div>,
       linkTarget: "/shortform",
       Icon: SubjectIcon
-    }
+    },
+    tags: {
+      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipBody: <div>
+        Tag and wiki pages, which organize posts and concepts in a more
+        durable format.
+      </div>,
+      Icon: TagIcon,
+      linkTarget: '/tags/all',
+    },
   }
 }
 

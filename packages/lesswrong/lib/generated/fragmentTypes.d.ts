@@ -565,6 +565,7 @@ interface CommentsList { // fragment on Comments
   readonly tagId: string,
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
+  readonly descendentCount: number,
   readonly contents: CommentsList_contents|null,
   readonly postedAt: Date,
   readonly repliesBlockedUntil: Date,
