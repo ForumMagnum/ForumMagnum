@@ -43,7 +43,7 @@ const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
   while (currentComment?.parentCommentId) {
     currentComment = await Comments.findOne({_id: currentComment.parentCommentId});
     if (currentComment)
-      ancestorIds.push(currentComment?._id);
+      ancestorIds.push(currentComment._id);
   }
   
   return ancestorIds;

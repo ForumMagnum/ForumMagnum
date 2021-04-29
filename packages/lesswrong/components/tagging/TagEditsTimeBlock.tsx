@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
-import { useMulti } from '../../lib/crud/withMulti';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
 
@@ -20,7 +19,7 @@ const TagEditsTimeBlock = ({before, after, classes}: {
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates } = Components;
-  const { data, loading } = useQuery(gql`
+  const { data } = useQuery(gql`
     query getTagUpdates($before: Date!, $after: Date!) {
       TagUpdatesInTimeBlock(before: $before, after: $after) {
         tag {

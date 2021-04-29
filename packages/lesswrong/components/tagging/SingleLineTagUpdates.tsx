@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -37,7 +36,7 @@ const SingleLineTagUpdates = ({tag, revisionCount, revisionIds, commentCount, co
   classes: ClassesType,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, Loading, TagRevisionItemWrapper, CommentById } = Components;
+  const { ChangeMetricsDisplay, PostsItemComments, TagRevisionItemWrapper, CommentById } = Components;
   
   return <div className={classes.root} onClick={ev => setExpanded(true)}>
     <div className={classes.metadata}>

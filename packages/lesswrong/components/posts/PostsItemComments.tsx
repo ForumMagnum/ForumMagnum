@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
-import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentsIconSmall: {

@@ -23,7 +23,7 @@ registerMigration({
           const subtreeFiltered = _.filter(subtree, c=>!c.deleted);
           const lastSubthreadActivity = _.max(subtreeFiltered, c=>c.postedAt).postedAt;
           const descendentCount = subtreeFiltered.length-1;
-          if (descendentCount !== comment.descendentCount || !comment.lastSubthreadActivity)
+          if (descendentCount !== comment.descendentCount || !comment.lastSubthreadActivity) {
             updates.updated++;
             await Comments.update(
               {_id: comment._id},
@@ -32,6 +32,7 @@ registerMigration({
                 ...(!comment.lastSubthreadActivity ? {lastSubthreadActivity} : {}),
               }}
             );
+          }
         });
         // eslint-disable-next-line no-console
         console.log(`Finished batch (${updates.updated} updated)`);

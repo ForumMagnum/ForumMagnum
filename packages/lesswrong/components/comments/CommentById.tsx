@@ -7,7 +7,7 @@ const CommentById = ({commentId, treeOptions}: {
   commentId: string,
   treeOptions: CommentTreeOptions,
 }) => {
-  const {document: comment, loading} = useSingle({
+  const {document: comment} = useSingle({
     documentId: commentId,
     collectionName: "Comments",
     fragmentName: "CommentsList",
