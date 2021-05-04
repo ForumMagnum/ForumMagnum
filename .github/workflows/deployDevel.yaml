@@ -4,7 +4,7 @@
 name: Deploy Staging
 on:
   push:
-    branches: [ ea-dev, mergeLWMaster ]
+    branches: [ ea-dev ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest

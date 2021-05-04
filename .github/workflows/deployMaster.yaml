@@ -4,14 +4,14 @@
 name: Deploy Master
 on:
   push:
-    branches: [ master ]
+    branches: [ ea-master ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
     strategy:
       matrix: 
         node-version: [15.x]
-        environment: [LessWrongProd, AlignmentForumProd]
+        environment: [EAForum-Production]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -24,4 +24,3 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: "us-east-1"
-
