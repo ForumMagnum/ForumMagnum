@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
+import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -19,6 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   infoIcon: {
     width: 16,
     height: 16,
+    marginLeft: theme.spacing.unit,
     verticalAlign: "top",
     color: "rgba(0,0,0,.4)",
   },
@@ -41,11 +43,10 @@ const PostBodyPrefix = ({post, query, classes}: {
     </div>} */}
 
     <AlignmentCrosspostMessage post={post} />
-    {/* ea-forum-look-here */}
     { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       Because this is your first post, this post is awaiting moderator approval.
       <LWTooltip title={<p>
-        New users' first posts on LessWrong are checked by moderators before they appear on the site.
+        New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
         Most posts will be approved within 24 hours; posts that are spam or that don't meet site
         standards will be deleted. After you've had a post approved, future posts will appear
         immediately without waiting for review.

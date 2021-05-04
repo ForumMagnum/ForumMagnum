@@ -170,3 +170,16 @@ Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
     options: {sort: {createdAt: -1}}
   }
 });
+
+Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      deleted: viewFieldAllowAny,
+      adminOnly: viewFieldAllowAny,
+      wikiOnly: viewFieldAllowAny
+    },
+    options: {sort: {name: 1}}
+  }
+});
+
+ensureIndex(Tags, {name: 1});

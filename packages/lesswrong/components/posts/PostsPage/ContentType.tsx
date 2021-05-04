@@ -143,10 +143,7 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
       tooltipBody: <div>
         Posts that are relevant to doing good effectively.
       </div>,
-      // ea-forum-lookhere: When "frontpage" or "personal blog" appear in a tags-list,
-      // it's a link to a post explaining the policies. This is my best guess at which
-      // post that would be on EA Forum, but there might be a better one. --Jim
-      linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
+      linkTarget: "/about#Finding_content",
       Icon: HomeIcon
     },
     personal: {
