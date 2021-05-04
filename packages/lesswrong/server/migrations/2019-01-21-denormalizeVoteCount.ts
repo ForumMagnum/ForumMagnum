@@ -21,7 +21,7 @@ registerMigration({
         migrate: async (documents) => {
           // Get votes on the set of documents
           let documentIds = _.map(documents, d=>d._id);
-          const votes = Votes.find({
+          const votes = await Votes.find({
             documentId: {$in: documentIds},
             cancelled: false,
           }).fetch();

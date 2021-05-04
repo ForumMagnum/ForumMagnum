@@ -34,7 +34,9 @@ export const Localgroups: LocalgroupsCollection = createCollection({
   mutations: getDefaultMutations('Localgroups', options)
 });
 
-export const makeEditableOptions = {
+makeEditable({
+  collection: Localgroups,
+  options: {
     // Determines whether to use the comment editor configuration (e.g. Toolbars)
     commentEditor: true,
     // Determines whether to use the comment editor styles (e.g. Fonts)
@@ -47,10 +49,6 @@ export const makeEditableOptions = {
     },
     hintText: "Short description"
   }
-
-makeEditable({
-  collection: Localgroups,
-  options: makeEditableOptions
 })
 
 addUniversalFields({collection: Localgroups})

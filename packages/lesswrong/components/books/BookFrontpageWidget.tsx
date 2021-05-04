@@ -5,6 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -61,7 +62,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 36,
     fontSize: '1.2rem',
     marginLeft: 16,
-    marginRight: 16
+    marginRight: 16,
+    whiteSpace: "nowrap",
   },
   buttonRow: {
     display: 'flex',
@@ -74,7 +76,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       flexDirection: 'row-reverse',
       paddingLeft: 25,
       paddingRight: 10,
-    }
+    },
+    [legacyBreakpoints.maxTiny]: {
+      paddingLeft: 10,
+    },
   },
   closeButton: {
     ...theme.typography.commentStyle,
@@ -97,6 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: 'rgba(0,0,0,0.6)',
     marginLeft: 'auto',
     display: 'none',
+    whiteSpace: "nowrap",
     [theme.breakpoints.down('xs')]: {
       display: 'block'
     }
@@ -114,12 +120,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 4,
     lineHeight: '1.3'
   },
-  shippingNotice: {
-    ...theme.typography.commentStyle,
-    height: 36,
-    fontSize: '0.83rem',
-    color: 'rgba(0,0,0,0.6)'
-  }
 })
 
 const BookFrontpageWidget = ({ classes }: {
@@ -174,7 +174,7 @@ const BookFrontpageWidget = ({ classes }: {
       <BookAnimation successContent={
         <BookMarketingText 
           title={"Thank you!"}
-          subtitle={"You will receive a confirmation email imminently."}
+          subtitle={"You will receive a confirmation email imminently. Your order should ship within 2 weeks."}
           description={<> 
             <Link to="/posts/QB6BkkpwiecfF6Ekq/thanksgiving-prayer">Dear Global Economy</Link>, we thank thee for thy economies of scale, thy professional specialization, and thy international networks of trade under Ricardo's Law of Comparative Advantage, without which we would all starve to death while trying to assemble the ingredients for such a [book] as this.  Amen. 
           </>}
@@ -183,7 +183,7 @@ const BookFrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books">
               Learn More
             </Link>
-            <BookCheckout ignoreMessages text={"Buy Another Book"}/>
+            <BookCheckout ignoreMessages text={"Buy Another"}/>
           </>}
         />
       }>

@@ -148,7 +148,6 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   name: any,
   fieldName: any,
   value: any,
-  commentStylse: boolean,
   hintText: string,
   placeholder: string,
   label: string,
@@ -297,11 +296,42 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.setState(savedState);
     }
   }
+  
+  isEmpty = (): boolean => {
+    switch(this.getCurrentEditorType()) {
+      case "draftJS": {
+        const draftJSValue = this.state.draftJSValue;
+        if (!draftJSValue) return true;
+        const draftJScontent = draftJSValue.getCurrentContent()
+        return !draftJScontent.hasText();
+      }
+      case "markdown": {
+        const markdownValue = this.state.markdownValue;
+        if (!markdownValue) return true;
+        return markdownValue.trim() === "";
+      }
+      case "html": {
+        const htmlValue = this.state.htmlValue;
+        if (!htmlValue) return true;
+        return htmlValue.trim() === "";
+      }
+      case "ckEditorMarkup": {
+        const ckEditorValue = this.state.ckEditorValue;
+        if (!ckEditorValue) return true;
+        return ckEditorValue.trim() === "";
+      }
+      default:
+        throw new Error("Invalid editor type");
+    }
+  }
 
 
   getStorageHandlers = () => {
-    const { form } = this.props
-    return getLSHandlers(form?.getLocalStorageId)
+    const { fieldName, form } = this.props
+    const collectionName = form.collectionName;
+    
+    const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
+    return getLSHandlers(getLocalStorageId)
   }
 
   initializeDraftJS = (draftJS) => {
@@ -435,19 +465,27 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   saveBackup = () => {
     const { document, name } = this.props;
 
-    const serialized = this.editorContentsToJson();
-
-    const success = this.getStorageHandlers().set({
-      state: serialized,
-      doc: document,
-      name,
-      prefix: this.getLSKeyPrefix()
-    });
-
-    if (success) {
+    if (this.isEmpty()) {
+      this.getStorageHandlers().reset({
+        doc: document,
+        name,
+        prefix: this.getLSKeyPrefix()
+      });
       this.hasUnsavedData = false;
+    } else {
+      const serialized = this.editorContentsToJson();
+  
+      const success = this.getStorageHandlers().set({
+        state: serialized,
+        doc: document,
+        name,
+        prefix: this.getLSKeyPrefix()
+      });
+  
+      if (success) {
+        this.hasUnsavedData = false;
+      }
     }
-    return success;
   }
 
   // Take the editor contents (whichever editor you're using), and return
@@ -469,8 +507,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   // Get an editor-type-specific prefix to use on localStorage keys, to prevent
   // drafts written with different editors from having conflicting names.
-  getLSKeyPrefix = (editorType?: string) => {
+  getLSKeyPrefix = (editorType?: string): string => {
     switch(editorType || this.getCurrentEditorType()) {
+      default:
       case "draftJS":  return "";
       case "markdown": return "md_";
       case "html":     return "html_";
@@ -483,20 +522,20 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const { currentUser, classes } = this.props
     const type = this.getInitialEditorType();
     const defaultType = this.getUserDefaultEditor(currentUser)
-    return <div className={classes.lastEditedWarning}>
-        <Components.Typography variant="body2">
-          This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
-          {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
-          <a
-            className={classes.clickHereColor}
-            onClick={() => this.setEditorType(defaultType)}
-          >
-            Click here
-          </a>
-          {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
-        </Components.Typography>
-        <br/>
-      </div>
+    return <div>
+      <Components.Typography variant="body2" className={classes.lastEditedWarning}>
+        This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
+        {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
+        <a
+          className={classes.clickHereColor}
+          onClick={() => this.setEditorType(defaultType)}
+        >
+          Click here
+        </a>
+        {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
+      </Components.Typography>
+      <br/>
+    </div>
   }
 
 
@@ -718,7 +757,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     return <div>
         { this.renderPlaceholder(showPlaceholder, false) }
         {draftJSValue && <EditorForm
-          isClient={isClient}
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}

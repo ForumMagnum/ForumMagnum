@@ -11,17 +11,15 @@ export const Books: BooksCollection = createCollection({
   mutations: getDefaultMutations('Books'),
 });
 
-export const makeEditableOptions = {
-  order: 20,
-  getLocalStorageId: (book, name) => {
-    if (book._id) { return {id: `${book._id}_${name}`, verify: true} }
-    return {id: `collection: ${book.collectionId}_${name}`, verify: false}
-  },
-}
-
 makeEditable({
   collection: Books,
-  options: makeEditableOptions
+  options: {
+    order: 20,
+    getLocalStorageId: (book, name) => {
+      if (book._id) { return {id: `${book._id}_${name}`, verify: true} }
+      return {id: `collection: ${book.collectionId}_${name}`, verify: false}
+    },
+  }
 })
 addUniversalFields({collection: Books})
 

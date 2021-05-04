@@ -1,104 +1,103 @@
-import { chai, expect } from 'meteor/practicalmeteor:chai';
-import chaiAsPromised from 'chai-as-promised';
+import { testStartup } from '../testMain';
+import {expect} from 'chai';
 import { runQuery } from '../../server/vulcan-lib';
 
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils'
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
 import Users from '../../lib/collections/users/collection';
 import { userIsBannedFromPost, userIsBannedFromAllPosts, userIsAllowedToComment, userCanModeratePost, userCanEditUsersBannedUserIds } from '../../lib/collections/users/helpers';
 
-describe('userIsBannedFromPost --', async () => {
+describe('userIsBannedFromPost --', () => {
   it('returns false if post.bannedUserIds does not contain exist', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
-    expect(userIsBannedFromPost(user, post)).to.equal(false)
+    expect(userIsBannedFromPost(user, post, author)).to.equal(false)
   })
   it('returns false if post.bannedUserIds does not contain user._id', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author, {bannedUserIds:['notUserId']})
-    expect(userIsBannedFromPost(user, post)).to.equal(false)
+    expect(userIsBannedFromPost(user, post, author)).to.equal(false)
   })
   it('returns true if post.bannedUserIds contain user._id but post.user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(userIsBannedFromPost(user, post)).to.equal(true)
+    expect(userIsBannedFromPost(user, post, author)).to.equal(true)
   })
   it('returns true if post.bannedUserIds contain user._id AND post.user is in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(userIsBannedFromPost(user, post)).to.equal(true)
+    expect(userIsBannedFromPost(user, post, author)).to.equal(true)
   })
 })
-describe('userIsBannedFromAllPosts --', async () => {
+describe('userIsBannedFromAllPosts --', () => {
   it('returns false if post.user.bannedUserIds does not contain exist', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
-    expect(userIsBannedFromAllPosts(user, post)).to.equal(false)
+    expect(userIsBannedFromAllPosts(user, post, author)).to.equal(false)
   })
   it('returns false if post.bannedUserIds does not contain user._id', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1'], bannedUserIds:['notUserId']})
     const post = await createDummyPost(author)
-    expect(userIsBannedFromAllPosts(user, post)).to.equal(false)
+    expect(userIsBannedFromAllPosts(user, post, author)).to.equal(false)
   })
   it('returns false if post.bannedUserIds contain user._id but post.user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({bannedUserIds:[user._id]})
     const post = await createDummyPost(author)
-    expect(userIsBannedFromAllPosts(user, post)).to.equal(false)
+    expect(userIsBannedFromAllPosts(user, post, author)).to.equal(false)
   })
   it('returns true if post.bannedUserIds contain user._id AND post.user is in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1'], bannedUserIds:[user._id]})
     const post = await createDummyPost(author)
-    expect(userIsBannedFromAllPosts(user, post)).to.equal(true)
+    expect(userIsBannedFromAllPosts(user, post, author)).to.equal(true)
   })
 })
-describe('userIsAllowedToComment --', async () => {
+describe('userIsAllowedToComment --', () => {
   it('returns false if there is no user', async () => {
-    const post = await createDummyPost()
-    expect(userIsAllowedToComment(null, post)).to.equal(false)
+    const author = await createDummyUser();
+    const post = await createDummyPost(author);
+    expect(userIsAllowedToComment(null, post, author)).to.equal(false)
   })
   //it('returns true if passed a user but NOT post', async () => {
   //  //Unit test removed because post is now a required argument (enforced by type signature)
   //  const user = await createDummyUser()
-  //  expect(userIsAllowedToComment(user, null)).to.equal(true)
+  //  expect(userIsAllowedToComment(user, null, null)).to.equal(true)
   //})
   it('returns true if passed a user AND post does NOT contain bannedUserIds OR user', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost({userId:undefined})
-    expect(userIsAllowedToComment(user, post)).to.equal(true)
+    expect(userIsAllowedToComment(user, post, null)).to.equal(true)
   })
   it('returns true if passed a user AND post contains bannedUserIds but NOT user', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost({bannedUserIds:[user._id], userId: undefined})
-    expect(userIsAllowedToComment(user, post)).to.equal(true)
+    expect(userIsAllowedToComment(user, post, null)).to.equal(true)
   })
   it('returns false if passed a user AND post contains bannedUserIds BUT post-user is NOT in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser()
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(userIsAllowedToComment(user, post)).to.equal(false)
+    expect(userIsAllowedToComment(user, post, author)).to.equal(false)
   })
   it('returns false if passed a user AND post contains bannedUserIds AND post-user is in trustLevel1', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author, {bannedUserIds:[user._id]})
-    expect(userIsAllowedToComment(user, post)).to.equal(false)
+    expect(userIsAllowedToComment(user, post, author)).to.equal(false)
   })
 })
 
-describe('Posts Moderation --', async function() {
+describe('Posts Moderation --', function() {
   let graphQLerrors = catchGraphQLErrors();
-  this.timeout(10000)
   
   it('CommentsNew should succeed if user is not in bannedUserIds list', async function() {
     const user = await createDummyUser()
@@ -180,7 +179,7 @@ describe('Posts Moderation --', async function() {
   });
 });
 
-describe('User moderation fields --', async () => {
+describe('User moderation fields --', () => {
   let graphQLerrors = catchGraphQLErrors();
   
   it("new trusted users do not have a moderationStyle", async () => {
@@ -302,7 +301,7 @@ describe('User moderation fields --', async () => {
   });
 })
 
-/*describe('PostsEdit bannedUserIds permissions --', async ()=> {
+/*describe('PostsEdit bannedUserIds permissions --', ()=> {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post and has moderationGuidelines set on the post", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
@@ -375,7 +374,7 @@ describe('User moderation fields --', async () => {
   })
 })*/
 
-describe('UsersEdit bannedUserIds permissions --', async ()=> {
+describe('UsersEdit bannedUserIds permissions --', ()=> {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   
   it("usersEdit bannedUserIds should succeed if user in trustLevel1", async () => {
@@ -413,7 +412,7 @@ describe('UsersEdit bannedUserIds permissions --', async ()=> {
   })
 })
 
-describe('userCanModeratePost --', async ()=> {
+describe('userCanModeratePost --', ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if user is undefined", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
@@ -451,10 +450,10 @@ describe('userCanModeratePost --', async ()=> {
   })
 })
 
-describe('userCanEditUsersBannedUserIds --', async ()=> {
+describe('userCanEditUsersBannedUserIds --', ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
-    const user = Users.findOne()
+    const user = await Users.findOne()
     if (!user) throw Error("Can't find any user")
     expect(userCanEditUsersBannedUserIds(null, user)).to.be.false;
   })
@@ -476,9 +475,8 @@ describe('userCanEditUsersBannedUserIds --', async ()=> {
   })
 })
 
-describe('Comments deleted permissions --', async function() {
+describe('Comments deleted permissions --', function() {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
-  this.timeout(10000)
   it("updateComment – Deleted should succeed if user in sunshineRegiment", async function() {
     const user = await createDummyUser({groups:["sunshineRegiment"]})
     const commentAuthor = await createDummyUser()
@@ -588,7 +586,7 @@ describe('Comments deleted permissions --', async function() {
   })
 })
 
-describe('CommentLock permissions --', async ()=> {
+describe('CommentLock permissions --', ()=> {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("PostsEdit.commentLock should succeed if user in sunshineRegiment", async () => {
     const user = await createDummyUser({groups:["sunshineRegiment"]})

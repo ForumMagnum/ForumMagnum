@@ -69,7 +69,7 @@ function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
       [mutationName]: async (root: void, args: {documentId: string, voteType: string|null}, context: ResolverContext) => {
         const {documentId, voteType} = args;
         const {currentUser} = context;
-        const document = collection.findOne({_id: documentId});
+        const document = await collection.findOne({_id: documentId});
         
         if (!currentUser) throw new Error("Error casting vote: Not logged in.");
         if (!document) throw new Error("No such document ID");

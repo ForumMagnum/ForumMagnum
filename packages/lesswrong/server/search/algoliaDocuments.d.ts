@@ -27,7 +27,6 @@ interface AlgoliaSequence {
   _id: string,
   title: string,
   userId: string,
-  baseScore: number,
   createdAt: Date,
   af: boolean,
   authorDisplayName?: string,

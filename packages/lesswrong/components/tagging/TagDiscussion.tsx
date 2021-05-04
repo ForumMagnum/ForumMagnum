@@ -6,7 +6,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: 400,
+    width: 400,
+    maxHeight: 600,
+    overflowY: "auto",
     padding: 6
   },
   seeAll: {
@@ -41,19 +43,19 @@ const TagDiscussion = ({classes, tag}: {
   const nestedComments = results && unflattenComments(results);
   
   return <div className={classes.root}>
-        {!results && loading ? <Loading/> : 
-        <CommentsList
-          treeOptions={{
-            tag: tag,
-            postPage: true,
-          }}
-          totalComments={totalCount}
-          comments={nestedComments}
-        />}
-        <Link to={`/tag/${tag.slug}/discussion`} className={classes.seeAll}>
-          See all
-        </Link>
-    </div>
+    {!results && loading && <Loading/>}
+    {results && <CommentsList
+      treeOptions={{
+        tag: tag,
+        postPage: true,
+      }}
+      totalComments={totalCount}
+      comments={nestedComments}
+    />}
+    <Link to={`/tag/${tag.slug}/discussion`} className={classes.seeAll}>
+      See all
+    </Link>
+  </div>
 }
 
 const TagDiscussionComponent = registerComponent("TagDiscussion", TagDiscussion, {styles})

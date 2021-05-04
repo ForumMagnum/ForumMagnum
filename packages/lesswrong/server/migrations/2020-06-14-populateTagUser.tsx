@@ -20,7 +20,7 @@ registerMigration({
           // populated, fill them in with the user and the timestamp of the
           // oldest vote on this tagRel (which, if uncancelled, will have been
           // at tagRel-creation time.)
-          const firstVoteQuery = Votes.find(
+          const firstVoteQuery = await Votes.find(
             {
               cancelled: false,
               documentId: tagRel._id
@@ -75,7 +75,7 @@ registerMigration({
         console.log(`Filling createdAt and userId fields for ${tags.length} tags`);
         const changes: Array<any> = [];
         for (let tag of tags) {
-          const firstTagRelQuery = TagRels.find(
+          const firstTagRelQuery = await TagRels.find(
             {tagId: tag._id},
             {
               sort: {createdAt: -1},

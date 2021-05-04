@@ -106,12 +106,11 @@ const schema: SchemaType<DbVote> = {
     type: "TagRel",
     graphQLtype: 'TagRel',
     canRead: [docIsTagRel, 'admins'],
-    resolver: (vote: DbVote, args: void, { TagRels }: ResolverContext) => {
+    resolver: async (vote: DbVote, args: void, { TagRels }: ResolverContext): Promise<DbTagRel|null> => {
       if (vote.collectionName === "TagRels") {
-        const tagRel = TagRels.find({_id: vote.documentId}).fetch()[0]
-        if (tagRel) {
-          return tagRel
-        }
+        return await TagRels.findOne({_id: vote.documentId});
+      } else {
+        return null;
       }
     }
   }),

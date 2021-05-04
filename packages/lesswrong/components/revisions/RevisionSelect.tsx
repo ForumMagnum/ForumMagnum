@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-core';
+import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';

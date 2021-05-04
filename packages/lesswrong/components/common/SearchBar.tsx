@@ -8,7 +8,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs'
 
@@ -189,14 +189,14 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     const { searchOpen, inputOpen, currentQuery } = this.state
     const { SearchBarResults } = Components
 
-    if(!isAlgoliaEnabled) {
+    if(!isAlgoliaEnabled()) {
       return <div>Search is disabled (Algolia App ID not configured on server)</div>
     }
 
     return <div className={classes.root} onKeyDown={this.handleKeyDown}>
       <div className={classes.rootChild}>
         <InstantSearch
-          indexName={algoliaIndexNames.Posts}
+          indexName={getAlgoliaIndexName("Posts")}
           searchClient={getSearchClient()}
           onSearchStateChange={this.queryStateControl}
         >

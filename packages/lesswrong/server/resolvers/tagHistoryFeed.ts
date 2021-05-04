@@ -24,7 +24,7 @@ defineFeedResolver<Date>({
     const {tagId} = args;
     const {currentUser} = context;
     
-    const tagRaw = Tags.findOne({_id: tagId});
+    const tagRaw = await Tags.findOne({_id: tagId});
     const tag = await accessFilterSingle(currentUser, Tags, tagRaw, context);
     if (!tag) throw new Error("Tag not found");
     

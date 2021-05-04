@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
-import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,10 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   card: {
-    padding: 16,
-    width: 400,
-    ...commentBodyStyles(theme),
-
     // No hover-preview on small phone screens
     [theme.breakpoints.down('xs')]: {
       display: "none",
@@ -39,7 +34,7 @@ const TagSearchHit = ({hit, onClick, classes}: {
   onClick: (ev: any) => void,
   classes: ClassesType,
 }) => {
-  const { PopperCard, ContentItemBody, Loading } = Components;
+  const { PopperCard, TagPreview, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
     collectionName: "Tags",
@@ -53,14 +48,7 @@ const TagSearchHit = ({hit, onClick, classes}: {
       <PopperCard open={hover} anchorEl={anchorEl} placement="right-start">
         <div className={classes.card}>
           {!tag && <Loading/>}
-          <div className={classes.tagDescription}>
-            {tag && tag.description?.htmlHighlight ? <ContentItemBody
-                dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
-                description={`tag ${tag.name}`}
-              />
-            : <em>No description</em>}
-          </div>
-          <div className={classes.postCount}>{hit.postCount} posts</div>
+          {tag && <TagPreview tag={tag} postCount={3}/>}
         </div>
       </PopperCard>
       <span className={classes.root} onClick={onClick} >

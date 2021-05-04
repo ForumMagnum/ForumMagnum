@@ -1,5 +1,5 @@
 #!/bin/bash
-# Measure from-scratch and incremental server startup times, from 'npm start'
+# Measure from-scratch and incremental server startup times, from 'yarn start'
 # to completion of a local pageload, and from changing a file in 
 # packages/lesswrong/components to completion of a local pageload. Port 3000
 # must be available while this runs.
@@ -7,7 +7,7 @@
 mkdir -p tmp
 
 # Start the server, asynchronously
-npm start &
+yarn start &
 # Repeatedly try to download localhost:3000, until successful. Output the time
 # spent retrying and downloading.
 time (

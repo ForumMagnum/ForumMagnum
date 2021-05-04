@@ -9,8 +9,8 @@ import { getSchema } from '../../lib/utils/getSchema';
 // the site down otherwise. See `runThenSleep`.
 const DEFAULT_LOAD_FACTOR = 0.5;
 
-export const availableMigrations = {};
-export const migrationRunners = {};
+export const availableMigrations: Record<string,any> = {};
+export const migrationRunners: Record<string,any> = {};
 
 // Put migration functions in a dictionary Vulcan.migrations to make it
 // accessible in meteor shell, working around awkward inability to import
@@ -141,7 +141,7 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
         const mutation = { $set: {
           [fieldName]: defaultValue
         } };
-        const writeResult = collection.update(bucketSelector, mutation, {multi: true});
+        const writeResult = await collection.update(bucketSelector, mutation, {multi: true});
         
         nMatched += writeResult || 0;
         // eslint-disable-next-line no-console
@@ -209,7 +209,7 @@ export async function migrateDocuments<T extends DbObject>({ description, collec
   // eslint-disable-next-line no-constant-condition
   while(!done) {
     await runThenSleep(loadFactor, async () => {
-      let documents = collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
+      let documents = await collection.find(unmigratedDocumentQuery, {limit: batchSize}).fetch();
 
       if (!documents.length) {
         done = true;
@@ -358,7 +358,7 @@ export async function forEachBucketRangeInCollection({collection, filter, bucket
 
   // Calculate bucket boundaries using Mongo aggregate
   const maybeFilter = (filter ? [{ $match: filter }] : []);
-  const bucketBoundaries = await collection.rawCollection().aggregate([
+  const bucketBoundaries = await collection.aggregate([
     ...maybeFilter,
     { $sample: { size: sampleSize } },
     { $sort: {_id: 1} },

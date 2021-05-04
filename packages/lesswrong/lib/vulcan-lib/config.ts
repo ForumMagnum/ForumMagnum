@@ -1,4 +1,5 @@
 import SimpleSchema from 'simpl-schema';
+import { addGlobalForShell } from '../executionEnvironment';
 
 // Set up a global dumping ground for stuff that's convenient to have accessible
 // in meteor shell. (This is a hack to deal with meteor-shell not being able to
@@ -9,8 +10,8 @@ import SimpleSchema from 'simpl-schema';
 export const Globals: any = {};
 export const Vulcan = Globals;
 
-(global as any).Globals = Globals;
-(global as any).Vulcan = Globals;
+addGlobalForShell("Globals", Globals);
+addGlobalForShell("Vulcan", Globals);
 
 // eslint-disable-next-line no-undef
 Globals.VERSION = '2.0.0';

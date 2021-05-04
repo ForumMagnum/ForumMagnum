@@ -38,6 +38,10 @@ export const extractFragmentInfo = ({ fragment, fragmentName }: { fragment: any|
       fragmentName: fragmentName || getFragmentName(fragment)
     };
   } else {
+    if (!fragmentName) {
+      // eslint-disable-next-line no-console
+      console.error(`Used DefaultFragment fallback on ${collectionName}`);
+    }
     const _fragmentName = fragmentName || (`${collectionName}DefaultFragment` as FragmentName);
     return {
       fragment: getFragment(_fragmentName),

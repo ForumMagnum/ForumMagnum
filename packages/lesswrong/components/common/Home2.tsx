@@ -3,33 +3,30 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, FrontpageReviewPhase, BookFrontpageWidget, RecommendationsAndCurated } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, GatherTown, SingleColumnSection } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <BookFrontpageWidget />
-          <FrontpageReviewPhase />
+          <SingleColumnSection>
+            <AnalyticsContext pageSectionContext="gatherTownWelcome">
+              <GatherTown/>
+            </AnalyticsContext>
+          </SingleColumnSection>
+          <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
-              <HomeLatestPosts />
+            <HomeLatestPosts />
           </AnalyticsInViewTracker>
-          <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsContext pageSectionContext="recentDiscussion">
             <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
               <RecentDiscussionFeed
-                af={false}
+                af={false}  
                 commentsLimit={4}
                 maxAgeHours={18}
               />
-              { /*<RecentDiscussionThreadsList
-                terms={{view: 'recentDiscussionThreadsList', limit:20}}
-                commentsLimit={4}
-                maxAgeHours={18}
-                af={false}
-              />*/ }
             </AnalyticsInViewTracker>
           </AnalyticsContext>
         </React.Fragment>

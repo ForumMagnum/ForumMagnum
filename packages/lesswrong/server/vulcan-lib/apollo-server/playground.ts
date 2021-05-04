@@ -21,6 +21,7 @@ export const getPlaygroundConfig = currentConfig => {
       },
     ],
     settings: {
+      'editor.theme': 'light',
       'editor.reuseHeaders': true,
       // pass cookies?
       'request.credentials': 'same-origin',

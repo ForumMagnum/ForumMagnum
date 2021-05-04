@@ -1,12 +1,7 @@
-/*
-
-Default list, single, and total resolvers
-
-*/
-
-import { Utils, debug, debugGroup, debugGroupEnd, getTypeName, getCollection } from '../vulcan-lib';
+import { Utils, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
+import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 
 interface DefaultResolverOptions {
   cacheMaxAge: number
@@ -16,6 +11,8 @@ const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
 
+// Default resolvers. Provides `single` and `multi` resolvers, which power the
+// useSingle and useMulti hooks.
 export function getDefaultResolvers<N extends CollectionNameString>(collectionName: N, options?: Partial<DefaultResolverOptions>) {
   type T = ObjectsByCollectionName[N]
   const typeName = getTypeName(collectionName);
@@ -83,7 +80,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
+      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
@@ -91,12 +88,14 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // So we copy it here to give it back those methoods
         const selector = {...(input.selector || {})}
 
-        debug('');
-        debugGroup(
+        const logger = loggerConstructor(`resolvers-${collectionName.toLowerCase()}`)
+        const {logGroupStart, logGroupEnd} = logGroupConstructor(`resolvers-${collectionName.toLowerCase()}`)
+        logger('');
+        logGroupStart(
           `--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`
         );
-        debug(`Options: ${JSON.stringify(resolverOptions)}`);
-        debug(`Selector: ${JSON.stringify(selector)}`);
+        logger(`Options: ${JSON.stringify(resolverOptions)}`);
+        logger(`Selector: ${JSON.stringify(selector)}`);
 
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
@@ -140,9 +139,9 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
 
         const restrictedDoc = restrictViewableFields(currentUser, collection, doc);
 
-        debugGroupEnd();
-        debug(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
-        debug('');
+        logGroupEnd();
+        logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
+        logger('');
 
         // filter out disallowed properties and return resulting document
         return { result: restrictedDoc };
@@ -179,7 +178,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     if (parameters.options.limit) {
       pipeline.push({ $limit: parameters.options.limit });
     }
-    return await collection.rawCollection().aggregate(pipeline).toArray();
+    return await collection.aggregate(pipeline).toArray();
   } else {
     return await Utils.Connectors.find(collection, selector, options);
   }

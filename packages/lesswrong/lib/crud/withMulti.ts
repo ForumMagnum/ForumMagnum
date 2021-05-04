@@ -1,50 +1,38 @@
-/*
-
-### withMulti
-
-Paginated items container
-
-Options:
-
-  - collection: the collection to fetch the documents from
-  - fragment: the fragment that defines which properties to fetch
-  - fragmentName: the name of the fragment, passed to getFragment
-  - limit: the number of documents to show initially
-  - pollInterval: how often the data should be updated, in ms (set to 0 to disable polling)
-  - terms: an object that defines which documents to fetch
-
-Props Received:
-
-  - terms: an object that defines which documents to fetch
-
-Terms object can have the following properties:
-
-  - view: String
-  - userId: String
-  - cat: String
-  - date: String
-  - after: String
-  - before: String
-  - enableTotal: Boolean
-  - enableCache: Boolean
-  - listId: String
-  - query: String # search query
-  - postId: String
-  - limit: String
-
-*/
-
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus } from '@apollo/client';
+import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import gql from 'graphql-tag';
 import qs from 'qs';
 import { useState } from 'react';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
-import { extractCollectionInfo, extractFragmentInfo, getFragment, multiClientTemplate, getCollection } from '../vulcan-lib';
-import { pluralize } from '../vulcan-lib/utils';
+import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection } from '../vulcan-lib';
+import { pluralize, camelCaseify } from '../vulcan-lib/utils';
 import { useLocation, useNavigation } from '../routeUtil';
+
+// Multi query used on the client
+//
+// mutation multiMovieQuery($input: MultiMovieInput) {
+//   movies(input: $input) {
+//     results {
+//       _id
+//       name
+//       __typename
+//     }
+//     totalCount
+//     __typename
+//   }
+// }
+const multiClientTemplate = ({ typeName, fragmentName, extraQueries, extraVariablesString }) =>
+`query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+  ${camelCaseify(pluralize(typeName))}(input: $input) {
+    results {
+      ...${fragmentName}
+    }
+    totalCount
+    __typename
+  }
+  ${extraQueries ? extraQueries : ''}
+}`;
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -64,6 +52,33 @@ function getGraphQLQueryFromOptions({
   `;
 }
 
+// Paginated items container
+//
+// Options:
+//
+//   - collection: the collection to fetch the documents from
+//   - fragment: the fragment that defines which properties to fetch
+//   - fragmentName: the name of the fragment, passed to getFragment
+//   - limit: the number of documents to show initially
+//   - pollInterval: how often the data should be updated, in ms (set to 0 to disable polling)
+//   - terms: an object that defines which documents to fetch
+//
+// Props Received:
+//   - terms: an object that defines which documents to fetch
+//
+// Terms object can have the following properties:
+//   - view: String
+//   - userId: String
+//   - cat: String
+//   - date: String
+//   - after: String
+//   - before: String
+//   - enableTotal: Boolean
+//   - enableCache: Boolean
+//   - listId: String
+//   - query: String # search query
+//   - postId: String
+//   - limit: String
 export function withMulti({
   limit = 10, // Only used as a fallback if terms.limit is not specified
   pollInterval = 0, //LESSWRONG: Polling is disabled, and by now it would probably horribly break if turned on
@@ -350,7 +365,7 @@ export function useMulti<
   // A bundle of props that you can pass to Components.LoadMore, to make
   // everything just work.
   const loadMoreProps = {
-    loadMore, count, totalCount,
+    loadMore, count, totalCount, loading,
     hidden: !showLoadMore,
   };
   

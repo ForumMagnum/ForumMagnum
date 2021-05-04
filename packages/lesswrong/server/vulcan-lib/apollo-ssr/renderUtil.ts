@@ -7,5 +7,5 @@ const toEmbeddableJson = (serializable: any): string => {
 }
 
 export const embedAsGlobalVar = (name: string, value: any): string => {
-  return `<script type="text/javascript">window.${name} = ${toEmbeddableJson(value)}</script>`;
+  return `<script>window.${name} = ${toEmbeddableJson(value)}</script>`;
 };

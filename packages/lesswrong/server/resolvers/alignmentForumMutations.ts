@@ -10,13 +10,13 @@ export const postsAlignmentAsync = new CallbackHook<[DbPost,DbPost,ResolverConte
 const alignmentCommentResolvers = {
   Mutation: {
     async alignmentComment(root: void, {commentId, af}: {commentId: string, af: boolean}, context: ResolverContext) {
-      const comment = context.Comments.findOne(commentId)
+      const comment = await context.Comments.findOne(commentId)
       if (!comment) throw new Error("Invalid comment ID");
 
       if (userCanDo(context.currentUser, "comments.alignment.move.all")) {
         let modifier = { $set: {af: af} };
-        context.Comments.update({_id: commentId}, modifier);
-        const updatedComment = context.Comments.findOne(commentId)!
+        await context.Comments.update({_id: commentId}, modifier);
+        const updatedComment = (await context.Comments.findOne(commentId))!
         await commentsAlignmentAsync.runCallbacksAsync(
           [updatedComment, comment, context]
         );
@@ -35,13 +35,13 @@ addGraphQLMutation('alignmentComment(commentId: String, af: Boolean): Comment');
 const alignmentPostResolvers = {
   Mutation: {
     async alignmentPost(root: void, {postId, af}: {postId: string, af: boolean}, context: ResolverContext) {
-      const post = context.Posts.findOne(postId)
+      const post = await context.Posts.findOne(postId)
       if (!post) throw new Error("Invalid post ID");
 
       if (userCanMakeAlignmentPost(context.currentUser, post)) {
         let modifier = { $set: {af: af} };
-        context.Posts.update({_id: postId}, modifier);
-        const updatedPost = context.Posts.findOne(postId)!
+        await context.Posts.update({_id: postId}, modifier);
+        const updatedPost = (await context.Posts.findOne(postId))!
         await postsAlignmentAsync.runCallbacksAsync(
           [updatedPost, post, context]
         );

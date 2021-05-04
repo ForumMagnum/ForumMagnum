@@ -107,7 +107,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         paddingLeft: 0,
         paddingTop: 15,
         overflow: 'hidden',
-        minHeight: 310,
+        minHeight: 350,
       },
       '& .book-container': {
         transform: "scale(0.6, 0.6)",

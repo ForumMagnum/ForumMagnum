@@ -43,8 +43,9 @@ const TabNavigationMenu = ({onClickSection, classes}: {
             if (tab.divider) {
               return <div key={tab.id} className={classes.divider} />
             }
-            if (tab.customComponent) {
-              return <tab.customComponent
+            if (tab.customComponentName) {
+              const CustomComponent = Components[tab.customComponentName];
+              return <CustomComponent
                 key={tab.id}
                 onClick={onClickSection}
                 {...customComponentProps}

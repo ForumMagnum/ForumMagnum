@@ -1,32 +1,35 @@
-import dns from 'dns';
-import process from 'process';
-import { DatabaseServerSetting } from './databaseSettings';
+//import dns from 'dns';
+//import { DatabaseServerSetting } from './databaseSettings';
 
-var whitelist: Partial<Record<string,boolean>> = {};
-const forwardedWhitelistSetting = new DatabaseServerSetting<Array<string>>('forwardedWhitelist', [])
-const forwardedWhitelist = forwardedWhitelistSetting.get()
+/*const forwardedWhitelistSetting = new DatabaseServerSetting<Array<string>>('forwardedWhitelist', [])
 
-if(forwardedWhitelist) {
-  Object.values(forwardedWhitelist).forEach((hostname: string) => {
-    dns.resolve(hostname, "ANY", (err, records: any) => {
-      if(!err) {
-        records.forEach((rec: any) => {
-          whitelist[rec.address] = true;
-          //eslint-disable-next-line no-console
-          console.info("Adding " + hostname + ": " + rec.address + " to whitelist.");
-        });
-      }
+const computeForwardedWhitelist = () => {
+  var whitelist: Partial<Record<string,boolean>> = {};
+  const forwardedWhitelist = forwardedWhitelistSetting.get()
+  
+  if(forwardedWhitelist) {
+    Object.values(forwardedWhitelist).forEach((hostname: string) => {
+      dns.resolve(hostname, "ANY", (err, records: any) => {
+        if(!err) {
+          records.forEach((rec: any) => {
+            whitelist[rec.address] = true;
+            //eslint-disable-next-line no-console
+            console.info("Adding " + hostname + ": " + rec.address + " to whitelist.");
+          });
+        }
+      });
     });
-  });
-}
-
-export const ForwardedWhitelist = {
-  getClientIP: (connection) => {
-    if(whitelist[connection.clientAddress]) {
-      let forwarded = connection.httpHeaders["x-forwarded-for"].trim().split(/\s*,\s*/);
-      return forwarded[forwarded.length - (parseInt(process.env['HTTP_FORWARDED_COUNT']||"") || 0) - 1];
-    } else {
-      return connection.clientAddress;
-    }
   }
-}
+}*/
+
+export const getForwardedWhitelist = () => ({
+  getClientIP: (req) => {
+    // From: https://stackoverflow.com/a/19524949 (which contains incorrect sample code!)
+    const ip = (req.headers['x-forwarded-for'] || '').split(',').shift().trim() || 
+      req.connection.remoteAddress || 
+      req.socket.remoteAddress || 
+      req.connection.socket.remoteAddress
+    
+    return ip
+  }
+})

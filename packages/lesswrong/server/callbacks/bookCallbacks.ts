@@ -1,10 +1,9 @@
 import Collections from "../../lib/collections/collections/collection";
 import Sequences from "../../lib/collections/sequences/collection";
-import { Books, makeEditableOptions } from '../../lib/collections/books/collection'
 import { Posts } from "../../lib/collections/posts";
 import { runQuery } from '../vulcan-lib';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
 async function getCompleteCollection(id: string) {
@@ -75,16 +74,16 @@ async function getAllCollectionPosts(id: string) {
   }
 }
 
-function updateCollectionSequences(sequences: Array<DbSequence>, collectionSlug: string) {
-  _.range(sequences.length).forEach((i) => {
-    Sequences.update(sequences[i]._id, {$set: {
+async function updateCollectionSequences(sequences: Array<DbSequence>, collectionSlug: string) {
+  await asyncForeachSequential(_.range(sequences.length), async (i) => {
+    await Sequences.update(sequences[i]._id, {$set: {
       canonicalCollectionSlug: collectionSlug,
     }});
   })
 }
 
-function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: string) {
-  _.range(posts.length).forEach((i) => {
+async function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: string) {
+  await asyncForeachSequential(_.range(posts.length), async (i) => {
     const currentPost = posts[i]
 
     let prevPost = {slug:""}
@@ -95,7 +94,7 @@ function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: string) {
     if (i+1<posts.length) {
       nextPost = posts[i+1]
     }
-    Posts.update({slug: currentPost.slug}, {$set: {
+    await Posts.update({slug: currentPost.slug}, {$set: {
       canonicalPrevPostSlug: prevPost.slug,
       canonicalNextPostSlug: nextPost.slug,
       canonicalBookId: currentPost.canonicalBookId,
@@ -112,15 +111,13 @@ getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (
   //eslint-disable-next-line no-console
   console.log(`Updating Collection Links for ${collectionId}...`)
 
-  Collections.update(collectionId, { $set: {
+  await Collections.update(collectionId, { $set: {
     firstPageLink: "/" + results.collectionSlug + "/" + results.posts[0].slug
   }})
 
-  updateCollectionSequences(results.sequences, results.collectionSlug)
-  updateCollectionPosts(results.posts, results.collectionSlug)
+  await updateCollectionSequences(results.sequences, results.collectionSlug)
+  await updateCollectionPosts(results.posts, results.collectionSlug)
 
   //eslint-disable-next-line no-console
   console.log(`...finished Updating Collection Links for ${collectionId}`)
 });
-
-addEditableCallbacks({collection: Books, options: makeEditableOptions})

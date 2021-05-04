@@ -3,10 +3,10 @@ import { Posts } from '../../lib/collections/posts';
 import { ensureIndex } from '../../lib/collectionUtils';
 
 // Click-tracking redirector for outgoing links in linkposts
-addStaticRoute('/out', ({ query}, req, res, next) => {
+addStaticRoute('/out', async ({ query}, req, res, next) => {
   if(query.url) {
     try {
-      const post = Posts.findOne({url: query.url}, {sort: {postedAt: -1, createdAt: -1}});
+      const post = await Posts.findOne({url: query.url}, {sort: {postedAt: -1, createdAt: -1}});
 
       if (post) {
         void incrementPostClickCount(post._id);

@@ -70,7 +70,7 @@ const metaculusPreviewStyles = () => ({
 })
 
 const youtubePreviewStyles = () => ({
-  '& figure.media div[data-oembed-url*="youtube.com"]': {
+  '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
     height: 0,
     paddingBottom: '56.2493%',
@@ -252,6 +252,13 @@ export const postBodyStyles = (theme: ThemeType) => {
       '& li': {
         fontSize: '0.9em' // Overwriting default size setting for list items
       },
+      '& blockquote': {
+        fontSize: '0.9em',
+        lineHeight: '1.5em',
+        padding: 1,
+        paddingLeft: 3,
+        marginTop: -10,
+      },
     },
     // Hiding the footnote-separator that markdown-it adds by default
     '& .footnotes-sep': {
@@ -392,6 +399,9 @@ export const pBodyStyle = {
   '&:first-child': {
     marginTop: 0,
   },
+  'style~&': {
+    marginTop: 0,
+  },
   '&:last-child': {
     marginBottom: 0,
   }
@@ -438,7 +448,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& .table table th': {
           ...tableHeadingStyles
         },
-        '.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
+        '& .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
           outline: "none"
         },
         '& .image>figcaption': {

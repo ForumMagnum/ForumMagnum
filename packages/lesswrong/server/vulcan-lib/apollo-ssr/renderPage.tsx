@@ -8,21 +8,22 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
-import { webAppConnectHandlersUse } from '../meteor_patch';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
-import { getAllUserABTestGroups, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
+import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
 import { embedAsGlobalVar } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
-import Sentry from '@sentry/node';
+import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
-import { publicSettings } from '../../../lib/publicSettings'
+import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
+import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import type { Request, Response } from 'express';
 
 type RenderTimings = {
   totalTime: number
@@ -37,13 +38,13 @@ export type RenderResult = {
   jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
-  abTestGroups: RelevantTestGroupAllocation
+  relevantAbTestGroups: RelevantTestGroupAllocation
+  allAbTestGroups: CompleteTestGroupAllocation
   timings: RenderTimings
 }
 
-const makePageRenderer = async sink => {
+export const renderWithCache = async (req: Request, res: Response) => {
   const startTime = new Date();
-  const req = sink.request;
   const user = await getUserFromReq(req);
   
   const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
@@ -56,14 +57,15 @@ const makePageRenderer = async sink => {
   // response object, which the onPageLoad/sink API doesn't offer).
   const tabId = randomId();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+  const url = getPathFromReq(req);
   
-  const clientId = req.cookies && req.cookies.clientId;
+  const clientId = getCookieFromReq(req, "clientId");
 
-  if (!publicSettings) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(publicSettings)}</script>`
+  if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
   
   const ssrEventParams = {
-    url: req.url.pathname,
+    url: url,
     clientId, tabId,
     userAgent: userAgent,
   };
@@ -73,37 +75,34 @@ const makePageRenderer = async sink => {
     recordCacheBypass();
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
-      req, user, startTime
-    });
-    sendToSink(sink, {
-      ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+      req, user, startTime, res, clientId,
     });
     Vulcan.captureEvent("ssr", {
       ...ssrEventParams,
       userId: user._id,
       timings: rendered.timings,
       cached: false,
-      abTestGroups: rendered.abTestGroups,
+      abTestGroups: rendered.allAbTestGroups,
     });
     // eslint-disable-next-line no-console
-    console.log(`Rendered ${req.url.path} for ${user.username}: ${printTimings(rendered.timings)}`);
-  } else {
-    const abTestGroups = getAllUserABTestGroups(user, clientId);
-    const rendered = await cachedPageRender(req, abTestGroups, (req) => renderRequest({
-      req, user: null, startTime
-    }));
-    sendToSink(sink, {
+    console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
+    
+    return {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
-    });
+    };
+  } else {
+    const abTestGroups = getAllUserABTestGroups(user, clientId);
+    const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
+      req, user: null, startTime, res, clientId,
+    }));
     
     if (rendered.cached) {
       // eslint-disable-next-line no-console
-      console.log(`Served ${req.url.path} from cache for logged out ${ip} (${userAgent})`);
+      console.log(`Served ${url} from cache for logged out ${ip} (${userAgent})`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`Rendered ${req.url.path} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+      console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     }
     
     Vulcan.captureEvent("ssr", {
@@ -112,28 +111,25 @@ const makePageRenderer = async sink => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      abTestGroups: rendered.abTestGroups,
+      abTestGroups: rendered.relevantAbTestGroups,
       cached: rendered.cached,
     });
+    
+    return {
+      ...rendered,
+      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+    };
   }
 };
 
-// Middleware for assigning a client ID, if one is not currently assigned.
-// Since Meteor doesn't have an API for setting cookies, this calls setHeader
-// on the HTTP response directly; if other middlewares also want to set
-// cookies, they won't necessarily play nicely together.
-webAppConnectHandlersUse(function addClientId(req, res, next) {
-  if (!req.cookies.clientId) {
-    const newClientId = randomId();
-    req.cookies.clientId = newClientId;
-    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
-  }
-  
-  next();
-}, {order: 100});
-
-const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
-  const requestContext = await computeContextFromUser(user, req.headers);
+export const renderRequest = async ({req, user, startTime, res, clientId}: {
+  req: Request,
+  user: DbUser|null,
+  startTime: Date,
+  res: Response,
+  clientId: string,
+}): Promise<RenderResult> => {
+  const requestContext = await computeContextFromUser(user, req, res);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);
@@ -158,16 +154,16 @@ const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const App = <AppGenerator
     req={req} apolloClient={client}
     serverRequestStatus={serverRequestStatus}
-    abTestGroups={abTestGroups}
+    abTestGroupsUsed={abTestGroups}
   />;
 
   const WrappedApp = wrapWithMuiTheme(App, context);
-
+  
   let htmlContent = '';
   try {
     htmlContent = await renderToStringWithData(WrappedApp);
   } catch(err) {
-    console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
+    console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
   const afterPrerenderTime = new Date();
@@ -188,7 +184,7 @@ const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   const sheetsRegistry = context.sheetsRegistry;
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}"></link>`
+    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}">`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {
@@ -199,7 +195,7 @@ const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
   
   // eslint-disable-next-line no-console
   if (timings.totalTime > 3000) {
-    Sentry.captureException(new Error("SSR time above 3 seconds"));
+    captureException(new Error("SSR time above 3 seconds"));
   }
   
   return {
@@ -208,31 +204,12 @@ const renderRequest = async ({req, user, startTime}): Promise<RenderResult> => {
     serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
-    abTestGroups,
+    relevantAbTestGroups: abTestGroups,
+    allAbTestGroups: getAllUserABTestGroups(user, clientId),
     timings,
   };
-}
-
-const sendToSink = (sink, {
-  ssrBody, headers, serializedApolloState, jssSheets,
-  status, redirectUrl
-}: RenderResult) => {
-  if (status) {
-    sink.setStatusCode(status);
-  }
-  if (redirectUrl) {
-    sink.redirect(redirectUrl, status||301);
-  }
-  
-  sink.appendToBody(ssrBody);
-  for (let head of headers)
-    sink.appendToHead(head);
-  sink.appendToBody(serializedApolloState);
-  sink.appendToHead(jssSheets);
 }
 
 const printTimings = (timings: RenderTimings): string => {
   return `${timings.totalTime}ms (prerender: ${timings.prerenderTime}ms, render: ${timings.renderTime}ms)`;
 }
-
-export default makePageRenderer;

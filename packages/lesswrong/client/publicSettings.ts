@@ -1,4 +1,4 @@
-import { publicSettings } from '../lib/publicSettings'
+import { setPublicSettings } from '../lib/settingsCache'
 
-// Here we modify the publicSettings object with the data we injected in a header in `renderPage.ts` 
-Object.assign(publicSettings, (window as any).publicSettings)
+// Here we load publicSettings from the data we injected in a header in `renderPage.ts` 
+setPublicSettings((window as any).publicSettings);

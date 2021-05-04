@@ -42,6 +42,7 @@ packages_update.py
 publish_packages.sh
 
 node_modules
+node_modules.meteor
 
 bundle.tar.gz
 
@@ -61,8 +62,15 @@ typings
 *.un~
 .vscode/launch.json
 
-.elasticbeanstalk/*
-
 *.secret
+
 build
+yarn-error.log
+
+# Created by @shelf/jest-mongodb
+globalConfig.json
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
 

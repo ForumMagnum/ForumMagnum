@@ -52,7 +52,7 @@ export const CuratedIcon = ({classes}:{classes:ClassesType}) => {
   const { LWTooltip } = Components;
 
   return <span className={classes.postIcon}>
-      <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="right">
+      <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
         <Link to={curatedUrl}><StarIcon className={classes.icon}/></Link>
       </LWTooltip> 
     </span> 

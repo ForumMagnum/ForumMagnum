@@ -1,4 +1,10 @@
-// import { chai } from 'meteor/practicalmeteor:chai';
+import { testStartup } from '../../../testing/testMain';
+import { stubbedTests } from '../../../testing/utils';
+
+testStartup();
+stubbedTests();
+
+// import { chai } from 'chai';
 // import chaiAsPromised from 'chai-as-promised';
 // import { createDummyUser, createDummyPost, createDummyConversation, createDummyMessage } from '../../../testing/utils'
 // import { performSubscriptionAction } from '../subscriptions/mutations';
@@ -11,7 +17,7 @@
 // chai.should();
 // chai.use(chaiAsPromised);
 
-// // describe('notification generation', async () => {
+// // describe('notification generation', () => {
 // //   it("generates notifications for new posts", async (done) => {
 // //     const user = await createDummyUser()
 // //     const otherUser = await createDummyUser()

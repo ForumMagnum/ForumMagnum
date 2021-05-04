@@ -6,11 +6,11 @@ import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
+import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -28,19 +28,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   menu: {
     opacity:.35,
-    marginRight:-5
-  },
-  metaRight: {
-    float: "right"
-  },
-  outdatedWarning: {
+    marginRight:-5,
     float: "right",
-    position: 'relative',
-    [theme.breakpoints.down('xs')]: {
-      float: "none",
-      marginTop: 7,
-      display: 'block'
-    }
   },
   replyLink: {
     marginRight: 5,
@@ -176,17 +165,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const renderMenu = () => {
     const { CommentsMenu } = Components;
     return (
-      <span className={classes.metaRight}>
-        <span className={classes.menu}>
-          <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu
-              comment={comment}
-              post={post}
-              showEdit={setShowEdit}
-            />
-          </AnalyticsContext>
-        </span>
-      </span>
+      <AnalyticsContext pageElementContext="tripleDotMenu">
+        <CommentsMenu
+          className={classes.menu}
+          comment={comment}
+          post={post}
+          showEdit={setShowEdit}
+        />
+      </AnalyticsContext>
     )
   }
   
@@ -255,7 +241,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle } = Components
 
   if (!comment) {
     return null;
@@ -282,7 +268,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
         )}
 
-        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <Link className={classes.postTitle} to={postGetPageUrl(comment.post)}>{comment.post.title}</Link>}
+        {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.post.title}</Link>
+          </LWTooltip>}
         {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
         <div className={classes.body}>
@@ -291,7 +279,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               <div className={classes.usernameSpacing}>○</div>
             }
             {post && <CommentShortformIcon comment={comment} post={post} />}
-            { parentCommentId!=comment.parentCommentId &&
+            { parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment}
                 active={showParentState}
@@ -302,9 +290,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
-            <span className={classes.username}>
-              <CommentUserName comment={comment}/>
-            </span>
+            <CommentUserName comment={comment} className={classes.username}/>
             <CommentsItemDate
               comment={comment} post={post} tag={tag}
               scrollIntoView={scrollIntoView}
@@ -320,9 +306,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             />
 
             {!isParentComment && renderMenu()}
-            {post && <span className={classes.outdatedWarning}>
-              <Components.CommentOutdatedWarning comment={comment} post={post} />
-            </span>}
+            {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}

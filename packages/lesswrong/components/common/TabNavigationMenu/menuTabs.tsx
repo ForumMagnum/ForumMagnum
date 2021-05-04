@@ -1,5 +1,4 @@
 import React from 'react';
-import { Components } from '../../../lib/vulcan-lib';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -15,42 +14,7 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-
-const EventsList = ({currentUser, onClick}) => {
-  const { TabNavigationEventsList } = Components
-
-  const lat = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[1]
-  const lng = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms: PostsViewTerms = {
-    view: 'events',
-    onlineEvent: false,
-    limit: 3,
-  }
-  if (lat && lng) {
-    eventsListTerms = {
-      onlineEvent: false,
-      view: 'nearbyEvents',
-      lat: lat,
-      lng: lng,
-      limit: 1,
-    }
-  }
-  const onlineTerms: PostsViewTerms = {
-    view: 'onlineEvents',
-    limit: 4
-  }
-  return <span>
-    <AnalyticsContext pageSubSectionContext="menuEventsList">
-      <TabNavigationEventsList onClick={onClick} terms={onlineTerms} />
-      <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
-    </AnalyticsContext>
-  </span>
-}
+import type { ForumTypeString } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -73,10 +37,11 @@ const EventsList = ({currentUser, onClick}) => {
 //   showOnMobileStandalone: boolean; show in (2) Standalone Footer Menu
 //   showOnCompressed: boolean; show in (4) Drawer Collapsed Menu
 //   subitem: boolean; display title in smaller text
-//   customComponent: Component; instead of a TabNavigationItem, display this component
+//   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
-export default {
+type MenuTab = any;
+export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
   LessWrong: [
     {
       id: 'home',
@@ -142,7 +107,7 @@ export default {
       showOnCompressed: true,
     }, {
       id: 'eventsList',
-      customComponent: EventsList,
+      customComponentName: "EventsList",
     }, {
       id: 'allPosts',
       title: 'All Posts',
@@ -157,7 +122,7 @@ export default {
       showOnCompressed: true,
     }, {
       id: 'subscribeWidget',
-      customComponent: Components.SubscribeWidget,
+      customComponentName: "SubscribeWidget",
     }, {
       id: 'questions',
       title: 'Open Questions',
@@ -255,12 +220,12 @@ export default {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'tags',
-      title: 'Tags',
-      mobileTitle: 'Tags',
+      id: 'wiki',
+      title: 'Wiki',
+      mobileTitle: 'Wiki',
       link: '/tags/all',
       iconComponent: LocalOffer,
-      tooltip: 'See posts tagged by their subject matter',
+      tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -304,7 +269,7 @@ export default {
       subItem: true,
     }, {
       id: 'subscribeWidget',
-      customComponent: Components.SubscribeWidget,
+      customComponentName: "SubscribeWidget",
     }, {
       id: 'intro',
       title: 'About EA',
@@ -325,3 +290,5 @@ export default {
     }
   ]
 }
+
+export default menuTabs;
