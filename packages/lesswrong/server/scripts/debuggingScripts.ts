@@ -12,9 +12,9 @@ Vulcan.populateNotifications = async ({username,
   commentNotifications = 3,
   replyNotifications = 3 }) =>
 {
-  const user = Users.findOne({username});
+  const user = await Users.findOne({username});
   if (!user) throw Error(`Can't find user with username: ${username}`)
-  const randomUser = Users.findOne({_id: {$ne: user._id}});
+  const randomUser = await Users.findOne({_id: {$ne: user._id}});
   if (!randomUser) throw Error("No users available in database to populate notifications")
   if (messageNotifications > 0) {
     //eslint-disable-next-line no-console
@@ -34,7 +34,7 @@ Vulcan.populateNotifications = async ({username,
     _.times(postNotifications, () => createDummyPost(randomUser))
   }
   if (commentNotifications > 0) {
-    const post = Posts.findOne(); // Grab random post
+    const post = await Posts.findOne(); // Grab random post
     //eslint-disable-next-line no-console
     console.log("generating new comments...")
     try {
@@ -47,7 +47,7 @@ Vulcan.populateNotifications = async ({username,
 
   }
   if (replyNotifications > 0) {
-    const post = Posts.findOne();
+    const post = await Posts.findOne();
     //eslint-disable-next-line no-console
     console.log("generating new replies...")
     try {
@@ -156,7 +156,7 @@ function makeStyledBody() {
 }
 
 Vulcan.createStyledPost = async () => {
-  const user = Users.findOne();
+  const user = await Users.findOne();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -184,7 +184,7 @@ Vulcan.createStyledPost = async () => {
 }
 
 Vulcan.createStyledAFPost = async () => {
-  const user = Users.findOne();
+  const user = await Users.findOne();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -213,7 +213,7 @@ Vulcan.createStyledAFPost = async () => {
 }
 
 Vulcan.createStyledQuestion = async () => {
-  const user = Users.findOne();
+  const user = await Users.findOne();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -316,9 +316,9 @@ Vulcan.createBulkyTestPost = async ({
 {
   var user;
   if(username)
-    user = Users.findOne({username});
+    user = await Users.findOne({username});
   else
-    user = Users.findOne();
+    user = await Users.findOne();
 
   // Create a post
   const body = "<p>This is a programmatically generated test post.</p>" +

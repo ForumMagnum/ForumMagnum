@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { conversationGetPageUrl } from '../../lib/collections/conversations/helpers';
 import { useCurrentUser } from '../../components/common/withUser';
 import * as _ from 'underscore';

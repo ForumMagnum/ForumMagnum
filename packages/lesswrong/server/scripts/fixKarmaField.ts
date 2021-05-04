@@ -1,4 +1,5 @@
 import Users from '../../lib/collections/users/collection';
+import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 const fixKarma = false;
 const mainPostKarmaWeight = 10;
@@ -8,9 +9,10 @@ const discussionCommentKarmaWeight = 1;
 const upvoteWeight = 1;
 const downvoteWeight = 1;
 
-if (fixKarma) {
+if (fixKarma) { void (async ()=>{
   let usersCount = 0;
-  Users.find().fetch().forEach((user) => {
+  const allUsers = await Users.find().fetch();
+  await asyncForeachSequential(allUsers, async (user) => {
     if (user.legacy) {
       // Function to deal with fields sometimes being undefined. Casts undefined to 0;
       const f = (number) => number || 0;
@@ -39,7 +41,7 @@ if (fixKarma) {
         + (discussionPostKarmaWeight*discussionPostKarma)
         + (discussionCommentKarmaWeight*discussionCommentKarma)
 
-      Users.update({_id: user._id}, {$set :{karma: karma}});
+      await Users.update({_id: user._id}, {$set :{karma: karma}});
       usersCount++;
 
       if (usersCount % 1000 == 0 ){
@@ -48,4 +50,4 @@ if (fixKarma) {
       }
     }
   })
-}
+})() }

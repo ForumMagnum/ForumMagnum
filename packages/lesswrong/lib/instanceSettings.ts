@@ -1,11 +1,16 @@
 import { initializeSetting } from './publicSettings'
-import { isServer, isDevelopment, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
+
+// Is any one of the arguments an object
+const anyIsObject = (...args: any[]): boolean => {
+  return args.some(a => typeof a === 'object' && !Array.isArray(a) && a !== null)
+}
 
 export const Settings: Record<string,any> = {};
 
@@ -25,7 +30,7 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
     const publicSetting = instanceSettings.public && getNestedProperty(instanceSettings.public, settingName);
     
     // if setting is an object, "collect" properties from all three places
-    if (typeof rootSetting === 'object' || typeof privateSetting === 'object' || typeof publicSetting === 'object') {
+    if (anyIsObject(rootSetting, privateSetting, publicSetting)) {
       setting = {
         ...settingDefault,
         ...rootSetting,
@@ -83,8 +88,10 @@ export class PublicInstanceSetting<SettingValueType> {
       const settingValue = getSetting(settingName)
       if (typeof settingValue === 'undefined') {
         if (settingType === "warning") {
-          // eslint-disable-next-line no-console
-          console.log(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as warning`)
+          if (!isAnyTest) {
+            // eslint-disable-next-line no-console
+            console.log(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as warning`)
+          }
         }
         if (settingType === "required") {
           throw Error(`No setting value provided for public instance setting for setting with name ${settingName} despite it being marked as required`)
@@ -101,7 +108,8 @@ export class PublicInstanceSetting<SettingValueType> {
   Public Instance Settings
 */
 
-export const forumTypeSetting = new PublicInstanceSetting<string>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
+export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.

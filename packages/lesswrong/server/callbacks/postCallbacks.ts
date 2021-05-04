@@ -5,8 +5,6 @@ import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks'
-import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
@@ -34,7 +32,7 @@ function postsSetPostedAt (data: Partial<DbPost>) {
   return data;
 }
 
-voteCallbacks.castVoteAsync.add(function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -51,18 +49,18 @@ voteCallbacks.castVoteAsync.add(function increaseMaxBaseScore ({newDocument, vot
       if (!post.scoreExceeded75Date && post.baseScore >= 75) {
         thresholdTimestamp.scoreExceeded75Date = new Date();
       }
-      Posts.update({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
+      await Posts.update({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
 });
 
-getCollectionHooks("Posts").newSync.add(function PostsNewDefaultLocation(post: DbPost): DbPost {
-  return {...post, ...getDefaultPostLocationFields(post)}
+getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultLocation(post: DbPost): Promise<DbPost> {
+  return {...post, ...(await getDefaultPostLocationFields(post))}
 });
 
-getCollectionHooks("Posts").newSync.add(function PostsNewDefaultTypes(post: DbPost): DbPost {
+getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post: DbPost): Promise<DbPost> {
   if (post.isEvent && post.groupId && !post.types) {
-    const localgroup = Localgroups.findOne(post.groupId) 
+    const localgroup = await Localgroups.findOne(post.groupId) 
     if (!localgroup) throw Error(`Wasn't able to find localgroup for post ${post}`)
     const { types } = localgroup
     post = {...post, types}
@@ -72,16 +70,17 @@ getCollectionHooks("Posts").newSync.add(function PostsNewDefaultTypes(post: DbPo
 
 // LESSWRONG – bigUpvote
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
- var postAuthor = Users.findOne(post.userId);
+ var postAuthor = await Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost} as DbPost;
 });
 
-getCollectionHooks("Posts").newSync.add(function PostsNewUserApprovedStatus (post) {
-  const postAuthor = Users.findOne(post.userId);
+getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
+  const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
     return {...post, authorIsUnreviewed: true}
   }
+  return post;
 });
 
 getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, properties)
@@ -98,10 +97,6 @@ getCollectionHooks("Posts").createBefore.add(function AddReferrerToPost(post, pr
   }
 });
 
-addEditableCallbacks({collection: Posts, options: makeEditableOptions})
-addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
-addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighlight})
-
 getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {
     void createMutator({
@@ -117,10 +112,10 @@ getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
   return post
 });
 
-getCollectionHooks("Posts").editAsync.add(function UpdatePostShortform (newPost, oldPost) {
+getCollectionHooks("Posts").editAsync.add(async function UpdatePostShortform (newPost, oldPost) {
   if (!!newPost.shortform !== !!oldPost.shortform) {
     const shortform = !!newPost.shortform;
-    Comments.update(
+    await Comments.update(
       { postId: newPost._id },
       { $set: {
         shortform: shortform
@@ -138,8 +133,8 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
 
   const comments = Comments.find({postId: newPost._id})
-  if (!comments.count()) return
-  const updates = comments.fetch().map(comment => ({
+  if (!(await comments.count())) return
+  const updates = (await comments.fetch()).map(comment => ({
     updateOne: {
       filter: {
         _id: comment._id,
@@ -152,8 +147,8 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
 
 export async function newDocumentMaybeTriggerReview (document) {
   const author = await Users.findOne(document.userId);
-  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
-    Users.update({_id:author._id}, {$set:{needsReview: true}})
+  if (author && (!author.reviewedByUserId || author.sunshineSnoozed) && !document.draft) {
+    await Users.update({_id:author._id}, {$set:{needsReview: true}})
   }
   return document
 }
@@ -183,7 +178,7 @@ async function extractSocialPreviewImage (post: DbPost) {
   // returned value
   // It's important to run this regardless of whether or not we found an image,
   // as removing an image should remove the social preview for that image
-  Posts.update({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
+  await Posts.update({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
   
   return {...post, socialPreviewImageAutoUrl}
   
@@ -191,3 +186,16 @@ async function extractSocialPreviewImage (post: DbPost) {
 
 getCollectionHooks("Posts").editAsync.add(async function updatedExtractSocialPreviewImage(post: DbPost) {await extractSocialPreviewImage(post)})
 getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
+
+// For posts without comments, update lastCommentedAt to match postedAt
+//
+// When the post is created, lastCommentedAt was set to the current date. If an
+// admin or site feature updates postedAt that should change the "newness" of
+// the post unless there's been active comments.
+async function oldPostsLastCommentedAt (post: DbPost) {
+  if (post.commentCount) return
+
+  await Posts.update({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
+}
+
+getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)

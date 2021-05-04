@@ -10,14 +10,13 @@ import qs from 'qs'
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-export const viewNames: Partial<Record<string,string>> = {
+export const viewNames: Partial<Record<CommentsViewName,string>> = {
   'postCommentsTop': 'top scoring',
+  'afPostCommentsTop': 'top scoring',
   'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
   'postCommentsBest': 'highest karma',
   'postCommentsDeleted': 'deleted',
-  'postCommentsSpam': 'spam',
-  'postCommentsReported': 'reported',
   'postLWComments': 'top scoring (include LW)',
 }
 
@@ -69,9 +68,10 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
     const { currentUser, classes, post } = this.props
     const { query } = this.props.location;
     const { anchorEl } = this.state
-    let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
-    const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
-    const afViews = ["postLWComments"]
+    const commentsTopView: CommentsViewName = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
+    let views: Array<CommentsViewName> = [commentsTopView, "postCommentsNew", "postCommentsOld"]
+    const adminViews: Array<CommentsViewName> = ["postCommentsDeleted"]
+    const afViews: Array<CommentsViewName> = ["postLWComments"]
     const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
 
     if (userCanDo(currentUser, "comments.softRemove.all")) {

@@ -1,5 +1,4 @@
-import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
+import { MongoCollection } from '../../lib/mongoCollection';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { DatabasePublicSetting } from '../publicSettings';
@@ -8,10 +7,7 @@ import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { pluralize, camelCaseify } from './utils';
 export * from './getCollection';
-import { wrapAsync } from '../executionEnvironment';
-import { meteorUsersCollection } from '../meteorAccounts';
-
-// import { debug } from './debug';
+import { loggerConstructor } from '../utils/logging'
 
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
@@ -37,7 +33,7 @@ export const getTypeName = (collectionName: CollectionNameString) => collectionN
  * @summary Add a default view function.
  * @param {Function} view
  */
-Mongo.Collection.prototype.addDefaultView = function(view) {
+MongoCollection.prototype.addDefaultView = function(view) {
   this.defaultView = view;
 };
 
@@ -46,18 +42,8 @@ Mongo.Collection.prototype.addDefaultView = function(view) {
  * @param {String} viewName
  * @param {Function} view
  */
-Mongo.Collection.prototype.addView = function(viewName, view) {
+MongoCollection.prototype.addView = function(viewName, view) {
   this.views[viewName] = view;
-};
-
-/**
- * @summary Allow mongodb aggregation
- * @param {Array} pipelines mongodb pipeline
- * @param {Object} options mongodb option object
- */
-Mongo.Collection.prototype.aggregate = function(pipelines, options) {
-  var coll = this.rawCollection();
-  return wrapAsync(coll.aggregate.bind(coll))(pipelines, options);
 };
 
 export const createCollection = <
@@ -82,10 +68,7 @@ export const createCollection = <
   } = options;
 
   // initialize new Mongo collection
-  const collection: CollectionBase<T> =
-    collectionName === 'Users' && meteorUsersCollection
-      ? meteorUsersCollection
-      : new Mongo.Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase());
+  const collection = new MongoCollection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
 
   // decorate collection with options
   collection.options = options as any;
@@ -103,9 +86,14 @@ export const createCollection = <
   // add views
   collection.views = {};
 
-  // attach schema to collection
-  //collection.simpleSchema = () => new SimpleSchema(schema);
-  collection.simpleSchema = () => new SimpleSchema(schema);
+  // Schema fields, passed as the schema option to createCollection or added
+  // later with addFieldsDict. Do not access directly; use getSchema.
+  collection._schemaFields = schema;
+  // Schema fields, but converted into the format used by the simple-schema
+  // library. This is a cache of the conversion; when _schemaFields changes it
+  // should be invalidated by setting it to null. Do not access directly; use
+  // getSimpleSchema.
+  collection._simpleSchema = null;
 
   if (generateGraphQLSchema) {
     // add collection to list of dynamically generated GraphQL schemas
@@ -114,13 +102,14 @@ export const createCollection = <
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
-  const defaultFragment = getDefaultFragmentText(collection, collection.simpleSchema()._schema);
+  const defaultFragment = getDefaultFragmentText(collection, schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
   // ------------------------------------- Parameters -------------------------------- //
 
   collection.getParameters = ((terms: ViewTermsByCollectionName[N] = {}, apolloClient?: any, context?: ResolverContext): MergedViewQueryAndOptions<N,T> => {
-    // console.log(terms);
+    const logger = loggerConstructor(`views-${collectionName.toLowerCase()}`)
+    logger('getParameters(), terms:', terms);
 
     let parameters: any = {
       selector: {},
@@ -132,6 +121,7 @@ export const createCollection = <
         parameters,
         collection.defaultView(terms, apolloClient, context)
       );
+      logger('getParameters(), parameters after defaultView:', parameters)
     }
 
     // handle view option
@@ -153,6 +143,7 @@ export const createCollection = <
         mergedParameters.options.sort = view.options.sort;
       }
       parameters = mergedParameters;
+      logger('getParameters(), parameters after defaultView and view:', parameters)
     }
 
     // sort using terms.orderBy (overwrite defaultView's sort)
@@ -195,8 +186,7 @@ export const createCollection = <
     const limit = terms.limit || parameters.options.limit;
     parameters.options.limit = !limit || limit < 1 || limit > maxDocuments ? maxDocuments : limit;
 
-    // console.log(parameters);
-
+    logger('getParameters(), final parameters:', parameters);
     return parameters;
   }) as any;
 

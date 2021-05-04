@@ -77,7 +77,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
     ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
     : Link;
 
-  return <LWTooltip placement='right-start' title={tab.tooltip || ''} clickable={false}>
+  return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemUntyped
       onClick={onClick}
       component={Element} to={tab.link}

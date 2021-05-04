@@ -2,6 +2,8 @@ import LRU from 'lru-cache';
 import type { RenderResult } from './renderPage';
 import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import { Globals } from '../../../lib/vulcan-lib';
+import type { Request } from 'express';
+import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -31,6 +33,21 @@ const pageCache = new LRU<string,RenderResult>({
   },
 });
 
+const jsonSerializableEstimateSize = (obj: any) => {
+  if (typeof obj === "object") {
+    let result = 0;
+    for (let key of Object.keys(obj)) {
+      result += jsonSerializableEstimateSize(key);
+      result += jsonSerializableEstimateSize(obj[key]);
+    }
+    return result;
+  } else if (typeof obj === "string") {
+    return obj.length;
+  } else {
+    return 8;
+  }
+}
+
 // FIXME: This doesn't get updated correctly. Previous iteration had entries
 // removed when they should still be in cachedABtestsIndex; current iteration
 // has duplicate entries accumulate over time.
@@ -38,11 +55,13 @@ const pageCache = new LRU<string,RenderResult>({
 const cachedABtestsIndex: Record<string,Array<RelevantTestGroupAllocation>> = {};
 let keysToCheckForExpiredEntries: Array<string> = [];
 
-export const cacheKeyFromReq = (req): string => {
-  if (req.cookies && req.cookies.timezone)
-    return `${req.url.path}&timezone=${req.cookies.timezone}`
+export const cacheKeyFromReq = (req: Request): string => {
+  const timezoneCookie = getCookieFromReq(req, "timezone");
+  const path = getPathFromReq(req);
+  if (timezoneCookie)
+    return `${path}&timezone=${timezoneCookie}`;
   else
-    return req.url.path
+    return path;
 }
 
 type InProgressRender = {
@@ -56,17 +75,17 @@ const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req, abTestGroups, renderFn) => {
+export const cachedPageRender = async (req: Request, abTestGroups, renderFn: (req:Request)=>Promise<RenderResult>) => {
+  const path = getPathFromReq(req);
   //eslint-disable-next-line no-console
   const cacheKey = cacheKeyFromReq(req);
   const cached = cacheLookup(cacheKey, abTestGroups);
-  
   
   // If already cached, return the cached version
   if (cached) {
     recordCacheHit();
     //eslint-disable-next-line no-console
-    console.log(`Serving ${req.url.path} from cache; hit rate=${getCacheHitRate()}`);
+    console.log(`Serving ${path} from cache; hit rate=${getCacheHitRate()}`);
     return {
       ...cached,
       cached: true
@@ -91,7 +110,7 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
   
   recordCacheMiss();
   //eslint-disable-next-line no-console
-  console.log(`Rendering ${req.url.path} (not in cache; hit rate=${getCacheHitRate()})`);
+  console.log(`Rendering ${path} (not in cache; hit rate=${getCacheHitRate()})`);
   
   const renderPromise = renderFn(req);
   
@@ -104,18 +123,14 @@ export const cachedPageRender = async (req, abTestGroups, renderFn) => {
   
   const rendered = await renderPromise;
   // eslint-disable-next-line no-console
-  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.abTestGroups)}`);
-  cacheStore(cacheKey, rendered.abTestGroups, rendered);
+  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
+  cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
   
   inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
   if (!inProgressRenders[cacheKey].length)
     delete inProgressRenders[cacheKey];
   
   clearExpiredCacheEntries();
-  
-  // eslint-disable-next-line no-console
-  console.log("New cache state after finishing in-progress render:");
-  printCacheState();
   
   return {
     ...rendered,
@@ -146,7 +161,7 @@ const cacheLookup = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation
   return null;
 }
 
-const objIsSubset = (subset,superset): boolean => {
+const objIsSubset = (subset: {}, superset: {}): boolean => {
   for (let key in subset) {
     if (!(key in superset) || subset[key] !== superset[key])
       return false;

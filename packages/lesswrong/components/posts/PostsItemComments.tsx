@@ -34,12 +34,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsItemComments = ({ classes, post, onClick, unreadComments, newPromotedComments }: {
+const PostsItemComments = ({ classes, post, onClick, unreadComments, newPromotedComments, className }: {
   classes: ClassesType,
   post: PostsBase,
   onClick: any,
   unreadComments: any,
   newPromotedComments: any,
+  className?: string,
 }) => {
   let commentCount = postGetCommentCount(post)
 
@@ -48,7 +49,7 @@ const PostsItemComments = ({ classes, post, onClick, unreadComments, newPromoted
   if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }
 
   return (
-    <div className={classes.root} onClick={onClick}>
+    <div className={className} onClick={onClick}>
       <CommentIcon className={classNames(classes.commentCountIcon, unreadCommentsClass)}/>
       <div className={classes.commentCount}>
         { commentCount }

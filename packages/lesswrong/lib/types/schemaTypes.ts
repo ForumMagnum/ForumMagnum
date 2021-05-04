@@ -76,5 +76,10 @@ interface CollectionFieldSpecification<T extends DbObject> {
 
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
+type SimpleSchemaType<T extends DbObject> = {
+  _schema: SchemaType<T>
+  get: (fieldName: string, property: string) => any
+  newContext: ()=>any
+}
 
 }

@@ -27,7 +27,7 @@ defineQuery({
     if (!context.currentUser || !context.currentUser.isAdmin)
       throw new Error("MigrationsDashboard graphQL API requires being logged in as an admin");
     
-    const allMigrationRuns = Migrations.find({}).fetch();
+    const allMigrationRuns = await Migrations.find({}).fetch();
     const runsByMigration = _.groupBy(allMigrationRuns, m=>m.name);
     
     const migrationNamesByDateWrittenDesc =

@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import gql from 'graphql-tag';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 
 export const useDismissRecommendation = () => {
   const [mutate] = useMutation(gql`

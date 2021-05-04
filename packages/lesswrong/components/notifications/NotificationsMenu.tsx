@@ -66,8 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
-  terms: NotificationsViewTerms,
+const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
   classes: ClassesType,
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
@@ -80,7 +79,11 @@ const NotificationsMenu = ({ terms, classes, open, setIsOpen, hasOpened }: {
     (currentUser?.lastNotificationsCheck) || ""
   );
   const { results } = useMulti({
-    terms,
+    terms: {
+      view: 'userNotifications',
+      userId: currentUser ? currentUser._id : "",
+      type: "newMessage"
+    },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     pollInterval: 0,

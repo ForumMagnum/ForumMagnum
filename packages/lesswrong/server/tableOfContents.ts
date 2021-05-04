@@ -82,7 +82,7 @@ export function extractTableOfContents(postHTML: string)
   // will be levels 1, 2, and 3 (not 1, 3 and 7).
 
   // Get a list of heading levels used
-  let headingLevelsUsedDict = {};
+  let headingLevelsUsedDict: Partial<Record<number,boolean>> = {};
   for(let i=0; i<headings.length; i++)
     headingLevelsUsedDict[headings[i].level] = true;
 
@@ -147,12 +147,12 @@ function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): stri
 // `<b>` and `<strong>` tags are headings iff they are the only thing in their
 // paragraph. Return whether the given tag name is a tag with that property
 // (ie, is `<strong>` or `<b>`).
-function tagIsHeadingIfWholeParagraph(tagName)
+function tagIsHeadingIfWholeParagraph(tagName: string): boolean
 {
   return tagName.toLowerCase() in headingIfWholeParagraph;
 }
 
-function tagIsWholeParagraph(tag) {
+function tagIsWholeParagraph(tag): boolean {
   if (!tag) return false;
   let parents = cheerio(tag).parent();
   if (!parents || !parents.length) return false;
@@ -164,7 +164,7 @@ function tagIsWholeParagraph(tag) {
   return true;
 }
 
-function tagToHeadingLevel(tagName)
+function tagToHeadingLevel(tagName: string): number
 {
   let lowerCaseTagName = tagName.toLowerCase();
   if (lowerCaseTagName in headingTags)

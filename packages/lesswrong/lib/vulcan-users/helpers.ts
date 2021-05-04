@@ -2,25 +2,20 @@ import { checkNested } from '../vulcan-lib/utils';
 import { mongoFindOne } from '../mongoQueries';
 import { userGetDisplayName, userGetProfileUrl } from '../collections/users/helpers';
 import moment from 'moment';
-import { meteorCurrentUserFromFiberContext } from '../meteorAccounts';
 
 // Get a user
-export const getUser = function(userOrUserId: DbUser|string|undefined): DbUser|null {
+export const getUser = async function(userOrUserId: DbUser|string|undefined): Promise<DbUser|null> {
   if (typeof userOrUserId === 'undefined') {
-    if (!meteorCurrentUserFromFiberContext()) {
-      throw new Error();
-    } else {
-      return meteorCurrentUserFromFiberContext();
-    }
+    throw new Error();
   } else if (typeof userOrUserId === 'string') {
-    return mongoFindOne("Users", userOrUserId);
+    return await mongoFindOne("Users", userOrUserId);
   } else {
     return userOrUserId;
   }
 };
 
-export const userGetDisplayNameById = function(userId: string): string {
-  return userGetDisplayName(mongoFindOne("Users", userId));
+export const userGetDisplayNameById = async function(userId: string): Promise<string> {
+  return userGetDisplayName(await mongoFindOne("Users", userId));
 };
 
 // Get a user's account edit URL
@@ -51,18 +46,18 @@ export const userGetEmail = function(user: DbUser): string|null {
   }
 };
 
-export const userFindLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): T|null {
-  return collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
+export const userFindLast = async function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): Promise<T|null> {
+  return await collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
 };
 
-export const userTimeSinceLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): number {
+export const userTimeSinceLast = async function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): Promise<number> {
   var now = new Date().getTime();
-  var last = userFindLast(user, collection, filter);
+  var last = await userFindLast(user, collection, filter);
   if (!last) return 999; // if this is the user's first post or comment ever, stop here
   return Math.abs(Math.floor((now - last.createdAt.getTime()) / 1000));
 };
 
-export const userNumberOfItemsInPast24Hours = function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter?: Record<string,any>): number {
+export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter?: Record<string,any>): Promise<number> {
   var mNow = moment();
   var items = collection.find({
     userId: user._id,
@@ -71,9 +66,9 @@ export const userNumberOfItemsInPast24Hours = function<T extends DbObject>(user:
       $gte: mNow.subtract(24, 'hours').toDate(),
     },
   });
-  return items.count();
+  return await items.count();
 };
 
-export const userFindByEmail = function(email: string): DbUser|null {
-  return mongoFindOne("Users", { email: email });
+export const userFindByEmail = async function(email: string): Promise<DbUser|null> {
+  return await mongoFindOne("Users", { email: email });
 };

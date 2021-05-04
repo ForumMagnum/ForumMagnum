@@ -1,42 +1,58 @@
-/*
-
-Generic mutation wrapper to update a document in a collection.
-
-Sample mutation:
-
-  mutation updateMovie($input: UpdateMovieInput) {
-    updateMovie(input: $input) {
-      data {
-        _id
-        name
-        __typename
-      }
-      __typename
-    }
-  }
-
-Arguments:
-
-  - input
-    - input.selector: a selector to indicate the document to update
-    - input.data: the document (set a field to `null` to delete it)
-
-Child Props:
-
-  - updateMovie({ selector, data })
-
-*/
-
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
-import gql from 'graphql-tag';
-import { updateClientTemplate, getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
+import { getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { updateCacheAfterUpdate } from './cacheUpdates';
 
+// Update mutation query used on the client
+//
+// mutation updateMovie($selector: MovieSelectorUniqueInput!, $data: UpdateMovieDataInput!) {
+//   updateMovie(selector: $selector, data: $data) {
+//     data {
+//       _id
+//       name
+//       __typename
+//     }
+//     __typename
+//   }
+// }
+const updateClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
+  typeName: string,
+  fragmentName: string,
+  extraVariablesString?: string,
+}) =>
+`mutation update${typeName}($selector: ${typeName}SelectorUniqueInput!, $data: Update${typeName}DataInput!, ${extraVariablesString || ''}) {
+  update${typeName}(selector: $selector, data: $data) {
+    data {
+      ...${fragmentName}
+    }
+  }
+}`;
+
+// Generic mutation wrapper to update a document in a collection.
+//
+// Sample mutation:
+//   mutation updateMovie($input: UpdateMovieInput) {
+//     updateMovie(input: $input) {
+//       data {
+//         _id
+//         name
+//         __typename
+//       }
+//       __typename
+//     }
+//   }
+//
+// Arguments:
+//   - input
+//     - input.selector: a selector to indicate the document to update
+//     - input.data: the document (set a field to `null` to delete it)
+//
+// Child Props:
+//   - updateMovie({ selector, data })
 export const withUpdate = (options: {
   collectionName: CollectionNameString,
   fragmentName?: FragmentName,
@@ -78,8 +94,6 @@ export const withUpdate = (options: {
   )
 };
 
-export default withUpdate;
-
 export const useUpdate = <CollectionName extends CollectionNameString>({ collectionName, fragmentName }: {
   collectionName: CollectionName,
   fragmentName: FragmentName,
@@ -112,3 +126,5 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
   }
   return {mutate: wrappedMutate, loading, error, called, data};
 }
+
+export default withUpdate;

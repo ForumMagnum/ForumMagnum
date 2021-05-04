@@ -9,8 +9,10 @@ import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collec
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks';
-import Sentry from '@sentry/node';
+import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
+import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
+import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
@@ -46,21 +48,26 @@ mdi.use(markdownItSub)
 mdi.use(markdownItSup)
 
 import { mjpage }  from 'mathjax-node-page'
+import { onStartup, isAnyTest } from '../../lib/executionEnvironment';
 
-function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
+export function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
     let finished = false;
     
-    setTimeout(() => {
-      if (!finished) {
-        const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-        Sentry.captureException(new Error(errorMessage));
-        // eslint-disable-next-line no-console
-        console.error(errorMessage);
-      }
-    }, 10000);
+    if (!isAnyTest) {
+      setTimeout(() => {
+        if (!finished) {
+          const errorMessage = `Timed out in mjpage when processing html: ${html}`;
+          captureException(new Error(errorMessage));
+          // eslint-disable-next-line no-console
+          console.error(errorMessage);
+          finished = true;
+          resolve(html);
+        }
+      }, 10000);
+    } 
     
     const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
       // eslint-disable-next-line no-console
@@ -342,18 +349,13 @@ const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
   return false;
 }
 
-export function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
+function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   collection: CollectionBase<T>,
-  options: any
+  options: MakeEditableOptions
 }) {
   const {
     fieldName = "contents",
     pingbacks = false,
-    // Because of Meteor shenannigans we don't have access to the full user
-    // object when a new user is created, and this creates bugs when we register
-    // callbacks that trigger on new user creation. So we allow the deactivation
-    // of the new callbacks.
-    deactivateNewCallback,
   } = options
 
   const collectionName = collection.collectionName;
@@ -406,9 +408,7 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
     return doc
   }
   
-  if (!deactivateNewCallback) {
-    getCollectionHooks(collectionName).createBefore.add(editorSerializationBeforeCreate);
-  }
+  getCollectionHooks(collectionName).createBefore.add(editorSerializationBeforeCreate);
 
   async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
     if (docData[fieldName]?.originalContents) {
@@ -435,7 +435,7 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
         // FIXME: See comment on the other Connectors.create call in this file.
         // Missing _id and schemaVersion.
         // @ts-ignore
-        const newRevision = await Connectors.create(Revisions, {
+        newRevisionId = await Connectors.create(Revisions, {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -448,7 +448,6 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
           commitMessage,
           changeMetrics,
         });
-        newRevisionId = newRevision._id;
       } else {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
@@ -487,6 +486,19 @@ export function addEditableCallbacks<T extends DbObject>({collection, options = 
   getCollectionHooks(collectionName).createAfter.add(editorSerializationAfterCreate)
   //getCollectionHooks(collectionName).updateAfter.add(editorSerializationAfterCreateOrUpdate)
 }
+
+export function addAllEditableCallbacks() {
+  sealEditableFields();
+  for (let collectionName of editableCollections) {
+    for (let fieldName of editableCollectionsFields[collectionName]) {
+      const collection = getCollection(collectionName);
+      const options = editableCollectionsFieldOptions[collectionName][fieldName];
+      addEditableCallbacks({collection, options});
+    }
+  }
+}
+
+onStartup(addAllEditableCallbacks);
 
 /// Given an HTML diff, where added sections are marked with <ins> and <del>
 /// tags, count the number of chars added and removed. This is used for providing

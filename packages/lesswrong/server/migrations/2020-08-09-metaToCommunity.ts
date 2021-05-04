@@ -6,7 +6,7 @@
  * admin with the slug "jpaddison"
  */
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils'
-import { defaultFilterSettings, FilterTag } from '../../lib/filterSettings'
+import { FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings'
 import Users from '../../lib/collections/users/collection'
 import Tags from '../../lib/collections/tags/collection'
 import Posts from '../../lib/collections/posts/collection';
@@ -75,7 +75,7 @@ registerMigration({
               updateOne: {
                 filter: { _id: user._id },
                 update: {$set: {
-                  'frontpageFilterSettings.personalBlog': defaultFilterSettings.personalBlog
+                  'frontpageFilterSettings.personalBlog': getDefaultFilterSettings().personalBlog
                 }}
               }
             }

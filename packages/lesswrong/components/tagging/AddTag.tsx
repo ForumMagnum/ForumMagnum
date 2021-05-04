@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
-import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import Divider from '@material-ui/core/Divider';
 import { Tags } from '../../lib/collections/tags/collection';
 import classNames from 'classnames';
@@ -94,7 +94,7 @@ const AddTag = ({onTagSelected, classes}: {
     }
   }, []);
   
-  if (!isAlgoliaEnabled) {
+  if (!isAlgoliaEnabled()) {
     return <div className={classes.root} ref={containerRef}>
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
         if (ev.charCode===13) {
@@ -108,7 +108,7 @@ const AddTag = ({onTagSelected, classes}: {
   
   return <div className={classNames(classes.root, {[classes.showAll]: showAllTags})} ref={containerRef}>
     <InstantSearch
-      indexName={algoliaIndexNames.Tags}
+      indexName={getAlgoliaIndexName("Tags")}
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >

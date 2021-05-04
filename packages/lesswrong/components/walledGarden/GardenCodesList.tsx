@@ -14,16 +14,16 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   limit?: number,
   personal?: boolean
 }) => {
-  const { GardenCodesItem, Loading, LoadMore } = Components
+  const { GardenCodesItem, LoadMore } = Components
   const currentUser = useCurrentUser()
   
   const terms: GardenCodesViewTerms = personal ?
     {view:"usersPrivateGardenCodes"} :
     {view:"publicGardenCodes"}
   
-  const { results, loading, loadMoreProps } = useMulti({
+  const { results, loadMoreProps } = useMulti({
     terms: {
-      userId: currentUser?._id,
+      ...(personal && {userId: currentUser?._id}),
       ...terms
     },
     enableTotal: true,
@@ -37,7 +37,7 @@ export const GardenCodesList = ({classes, limit, personal=false}: {
   
   return <div>
     {results?.map(code=><GardenCodesItem key={code._id} gardenCode={code}/>)}
-    {loading ? <Loading/> : <LoadMore className={classes.loadMore} {...loadMoreProps}/>}
+    <LoadMore className={classes.loadMore} {...loadMoreProps}/>
   </div>
 }
 

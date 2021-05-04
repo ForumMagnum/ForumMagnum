@@ -10,10 +10,11 @@ const PostsPageQuestionContent = ({post, refetch}: {
 }) => {
   const currentUser = useCurrentUser();
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
+  const author = post.user;
   return (
     <div>
-      {(!currentUser || userIsAllowedToComment(currentUser, post)) && !post.draft && <NewAnswerCommentQuestionForm post={post} refetch={refetch} />}
-      {currentUser && !userIsAllowedToComment(currentUser, post) &&
+      {(!currentUser || userIsAllowedToComment(currentUser, post, author)) && !post.draft && <NewAnswerCommentQuestionForm post={post} refetch={refetch} />}
+      {currentUser && !userIsAllowedToComment(currentUser, post, author) &&
         <CantCommentExplanation post={post}/>
       }
       <AnswersList post={post}/>

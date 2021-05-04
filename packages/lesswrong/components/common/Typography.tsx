@@ -48,7 +48,10 @@ const Typography = ({children, variant, component, className, onClick, classes}:
   </Component>
 }
 
-const TypographyComponent = registerComponent("Typography", Typography, {styles});
+const TypographyComponent = registerComponent("Typography", Typography, {
+  styles,
+  stylePriority: -1,
+});
 
 declare global {
   interface ComponentTypes {

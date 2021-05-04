@@ -1,5 +1,6 @@
 import { isAnyTest, onStartup, runAfterDelay } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
+import { getCommandLineArguments } from './commandLine';
 
 SyncedCron.options = {
   log: true,
@@ -16,7 +17,7 @@ export function addCronJob(options: {
 })
 {
   onStartup(function() {
-    if (!isAnyTest) {
+    if (!isAnyTest && !getCommandLineArguments().shellMode) {
       // Defer starting of cronjobs until 20s after server startup
       runAfterDelay(() => {
         SyncedCron.add({
@@ -36,8 +37,16 @@ export function addCronJob(options: {
   });
 }
 
+export function removeCronJob(name: string) {
+  SyncedCron.remove(name);
+}
+
 export function startSyncedCron() {
   if (typeof SyncedCron !== 'undefined') {
     SyncedCron.start();
   }
 }
+
+onStartup(function() {
+  startSyncedCron();
+});

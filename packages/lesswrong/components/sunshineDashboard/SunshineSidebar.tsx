@@ -29,8 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     fontSize: "1rem",
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
     cursor: "pointer",
+    
+    "&:hover": {
+      color: theme.palette.grey[800],
+    },
   }
 })
 
@@ -48,11 +52,11 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   return (
     <div className={classes.root}>
       {showInitialSidebar && <div className={classes.background}>
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
         <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
         <SunshineNewTagsList />
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         
         {/* alignmentForumAdmins see AF content above the fold */}
         { currentUser.groups?.includes('alignmentForumAdmins') && <div>
@@ -98,7 +102,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
-          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} allowContentPreview={false}/>
+          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} />
         </div>}
       </div>}
 

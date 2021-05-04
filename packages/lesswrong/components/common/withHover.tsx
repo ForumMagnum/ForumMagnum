@@ -9,10 +9,10 @@ function datesDifference(a:Date, b:Date): number {
 export const withHover = (trackingData?: any, propsToTrackingData?: any) => {
   return (WrappedComponent) => (props) => {
     const eventProps = {...trackingData, ...(propsToTrackingData || (props=>{}))(props)};
-    const { eventHandlers, hover, anchorEl, stopHover } = useHover(eventProps);
+    const { eventHandlers, hover, anchorEl } = useHover(eventProps);
     return (
       <span {...eventHandlers}>
-        <WrappedComponent {...props} hover={hover} anchorEl={anchorEl} stopHover={stopHover}/>
+        <WrappedComponent {...props} hover={hover} anchorEl={anchorEl}/>
       </span>
     );
   }
@@ -60,7 +60,6 @@ export const useHover = (eventProps?: Record<string,any>) => {
     hover,
     everHovered,
     anchorEl,
-    stopHover: handleMouseLeave,
   }
 }
 

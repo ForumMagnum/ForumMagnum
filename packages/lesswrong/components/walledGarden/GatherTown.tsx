@@ -13,6 +13,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 export const gardenOpenToPublic = new DatabasePublicSetting<boolean>('gardenOpenToPublic', false)
+export const gatherTownUserTrackingIsBroken = new DatabasePublicSetting<boolean>('gatherTownUserTrackingIsBroken', false)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -105,7 +106,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const GatherTown = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
+  const { results, loading } = useMulti({
     terms: {
       view: "gatherTownUsers",
       limit: 1,
@@ -114,7 +115,9 @@ const GatherTown = ({classes}: {
     fragmentName: 'lastEventFragment',
     enableTotal: false,
   });
-  const users = results && results[0]?.properties?.gatherTownUsers
+  const lastCheckResults = results && results[0]?.properties;
+  const checkFailed = !lastCheckResults || lastCheckResults.checkFailed;
+  const users = lastCheckResults?.gatherTownUsers;
   const userList = users && Object.keys(users)
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
@@ -146,11 +149,11 @@ const GatherTown = ({classes}: {
   const tooltip = currentUser.walledGardenInvite ? <LWTooltip title={
     <div>
       Click to read more about this space
-      <div>{"password: the12thvirtue"}</div></div>
-    }>
-      <Link to="/walledGarden" className={classes.learn}>
-        Learn More
-      </Link>
+    </div>
+  }>
+    <Link to="/walledGarden" className={classes.learn}>
+      Learn More
+    </Link>
   </LWTooltip> : null
 
   return (
@@ -165,9 +168,11 @@ const GatherTown = ({classes}: {
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user} {users[user]?.status && `(${users[user].status})`}</span>)}
             {tooltip}
         </div>}
-        {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
+        {!loading && (!userList || !userList.length) && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
-          No users currently online. Check back later or be the first to join!
+          {(gatherTownUserTrackingIsBroken.get() || checkFailed)
+            ? "Unable to autodetect whether users are currently online. Pop in to find out!"
+            : "No users currently online. Check back later or be the first to join!"}
           {tooltip}
         </div>}
         <div className={classes.gardenCodesList}>

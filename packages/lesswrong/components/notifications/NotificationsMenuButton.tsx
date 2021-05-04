@@ -5,7 +5,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import { useCurrentUser } from '../common/withUser';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -32,16 +31,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
-  terms: NotificationsViewTerms,
-  classes: ClassesType,
+const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: {
   open: boolean,
   color?: string,
   toggle: any,
+  currentUser: UsersCurrent,
+  classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
   const { results } = useMulti({
-    terms,
+    terms: {
+      view: 'userNotifications',
+      userId: currentUser._id
+    },
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     pollInterval: 0,
@@ -50,12 +51,9 @@ const NotificationsMenuButton = ({ terms, classes, open, color, toggle }: {
     fetchPolicy: 'cache-and-network',
   });
   
-  let filteredResults: Array<NotificationsList> = [];
-  if (currentUser) {
-    filteredResults = results && _.filter(results,
-      (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
-    );
-  }
+  let filteredResults: Array<NotificationsList> = results && _.filter(results,
+    (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
+  );
 
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   const notificationIconStyle = {

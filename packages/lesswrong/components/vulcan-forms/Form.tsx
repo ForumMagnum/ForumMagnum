@@ -44,6 +44,7 @@ import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
+import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
@@ -81,7 +82,7 @@ const getInitialStateFromProps = nextProps => {
   const collection = nextProps.collection;
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
-    : collection.simpleSchema();
+    : getSimpleSchema(collection);
   const convertedSchema = convertSchema(schema)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
@@ -990,7 +991,7 @@ class SmartForm extends Component<any,any> {
   // --------------------------------------------------------------------- //
 
   getFormProps = () => ({
-    className: 'document-' + this.getFormType(),
+    className: 'vulcan-form document-' + this.getFormType(),
     id: this.props.id,
     onSubmit: this.submitForm,
     onKeyDown: this.formKeyDown,
@@ -1127,8 +1128,6 @@ class SmartForm extends Component<any,any> {
   errors: PropTypes.array,
   currentValues: PropTypes.object
 };
-
-module.exports = SmartForm;
 
 const FormComponent = registerComponent("Form", SmartForm, {
   hocs: [withCollectionProps]

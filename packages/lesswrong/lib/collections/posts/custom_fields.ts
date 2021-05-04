@@ -13,7 +13,7 @@ import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
-import Sentry from '@sentry/core';
+import { captureException } from '@sentry/core';
 
 const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
 
@@ -203,7 +203,7 @@ addFieldsDict(Posts, {
     optional: true,
     hidden: true,
     viewableBy: ['guests'],
-    onInsert: () => new Date(),
+    onInsert: (post: DbPost) => post.postedAt || new Date(),
   },
 
   // curatedDate: Date at which the post was promoted to curated (null or false
@@ -385,9 +385,9 @@ addFieldsDict(Posts, {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: (post: DbPost, args: void, context: ResolverContext): DbCollection|null => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
       }
     },
   },
@@ -454,18 +454,25 @@ addFieldsDict(Posts, {
         const nextPostID = await sequenceGetNextPostID(sequenceId, post._id);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          return await accessFilterSingle(currentUser, Posts, nextPost, context);
+          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+          if (nextPostFiltered)
+            return nextPostFiltered;
+        }
+      }
+      if(post.canonicalSequenceId) {
+        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
+        if (nextPostID) {
+          const nextPost = await context.loaders.Posts.load(nextPostID);
+          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+          if (nextPostFiltered)
+            return nextPostFiltered;
         }
       }
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
-        return await accessFilterSingle(currentUser, Posts, nextPost, context);
-      }
-      if(post.canonicalSequenceId) {
-        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
-        if (!nextPostID) return null;
-        const nextPost = await context.loaders.Posts.load(nextPostID);
-        return await accessFilterSingle(currentUser, Posts, nextPost, context);
+        const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
+        if (nextPostFiltered)
+          return nextPostFiltered;
       }
 
       return null;
@@ -487,18 +494,28 @@ addFieldsDict(Posts, {
         const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          return await accessFilterSingle(currentUser, Posts, prevPost, context);
+          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+          if (prevPostFiltered) {
+            return prevPostFiltered;
+          }
+        }
+      }
+      if(post.canonicalSequenceId) {
+        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
+        if (prevPostID) {
+          const prevPost = await context.loaders.Posts.load(prevPostID);
+          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+          if (prevPostFiltered) {
+            return prevPostFiltered;
+          }
         }
       }
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
-        return await accessFilterSingle(currentUser, Posts, prevPost, context);
-      }
-      if(post.canonicalSequenceId) {
-        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
-        if (!prevPostID) return null;
-        const prevPost = await context.loaders.Posts.load(prevPostID);
-        return await accessFilterSingle(currentUser, Posts, prevPost, context);
+        const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
+        if (prevPostFiltered) {
+          return prevPostFiltered;
+        }
       }
 
       return null;
@@ -974,7 +991,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
@@ -991,7 +1008,7 @@ addFieldsDict(Posts, {
       try {
         return await Utils.getTableOfContentsData({document, version, currentUser, context});
       } catch(e) {
-        Sentry.captureException(e);
+        captureException(e);
         return null;
       }
     },
@@ -1110,50 +1127,42 @@ addFieldsDict(Posts, {
   },
 });
 
-export const makeEditableOptions = {
-  formGroup: formGroups.content,
-  adminFormGroup: formGroups.adminOptions,
-  order: 25,
-  pingbacks: true,
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptions
+  options: {
+    formGroup: formGroups.content,
+    order: 25,
+    pingbacks: true,
+  }
 })
 
-export const makeEditableOptionsModeration = {
-  // Determines whether to use the comment editor configuration (e.g. Toolbars)
-  commentEditor: true,
-  // Determines whether to use the comment editor styles (e.g. Fonts)
-  commentStyles: true,
-  formGroup: formGroups.moderationGroup,
-  adminFormGroup: formGroups.adminOptions,
-  order: 50,
-  fieldName: "moderationGuidelines",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userHasModerationGuidelines]
-  },
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptionsModeration
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.moderationGroup,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userHasModerationGuidelines]
+    },
+  }
 })
 
-export const makeEditableOptionsCustomHighlight = {
-  formGroup: formGroups.highlight,
-  fieldName: "customHighlight",
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-  },
-}
-
 makeEditable({
   collection: Posts,
-  options: makeEditableOptionsCustomHighlight
+  options: {
+    formGroup: formGroups.highlight,
+    fieldName: "customHighlight",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
+  }
 })

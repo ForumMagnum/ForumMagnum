@@ -7,7 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
-import { defaultFilterSettings } from '../../lib/filterSettings';
+import { getDefaultFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
-  const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : defaultFilterSettings;
+  const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : getDefaultFilterSettings();
 
   return useState(defaultSettings);
 }

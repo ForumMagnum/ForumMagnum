@@ -5,6 +5,8 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Comments } from '../../lib/collections/comments'
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
+import { styles } from '../admin/AdminHome';
+import classNames from 'classnames';
 
 const DateDisplay = ({column, document}) => {
   return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
@@ -97,17 +99,19 @@ const usersBannedFromUsersColumns = [
   },
 ]
 
-class ModerationLog extends PureComponent {
+class ModerationLog extends PureComponent<any> {
 
   constructor(props) {
     super(props);
   }
 
   render() {
+    const { classes } = this.props;
+    const { SingleColumnSection } = Components;
     return (
-      <div className="moderation-log">
+      <SingleColumnSection className={classes.adminHomeOrModerationLogPage}>
         <h2>Moderation Log</h2>
-        <div className="moderation-log-deleted-comments">
+        <div className={classes.adminLogGroup}>
           <h3>Deleted Comments</h3>
           <Components.Datatable
             collection={Comments}
@@ -120,7 +124,7 @@ class ModerationLog extends PureComponent {
             showEdit={false}
           />
         </div>
-        <div className="moderation-log-users-banned-from-posts">
+        <div className={classNames(classes.adminLogGroup, classes.floatLeft)}>
           <h3>Users Banned From Posts</h3>
           <Components.Datatable
             collection={Posts}
@@ -134,7 +138,7 @@ class ModerationLog extends PureComponent {
             showNew={false}
           />
         </div>
-        <div className="moderation-log-users-banned-from-users">
+        <div className={classNames(classes.adminLogGroup, classes.floatLeft)}>
           <h3>Users Banned From Users</h3>
           <Components.Datatable
             collection={Users}
@@ -148,12 +152,12 @@ class ModerationLog extends PureComponent {
             showNew={false}
           />
         </div>
-      </div>
+      </SingleColumnSection>
     )
   }
 }
 
-const ModerationLogComponent = registerComponent('ModerationLog', ModerationLog);
+const ModerationLogComponent = registerComponent('ModerationLog', ModerationLog, {styles});
 
 declare global {
   interface ComponentTypes {

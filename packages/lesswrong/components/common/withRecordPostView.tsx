@@ -1,9 +1,8 @@
 import React, { useContext, useCallback } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from './withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
-import gql from 'graphql-tag';
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,

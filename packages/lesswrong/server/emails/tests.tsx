@@ -1,13 +1,11 @@
+import { testStartup } from '../../testing/testMain';
 import React from 'react';
 import { withSingle, useSingle } from '../../lib/crud/withSingle';
-import { chai } from 'meteor/practicalmeteor:chai';
-import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost } from '../../testing/utils'
 import { emailDoctype, generateEmail } from './renderEmail';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
 const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: string, body: string}): string => {
   const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";
@@ -29,7 +27,7 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   });
 }
 
-describe('renderEmail', async () => {
+describe('renderEmail', () => {
   it("Renders a simple component", async () => {
     const email = await renderTestEmail({
       bodyComponent: <div>Hello</div>,

@@ -1,14 +1,56 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import Collections from '../../lib/collections/collections/collection';
+import classNames from 'classnames';
 
-const CollectionsEditForm = ({documentId, successCallback, cancelCallback}: {
+export const styles = (theme: ThemeType): JssStyles => ({
+  newOrEditForm: {
+    maxWidth: 695,
+    marginLeft: "auto",
+    marginRight: 90,
+    padding: 15,
+    borderRadius: 2,
+    marginBottom: "2em",
+  
+    "& form": {
+      clear: "both",
+      overflow: "auto",
+    },
+    "& .form-submit": {
+      float: "right",
+    },
+    "& h3": {
+      fontSize: "2em",
+      marginBottom: "1em",
+    },
+    "& label.control-label": {
+      display: "none",
+    },
+    "& .col-sm-9": {
+      padding: 0,
+    },
+    "& .input-title input": {
+      fontSize: "2em",
+    },
+  },
+  editForm: {
+    width: 700,
+    marginLeft: "auto",
+    marginRight: 75,
+  },
+  newForm: {
+    border: "solid 1px rgba(0,0,0,.2)",
+  },
+});
+
+const CollectionsEditForm = ({documentId, successCallback, cancelCallback, classes}: {
   documentId: string,
   successCallback: any,
   cancelCallback: any,
+  classes: ClassesType,
 }) => {
   return (
-    <div className="chapters-edit-form">
+    <div className={classNames(classes.newOrEditForm,classes.editForm)}>
       <Components.WrappedSmartForm
         collection={Collections}
         documentId={documentId}
@@ -22,7 +64,7 @@ const CollectionsEditForm = ({documentId, successCallback, cancelCallback}: {
   )
 }
 
-const CollectionsEditFormComponent = registerComponent('CollectionsEditForm', CollectionsEditForm);
+const CollectionsEditFormComponent = registerComponent('CollectionsEditForm', CollectionsEditForm, {styles});
 
 declare global {
   interface ComponentTypes {

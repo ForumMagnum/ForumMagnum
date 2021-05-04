@@ -2,17 +2,10 @@
 // vulcan:users
 import './vulcan-users/index';
 
-// vulcan:accounts
-import './vulcan-accounts/index';
-
 // schema utils
 import './utils/schemaUtils'
 // Permissions
 import './permissions';
-
-// ## Accounts
-import './accounts/modify_accounts_ui';
-import './accounts/configuration';
 
 // ## Voting
 import './voting/voteTypes';
@@ -26,41 +19,41 @@ import './collections/revisions/fragments';
 
 
 // Notifications
-import Notifications from './collections/notifications/collection';
+import './collections/notifications/collection';
 import './collections/notifications/views';
 import './collections/notifications/permissions';
 import './collections/notifications/fragments';
 // Inbox
-import Messages from './collections/messages/collection'
+import './collections/messages/collection'
 import './collections/messages/views';
 import './collections/messages/permissions';
 import './collections/messages/fragments';
 
-import Conversations from './collections/conversations/collection'
+import './collections/conversations/collection'
 import './collections/conversations/views';
 import './collections/conversations/helpers';
 import './collections/conversations/permissions';
 import './collections/conversations/fragments';
-//
+
 // RSSFeeds
-import RSSFeeds from './collections/rssfeeds/collection'
+import './collections/rssfeeds/collection'
 import './collections/rssfeeds/views'
 import './collections/rssfeeds/fragments'
-//
+
 // Reports
-import Reports from './collections/reports/collection'
+import './collections/reports/collection'
 import './collections/reports/views'
 import './collections/reports/fragments'
 
 // LWEvents
-import { LWEvents } from './collections/lwevents/index';
+import './collections/lwevents/index';
 
 // TagFlags
-import { TagFlags } from './collections/tagFlags/collection';
+import './collections/tagFlags/collection';
 import './collections/tagFlags/views';
 
 // GardenCodes
-import { GardenCodes } from "./collections/gardencodes/collection";
+import "./collections/gardencodes/collection";
 import './collections/gardencodes/views'
 
 // DatabaseMetadata
@@ -76,24 +69,24 @@ import './collections/debouncerEvents/collection';
 // ReadStatuses
 import './collections/readStatus/collection';
 // Bans
-import { Bans } from './collections/bans/index'
+import './collections/bans/index'
 // Chapters
-import Sequences from './collections/sequences/collection';
+import './collections/sequences/collection';
 import './collections/sequences/views';
 import './collections/sequences/helpers';
 
-import Chapters from './collections/chapters/collection';
-import Books from './collections/books/collection';
-import Collections from './collections/collections/collection';
+import './collections/chapters/collection';
+import './collections/books/collection';
+import './collections/collections/collection';
 
 // ReviewVotes
-import ReviewVotes from './collections/reviewVotes/collection'
+import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
 import './collections/reviewVotes/mutations'
 
 
-import Localgroups from './collections/localgroups/collection'
+import './collections/localgroups/collection'
 import './collections/localgroups/views';
 import './collections/localgroups/permissions';
 import './collections/localgroups/fragments';
@@ -136,7 +129,7 @@ import './collections/posts/permissions';
 import './collections/posts/helpers';
 
 // Revisions
-import Revisions from './collections/revisions/collection'
+import './collections/revisions/collection'
 import './collections/revisions/views'
 //
 // Users
@@ -149,9 +142,9 @@ import './collections/users/views';
 import './collections/users/fragments';
 
 // Comments
-import { Comments } from './collections/comments'
+import './collections/comments'
 
-import { PetrovDayLaunchs } from './collections/petrovDayLaunchs'
+import './collections/petrovDayLaunchs'
 
 
 
@@ -164,7 +157,6 @@ import './i18n-en-us/en_US';
 // Misc.
 import './helpers'
 import './routes';
-import './scrollRestoration';
 
 import './components';
 
@@ -190,28 +182,6 @@ import './alignment-forum/users/views';
 
 import './analyticsEvents';
 import './abTests';
-import './abTestUtil';
 import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';
-
-export {
-  Conversations,
-  Messages,
-  Notifications,
-  RSSFeeds,
-  Chapters,
-  Sequences,
-  Collections,
-  LWEvents,
-  Reports,
-  Books,
-  Bans,
-  Localgroups,
-  Comments,
-  Revisions,
-  ReviewVotes,
-  PetrovDayLaunchs,
-  TagFlags,
-  GardenCodes
-}

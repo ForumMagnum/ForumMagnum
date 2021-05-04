@@ -1,8 +1,5 @@
 import { createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
-
-import { Localgroups, makeEditableOptions } from '../../lib/collections/localgroups/collection'
-import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { getCollectionHooks } from '../mutationCallbacks';
 
 getCollectionHooks("Localgroups").createAfter.add(function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser: DbUser|null}) {
@@ -35,5 +32,3 @@ const groupWelcomePostTemplate = {
     }
   },
 }
-
-addEditableCallbacks({collection: Localgroups, options: makeEditableOptions})

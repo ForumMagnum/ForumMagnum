@@ -34,12 +34,12 @@ const schema: SchemaType<DbTagFlag> = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: (tagFlag) => {
-      return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
+    onInsert: async (tagFlag) => {
+      return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
-    onEdit: (modifier, tagFlag) => {
+    onEdit: async (modifier, tagFlag) => {
       if (modifier.$set.name) {
-        return Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
+        return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(modifier.$set.name), false, tagFlag._id)
       }
     }
   },
@@ -88,17 +88,15 @@ export const TagFlags: TagFlagsCollection = createCollection({
 
 addUniversalFields({collection: TagFlags})
 
-export const makeEditableOptions = {
-  order: 30,
-  getLocalStorageId: (tagFlag, name) => {
-    if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
-    return {id: `tagFlag: ${name}`, verify: false}
-  },
-}
-
 makeEditable({
   collection: TagFlags,
-  options: makeEditableOptions
+  options: {
+    order: 30,
+    getLocalStorageId: (tagFlag, name) => {
+      if (tagFlag._id) { return {id: `${tagFlag._id}_${name}`, verify: true} }
+      return {id: `tagFlag: ${name}`, verify: false}
+    },
+  }
 })
 export default TagFlags;
 

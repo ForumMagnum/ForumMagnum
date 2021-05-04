@@ -20,7 +20,7 @@ registerMigration({
 
 const recomputeCollectionScores = async (collectionName:CollectionNameString, includeAf = false) => {
   const collection = getCollection(collectionName);
-  const newScores = await Votes.rawCollection().aggregate([
+  const newScores = await Votes.aggregate([
     {
       $match: {
         cancelled: false,
@@ -74,7 +74,7 @@ const recomputeCollectionScores = async (collectionName:CollectionNameString, in
 }
 
 const recomputeUserKarma = async () => {
-  const newScores:any[] = await Votes.rawCollection().aggregate([
+  const newScores:any[] = await Votes.aggregate([
     {
       $match: {
         cancelled: false,

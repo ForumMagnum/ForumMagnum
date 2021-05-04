@@ -92,6 +92,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const [ hideBar, setHideBar ] = useState(false);
 
   const { results } = useMulti({
+    skip: !inviteCodeQuery,
     terms: {
       code: inviteCodeQuery
     },

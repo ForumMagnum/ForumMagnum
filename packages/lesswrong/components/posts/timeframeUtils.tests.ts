@@ -1,4 +1,7 @@
 import { getDateRange } from './timeframeUtils'
+import chai from 'chai';
+
+chai.should();
 
 describe('getDateRange', () => {
   it('handles days', () => {

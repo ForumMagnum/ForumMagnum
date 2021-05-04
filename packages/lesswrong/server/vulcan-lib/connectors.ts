@@ -1,4 +1,11 @@
+/*
+ * A light wrapper around the Meteor-provided CRUD functionality.
+ *
+ * NB: You can enable logging here, but be warned that we don't use these
+ * functions everywhere, some paths access the DB without using this wapper
+ */
 import { Utils } from '../../lib/vulcan-lib/utils';
+import { loggerConstructor } from '../../lib/utils/logging';
 
 // convert GraphQL selector into Mongo-compatible selector
 // TODO: add support for more than just documentId/_id and slug, potentially making conversion unnecessary
@@ -21,8 +28,15 @@ export const Connectors = {
     options: MongoFindOneOptions<T> = {},
     skipConversion?: boolean
   ): Promise<T|null> => {
+    const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-get`)
+    logger('---------->')
+    logger('selector', selector)
+    logger('options', options)
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
-    return await collection.findOne(convertedSelector, options);
+    const result = await collection.findOne(convertedSelector, options);
+    logger('result', result)
+    logger('---<')
+    return result
   },
   
   find: async <T extends DbObject>(
@@ -30,7 +44,15 @@ export const Connectors = {
     selector: MongoSelector<T> = {},
     options: MongoFindOptions<T> = {}
   ): Promise<Array<T>> => {
-    return await collection.find(convertSelector(selector), options).fetch();
+    const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-find`)
+    logger('---------->')
+    logger('selector', selector)
+    logger('options', options)
+    const result = await collection.find(convertSelector(selector), options).fetch();
+    // logger('result', result)
+    logger('result.length', result.length)
+    logger('---<')
+    return result
   },
   
   count: async <T extends DbObject>(
@@ -38,7 +60,14 @@ export const Connectors = {
     selector: MongoSelector<T> = {},
     options: MongoFindOptions<T> = {}
   ): Promise<number> => {
-    return await collection.find(convertSelector(selector), options).count();
+    const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-count`)
+    logger('---------->')
+    logger('selector', selector)
+    logger('options', options)
+    const result = await collection.find(convertSelector(selector), options).count();
+    logger('result', result)
+    logger('---<')
+    return result
   },
   
   create: async <T extends DbObject>(
@@ -46,7 +75,14 @@ export const Connectors = {
     document: T,
     options: MongoInsertOptions<T> = {}
   ) => {
-    return await collection.insert(document);
+    const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-create`)
+    logger('---------->')
+    logger('document', document)
+    logger('options', options)
+    const result = await collection.insert(document);
+    logger('result', result)
+    logger('---<')
+    return result
   },
   
   update: async <T extends DbObject>(
@@ -56,8 +92,16 @@ export const Connectors = {
     options: MongoUpdateOptions<T> = {},
     skipConversion?: boolean
   ) => {
+    const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-update`)
+    logger('---------->')
+    logger('selector', selector)
+    logger('modifier', modifier)
+    logger('options', options)
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
-    return await collection.update(convertedSelector, modifier, options);
+    const result = await collection.update(convertedSelector, modifier, options);
+    logger('result', result)
+    logger('---<')
+    return result
   },
   
   delete: async <T extends DbObject>(
@@ -66,8 +110,15 @@ export const Connectors = {
     options: MongoRemoveOptions<T> = {},
     skipConversion?: boolean
   ) => {
+    const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-delete`)
+    logger('---------->')
+    logger('selector', selector)
+    logger('options', options)
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
-    return await collection.remove(convertedSelector);
+    const result = await collection.remove(convertedSelector);
+    logger('result', result)
+    logger('---<')
+    return result
   },
 }
 

@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { defaultFilterSettings } from '../../lib/filterSettings';
 import Users from '../../lib/collections/users/collection';
+import { getDefaultFilterSettings } from '../../lib/filterSettings';
 
 registerMigration({
   name: "updateToCorrectTagDefault",
@@ -17,7 +17,7 @@ registerMigration({
         const changes = users.map(user => ({
           updateOne: {
             filter: { _id: user._id },
-            update: {$set: {'frontpageFilterSettings.tags': defaultFilterSettings.tags}}
+            update: {$set: {'frontpageFilterSettings.tags': getDefaultFilterSettings().tags}}
           }
         }))
         

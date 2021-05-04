@@ -4,7 +4,7 @@ import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
-import { algoliaIndexNames } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, collectionIsAlgoliaIndexed, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
 import { postStatuses } from '../../lib/collections/posts/constants';
@@ -79,7 +79,6 @@ Sequences.toAlgolia = async (sequence: DbSequence): Promise<Array<AlgoliaSequenc
     _id: sequence._id,
     title: sequence.title,
     userId: sequence.userId,
-    baseScore: sequence.baseScore,
     createdAt: sequence.createdAt,
     af: sequence.af,
     plaintextDescription: "",
@@ -216,7 +215,7 @@ Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
 // Do algoliaIndex.waitTask as an async function rather than a
 // callback-accepting function.
 async function algoliaWaitForTask(algoliaIndex: algoliasearch.Index, taskID: number) {
-  return new Promise((resolve,reject) => {
+  return new Promise<void>((resolve,reject) => {
     algoliaIndex.waitTask(taskID, (err) => {
       if (err) reject(err);
       else resolve();
@@ -487,7 +486,7 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   collection: AlgoliaIndexedCollection<T>,
   updateFunction?: any,
 }) {
-  if (!(collection.collectionName in algoliaIndexNames)) {
+  if (!collectionIsAlgoliaIndexed(collection.collectionName)) {
     // If this is a collection that isn't Algolia-indexed, don't index it. (This
     // gets called from voting code, which tried to update Algolia indexes to
     // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
@@ -500,12 +499,17 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   if (!client) {
     return;
   }
-  let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
+  let algoliaIndex = client.initIndex(getAlgoliaIndexName(collection.collectionName as AlgoliaIndexCollectionName));
   
   let totalErrors = [];
   
-  await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
-    errors: totalErrors, updateFunction });
+  await algoliaIndexDocumentBatch({
+    documents,
+    collection: collection as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
+    algoliaIndex,
+    errors: totalErrors,
+    updateFunction
+  });
   
   if (totalErrors.length > 0) {
     //eslint-disable-next-line no-console

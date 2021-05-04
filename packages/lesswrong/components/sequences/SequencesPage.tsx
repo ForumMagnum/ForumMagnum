@@ -91,6 +91,7 @@ const SequencesPage = ({ documentId, classes }: {
   classes: ClassesType
 }) => {
   const [edit,setEdit] = useState(false);
+  const [showNewChapterForm,setShowNewChapterForm] = useState(false);
   const currentUser = useCurrentUser();
   const { document, loading } = useSingle({
     documentId,
@@ -106,7 +107,10 @@ const SequencesPage = ({ documentId, classes }: {
   }, []);
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
-    ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName, ContentItemBody, Typography } = Components
+    ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
+    ContentItemBody, Typography, SectionButton,
+  } = Components
+  
   if (document && document.isDeleted) return <h3>This sequence has been deleted</h3>
   if (loading || !document) return <Loading />
   if (edit) return (
@@ -122,7 +126,7 @@ const SequencesPage = ({ documentId, classes }: {
   const { html = "" } = document.contents || {}
 
   return <div className={classes.root}>
-    <HeadTags url={sequenceGetPageUrl(document, true)} title={document.title}/>
+    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title}/>
     <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>
@@ -161,9 +165,14 @@ const SequencesPage = ({ documentId, classes }: {
         </div>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+            <ChaptersList sequenceId={document._id} canEdit={canEdit} />
           </AnalyticsContext>
-          {canCreateChapter ? <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
+          {canCreateChapter && <SectionFooter>
+            <SectionButton>
+              <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
+            </SectionButton>
+          </SectionFooter>}
+          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/>}
         </div>
       </div>
     </SingleColumnSection>
@@ -177,4 +186,3 @@ declare global {
     SequencesPage: typeof SequencesPageComponent
   }
 }
-

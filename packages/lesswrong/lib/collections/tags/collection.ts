@@ -43,25 +43,23 @@ Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: Resolve
 
 addUniversalFields({collection: Tags})
 
-export const tagDescriptionEditableOptions = {
-  commentStyles: true,
-  fieldName: "description",
-  getLocalStorageId: (tag, name) => {
-    if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
-    return {id: `tag:create`, verify:true}
-  },
-  revisionsHaveCommitMessages: true,
-  permissions: {
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members']
-  },
-  order: 10
-};
-
 makeEditable({
   collection: Tags,
-  options: tagDescriptionEditableOptions
+  options: {
+    commentStyles: true,
+    fieldName: "description",
+    getLocalStorageId: (tag, name) => {
+      if (tag._id) { return {id: `tag:${tag._id}`, verify:true} }
+      return {id: `tag:create`, verify:true}
+    },
+    revisionsHaveCommitMessages: true,
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members'],
+      insertableBy: ['members']
+    },
+    order: 10
+  }
 });
 
 export default Tags;

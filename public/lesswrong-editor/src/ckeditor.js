@@ -31,6 +31,7 @@ import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
 import CodeBlock from '@ckeditor/ckeditor5-code-block/src/codeblock';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
+import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
@@ -81,7 +82,7 @@ const headingOptions = {
 		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
 		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
 		{ model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
-		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' }	
 	]
 };
 
@@ -110,6 +111,7 @@ const postEditorPlugins = [
 	Italic,
 	Link,
 	List,
+	ListStyle,
 	Code,
 	CodeBlock,
 	Subscript,
@@ -157,7 +159,7 @@ const embedConfig = {
 	extraProviders: [
 		{
 			name: 'Elicit',
-			url: /^elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
+			url: /^(?:forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
 			html: ([match, questionId]) => `
 				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
 					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
@@ -190,8 +192,6 @@ const postEditorConfig = {
 		'bold',
 		'italic',
 		'strikethrough',
-		'|',
-		'alignment',
 		'|',
 		'link',
 		'|',
@@ -250,6 +250,7 @@ CommentEditor.builtinPlugins = [
 	Italic,
 	Link,
 	List,
+	ListStyle,
 	Paragraph,
 	Code,
 	CodeBlock,

@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
-import gql from 'graphql-tag';
 
 const loadMoreDistance = 500;
 

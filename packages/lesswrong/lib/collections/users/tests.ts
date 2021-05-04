@@ -1,11 +1,9 @@
-import { chai } from 'meteor/practicalmeteor:chai';
-import chaiAsPromised from 'chai-as-promised';
+import { testStartup } from '../../../testing/testMain';
 import { createDummyUser, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
 
-chai.should();
-chai.use(chaiAsPromised);
+testStartup();
 
-describe('updateUser – ', async () => {
+describe('updateUser – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("fails when user updates their displayName", async () => {
     const user = await createDummyUser()
@@ -90,7 +88,7 @@ describe('updateUser – ', async () => {
   });
 })
 
-describe('updateUser succeeds – ', async () => {
+describe('updateUser succeeds – ', () => {
   it("succeeds when user updates their bio", async () => {
     const user = await createDummyUser()
     return userUpdateFieldSucceeds({

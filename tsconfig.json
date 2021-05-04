@@ -6,18 +6,20 @@
     "strictNullChecks": true,
     "jsx": "react",
     "esModuleInterop": true,
+    "rootDir": ".",
     "module": "commonjs",
+    "target": "es5",
+    "sourceMap": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": [
-    "packages/lesswrong/**/*.ts",
-    "packages/lesswrong/**/*.tsx",
-    "packages/**/*.js",
-    "packages/**/*.jsx"
+    "packages/lesswrong"
   ],
-  "types": [
-      "meteor-typings"
+  "exclude": [
+    "node_modules",
+    "build"
   ]
 }

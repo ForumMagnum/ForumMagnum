@@ -131,8 +131,6 @@ class FormNestedArray extends PureComponent<any,any> {
   formComponents: PropTypes.object.isRequired
 };
 
-module.exports = FormNestedArray;
-
 const FormNestedArrayComponent = registerComponent('FormNestedArray', FormNestedArray);
 
 const IconAdd = ({ width = 24, height = 24 }) => (

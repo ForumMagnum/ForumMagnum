@@ -17,7 +17,14 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
+import EditIcon from '@material-ui/icons/Edit';
 import * as _ from 'underscore';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { Select, MenuItem } from '@material-ui/core';
+
+type ModeratorCommentRecord = {label: string, id: string}
+export const defaultModeratorComments = new DatabasePublicSetting<ModeratorCommentRecord[]>('defaultModeratorComments', [{label:"Not Good Enough", id:"yMHoNoYZdk5cKa3wQ"}])
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
@@ -27,10 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
     wordBreak: "break-word",
     display: "inline-block"
-  },
-  truncated: {
-    maxHeight: 800,
-    overflow: "hidden"
   },
   icon: {
     height: 13,
@@ -54,33 +57,65 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: "50%",
+    fontWeight: 600,
+    border: `solid 2px ${theme.palette.error.dark}`
   },
   downvotes: {
     color: theme.palette.error.dark,
-    opacity: .75
+    opacity: .75,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: "50%",
+    border: `solid 1px ${theme.palette.error.dark}`
   },
   upvotes: {
     color: theme.palette.primary.dark,
-    opacity: .75
+    opacity: .75,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: "50%",
+    border: `solid 1px ${theme.palette.primary.dark}`
   },
   bigUpvotes: {
-    color: theme.palette.primary.dark
+    color: theme.palette.primary.dark,
+    padding: 6,
+    paddingTop: 3,
+    paddingBottom: 3,
+    marginRight:8,
+    borderRadius: "50%",
+    fontWeight: 600,
+    border: `solid 2px ${theme.palette.primary.dark}`
+  },
+  votesRow: {
+    marginTop: 12,
+    marginBottom: 12
   },
   hr: {
     height: 0,
     borderTop: "none",
     borderBottom: "1px solid #ccc"
+  },
+  editIcon: {
+    width: 20,
+    color: theme.palette.grey[400]
   }
 })
-const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
+const SunshineNewUsersItem = ({ user, classes, updateUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  updateUser?: any,
-  allowContentPreview?: boolean,
+  updateUser?: any
 }) => {
   const currentUser = useCurrentUser();
   const [hidden, setHidden] = useState(false)
-  const [truncated, setTruncated] = useState(true)
   const { eventHandlers, hover, anchorEl } = useHover();
 
   const handleReview = () => {
@@ -160,7 +195,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
   const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
 
-  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
 
   if (hidden) { return null }
 
@@ -175,29 +210,67 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             <MetaInfo>
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-              <div className={classes.row}>
-                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-                {currentUser && <NewConversationButton user={user} currentUser={currentUser}>
-                  <Button variant="outlined">Message</Button>
-                </NewConversationButton>}
-              </div>
+              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
               <hr className={classes.hr}/>
               <div className={classes.row}>
-                <div className={classes.bigDownvotes}>
-                  Big Downvotes: { user.bigDownvoteCount || 0 }
+                <div className={classes.row}>
+                  {!!(user.maxCommentCount || user.maxPostCount) && <LWTooltip title="Approve">
+                    <Button onClick={handleReview}>
+                      <DoneIcon />
+                    </Button>
+                  </LWTooltip>}
+                  <LWTooltip title="Snooze (approve all posts)">
+                    <Button title="Snooze" onClick={handleSnooze}>
+                      <SnoozeIcon />
+                    </Button>
+                  </LWTooltip>
+                  <LWTooltip title="Ban for 3 months">
+                    <Button onClick={handleBan}>
+                      <RemoveCircleOutlineIcon />
+                    </Button>
+                  </LWTooltip>
+                  {!user.reviewedByUserId && <LWTooltip title="Purge (delete and ban)">
+                    <Button onClick={handlePurge}>
+                      <DeleteForeverIcon />
+                    </Button>
+                  </LWTooltip>}
                 </div>
-                <div className={classes.downvotes}>
-                  Downvotes: { user.smallDownvoteCount || 0 }
-                </div>
-                <div className={classes.upvotes}>
-                  Upvotes: { user.smallUpvoteCount || 0 }
-                </div>
-                <div className={classes.bigUpvotes}>
-                  Big Upvotes: { user.bigUpvoteCount || 0 } 
+                <div className={classes.row}>
+                  {currentUser && <Select value={0} variant="outlined">
+                    <MenuItem value={0}>Start a message</MenuItem>
+                    {defaultModeratorComments.get().map((template, i) => <MenuItem key={`template-${template.label}`}>
+                      <NewConversationButton user={user} currentUser={currentUser} templateCommentId={template.id}>
+                        {template.label}
+                      </NewConversationButton>
+                    </MenuItem>)}
+                  </Select>}
+                  <Link to="/tag/moderator-default-responses/discussion"><EditIcon className={classes.editIcon}/></Link>
                 </div>
               </div>
               <hr className={classes.hr}/>
+              <div className={classes.votesRow}>
+                <LWTooltip title="Big Upvotes">
+                  <span className={classes.bigUpvotes}>
+                    { user.bigUpvoteCount || 0 }
+                  </span>
+                </LWTooltip>
+                <LWTooltip title="Upvotes">
+                  <span className={classes.upvotes}>
+                    { user.smallUpvoteCount || 0 }
+                  </span>
+                </LWTooltip>
+                <LWTooltip title="Downvotes">
+                  <span className={classes.downvotes}>
+                    { user.smallDownvoteCount || 0 }
+                  </span>
+                </LWTooltip>
+                <LWTooltip title="Big Downvotes">
+                  <span className={classes.bigDownvotes}>
+                    { user.bigDownvoteCount || 0 }
+                  </span>
+                </LWTooltip>
+              </div>
               <div>
                 <LWTooltip title="Post count">
                   <span>
@@ -239,21 +312,6 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
             { user.email }
           </MetaInfo>}
         </div>
-        { hover && <SidebarActionMenu>
-          {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
-          {(user.maxCommentCount || user.maxPostCount) ? <SidebarAction title="Review" onClick={handleReview}>
-            <DoneIcon />
-          </SidebarAction> : null}
-          <SidebarAction title="Snooze" onClick={handleSnooze}>
-            <SnoozeIcon />
-          </SidebarAction>
-          {!user.reviewedByUserId && <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={handlePurge}>
-            <DeleteForeverIcon />
-          </SidebarAction>}
-          {user.reviewedByUserId && <SidebarAction warningHighlight={true} title="Ban User for 3 months" onClick={handleBan}>
-            <RemoveCircleOutlineIcon />
-          </SidebarAction>}
-        </SidebarActionMenu>}
       </SunshineListItem>
     </span>
   )
