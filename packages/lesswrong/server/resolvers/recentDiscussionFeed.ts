@@ -49,18 +49,18 @@ defineFeedResolver<Date>({
             ...(af ? {af: true} : undefined),
           },
         }),
-        // Large revision to tag
-        viewBasedSubquery({
-          type: "tagRevised",
-          collection: Revisions,
-          sortField: "editedAt",
-          context,
-          selector: {
-            collectionName: "Tags",
-            fieldName: "description",
-            "changeMetrics.added": {$gt: 100},
-          },
-        }),
+        // // Large revision to tag
+        // viewBasedSubquery({
+        //   type: "tagRevised",
+        //   collection: Revisions,
+        //   sortField: "editedAt",
+        //   context,
+        //   selector: {
+        //     collectionName: "Tags",
+        //     fieldName: "description",
+        //     "changeMetrics.added": {$gt: 100},
+        //   },
+        // }),
       ],
     });
     return result;
