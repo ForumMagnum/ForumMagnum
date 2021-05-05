@@ -89,7 +89,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
 
   if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>{label}</Button>
 
-  const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type"]
+  const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type", "afOnly"]
 
   return <div className={classes.root} {...keyDown}>
     {!!currentCode
