@@ -45,7 +45,7 @@ const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAu
 const githubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.github.clientId', null)
 const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.github.secret', null)
 
-type IdFromProfile<P extends Profile> = (profile: P) => string
+type IdFromProfile<P extends Profile> = (profile: P) => string | number
 type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser>>
 
 /**
@@ -71,7 +71,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       return done(null, userCreated)
     }
     if (user.banned && new Date(user.banned) > new Date()) {
-      return done("banned", null)
+      return done(new Error("banned"))
     }
     return done(null, user)
   }
@@ -209,14 +209,18 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     ));
   }
   
-  const handleAuthenticate = (req, res, next, err, user, info) => { //ea-forum-lookhere
+  const handleAuthenticate = (req, res, next, err, user, info) => {
     if (err) {
-      if (err=="banned") {
+      if (err.message === "banned") {
         res.redirect(301, '/banNotice');
         return res.end();
       } else {
         return next(err)
       }
+    }
+    if (req.query?.error) {
+      const { error, error_description} = req.query
+      return next(new Error(`${error}: ${error_description}`))
     }
     if (!user) return next()
     req.logIn(user, async (err) => {
@@ -282,25 +286,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/auth0/callback', (req, res, next) => {
     passport.authenticate('auth0', (err, user, info) => {
-      if (err) {
-        return next(err)
-      }
-      if (req.query?.error) {
-        const { error, error_description} = req.query
-        return next(new Error(`${error}: ${error_description}`))
-      }
-      if (!user) {
-        return next()
-      }
-      req.logIn(user, async (err) => {
-        if (err) {
-          return next(err)
-        }
-        await createAndSetToken(req, res, user)
-        res.statusCode=302;
-        res.setHeader('Location', '/')
-        return res.end();
-      })
+      handleAuthenticate(req, res, next, err, user, info)
     })(req, res, next)
   } )
 
