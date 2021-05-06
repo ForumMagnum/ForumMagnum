@@ -270,9 +270,9 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     passport.authenticate('google', {
       scope: [
         'https://www.googleapis.com/auth/plus.login',
-          'https://www.googleapis.com/auth/userinfo.email'
+        'https://www.googleapis.com/auth/userinfo.email'
       ], accessType: "offline", prompt: "consent"
-    } as any)(req, res, next)
+    })(req, res, next)
   })
 
   addConnectHandler('/auth/facebook/callback', (req, res, next) => {
