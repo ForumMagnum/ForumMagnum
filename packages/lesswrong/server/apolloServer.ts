@@ -32,7 +32,11 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
+import expressSession from 'express-session';
 import { ckEditorTokenHandler } from './ckEditorToken';
+import { DatabaseServerSetting } from './databaseSettings';
+
+const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -64,8 +68,17 @@ const getClientBundle = () => {
 export function startWebserver() {
   const addMiddleware = (...args) => app.use(...args);
   const config = { path: '/graphql' };
+  const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+  if (expressSessionSecret) {
+    // Required by passport-auth0
+    app.use(expressSession({
+      secret: expressSessionSecret,
+      resave: false,
+      saveUninitialized: false,
+    }))
+  }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use(pickerMiddleware);
 
@@ -183,4 +196,3 @@ export function startWebserver() {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
 }
-
