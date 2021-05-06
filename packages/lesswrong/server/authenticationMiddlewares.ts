@@ -233,6 +233,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   }
   
 
+  // NB: You must also set the expressSessionSecret setting
   const auth0ClientId = auth0ClientIdSetting.get();
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
