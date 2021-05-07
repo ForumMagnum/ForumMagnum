@@ -1,4 +1,7 @@
+import pick from 'lodash/pick';
 import mjAPI from 'mathjax-node'
+import Revisions from '../../lib/collections/revisions/collection';
+import { Collections } from '../vulcan-lib';
 
 export const trimLatexAndAddCSS = (dom, css) => {
   // Remove empty paragraphs
@@ -92,4 +95,39 @@ export const preProcessLatex = async (content) => {
   }
 
   return content;
+}
+
+const revisionFieldsToCopy: (keyof DbRevision)[] = [
+  "originalContents",
+  "updateType",
+  "commitMessage",
+  "html",
+  "version",
+  "userId",
+  "editedAt",
+  "wordCount",
+];
+// TODO; document, test?
+export async function syncDocumentWithLatestRevision<T extends DbObject>(
+  collection: CollectionBase<T>,
+  document: T,
+  fieldName: string
+): Promise<void> {
+  const latestRevision = await Revisions.findOne(
+    {
+      documentId: document._id,
+    },
+    { sort: { version: -1 } }
+  );
+  if (!latestRevision) {
+    throw new Error(
+      `Document ${document._id} (${collection.collectionName}) has no revisions`
+    );
+  }
+  await collection.update(document._id, {
+    $set: {
+      [fieldName]: pick(latestRevision, revisionFieldsToCopy),
+      [`${fieldName}_latest`]: latestRevision._id
+    }
+  })
 }

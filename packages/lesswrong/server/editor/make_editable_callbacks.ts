@@ -371,26 +371,27 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
-      
-      // FIXME: This doesn't define documentId, because it's filled in in the
-      // after-create callback, passing through an intermediate state where it's
-      // undefined; and it's missing _id and schemaVersion, which leads to having
-      // ObjectID types in the database which can cause problems. Would be good
-      // to remove this ts-ignore, since there was recently an important bug here
-      // (missing fieldName) that typechecking would have caught.
-      // @ts-ignore
-      const firstRevision = await Connectors.create(Revisions, {
-        ...await buildRevision({
+      // TODO; (MAYBE) Should we change the direction of data flow, where, instead
+      // of it flowing from source -> revision, we instead treat the revisions
+      // table as the source of truth, then have a callback that propagates any changes
+      // to it to the source document via documentId (revision -> source)
+      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id"> = {
+        ...(await buildRevision({
           originalContents: doc[fieldName].originalContents,
           currentUser,
-        }),
+        })),
         fieldName,
         collectionName,
         version,
-        updateType: 'initial',
+        updateType: "initial",
         commitMessage,
         changeMetrics,
-      });
+      };
+      // FIXME: This doesn't define documentId, because it's filled in in the
+      // after-create callback, passing through an intermediate state where it's
+      // undefined; and it's missing _id and schemaVersion, which leads to having
+      // ObjectID types in the database which can cause problems.
+      const firstRevision = await Connectors.create(Revisions, newRevision as DbRevision);
       
       return {
         ...doc,
@@ -432,10 +433,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         const previousRev = await getLatestRev(newDocument._id, fieldName);
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
         
-        // FIXME: See comment on the other Connectors.create call in this file.
-        // Missing _id and schemaVersion.
-        // @ts-ignore
-        newRevisionId = await Connectors.create(Revisions, {
+        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion'> = {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -447,7 +445,10 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           updateType,
           commitMessage,
           changeMetrics,
-        });
+        }
+        // FIXME: See comment on the other Connectors.create call in this file.
+        // Missing _id and schemaVersion.
+        newRevisionId = await Connectors.create(Revisions, newRevision as DbRevision);
       } else {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
@@ -528,4 +529,3 @@ export const htmlToChangeMetrics = (oldHtml: string, newHtml: string): ChangeMet
   const htmlDiff = diff(oldHtml, newHtml);
   return diffToChangeMetrics(htmlDiff);
 }
-
