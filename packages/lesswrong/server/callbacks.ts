@@ -17,6 +17,7 @@ import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import Tags from '../lib/collections/tags/collection';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -178,6 +179,32 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
     }
 
     await commentReportPurgeAsSpam(comment);
+    
+    // TODO; refactor out copy pasta?
+    
+    const tags = await Tags.find({userId: user._id}).fetch()
+    // eslint-disable-next-line no-console
+    console.info("Deleting tags: ", tags)
+    for (let tag of tags) {
+      if (!tag.deleted) {
+        try {
+          await updateMutator({
+            collection: Tags,
+            documentId: tag._id,
+            set: {deleted: true},
+            currentUser: deletingUser,
+            validate: false
+          })
+        } catch(err) {
+          // eslint-disable-next-line no-console
+          console.error("Failed to delete tag")
+          // eslint-disable-next-line no-console
+          console.error(err)
+        }
+      }
+    }
+    
+    // Revisions - only remove the ones from tags that were just deleted
   }
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
