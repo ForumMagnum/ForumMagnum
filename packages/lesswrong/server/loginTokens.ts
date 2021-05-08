@@ -13,3 +13,9 @@ export function tokenExpiration(when) {
   // `when` used to be a number.
   return new Date((new Date(when)).getTime() + tokenLifetimeMs);
 }
+
+export function userIsBanned(user: DbUser) {
+  if (user.banned && new Date(user.banned) > new Date())
+    return true;
+  return false;
+}

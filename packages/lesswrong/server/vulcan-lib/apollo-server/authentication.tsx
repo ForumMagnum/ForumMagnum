@@ -9,7 +9,7 @@ import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, } from "../.
 import { getForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
-import { hashLoginToken } from "../../loginTokens";
+import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
@@ -184,7 +184,7 @@ const authenticationResolvers = {
         return new Promise((resolve, reject) => {
           if (err) throw Error(err)
           if (!user) throw new AuthenticationError("Invalid username/password")
-          if (user.banned && new Date(user.banned) > new Date()) throw new AuthenticationError("This user is banned")
+          if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
 
           req!.logIn(user, async err => {
             if (err) throw new AuthenticationError(err)
