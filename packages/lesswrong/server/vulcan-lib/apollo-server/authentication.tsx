@@ -9,7 +9,7 @@ import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, } from "../.
 import { getForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
-import { hashLoginToken } from "../../loginTokens";
+import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
@@ -19,6 +19,7 @@ import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpe
 import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
+import { forumTitleSetting } from '../../../lib/instanceSettings';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -136,10 +137,10 @@ export async function sendVerificationEmail(user: DbUser) {
   const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
   await wrapAndSendEmail({
     user, 
-    subject: "Verify your LessWrong email",
+    subject: `Verify your ${forumTitleSetting.get()} email`,
     body: <div>
       <p>
-        Click here to verify your LessWrong email 
+        Click here to verify your {forumTitleSetting.get()} email
       </p>
       <p>
         <a href={verifyEmailLink}>
@@ -183,7 +184,7 @@ const authenticationResolvers = {
         return new Promise((resolve, reject) => {
           if (err) throw Error(err)
           if (!user) throw new AuthenticationError("Invalid username/password")
-          if (user.banned && new Date(user.banned) > new Date()) throw new AuthenticationError("This user is banned")
+          if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
 
           req!.logIn(user, async err => {
             if (err) throw new AuthenticationError(err)

@@ -190,6 +190,7 @@ interface DbGardenCode extends DbObject {
   type: string
   hidden: boolean
   deleted: boolean
+  afOnly: boolean
   contents: EditableFieldContents
   pingbacks: any /*{"definitions":[{}]}*/
 }

@@ -922,6 +922,7 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly endTime: Date,
   readonly fbLink: string,
   readonly type: string,
+  readonly afOnly: boolean,
   readonly contents: RevisionDisplay|null,
 }
 
@@ -936,6 +937,7 @@ interface GardenCodeFragmentEdit { // fragment on GardenCodes
   readonly endTime: Date,
   readonly fbLink: string,
   readonly type: string,
+  readonly afOnly: boolean,
   readonly contents: RevisionEdit|null,
 }
 
@@ -951,6 +953,7 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly type: string,
   readonly hidden: boolean,
   readonly deleted: boolean,
+  readonly afOnly: boolean,
 }
 
 interface BansDefaultFragment { // fragment on Bans
@@ -1264,7 +1267,7 @@ interface TagCreationHistoryFragment_description { // fragment on Revisions
   readonly html: string,
 }
 
-interface TagRevisionFragment extends TagFragment { // fragment on Tags
+interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
   readonly isRead: boolean,
   readonly description: TagRevisionFragment_description|null,
 }

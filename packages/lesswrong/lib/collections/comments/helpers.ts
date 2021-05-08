@@ -29,10 +29,10 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
 };
 
 export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbsolute = false): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   if (comment.post) {
-    return `${prefix}/${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
+    return `${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tag) {
+    const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
     return `${prefix}/tag/${comment.tag.slug}/discussion#${comment._id}`;
   } else {
     throw new Error(`Unable to find document for comment: ${comment._id}`);
