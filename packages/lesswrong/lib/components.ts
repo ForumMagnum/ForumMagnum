@@ -414,6 +414,7 @@ importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("TagCTAPopup", () => require('../components/tagging/TagCTAPopup'));
+importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));

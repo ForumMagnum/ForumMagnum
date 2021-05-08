@@ -60,8 +60,8 @@ addGraphQLResolvers({
           commentIds: _.map(relevantRootComments, c=>c._id),
           lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
           lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
-          added: sumBy(tagRevisions, r=>r.changeMetrics.added),
-          removed: sumBy(tagRevisions, r=>r.changeMetrics.added),
+          added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
+          removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
         };
       });
     }

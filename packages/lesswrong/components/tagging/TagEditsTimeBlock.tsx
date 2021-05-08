@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
@@ -13,13 +13,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagEditsTimeBlock = ({before, after, classes}: {
+const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   before: string,
   after: string,
+  reportEmpty: ()=>void,
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates } = Components;
-  const { data } = useQuery(gql`
+  const { data, loading } = useQuery(gql`
     query getTagUpdates($before: Date!, $after: Date!) {
       TagUpdatesInTimeBlock(before: $before, after: $after) {
         tag {
@@ -41,6 +42,13 @@ const TagEditsTimeBlock = ({before, after, classes}: {
     },
     ssr: true,
   });
+  
+  useEffect(() => {
+    if (!loading && !data?.TagUpdatesInTimeBlock?.length) {
+      reportEmpty();
+    }
+  }, [loading, data, reportEmpty]);
+  
   if (!data?.TagUpdatesInTimeBlock?.length)
     return null;
   return <div className={classes.root}>

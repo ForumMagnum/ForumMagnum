@@ -46,7 +46,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   
   const { TagDiscussion, PopperCard } = Components
   const { hover, anchorEl, eventHandlers } = useHover()
-  const { totalCount } = useMulti({
+  const { totalCount, loading } = useMulti({
     terms: {
       view: "commentsOnTag",
       tagId: tag._id,
@@ -60,7 +60,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
     <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
-    <span className={classes.discussionCount}>{`(${totalCount || 0})`}</span>
+    {!loading && <span className={classes.discussionCount}>&nbsp;{`(${totalCount || 0})`}</span>}
     <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>
     </PopperCard>

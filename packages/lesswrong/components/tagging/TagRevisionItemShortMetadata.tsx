@@ -6,6 +6,8 @@ import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
 const styles = (theme: ThemeType): JssStyles => ({
   username: {
     ...theme.typography.commentStyle,
+    fontWeight: 600,
+    fontSize: "1.16rem",
     color: "rgba(0,0,0,.87)",
     marginRight: 12
   }
