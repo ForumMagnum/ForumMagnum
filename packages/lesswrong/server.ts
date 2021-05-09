@@ -110,6 +110,7 @@ import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';
 import './server/resolvers/arbitalPageData';
 import './server/resolvers/tagHistoryFeed';
+import './server/resolvers/tagResolvers';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';
 import './server/resolvers/elicitPredictions';

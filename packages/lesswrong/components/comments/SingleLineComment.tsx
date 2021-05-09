@@ -15,6 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   commentInfo: {
+    display: "flex",
     borderRadius: 3,
     backgroundColor: "#f0f0f0",
     '&:hover': {
@@ -26,8 +27,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
     color: "rgba(0,0,0,.6)",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
   username: {
@@ -39,10 +38,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     marginRight: 10,
   },
+  parentComment: {
+    position: "relative",
+    top: 5,
+  },
+  shortformIcon: {
+    marginTop: 4,
+  },
   karma: {
     display:"inline-block",
     textAlign: "center",
     width: 30,
+    paddingTop: 5,
     paddingRight: 5,
   },
   date: {
@@ -54,6 +61,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   truncatedHighlight: {
     padding: 5,
     ...commentBodyStyles(theme),
+    flexGrow: 1,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    
     marginTop: 0,
     marginBottom: 0,
     '& *': {
@@ -109,12 +120,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SingleLineComment = ({treeOptions, comment, classes, nestingLevel, parentCommentId, hideKarma }: {
+const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
+  showDescendentCount?: boolean,
   classes: ClassesType,
 }) => {
   const {hover} = useHover();
@@ -124,7 +136,7 @@ const SingleLineComment = ({treeOptions, comment, classes, nestingLevel, parentC
   const { enableHoverPreview=true, hideSingleLineMeta, post } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
-  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
 
@@ -136,11 +148,11 @@ const SingleLineComment = ({treeOptions, comment, classes, nestingLevel, parentC
           [classes.isAnswer]: comment.answer, 
           [classes.odd]:((nestingLevel%2) !== 0),
         })}>
-        {post && <CommentShortformIcon comment={comment} post={post} simple={true} />}
+        {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
 
-        { parentCommentId!=comment.parentCommentId &&
+        {parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
-        }
+        </span>}
         {!hideKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}
@@ -152,8 +164,14 @@ const SingleLineComment = ({treeOptions, comment, classes, nestingLevel, parentC
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
-          {plaintextMainText} 
-        </span>}      
+          {plaintextMainText}
+        </span>}
+        {showDescendentCount && comment.descendentCount>0 && <PostsItemComments
+          small={true}
+          commentCount={comment.descendentCount}
+          unreadComments={false}
+          newPromotedComments={false}
+        />}
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>

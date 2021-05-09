@@ -86,6 +86,7 @@ interface DbComment extends DbObject {
   answer: boolean
   parentAnswerId: string
   directChildrenCount: number
+  descendentCount: number
   shortform: boolean
   nominatedForReview: string
   reviewingForReview: string
