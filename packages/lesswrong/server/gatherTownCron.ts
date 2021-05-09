@@ -291,8 +291,8 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   }
 }
 
-function stringToArrayBuffer(string) {
-  var binary_string = Buffer.from(string).toString(`binary`);
+function stringToArrayBuffer(str: string) {
+  var binary_string = Buffer.from(str).toString(`binary`);
   var len = binary_string.length;
   var bytes = new Uint8Array(len);
   for (var i = 0; i <= len; i++) {
