@@ -3,6 +3,7 @@ import { createCollection, getCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { userCanDo } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
+import { makeVoteable } from '../../make_voteable';
 
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
@@ -53,5 +54,7 @@ export interface ChangeMetrics {
   added: number
   removed: number
 }
+
+makeVoteable(Revisions);
 
 export default Revisions;

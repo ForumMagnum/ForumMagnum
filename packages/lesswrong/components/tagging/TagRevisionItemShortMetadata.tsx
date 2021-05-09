@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   username: {
@@ -18,7 +19,7 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
   revision: RevisionMetadataWithChangeMetrics,
   classes: ClassesType,
 }) => {
-  const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay } = Components
+  const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
   const revUrl = tagGetRevisionLink(tag, revision.version);
   
   return <div>
@@ -44,6 +45,11 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
         {revision.commitMessage}
       </Link>
     </MetaInfo>
+    {" "}
+    <MetaInfo><SmallSideVote
+      document={revision}
+      collection={Revisions}
+    /></MetaInfo>
   </div>;
 }
 

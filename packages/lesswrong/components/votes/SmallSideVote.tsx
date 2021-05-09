@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
-  document: CommentsList|PostsWithVotes,
+  document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
   hideKarma?: boolean,
   classes: ClassesType,
   collection: any
@@ -60,15 +60,19 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
     moveToAlignnmentUserId = comment.moveToAlignmentUserId
   }
 
+  const af = (document as any).af;
+  const afDate = (document as any).afDate;
+  const afBaseScore = (document as any).afBaseScore;
+  
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
-      {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { document.afDate && moment(new Date(document.afDate)).format('YYYY-MM-DD') }</span>}
+      {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>}
     </div>
   )
 
   return (
     <span className={classes.vote} {...eventHandlers}>
-      {(forumTypeSetting.get() !== 'AlignmentForum' || !!document.af) &&
+      {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <>
           <Tooltip
             title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
@@ -107,7 +111,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
           </Tooltip>
         </>
       }
-      {!!document.af && forumTypeSetting.get() !== 'AlignmentForum' &&
+      {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
         <Tooltip placement="bottom" title={
           <div>
             <p>AI Alignment Forum Karma</p>
@@ -116,11 +120,11 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
         }>
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>Ω</span>
-            <span className={classes.secondaryScoreNumber}>{document.afBaseScore || 0}</span>
+            <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
           </span>
         </Tooltip>
       }
-      {!document.af && (forumTypeSetting.get() === 'AlignmentForum') &&
+      {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
         <Tooltip title="LessWrong Karma" placement="bottom">
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>

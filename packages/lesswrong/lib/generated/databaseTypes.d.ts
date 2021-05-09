@@ -492,6 +492,10 @@ interface DbRevision extends DbObject {
   html: string
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  voteCount: number
+  baseScore: number
+  score: number
+  inactive: boolean
 }
 
 interface SequencesCollection extends CollectionBase<DbSequence, "Sequences"> {
