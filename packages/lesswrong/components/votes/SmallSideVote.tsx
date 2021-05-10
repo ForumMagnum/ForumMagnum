@@ -100,7 +100,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
             <Tooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </Tooltip> :
-            <Tooltip title={`This {documentTypeName} has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+            <Tooltip title={`This ${documentTypeName} has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>
