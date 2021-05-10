@@ -90,6 +90,8 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 }
 
 addUniversalFields({collection: TagRels})
-makeVoteable(TagRels);
+makeVoteable(TagRels, {
+  timeDecayScoresCronjob: true,
+});
 
 export default TagRels;

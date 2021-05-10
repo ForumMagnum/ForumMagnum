@@ -55,7 +55,9 @@ export interface ChangeMetrics {
   removed: number
 }
 
-makeVoteable(Revisions);
+makeVoteable(Revisions, {
+  timeDecayScoresCronjob: false,
+});
 
 membersGroup.can([
   'revisions.smallDownvote',
