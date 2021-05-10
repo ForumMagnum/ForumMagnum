@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { userCanDo } from '../../vulcan-users/permissions';
+import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
 import { makeVoteable } from '../../make_voteable';
 
@@ -56,5 +56,12 @@ export interface ChangeMetrics {
 }
 
 makeVoteable(Revisions);
+
+membersGroup.can([
+  'revisions.smallDownvote',
+  'revisions.bigDownvote',
+  'revisions.smallUpvote',
+  'revisions.bigUpvote',
+]);
 
 export default Revisions;

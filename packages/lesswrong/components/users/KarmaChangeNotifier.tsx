@@ -111,8 +111,12 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   classes: ClassesType,
   handleClose: (ev: MouseEvent)=>any,
 }) => {
-  const { posts, comments, updateFrequency } = karmaChanges
-  const noKarmaChanges = !((posts && (posts.length > 0)) || (comments && (comments.length > 0)))
+  const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
+  const noKarmaChanges = !(
+    (posts && (posts.length > 0))
+    || (comments && (comments.length > 0))
+    || (tagRevisions && (tagRevisions.length > 0))
+  )
   
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
@@ -250,10 +254,10 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     if (settings && settings.updateFrequency === "disabled")
       return null;
 
-    const { posts, comments, endDate, totalChange } = karmaChanges
+    const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
-    const starIsHollow = ((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
+    const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
     
     const { LWPopper } = Components;
 

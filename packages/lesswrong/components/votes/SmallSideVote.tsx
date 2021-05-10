@@ -7,7 +7,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import Tooltip from '@material-ui/core/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { Comments } from '../../lib/collections/comments';
+import { Comments } from '../../lib/collections/comments/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   vote: {
@@ -55,9 +57,16 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
   const karma = voteProps.baseScore;
 
   let moveToAlignnmentUserId = ""
+  let documentTypeName = "comment";
   if (collection == Comments) {
     const comment = document as CommentsList
     moveToAlignnmentUserId = comment.moveToAlignmentUserId
+  }
+  if (collection == Posts) {
+    documentTypeName = "post";
+  }
+  if (collection == Revisions) {
+    documentTypeName = "revision";
   }
 
   const af = (document as any).af;
@@ -91,7 +100,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
             <Tooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </Tooltip> :
-            <Tooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+            <Tooltip title={`This {documentTypeName} has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>

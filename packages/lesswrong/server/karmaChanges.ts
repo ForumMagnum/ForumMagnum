@@ -120,7 +120,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
   
   let changedTagRevisions = await Votes.aggregate(
     [
-      ...karmaChangesInCollectionPipeline("Posts"),
+      ...karmaChangesInCollectionPipeline("Revisions"),
       
       {$lookup: {
         from: "revisions",
@@ -142,8 +142,9 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
     if (changedComment.tagId)
       tagIdsReferenced.add(changedComment.tagId);
   }
-  for (let changedTagRevision of changedTagRevisions)
-    tagIdsReferenced.add(changedTagRevision.documentId);
+  for (let changedTagRevision of changedTagRevisions) {
+    tagIdsReferenced.add(changedTagRevision.tagId);
+  }
   
   const tagIdToMetadata = await mapTagIdsToMetadata([...tagIdsReferenced.keys()], context)
   for (let changedComment of changedComments) {
@@ -152,12 +153,15 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
     }
   }
   for (let changedRevision of changedTagRevisions) {
-    changedRevision.tagSlug = tagIdToMetadata[changedRevision.documentId].slug;
-    changedRevision.tagName = tagIdToMetadata[changedRevision.documentId].name;
+    changedRevision.tagSlug = tagIdToMetadata[changedRevision.tagId].slug;
+    changedRevision.tagName = tagIdToMetadata[changedRevision.tagId].name;
   }
   
   
-  let totalChange = sumBy(changedPosts, (doc: any)=>doc.scoreChange) + sumBy(changedComments, (doc: any)=>doc.scoreChange);
+  let totalChange =
+      sumBy(changedPosts, (doc: any)=>doc.scoreChange)
+    + sumBy(changedComments, (doc: any)=>doc.scoreChange)
+    + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange);
   
   return {
     totalChange,

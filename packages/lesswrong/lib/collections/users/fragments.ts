@@ -164,6 +164,13 @@ registerFragment(`
         postId
         tagSlug
       }
+      tagRevisions {
+        _id
+        scoreChange
+        tagId
+        tagSlug
+        tagName
+      }
     }
   }
 `);

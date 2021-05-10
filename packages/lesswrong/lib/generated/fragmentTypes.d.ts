@@ -713,13 +713,12 @@ interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revi
   readonly tag: TagBasicInfo|null,
 }
 
-interface WithVoteRevision { // fragment on Posts
+interface WithVoteRevision { // fragment on Revisions
   readonly __typename: string,
   readonly _id: string,
   readonly currentUserVote: string,
   readonly baseScore: number,
   readonly score: number,
-  readonly afBaseScore: number,
   readonly voteCount: number,
 }
 
@@ -1822,7 +1821,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
   RevisionTagFragment: "Revisions"
-  WithVoteRevision: "Posts"
+  WithVoteRevision: "Revisions"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
   ConversationsDefaultFragment: "Conversations"
