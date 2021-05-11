@@ -1,17 +1,26 @@
-import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
+import { registerMigration, forEachDocumentInCollection } from './migrationUtils';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import { Users } from '../../lib/collections/users/collection';
+import { performVoteServer } from '../voteServer';
 
 registerMigration({
   name: "selfVoteOnTagRevisions",
   dateWritten: "2021-05-09",
   idempotent: true,
   action: async () => {
-    await forEachDocumentBatchInCollection({
+    const usersCache: Record<string,DbUser> = {};
+    
+    await forEachDocumentInCollection({
       collection: Revisions,
-      batchSize: 50,
       filter: {collectionName: "Tags", fieldName: "description"},
-      callback: async (revisions: DbRevision[]) => {
-        // TODO
+      callback: async (revision: DbRevision) => {
+        const userId = revision.userId;
+        if (!(userId in usersCache)) {
+          usersCache[userId] = (await Users.findOne({_id:userId}))!;
+        }
+        const user = usersCache[revision.userId];
+        
+        await performVoteServer({ document: revision, voteType: 'smallUpvote', collection: Revisions, user });
       }
     });
   }
