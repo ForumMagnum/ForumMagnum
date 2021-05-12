@@ -11,6 +11,7 @@ import { Utils } from '../lib/vulcan-lib';
 
 export interface ToCSection {
   title?: string
+  answer?: any
   anchor: string
   level: number
   divider?: boolean,
@@ -199,7 +200,7 @@ async function getTocAnswers (document: DbPost) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-  const answerSections = answers.map((answer) => {
+  const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
     let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})

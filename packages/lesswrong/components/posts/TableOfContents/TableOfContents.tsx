@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
+import type { ToCData } from '../../../server/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   stickyBlock: {
@@ -51,7 +52,7 @@ type setToCFn = (document: PostsBase|null, sectionData: any)=>void
 export const TableOfContentsContext = React.createContext<setToCFn|null>(null);
 
 const TableOfContents = ({sectionData, document, classes}: {
-  sectionData: any,
+  sectionData: ToCData,
   document: PostsBase,
   classes: ClassesType,
 }) => {
