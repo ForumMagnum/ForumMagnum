@@ -7,9 +7,9 @@ import type { ToCData } from '../../../server/tableOfContents';
 
 const topSection = "top";
 
-const TableOfContentsList = ({sectionData, document, onClickSection, drawerStyle}: {
+const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: {
   sectionData: ToCData,
-  document?: PostsBase,
+  title?: string,
   onClickSection?: ()=>void,
   drawerStyle: boolean,
 }) => {
@@ -128,7 +128,7 @@ const TableOfContentsList = ({sectionData, document, onClickSection, drawerStyle
       highlighted={currentSection === topSection}
       title
     >
-      {document?.title?.trim()}
+      {title?.trim()}
     </TableOfContentsRow>
     
     {sectionData?.sections && sectionData.sections.map((section, index) => {

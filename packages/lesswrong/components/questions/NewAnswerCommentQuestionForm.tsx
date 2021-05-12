@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 interface ExternalProps {
   post: PostsBase,
-  refetch: any,
+  refetch: ()=>void,
 }
 interface NewAnswerCommentQuestionFormProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
 }

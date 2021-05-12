@@ -21,6 +21,7 @@ import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../lib/globalStyles';
+import type { ToCData } from '../server/tableOfContents';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
@@ -143,12 +144,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
   }
 
-  setToC = (document, sectionData) => {
+  setToC = (document: PostsBase|null, sectionData: ToCData|null) => {
     if (document) {
       this.setState({
         toc: {
           document: document,
-          sections: sectionData && sectionData.sections
+          sections: sectionData?.sections
         }
       });
     } else {
