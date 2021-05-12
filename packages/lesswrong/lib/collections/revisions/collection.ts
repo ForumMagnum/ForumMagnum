@@ -1,8 +1,9 @@
 import schema from './schema';
 import { createCollection, getCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import { userCanDo } from '../../vulcan-users/permissions';
+import { userCanDo, membersGroup } from '../../vulcan-users/permissions';
 import { extractVersionsFromSemver } from '../../editor/utils';
+import { makeVoteable } from '../../make_voteable';
 
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
@@ -53,5 +54,16 @@ export interface ChangeMetrics {
   added: number
   removed: number
 }
+
+makeVoteable(Revisions, {
+  timeDecayScoresCronjob: false,
+});
+
+membersGroup.can([
+  'revisions.smallDownvote',
+  'revisions.bigDownvote',
+  'revisions.smallUpvote',
+  'revisions.bigUpvote',
+]);
 
 export default Revisions;

@@ -85,6 +85,7 @@ import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
 import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
+import './server/callbacks/revisionCallbacks';
 import './server/callbacks/userCallbacks';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
