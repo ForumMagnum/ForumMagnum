@@ -8,10 +8,6 @@ import { tagBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import HistoryIcon from '@material-ui/icons/History';
-import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
 
@@ -55,50 +51,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postsTaggedTitle: {
     color: theme.palette.grey[600]
   },
-  disabledButton: {
-    '&&': {
-      color: theme.palette.grey[500],
-      cursor: "default",
-      marginBottom: 12
-    }
-  },
-  buttonsRow: {
-    ...theme.typography.body2,
-    ...theme.typography.uiStyle,
-    marginTop: 2,
-    marginBottom: 16,
-    color: theme.palette.grey[700],
-    display: "flex",
-    flexWrap: "wrap",
-    '& svg': {
-      height: 20,
-      width: 20,
-      marginRight: 4,
-      cursor: "pointer",
-      color: theme.palette.grey[700]
-    }
-  },
-  button: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: 16
-  },
-  buttonLabel: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
-  ctaPositioning: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto"
-  },
-  subscribeToWrapper: {
-    display: "flex !important",
-  },
-  subscribeTo: {
-    marginRight: 16
-  },
   pastRevisionNotice: {
     ...theme.typography.commentStyle,
     fontStyle: 'italic'
@@ -106,20 +58,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  callToAction: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto",
-    fontStyle: 'italic',
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
-  callToActionFlagCount: {
-    position: "relative",
-    marginLeft: 4,
-    marginRight: 0
-  }
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -135,11 +73,11 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, TagDiscussionButton, Typography } = Components;
+  const { SingleColumnSection, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagWithFlagsAndRevisionFragment" : "TagWithFlagsFragment", {
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {version: 'String'} : {},
     extraVariablesValues: revision ? {version: revision} : {},
   });
@@ -147,7 +85,6 @@ const TagPage = ({classes}: {
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
   const { captureEvent } =  useTracking()
-  const { openDialog } = useDialog();
 
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -211,8 +148,6 @@ const TagPage = ({classes}: {
     myPages: "userPages"
   }
   
-  const numFlags = tag.tagFlagsIds?.length
-  
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}
@@ -229,10 +164,10 @@ const TagPage = ({classes}: {
           <div>
             {query.flagId && <span>
               <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-                  <TagFlagItem 
-                    itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-                    documentId={query.flagId}
-                  />
+                <TagFlagItem 
+                  itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+                  documentId={query.flagId}
+                />
               </Link>
               {nextTag && <span onClick={() => setEditing(true)}><Link
                 className={classes.nextLink}
@@ -244,63 +179,7 @@ const TagPage = ({classes}: {
               {tag.name}
             </Typography>
           </div>
-          <div className={classes.buttonsRow}>
-            {!editing && <a className={classes.button} onClick={(ev) => {
-              if (currentUser) {
-                setEditing(true)
-              } else {
-                openDialog({
-                  componentName: "LoginPopup",
-                  componentProps: {}
-                });
-                ev.preventDefault();
-              }
-            } }>
-              <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
-            </a>} 
-            {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
-              <HistoryIcon /><span className={classes.buttonLabel}>History</span>
-            </Link>}
-            {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-              <SubscribeTo
-                document={tag}
-                className={classes.subscribeTo}
-                showIcon
-                hideLabelOnMobile
-                subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
-                subscriptionType={subscriptionTypes.newTagPosts}
-              />
-            </LWTooltip>}
-            <div className={classes.button}>
-              <TagDiscussionButton tag={tag} hideLabelOnMobile />
-            </div>
-            <div className={classes.callToAction}>
-              <LWTooltip
-                title={ tag.tagFlagsIds?.length > 0 ? 
-                  <div>
-                    {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
-                  </div> :
-                  <span>
-                    This tag does not currently have any improvement flags set.
-                  </span>
-                }
-                >
-                <a onClick={(ev) => {
-                  if (currentUser) setEditing(true);
-                  openDialog({
-                    componentName: currentUser ? "TagCTAPopup" : "LoginPopup",
-                    componentProps: {}
-                  })
-                  ev.preventDefault();
-                }}>
-                  <span className={classes.callToAction}> Help improve this page{/*
-                  */}<span className={classes.callToActionFlagCount}>{!!numFlags&&`(${numFlags} flags)`}</span>
-                  </span>
-                </a> 
-              </LWTooltip>
-            </div>
-          </div>
+          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
