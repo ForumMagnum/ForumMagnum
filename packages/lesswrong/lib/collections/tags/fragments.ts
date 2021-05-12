@@ -124,6 +124,20 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
+  }
+`);
+
+registerFragment(`
+  fragment TagPageWithRevisionFragment on Tag {
+    ...TagWithFlagsAndRevisionFragment
+    tableOfContents
+  }
+`);
+
+registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
     tagFlagsIds

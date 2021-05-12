@@ -3,7 +3,9 @@ import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { getWithLoader } from '../../loaders';
+import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
+import { captureException } from '@sentry/core';
 
 const formGroups = {
   advancedOptions: {
@@ -311,6 +313,19 @@ export const schema: SchemaType<DbTag> = {
     }
   }),
 
+  tableOfContents: resolverOnlyField({
+    type: Object,
+    viewableBy: ['guests'],
+    graphQLtype: GraphQLJSON,
+    resolver: async (document: DbTag, args: void, context: ResolverContext) => {
+      try {
+        return await Utils.getToCforTag({document, version: null, context});
+      } catch(e) {
+        captureException(e);
+        return null;
+      }
+    }
+  }),
 }
 
 export const wikiGradeDefinitions = {

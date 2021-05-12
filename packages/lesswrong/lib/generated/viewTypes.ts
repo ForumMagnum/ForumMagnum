@@ -21,12 +21,12 @@ type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminClaimedReports"|"sunshineSidebarReports"|"closedReports";
 type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVotesForPostAndUser";
-type RevisionsViewName = "revisionsOnDocument"|"nonnegligibleTagRevisions";
+type RevisionsViewName = "revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfileAll"|"curatedSequences"|"communitySequences";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
-type TagsViewName = "allTagsAlphabetical"|"userTags"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag";
+type TagsViewName = "allTagsAlphabetical"|"userTags"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags";
 type UsersViewName = "usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"usersWithBannedUsers"|"sunshineNewUsers"|"allUsers"|"usersMapLocations"|"walledGardenInvitees"|"alignmentSuggestedUsers";
 type VotesViewName = "tagVotes";
 

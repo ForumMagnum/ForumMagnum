@@ -1311,6 +1311,14 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
+interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
+  readonly tableOfContents: any,
+}
+
+interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
+  readonly tableOfContents: any,
+}
+
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
@@ -1733,6 +1741,8 @@ interface FragmentTypes {
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
+  TagPageFragment: TagPageFragment
+  TagPageWithRevisionFragment: TagPageWithRevisionFragment
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
@@ -1863,6 +1873,8 @@ interface CollectionNamesByFragmentName {
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagWithFlagsAndRevisionFragment: "Tags"
+  TagPageFragment: "Tags"
+  TagPageWithRevisionFragment: "Tags"
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
   SunshineTagFragment: "Tags"
