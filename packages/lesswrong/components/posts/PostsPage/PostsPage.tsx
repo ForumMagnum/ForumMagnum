@@ -1,14 +1,13 @@
+import React, { useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import React, { Component } from 'react';
-import { withLocation } from '../../../lib/routeUtil';
+import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { postBodyStyles } from '../../../themes/stylePiping'
-import withUser from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
-import withRecordPostView from '../../common/withRecordPostView';
-import withNewEvents from '../../../lib/events/withNewEvents';
+import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
@@ -87,26 +86,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-interface ExternalProps {
+const PostsPage = ({post, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  refetch: any,
-}
-interface PostsPageProps extends ExternalProps, WithUserProps, WithLocationProps, WithStylesProps {
-  closeAllEvents: any,
-  recordPostView: any,
-}
-
-class PostsPage extends Component<PostsPageProps> {
-
-  getSequenceId() {
-    const { post } = this.props;
-    const { params } = this.props.location;
+  refetch: ()=>void,
+  classes: ClassesType,
+}) => {
+  const location = useLocation();
+  const currentUser = useCurrentUser();
+  const { recordPostView } = useRecordPostView(post);
+  
+  const getSequenceId = () => {
+    const { params } = location;
     return params.sequenceId || post?.canonicalSequenceId;
   }
 
-  shouldHideAsSpam() {
-    const { post, currentUser } = this.props;
-
+  const shouldHideAsSpam = () => {
     // Logged-out users shouldn't be able to see spam posts
     if (post.authorIsUnreviewed && !currentUser) {
       return true;
@@ -115,127 +109,105 @@ class PostsPage extends Component<PostsPageProps> {
     return false;
   }
 
-  getDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
+  const getDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
     if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
     if (post.shortform) return `A collection of shorter posts ${post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ''}`
     return null
   }
 
-  render() {
-    const { post, refetch, currentUser, classes, location: { query, params } } = this.props
-    const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-      PostsCommentsThread, ContentItemBody,
-      PostsPageQuestionContent, TableOfContents, CommentPermalink,
-      AnalyticsInViewTracker } = Components
+  const { query, params } = location;
+  const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
+    TableOfContents, CommentPermalink, AnalyticsInViewTracker } = Components
 
-    if (this.shouldHideAsSpam()) {
-      throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
-    } else {
-      const defaultView = commentGetDefaultView(post, currentUser)
-      // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-      const commentTerms = Object.keys(viewNames).includes(query.view) ? {...query, limit:500} : {view: defaultView, limit: 500}
-      const sequenceId = this.getSequenceId();
-      const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
-      const htmlWithAnchors = sectionData?.html || post.contents?.html;
-
-      const commentId = query.commentId || params.commentId
-
-      const description = this.getDescription(post)
-      const ogUrl = postGetPageUrl(post, true) // open graph
-      const canonicalUrl = post.canonicalSource || ogUrl
-      // For imageless posts this will be an empty string
-      const socialPreviewImageUrl = post.socialPreviewImageUrl
-
-      return (
-          <AnalyticsContext pageContext="postsPage" postId={post._id}>
-            <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-              <HeadTags
-                ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-                title={post.title} description={description} noIndex={post.noIndex || !!commentId}
-              />
-              {/* Header/Title */}
-              <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-                <div className={classes.centralColumn}>
-                  {commentId && <CommentPermalink documentId={commentId} post={post}/>}
-                  <PostsPagePostHeader post={post}/>
-                </div>
-              </div></AnalyticsContext>
-              <div className={classes.toc}>
-                <TableOfContents sectionData={sectionData} document={post} />
-              </div>
-              <div className={classes.gap1}/>
-              <div className={classes.content}>
-                <div className={classes.centralColumn}>
-                  {/* Body */}
-                  { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
-                  <div className={classes.postContent}>
-                    <PostBodyPrefix post={post} query={query}/>
-                    
-                    <AnalyticsContext pageSectionContext="postBody">
-                      { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
-                    </AnalyticsContext>
-                  </div>
-
-                  <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-                </div>
-
-                <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
-                  {/* Answers Section */}
-                  {post.question && <div className={classes.centralColumn}>
-                    <div id="answers"/>
-                    <AnalyticsContext pageSectionContext="answersSection">
-                      <PostsPageQuestionContent post={post} refetch={refetch}/>
-                    </AnalyticsContext>
-                  </div>}
-                  {/* Comments Section */}
-                  <div className={classes.commentsSection}>
-                    <AnalyticsContext pageSectionContext="commentsSection">
-                      <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
-                    </AnalyticsContext>
-                  </div>
-                </AnalyticsInViewTracker>
-              </div>
-              <div className={classes.gap2}/>
-            </div>
-          </AnalyticsContext>
-      );
-    }
-  }
-
-  async componentDidMount() {
-    this.props.recordPostView({
-      post: this.props.post,
+  useEffect(() => {
+    recordPostView({
+      post: post,
       extraEventProperties: {
-        sequenceId: this.getSequenceId()
+        sequenceId: getSequenceId()
       }
     });
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post._id]);
+  
+  if (shouldHideAsSpam()) {
+    throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
   }
+  
+  const defaultView = commentGetDefaultView(post, currentUser)
+  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
+    ? {...(query as CommentsViewTerms), limit:500}
+    : {view: defaultView, limit: 500}
+  const sequenceId = getSequenceId();
+  const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
+  const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
-  componentDidUpdate(prevProps: PostsPageProps) {
-    if (prevProps.post && this.props.post && prevProps.post._id !== this.props.post._id) {
-      this.props.closeAllEvents();
-      this.props.recordPostView({
-        post: this.props.post,
-        extraEventProperties: {
-          sequenceId: this.getSequenceId(),
-        }
-      });
-    }
-  }
+  const commentId = query.commentId || params.commentId
+
+  const description = getDescription(post)
+  const ogUrl = postGetPageUrl(post, true) // open graph
+  const canonicalUrl = post.canonicalSource || ogUrl
+  // For imageless posts this will be an empty string
+  const socialPreviewImageUrl = post.socialPreviewImageUrl
+
+  return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
+      <HeadTags
+        ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+        title={post.title} description={description} noIndex={post.noIndex || !!commentId}
+      />
+      {/* Header/Title */}
+      <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
+        <div className={classes.centralColumn}>
+          {commentId && <CommentPermalink documentId={commentId} post={post}/>}
+          <PostsPagePostHeader post={post}/>
+        </div>
+      </div></AnalyticsContext>
+      <div className={classes.toc}>
+        <TableOfContents sectionData={sectionData} document={post} />
+      </div>
+      <div className={classes.gap1}/>
+      <div className={classes.content}>
+        <div className={classes.centralColumn}>
+          {/* Body */}
+          { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
+          <div className={classes.postContent}>
+            <PostBodyPrefix post={post} query={query}/>
+            
+            <AnalyticsContext pageSectionContext="postBody">
+              { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+            </AnalyticsContext>
+          </div>
+
+          <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+        </div>
+
+        <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+          {/* Answers Section */}
+          {post.question && <div className={classes.centralColumn}>
+            <div id="answers"/>
+            <AnalyticsContext pageSectionContext="answersSection">
+              <PostsPageQuestionContent post={post} refetch={refetch}/>
+            </AnalyticsContext>
+          </div>}
+          {/* Comments Section */}
+          <div className={classes.commentsSection}>
+            <AnalyticsContext pageSectionContext="commentsSection">
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+            </AnalyticsContext>
+          </div>
+        </AnalyticsInViewTracker>
+      </div>
+      <div className={classes.gap2}/>
+    </div>
+  </AnalyticsContext>);
 }
 
-const PostsPageComponent = registerComponent<ExternalProps>(
-  'PostsPage', PostsPage, {
-    styles,
-    hocs: [
-      withUser, withLocation,
-      withRecordPostView,
-      withNewEvents,
-      withErrorBoundary
-    ]
-  }
-);
-
+const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
+  styles, hocs: [withErrorBoundary],
+  areEqual: "auto",
+});
 declare global {
   interface ComponentTypes {
     PostsPage: typeof PostsPageComponent
