@@ -9,7 +9,7 @@ import { userIsAdmin, userCanDo } from '../../lib/vulcan-users/permissions';
 import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
-import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
@@ -33,6 +33,46 @@ const getLessWrongAccount = async () => {
   }
   return account;
 }
+
+// Return the IDs of all ancestors of the given comment (not including the provided
+// comment itself).
+const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
+  const ancestorIds: string[] = [];
+  
+  let currentComment: DbComment|null = comment;
+  while (currentComment?.parentCommentId) {
+    currentComment = await Comments.findOne({_id: currentComment.parentCommentId});
+    if (currentComment)
+      ancestorIds.push(currentComment._id);
+  }
+  
+  return ancestorIds;
+}
+
+// Return all comments in a subtree, given its root.
+export const getCommentSubtree = async (rootComment: DbComment, projection: any): Promise<any[]> => {
+  const comments: DbComment[] = [rootComment];
+  let visited = new Set<string>();
+  let unvisited: string[] = [rootComment._id];
+  
+  while(unvisited.length > 0) {
+    const childComments = await Comments.find({parentCommentId: {$in: unvisited}}, projection).fetch();
+    for (let commentId of unvisited)
+      visited.add(commentId);
+    unvisited = [];
+    
+    for (let childComment of childComments) {
+      if (!visited.has(childComment._id)) {
+        comments.push(childComment);
+        unvisited.push(childComment._id);
+      }
+    }
+  }
+  
+  return comments;
+}
+Globals.getCommentSubtree = getCommentSubtree;
+
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
   if (comment.shortform && !comment.postId) {
@@ -381,10 +421,22 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(async function updateTopLevelCommentLastCommentedAt (comment: DbComment) {
-  // TODO: Make this work for all parent comments. For now, this is just updating the lastSubthreadActivity of the top comment because that's where we're using it 
-  if (comment.topLevelCommentId) {
-    await Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
+getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
+  const ancestorIds: string[] = await getCommentAncestorIds(comment);
+  
+  await Comments.update({ _id: {$in: ancestorIds} }, {
+    $set: {lastSubthreadActivity: new Date()},
+    $inc: {descendentCount:1},
+  });
+  
+  return comment;
+});
+
+getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCommentCounts (comment, context) {
+  if (context.oldDocument.deleted !== context.newDocument.deleted) {
+    const ancestorIds: string[] = await getCommentAncestorIds(comment);
+    const increment = context.oldDocument.deleted ? 1 : -1;
+    await Comments.update({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
 });

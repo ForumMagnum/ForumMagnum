@@ -13,6 +13,7 @@ import { captureException } from '@sentry/core';
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
+import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
@@ -49,6 +50,11 @@ mdi.use(markdownItSup)
 
 import { mjpage }  from 'mathjax-node-page'
 import { onStartup, isAnyTest } from '../../lib/executionEnvironment';
+
+interface AfterCreateRevisionCallbackContext {
+  revisionID: string
+}
+export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
 export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string)=>any): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
@@ -454,6 +460,8 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
       
+      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
+      
       return {
         ...docData,
         [fieldName]: {
@@ -474,7 +482,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc)
+    async function editorSerializationAfterCreate(newDoc: DbRevision)
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
@@ -482,6 +490,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
+    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
     return newDoc;
   });
 }

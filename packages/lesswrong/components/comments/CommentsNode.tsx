@@ -181,6 +181,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
                   nestingLevel={updatedNestingLevel}
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
+                  showDescendentCount={loadChildrenSeparately}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
