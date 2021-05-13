@@ -9,7 +9,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const SequencesNewButton = ({ classes }) => {
+export const SequencesNewButton = ({ classes }: {
+  classes: ClassesType
+}) => {
   const { SectionButton } = Components
   return  <Link to={"/sequencesnew"}> 
     <SectionButton>

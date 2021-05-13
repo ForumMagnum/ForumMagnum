@@ -65,7 +65,7 @@ const forumIncludeExtra = {
 const includeExtra = forumIncludeExtra[forumTypeSetting.get()]
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
-  settings: any,
+  settings: RecommendationsAlgorithm,
   configName: string,
   onChange: (newSettings: RecommendationsAlgorithm)=>void,
   showAdvanced?: boolean,
@@ -137,7 +137,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
-          value={settings.onlyUnread && !!currentUser}
+          value={!!settings.onlyUnread && !!currentUser}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
           label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
           tooltip={`'${archiveRecommendationsName}' will only show unread posts`}
