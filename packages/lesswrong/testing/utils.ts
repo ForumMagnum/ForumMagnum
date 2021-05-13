@@ -6,6 +6,7 @@ import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
+import { PartialDeep } from 'type-fest'
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -155,17 +156,22 @@ export const createDefaultUser = async() => {
   }
 }
 
-export const createDummyPost = async (user?: any, data?: any) => {
-  const defaultUser = await createDefaultUser();
+type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {postedAt?: Date | number}
+
+export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
+  let user_ = user || await createDefaultUser()
   const defaultData = {
-    userId: (user && user._id) ? user._id : defaultUser._id,
+    userId: user_._id,
     title: randomId(),
   }
   const postData = {...defaultData, ...data};
   const newPostResponse = await createMutator({
     collection: Posts,
-    document: postData,
-    currentUser: user || defaultUser,
+    // Not the best, createMutator should probably be more flexible about what
+    // it accepts
+    document: postData as DbPost,
+    // As long as user has a _id it should be fine
+    currentUser: user_ as DbUser,
     validate: false,
   });
   return newPostResponse.data
@@ -241,6 +247,18 @@ export const createDummyMessage = async (user: any, data?: any) => {
   });
   return newMessageResponse.data
 }
+
+// export const createDummyRevision = async (user?: {_id: string}, data?: Partial<DbRevision>) => {
+//   const defaultData = {
+//     originalContents: {
+//       type: "ckEditorMarkup",
+//       data: "<p>Dummy Revision Content</p>"
+//     },
+//     userId: user?._id
+//   }
+//   const revisionData = {...defaultData, ...data}
+//   // const
+// }
 
 export const clearDatabase = async () => {
   (await Users.find().fetch()).forEach((i)=>{
