@@ -72,7 +72,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    TableOfContents, CommentPermalink, AnalyticsInViewTracker, ToCColumn } = Components
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn } = Components
 
   useEffect(() => {
     recordPostView({

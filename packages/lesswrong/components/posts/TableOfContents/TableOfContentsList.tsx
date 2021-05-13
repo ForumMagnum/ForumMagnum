@@ -131,7 +131,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
       {title?.trim()}
     </TableOfContentsRow>
     
-    {sectionData?.sections && sectionData.sections.map((section, index) => {
+    {sectionData.sections.map((section, index) => {
       return (
         <TableOfContentsRow
           key={section.anchor}
