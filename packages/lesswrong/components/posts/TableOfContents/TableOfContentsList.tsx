@@ -9,7 +9,7 @@ const topSection = "top";
 
 const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: {
   sectionData: ToCData,
-  title?: string,
+  title: string|null,
   onClickSection?: ()=>void,
   drawerStyle: boolean,
 }) => {

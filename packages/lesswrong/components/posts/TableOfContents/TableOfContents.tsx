@@ -48,12 +48,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 //
 // The reference is to a function setToC, which puts the ToC in the state of
 // Layout.
-type setToCFn = (document: PostsBase|null, sectionData: ToCData|null)=>void
+type setToCFn = (title: string|null, sectionData: ToCData|null)=>void
 export const TableOfContentsContext = React.createContext<setToCFn|null>(null);
 
-const TableOfContents = ({sectionData, document, classes}: {
+const TableOfContents = ({sectionData, title, classes}: {
   sectionData: ToCData,
-  document: PostsBase|null,
+  title: string|null,
   classes: ClassesType,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -61,22 +61,22 @@ const TableOfContents = ({sectionData, document, classes}: {
 
   useEffect(() => {
     if (setToC)
-      setToC(document, sectionData);
+      setToC(title, sectionData);
     
     return () => {
       if (setToC)
         setToC(null, null);
     }
-  }, [document, sectionData, setToC]);
+  }, [title, sectionData, setToC]);
 
-  if (!sectionData || !document)
+  if (!sectionData)
     return <div/>
 
   return (
     <div className={classes.stickyBlock}>
       <Components.TableOfContentsList
         sectionData={sectionData}
-        title={document.title}
+        title={title}
         drawerStyle={false}
       />
     </div>

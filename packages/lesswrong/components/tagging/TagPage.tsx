@@ -10,21 +10,27 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import classNames from 'classnames';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
-  tagPage: {
-    ...tagBodyStyles(theme),
-    color: theme.palette.grey[600]
-  },
   description: {
     marginTop: 18,
     ...tagBodyStyles(theme),
     marginBottom: 18,
   },
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left"
+  centralColumn: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    maxWidth: MAX_COLUMN_WIDTH,
+  },
+  header: {
+    paddingTop: 19,
+    paddingBottom: 5,
+    paddingLeft: 42,
+    paddingRight: 42,
+    background: "white",
   },
   title: {
     ...theme.typography.display3,
@@ -34,12 +40,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: "small-caps"
   },
   wikiSection: {
-    marginBottom: 24,
-    paddingTop: 19,
-    paddingBottom: 12,
+    paddingTop: 5,
     paddingLeft: 42,
     paddingRight: 42,
-    background: "white"
+    paddingBottom: 12,
+    marginBottom: 24,
+    background: "white",
   },
   tagHeader: {
     display: "flex",
@@ -73,7 +79,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow } = Components;
+  const { SingleColumnSection, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, TableOfContents, ToCColumn } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -140,7 +146,10 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
+  const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
+  const description = (truncated && !tag.wikiOnly)
+    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+    : htmlWithAnchors
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
@@ -158,28 +167,33 @@ const TagPage = ({classes}: {
     <HeadTags
       description={headTagDescription}
     />
-    <SingleColumnSection>
-      <div className={classes.wikiSection}>
+    <ToCColumn
+      sectionData={tag.tableOfContents}
+      title={tag.name}
+      header={<div className={classNames(classes.header,classes.centralColumn)}>
+        <div>
+          {query.flagId && <span>
+            <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+              <TagFlagItem 
+                itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+                documentId={query.flagId}
+              />
+            </Link>
+            {nextTag && <span onClick={() => setEditing(true)}><Link
+              className={classes.nextLink}
+              to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+                Next Tag ({nextTag.name})
+            </Link></span>}
+          </span>}
+          <Typography variant="display3" className={classes.title}>
+            {tag.name}
+          </Typography>
+        </div>
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
+      </div>}
+    >
+      <div className={classNames(classes.wikiSection,classes.centralColumn)}>
         <AnalyticsContext pageSectionContext="wikiSection">
-          <div>
-            {query.flagId && <span>
-              <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-                <TagFlagItem 
-                  itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-                  documentId={query.flagId}
-                />
-              </Link>
-              {nextTag && <span onClick={() => setEditing(true)}><Link
-                className={classes.nextLink}
-                to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
-                  Next Tag ({nextTag.name})
-              </Link></span>}
-            </span>}
-            <Typography variant="display3" className={classes.title}>
-              {tag.name}
-            </Typography>
-          </div>
-          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
@@ -197,25 +211,27 @@ const TagPage = ({classes}: {
           </div>}
         </AnalyticsContext>
       </div>
-      {editing && <TagDiscussionSection
-        key={tag._id}
-        tag={tag}
-      />}
-      {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-        <div className={classes.tagHeader}>
-          <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-          <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-        </div>
-        <PostsList2
-          terms={terms}
-          enableTotal
-          tagId={tag._id}
-          itemsPerPage={200}
-        >
-          <AddPostsToTag tag={tag} />
-        </PostsList2>
-      </AnalyticsContext>}
-    </SingleColumnSection>
+      <div className={classes.centralColumn}>
+        {editing && <TagDiscussionSection
+          key={tag._id}
+          tag={tag}
+        />}
+        {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
+          <div className={classes.tagHeader}>
+            <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+            <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+          </div>
+          <PostsList2
+            terms={terms}
+            enableTotal
+            tagId={tag._id}
+            itemsPerPage={200}
+          >
+            <AddPostsToTag tag={tag} />
+          </PostsList2>
+        </AnalyticsContext>}
+      </div>
+    </ToCColumn>
   </AnalyticsContext>
 }
 

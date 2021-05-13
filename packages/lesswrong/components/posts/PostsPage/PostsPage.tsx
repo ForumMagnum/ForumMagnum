@@ -6,67 +6,21 @@ import { commentGetDefaultView } from '../../../lib/collections/comments/helpers
 import { postBodyStyles } from '../../../themes/stylePiping'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import classNames from 'classnames';
 import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
 
-const DEFAULT_TOC_MARGIN = 100
-const MAX_TOC_WIDTH = 270
-const MIN_TOC_WIDTH = 200
 export const MAX_COLUMN_WIDTH = 720
 
 // Also used in PostsCompareRevisions
 export const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    position: "relative",
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: 12
-    }
-  },
-  tocActivated: {
-    // Check for support for template areas before applying
-    '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateColumns: `
-        1fr
-        minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
-        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
-        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
-        1.5fr
-      `,
-      gridTemplateAreas: `
-        "... ... .... title   .... ..."
-        "... toc gap1 content gap2 ..."
-      `,
-    },
-    [theme.breakpoints.down('sm')]: {
-      display: 'block'
-    }
-  },
   title: {
-    gridArea: 'title',
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
       marginBottom: theme.spacing.titleDividerSpacing,
     }
   },
-  toc: {
-    '@supports (grid-template-areas: "title")': {
-      gridArea: 'toc',
-      position: 'unset',
-      width: 'unset'
-    },
-    //Fallback styles in case we don't have CSS-Grid support. These don't get applied if we have a grid
-    position: 'absolute',
-    width: MAX_TOC_WIDTH,
-    left: -DEFAULT_TOC_MARGIN,
-  },
-  content: { gridArea: 'content' },
-  gap1: { gridArea: 'gap1'},
-  gap2: { gridArea: 'gap2'},
   centralColumn: {
     maxWidth: 650 + (theme.spacing.unit*4),
     marginLeft: 'auto',
@@ -118,7 +72,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    TableOfContents, CommentPermalink, AnalyticsInViewTracker } = Components
+    TableOfContents, CommentPermalink, AnalyticsInViewTracker, ToCColumn } = Components
 
   useEffect(() => {
     recordPostView({
@@ -152,55 +106,53 @@ const PostsPage = ({post, refetch, classes}: {
   const socialPreviewImageUrl = post.socialPreviewImageUrl
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-      <HeadTags
-        ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-        title={post.title} description={description} noIndex={post.noIndex || !!commentId}
-      />
-      {/* Header/Title */}
-      <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-        <div className={classes.centralColumn}>
-          {commentId && <CommentPermalink documentId={commentId} post={post}/>}
-          <PostsPagePostHeader post={post}/>
-        </div>
-      </div></AnalyticsContext>
-      <div className={classes.toc}>
-        <TableOfContents sectionData={sectionData} document={post} />
-      </div>
-      <div className={classes.gap1}/>
-      <div className={classes.content}>
-        <div className={classes.centralColumn}>
-          {/* Body */}
-          { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
-          <div className={classes.postContent}>
-            <PostBodyPrefix post={post} query={query}/>
-            
-            <AnalyticsContext pageSectionContext="postBody">
-              { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
-            </AnalyticsContext>
+    <ToCColumn
+      sectionData={sectionData}
+      title={post.title}
+      header={<>
+        <HeadTags
+          ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+          title={post.title} description={description} noIndex={post.noIndex || !!commentId}
+        />
+        {/* Header/Title */}
+        <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
+          <div className={classes.centralColumn}>
+            {commentId && <CommentPermalink documentId={commentId} post={post}/>}
+            <PostsPagePostHeader post={post}/>
           </div>
-
-          <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+        </div></AnalyticsContext>
+      </>}
+    >
+      <div className={classes.centralColumn}>
+        {/* Body */}
+        { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
+        <div className={classes.postContent}>
+          <PostBodyPrefix post={post} query={query}/>
+          
+          <AnalyticsContext pageSectionContext="postBody">
+            { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+          </AnalyticsContext>
         </div>
 
-        <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
-          {/* Answers Section */}
-          {post.question && <div className={classes.centralColumn}>
-            <div id="answers"/>
-            <AnalyticsContext pageSectionContext="answersSection">
-              <PostsPageQuestionContent post={post} refetch={refetch}/>
-            </AnalyticsContext>
-          </div>}
-          {/* Comments Section */}
-          <div className={classes.commentsSection}>
-            <AnalyticsContext pageSectionContext="commentsSection">
-              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
-            </AnalyticsContext>
-          </div>
-        </AnalyticsInViewTracker>
+        <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
-      <div className={classes.gap2}/>
-    </div>
+
+      <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+        {/* Answers Section */}
+        {post.question && <div className={classes.centralColumn}>
+          <div id="answers"/>
+          <AnalyticsContext pageSectionContext="answersSection">
+            <PostsPageQuestionContent post={post} refetch={refetch}/>
+          </AnalyticsContext>
+        </div>}
+        {/* Comments Section */}
+        <div className={classes.commentsSection}>
+          <AnalyticsContext pageSectionContext="commentsSection">
+            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+          </AnalyticsContext>
+        </div>
+      </AnalyticsInViewTracker>
+    </ToCColumn>
   </AnalyticsContext>);
 }
 

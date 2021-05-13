@@ -21,7 +21,7 @@ import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../lib/globalStyles';
-import type { ToCData } from '../server/tableOfContents';
+import type { ToCData, ToCSection } from '../server/tableOfContents';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
@@ -119,7 +119,7 @@ interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps,
 }
 interface LayoutState {
   timezone: string,
-  toc: any,
+  toc: {title: string|null, sections?: ToCSection[]}|null,
   postsRead: Record<string,boolean>,
   tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
@@ -144,11 +144,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
   }
 
-  setToC = (document: PostsBase|null, sectionData: ToCData|null) => {
-    if (document) {
+  setToC = (title: string|null, sectionData: ToCData|null) => {
+    if (title) {
       this.setState({
         toc: {
-          document: document,
+          title: title,
           sections: sectionData?.sections
         }
       });
