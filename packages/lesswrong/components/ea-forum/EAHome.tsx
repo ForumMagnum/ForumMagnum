@@ -18,7 +18,7 @@ const EAHome = () => {
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
-  const shouldRenderEAG = showEventBannerSetting.get()
+  const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderEAHomeHandbook = showHandbookBannerSetting.get() && userHasEAHomeHandbook(currentUser)
   const shouldRenderSmallpox = showSmallpoxSetting.get()
 
@@ -27,7 +27,7 @@ const EAHome = () => {
       {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>}
       
       {shouldRenderSmallpox && <SmallpoxBanner/>}
-      {shouldRenderEAG && <EventBanner />}
+      {shouldRenderEventBanner && <EventBanner />}
       <HomeLatestPosts />
 
       <RecommendationsAndCurated configName="frontpageEA" />
