@@ -7,4 +7,7 @@ const customBaseScoreReadAccess = (user: DbUser|null, comment: DbComment) => {
   return userCanDo(user, 'posts.moderate.all') || !comment.hideKarma
 }
 
-makeVoteable(Comments, {customBaseScoreReadAccess});
+makeVoteable(Comments, {
+  timeDecayScoresCronjob: true,
+  customBaseScoreReadAccess
+});

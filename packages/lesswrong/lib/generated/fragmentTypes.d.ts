@@ -693,6 +693,10 @@ interface RevisionMetadata { // fragment on Revisions
   readonly editedAt: Date,
   readonly commitMessage: string,
   readonly userId: string,
+  readonly score: number,
+  readonly baseScore: number,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
@@ -707,6 +711,15 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
   readonly tag: TagBasicInfo|null,
+}
+
+interface WithVoteRevision { // fragment on Revisions
+  readonly __typename: string,
+  readonly _id: string,
+  readonly currentUserVote: string,
+  readonly baseScore: number,
+  readonly score: number,
+  readonly voteCount: number,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -1685,6 +1698,7 @@ interface FragmentTypes {
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
   RevisionTagFragment: RevisionTagFragment
+  WithVoteRevision: WithVoteRevision
   NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
   ConversationsDefaultFragment: ConversationsDefaultFragment
@@ -1817,6 +1831,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
   RevisionTagFragment: "Revisions"
+  WithVoteRevision: "Revisions"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
   ConversationsDefaultFragment: "Conversations"
