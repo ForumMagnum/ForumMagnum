@@ -6,6 +6,7 @@ testStartup();
 describe("syncDocumentWithLatestRevision", () => {
   it("updates with the latest revision", async () => {
     const post = await createDummyPost();
+    console.log('post.contents', post.contents)
     // TODO; complete
     expect(post._id).toBeDefined();
   });

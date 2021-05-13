@@ -198,7 +198,7 @@ Vulcan.createStyledAFPost = async () => {
     },
     af: true,
     frontpageDate: new Date(),
-    curateDate: new Date(),
+    curatedDate: new Date(),
   })
 
   await createDummyComment(user, {
