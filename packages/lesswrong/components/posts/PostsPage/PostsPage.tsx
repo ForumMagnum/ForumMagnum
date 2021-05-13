@@ -72,7 +72,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn } = Components
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents } = Components
 
   useEffect(() => {
     recordPostView({
@@ -107,8 +107,11 @@ const PostsPage = ({post, refetch, classes}: {
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
-      sectionData={sectionData}
-      title={post.title}
+      tableOfContents={
+        sectionData
+          ? <TableOfContents sectionData={sectionData} title={post.title} />
+          : null
+      }
       header={<>
         <HeadTags
           ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}

@@ -32,6 +32,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 42,
     background: "white",
   },
+  tableOfContentsWrapper: {
+    position: "relative",
+    top: 12,
+  },
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
@@ -79,7 +83,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn } = Components;
+  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -168,8 +172,13 @@ const TagPage = ({classes}: {
       description={headTagDescription}
     />
     <ToCColumn
-      sectionData={tag.tableOfContents}
-      title={tag.name}
+      tableOfContents={
+        tag.tableOfContents
+          ? <span className={classes.tableOfContentsWrapper}>
+              <TableOfContents sectionData={tag.tableOfContents} title={tag.name} />
+            </span>
+          : null
+      }
       header={<div className={classNames(classes.header,classes.centralColumn)}>
         <div>
           {query.flagId && <span>

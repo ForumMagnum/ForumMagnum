@@ -55,9 +55,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   gap2: { gridArea: 'gap2'},
 });
 
-export const ToCColumn = ({sectionData, title, header, children, classes}: {
-  sectionData: ToCData,
-  title: string|null,
+export const ToCColumn = ({tableOfContents, header, children, classes}: {
+  tableOfContents: React.ReactNode|null,
   header: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType
@@ -65,12 +64,12 @@ export const ToCColumn = ({sectionData, title, header, children, classes}: {
   const { TableOfContents } = Components;
   
   return (
-    <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
+    <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents})}>
       <div className={classes.header}>
         {header}
       </div>
       <div className={classes.toc}>
-        <TableOfContents sectionData={sectionData} title={title} />
+        {tableOfContents}
       </div>
       <div className={classes.gap1}/>
       <div className={classes.content}>
