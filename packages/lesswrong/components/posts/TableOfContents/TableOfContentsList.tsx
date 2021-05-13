@@ -7,6 +7,11 @@ import type { ToCData } from '../../../server/tableOfContents';
 
 const topSection = "top";
 
+const isRegularClick = (ev: React.MouseEvent) => {
+  if (!ev) return false;
+  return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
+}
+
 const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: {
   sectionData: ToCData,
   title: string|null,
@@ -46,33 +51,25 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
     }
   }
 
-  const jumpToAnchor = (anchor: string, ev: MouseEvent|null) => {
+  const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
 
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
       history.push(`#${anchor}`)
       let sectionYdocumentSpace = anchorY + window.scrollY;
-      jumpToY(sectionYdocumentSpace, ev);
+      jumpToY(sectionYdocumentSpace);
     }
   }
 
-  const jumpToY = (y: number, ev: MouseEvent|null) => {
+  const jumpToY = (y: number) => {
     if (isServer) return;
 
-    if (ev && (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey))
-      return;
-
-    if (onClickSection) {
-      onClickSection();
-    }
     try {
       window.scrollTo({
         top: y - getCurrentSectionMark() + 1,
         behavior: "smooth"
       });
-
-      if (ev) ev.preventDefault();
     } catch(e) {
       // eslint-disable-next-line no-console
       console.warn("scrollTo not supported, using link fallback", e)
@@ -121,10 +118,29 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
   if (!sectionData)
     return <div/>
 
+  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
+    ev.preventDefault();
+    if (onClickSection) {
+      onClickSection();
+      // One of the things this callback can do is expand folded-up text which
+      // might contain the anchor we want to scroll to. We wait for a setTimeout
+      // here, to allow React re-rendering to finish in that case.
+      await new Promise((resolve,reject) => setTimeout(resolve, 0));
+    }
+    jumpToSection();
+  }
+  
   return <div>
     <TableOfContentsRow key="postTitle"
       href="#"
-      onClick={ev => jumpToY(0, ev)}
+      onClick={ev => {
+        if (isRegularClick(ev)) {
+          void handleClick(ev, () => {
+            history.push("#");
+            jumpToY(0)
+          });
+        }
+      }}
       highlighted={currentSection === topSection}
       title
     >
@@ -139,7 +155,13 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
           divider={section.divider}
           highlighted={section.anchor === currentSection}
           href={"#"+section.anchor}
-          onClick={(ev) => jumpToAnchor(section.anchor, ev)}
+          onClick={(ev) => {
+            if (isRegularClick(ev)) {
+              void handleClick(ev, () => {
+                jumpToAnchor(section.anchor)
+              });
+            }
+          }}
           answer={!!section.answer}
         >
           {section.answer

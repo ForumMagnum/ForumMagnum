@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
@@ -130,6 +130,10 @@ const TagPage = ({classes}: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagPositionInList])
   const nextTag = otherTagsWithNavigation && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithNavigation[nextTagPosition]
+  
+  const expandAll = useCallback(() => {
+    setTruncated(false)
+  }, []);
 
   if (loadingTag)
     return <Loading/>
@@ -175,7 +179,11 @@ const TagPage = ({classes}: {
       tableOfContents={
         tag.tableOfContents
           ? <span className={classes.tableOfContentsWrapper}>
-              <TableOfContents sectionData={tag.tableOfContents} title={tag.name} />
+              <TableOfContents
+                sectionData={tag.tableOfContents}
+                title={tag.name}
+                onClickSection={expandAll}
+              />
             </span>
           : null
       }
