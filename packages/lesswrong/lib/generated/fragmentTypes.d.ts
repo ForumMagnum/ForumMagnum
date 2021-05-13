@@ -216,6 +216,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
+  readonly contributors: Array<any /*TagContributor*/>,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1326,10 +1327,12 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly contributors: any,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly contributors: any,
 }
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags

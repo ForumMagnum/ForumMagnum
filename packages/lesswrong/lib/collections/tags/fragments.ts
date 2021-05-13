@@ -109,7 +109,7 @@ registerFragment(`
     tagFlagsIds
     tagFlags {
       ...TagFlagFragment
-    } 
+    }
   }
 `);
 
@@ -127,6 +127,12 @@ registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    contributors {
+      user {
+        ...UsersMinimumInfo
+      }
+      contributionScore
+    }
   }
 `);
 
@@ -134,6 +140,12 @@ registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents
+    contributors {
+      user {
+        ...UsersMinimumInfo
+      }
+      contributionScore
+    }
   }
 `);
 

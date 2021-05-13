@@ -1,8 +1,14 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import { Tags } from '../../lib/collections/tags/collection';
+import { addFieldsDict } from '../../lib/utils/schemaUtils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
+import groupBy from 'lodash/groupBy';
+import keyBy from 'lodash/keyBy';
+import orderBy from 'lodash/orderBy';
+import { toDictionary } from '../../lib/utils/toDictionary';
 import * as _ from 'underscore';
 
 addGraphQLSchema(`
@@ -69,3 +75,45 @@ addGraphQLResolvers({
 });
 
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdatesTimeBlock!]');
+
+addFieldsDict(Tags, {
+  contributors: {
+    resolveAs: {
+      arguments: 'limit: Int',
+      type: "[TagContributor!]",
+      resolver: async (tag: DbTag, {limit}: {limit?: number}, context: ResolverContext) => {
+        // TODO: When computing contribution score, only count the user's
+        // self-vote power once, rather than once per contributed revision.
+        // TODO: Use the limit argument.
+        // TODO: Maybe denormalize this into a whole collection, for performance.
+        // Fetching all the revs on a tag is potentially very expensive, if the
+        // tag has a long history.
+        
+        if (!(tag?._id))
+          throw new Error("Invalid tag");
+        
+        const tagRevisions: DbRevision[] = await Revisions.find({
+          collectionName: "Tags",
+          fieldName: "description",
+          documentId: tag._id,
+          $or: [
+            {"changeMetrics.added": {$gt: 0}},
+            {"changeMetrics.removed": {$gt: 0}}
+          ],
+        }).fetch();
+        
+        const revisionsByUserId: Record<string,DbRevision[]> = groupBy(tagRevisions, r=>r.userId);
+        const contributorUserIds: string[] = Object.keys(revisionsByUserId);
+        const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
+        const contributionScoresByUserId: Partial<Record<string,number>> = toDictionary(contributorUserIds,
+          userId=>userId, userId => sumBy(revisionsByUserId[userId], r=>r.baseScore)||0);
+        const sortedContributors = orderBy(contributorUserIds, userId=>-contributionScoresByUserId[userId]);
+        
+        const topContributors = sortedContributors.map(userId => ({
+          user: usersById[userId],
+          contributionScore: contributionScoresByUserId[userId],
+        }))
+      }
+    }
+  },
+});

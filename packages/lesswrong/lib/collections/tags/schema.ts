@@ -2,6 +2,7 @@ import { schemaDefaultValue } from '../../collectionUtils'
 import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
+import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
@@ -15,6 +16,13 @@ const formGroups = {
     startCollapsed: true,
   },
 };
+
+addGraphQLSchema(`
+  type TagContributor {
+    user: User!
+    contributionScore: Int!
+  }
+`);
 
 export const schema: SchemaType<DbTag> = {
   createdAt: {
@@ -326,6 +334,12 @@ export const schema: SchemaType<DbTag> = {
       }
     }
   }),
+  
+  contributors: {
+    viewableBy: ['guests'],
+    type: "[TagContributor!]",
+    optional: true,
+  },
 }
 
 export const wikiGradeDefinitions = {
