@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import type { ToCData } from '../../../server/tableOfContents';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import classNames from 'classnames';
 
@@ -61,8 +60,6 @@ export const ToCColumn = ({tableOfContents, header, children, classes}: {
   children: React.ReactNode,
   classes: ClassesType
 }) => {
-  const { TableOfContents } = Components;
-  
   return (
     <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents})}>
       <div className={classes.header}>
