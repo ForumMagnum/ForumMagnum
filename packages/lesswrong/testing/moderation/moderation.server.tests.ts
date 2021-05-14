@@ -79,7 +79,7 @@ describe('userIsAllowedToComment --', () => {
   })
   it('returns true if passed a user AND post contains bannedUserIds but NOT user', async () => {
     const user = await createDummyUser()
-    const post = await createDummyPost(undefined, {bannedUserIds:[user._id]})
+    const post = await createDummyPost(null, {bannedUserIds:[user._id]})
     expect(userIsAllowedToComment(user, post, null)).to.equal(true)
   })
   it('returns false if passed a user AND post contains bannedUserIds BUT post-user is NOT in trustLevel1', async () => {

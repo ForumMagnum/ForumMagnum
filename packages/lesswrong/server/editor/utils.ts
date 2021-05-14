@@ -107,7 +107,8 @@ const revisionFieldsToCopy: (keyof DbRevision)[] = [
   "editedAt",
   "wordCount",
 ];
-// TODO; document, test?
+
+// TODO; document
 export async function syncDocumentWithLatestRevision<T extends DbObject>(
   collection: CollectionBase<T>,
   document: T,

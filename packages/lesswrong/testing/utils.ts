@@ -156,6 +156,7 @@ export const createDefaultUser = async() => {
   }
 }
 
+// Posts can be created pretty flexibly
 type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {postedAt?: Date | number}
 
 export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
@@ -168,7 +169,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
   const newPostResponse = await createMutator({
     collection: Posts,
     // Not the best, createMutator should probably be more flexible about what
-    // it accepts
+    // it accepts, as long as validate is false
     document: postData as DbPost,
     // As long as user has a _id it should be fine
     currentUser: user_ as DbUser,
