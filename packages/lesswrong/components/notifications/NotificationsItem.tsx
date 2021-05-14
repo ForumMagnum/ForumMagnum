@@ -116,9 +116,12 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
             [classes.unread]: !(notification.createdAt < lastNotificationsCheck || clicked)
           }
         )}
-        onClick={(e) => {
+        onClick={(ev) => {
+          if (ev && (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey))
+            return;
+          
           // Do manual navigation since we also want to do a bunch of other stuff
-          e.preventDefault()
+          ev.preventDefault()
           history.push(notification.link)
 
           setClicked(true);
