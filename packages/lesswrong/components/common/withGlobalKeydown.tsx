@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { isClient } from '../../lib/executionEnvironment';
 
 export const useGlobalKeydown = (keyboardHandlerFn: (this: Document, ev: KeyboardEvent)=>void) => {

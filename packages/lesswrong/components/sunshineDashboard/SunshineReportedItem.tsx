@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import React from 'react';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useCurrentUser } from '../common/withUser'

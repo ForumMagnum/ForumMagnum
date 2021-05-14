@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { useHover } from '../common/withHover'

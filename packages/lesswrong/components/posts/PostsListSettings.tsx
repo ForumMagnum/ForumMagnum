@@ -1,6 +1,6 @@
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
-import React, { Component } from 'react';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
@@ -174,7 +174,7 @@ const USER_SETTING_NAMES = {
   showLowKarma: 'allPostsShowLowKarma',
 }
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, timeframes, sortings, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, timeframes=defaultTimeFrams, sortings=defaultSortings, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,

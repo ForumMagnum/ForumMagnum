@@ -1,5 +1,4 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import { useMessages } from '../common/withMessages';
 import React, { useState, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetLocation } from '../../lib/collections/users/helpers';
