@@ -119,7 +119,7 @@ registerFragment(`
     tagFlagsIds
     tagFlags {
       ...TagFlagFragment
-    } 
+    }
   }
 `);
 

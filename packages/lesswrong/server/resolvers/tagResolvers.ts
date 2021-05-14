@@ -107,12 +107,13 @@ addFieldsDict(Tags, {
         const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
         const contributionScoresByUserId: Partial<Record<string,number>> = toDictionary(contributorUserIds,
           userId=>userId, userId => sumBy(revisionsByUserId[userId], r=>r.baseScore)||0);
-        const sortedContributors = orderBy(contributorUserIds, userId=>-contributionScoresByUserId[userId]);
+        const sortedContributors = orderBy(contributorUserIds, userId => -(contributionScoresByUserId[userId] || 0));
         
         const topContributors = sortedContributors.map(userId => ({
           user: usersById[userId],
           contributionScore: contributionScoresByUserId[userId],
         }))
+        return topContributors;
       }
     }
   },

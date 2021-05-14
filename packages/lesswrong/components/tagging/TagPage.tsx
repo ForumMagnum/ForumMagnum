@@ -83,7 +83,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents } = Components;
+  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TagContributorsList } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -184,6 +184,7 @@ const TagPage = ({classes}: {
                 title={tag.name}
                 onClickSection={expandAll}
               />
+              <TagContributorsList tag={tag}/>
             </span>
           : null
       }

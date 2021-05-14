@@ -50,6 +50,40 @@ export const styles = (theme: ThemeType): JssStyles => ({
     width: MAX_TOC_WIDTH,
     left: -DEFAULT_TOC_MARGIN,
   },
+  stickyBlock: {
+    position: "sticky",
+    fontSize: 12,
+    top: 92,
+    lineHeight: 1.0,
+    marginLeft:1,
+    paddingLeft:theme.spacing.unit*2,
+    textAlign:"left",
+    height:"80vh",
+    overflowY:"scroll",
+    direction:"rtl",
+    "&::-webkit-scrollbar": {
+      width: 1,
+    },
+
+    /* Track */
+    "&::-webkit-scrollbar-track": {
+        background: "none",
+    },
+
+    /* Handle */
+    "&::-webkit-scrollbar-thumb": {
+        background: theme.palette.grey[300],
+    },
+
+    /* Handle on hover */
+    "&::-webkit-scrollbar-thumb:hover": {
+        background: theme.palette.grey[700],
+    },
+
+    [theme.breakpoints.down('sm')]:{
+      display:'none'
+    }
+  },
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
@@ -69,7 +103,9 @@ export const ToCColumn = ({tableOfContents, header, children, classes}: {
         {header}
       </div>
       <div className={classes.toc}>
-        {tableOfContents}
+        <div className={classes.stickyBlock}>
+          {tableOfContents}
+        </div>
       </div>
       <div className={classes.gap1}/>
       <div className={classes.content}>

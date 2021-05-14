@@ -412,6 +412,7 @@ importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGra
 importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
 importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
 importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
+importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("TagCTAPopup", () => require('../components/tagging/TagCTAPopup'));

@@ -4,40 +4,6 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import type { ToCData } from '../../../server/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  stickyBlock: {
-    position: "sticky",
-    fontSize: 12,
-    top: 92,
-    lineHeight: 1.0,
-    marginLeft:1,
-    paddingLeft:theme.spacing.unit*2,
-    textAlign:"left",
-    height:"80vh",
-    overflowY:"scroll",
-    direction:"rtl",
-    "&::-webkit-scrollbar": {
-      width: 1,
-    },
-
-    /* Track */
-    "&::-webkit-scrollbar-track": {
-        background: "none",
-    },
-
-    /* Handle */
-    "&::-webkit-scrollbar-thumb": {
-        background: theme.palette.grey[300],
-    },
-
-    /* Handle on hover */
-    "&::-webkit-scrollbar-thumb:hover": {
-        background: theme.palette.grey[700],
-    },
-
-    [theme.breakpoints.down('sm')]:{
-      display:'none'
-    }
-  },
 });
 
 // Context used to share a reference used to share the table of contents
@@ -74,14 +40,12 @@ const TableOfContents = ({sectionData, title, onClickSection, classes}: {
     return <div/>
 
   return (
-    <div className={classes.stickyBlock}>
-      <Components.TableOfContentsList
-        sectionData={sectionData}
-        title={title}
-        drawerStyle={false}
-        onClickSection={onClickSection}
-      />
-    </div>
+    <Components.TableOfContentsList
+      sectionData={sectionData}
+      title={title}
+      drawerStyle={false}
+      onClickSection={onClickSection}
+    />
   );
 }
 
