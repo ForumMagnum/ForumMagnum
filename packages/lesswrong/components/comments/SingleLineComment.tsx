@@ -129,7 +129,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   showDescendentCount?: boolean,
   classes: ClassesType,
 }) => {
-  const {hover} = useHover();
+  const {hover, eventHandlers} = useHover();
   
   if (!comment) return null
   
@@ -143,7 +143,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} {...eventHandlers}>
       <div className={classNames(classes.commentInfo, {
           [classes.isAnswer]: comment.answer, 
           [classes.odd]:((nestingLevel%2) !== 0),
