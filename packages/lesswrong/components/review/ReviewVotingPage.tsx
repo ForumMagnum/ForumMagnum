@@ -24,7 +24,7 @@ const REVIEW_COMMENTS_VIEW = "reviews2019"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) =>
-  currentUser && new Date(currentUser?.createdAt) < new Date(`${YEAR}-01-01`)
+  currentUser && new Date(currentUser.createdAt) < new Date(`${YEAR}-01-01`)
 
 //const YEAR = 2018
 //const NOMINATIONS_VIEW = "nominations2018"
