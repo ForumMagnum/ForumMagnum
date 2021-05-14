@@ -117,7 +117,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           }
         )}
         onClick={(ev) => {
-          if (ev && (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey))
+          if (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey)
             return;
           
           // Do manual navigation since we also want to do a bunch of other stuff
