@@ -87,9 +87,20 @@ const TagPage = ({classes}: {
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
+  const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
-    extraVariables: revision ? {version: 'String'} : {},
-    extraVariablesValues: revision ? {version: revision} : {},
+    extraVariables: revision ? {
+      version: 'String',
+      contributorsLimit: 'Int',
+    } : {
+      contributorsLimit: 'Int',
+    },
+    extraVariablesValues: revision ? {
+      version: revision,
+      contributorsLimit,
+    } : {
+      contributorsLimit,
+    },
   });
   
   const [truncated, setTruncated] = useState(true)

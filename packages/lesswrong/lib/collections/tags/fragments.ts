@@ -127,11 +127,14 @@ registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
-    contributors {
-      user {
-        ...UsersMinimumInfo
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
       }
-      contributionScore
     }
   }
 `);
@@ -140,11 +143,28 @@ registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents
-    contributors {
-      user {
-        ...UsersMinimumInfo
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
       }
-      contributionScore
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagFullContributorsList on Tag {
+    contributors {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+      }
     }
   }
 `);

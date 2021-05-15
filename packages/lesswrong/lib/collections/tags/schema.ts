@@ -22,6 +22,10 @@ addGraphQLSchema(`
     user: User!
     contributionScore: Int!
   }
+  type TagContributorsList {
+    contributors: [TagContributor!]
+    totalCount: Int!
+  }
 `);
 
 export const schema: SchemaType<DbTag> = {
@@ -337,7 +341,7 @@ export const schema: SchemaType<DbTag> = {
   
   contributors: {
     viewableBy: ['guests'],
-    type: "[TagContributor!]",
+    type: "TagContributorsList",
     optional: true,
   },
 }

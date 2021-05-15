@@ -9,6 +9,7 @@ import groupBy from 'lodash/groupBy';
 import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import { toDictionary } from '../../lib/utils/toDictionary';
+import take from 'lodash/take';
 import * as _ from 'underscore';
 
 addGraphQLSchema(`
@@ -80,7 +81,7 @@ addFieldsDict(Tags, {
   contributors: {
     resolveAs: {
       arguments: 'limit: Int',
-      type: "[TagContributor!]",
+      type: "TagContributorsList",
       resolver: async (tag: DbTag, {limit}: {limit?: number}, context: ResolverContext) => {
         // TODO: When computing contribution score, only count the user's
         // self-vote power once, rather than once per contributed revision.
@@ -113,7 +114,17 @@ addFieldsDict(Tags, {
           user: usersById[userId],
           contributionScore: contributionScoresByUserId[userId],
         }))
-        return topContributors;
+        if (limit) {
+          return {
+            contributors: take(topContributors, limit),
+            totalCount: topContributors.length,
+          }
+        } else {
+          return {
+            contributors: topContributors,
+            totalCount: topContributors.length,
+          }
+        }
       }
     }
   },
