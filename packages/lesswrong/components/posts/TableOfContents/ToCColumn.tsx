@@ -59,7 +59,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textAlign:"left",
     height:"80vh",
     overflowY:"scroll",
-    direction:"rtl",
     "&::-webkit-scrollbar": {
       width: 1,
     },
