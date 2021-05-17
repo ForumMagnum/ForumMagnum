@@ -161,7 +161,8 @@ export const applyAttributionsToText = ($: cheerio.Root, node: cheerio.Element, 
   
   const wrapperSpan = $('<span/>');
   for (let span of spans) {
-    wrapperSpan.append($(span));
+    // @ts-ignore
+    wrapperSpan.append(span);
   }
   return wrapperSpan;
 }

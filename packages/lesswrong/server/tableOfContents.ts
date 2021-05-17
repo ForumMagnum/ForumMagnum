@@ -297,7 +297,15 @@ const getToCforTag = async ({document, version, context}: {
       return null;
     html = revision.html;
   } else {
-    html = await annotateAuthors(document._id, "Tags", "description");
+    try {
+      html = await annotateAuthors(document._id, "Tags", "description");
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      html = document.description?.html;
+    }
   }
   
   const tableOfContents = extractTableOfContents(html)
