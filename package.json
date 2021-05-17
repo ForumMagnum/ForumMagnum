@@ -230,7 +230,7 @@
     "recompose": "^0.26.0",
     "request": "^2.88.0",
     "rss": "^1.2.1",
-    "sanitize-html": "^1.18.2",
+    "sanitize-html": "^2.3.2",
     "setimmediate": "^1.0.5",
     "shallowequal": "^1.1.0",
     "simpl-schema": "^1.5.0",
