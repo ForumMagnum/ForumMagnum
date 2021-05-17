@@ -39,7 +39,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   onHoverUser: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
-  const { UsersNameDisplay, TableOfContentsRow, Loading } = Components;
+  const { UsersNameDisplay, Loading } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const {document: tagWithExpandedList, loading: loadingMore} = useSingle({

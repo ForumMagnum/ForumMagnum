@@ -1,9 +1,7 @@
-import { diffHtml } from './resolvers/diffResolvers';
 import { diff } from './vendor/node-htmldiff/htmldiff';
 import { Revisions } from '../lib/collections/revisions/collection';
 import cheerio from 'cheerio';
 import orderBy from 'lodash/orderBy';
-import reverse from 'lodash/reverse';
 import times from 'lodash/times';
 
 type EditAttributions = (string|null)[]
