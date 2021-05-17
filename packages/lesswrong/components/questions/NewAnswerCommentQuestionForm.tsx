@@ -69,17 +69,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
-  post: PostsBase,
-  refetch: any,
-}
-interface NewAnswerCommentQuestionFormProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
-}
-interface NewAnswerCommentQuestionFormState {
-  selection: string,
-  formFocus: boolean,
-}
-
 const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
   post: PostsBase,
   refetch: ()=>void,
