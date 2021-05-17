@@ -98,11 +98,11 @@ export const ToCColumn = ({tableOfContents, header, children, classes}: {
       <div className={classes.header}>
         {header}
       </div>
-      <div className={classes.toc}>
+      {tableOfContents && <div className={classes.toc}>
         <div className={classes.stickyBlock}>
           {tableOfContents}
         </div>
-      </div>
+      </div>}
       <div className={classes.gap1}/>
       <div className={classes.content}>
         {children}
