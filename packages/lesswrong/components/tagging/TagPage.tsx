@@ -105,6 +105,7 @@ const TagPage = ({classes}: {
   
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
+  const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
 
   const multiTerms = {
@@ -146,6 +147,10 @@ const TagPage = ({classes}: {
     setTruncated(false)
   }, []);
 
+  const onHoverContributor = useCallback((userId: string) => {
+    setHoveredContributorId(userId);
+  }, []);
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -186,6 +191,9 @@ const TagPage = ({classes}: {
     <HeadTags
       description={headTagDescription}
     />
+    {hoveredContributorId && <style>
+      {`.by_${hoveredContributorId} {background: #8f8;}`}
+    </style>}
     <ToCColumn
       tableOfContents={
         tag.tableOfContents
@@ -195,7 +203,7 @@ const TagPage = ({classes}: {
                 title={tag.name}
                 onClickSection={expandAll}
               />
-              <TagContributorsList tag={tag}/>
+              <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
             </span>
           : null
       }

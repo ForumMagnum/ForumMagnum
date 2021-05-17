@@ -8,6 +8,7 @@ import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
+import { annotateAuthors } from './attributeEdits';
 
 export interface ToCSection {
   title?: string
@@ -62,7 +63,8 @@ const headingSelector = _.keys(headingTags).join(",");
 export function extractTableOfContents(postHTML: string)
 {
   if (!postHTML) return null;
-  const postBody = cheerio.load(postHTML);
+  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
+  const postBody = cheerio.load(postHTML, null, false);
   let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string,boolean> = {};
 
@@ -72,6 +74,9 @@ export function extractTableOfContents(postHTML: string)
   for (let i=0; i<headingTags.length; i++) {
     let tag = headingTags[i];
 
+    if (tag.type !== "tag") {
+      continue;
+    }
     if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
       continue;
     }
@@ -119,7 +124,7 @@ export function extractTableOfContents(postHTML: string)
   }
 }
 
-function elementToToCText(cheerioTag: CheerioElement) {
+function elementToToCText(cheerioTag: cheerio.Element) {
   const tagHtml = cheerio(cheerioTag).html();
   if (!tagHtml) return null;
   const tagClone = cheerio.load(tagHtml);
@@ -170,6 +175,7 @@ function tagIsWholeParagraph(tag): boolean {
   let parents = cheerio(tag).parent();
   if (!parents || !parents.length) return false;
   let parent = parents[0];
+  if (parent.type !== 'tag') return false;
   if (parent.tagName.toLowerCase() !== 'p') return false;
   let selfAndSiblings = cheerio(parent).contents();
   if (selfAndSiblings.length != 1) return false;
@@ -291,20 +297,17 @@ const getToCforTag = async ({document, version, context}: {
       return null;
     html = revision.html;
   } else {
-    html = document?.description?.html;
+    html = await annotateAuthors(document._id, "Tags", "description");
   }
   
   const tableOfContents = extractTableOfContents(html)
   let tocSections = tableOfContents?.sections || []
   
-  if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
-    return {
-      html: tableOfContents?.html||null,
-      sections: tocSections,
-      headingsCount: tocSections.length
-    }
+  return {
+    html: tableOfContents?.html||null,
+    sections: tocSections,
+    headingsCount: tocSections.length
   }
-  return null;
 }
 
 Utils.getToCforPost = getToCforPost;

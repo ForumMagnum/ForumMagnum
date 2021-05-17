@@ -34,8 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagContributorsList = ({tag, classes}: {
+const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
+  onHoverUser: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
   const { UsersNameDisplay, TableOfContentsRow, Loading } = Components;
@@ -62,7 +63,14 @@ const TagContributorsList = ({tag, classes}: {
       <span className={classes.contributorScore}>
         {contributor.contributionScore}
       </span>
-      <span className={classes.contributorName}>
+      <span className={classes.contributorName}
+        onMouseEnter={ev => {
+          onHoverUser(contributor.user._id);
+        }}
+        onMouseLeave={ev => {
+          onHoverUser(null);
+        }}
+      >
         <UsersNameDisplay user={contributor.user}/>
       </span>
     </div>)}
