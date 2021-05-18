@@ -167,7 +167,7 @@ export const applyAttributionsToText = ($: cheerio.Root, node: cheerio.Element, 
 
 export const attributionsToSpans = (html: string, attributions: EditAttributions): string => {
   // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
-  const $ = cheerio.load(`<div>${html}</div>`, null, false);
+  const $ = cheerio.load(html, null, false);
   let attributionPos = 0;
   
   return cheerio.html(mapHtmlPostorder($, $.root()[0], ($node: cheerio.Cheerio) => {

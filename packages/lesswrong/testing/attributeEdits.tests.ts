@@ -18,9 +18,14 @@ describe('Diff attribution tracking', () => {
   });
   
   it('attributionsToSpans', () => {
-    chai.assert.deepEqual(
+    /*chai.assert.deepEqual(
       attributionsToSpans('<div>123456</div>', ['x','x','y','y','z','w']),
       '<div><span><span class="by_x">12</span><span class="by_y">34</span><span class="by_z">5</span><span class="by_w">6</span></span></div>'
+    );*/
+    
+    chai.assert.deepEqual(
+      attributionsToSpans('<div>123</div><div>456</div>', ['x','x','y','y','z','w']),
+      '<div><span><span class="by_x">12</span><span class="by_y">3</span></span></div><div><span><span class="by_y">4</span><span class="by_z">5</span><span class="by_w">6</span></span></div>'
     );
   });
 
