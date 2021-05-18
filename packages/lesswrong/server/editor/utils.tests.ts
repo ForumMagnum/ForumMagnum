@@ -20,7 +20,6 @@ async function updatePost(user: DbUser, postId: string, newMarkup: string) {
       }
     }
   `
-  // console.log('query', query)
   await runQuery(query, {}, {currentUser: user})
 }
 
