@@ -249,18 +249,6 @@ export const createDummyMessage = async (user: any, data?: any) => {
   return newMessageResponse.data
 }
 
-// export const createDummyRevision = async (user?: {_id: string}, data?: Partial<DbRevision>) => {
-//   const defaultData = {
-//     originalContents: {
-//       type: "ckEditorMarkup",
-//       data: "<p>Dummy Revision Content</p>"
-//     },
-//     userId: user?._id
-//   }
-//   const revisionData = {...defaultData, ...data}
-//   // const
-// }
-
 export const clearDatabase = async () => {
   (await Users.find().fetch()).forEach((i)=>{
     Users.remove(i._id)
