@@ -371,10 +371,6 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
-      // TODO; (MAYBE) Should we change the direction of data flow, where, instead
-      // of it flowing from source -> revision, we instead treat the revisions
-      // table as the source of truth, then have a callback that propagates any changes
-      // to it to the source document via documentId (revision -> source)
       const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id"> = {
         ...(await buildRevision({
           originalContents: doc[fieldName].originalContents,
