@@ -108,22 +108,31 @@ const revisionFieldsToCopy: (keyof DbRevision)[] = [
   "wordCount",
 ];
 
-// TODO; document
+/**
+ * Make an editable document reflect the latest revision available
+ *
+ * Documents can get out of sync with revisions if a revision gets deleted, or
+ * if there's a bug. This function will update a document to match the most
+ * recent *version* in the revisions schema.
+ */
 export async function syncDocumentWithLatestRevision<T extends DbObject>(
   collection: CollectionBase<T>,
   document: T,
   fieldName: string
 ): Promise<void> {
   const latestRevision = await Revisions.findOne(
-    {
-      documentId: document._id,
-    },
+    {documentId: document._id,},
     { sort: { version: -1 } }
-  );
+  )
   if (!latestRevision) {
-    throw new Error(
-      `Document ${document._id} (${collection.collectionName}) has no revisions`
-    );
+    // Some documents are deletable, but typescript doesn't know that
+    if ((document as unknown as {deleted: boolean}).deleted) {
+      return
+    } else {
+      throw new Error(
+        `Document ${document._id} (${collection.collectionName}) has no revisions`
+      )
+    }
   }
   await collection.update(document._id, {
     $set: {

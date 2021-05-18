@@ -12,12 +12,14 @@ import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
 
-import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
+import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, Collections, getCollectionsByName } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Tags from '../lib/collections/tags/collection';
+import Revisions from '../lib/collections/revisions/collection';
+import { syncDocumentWithLatestRevision } from './editor/utils';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -179,32 +181,45 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
     }
 
     await commentReportPurgeAsSpam(comment);
-    
-    // TODO; refactor out copy pasta?
-    
-    const tags = await Tags.find({userId: user._id}).fetch()
-    // eslint-disable-next-line no-console
-    console.info("Deleting tags: ", tags)
-    for (let tag of tags) {
-      if (!tag.deleted) {
-        try {
-          await updateMutator({
-            collection: Tags,
-            documentId: tag._id,
-            set: {deleted: true},
-            currentUser: deletingUser,
-            validate: false
-          })
-        } catch(err) {
-          // eslint-disable-next-line no-console
-          console.error("Failed to delete tag")
-          // eslint-disable-next-line no-console
-          console.error(err)
-        }
+  }
+
+  const tags = await Tags.find({userId: user._id}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting tags: ", tags)
+  for (let tag of tags) {
+    if (!tag.deleted) {
+      try {
+        await updateMutator({
+          collection: Tags,
+          documentId: tag._id,
+          set: {deleted: true},
+          currentUser: deletingUser,
+          validate: false
+        })
+      } catch(err) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to delete tag")
+        // eslint-disable-next-line no-console
+        console.error(err)
       }
     }
-    
-    // Revisions - only remove the ones from tags that were just deleted
+  }
+  
+  const revisions = await Revisions.find({userId: user._id}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting revisions: ", revisions)
+  await Revisions.remove({userId: user._id})
+  // Revert revision documents
+  for (let revision of revisions) {
+    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    const document = await collection.findOne({_id: revision.documentId})
+    if (document) {
+      await syncDocumentWithLatestRevision(
+        collection,
+        document,
+        revision.fieldName
+      )
+    }
   }
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
