@@ -2,14 +2,19 @@ import React from 'react'
 import { createStyles } from '@material-ui/core/styles'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
+const eventBannerMobileImageSetting = new DatabasePublicSetting<string | null>('eventBannerMobileImage', null)
+const eventBannerDesktopImageSetting = new DatabasePublicSetting<string | null>('eventBannerDesktopImage', null)
+const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBannerLink', null)
+
 const bannerHeight = 250
-const mobileImageId = 'Banner/eagr_banner.png'
-const desktopImageId = 'Banner/eagr_banner.png'
-const featuredPost = '/posts/XZWyp3EHo2DvmNGih/apply-now-for-ea-global-reconnect-march-20-21'
 const container = cloudinaryCloudNameSetting.get()
+const mobileImageId = eventBannerMobileImageSetting.get()
+const desktopImageId = eventBannerDesktopImageSetting.get()
+const featuredPost = eventBannerLinkSetting.get()
+
 const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
 const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
 
@@ -26,7 +31,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }))
 
-const EAGBanner = ({ classes }) => {
+const EventBanner = ({ classes }) => {
   const { SingleColumnSection } = Components
   
   return <SingleColumnSection>
@@ -40,12 +45,12 @@ const EAGBanner = ({ classes }) => {
   </SingleColumnSection>
 }
 
-const EAGBannerComponent = registerComponent(
-  'EAGBanner', EAGBanner, {styles},
+const EventBannerComponent = registerComponent(
+  'EventBanner', EventBanner, {styles},
 )
 
 declare global {
   interface ComponentTypes {
-    EAGBanner: typeof EAGBannerComponent
+    EventBanner: typeof EventBannerComponent
   }
 }
