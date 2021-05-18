@@ -2,7 +2,7 @@ import { createDummyPost, createDummyUser } from "../../testing/utils";
 import { testStartup } from "../../testing/testMain";
 import Revisions from "../../lib/collections/revisions/collection";
 import { Posts } from "../../lib/collections/posts";
-import { runQuery, waitUntilCallbacksFinished } from "../vulcan-lib";
+import { runQuery } from "../vulcan-lib";
 import { syncDocumentWithLatestRevision } from "./utils";
 
 testStartup();

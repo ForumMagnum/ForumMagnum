@@ -1,7 +1,6 @@
 import pick from 'lodash/pick';
 import mjAPI from 'mathjax-node'
 import Revisions from '../../lib/collections/revisions/collection';
-import { Collections } from '../vulcan-lib';
 
 export const trimLatexAndAddCSS = (dom, css) => {
   // Remove empty paragraphs
