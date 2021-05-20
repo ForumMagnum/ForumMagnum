@@ -10,9 +10,9 @@ const WalledGardenEvents = ({frontpage=true}) => {
 
   const [ events, setEvents ] = useState<any>([])
   useEffect(() => {
-    const eventsCallback = (events) => {
-      setEvents(_uniqBy(events, 'summary'))
-    }
+    // const eventsCallback = (events) => {
+    //   setEvents(_uniqBy(events, 'summary'))
+    // }
 
     // Disabling broken code in unused component
     // if (Meteor.isClient) {
