@@ -15,9 +15,10 @@ const WalledGardenEvents = ({frontpage=true}) => {
       setEvents(_uniqBy(events, 'summary'))
     }
 
-    if (Meteor.isClient) {
-      void getCalendarEvents(eventsCallback)
-    }
+    // Disabling broken code in unused component
+    // if (Meteor.isClient) {
+    //   void getCalendarEvents(eventsCallback)
+    // }
   }, [])
 
 
