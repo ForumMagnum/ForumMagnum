@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import _uniqBy from 'lodash/uniqBy';
-import { getCalendarEvents } from './gardenCalendar';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 // this component is no longer used. 
