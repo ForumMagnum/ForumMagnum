@@ -142,8 +142,8 @@ registerFragment(`
 registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
-    tableOfContents
-    contributors(limit: $contributorsLimit) {
+    tableOfContents(version: $version)
+    contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
         user {

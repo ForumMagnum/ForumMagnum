@@ -3,6 +3,7 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { addFieldsDict } from '../../lib/utils/schemaUtils';
+import { compareVersionNumbers } from '../../lib/editor/utils';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -80,9 +81,9 @@ addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates
 addFieldsDict(Tags, {
   contributors: {
     resolveAs: {
-      arguments: 'limit: Int',
+      arguments: 'limit: Int, version: String',
       type: "TagContributorsList",
-      resolver: async (tag: DbTag, {limit}: {limit?: number}, context: ResolverContext) => {
+      resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext) => {
         // TODO: When computing contribution score, only count the user's
         // self-vote power once, rather than once per contributed revision.
         // TODO: Use the limit argument.
@@ -103,7 +104,11 @@ addFieldsDict(Tags, {
           ],
         }).fetch();
         
-        const revisionsByUserId: Record<string,DbRevision[]> = groupBy(tagRevisions, r=>r.userId);
+        const filteredTagRevisions = version
+          ? _.filter(tagRevisions, r=>compareVersionNumbers(version, r.version)>=0)
+          : tagRevisions;
+        
+        const revisionsByUserId: Record<string,DbRevision[]> = groupBy(filteredTagRevisions, r=>r.userId);
         const contributorUserIds: string[] = Object.keys(revisionsByUserId);
         const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
         const contributionScoresByUserId: Partial<Record<string,number>> = toDictionary(contributorUserIds,

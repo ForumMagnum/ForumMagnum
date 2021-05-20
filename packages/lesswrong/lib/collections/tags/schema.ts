@@ -329,9 +329,10 @@ export const schema: SchemaType<DbTag> = {
     type: Object,
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
-    resolver: async (document: DbTag, args: void, context: ResolverContext) => {
+    graphqlArguments: 'version: String',
+    resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
       try {
-        return await Utils.getToCforTag({document, version: null, context});
+        return await Utils.getToCforTag({document, version: args.version||null, context});
       } catch(e) {
         captureException(e);
         return null;

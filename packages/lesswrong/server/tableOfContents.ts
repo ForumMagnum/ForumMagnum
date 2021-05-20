@@ -291,11 +291,15 @@ const getToCforTag = async ({document, version, context}: {
 }): Promise<ToCData|null> => {
   let html: string;
   if (version) {
-    const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
-    if (!revision) return null;
-    if (!await Revisions.checkAccess(context.currentUser, revision, context))
-      return null;
-    html = revision.html;
+    try {
+      html = await annotateAuthors(document._id, "Tags", "description", version);
+    } catch(e) {
+      const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
+      if (!revision) return null;
+      if (!await Revisions.checkAccess(context.currentUser, revision, context))
+        return null;
+      html = revision.html;
+    }
   } else {
     try {
       html = await annotateAuthors(document._id, "Tags", "description");

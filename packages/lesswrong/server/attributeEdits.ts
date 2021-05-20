@@ -1,26 +1,33 @@
 import { diff } from './vendor/node-htmldiff/htmldiff';
 import { Revisions } from '../lib/collections/revisions/collection';
+import { compareVersionNumbers } from '../lib/editor/utils';
 import cheerio from 'cheerio';
 import orderBy from 'lodash/orderBy';
 import times from 'lodash/times';
+import filter from 'lodash/filter';
 
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
 
-export async function annotateAuthors(documentId: string, collectionName: string, fieldName: string): Promise<string> {
+export async function annotateAuthors(documentId: string, collectionName: string, fieldName: string, upToVersion?: string|null): Promise<string> {
   const revs = await Revisions.find({
     documentId, collectionName, fieldName
   }).fetch();
   if (!revs.length) return "";
   
-  const revsByDate = orderBy(revs, r=>r.editedAt);
+  const filteredRevs = upToVersion
+    ? filter(revs, r=>compareVersionNumbers(upToVersion, r.version)>=0)
+    : revs;
+  if (!filteredRevs.length) return "";
+  
+  const revsByDate = orderBy(filteredRevs, r=>r.editedAt);
   const firstRev = revsByDate[0];
-  const finalRev = revsByDate[revs.length-1];
+  const finalRev = revsByDate[revsByDate.length-1];
   let attributions: EditAttributions = times(firstRev.html?.length||0, ()=>firstRev.userId);
   
   for (let i=1; i<revsByDate.length; i++) {
     const rev = revsByDate[i];
-    const prevHtml = revs[i-1].html;
+    const prevHtml = revsByDate[i-1].html;
     const newHtml = rev.html;
     attributions = attributeEdits(prevHtml, newHtml, rev.userId, attributions);
   }
