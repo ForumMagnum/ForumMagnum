@@ -33,8 +33,10 @@ import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
 import expressSession from 'express-session';
+import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
 import { DatabaseServerSetting } from './databaseSettings';
+import { getMongoClient } from '../lib/mongoCollection';
 
 const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
@@ -71,12 +73,22 @@ export function startWebserver() {
   const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+  const store = MongoStore.create({
+    client: getMongoClient()
+  })
   if (expressSessionSecret) {
     // Required by passport-auth0
     app.use(expressSession({
       secret: expressSessionSecret,
       resave: false,
       saveUninitialized: false,
+      store,
+      cookie: {
+        // We match LW - ten year login tokens
+        // NB: Although the Set-Cookie HTTP header takes seconds,
+        // express-session wants milliseconds for some reason
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10
+      }
     }))
   }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters

@@ -11,7 +11,7 @@ import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationPa
 import { VerifyCallback } from 'passport-oauth2'
 import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator } from './vulcan-lib/mutators';
-import { getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
+import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -56,7 +56,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
   return async (_accessToken: string, _refreshToken: string, profile: P, done: VerifyCallback) => {
     const profileId = getIdFromProfile(profile)
     // Probably impossible, but if it is null, we just log the person in as a
-    // random user, which is bad
+    // random user, which is bad, so we'll check anyway.
     if (!profileId) {
       throw new Error('OAuth profile does not have a profile ID')
     }
@@ -80,7 +80,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
 /**
  * Auth0 passes 5 parameters, not 4, so we need to wrap createOAuthUserHandler
  */
-function createAuth0UserHandler(idPath: string, getIdFromProfile: IdFromProfile<Auth0Profile>, getUserDataFromProfile: UserDataFromProfile<Auth0Profile>) {
+function createOAuthUserHandlerAuth0(idPath: string, getIdFromProfile: IdFromProfile<Auth0Profile>, getUserDataFromProfile: UserDataFromProfile<Auth0Profile>) {
   const standardHandler = createOAuthUserHandler(idPath, getIdFromProfile, getUserDataFromProfile)
   return (accessToken: string, refreshToken: string, _extraParams: ExtraVerificationParams, profile: Auth0Profile, done: VerifyCallback) => {
     return standardHandler(accessToken, refreshToken, profile, done)
@@ -233,7 +233,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   }
   
 
-  // NB: You must also set the expressSessionSecret setting
+  // NB: You must also set the expressSessionSecret setting in your database
+  // settings - auth0 passport strategy relies on express-session to store state
   const auth0ClientId = auth0ClientIdSetting.get();
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
@@ -243,9 +244,10 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         clientID: auth0ClientId,
         clientSecret: auth0OAuthSecret,
         domain: auth0Domain,
-        callbackURL: `${getSiteUrl()}auth/auth0/callback`,
+        callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
-      createAuth0UserHandler('services.auth0.id', profile => profile.id, async profile => {
+      createOAuthUserHandlerAuth0('services.auth0.id', profile => profile.id, async profile => {
+        // Already have the raw version, and the structured content. No need to store the json.
         delete profile._json
         return {
           email: profile.emails?.[0].value,
@@ -289,7 +291,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     passport.authenticate('auth0', (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info)
     })(req, res, next)
-  } )
+  })
 
   addConnectHandler('/auth/auth0', (req, res, next) => {
     passport.authenticate('auth0', { scope: 'profile email openid offline_access'})(req, res, next)
