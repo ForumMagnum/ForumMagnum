@@ -6,7 +6,7 @@ import { gql, useMutation, DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
-
+import classnames from 'classnames'
 
 const styles = theme => ({
   root: {
@@ -50,7 +50,10 @@ const styles = theme => ({
   },
   oAuthBlock: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    '&.ea-forum': {
+      justifyContent: 'space-around'
+    }
   },
   oAuthComment: {
     textAlign: 'center',
@@ -60,7 +63,8 @@ const styles = theme => ({
   oAuthLink: {
     color: 'rgba(0,0,0,0.7) !important',
     fontSize: '0.9em',
-    padding: 6
+    padding: 6,
+    textTransform: 'uppercase'
   },
   toggle: {
     cursor: 'pointer',
@@ -182,7 +186,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
 // TODO; maybe improve styling, test in instances other than navbar
 const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
   return <div className={classes.root}>
-    <div style={{display: 'flex', justifyContent: 'space-around'}}>
+    <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
       <a className={classes.oAuthLink} href="/auth/auth0">Login</a>
       <a className={classes.oAuthLink} href="/auth/auth0?screen_hint=signup">Sign Up</a>
     </div>
