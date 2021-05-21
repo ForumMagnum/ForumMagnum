@@ -2,17 +2,7 @@
 
 The EA Forum is a synced fork of [LessWrong](https://github.com/LessWrong2/Lesswrong2).
 
-## Contributing
-
-We have not prioritized writing a guide to the tech. You can see the instructions on the LessWrong repo, but any given sentence is more likely than not to be out of date and misleading. If you are at least moderately interested in contributing, message [JP](https://forum.effectivealtruism.org/users/jpaddison). I won't mind the inquiry, and can help you out and in the process might update this readme.
-
-We do not use github for issues. Please [contact us](https://forum.effectivealtruism.org/contact) with bug reports.
-
-# What's LessWrong2?
-
-LessWrong2 is a clean-slate overhaul of the [LessWrong](https://lesswrong.com) discussion platform.
-
-The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
+What follows is a lightly edited version of the LessWrong README.
 
 ## Technologies
 
@@ -44,54 +34,22 @@ Lesswrong2 is built on top of a number major open-source libraries.
 
 Clone our repo:
 
-    git clone https://github.com/LessWrong2/Lesswrong2
+    git clone git@github.com:centre-for-effective-altruism/EAForum.git
+    
+(CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
-    cd Lesswrong2
+    cd EAForum
     yarn install
 
 Start the development server:
 
-    yarn start
+    yarn ea-start
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
-If it is NOT working, there is most likely some issues with your `yarn install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself.
-
-It will start out with an empty database. (This means that some of the hardcoded links on the frontpage, such as Eliezer’s Sequences or the Codex, will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins.
-
-## Contributing
-
-### What Contributions Are Helpful?
-
-The most *reliably* helpful thing would be to tackle outstanding issues that have been tagged on [github](https://github.com/LessWrong2/Lesswrong2/issues).
-
-In particular, you can filter them by the tag “[good first issue](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%2200.+Good+First+Issue%22).” (Some of these might require some explanation, but I expect I can explain them fairly easily to a new contributor)
-
-There are [also issues tagged “help wanted.”](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) These are issues that might be a bit complex, but which don’t require much context or understanding of our longterm goals or philosophy to implement.
-
-#### Creating Issues
-
-You can create a new issue. If so, please leave it untagged for the time being (so that admins can quickly look for untagged issues, and sort through them)
-
-*Bugs* – If you run into a bug, the most helpful thing to do is to search for related keywords in the issue tracker. If you can’t find anything relevant, create a new issue. Try to provide as specific information as possible (your browser, exact links to the post or page where you had the issue, information on how to replicate the bug if you can)
-
-*Feature Requests* – Feature requests will often need to undergo some discussion to get refined into something executable, and may sometimes need to be split into sub-features.
-
-Features tend to cluster into either “things that are pretty straightforward and we almost certainly want to do” and “things that we have weird conceptual philosophical opinions about that may sometimes be hard to explain succinctly.” (An upcoming post will go into some of this).
-
-After you’ve posted a feature, an admin will tag it (If it’s been a week and we haven’t done so, feel free to bug us about it. We’re still adapting to the role of “open source facilitators” so we may drup things a bit)
-
-#### Creating a Branch
-
-If you are creating a branch for an existing issue, use this naming schema: branchTitle[issueNumber]. For example, if addressing this issue, your branch might be defaultSettingsFix425.
-
-Once you create the branch, please comment on the issue so that people know someone is working on it.
-
-If you’re creating a branch for an issue that *hasn’t* been created yet, first create an issue for it.
-
-(Disclaimer: this is a different practice than what the full-time developers of the site are currently doing, which means we’ll probably fail at it a bunch, and for commits that take less than a day we may just skip it for momentum reasons. It seems most important for open source contributors to stick to it to maintain sanity as more people work on the codebase)
+## Documentation
 
 ### Read the Docs
 
@@ -126,19 +84,6 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 
 * **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
 
-### Development Tips
-
-#### Iteration
-* Prefer `_.range(n).forEach(i => my_function())` over `for (var i=0; i<n; i++)...`
-* If the body of a for loop performs a stateful action (i.e. modifies a variable outside the scope of the for body), use `forEach`. Else, use `map`.
-* Use underscore.js when possible.
-
-#### Style guide
-
-* [Syntax rules](https://github.com/Khan/style-guides/blob/master/style/javascript.md#syntax)
-* [Comments and documentation](https://github.com/Khan/style-guides/blob/master/style/javascript.md#comments-and-documentation)
-* [ES6 rules](https://github.com/Khan/style-guides/blob/master/style/javascript.md#es67-rules)
-
 ### Debugging
 
 * Use google chrome. Its debugging tools are superior.
@@ -146,6 +91,5 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 * Use `console.warn(variable)` when you want to see the stacktrace of `variable`
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
-* If you fix a bug, **write a test for it**.
 * For debugging server-side code, start the server with `npm run debug` instead of `npm run start`. Then open Chrome to chrome://inspect, and click "Open dedicated DevTools for Node". The server will have stopped at an instance of the `debugger` keyword during startup.
 * When server-side debugging, everything works except for setting breakpoints in the GUI, which is broken by a Chrome bug: https://bugs.chromium.org/p/chromium/issues/detail?id=844070 . Until they fix it, you can work around this by installing NiM, https://chrome.google.com/webstore/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj, in which breakpoints work but profiling doesn't.
