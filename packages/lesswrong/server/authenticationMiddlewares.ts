@@ -7,11 +7,12 @@ import { getCookieFromReq } from './utils/httpUtil';
 import { Strategy as GoogleOAuthStrategy, Profile as GoogleProfile, VerifyCallback as GoogleVerifyCallback } from 'passport-google-oauth20';
 import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'passport-facebook';
 import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passport-github2';
-import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams } from 'passport-auth0';
+import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
 import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
+import pick from 'lodash/pick';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -294,7 +295,11 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/auth0', (req, res, next) => {
-    passport.authenticate('auth0', { scope: 'profile email openid offline_access'})(req, res, next)
+    const extraParams = pick(req.query, ['screen_hint', 'prompt'])
+    passport.authenticate('auth0', {
+      scope: 'profile email openid offline_access',
+      ...extraParams
+    } as AuthenticateOptions)(req, res, next)
   })
 
   addConnectHandler('/auth/github/callback', (req, res, next) => {
