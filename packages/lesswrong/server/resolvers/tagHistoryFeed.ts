@@ -63,6 +63,7 @@ defineFeedResolver<Date>({
             // imports, metadata changes, etc)
             $or: [{
               "changeMetrics.added": {$gt: 0},
+            }, {
               "changeMetrics.removed": {$gt: 0},
             }]
           },

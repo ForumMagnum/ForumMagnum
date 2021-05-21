@@ -1,5 +1,5 @@
 import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import './EmailFormatDate';
@@ -60,6 +60,10 @@ const NewPostEmail = ({documentId, classes, reason}: {
       </div>}
       {document.contactInfo && <div>
         Contact: {document.contactInfo}
+      </div>}
+      
+      {document.url && <div>
+        This is a linkpost for <a href={postGetLink(document)} target={postGetLinkTarget(document)}>{document.url}</a>
       </div>}
     </div>
     

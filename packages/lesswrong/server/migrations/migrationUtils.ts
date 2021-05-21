@@ -326,6 +326,22 @@ export async function forEachDocumentBatchInCollection({collection, batchSize=10
   }
 }
 
+export async function forEachDocumentInCollection({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
+  collection: any,
+  batchSize?: number,
+  filter?: MongoSelector<DbObject> | null,
+  callback: Function,
+  loadFactor?: number
+}) {
+  await forEachDocumentBatchInCollection({collection,batchSize,filter,loadFactor,
+    callback: async (docs: any[]) => {
+      for (let doc of docs) {
+        await callback(doc);
+      }
+    }
+  });
+}
+
 // Given a collection, an optional filter, and a target batch size, partition
 // the collection into buckets of approximately that size, and call a function
 // with a series of selectors that narrow the collection to each of those

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import _uniqBy from 'lodash/uniqBy';
-import { getCalendarEvents } from './gardenCalendar';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 // this component is no longer used. 
@@ -11,13 +9,14 @@ const WalledGardenEvents = ({frontpage=true}) => {
 
   const [ events, setEvents ] = useState<any>([])
   useEffect(() => {
-    const eventsCallback = (events) => {
-      setEvents(_uniqBy(events, 'summary'))
-    }
+    // const eventsCallback = (events) => {
+    //   setEvents(_uniqBy(events, 'summary'))
+    // }
 
-    if (Meteor.isClient) {
-      void getCalendarEvents(eventsCallback)
-    }
+    // Disabling broken code in unused component
+    // if (Meteor.isClient) {
+    //   void getCalendarEvents(eventsCallback)
+    // }
   }, [])
 
 

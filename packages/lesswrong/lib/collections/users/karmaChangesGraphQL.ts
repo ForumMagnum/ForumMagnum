@@ -10,9 +10,6 @@ addGraphQLSchema(`
     title: String
     slug: String
   }
-`);
-
-addGraphQLSchema(`
   type CommentKarmaChange {
     _id: String
     scoreChange: Int
@@ -20,9 +17,13 @@ addGraphQLSchema(`
     postId: String
     tagSlug: String
   }
-`);
-
-addGraphQLSchema(`
+  type RevisionsKarmaChange {
+    _id: String
+    scoreChange: Int
+    tagId: String
+    tagSlug: String
+    tagName: String
+  }
   type KarmaChanges {
     totalChange: Int
     startDate: Date
@@ -31,6 +32,7 @@ addGraphQLSchema(`
     updateFrequency: String
     posts: [PostKarmaChange]
     comments: [CommentKarmaChange]
+    tagRevisions: [RevisionsKarmaChange]
   }
 `);
 
