@@ -106,19 +106,10 @@ const currentActionToButtonText : Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-type WrappedLoginFormProps = {
+const WrappedLoginForm = ({ startingState = "login", classes }: {
   startingState?: possibleActions,
   classes: ClassesType
-}
-
-const WrappedLoginForm = (props: WrappedLoginFormProps) => {
-  if (forumTypeSetting.get() === 'EAForum') {
-    return <WrappedLoginFormEA {...props} />
-  }
-  return <WrappedLoginFormDefault {...props} />
-}
-
-const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLoginFormProps) => {
+}) => {
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
   const [username, setUsername] = useState<string | undefined>(undefined)
@@ -177,16 +168,6 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
       {error && <div className={classes.error}>{error.message}</div>}
     </form>
   </React.Fragment>;
-}
-
-// TODO; maybe improve styling, test in instances other than navbar
-const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
-  return <div className={classes.root}>
-    <div style={{display: 'flex', justifyContent: 'space-around'}}>
-      <a className={classes.oAuthLink} href="/auth/auth0">Login</a>
-      <a className={classes.oAuthLink} href="/auth/auth0?screen_hint=signup">Sign Up</a>
-    </div>
-  </div>
 }
 
 const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, { styles });
