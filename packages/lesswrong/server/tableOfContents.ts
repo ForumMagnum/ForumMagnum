@@ -294,6 +294,10 @@ const getToCforTag = async ({document, version, context}: {
     try {
       html = await annotateAuthors(document._id, "Tags", "description", version);
     } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
       const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
       if (!revision) return null;
       if (!await Revisions.checkAccess(context.currentUser, revision, context))

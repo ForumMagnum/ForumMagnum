@@ -35,15 +35,11 @@ export async function annotateAuthors(documentId: string, collectionName: string
   return attributionsToSpans(finalRev.html, attributions);
 }
 
-export const attributeEdits = (oldHtml: string, newHtml: string, userId: string, oldAttributions: EditAttributions): EditAttributions => {
-  //const diffs = diffHtml(oldHtml, newHtml, false);
-  const diffs = diff(oldHtml, newHtml);
-  //@ts-ignore
-  const $ = cheerio.load(diffs, null, false);
-  const newAttributions: EditAttributions = [];
-  let oldAttributionPos = 0;
+function annotateInsDel(root: cheerio.Root): InsDelUnc[] {
+  const annotations: InsDelUnc[] = [];
   
-  walkHtmlPreorder<InsDelUnc>($.root()[0], "unchanged", (node: cheerio.Element, state: InsDelUnc) => {
+  // @ts-ignore
+  walkHtmlPreorder<InsDelUnc>(root, "unchanged", (node: cheerio.Element, state: InsDelUnc) => {
     //@ts-ignore
     if (node.type === 'tag' || node.type === "root") {
       if (node.tagName==="ins") {
@@ -53,19 +49,93 @@ export const attributeEdits = (oldHtml: string, newHtml: string, userId: string,
       }
     } else if (node.type === 'text' && node.data) {
       const text: string = node.data;
-      if (state==="ins") {
-        for (let i=0; i<text.length; i++)
-          newAttributions.push(userId);
-      } else if (state==="del") {
-        oldAttributionPos += text.length;
-      } else if (state==="unchanged") {
-        for (let i=0; i<text.length; i++)
-          newAttributions.push(oldAttributions[oldAttributionPos++]);
-      }
+      for (let i=0; i<text.length; i++)
+        annotations.push(state);
     }
     return state;
   });
   
+  return annotations;
+}
+
+function treeToText($: cheerio.Root): string {
+  const textSegments: string[] = [];
+  walkHtmlPreorder<null>($.root()[0], null, (node: cheerio.Element, state: null) => {
+    if (node.type === 'text' && node.data) {
+      const text: string = node.data;
+      textSegments.push(text);
+    }
+    return null;
+  });
+  return textSegments.join("");
+}
+
+function isSpace(s: string): boolean {
+  return s.trim()==="";
+}
+
+export const attributeEdits = (oldHtml: string, newHtml: string, userId: string, oldAttributions: EditAttributions): EditAttributions => {
+  // @ts-ignore
+  const parsedOldHtml = cheerio.load(oldHtml, null, false);
+  // @ts-ignore
+  const parsedNewHtml = cheerio.load(newHtml, null, false);
+  const oldText = treeToText(parsedOldHtml);
+  const newText = treeToText(parsedNewHtml);
+  
+  const diffHtml = diff(oldHtml, newHtml);
+  // @ts-ignore
+  const parsedDiffs = cheerio.load(diffHtml, null, false);
+  // @ts-ignore
+  const insDelAnnotations = annotateInsDel(parsedDiffs.root()[0]);
+  
+  let newAttributions: EditAttributions = [];
+  let oldTextPos = 0;
+  let newTextPos = 0;
+  let diffPos = 0;
+  let diffText = treeToText(parsedDiffs);
+  
+  for(; newTextPos<newText.length;) {
+    if (insDelAnnotations[diffPos]==='ins' && newText.charCodeAt(newTextPos)===diffText.charCodeAt(diffPos)) {
+      newAttributions.push(userId);
+      newTextPos++;
+      diffPos++;
+    } else if (insDelAnnotations[diffPos]==='del' && oldText.charCodeAt(oldTextPos)===diffText.charCodeAt(diffPos)) {
+      oldTextPos++;
+      diffPos++;
+    } else {
+      if (oldText.charCodeAt(oldTextPos) === newText.charCodeAt(newTextPos)) {
+        newAttributions.push(oldAttributions[oldTextPos]);
+        oldTextPos++;
+        newTextPos++;
+        diffPos++;
+      } else {
+        let skippedWs = false;
+        while (newTextPos<newText.length && isSpace(newText.charAt(newTextPos))) {
+          if (newAttributions.length>0)
+            newAttributions.push(newAttributions[newAttributions.length-1]);
+          else
+            newAttributions.push(null);
+          newTextPos++;
+          skippedWs = true;
+        }
+        while (oldTextPos<oldText.length && isSpace(oldText.charAt(oldTextPos))) {
+          oldTextPos++;
+          skippedWs = true;
+        }
+        while (!skippedWs && diffPos<diffText.length && isSpace(diffText.charAt(diffPos))) {
+          diffPos++;
+          skippedWs = true;
+        }
+        
+        if (!skippedWs) {
+          throw new Error(`Text mismatch: '${oldText.charAt(oldTextPos)}'@${oldTextPos} vs '${newText.charAt(newTextPos)}'@${newTextPos}`);
+        }
+      }
+    }
+  }
+  
+  if (newAttributions.length !== newText.length)
+    throw new Error("Result text length mismatch");
   return newAttributions;
 }
 
