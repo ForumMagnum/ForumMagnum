@@ -18,10 +18,10 @@ describe('Diff attribution tracking', () => {
   });
   
   it('attributionsToSpans', () => {
-    /*chai.assert.deepEqual(
+    chai.assert.deepEqual(
       attributionsToSpans('<div>123456</div>', ['x','x','y','y','z','w']),
       '<div><span><span class="by_x">12</span><span class="by_y">34</span><span class="by_z">5</span><span class="by_w">6</span></span></div>'
-    );*/
+    );
     
     chai.assert.deepEqual(
       attributionsToSpans('<div>123</div><div>456</div>', ['x','x','y','y','z','w']),
@@ -58,6 +58,11 @@ describe('Diff attribution tracking', () => {
     );
     
     chai.assert.deepEqual(
+      attributeEdits("<div>x y</div>", "<div>x  z</div>", "2", [..._.times(3, ()=>"1")]),
+      [..._.times(3, ()=>"1"), "2"]
+    );
+    
+    chai.assert.deepEqual(
       attributeEdits(
         "<div><p>Lorem ipsum.</p></div>",
         "<div><p>Lorem ipsum.</p><p>Second paragraph.</p></div>",
@@ -65,5 +70,15 @@ describe('Diff attribution tracking', () => {
         [..._.times(6, ()=>"1"), ..._.times(6, ()=>"2")]),
       [..._.times(6, ()=>"1"), ..._.times(6, ()=>"2"),  ..._.times(17, ()=>"3")]
     );
+  });
+  it("doesn't crash on test case reduced derived from rationality tag 1.1.0", () => {
+    const oldHtml = "<div><p>A C D E</p></div>";
+    const newHtml = "<div><p>B</p> <p>F C G</p></div>";
+    attributeEdits(oldHtml, newHtml, "user2", [..._.times(oldHtml.length, ()=>"user1")]);
+  });
+  it("doesn't crash on test case reduced from rationality tag 1.3.0", () => {
+    const oldHtml = "<div>1 YZ</div>"
+    const newHtml = "<div>1  Y W</div>"
+    attributeEdits(oldHtml, newHtml, "user2", [..._.times(oldHtml.length, ()=>"user1")]);
   });
 });

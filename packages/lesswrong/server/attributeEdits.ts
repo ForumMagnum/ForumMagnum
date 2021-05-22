@@ -5,6 +5,7 @@ import cheerio from 'cheerio';
 import orderBy from 'lodash/orderBy';
 import times from 'lodash/times';
 import filter from 'lodash/filter';
+import * as _ from 'underscore';
 
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
@@ -15,12 +16,43 @@ export async function annotateAuthors(documentId: string, collectionName: string
   }).fetch();
   if (!revs.length) return "";
   
-  const filteredRevs = upToVersion
-    ? filter(revs, r=>compareVersionNumbers(upToVersion, r.version)>=0)
-    : revs;
-  if (!filteredRevs.length) return "";
+  let filteredRevs = orderBy(revs, r=>r.editedAt);
   
-  const revsByDate = orderBy(filteredRevs, r=>r.editedAt);
+  // If upToVersion is provided, ignore revs after that
+  console.log("Filtering out too-new revs");
+  if (upToVersion) {
+    filteredRevs = filter(filteredRevs, r=>compareVersionNumbers(upToVersion, r.version)>=0);
+  }
+  
+  // Cluster commits by author. In any sequential run of commits by the same
+  // author, remove all but the last one. This makes it so that deleting and
+  // reinserting something, making an edit and reverting it, etc does not affect
+  // attributios.
+  console.log("Filtering out sequential-same-author revs");
+  filteredRevs = filter(filteredRevs, (r,i) => (
+    i===0 || i===filteredRevs.length-1 || filteredRevs[i+1].userId!==r.userId
+  ));
+  
+  // Identify commits that are reverts (text exactly matches a prior rev) and
+  // skip over everything in between the reverted-to rev and the revert (which
+  // is likely deleting and then restoring stuff, which should not be attributed
+  // to the person who did the restore).
+  console.log("Scanning for reverted revs");
+  let isReverted: boolean[] = _.times(filteredRevs.length, ()=>false);
+  for (let i=0; i<filteredRevs.length; i++) {
+    console.log(`Checking rev ${i}`);
+    for (let j=i-1; j>=0; j--) {
+      if (filteredRevs[i].html===filteredRevs[j].html) {
+        for (let k=j+1; k<=i; k++)
+          isReverted[k] = true;
+      }
+    }
+  }
+  console.log("Filtering out reverted revs");
+  filteredRevs = filter(filteredRevs, (r,i) => !isReverted[i]);
+  
+  console.log("Building attributions");
+  const revsByDate = filteredRevs;
   const firstRev = revsByDate[0];
   const finalRev = revsByDate[revsByDate.length-1];
   let attributions: EditAttributions = times(firstRev.html?.length||0, ()=>firstRev.userId);
@@ -29,6 +61,7 @@ export async function annotateAuthors(documentId: string, collectionName: string
     const rev = revsByDate[i];
     const prevHtml = revsByDate[i-1].html;
     const newHtml = rev.html;
+    console.log(`Updating attributions from rev ${revsByDate[i-1]._id} (${revsByDate[i-1].version}) to ${revsByDate[i]._id} (${revsByDate[i].version})`);
     attributions = attributeEdits(prevHtml, newHtml, rev.userId, attributions);
   }
   
@@ -102,34 +135,32 @@ export const attributeEdits = (oldHtml: string, newHtml: string, userId: string,
     } else if (insDelAnnotations[diffPos]==='del' && oldText.charCodeAt(oldTextPos)===diffText.charCodeAt(diffPos)) {
       oldTextPos++;
       diffPos++;
+    } else if (insDelAnnotations[diffPos]==='unchanged' && oldText.charCodeAt(oldTextPos) === newText.charCodeAt(newTextPos) && oldText.charCodeAt(oldTextPos) === diffText.charCodeAt(diffPos)) {
+      newAttributions.push(oldAttributions[oldTextPos]);
+      oldTextPos++;
+      newTextPos++;
+      diffPos++;
     } else {
-      if (oldText.charCodeAt(oldTextPos) === newText.charCodeAt(newTextPos)) {
-        newAttributions.push(oldAttributions[oldTextPos]);
-        oldTextPos++;
+      let skippedWs = false;
+      while (newTextPos<newText.length && isSpace(newText.charAt(newTextPos))) {
+        if (newAttributions.length>0)
+          newAttributions.push(newAttributions[newAttributions.length-1]);
+        else
+          newAttributions.push(null);
         newTextPos++;
+        skippedWs = true;
+      }
+      while (oldTextPos<oldText.length && isSpace(oldText.charAt(oldTextPos))) {
+        oldTextPos++;
+        skippedWs = true;
+      }
+      while (!skippedWs && diffPos<diffText.length && isSpace(diffText.charAt(diffPos))) {
         diffPos++;
-      } else {
-        let skippedWs = false;
-        while (newTextPos<newText.length && isSpace(newText.charAt(newTextPos))) {
-          if (newAttributions.length>0)
-            newAttributions.push(newAttributions[newAttributions.length-1]);
-          else
-            newAttributions.push(null);
-          newTextPos++;
-          skippedWs = true;
-        }
-        while (oldTextPos<oldText.length && isSpace(oldText.charAt(oldTextPos))) {
-          oldTextPos++;
-          skippedWs = true;
-        }
-        while (!skippedWs && diffPos<diffText.length && isSpace(diffText.charAt(diffPos))) {
-          diffPos++;
-          skippedWs = true;
-        }
-        
-        if (!skippedWs) {
-          throw new Error(`Text mismatch: '${oldText.charAt(oldTextPos)}'@${oldTextPos} vs '${newText.charAt(newTextPos)}'@${newTextPos}`);
-        }
+        skippedWs = true;
+      }
+      
+      if (!skippedWs) {
+        throw new Error(`Text mismatch: '${oldText.charAt(oldTextPos)}'@${oldTextPos} vs '${newText.charAt(newTextPos)}'@${newTextPos}`);
       }
     }
   }
