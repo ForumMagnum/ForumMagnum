@@ -84,41 +84,17 @@ addFieldsDict(Tags, {
       arguments: 'limit: Int, version: String',
       type: "TagContributorsList",
       resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext) => {
-        // TODO: When computing contribution score, only count the user's
-        // self-vote power once, rather than once per contributed revision.
-        // TODO: Use the limit argument.
-        // TODO: Maybe denormalize this into a whole collection, for performance.
-        // Fetching all the revs on a tag is potentially very expensive, if the
-        // tag has a long history.
-        
-        if (!(tag?._id))
-          throw new Error("Invalid tag");
-        
-        const tagRevisions: DbRevision[] = await Revisions.find({
-          collectionName: "Tags",
-          fieldName: "description",
-          documentId: tag._id,
-          $or: [
-            {"changeMetrics.added": {$gt: 0}},
-            {"changeMetrics.removed": {$gt: 0}}
-          ],
-        }).fetch();
-        
-        const filteredTagRevisions = version
-          ? _.filter(tagRevisions, r=>compareVersionNumbers(version, r.version)>=0)
-          : tagRevisions;
-        
-        const revisionsByUserId: Record<string,DbRevision[]> = groupBy(filteredTagRevisions, r=>r.userId);
-        const contributorUserIds: string[] = Object.keys(revisionsByUserId);
+        const contributionScoresByUserId = await buildContributorsList(tag, version, context);
+        const contributorUserIds = Object.keys(contributionScoresByUserId);
         const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
-        const contributionScoresByUserId: Partial<Record<string,number>> = toDictionary(contributorUserIds,
-          userId=>userId, userId => sumBy(revisionsByUserId[userId], r=>r.baseScore)||0);
+  
         const sortedContributors = orderBy(contributorUserIds, userId => -(contributionScoresByUserId[userId] || 0));
         
         const topContributors = sortedContributors.map(userId => ({
           user: usersById[userId],
           contributionScore: contributionScoresByUserId[userId],
         }))
+        
         if (limit) {
           return {
             contributors: take(topContributors, limit),
@@ -134,3 +110,33 @@ addFieldsDict(Tags, {
     }
   },
 });
+
+async function buildContributorsList(tag: DbTag, version: string|undefined, context: ResolverContext) {
+  // TODO: When computing contribution score, only count the user's
+  // self-vote power once, rather than once per contributed revision.
+  // TODO: Maybe denormalize this. Fetching all the revs on a tag is
+  // potentially very expensive, if the tag has a long history.
+  
+  if (!(tag?._id))
+    throw new Error("Invalid tag");
+  
+  const tagRevisions: DbRevision[] = await Revisions.find({
+    collectionName: "Tags",
+    fieldName: "description",
+    documentId: tag._id,
+    $or: [
+      {"changeMetrics.added": {$gt: 0}},
+      {"changeMetrics.removed": {$gt: 0}}
+    ],
+  }).fetch();
+  
+  const filteredTagRevisions = version
+    ? _.filter(tagRevisions, r=>compareVersionNumbers(version, r.version)>=0)
+    : tagRevisions;
+  
+  const revisionsByUserId: Record<string,DbRevision[]> = groupBy(filteredTagRevisions, r=>r.userId);
+  const contributorUserIds: string[] = Object.keys(revisionsByUserId);
+  const contributionScoresByUserId: Partial<Record<string,number>> = toDictionary(contributorUserIds,
+    userId=>userId, userId => sumBy(revisionsByUserId[userId], r=>r.baseScore)||0);
+  return contributionScoresByUserId;
+}
