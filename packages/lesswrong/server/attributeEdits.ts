@@ -19,7 +19,6 @@ export async function annotateAuthors(documentId: string, collectionName: string
   let filteredRevs = orderBy(revs, r=>r.editedAt);
   
   // If upToVersion is provided, ignore revs after that
-  console.log("Filtering out too-new revs");
   if (upToVersion) {
     filteredRevs = filter(filteredRevs, r=>compareVersionNumbers(upToVersion, r.version)>=0);
   }
@@ -28,7 +27,6 @@ export async function annotateAuthors(documentId: string, collectionName: string
   // author, remove all but the last one. This makes it so that deleting and
   // reinserting something, making an edit and reverting it, etc does not affect
   // attributios.
-  console.log("Filtering out sequential-same-author revs");
   filteredRevs = filter(filteredRevs, (r,i) => (
     i===0 || i===filteredRevs.length-1 || filteredRevs[i+1].userId!==r.userId
   ));
@@ -37,10 +35,8 @@ export async function annotateAuthors(documentId: string, collectionName: string
   // skip over everything in between the reverted-to rev and the revert (which
   // is likely deleting and then restoring stuff, which should not be attributed
   // to the person who did the restore).
-  console.log("Scanning for reverted revs");
   let isReverted: boolean[] = _.times(filteredRevs.length, ()=>false);
   for (let i=0; i<filteredRevs.length; i++) {
-    console.log(`Checking rev ${i}`);
     for (let j=i-1; j>=0; j--) {
       if (filteredRevs[i].html===filteredRevs[j].html) {
         for (let k=j+1; k<=i; k++)
@@ -48,10 +44,8 @@ export async function annotateAuthors(documentId: string, collectionName: string
       }
     }
   }
-  console.log("Filtering out reverted revs");
   filteredRevs = filter(filteredRevs, (r,i) => !isReverted[i]);
   
-  console.log("Building attributions");
   const revsByDate = filteredRevs;
   const firstRev = revsByDate[0];
   const finalRev = revsByDate[revsByDate.length-1];
@@ -61,7 +55,6 @@ export async function annotateAuthors(documentId: string, collectionName: string
     const rev = revsByDate[i];
     const prevHtml = revsByDate[i-1].html;
     const newHtml = rev.html;
-    console.log(`Updating attributions from rev ${revsByDate[i-1]._id} (${revsByDate[i-1].version}) to ${revsByDate[i]._id} (${revsByDate[i].version})`);
     attributions = attributeEdits(prevHtml, newHtml, rev.userId, attributions);
   }
   
