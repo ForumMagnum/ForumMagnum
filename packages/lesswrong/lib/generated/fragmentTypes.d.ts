@@ -216,7 +216,9 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
+  readonly htmlWithContributorAnnotations: string,
   readonly contributors: any /*TagContributorsList*/,
+  readonly contributionScores: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions

@@ -340,10 +340,31 @@ export const schema: SchemaType<DbTag> = {
     }
   }),
   
+  htmlWithContributorAnnotations: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+    denormalized: true,
+  },
+  
+  // See resolver in tagResolvers.ts. Takes optional limit and version arguments.
+  // Returns a list of contributors and the total karma of their contributions
+  // (counting only up to the specified revision, if a revision is specified).
   contributors: {
     viewableBy: ['guests'],
     type: "TagContributorsList",
     optional: true,
+  },
+  
+  // Denormalized copy of contribution-scores, for the latest revision.
+  contributionScores: {
+    type: Object,
+    optional: true,
+    blackbox: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    denormalized: true,
   },
 }
 

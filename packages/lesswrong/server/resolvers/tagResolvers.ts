@@ -2,13 +2,16 @@ import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../li
 import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
+import { Votes } from '../../lib/collections/votes/collection';
 import { addFieldsDict } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
+import { annotateAuthors } from '../attributeEdits';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
 import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
+import mapValues from 'lodash/mapValues';
 import { toDictionary } from '../../lib/utils/toDictionary';
 import take from 'lodash/take';
 import * as _ from 'underscore';
@@ -84,7 +87,7 @@ addFieldsDict(Tags, {
       arguments: 'limit: Int, version: String',
       type: "TagContributorsList",
       resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext) => {
-        const contributionScoresByUserId = await buildContributorsList(tag, version, context);
+        const contributionScoresByUserId = await getContributorsList(tag, version||null, context);
         const contributorUserIds = Object.keys(contributionScoresByUserId);
         const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
   
@@ -111,11 +114,18 @@ addFieldsDict(Tags, {
   },
 });
 
-async function buildContributorsList(tag: DbTag, version: string|undefined, context: ResolverContext) {
+async function getContributorsList(tag: DbTag, version: string|null, context: ResolverContext) {
+  if (version)
+    return await buildContributorsList(tag, version);
+  else if (tag.contributionScores)
+    return tag.contributionScores;
+  else
+    return await updateDenormalizedContributorsList(tag);
+}
+
+async function buildContributorsList(tag: DbTag, version: string|null) {
   // TODO: When computing contribution score, only count the user's
   // self-vote power once, rather than once per contributed revision.
-  // TODO: Maybe denormalize this. Fetching all the revs on a tag is
-  // potentially very expensive, if the tag has a long history.
   
   if (!(tag?._id))
     throw new Error("Invalid tag");
@@ -130,6 +140,30 @@ async function buildContributorsList(tag: DbTag, version: string|undefined, cont
     ],
   }).fetch();
   
+  const selfVotes = await Votes.aggregate([
+    // All votes on relevant revisions
+    { $match: {
+      documentId: {$in: tagRevisions.map(r=>r._id)},
+      collectionName: "Revisions",
+      cancelled: false,
+      isUnvote: false,
+    }},
+    // Filtered by: is a self-vote
+    { $match: {
+      $expr: {
+        $eq: ["$userId", "$authorId"]
+      }
+    }}
+  ]).toArray();
+  const selfVotesByUser = groupBy(selfVotes, v=>v.userId);
+  const selfVoteScoreAdjustmentByUser = mapValues(selfVotesByUser,
+    selfVotes => {
+      const totalSelfVotePower = sumBy(selfVotes, v=>v.power)
+      const strongestSelfVote = _.max(selfVotes, v=>v.power).power
+      return totalSelfVotePower - strongestSelfVote;
+    }
+  );
+  
   const filteredTagRevisions = version
     ? _.filter(tagRevisions, r=>compareVersionNumbers(version, r.version)>=0)
     : tagRevisions;
@@ -137,6 +171,31 @@ async function buildContributorsList(tag: DbTag, version: string|undefined, cont
   const revisionsByUserId: Record<string,DbRevision[]> = groupBy(filteredTagRevisions, r=>r.userId);
   const contributorUserIds: string[] = Object.keys(revisionsByUserId);
   const contributionScoresByUserId: Partial<Record<string,number>> = toDictionary(contributorUserIds,
-    userId=>userId, userId => sumBy(revisionsByUserId[userId], r=>r.baseScore)||0);
+    userId=>userId, userId => {
+      const totalRevisionScore = sumBy(revisionsByUserId[userId], r=>r.baseScore)||0
+      const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]||0;
+      return totalRevisionScore - selfVoteAdjustment;
+    });
   return contributionScoresByUserId;
 }
+
+export async function updateDenormalizedContributorsList(tag: DbTag) {
+  const contributionScores = await buildContributorsList(tag, null);
+  
+  if (JSON.stringify(tag.contributionScores) !== JSON.stringify(contributionScores)) {
+    await Tags.update({_id: tag._id}, {$set: {
+      contributionScores: contributionScores,
+    }});
+  }
+  
+  return contributionScores;
+}
+
+export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
+  const html = await annotateAuthors(tag._id, "Tags", "description");
+  await Tags.update({_id: tag._id}, {$set: {
+    htmlWithContributorAnnotations: html,
+  }});
+  return html;
+}
+

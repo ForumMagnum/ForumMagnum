@@ -2,12 +2,14 @@ import cheerio from 'cheerio';
 import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
 import { Comments } from '../lib/collections/comments/collection';
+import { Tags } from '../lib/collections/tags/collection';
 import { questionAnswersSort } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
+import { updateDenormalizedHtmlAttributions } from './resolvers/tagResolvers';
 import { annotateAuthors } from './attributeEdits';
 
 export interface ToCSection {
@@ -306,7 +308,11 @@ const getToCforTag = async ({document, version, context}: {
     }
   } else {
     try {
-      html = await annotateAuthors(document._id, "Tags", "description");
+      if (document.htmlWithContributorAnnotations) {
+        html = document.htmlWithContributorAnnotations;
+      } else {
+        html = await updateDenormalizedHtmlAttributions(document);
+      }
     } catch(e) {
       // eslint-disable-next-line no-console
       console.log("Author annotation failed");
