@@ -9,6 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   contributorsHeading: {
     paddingBottom: 12,
+    paddingTop: 4,
   },
   contributorRow: {
     paddingLeft: 8,
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   contributorName: {
   },
   loadMore: {
-    paddingTop: 6,
+    paddingTop: 8,
     color: theme.palette.grey[600],
   },
 });
