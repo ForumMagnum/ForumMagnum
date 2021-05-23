@@ -87,7 +87,7 @@ addFieldsDict(Tags, {
       arguments: 'limit: Int, version: String',
       type: "TagContributorsList",
       resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext) => {
-        const contributionScoresByUserId = await getContributorsList(tag, version||null, context);
+        const contributionScoresByUserId = await getContributorsList(tag, version||null);
         const contributorUserIds = Object.keys(contributionScoresByUserId);
         const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
   
@@ -114,7 +114,7 @@ addFieldsDict(Tags, {
   },
 });
 
-async function getContributorsList(tag: DbTag, version: string|null, context: ResolverContext) {
+async function getContributorsList(tag: DbTag, version: string|null) {
   if (version)
     return await buildContributorsList(tag, version);
   else if (tag.contributionScores)

@@ -101,7 +101,7 @@ function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
 voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);
 voteCallbacks.castVoteAsync.add(voteUpdatePostDenormalizedTags);
 
-async function recomputeContributeScoresFor(votedRevision: DbRevision, vote: DbVote) {
+async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
   if (vote.collectionName !== "Revisions") return;
   if (votedRevision.collectionName !== "Tags") return;
   

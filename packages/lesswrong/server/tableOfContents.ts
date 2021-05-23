@@ -2,7 +2,6 @@ import cheerio from 'cheerio';
 import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
 import { Comments } from '../lib/collections/comments/collection';
-import { Tags } from '../lib/collections/tags/collection';
 import { questionAnswersSort } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
