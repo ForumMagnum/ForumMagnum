@@ -379,7 +379,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         fieldName,
         collectionName,
         version,
-        updateType: "initial",
+        updateType: 'initial',
         commitMessage,
         changeMetrics,
       };
