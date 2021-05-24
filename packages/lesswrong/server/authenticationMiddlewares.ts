@@ -138,7 +138,16 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       
       
       res.statusCode=302;
-      res.setHeader('Location','/');
+      // Need to log the user out of their Auth0 account. Otherwise when they
+      // next try to login they won't be given a choice, just auto-resumed to
+      // the same Auth0 account.
+      if (auth0DomainSetting.get() && auth0ClientIdSetting.get()) {
+        // Will redirect to our homepage, and is a noop if they're not logged in
+        // to an Auth0 account, so this is very non-disruptive
+        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}`);
+      } else {
+        res.setHeader('Location', '/');
+      }
       return res.end();
     })(req, res, next);
   })
