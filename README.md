@@ -116,6 +116,21 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 
 * **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
 
+### Configuration and Secrets
+
+We store most configuration and secrets in the database, not in environment
+variables like you might expect. See
+`packages/lesswrong/server/databaseSettings.ts` for more.
+
+### Logging
+
+If there's a part of the codebase you often want to see debug logging for, you
+can create a specific debug logger for that section by using
+`loggerConstructor(scope)`. You can then enable or disable that logger by
+setting the public database setting `debuggers` to include your scope, or by
+setting the instance setting `instanceDebuggers`. See
+`packages/lesswrong/lib/utils/logging.ts` for more.
+
 ### Development Tips
 
 #### Iteration
