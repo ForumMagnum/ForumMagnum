@@ -11,11 +11,14 @@ import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
 
-import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
+import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, getCollectionsByName } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import Tags from '../lib/collections/tags/collection';
+import Revisions from '../lib/collections/revisions/collection';
+import { syncDocumentWithLatestRevision } from './editor/utils';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -85,7 +88,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
+export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
@@ -178,8 +181,54 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
 
     await commentReportPurgeAsSpam(comment);
   }
+  
+  if (deleteTags) {
+    await deleteUserTagsAndRevisions(user, deletingUser)
+  }
+
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
+}
+
+async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
+  const tags = await Tags.find({userId: user._id}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting tags: ", tags)
+  for (let tag of tags) {
+    if (!tag.deleted) {
+      try {
+        await updateMutator({
+          collection: Tags,
+          documentId: tag._id,
+          set: {deleted: true},
+          currentUser: deletingUser,
+          validate: false
+        })
+      } catch(err) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to delete tag")
+        // eslint-disable-next-line no-console
+        console.error(err)
+      }
+    }
+  }
+  
+  const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting tag revisions: ", tagRevisions)
+  await Revisions.remove({userId: user._id})
+  // Revert revision documents
+  for (let revision of tagRevisions) {
+    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    const document = await collection.findOne({_id: revision.documentId})
+    if (document) {
+      await syncDocumentWithLatestRevision(
+        collection,
+        document,
+        revision.fieldName
+      )
+    }
+  }
 }
 
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
