@@ -89,7 +89,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
+export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
@@ -182,7 +182,16 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
 
     await commentReportPurgeAsSpam(comment);
   }
+  
+  if (deleteTags) {
+    await deleteUserTagsAndRevisions(user, deletingUser)
+  }
 
+  //eslint-disable-next-line no-console
+  console.info("Deleted n posts and m comments: ", posts.length, comments.length);
+}
+
+async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   const tags = await Tags.find({userId: user._id}).fetch()
   // eslint-disable-next-line no-console
   console.info("Deleting tags: ", tags)
@@ -205,12 +214,12 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
     }
   }
   
-  const revisions = await Revisions.find({userId: user._id}).fetch()
+  const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
   // eslint-disable-next-line no-console
-  console.info("Deleting revisions: ", revisions)
+  console.info("Deleting tag revisions: ", tagRevisions)
   await Revisions.remove({userId: user._id})
   // Revert revision documents
-  for (let revision of revisions) {
+  for (let revision of tagRevisions) {
     const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
     const document = await collection.findOne({_id: revision.documentId})
     if (document) {
@@ -221,8 +230,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
       )
     }
   }
-  //eslint-disable-next-line no-console
-  console.info("Deleted n posts and m comments: ", posts.length, comments.length);
 }
 
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
