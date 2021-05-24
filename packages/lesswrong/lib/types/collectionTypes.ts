@@ -38,7 +38,7 @@ interface CollectionBase<
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
   update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => void
+  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
   insert: (data: any, options?: any) => string
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
