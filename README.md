@@ -2,11 +2,9 @@
 
 The EA Forum is a synced fork of [LessWrong](https://github.com/LessWrong2/Lesswrong2).
 
-What follows is a lightly edited version of the LessWrong README.
-
 ## Technologies
 
-Lesswrong2 is built on top of a number major open-source libraries.
+The EA Forum is built on top of a number major open-source libraries.
 
 1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably.
 
@@ -25,7 +23,7 @@ Lesswrong2 is built on top of a number major open-source libraries.
 ### Requirements
 
   * MacOS or Linux
-    * Known to work on MacOS 10.14 and Ubuntu 18.04, should work on others
+    * Known to work on MacOS 10.15 and Ubuntu 18.04, should work on others
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
@@ -93,3 +91,11 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
 * For debugging server-side code, start the server with `npm run debug` instead of `npm run start`. Then open Chrome to chrome://inspect, and click "Open dedicated DevTools for Node". The server will have stopped at an instance of the `debugger` keyword during startup.
 * When server-side debugging, everything works except for setting breakpoints in the GUI, which is broken by a Chrome bug: https://bugs.chromium.org/p/chromium/issues/detail?id=844070 . Until they fix it, you can work around this by installing NiM, https://chrome.google.com/webstore/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj, in which breakpoints work but profiling doesn't.
+
+## EA Forum-Specific
+
+### Where to branch off of
+
+I usually branch off of LW's devel branch when I'm making changes. That way, if I discover a bug while developing, I know it's legit. And I generally want to submit changes upstream before merging them locally.
+
+To do this I create a git remote called upstream, which points to `git@github.com:LessWrong2/Lesswrong2.git`. Then I create a local branch called lw-devel which tracks upstream/devel.
