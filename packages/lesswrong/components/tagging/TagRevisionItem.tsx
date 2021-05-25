@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { commentBodyStyles } from '../../themes/stylePiping'
@@ -20,8 +20,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagRevisionItem = ({tag, headingStyle, revision, previousRevision, documentId, classes}: {
+const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previousRevision, documentId, classes}: {
   tag: TagBasicInfo,
+  collapsed?: boolean,
   headingStyle: "full"|"abridged",
   revision: RevisionMetadataWithChangeMetrics,
   previousRevision?: RevisionMetadataWithChangeMetrics
@@ -29,14 +30,21 @@ const TagRevisionItem = ({tag, headingStyle, revision, previousRevision, documen
   classes: ClassesType,
 }) => {
   const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton } = Components
+  const [expanded, setExpanded] = useState(false);
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
+  
+  if (collapsed && !expanded) {
+    return <Components.SingleLineFeedEvent expands setExpanded={setExpanded}>
+      <TagRevisionItemShortMetadata tag={tag} revision={revision} />
+    </Components.SingleLineFeedEvent>
+  }
 
   return <div className={classes.root}>
     {headingStyle==="full" &&
       <TagRevisionItemFullMetadata tag={tag} revision={revision} />}
     {headingStyle==="abridged" &&
-      <TagRevisionItemShortMetadata tag={tag} revision={revision} />}
+      <div><TagRevisionItemShortMetadata tag={tag} revision={revision} /></div>}
     
     {!!(added || removed || !previousRevision) && <div className={classes.textBody}>
       <CompareRevisions

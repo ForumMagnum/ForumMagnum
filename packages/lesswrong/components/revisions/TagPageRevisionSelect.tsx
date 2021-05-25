@@ -12,8 +12,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagPageRevisionSelect = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { params } = useLocation();
+  const { params, query } = useLocation();
   const { slug } = params;
+  const focusedUser = query.user;
   const { history } = useNavigation();
 
   const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
@@ -43,7 +44,7 @@ const TagPageRevisionSelect = ({ classes }: {
   return <SingleColumnSection>
     <h1><Link to={tagGetUrl(tag)}>{tag.name}</Link></h1>
     
-    {(loadingTag || loadingRevisions) && <Loading/>}
+    {loadingTag && <Loading/>}
     {revisions && <div>
       <RevisionSelect
         revisions={revisions}
@@ -53,10 +54,11 @@ const TagPageRevisionSelect = ({ classes }: {
         count={count}
         totalCount={totalCount}
       />
-      {revisions.map((rev, i)=> {
+      {revisions.map((rev, i) => {
         return <TagRevisionItem
           key={rev.version}
           tag={tag}
+          collapsed={focusedUser && rev.user.slug!==focusedUser}
           headingStyle="abridged"
           documentId={tag._id}
           revision={rev}
