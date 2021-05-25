@@ -14,7 +14,7 @@ import { createMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { forumTypeSetting } from '../lib/instanceSettings';
-import { userFromAuth0Profile, mergeAccountWithAuth0 } from './authentication/auth0Accounts';
+import { userFromAuth0Profile, mergeAccountWithAuth0, auth0DomainSetting, auth0ClientIdSetting, auth0SecretSetting } from './authentication/auth0Accounts';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -37,10 +37,6 @@ declare global {
 
 const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
 const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
-
-const auth0ClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.appId', null)
-const auth0OAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.secret', null)
-const auth0DomainSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.domain', null)
 
 const facebookClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.appId', null)
 const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.secret', null)
@@ -70,8 +66,12 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
         const user = await Users.findOne({'emails.address': email})
         if (user) {
           // TODO; doc
-          const { data: updatedUser } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
-          return done(null, updatedUser)
+          try {
+            const updatedUser = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
+            return done(null, updatedUser)
+          } catch (err) {
+            return done(err)
+          }
         }
       }
       const { data: userCreated } = await createMutator({
@@ -257,13 +257,13 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   // NB: You must also set the expressSessionSecret setting in your database
   // settings - auth0 passport strategy relies on express-session to store state
   const auth0ClientId = auth0ClientIdSetting.get();
-  const auth0OAuthSecret = auth0OAuthSecretSetting.get()
+  const auth0Secret = auth0SecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
-  if (auth0ClientId && auth0OAuthSecret && auth0Domain) {
+  if (auth0ClientId && auth0Secret && auth0Domain) {
     passport.use(new Auth0Strategy(
       {
         clientID: auth0ClientId,
-        clientSecret: auth0OAuthSecret,
+        clientSecret: auth0Secret,
         domain: auth0Domain,
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
