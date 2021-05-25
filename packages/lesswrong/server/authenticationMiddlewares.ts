@@ -13,6 +13,8 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
+import { forumTypeSetting } from '../lib/instanceSettings';
+import { userFromAuth0Profile, mergeAccountWithAuth0 } from './authentication/auth0Accounts';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -63,6 +65,15 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
     }
     const user = await Users.findOne({[idPath]: profileId})
     if (!user) {
+      const email = profile.emails?.[0]?.value
+      if (forumTypeSetting.get() === 'EAForum' && email) {
+        const user = await Users.findOne({'emails.address': email})
+        if (user) {
+          // TODO; doc
+          const { data: updatedUser } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
+          return done(null, updatedUser)
+        }
+      }
       const { data: userCreated } = await createMutator({
         collection: Users,
         document: await getUserDataFromProfile(profile),
@@ -256,19 +267,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         domain: auth0Domain,
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
-      createOAuthUserHandlerAuth0('services.auth0.id', profile => profile.id, async profile => {
-        // Already have the raw version, and the structured content. No need to store the json.
-        delete profile._json
-        return {
-          email: profile.emails?.[0].value,
-          services: {
-            auth0: profile
-          },
-          username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-          displayName: profile.displayName,
-          emailSubscribedToCurated: true
-        }
-      })
+      createOAuthUserHandlerAuth0('services.auth0.id', profile => profile.id, userFromAuth0Profile)
     ));
   }
 
