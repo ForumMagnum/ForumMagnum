@@ -1,23 +1,22 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../../hooks/useUpdateCurrentUser';
-import { withMessages } from '../../common/withMessages';
+import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
+import { useMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
-import withUser from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import * as _ from 'underscore';
 
-interface ExternalProps {
+const BanUserFromAllPostsMenuItem = ({comment, post}: {
   comment: CommentsList,
   post: PostsBase,
-}
-interface BanUserFromAllPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateCurrentUserProps {
-}
-
-class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuItemProps,{}> {
-  handleBanUserFromAllPosts = (event: React.MouseEvent) => {
-    const { comment, currentUser, updateCurrentUser, flash } = this.props;
+}) => {
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const { flash } = useMessages();
+  
+  const handleBanUserFromAllPosts = (event: React.MouseEvent) => {
     event.preventDefault();
     if (!currentUser) return;
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
@@ -32,27 +31,16 @@ class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuI
     }
   }
 
-  render() {
-    const { currentUser, post} = this.props
-    if (userCanModeratePost(currentUser, post) && post.frontpageDate && userOwns(currentUser, post)) {
-        return <MenuItem onClick={ this.handleBanUserFromAllPosts }>
-          Ban from all your posts
-        </MenuItem>
-      } else {
-        return null
-      }
+  if (userCanModeratePost(currentUser, post) && post.frontpageDate && userOwns(currentUser, post)) {
+    return <MenuItem onClick={ handleBanUserFromAllPosts }>
+      Ban from all your posts
+    </MenuItem>
+  } else {
+    return null
   }
 }
 
-const BanUserFromAllPostsMenuItemComponent = registerComponent<ExternalProps>(
-  'BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, {
-    hocs: [
-      withMessages,
-      withUpdateCurrentUser,
-      withUser
-    ]
-  }
-);
+const BanUserFromAllPostsMenuItemComponent = registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem);
 
 declare global {
   interface ComponentTypes {

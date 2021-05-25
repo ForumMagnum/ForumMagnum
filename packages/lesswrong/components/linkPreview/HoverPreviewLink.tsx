@@ -23,7 +23,11 @@ export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription
   });
 }
 
-const linkIsExcludedFromPreview = (url: string): boolean => {
+export const linkIsExcludedFromPreview = (url: string): boolean => {
+  // Don't try to preview special JS links
+  if (!url || url==="#" || url==="")
+    return true;
+  
   // Don't try to preview links that go directly to images. The usual use case
   // for such links is an image where you click for a larger version.
   return !!(url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif'));
