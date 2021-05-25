@@ -41,13 +41,16 @@ const recommendationAlgorithms = [
 ];
 
 export function getRecommendationSettings({settings, currentUser, configName}: {
-  settings: RecommendationsAlgorithm|null,
+  settings: Partial<RecommendationsAlgorithm>|null,
   currentUser: UsersCurrent|null,
   configName: string,
-})
-{
-  if (settings)
-   return settings;
+}): RecommendationsAlgorithm {
+  if (settings) {
+    return {
+      ...defaultAlgorithmSettings,
+      ...settings,
+    }
+  }
 
   if (currentUser?.recommendationSettings && configName in currentUser.recommendationSettings) {
     return deepmerge(defaultAlgorithmSettings, currentUser.recommendationSettings[configName]||{});

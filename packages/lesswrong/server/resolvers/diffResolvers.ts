@@ -86,7 +86,8 @@ export const diffHtml = (before: string, after: string, trim: boolean): string =
 // Given an HTML diff (with <ins> and <del> tags), remove sections that don't
 // have changes to make an abridged view.
 export const trimHtmlDiff = (html: string): string => {
-  const $ = cheerio.load(html)
+  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
+  const $ = cheerio.load(html, null, false)
   
   // Does HTML contain a <body> tag? If so, look at children of the body tag.
   // Otherwise look at the root.

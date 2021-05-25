@@ -120,7 +120,8 @@ const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-t
 /// that all have a spoiler tag in a shared spoiler element (so that the
 /// mouse-hover will reveal all of them together).
 function wrapSpoilerTags(html: string): string {
-  const $ = cheerio.load(html)
+  //@ts-ignore
+  const $ = cheerio.load(html, null, false)
   
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
@@ -150,7 +151,8 @@ function wrapSpoilerTags(html: string): string {
 }
 
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
-  const $ = cheerio.load(`<div id="root">${html}</div>`)
+  //@ts-ignore
+  const $ = cheerio.load(`<div id="root">${html}</div>`, null, false)
   const topLevelElements = $('#root').children().get()
   // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
@@ -513,7 +515,8 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  const parsedHtml = cheerio.load(diffHtml);
+  // @ts-ignore
+  const parsedHtml = cheerio.load(diffHtml, null, false);
   
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");
@@ -521,7 +524,7 @@ const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
   return { added: insertedChars, removed: removedChars };
 }
 
-const countCharsInTag = (parsedHtml: CheerioStatic, tagName: string) => {
+const countCharsInTag = (parsedHtml: cheerio.Root, tagName: string): number => {
   const instancesOfTag = parsedHtml(tagName);
   let cumulative = 0;
   for (let i=0; i<instancesOfTag.length; i++) {

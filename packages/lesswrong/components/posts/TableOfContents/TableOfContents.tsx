@@ -1,42 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
+import type { ToCData } from '../../../server/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  stickyBlock: {
-    position: "sticky",
-    fontSize: 12,
-    top: 92,
-    lineHeight: 1.0,
-    marginLeft:1,
-    paddingLeft:theme.spacing.unit*2,
-    textAlign:"left",
-    height:"80vh",
-    overflowY:"scroll",
-    direction:"rtl",
-    "&::-webkit-scrollbar": {
-      width: 1,
-    },
-
-    /* Track */
-    "&::-webkit-scrollbar-track": {
-        background: "none",
-    },
-
-    /* Handle */
-    "&::-webkit-scrollbar-thumb": {
-        background: theme.palette.grey[300],
-    },
-
-    /* Handle on hover */
-    "&::-webkit-scrollbar-thumb:hover": {
-        background: theme.palette.grey[700],
-    },
-
-    [theme.breakpoints.down('sm')]:{
-      display:'none'
-    }
-  },
 });
 
 // Context used to share a reference used to share the table of contents
@@ -47,12 +14,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 //
 // The reference is to a function setToC, which puts the ToC in the state of
 // Layout.
-type setToCFn = (document: PostsBase|null, sectionData: any)=>void
+type setToCFn = (title: string|null, sectionData: ToCData|null)=>void
 export const TableOfContentsContext = React.createContext<setToCFn|null>(null);
 
-const TableOfContents = ({sectionData, document, classes}: {
-  sectionData: any,
-  document: PostsBase,
+const TableOfContents = ({sectionData, title, onClickSection, classes}: {
+  sectionData: ToCData,
+  title: string|null,
+  onClickSection?: ()=>void,
   classes: ClassesType,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -60,25 +28,24 @@ const TableOfContents = ({sectionData, document, classes}: {
 
   useEffect(() => {
     if (setToC)
-      setToC(document, sectionData);
+      setToC(title, sectionData);
     
     return () => {
       if (setToC)
         setToC(null, null);
     }
-  }, [document, sectionData, setToC]);
+  }, [title, sectionData, setToC]);
 
-  if (!sectionData || !document)
+  if (!sectionData)
     return <div/>
 
   return (
-    <div className={classes.stickyBlock}>
-      <Components.TableOfContentsList
-        sectionData={sectionData}
-        document={document}
-        drawerStyle={false}
-      />
-    </div>
+    <Components.TableOfContentsList
+      sectionData={sectionData}
+      title={title}
+      drawerStyle={false}
+      onClickSection={onClickSection}
+    />
   );
 }
 
