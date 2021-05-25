@@ -1,11 +1,11 @@
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import withUser from '../common/withUser';
-import withHover from '../common/withHover'
+import { useCurrentUser } from '../common/withUser';
+import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
@@ -13,17 +13,18 @@ import StarIcon from '@material-ui/icons/Star';
 import ClearIcon from '@material-ui/icons/Clear';
 import * as _ from 'underscore';
 
-interface ExternalProps {
-  post: PostsList,
-}
-interface SunshineCuratedSuggestionsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updatePost: any,
-}
-
-class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestionsItemProps> {
-  handleCurate = () => {
-    const { currentUser, post, updatePost } = this.props
-    updatePost({
+const SunshineCuratedSuggestionsItem = ({post}: {
+  post: PostsList
+}) => {
+  const currentUser = useCurrentUser();
+  const { hover, anchorEl, eventHandlers } = useHover();
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+  });
+  
+  const handleCurate = () => {
+    void updatePost({
       selector: {_id: post._id},
       data: {
         reviewForCuratedUserId: currentUser!._id,
@@ -32,9 +33,8 @@ class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestion
     })
   }
 
-  handleDisregardForCurated = () => {
-    const { currentUser, post, updatePost } = this.props
-    updatePost({
+  const handleDisregardForCurated = () => {
+    void updatePost({
       selector: {_id: post._id},
       data: {
         reviewForCuratedUserId: currentUser!._id,
@@ -42,33 +42,30 @@ class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestion
     })
   }
 
-  handleSuggestCurated = () => {
-    const { currentUser, post, updatePost } = this.props
+  const handleSuggestCurated = () => {
     let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
     if (!suggestUserIds.includes(currentUser!._id)) {
       suggestUserIds.push(currentUser!._id)
     }
-    updatePost({
+    void updatePost({
       selector: {_id: post._id},
       data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
 
-  handleUnsuggestCurated = () => {
-    const { currentUser, post, updatePost } = this.props
+  const handleUnsuggestCurated = () => {
     let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
     if (suggestUserIds.includes(currentUser!._id)) {
       suggestUserIds = _.without(suggestUserIds, currentUser!._id);
     }
-    updatePost({
+    void updatePost({
       selector: {_id: post._id},
       data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
 
-  render () {
-    const { post, currentUser, hover, anchorEl } = this.props
-    return (
+  return (
+    <span {...eventHandlers}>
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="title">
@@ -101,36 +98,28 @@ class SunshineCuratedSuggestionsItem extends Component<SunshineCuratedSuggestion
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser!._id) ?
-            <Components.SidebarAction title="Endorse Curation" onClick={this.handleSuggestCurated}>
+            <Components.SidebarAction title="Endorse Curation" onClick={handleSuggestCurated}>
               <PlusOneIcon/>
             </Components.SidebarAction>
             :
-            <Components.SidebarAction title="Unendorse Curation" onClick={this.handleUnsuggestCurated}>
+            <Components.SidebarAction title="Unendorse Curation" onClick={handleUnsuggestCurated}>
               <UndoIcon/>
             </Components.SidebarAction>
           }
-          <Components.SidebarAction title="Curate Post" onClick={this.handleCurate}>
+          <Components.SidebarAction title="Curate Post" onClick={handleCurate}>
             <StarIcon/>
           </Components.SidebarAction>
-          <Components.SidebarAction title="Remove from Curation Suggestions" onClick={this.handleDisregardForCurated}>
+          <Components.SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
             <ClearIcon/>
           </Components.SidebarAction>
         </Components.SidebarActionMenu>}
       </Components.SunshineListItem>
-    )
-  }
+    </span>
+  )
 }
 
-const SunshineCuratedSuggestionsItemComponent = registerComponent<ExternalProps>('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {
-  hocs: [
-    withUpdate({
-      collectionName: "Posts",
-      fragmentName: 'PostsList',
-    }),
-    withUser,
-    withHover(),
-    withErrorBoundary
-  ]
+const SunshineCuratedSuggestionsItemComponent = registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {
+  hocs: [withErrorBoundary]
 });
 
 declare global {
