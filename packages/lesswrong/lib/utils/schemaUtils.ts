@@ -4,6 +4,7 @@ import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
+import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 
@@ -152,7 +153,7 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 
 interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpecification<T> {
   resolver: (doc: T, args: any, context: ResolverContext) => any,
-  graphQLtype?: string|null,
+  graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
 export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {

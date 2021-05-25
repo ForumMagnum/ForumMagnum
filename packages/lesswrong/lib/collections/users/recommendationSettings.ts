@@ -21,9 +21,10 @@ export interface RecommendationsAlgorithm {
   frontpageModifier?: number
   personalBlogpostModifier?: number
   
-  hideBookmarks?: boolean
-  hideContinueReading?: boolean
-  hideFrontpage?: boolean
+  hideFrontpage?: boolean,
+  hideContinueReading?: boolean,
+  hideBookmarks?: boolean,
+  hideReview?: boolean,
 }
 
 export const defaultAlgorithmSettings: RecommendationsAlgorithm = {

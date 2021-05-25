@@ -122,9 +122,11 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   if (facebookClientId) {
     passport.use(new FacebookOAuthStrategy({
       clientID: facebookClientId,
-      clientSecret: facebookOAuthSecretSetting.get(),
+      clientSecret: facebookOAuthSecretSetting.get()!,
       callbackURL: `${getSiteUrl()}auth/facebook/callback`,
       profileFields: ['id', 'emails', 'name', 'displayName'],
+      // This (proxy) is a real option, which DefinitelyTyped seems to have missed
+      // @ts-ignore
       proxy: true
     },
       createOAuthUserHandler('services.facebook.id', profile => profile.id, async profile => ({
@@ -143,7 +145,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   if (githubClientId) {
     passport.use(new GithubOAuthStrategy({
       clientID: githubClientId,
-      clientSecret: githubOAuthSecretSetting.get(),
+      clientSecret: githubOAuthSecretSetting.get()!,
       callbackURL: `${getSiteUrl()}auth/github/callback`,
       scope: [ 'user:email' ], // fetches non-public emails as well
     },

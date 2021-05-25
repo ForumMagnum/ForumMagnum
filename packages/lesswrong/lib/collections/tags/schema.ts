@@ -368,7 +368,7 @@ export const schema: SchemaType<DbTag> = {
   },
 }
 
-export const wikiGradeDefinitions = {
+export const wikiGradeDefinitions: Partial<Record<number,string>> = {
   0: "Uncategorized",
   1: "Flagged",
   2: "Stub",

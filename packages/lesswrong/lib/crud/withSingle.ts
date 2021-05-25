@@ -47,7 +47,7 @@ function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collection, 
   return query
 }
 
-function getResolverNameFromOptions(collection) {
+function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {
   const typeName = collection.options.typeName;
   return camelCaseify(typeName);
 }

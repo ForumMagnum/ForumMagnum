@@ -1,6 +1,5 @@
-// Unused, but this doesn't get properly included as an ambient declarations file
-// unless it has at least one import
-import type DataLoader from 'dataloader';
+import type { GraphQLScalarType } from 'graphql';
+import type { SimpleSchema } from 'simpl-schema';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -8,16 +7,18 @@ declare global {
 
 interface CollectionFieldSpecification<T extends DbObject> {
   type?: any,
+  description?: string,
   optional?: boolean,
   defaultValue?: any,
   graphQLType?: string,
   typescriptType?: string,
   resolveAs?: {
-    type: string,
+    type: string|GraphQLScalarType,
+    description?: string,
     fieldName?: string,
     addOriginalField?: boolean,
     arguments?: string|null,
-    resolver: (root: T, args: any, context: ResolverContext)=>any,
+    resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
   },
   blackbox?: boolean,
   denormalized?: boolean,
@@ -37,7 +38,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   
   form?: any,
   input?: any,
-  beforeComponent?: string,
+  beforeComponent?: keyof ComponentTypes,
   order?: number,
   label?: string,
   tooltip?: string,
@@ -45,6 +46,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   placeholder?: string,
   hidden?: any,
   group?: any,
+  inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
   //  * onInsert, onEdit, and onRemove are deprecated (but still used) because
@@ -76,10 +78,6 @@ interface CollectionFieldSpecification<T extends DbObject> {
 
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
-type SimpleSchemaType<T extends DbObject> = {
-  _schema: SchemaType<T>
-  get: (fieldName: string, property: string) => any
-  newContext: ()=>any
-}
+type SimpleSchemaType<T extends DbObject> = SimpleSchema & {_schema: SchemaType<T>};
 
 }

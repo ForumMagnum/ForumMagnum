@@ -20,7 +20,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const TagCTAPopup = ({onClose, classes}) => {
+const TagCTAPopup = ({onClose, classes}: {
+  onClose: ()=>void,
+  classes: ClassesType,
+}) => {
   const { ContentItemBody, LWDialog } = Components
   const { tag } = useTagBySlug("tag-cta-popup", "TagFragment")
   

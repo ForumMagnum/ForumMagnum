@@ -10,7 +10,7 @@ const MuiThemeProviderWrapper = (props, context) => {
     {props.children}
   </MuiThemeProvider>
 }
-export function wrapWithMuiTheme (app, context) {
+export function wrapWithMuiTheme (app: React.ReactNode, context) {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({

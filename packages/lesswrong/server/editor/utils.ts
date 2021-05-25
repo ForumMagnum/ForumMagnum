@@ -1,6 +1,6 @@
 import mjAPI from 'mathjax-node'
 
-export const trimLatexAndAddCSS = (dom, css) => {
+export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
   var paragraphs = dom.getElementsByClassName("MJXc-display");
   // We trim all display equations that don't have any textContent. This seems

@@ -70,7 +70,7 @@ const defaultOptions: MakeEditableOptions = {
 
 export const editableCollections = new Set<CollectionNameString>()
 export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
-export const editableCollectionsFieldOptions: Record<CollectionNameString,MakeEditableOptions> = {} as any;
+export const editableCollectionsFieldOptions: Record<CollectionNameString,Record<string,MakeEditableOptions>> = {} as any;
 let editableFieldsSealed = false;
 export function sealEditableFields() { editableFieldsSealed=true }
 
@@ -143,16 +143,17 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
             if (!revision) return null;
             return await checkAccess(currentUser, revision, context) ? revision : null
           }
+          const docField = doc[field];
           return {
             _id: `${doc._id}_${fieldName}`, //HACK
-            editedAt: (doc[field]?.editedAt) || new Date(),
-            userId: doc[field]?.userId,
-            commitMessage: doc[field]?.commitMessage,
-            originalContents: (doc[field]?.originalContents) || {},
-            html: doc[field]?.html,
-            updateType: doc[field]?.updateType,
-            version: doc[field]?.version,
-            wordCount: doc[field]?.wordCount,
+            editedAt: (docField?.editedAt) || new Date(),
+            userId: docField?.userId,
+            commitMessage: docField?.commitMessage,
+            originalContents: (docField?.originalContents) || {},
+            html: docField?.html,
+            updateType: docField?.updateType,
+            version: docField?.version,
+            wordCount: docField?.wordCount,
           } as DbRevision;
           //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
         }
