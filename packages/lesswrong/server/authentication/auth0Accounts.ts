@@ -10,7 +10,9 @@ export async function mergeAccountWithAuth0(user: DbUser, profile: Profile) {
     documentId: user._id,
     // Annoying that typescript is concerned - `services` is a valid property
     // that's currently set to any
-    set: {'services.auth0': profile} as any
+    set: {'services.auth0': profile} as any,
+    // Normal updates are not supposed to update services
+    validate: false
     // TODO: Soon we should delete passwords when we do this
   })
 }
