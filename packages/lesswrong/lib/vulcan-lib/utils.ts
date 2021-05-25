@@ -10,6 +10,8 @@ import getSlug from 'speakingurl';
 import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
+import type { ToCData } from '../../server/tableOfContents';
+
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 interface UtilsType {
@@ -30,8 +32,8 @@ interface UtilsType {
   Connectors: any
   
   // In server/tableOfContents.ts
-  getTableOfContentsData: any
-  extractTableOfContents: any
+  getToCforPost: ({document, version, context}: { document: DbPost, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
+  getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
   
   // In server/vulcan-lib/mutators.ts
   createMutator: any

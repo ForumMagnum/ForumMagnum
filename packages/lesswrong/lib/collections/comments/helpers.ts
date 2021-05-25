@@ -77,9 +77,9 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
   }
 }
 
-export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): string => {
+export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
   const fallback = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
-  return (post?.commentSortOrder) || (currentUser?.commentSorting) || fallback
+  return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {

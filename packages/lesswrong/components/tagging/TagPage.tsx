@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
@@ -8,27 +8,33 @@ import { tagBodyStyles } from '../../themes/stylePiping'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import HistoryIcon from '@material-ui/icons/History';
-import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
+import classNames from 'classnames';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
-  tagPage: {
-    ...tagBodyStyles(theme),
-    color: theme.palette.grey[600]
-  },
   description: {
     marginTop: 18,
     ...tagBodyStyles(theme),
     marginBottom: 18,
   },
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left"
+  centralColumn: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    maxWidth: MAX_COLUMN_WIDTH,
+  },
+  header: {
+    paddingTop: 19,
+    paddingBottom: 5,
+    paddingLeft: 42,
+    paddingRight: 42,
+    background: "white",
+  },
+  tableOfContentsWrapper: {
+    position: "relative",
+    top: 12,
   },
   title: {
     ...theme.typography.display3,
@@ -38,12 +44,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: "small-caps"
   },
   wikiSection: {
-    marginBottom: 24,
-    paddingTop: 19,
-    paddingBottom: 12,
+    paddingTop: 5,
     paddingLeft: 42,
     paddingRight: 42,
-    background: "white"
+    paddingBottom: 12,
+    marginBottom: 24,
+    background: "white",
   },
   tagHeader: {
     display: "flex",
@@ -55,50 +61,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postsTaggedTitle: {
     color: theme.palette.grey[600]
   },
-  disabledButton: {
-    '&&': {
-      color: theme.palette.grey[500],
-      cursor: "default",
-      marginBottom: 12
-    }
-  },
-  buttonsRow: {
-    ...theme.typography.body2,
-    ...theme.typography.uiStyle,
-    marginTop: 2,
-    marginBottom: 16,
-    color: theme.palette.grey[700],
-    display: "flex",
-    flexWrap: "wrap",
-    '& svg': {
-      height: 20,
-      width: 20,
-      marginRight: 4,
-      cursor: "pointer",
-      color: theme.palette.grey[700]
-    }
-  },
-  button: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: 16
-  },
-  buttonLabel: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
-  ctaPositioning: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto"
-  },
-  subscribeToWrapper: {
-    display: "flex !important",
-  },
-  subscribeTo: {
-    marginRight: 16
-  },
   pastRevisionNotice: {
     ...theme.typography.commentStyle,
     fontStyle: 'italic'
@@ -106,20 +68,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
-  callToAction: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto",
-    fontStyle: 'italic',
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
-  callToActionFlagCount: {
-    position: "relative",
-    marginLeft: 4,
-    marginRight: 0
-  }
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -135,19 +83,30 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SubscribeTo, PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, LWTooltip,  UsersNameDisplay, TagFlagItem, TagDiscussionSection, TagDiscussionButton, Typography } = Components;
+  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TagContributorsList } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagWithFlagsAndRevisionFragment" : "TagWithFlagsFragment", {
-    extraVariables: revision ? {version: 'String'} : {},
-    extraVariablesValues: revision ? {version: revision} : {},
+  const contributorsLimit = 7;
+  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
+    extraVariables: revision ? {
+      version: 'String',
+      contributorsLimit: 'Int',
+    } : {
+      contributorsLimit: 'Int',
+    },
+    extraVariablesValues: revision ? {
+      version: revision,
+      contributorsLimit,
+    } : {
+      contributorsLimit,
+    },
   });
   
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
+  const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
-  const { openDialog } = useDialog();
 
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -183,7 +142,15 @@ const TagPage = ({classes}: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagPositionInList])
   const nextTag = otherTagsWithNavigation && (nextTagPosition !== null && nextTagPosition >= 0) && otherTagsWithNavigation[nextTagPosition]
+  
+  const expandAll = useCallback(() => {
+    setTruncated(false)
+  }, []);
 
+  const onHoverContributor = useCallback((userId: string) => {
+    setHoveredContributorId(userId);
+  }, []);
+  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -203,15 +170,16 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const description = (truncated && !tag.wikiOnly) ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
+  const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
+  const description = (truncated && !tag.wikiOnly)
+    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+    : htmlWithAnchors
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
     allPages: "allPages",
     myPages: "userPages"
   }
-  
-  const numFlags = tag.tagFlagsIds?.length
   
   return <AnalyticsContext
     pageContext='tagPage'
@@ -223,84 +191,46 @@ const TagPage = ({classes}: {
     <HeadTags
       description={headTagDescription}
     />
-    <SingleColumnSection>
-      <div className={classes.wikiSection}>
-        <AnalyticsContext pageSectionContext="wikiSection">
-          <div>
-            {query.flagId && <span>
-              <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-                  <TagFlagItem 
-                    itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-                    documentId={query.flagId}
-                  />
-              </Link>
-              {nextTag && <span onClick={() => setEditing(true)}><Link
-                className={classes.nextLink}
-                to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
-                  Next Tag ({nextTag.name})
-              </Link></span>}
-            </span>}
-            <Typography variant="display3" className={classes.title}>
-              {tag.name}
-            </Typography>
-          </div>
-          <div className={classes.buttonsRow}>
-            {!editing && <a className={classes.button} onClick={(ev) => {
-              if (currentUser) {
-                setEditing(true)
-              } else {
-                openDialog({
-                  componentName: "LoginPopup",
-                  componentProps: {}
-                });
-                ev.preventDefault();
-              }
-            } }>
-              <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
-            </a>} 
-            {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
-              <HistoryIcon /><span className={classes.buttonLabel}>History</span>
-            </Link>}
-            {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-              <SubscribeTo
-                document={tag}
-                className={classes.subscribeTo}
-                showIcon
-                hideLabelOnMobile
-                subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
-                subscriptionType={subscriptionTypes.newTagPosts}
+    {hoveredContributorId && <style>
+      {`.by_${hoveredContributorId} {background: #8f8;}`}
+    </style>}
+    <ToCColumn
+      tableOfContents={
+        tag.tableOfContents
+          ? <span className={classes.tableOfContentsWrapper}>
+              <TableOfContents
+                sectionData={tag.tableOfContents}
+                title={tag.name}
+                onClickSection={expandAll}
               />
-            </LWTooltip>}
-            <div className={classes.button}>
-              <TagDiscussionButton tag={tag} hideLabelOnMobile />
-            </div>
-            <div className={classes.callToAction}>
-              <LWTooltip
-                title={ tag.tagFlagsIds?.length > 0 ? 
-                  <div>
-                    {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
-                  </div> :
-                  <span>
-                    This tag does not currently have any improvement flags set.
-                  </span>
-                }
-                >
-                <a onClick={(ev) => {
-                  if (currentUser) setEditing(true);
-                  openDialog({
-                    componentName: currentUser ? "TagCTAPopup" : "LoginPopup",
-                    componentProps: {}
-                  })
-                  ev.preventDefault();
-                }}>
-                  <span className={classes.callToAction}> Help improve this page{/*
-                  */}<span className={classes.callToActionFlagCount}>{!!numFlags&&`(${numFlags} flags)`}</span>
-                  </span>
-                </a> 
-              </LWTooltip>
-            </div>
-          </div>
+              <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
+            </span>
+          : null
+      }
+      header={<div className={classNames(classes.header,classes.centralColumn)}>
+        <div>
+          {query.flagId && <span>
+            <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+              <TagFlagItem 
+                itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+                documentId={query.flagId}
+              />
+            </Link>
+            {nextTag && <span onClick={() => setEditing(true)}><Link
+              className={classes.nextLink}
+              to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+                Next Tag ({nextTag.name})
+            </Link></span>}
+          </span>}
+          <Typography variant="display3" className={classes.title}>
+            {tag.name}
+          </Typography>
+        </div>
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
+      </div>}
+    >
+      <div className={classNames(classes.wikiSection,classes.centralColumn)}>
+        <AnalyticsContext pageSectionContext="wikiSection">
           { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
             You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
           </div>}
@@ -318,25 +248,27 @@ const TagPage = ({classes}: {
           </div>}
         </AnalyticsContext>
       </div>
-      {editing && <TagDiscussionSection
-        key={tag._id}
-        tag={tag}
-      />}
-      {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-        <div className={classes.tagHeader}>
-          <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-          <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-        </div>
-        <PostsList2
-          terms={terms}
-          enableTotal
-          tagId={tag._id}
-          itemsPerPage={200}
-        >
-          <AddPostsToTag tag={tag} />
-        </PostsList2>
-      </AnalyticsContext>}
-    </SingleColumnSection>
+      <div className={classes.centralColumn}>
+        {editing && <TagDiscussionSection
+          key={tag._id}
+          tag={tag}
+        />}
+        {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
+          <div className={classes.tagHeader}>
+            <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+            <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+          </div>
+          <PostsList2
+            terms={terms}
+            enableTotal
+            tagId={tag._id}
+            itemsPerPage={200}
+          >
+            <AddPostsToTag tag={tag} />
+          </PostsList2>
+        </AnalyticsContext>}
+      </div>
+    </ToCColumn>
   </AnalyticsContext>
 }
 
