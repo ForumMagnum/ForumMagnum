@@ -39,7 +39,7 @@ const ConfigurableRecommendationsList = ({configName}: {
     { settingsVisible &&
       <RecommendationsAlgorithmPicker
         configName={configName}
-        settings={settings}
+        settings={settingsOrDefault}
         onChange={(newSettings) => changeSettings(newSettings)}
       /> }
     <RecommendationsList
