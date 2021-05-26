@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+    "noImplicitAny": true,
+    "strict": true,
+    "rootDir": ".",
+    "esModuleInterop": true,
+    "typeRoots": ["node_modules/@types"]
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}
