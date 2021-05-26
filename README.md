@@ -32,18 +32,24 @@ The EA Forum is built on top of a number major open-source libraries.
 
 Clone our repo:
 
+```
     git clone git@github.com:centre-for-effective-altruism/EAForum.git
-    
+```
+
 (CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
-    cd EAForum
-    yarn install
+```
+cd EAForum
+yarn install
+```
 
 Start the development server:
 
-    yarn ea-start
+```
+yarn ea-start
+```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
