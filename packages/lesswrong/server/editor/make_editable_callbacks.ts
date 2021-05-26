@@ -56,7 +56,7 @@ interface AfterCreateRevisionCallbackContext {
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
-export function mjPagePromise(html: string, beforeSerializationCallback): Promise<string> {
+export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string)=>any): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
@@ -81,9 +81,9 @@ export function mjPagePromise(html: string, beforeSerializationCallback): Promis
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
     
-    const callbackAndMarkFinished = (...args) => {
+    const callbackAndMarkFinished = (dom: any, css: string) => {
       finished = true;
-      return beforeSerializationCallback(...args);
+      return beforeSerializationCallback(dom, css);
     };
     
     mjpage(html, { fragment: true, errorHandler, format: ["MathML", "TeX"] } , {html: true, css: true}, resolve)
@@ -92,13 +92,13 @@ export function mjPagePromise(html: string, beforeSerializationCallback): Promis
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-const cheerioWrapAll = (toWrap, wrapper, $) => {
+const cheerioWrapAll = (toWrap: Cheerio, wrapper: string, $: CheerioStatic) => {
   if (toWrap.length < 1) {
     return toWrap;
   } 
 
-  if (toWrap.length < 2 && $.wrap) { // wrap not defined in npm version,
-    return $.wrap(wrapper);      // and git version fails testing.
+  if (toWrap.length < 2 && ($ as any).wrap) { // wrap not defined in npm version,
+    return ($ as any).wrap(wrapper);      // and git version fails testing.
   }
 
   const section = $(wrapper);
@@ -120,12 +120,13 @@ const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-t
 /// that all have a spoiler tag in a shared spoiler element (so that the
 /// mouse-hover will reveal all of them together).
 function wrapSpoilerTags(html: string): string {
-  const $ = cheerio.load(html)
+  //@ts-ignore
+  const $ = cheerio.load(html, null, false)
   
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
-  let spoilerBlockGroups: Array<any> = [];
-  let currentBlockGroup: Array<any> = [];
+  let spoilerBlockGroups: Array<CheerioElement[]> = [];
+  let currentBlockGroup: CheerioElement[] = [];
   $(`.${spoilerClass}`).each(function(this: any) {
     const element = this;
     if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
@@ -150,7 +151,8 @@ function wrapSpoilerTags(html: string): string {
 }
 
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
-  const $ = cheerio.load(`<div id="root">${html}</div>`)
+  //@ts-ignore
+  const $ = cheerio.load(`<div id="root">${html}</div>`, null, false)
   const topLevelElements = $('#root').children().get()
   // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
   removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
@@ -159,7 +161,7 @@ const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   return $("#root").html() || ""
 }
 
-const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
+const removeLeadingEmptyParagraphsAndBreaks = (elements: CheerioElement[], $: CheerioStatic) => {
    for (const elem of elements) {
     if (isEmptyParagraphOrBreak(elem)) {
       $(elem).remove()
@@ -169,10 +171,10 @@ const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
   }
 }
 
-const isEmptyParagraphOrBreak = (elem) => {
+const isEmptyParagraphOrBreak = (elem: CheerioElement) => {
   if (elem.name === "p") {
     if (elem.children?.length === 0) return true
-    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data.trim() === "") return true
+    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data?.trim() === "") return true
     return false
   }
   if (elem.name === "br") return true
@@ -366,7 +368,9 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
 
   const collectionName = collection.collectionName;
 
-  async function editorSerializationBeforeCreate (doc, { currentUser }) {
+  getCollectionHooks(collectionName).createBefore.add(
+    async function editorSerializationBeforeCreate (doc, { currentUser })
+  {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
@@ -412,11 +416,11 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       }
     }
     return doc
-  }
-  
-  getCollectionHooks(collectionName).createBefore.add(editorSerializationBeforeCreate);
+  });
 
-  async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
+  getCollectionHooks(collectionName).updateBefore.add(
+    async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser })
+  {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       
@@ -425,11 +429,11 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
-      const isBeingUndrafted = document.draft && !newDocument.draft
+      const isBeingUndrafted = (document as DbPost).draft && !(newDocument as DbPost).draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
       const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
-      const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
+      const version = await getNextVersion(document._id, updateType, fieldName, (newDocument as DbPost).draft)
       const userId = currentUser._id
       const editedAt = new Date()
       
@@ -477,11 +481,11 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       }
     }
     return docData
-  }
-  
-  getCollectionHooks(collectionName).updateBefore.add(editorSerializationEdit);
+  });
 
-  async function editorSerializationAfterCreate(newDoc: DbRevision) {
+  getCollectionHooks(collectionName).createAfter.add(
+    async function editorSerializationAfterCreate(newDoc: DbRevision)
+  {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
     await Revisions.update(
@@ -490,10 +494,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     );
     await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
     return newDoc;
-  }
-  
-  getCollectionHooks(collectionName).createAfter.add(editorSerializationAfterCreate)
-  //getCollectionHooks(collectionName).updateAfter.add(editorSerializationAfterCreateOrUpdate)
+  });
 }
 
 export function addAllEditableCallbacks() {
@@ -514,7 +515,8 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  const parsedHtml = cheerio.load(diffHtml);
+  // @ts-ignore
+  const parsedHtml = cheerio.load(diffHtml, null, false);
   
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");
@@ -522,7 +524,7 @@ const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
   return { added: insertedChars, removed: removedChars };
 }
 
-const countCharsInTag = (parsedHtml: CheerioStatic, tagName: string) => {
+const countCharsInTag = (parsedHtml: cheerio.Root, tagName: string): number => {
   const instancesOfTag = parsedHtml(tagName);
   let cumulative = 0;
   for (let i=0; i<instancesOfTag.length; i++) {

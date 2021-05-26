@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import EmailPropTypes from '../PropTypes'
 import includeDataProps from '../includeDataProps'
 
-export default function Image(props) {
+export default function Image(props: any) {
   return (
     <img
       {...includeDataProps(props)}

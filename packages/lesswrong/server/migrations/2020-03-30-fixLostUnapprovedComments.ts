@@ -19,7 +19,7 @@ registerMigration({
     const authorIds = _.uniq(unreviewedComments.map(comment => comment.userId));
     
     const authors = await Users.find({_id: {$in: authorIds}}).fetch();
-    const authorsById = {};
+    const authorsById: Record<string,DbUser> = {};
     for (let author of authors)
       authorsById[author._id] = author;
     

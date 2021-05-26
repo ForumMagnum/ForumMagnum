@@ -1,5 +1,5 @@
 import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
-import { getOutgoingUrl, findWhere, getSiteUrl } from '../../vulcan-lib/utils';
+import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
@@ -42,6 +42,8 @@ export const postGetAuthorName = async function (post: DbPost) {
 export const postGetDefaultStatus = function (user: DbUser): number {
   return postStatuses.STATUS_APPROVED;
 };
+
+const findWhere = (array: any, criteria: any) => array.find((item: any) => Object.keys(criteria).every((key: any) => item[key] === criteria[key]));
 
 // Get status name
 export const postGetStatusName = function (post: DbPost): string {

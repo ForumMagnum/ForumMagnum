@@ -44,7 +44,16 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
     ? await context.loaders[collectionName].load(documentId)
     : await collection.findOne(documentId);
   
-  if (majorVersion < 1 && document.userId !== (user && user._id)) return false // We only allow access to draft revisions to the author of the document
+  // We only allow access to draft revisions to the author of the document
+  // But on wiki/tag pages, major version 0 means "imported from old wiki" rather
+  // than "draft" (since there is no concept of wiki pages being drafts).
+  if (majorVersion < 1
+    && document.userId !== (user && user._id)
+    && document.collectionName!=="Tags")
+  {
+    return false
+  }
+  
   if (!await collection.checkAccess(user, document, context)) return false; // Everyone who can see the post can get access to non-draft revisions
   
   return true;

@@ -329,7 +329,7 @@ addGraphQLSchema(PetrovDayLaunchMissile);
 
 const petrovDayLaunchResolvers = {
   Query: {
-    async PetrovDayCheckIfIncoming(root, { external }, context: ResolverContext) {
+    async PetrovDayCheckIfIncoming(root: void, {external}: {external: boolean}, context: ResolverContext) {
       // if (external) {
       //   const externalUrl = `http://lesswrong.com/graphql?`
       //   const payload = [{ 
@@ -369,7 +369,7 @@ const petrovDayLaunchResolvers = {
     }
   },
   Mutation: {
-    async PetrovDayLaunchMissile(root, { launchCode }, context: ResolverContext) {
+    async PetrovDayLaunchMissile(root: void, {launchCode}: {launchCode: string}, context: ResolverContext) {
       const { currentUser } = context
       if (currentUser && !currentUser.petrovLaunchCodeDate) {
         const newLaunch = await Utils.createMutator({

@@ -28,15 +28,15 @@
  *   htmldiff('<p>this is some text</p>', '<p>this is some more text</p>', 'diff-class')
  *   == '<p>this is some <ins class="diff-class">more </ins>text</p>'
  */
-function isEndOfTag(char){
+function isEndOfTag(char: string){
     return char === '>';
 }
 
-function isStartOfTag(char){
+function isStartOfTag(char: string){
     return char === '<';
 }
 
-function isWhitespace(char){
+function isWhitespace(char: string){
     return /^\s+$/.test(char);
 }
 
@@ -47,20 +47,20 @@ function isWhitespace(char){
  *
  * @return {boolean|string} False if the token is not a tag, or the tag name otherwise.
  */
-function isTag(token){
+function isTag(token: string){
     var match = token.match(/^\s*<([^!>][^>]*)>\s*$/);
     return !!match && match[1].trim().split(' ')[0];
 }
 
-function isntTag(token){
+function isntTag(token: string){
     return !isTag(token);
 }
 
-function isStartofHTMLComment(word){
+function isStartofHTMLComment(word: string){
     return /^<!--/.test(word);
 }
 
-function isEndOfHTMLComment(word){
+function isEndOfHTMLComment(word: string){
     return /-->$/.test(word);
 }
 
@@ -68,7 +68,7 @@ function isEndOfHTMLComment(word){
  * Regular expression to check atomic tags.
  * @see function diff.
  */
-var atomicTagsRegExp;
+var atomicTagsRegExp: RegExp;
 // Added head and style (for style tags inside the body)
 var defaultAtomicTagsRegExp = new RegExp('^<(iframe|object|math|svg|script|video|head|style)');
 
@@ -82,7 +82,7 @@ var defaultAtomicTagsRegExp = new RegExp('^<(iframe|object|math|svg|script|video
  * @return {string|null} The name of the atomic tag if the word will be an atomic tag,
  *    null otherwise
  */
-function isStartOfAtomicTag(word){
+function isStartOfAtomicTag(word: string){
     var result = atomicTagsRegExp.exec(word);
     return result && result[1];
 }
@@ -97,7 +97,7 @@ function isStartOfAtomicTag(word){
  * @return {boolean} True if the word is now a complete token (including the end tag),
  *    false otherwise.
  */
-function isEndOfAtomicTag(word, tag){
+function isEndOfAtomicTag(word: string, tag: string){
     return word.substring(word.length - tag.length - 2) === ('</' + tag);
 }
 
@@ -108,7 +108,7 @@ function isEndOfAtomicTag(word, tag){
  *
  * @return {boolean} True if the token is a void tag, false otherwise.
  */
-function isVoidTag(token){
+function isVoidTag(token: string){
     return /^\s*<[^>]+\/>\s*$/.test(token);
 }
 
@@ -119,7 +119,7 @@ function isVoidTag(token){
  *
  * @return {boolean} True if the token can be wrapped inside a tag, false otherwise.
  */
-function isWrappable(token){
+function isWrappable(token: string){
     var is_img = /^<img[\s>]/.test(token);
     return is_img|| isntTag(token) || isStartOfAtomicTag(token) || isVoidTag(token);
 }
@@ -132,7 +132,7 @@ function isWrappable(token){
  *
  * @return {Object} A token object with a string and key property.
  */
-function createToken(currentWord){
+function createToken(currentWord: string){
     return {
         string: currentWord,
         key: getKeyForToken(currentWord)
@@ -148,7 +148,7 @@ function createToken(currentWord){
  * @param {number} length The number of consecutive matching tokens in this block.
  * @param {Segment} segment The segment where the match was found.
  */
-function Match(this: any, startInBefore, startInAfter, length, segment){
+function Match(this: any, startInBefore: number, startInAfter: number, length: number, segment: any){
     this.segment = segment;
     this.length = length;
 
@@ -281,7 +281,7 @@ function htmlToTokens(html: string){
  *
  * @return {string} The identifying key that should be used to match before and after tokens.
  */
-function getKeyForToken(token){
+function getKeyForToken(token: string){
     // If the token is an image element, grab it's src attribute to include in the key.
     var img = /^<img.*src=['"]([^"']*)['"].*>$/.exec(token);
     if (img) {
@@ -334,8 +334,8 @@ function getKeyForToken(token){
  *
  * @return {Object} A mapping that can be used to search for tokens.
  */
-function createMap(tokens){
-    return tokens.reduce(function(map, token, index){
+function createMap(tokens: any[]){
+    return tokens.reduce(function(map: any, token: any, index: number){
         if (map[token.key]){
             map[token.key].push(index);
         } else {
@@ -356,7 +356,7 @@ function createMap(tokens){
  * @return {number} Returns -1 if the m2 should come before m1. Returns 1 if m1 should come
  *    before m2. If the two matches criss-cross each other, 0 is returned.
  */
-function compareMatches(m1, m2){
+function compareMatches(m1: any, m2: any){
     if (m2.endInBefore < m1.startInBefore && m2.endInAfter < m1.startInAfter){
         return -1;
     } else if (m2.startInBefore > m1.endInBefore && m2.startInAfter > m1.endInAfter){
@@ -382,7 +382,7 @@ MatchBinarySearchTree.prototype = {
      *
      * @param {Match} value The match to add to the binary search tree.
      */
-    add: function (value){
+    add: function (value: any){
         // Create the node to hold the match value.
         var node = {
             value: value,
@@ -431,7 +431,7 @@ MatchBinarySearchTree.prototype = {
      * @return {Array.<Match>} An array containing the matches in the binary search tree.
      */
     toArray: function(){
-        function inOrder(node, nodes){
+        function inOrder(node: any, nodes: any){
             if (node){
                 inOrder(node.left, nodes);
                 nodes.push(node.value);
@@ -453,7 +453,7 @@ MatchBinarySearchTree.prototype = {
  *
  * @return {Match} The best match.
  */
-function findBestMatch(segment){
+function findBestMatch(segment: any){
     var beforeTokens = segment.beforeTokens;
     var afterMap = segment.afterMap;
     var lastSpace: any = null;
@@ -495,7 +495,7 @@ function findBestMatch(segment){
 
         // For each instance of the current token in afterTokens, let's see how big of a match
         // we can build.
-        afterTokenLocations.forEach(function(afterIndex){
+        afterTokenLocations.forEach(function(afterIndex: number){
             // getFullMatch will see how far the current token match will go in both
             // beforeTokens and afterTokens.
             var bestMatchLength = bestMatch ? bestMatch.length : 0;
@@ -525,7 +525,7 @@ function findBestMatch(segment){
  *
  * @return {Match} The full match.
  */
-function getFullMatch(segment, beforeStart, afterStart, minLength, lookBehind){
+function getFullMatch(segment: any, beforeStart: number, afterStart: number, minLength: number, lookBehind: boolean){
     var beforeTokens = segment.beforeTokens;
     var afterTokens = segment.afterTokens;
 
@@ -593,7 +593,7 @@ function getFullMatch(segment, beforeStart, afterStart, minLength, lookBehind){
  *
  * @return {Segment} The segment object.
  */
-function createSegment(beforeTokens, afterTokens, beforeIndex, afterIndex){
+function createSegment(beforeTokens: any[], afterTokens: any[], beforeIndex: number, afterIndex: number){
     return {
         beforeTokens: beforeTokens,
         afterTokens: afterTokens,
@@ -612,7 +612,7 @@ function createSegment(beforeTokens, afterTokens, beforeIndex, afterIndex){
  *
  * @return {Array.<Match>} The list of matching blocks in this range.
  */
-function findMatchingBlocks(segment){
+function findMatchingBlocks(segment: any){
     // Create a binary search tree to hold the matches we find in order.
     var matches = new MatchBinarySearchTree();
     var match;
@@ -673,7 +673,7 @@ function findMatchingBlocks(segment){
  *      - {number} startInAfter The beginning of the range in the list of after tokens.
  *      - {number} endInAfter The end of the range in the list of after tokens.
  */
-function calculateOperations(beforeTokens, afterTokens): Array<any> {
+function calculateOperations(beforeTokens: string[], afterTokens: string[]): Array<any> {
     if (!beforeTokens) throw new Error('Missing beforeTokens');
     if (!afterTokens) throw new Error('Missing afterTokens');
 
@@ -724,13 +724,15 @@ function calculateOperations(beforeTokens, afterTokens): Array<any> {
     var postProcessed: Array<any> = [];
     var lastOp: any = {action: 'none'};
 
-    function isSingleWhitespace(op){
+    function isSingleWhitespace(op: any){
         if (op.action !== 'equal'){
             return false;
         }
         if (op.endInBefore - op.startInBefore !== 0){
             return false;
         }
+        // Fails typecheck, maybe a real bug? --Jim
+        // @ts-ignore
         return /^\s$/.test(beforeTokens.slice(op.startInBefore, op.endInBefore + 1));
     }
 
@@ -763,7 +765,7 @@ function calculateOperations(beforeTokens, afterTokens): Array<any> {
  * TokenWrapper has a method 'combine' which allows walking over the segments to wrap them in
  * tags.
  */
-function TokenWrapper(this: any, tokens){
+function TokenWrapper(this: any, tokens: any[]){
     this.tokens = tokens;
     this.notes = tokens.reduce(function(data, token, index){
         data.notes.push({
@@ -797,10 +799,10 @@ function TokenWrapper(this: any, tokens){
  * @param {function(boolean, Array.<string>)} mapFn A function called with an array of tokens
  *      and whether those tokens are wrappable or not. The result should be a string.
  */
-TokenWrapper.prototype.combine = function(mapFn, tagFn){
+TokenWrapper.prototype.combine = function(mapFn: any, tagFn: any){
     var notes = this.notes;
     var tokens = this.tokens.slice();
-    var segments = tokens.reduce(function(data, token, index){
+    var segments = tokens.reduce(function(data: any, token: any, index: number){
         if (notes[index].insertedTag){
             tokens[index] = tagFn(tokens[index]);
         }
@@ -837,7 +839,7 @@ TokenWrapper.prototype.combine = function(mapFn, tagFn){
  * @param {string} dataPrefix (Optional) The prefix to use in data attributes.
  * @param {string} className (Optional) The class name to include in the wrapper tag.
  */
-function wrap(tag, content, opIndex, dataPrefix, className){
+function wrap(tag: string, content: string[], opIndex: number, dataPrefix?: string, className?: string){
     var wrapper = new TokenWrapper(content);
     dataPrefix = dataPrefix ? dataPrefix + '-' : '';
     var attrs = ' data-' + dataPrefix + 'operation-index="' + opIndex + '"';
@@ -845,7 +847,7 @@ function wrap(tag, content, opIndex, dataPrefix, className){
         attrs += ' class="' + className + '"';
     }
 
-    return wrapper.combine(function(segment){
+    return wrapper.combine(function(segment: any){
         if (segment.isWrappable){
             var val = segment.tokens.join('');
             if (val.trim()){
@@ -855,7 +857,7 @@ function wrap(tag, content, opIndex, dataPrefix, className){
             return segment.tokens.join('');
         }
         return '';
-    }, function(openingTag){
+    }, function(openingTag: any){
         var dataAttrs = ' data-diff-node="' + tag + '"';
         dataAttrs += ' data-' + dataPrefix + 'operation-index="' + opIndex + '"';
 
@@ -883,23 +885,23 @@ function wrap(tag, content, opIndex, dataPrefix, className){
  *
  * @return {string} The rendering of that operation.
  */
-var OPS = {
-    'equal': function(op, beforeTokens, afterTokens, opIndex, dataPrefix, className){
+var OPS: any = {
+    'equal': function(op: any, beforeTokens: any, afterTokens: any, opIndex: number, dataPrefix?: string, className?: string){
         var tokens = afterTokens.slice(op.startInAfter, op.endInAfter + 1);
-        return tokens.reduce(function(prev, curr){
+        return tokens.reduce(function(prev: any, curr: any){
             return prev + curr.string;
         }, '');
     },
-    'insert': function(op, beforeTokens, afterTokens, opIndex, dataPrefix, className){
+    'insert': function(op: any, beforeTokens: any, afterTokens: any, opIndex: number, dataPrefix?: string, className?: string){
         var tokens = afterTokens.slice(op.startInAfter, op.endInAfter + 1);
-        var val = tokens.map(function(token){
+        var val = tokens.map(function(token: any){
             return token.string;
         });
         return wrap('ins', val, opIndex, dataPrefix, className);
     },
-    'delete': function(op, beforeTokens, afterTokens, opIndex, dataPrefix, className){
+    'delete': function(op: any, beforeTokens: any, afterTokens: any, opIndex: number, dataPrefix?: string, className?: string){
         var tokens = beforeTokens.slice(op.startInBefore, op.endInBefore + 1);
-        var val = tokens.map(function(token){
+        var val = tokens.map(function(token: any){
             return token.string;
         });
         return wrap('del', val, opIndex, dataPrefix, className);
@@ -928,7 +930,7 @@ var OPS = {
  *
  * @return {string} The rendering of the list of operations.
  */
-function renderOperations(beforeTokens, afterTokens, operations, dataPrefix, className) {
+function renderOperations(beforeTokens: string[], afterTokens: string[], operations: any[], dataPrefix?: string, className?: string) {
     return operations.reduce(function(rendering, op, index){
         return rendering + OPS[op.action](
                 op, beforeTokens, afterTokens, index, dataPrefix, className);

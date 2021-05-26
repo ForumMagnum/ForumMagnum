@@ -1,7 +1,7 @@
-export function mjpage(html, conf1, conf2, callback) {
+export function mjpage(html: string, conf1: any, conf2: any, callback: any) {
     callback(html)
     return {
-        on: (callbackName, callback) => callback(html)
+        on: (callbackName: string, callback: any) => callback(html)
     }
 }
 

@@ -590,6 +590,8 @@ interface DbTag extends DbObject {
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
   lesswrongWikiImportCompleted: boolean
+  htmlWithContributorAnnotations: string
+  contributionScores: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
 }
 
