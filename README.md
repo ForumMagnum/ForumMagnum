@@ -33,7 +33,7 @@ The EA Forum is built on top of a number major open-source libraries.
 Clone our repo:
 
 ```
-    git clone git@github.com:centre-for-effective-altruism/EAForum.git
+git clone git@github.com:centre-for-effective-altruism/EAForum.git
 ```
 
 (CEA Devs, see the ForumCredentials repository for secrets)
