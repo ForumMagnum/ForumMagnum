@@ -33,6 +33,7 @@ registerFragment(`
     afSequenceCount
     afSequenceDraftCount
     sequenceDraftCount
+    tagRevisionCount
     moderationStyle
     moderationGuidelines {
       ...RevisionDisplay
@@ -120,7 +121,7 @@ registerFragment(`
     bookmarkedPosts {
       ...PostsList
     }
-    
+
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
