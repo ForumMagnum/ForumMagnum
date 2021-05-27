@@ -102,7 +102,6 @@
     "@types/react-helmet": "^5.0.15",
     "@types/react-instantsearch": "^6.10.0",
     "@types/react-instantsearch-dom": "^6.3.0",
-    "@types/react-jss": "^10.0.0",
     "@types/react-map-gl": "^5.2.2",
     "@types/react-no-ssr": "^1.1.1",
     "@types/react-router": "^5.1.13",
