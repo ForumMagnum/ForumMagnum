@@ -183,7 +183,6 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   </React.Fragment>;
 }
 
-// TODO; maybe improve styling, test in instances other than navbar
 const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
   return <div className={classes.root}>
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>

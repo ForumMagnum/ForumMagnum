@@ -13,7 +13,7 @@ export async function mergeAccountWithAuth0(user: DbUser, profile: Profile) {
     set: {'services.auth0': profile} as any,
     // Normal updates are not supposed to update services
     validate: false
-    // TODO: Soon we should delete passwords when we do this
+    // TODO: Soon we should delete passwords, and prolly resume tokens when we do this
   })
 }
 

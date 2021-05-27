@@ -69,7 +69,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       if (forumTypeSetting.get() === 'EAForum' && email) {
         const user = await Users.findOne({'emails.address': email})
         if (user) {
-          // TODO; doc
+          // Forum only uses Auth0Profile
           const { data: updatedUser } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
           return done(null, updatedUser)
         }
