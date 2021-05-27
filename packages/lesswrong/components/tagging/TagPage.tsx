@@ -192,7 +192,7 @@ const TagPage = ({classes}: {
       description={headTagDescription}
     />
     {hoveredContributorId && <style>
-      {`.by_${hoveredContributorId} {background: #8f8;}`}
+      {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}
     <ToCColumn
       tableOfContents={
