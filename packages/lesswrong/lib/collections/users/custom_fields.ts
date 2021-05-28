@@ -1442,7 +1442,7 @@ addFieldsDict(Users, {
       fieldName: "tagRevisionCount",
       collectionName: "Users",
       foreignCollectionName: "Revisions",
-      foreignTypeName: "Revision",
+      foreignTypeName: "revision",
       foreignFieldName: "userId",
       filterFn: revision => revision.collectionName === "Tags"
     }),
