@@ -6,6 +6,8 @@ import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
+import { PartialDeep } from 'type-fest'
+import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -155,17 +157,23 @@ export const createDefaultUser = async() => {
   }
 }
 
-export const createDummyPost = async (user?: any, data?: any) => {
-  const defaultUser = await createDefaultUser();
+// Posts can be created pretty flexibly
+type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {postedAt?: Date | number}
+
+export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
+  let user_ = user || await createDefaultUser()
   const defaultData = {
-    userId: (user && user._id) ? user._id : defaultUser._id,
+    userId: user_._id,
     title: randomId(),
   }
   const postData = {...defaultData, ...data};
   const newPostResponse = await createMutator({
     collection: Posts,
-    document: postData,
-    currentUser: user || defaultUser,
+    // Not the best, createMutator should probably be more flexible about what
+    // it accepts, as long as validate is false
+    document: postData as DbPost,
+    // As long as user has a _id it should be fine
+    currentUser: user_ as DbUser,
     validate: false,
   });
   return newPostResponse.data
@@ -243,14 +251,14 @@ export const createDummyMessage = async (user: any, data?: any) => {
 }
 
 export const clearDatabase = async () => {
-  (await Users.find().fetch()).forEach((i)=>{
-    Users.remove(i._id)
+  await asyncForeachSequential(await Users.find().fetch(), async (i) => {
+    await Users.remove(i._id)
   });
-  (await Posts.find().fetch()).forEach((i)=>{
-    Posts.remove(i._id)
+  await asyncForeachSequential(await Posts.find().fetch(), async (i) => {
+    await Posts.remove(i._id)
   });
-  (await Comments.find().fetch()).forEach((i)=>{
-    Posts.remove(i._id)
+  await asyncForeachSequential(await Comments.find().fetch(), async (i) => {
+    await Comments.remove(i._id)
   });
 }
 

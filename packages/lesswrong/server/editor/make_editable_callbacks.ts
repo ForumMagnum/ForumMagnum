@@ -92,7 +92,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-const cheerioWrapAll = (toWrap: Cheerio, wrapper: string, $: CheerioStatic) => {
+const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
   if (toWrap.length < 1) {
     return toWrap;
   } 
@@ -125,8 +125,8 @@ function wrapSpoilerTags(html: string): string {
   
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
-  let spoilerBlockGroups: Array<CheerioElement[]> = [];
-  let currentBlockGroup: CheerioElement[] = [];
+  let spoilerBlockGroups: Array<cheerio.Element[]> = [];
+  let currentBlockGroup: cheerio.Element[] = [];
   $(`.${spoilerClass}`).each(function(this: any) {
     const element = this;
     if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
@@ -161,7 +161,7 @@ const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   return $("#root").html() || ""
 }
 
-const removeLeadingEmptyParagraphsAndBreaks = (elements: CheerioElement[], $: CheerioStatic) => {
+const removeLeadingEmptyParagraphsAndBreaks = (elements: cheerio.Element[], $: cheerio.Root) => {
    for (const elem of elements) {
     if (isEmptyParagraphOrBreak(elem)) {
       $(elem).remove()
@@ -171,13 +171,13 @@ const removeLeadingEmptyParagraphsAndBreaks = (elements: CheerioElement[], $: Ch
   }
 }
 
-const isEmptyParagraphOrBreak = (elem: CheerioElement) => {
-  if (elem.name === "p") {
+const isEmptyParagraphOrBreak = (elem: cheerio.Element) => {
+  if (elem.type === 'tag' && elem.name === "p") {
     if (elem.children?.length === 0) return true
     if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data?.trim() === "") return true
     return false
   }
-  if (elem.name === "br") return true
+  if (elem.type === 'tag' && elem.name === "br") return true
   return false
 }
 
@@ -381,26 +381,23 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
-      
-      // FIXME: This doesn't define documentId, because it's filled in in the
-      // after-create callback, passing through an intermediate state where it's
-      // undefined; and it's missing _id and schemaVersion, which leads to having
-      // ObjectID types in the database which can cause problems. Would be good
-      // to remove this ts-ignore, since there was recently an important bug here
-      // (missing fieldName) that typechecking would have caught.
-      // @ts-ignore
-      const firstRevision = await Connectors.create(Revisions, {
-        ...await buildRevision({
+      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "score" | "inactive" > = {
+        ...(await buildRevision({
           originalContents: doc[fieldName].originalContents,
           currentUser,
-        }),
+        })),
         fieldName,
         collectionName,
         version,
         updateType: 'initial',
         commitMessage,
         changeMetrics,
-      });
+      };
+      // FIXME: This doesn't define documentId, because it's filled in in the
+      // after-create callback, passing through an intermediate state where it's
+      // undefined; and it's missing _id and schemaVersion, which leads to having
+      // ObjectID types in the database which can cause problems.
+      const firstRevision = await Connectors.create(Revisions, newRevision as DbRevision);
       
       return {
         ...doc,
@@ -442,10 +439,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         const previousRev = await getLatestRev(newDocument._id, fieldName);
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
         
-        // FIXME: See comment on the other Connectors.create call in this file.
-        // Missing _id and schemaVersion.
-        // @ts-ignore
-        newRevisionId = await Connectors.create(Revisions, {
+        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "score" | "inactive" > = {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -457,7 +451,10 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           updateType,
           commitMessage,
           changeMetrics,
-        });
+        }
+        // FIXME: See comment on the other Connectors.create call in this file.
+        // Missing _id and schemaVersion.
+        newRevisionId = await Connectors.create(Revisions, newRevision as DbRevision);
       } else {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
@@ -539,4 +536,3 @@ export const htmlToChangeMetrics = (oldHtml: string, newHtml: string): ChangeMet
   const htmlDiff = diff(oldHtml, newHtml);
   return diffToChangeMetrics(htmlDiff);
 }
-
