@@ -31,3 +31,10 @@ export const postStatusLabels = [
     label: 'deleted'
   }
 ];
+
+export const stickyPostCategories = {
+  AMA: 'Ask Me Anything',
+  openThread:  'Open Thread',
+}
+
+export const startHere = 'start here';

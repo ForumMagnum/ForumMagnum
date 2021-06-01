@@ -1197,6 +1197,7 @@ Posts.addView("stickied", (terms: PostsViewTerms) => {
       sticky: true,
     },
     options: {
+      limit: 100,
       sort: {
         stickyPriority: -1,
       },

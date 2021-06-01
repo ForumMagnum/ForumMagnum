@@ -12,6 +12,7 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import {startHere, stickyPostCategories} from "../../lib/collections/posts/constants";
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -279,6 +280,18 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) => {
   }
 }
 
+const isAMA = (post: PostsList) => {
+  return !!(post.sticky && post.tags.filter(tag => tag.name === stickyPostCategories.AMA).length > 0);
+}
+
+const isOpenThread = (post: PostsList) => {
+  return !!(post.sticky && post.tags.filter(tag => tag.name === stickyPostCategories.openThread).length > 0);
+}
+
+const isStartHerePost = (post: PostsList) => {
+  return !!(post.sticky && new RegExp(`${startHere}`, "i").test(post.title));
+}
+
 const PostsItem2 = ({
   // post: The post displayed.
   post,
@@ -450,6 +463,9 @@ const PostsItem2 = ({
                       post={post}
                       read={isRead}
                       sticky={isSticky(post, terms)}
+                      ama={isAMA(post)}
+                      openThread={isOpenThread(post)}
+                      startHerePost={isStartHerePost(post)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}
