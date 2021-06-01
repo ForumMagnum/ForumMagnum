@@ -12,7 +12,7 @@ const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbo
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner
+    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner, StickiedPosts
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -25,6 +25,7 @@ const EAHome = () => {
       
       {shouldRenderSmallpox && <SmallpoxBanner/>}
 
+      <StickiedPosts />
       <HomeLatestPosts />
 
       <RecommendationsAndCurated configName="frontpageEA" />

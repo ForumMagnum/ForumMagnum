@@ -1183,3 +1183,16 @@ ensureIndex(Posts,
     name: "posts.users_tagged_posts",
   }
 );
+
+Posts.addView("stickied", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      sticky: true,
+    },
+    options: {
+      sort: {
+        stickyPriority: -1,
+      },
+    }
+  }
+})
