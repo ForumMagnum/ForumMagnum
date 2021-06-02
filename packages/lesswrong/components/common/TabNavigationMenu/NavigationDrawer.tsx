@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
+import type { ToCData } from '../../../server/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   paperWithoutToC: {
@@ -55,7 +56,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
   open: boolean,
   handleOpen: ()=>void,
   handleClose: ()=>void,
-  toc: any,
+  toc: ToCData,
   classes: ClassesType,
 }) => {
   const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
@@ -80,6 +81,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
           sectionData={toc}
+          title={null}
           onClickSection={() => handleClose()}
           drawerStyle={true}
         />

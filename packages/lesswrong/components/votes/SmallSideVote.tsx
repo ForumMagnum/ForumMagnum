@@ -7,7 +7,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 import Tooltip from '@material-ui/core/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { Comments } from '../../lib/collections/comments';
+import { Comments } from '../../lib/collections/comments/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   vote: {
@@ -38,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
-  document: CommentsList|PostsWithVotes,
+  document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
   hideKarma?: boolean,
   classes: ClassesType,
   collection: any
@@ -55,20 +57,31 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
   const karma = voteProps.baseScore;
 
   let moveToAlignnmentUserId = ""
+  let documentTypeName = "comment";
   if (collection == Comments) {
     const comment = document as CommentsList
     moveToAlignnmentUserId = comment.moveToAlignmentUserId
   }
+  if (collection == Posts) {
+    documentTypeName = "post";
+  }
+  if (collection == Revisions) {
+    documentTypeName = "revision";
+  }
 
+  const af = (document as any).af;
+  const afDate = (document as any).afDate;
+  const afBaseScore = (document as any).afBaseScore;
+  
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
-      {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { document.afDate && moment(new Date(document.afDate)).format('YYYY-MM-DD') }</span>}
+      {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>}
     </div>
   )
 
   return (
     <span className={classes.vote} {...eventHandlers}>
-      {(forumTypeSetting.get() !== 'AlignmentForum' || !!document.af) &&
+      {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <>
           <Tooltip
             title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
@@ -87,7 +100,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
             <Tooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </Tooltip> :
-            <Tooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+            <Tooltip title={`This ${documentTypeName} has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>
@@ -107,7 +120,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
           </Tooltip>
         </>
       }
-      {!!document.af && forumTypeSetting.get() !== 'AlignmentForum' &&
+      {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
         <Tooltip placement="bottom" title={
           <div>
             <p>AI Alignment Forum Karma</p>
@@ -116,11 +129,11 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
         }>
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>Ω</span>
-            <span className={classes.secondaryScoreNumber}>{document.afBaseScore || 0}</span>
+            <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
           </span>
         </Tooltip>
       }
-      {!document.af && (forumTypeSetting.get() === 'AlignmentForum') &&
+      {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
         <Tooltip title="LessWrong Karma" placement="bottom">
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>

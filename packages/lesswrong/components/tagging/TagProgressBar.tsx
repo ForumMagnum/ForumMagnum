@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 
-export const progressBarRoot = (theme) => ({
+export const progressBarRoot = (theme: ThemeType) => ({
   background: "white",
   padding: 10,
   paddingLeft: 12,
@@ -18,7 +18,7 @@ export const progressBarRoot = (theme) => ({
   ...theme.typography.postStyle
 })
 
-export const secondaryInfo = (theme) => ({
+export const secondaryInfo = (theme: ThemeType) => ({
   display: 'flex',
   ...theme.typography.commentStyle,
   justifyContent: 'space-between',

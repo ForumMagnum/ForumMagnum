@@ -86,6 +86,7 @@ interface DbComment extends DbObject {
   answer: boolean
   parentAnswerId: string
   directChildrenCount: number
+  descendentCount: number
   shortform: boolean
   nominatedForReview: string
   reviewingForReview: string
@@ -491,6 +492,10 @@ interface DbRevision extends DbObject {
   html: string
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  voteCount: number
+  baseScore: number
+  score: number
+  inactive: boolean
 }
 
 interface SequencesCollection extends CollectionBase<DbSequence, "Sequences"> {
@@ -585,6 +590,8 @@ interface DbTag extends DbObject {
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
   lesswrongWikiImportCompleted: boolean
+  htmlWithContributorAnnotations: string
+  contributionScores: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
 }
 

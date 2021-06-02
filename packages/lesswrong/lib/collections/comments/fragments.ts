@@ -7,6 +7,7 @@ registerFragment(`
     tagId
     parentCommentId
     topLevelCommentId
+    descendentCount
     contents {
       html
       plaintextMainText

@@ -52,7 +52,7 @@ const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
   </div>;
 }
 
-const EmailCommentsOnTagHeader = ({tagId}) => {
+const EmailCommentsOnTagHeader = ({tagId}: {tagId: string}) => {
   const { document: tag } = useSingle({
     documentId: tagId,
     collectionName: "Tags",

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt } from "../../lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -14,7 +14,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
-export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 
@@ -133,14 +132,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       padding: 0,
     }
-  },
-  commentsIcon: {
-    width: COMMENTS_WIDTH,
-    height: 24,
-    cursor: "pointer",
-    position: "relative",
-    flexShrink: 0,
-    top: 2
   },
   actions: {
     opacity: 0,
@@ -503,11 +494,11 @@ const PostsItem2 = ({
                 </div>}
 
                 {!resumeReading && <PostsItemComments
-                  post={post}
+                  small={false}
+                  commentCount={postGetCommentCount(post)}
                   onClick={toggleComments}
                   unreadComments={hasUnreadComments()}
                   newPromotedComments={hasNewPromotedComments()}
-                  className={classes.commentsIcon}
                 />}
 
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">

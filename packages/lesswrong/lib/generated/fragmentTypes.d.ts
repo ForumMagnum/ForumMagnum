@@ -154,6 +154,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly answer: boolean,
   readonly parentAnswerId: string,
   readonly directChildrenCount: number,
+  readonly descendentCount: number,
   readonly shortform: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
@@ -215,6 +216,9 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
+  readonly htmlWithContributorAnnotations: string,
+  readonly contributors: any /*TagContributorsList*/,
+  readonly contributionScores: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -564,6 +568,7 @@ interface CommentsList { // fragment on Comments
   readonly tagId: string,
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
+  readonly descendentCount: number,
   readonly contents: CommentsList_contents|null,
   readonly postedAt: Date,
   readonly repliesBlockedUntil: Date,
@@ -691,6 +696,10 @@ interface RevisionMetadata { // fragment on Revisions
   readonly editedAt: Date,
   readonly commitMessage: string,
   readonly userId: string,
+  readonly score: number,
+  readonly baseScore: number,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
@@ -705,6 +714,15 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
   readonly tag: TagBasicInfo|null,
+}
+
+interface WithVoteRevision { // fragment on Revisions
+  readonly __typename: string,
+  readonly _id: string,
+  readonly currentUserVote: string,
+  readonly baseScore: number,
+  readonly score: number,
+  readonly voteCount: number,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -1309,6 +1327,20 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
+interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
+  readonly tableOfContents: any,
+  readonly contributors: any,
+}
+
+interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
+  readonly tableOfContents: any,
+  readonly contributors: any,
+}
+
+interface TagFullContributorsList { // fragment on Tags
+  readonly contributors: any,
+}
+
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
@@ -1675,6 +1707,7 @@ interface FragmentTypes {
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
   RevisionTagFragment: RevisionTagFragment
+  WithVoteRevision: WithVoteRevision
   NotificationsDefaultFragment: NotificationsDefaultFragment
   NotificationsList: NotificationsList
   ConversationsDefaultFragment: ConversationsDefaultFragment
@@ -1731,6 +1764,9 @@ interface FragmentTypes {
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
+  TagPageFragment: TagPageFragment
+  TagPageWithRevisionFragment: TagPageWithRevisionFragment
+  TagFullContributorsList: TagFullContributorsList
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
@@ -1805,6 +1841,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
   RevisionTagFragment: "Revisions"
+  WithVoteRevision: "Revisions"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
   ConversationsDefaultFragment: "Conversations"
@@ -1861,6 +1898,9 @@ interface CollectionNamesByFragmentName {
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagWithFlagsAndRevisionFragment: "Tags"
+  TagPageFragment: "Tags"
+  TagPageWithRevisionFragment: "Tags"
+  TagFullContributorsList: "Tags"
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
   SunshineTagFragment: "Tags"

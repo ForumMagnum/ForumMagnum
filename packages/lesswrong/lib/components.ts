@@ -308,6 +308,7 @@ importComponent("ToggleIsModeratorComment", () => require('../components/comment
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
 
+importComponent("CommentById", () => require('../components/comments/CommentById'));
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink'));
 importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
@@ -396,6 +397,7 @@ importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'
 importComponent("AddTagButton", () => require('../components/tagging/AddTagButton'));
 importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTagsChecklist'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
+importComponent("TagPageButtonRow", () => require('../components/tagging/TagPageButtonRow'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
 importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
@@ -410,21 +412,25 @@ importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGra
 importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
 importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
 importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
+importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("TagCTAPopup", () => require('../components/tagging/TagCTAPopup'));
+importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 
 
 importComponent("TagsListItem", () => require('../components/tagging/TagsListItem'));
 importComponent("ChangeMetricsDisplay", () => require('../components/tagging/ChangeMetricsDisplay'));
 importComponent("NewTagItem", () => require('../components/tagging/NewTagItem'));
 importComponent("TagRevisionItem", () => require('../components/tagging/TagRevisionItem'));
+importComponent("TagRevisionItemWrapper", () => require('../components/tagging/TagRevisionItemWrapper'));
 importComponent("TagRevisionItemShortMetadata", () => require('../components/tagging/TagRevisionItemShortMetadata'));
 importComponent("TagRevisionItemFullMetadata", () => require('../components/tagging/TagRevisionItemFullMetadata'));
 importComponent("TagsDetailsItem", () => require('../components/tagging/TagsDetailsItem'));
 importComponent("TagCompareRevisions", () => require('../components/tagging/TagCompareRevisions'));
 importComponent("TagDiscussionPage", () => require('../components/tagging/TagDiscussionPage'));
 importComponent("TagDiscussion", () => require('../components/tagging/TagDiscussion'));
+importComponent("TagEditsTimeBlock", () => require('../components/tagging/TagEditsTimeBlock'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));
@@ -439,6 +445,7 @@ importComponent("RecentDiscussionTag", () => require('../components/recentDiscus
 importComponent("TagHistoryPage", () => require('../components/tagging/history/TagHistoryPage'));
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
+importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));

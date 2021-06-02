@@ -8,7 +8,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
 
-function generateCode(length) {
+function generateCode(length: number) {
   let result = '';
   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   var charactersLength = characters.length;

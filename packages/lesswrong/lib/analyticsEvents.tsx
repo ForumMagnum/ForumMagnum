@@ -3,9 +3,10 @@ import { CallbackChainHook } from './vulcan-lib/callbacks';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { hookToHoc } from './hocUtils'
-import { isClient, isServer, isDevelopment } from './executionEnvironment';
+import { isClient, isServer, isDevelopment, isAnyTest } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
+import { getPublicSettingsLoaded } from './settingsCache';
 import * as _ from 'underscore';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug ", "dev");
@@ -42,9 +43,12 @@ export const AnalyticsUtil: any = {
 };
 
 function getShowAnalyticsDebug() {
-  if (showAnalyticsDebug.get()==="always")
+  if (isAnyTest)
+    return false;
+  const debug = getPublicSettingsLoaded() ? showAnalyticsDebug.get() : "dev";
+  if (debug==="always")
     return true;
-  else if (showAnalyticsDebug.get()==="dev")
+  else if (debug==="dev")
     return isDevelopment;
   else
     return false;
@@ -140,7 +144,7 @@ The best way to ensure you are tracking correctly with is to insert a console.lo
 in captureEvent in this file, e.g. console.log({eventType: eventProps}).
 */
 
-export const AnalyticsContext = ({children, ...props}) => {
+export const AnalyticsContext = ({children, ...props}: any) => {
   const existingContextData = useContext(ReactTrackingContext)
   
   // Create a child context, which is the parent context plus the provided props
