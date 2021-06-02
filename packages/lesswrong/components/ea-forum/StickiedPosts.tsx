@@ -25,10 +25,10 @@ const StickiedPosts = ({
       </Typography>}>
     </SectionTitle>
     <PostsList2
-      terms={{view:"stickied"}}
+      terms={{view:"stickied", limit:100}}
       showNoResults={false}
       showLoadMore={false}
-      hideLastUnread={true}
+      hideLastUnread={false}
       boxShadow={false}
       curatedIconLeft={true}
     />

@@ -1191,16 +1191,15 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("stickied", (terms: PostsViewTerms) => {
-  return {
+Posts.addView("stickied", (terms: PostsViewTerms) => (
+  {
     selector: {
       sticky: true,
     },
     options: {
-      limit: 100,
       sort: {
         stickyPriority: -1,
       },
     }
   }
-})
+));
