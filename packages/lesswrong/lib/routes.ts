@@ -716,6 +716,11 @@ switch (forumTypeSetting.get()) {
         path:'/tags',
         redirect: () => `/tags/all`,
       },
+      {
+        name: 'moderatorComments',
+        path: '/moderatorComments',
+        componentName: 'ModeratorComments',
+      }
     );
     break
   default:
