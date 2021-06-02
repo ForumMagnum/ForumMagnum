@@ -61,7 +61,7 @@ export const filters: Record<string,any> = {
     curatedDate: {$gt: new Date(0)}
   },
   "nonSticky": {
-    sticky: false
+    sticky: false,
   },
   "frontpage": {
     frontpageDate: {$gt: new Date(0)}
@@ -365,7 +365,7 @@ Posts.addView("magic", (terms: PostsViewTerms) => {
   const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : undefined;
   return {
     selector,
-    options: {sort: setStickies(sortings.magic, terms)}
+    options: {sort: setStickies(sortings.magic, terms)},
   };
 });
 ensureIndex(Posts,
@@ -1200,6 +1200,6 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
       sort: {
         stickyPriority: -1,
       },
-    }
+    },
   }
 ));

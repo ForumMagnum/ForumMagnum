@@ -1,13 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { sectionTitleStyle } from "../common/SectionTitle";
-export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
-    marginRight: "auto"
+    marginRight: "auto",
   },
 });
 
@@ -30,7 +29,7 @@ const StickiedPosts = ({
       showLoadMore={false}
       hideLastUnread={false}
       boxShadow={false}
-      curatedIconLeft={true}
+      curatedIconLeft={false}
     />
   </SingleColumnSection>;
 }
