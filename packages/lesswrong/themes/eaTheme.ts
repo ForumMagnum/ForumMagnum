@@ -33,7 +33,8 @@ const sansSerifStack = [
 
 const palette = {
   primary: {
-    main: '#0c869b', // Maybe replace with: 00b2be
+    main: '#0c869b',
+    light: '#00b2be',
   },
   secondary: {
     main: '#0c869b',

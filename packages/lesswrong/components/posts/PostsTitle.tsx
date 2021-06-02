@@ -40,7 +40,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2
   },
   primaryIcon: {
-    color: "#01839b"
+    color: theme.palette.primary.light,
+    paddingRight: theme.spacing.unit,
+    top: -2,
+    width: "auto",
+    position: "relative",
+    verticalAlign: "middle",
   },
   read: {
     color: "rgba(0,0,0,.55)",
@@ -110,9 +115,9 @@ const PostsTitle = ({post, postLink, classes, sticky, ama, openThread, startHere
   const url = postLink || postGetPageUrl(post)
 
   const title = <span>
-    {ama && <span className={classes.sticky}><QuestionAnswerIcon className={classes.primaryIcon}/></span>}
-    {openThread && <span className={classes.sticky}><AllInclusiveIcon className={classes.primaryIcon}/></span>}
-    {startHerePost && <span className={classes.sticky}><PlayCircleOutlineIcon className={classes.primaryIcon}/></span>}
+    {ama && <QuestionAnswerIcon className={classes.primaryIcon}/>}
+    {openThread && <AllInclusiveIcon className={classes.primaryIcon}/>}
+    {startHerePost && <PlayCircleOutlineIcon className={classes.primaryIcon}/>}
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
