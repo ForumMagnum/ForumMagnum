@@ -10,7 +10,7 @@ import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passp
 import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
 import { DatabaseServerSetting } from './databaseSettings';
-import { createMutator } from './vulcan-lib/mutators';
+import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { forumTypeSetting } from '../lib/instanceSettings';
@@ -63,7 +63,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
     if (!profileId) {
       throw new Error('OAuth profile does not have a profile ID')
     }
-    const user = await Users.findOne({[idPath]: profileId})
+    let user = await Users.findOne({[idPath]: profileId})
     if (!user) {
       const email = profile.emails?.[0]?.value
       if (forumTypeSetting.get() === 'EAForum' && email) {
@@ -82,6 +82,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       })
       return done(null, userCreated)
     }
+    user = await syncOAuthUser(user, profile as unknown as Auth0Profile)
     if (user.banned && new Date(user.banned) > new Date()) {
       return done(new Error("banned"))
     }
@@ -97,6 +98,34 @@ function createOAuthUserHandlerAuth0(idPath: string, getIdFromProfile: IdFromPro
   return (accessToken: string, refreshToken: string, _extraParams: ExtraVerificationParams, profile: Auth0Profile, done: VerifyCallback) => {
     return standardHandler(accessToken, refreshToken, profile, done)
   }
+}
+
+/**
+ * If the user's email has been updated by their OAuth provider, change their
+ * email to match their OAuth provider's given email
+ */
+async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
+  if (!profile.emails || !profile.emails.length) {
+    return user
+  }
+  // I'm unable to find documenation of how to interpret the emails object. It's
+  // plausible we should always set the users email to the first one, but it
+  // could be that the ordering doesn't matter, in which case we'd want to avoid
+  // spuriously updating the user's email based on whichever one happened to be
+  // first. But if their email is entirely missing, we should update it to be
+  // one given by their OAuth provider. Probably their OAuth provider will only
+  // ever report one email, in which case this is over-thought.
+  const profileEmails = profile.emails.map(emailObj => emailObj.value)
+  if (!profileEmails.includes(user.email)) {
+    const udpatedUserResponse = await updateMutator({
+      collection: Users,
+      documentId: user._id,
+      set: {email: profileEmails[0]},
+      validate: false
+    })
+    return udpatedUserResponse.data
+  }
+  return user
 }
 
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {

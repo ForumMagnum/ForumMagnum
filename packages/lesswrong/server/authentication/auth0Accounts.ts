@@ -27,6 +27,7 @@ export async function userFromAuth0Profile(profile: Profile): Promise<Partial<Db
     },
     username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
     displayName: profile.displayName,
+    // emailverified
     // emailSubscribedToCurated: true
   }
 }
