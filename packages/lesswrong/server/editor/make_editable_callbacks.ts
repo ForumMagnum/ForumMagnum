@@ -1,4 +1,3 @@
-import { Connectors } from '../vulcan-lib/connectors';
 import { trimLatexAndAddCSS, preProcessLatex } from './utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
@@ -52,6 +51,9 @@ mdi.use(markdownItSup)
 import { mjpage }  from 'mathjax-node-page'
 import { onStartup, isAnyTest } from '../../lib/executionEnvironment';
 
+// TODO: Now that the make_editable callbacks use createMutator to create
+// revisions, we can now add these to the regular ${collection}.create.after
+// callbacks
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
 }
@@ -394,10 +396,6 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         commitMessage,
         changeMetrics,
       };
-      // FIXME: This doesn't define documentId, because it's filled in in the
-      // after-create callback, passing through an intermediate state where it's
-      // undefined; and it's missing _id and schemaVersion, which leads to having
-      // ObjectID types in the database which can cause problems.
       const firstRevision = await createMutator({
         collection: Revisions,
         document: newRevision,
@@ -411,7 +409,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           html, version, userId, editedAt, wordCount,
           updateType: 'initial'
         },
-        [`${fieldName}_latest`]: firstRevision.data,
+        [`${fieldName}_latest`]: firstRevision.data._id,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, null),
         } : null),
@@ -457,8 +455,6 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           commitMessage,
           changeMetrics,
         }
-        // FIXME: See comment on the other Connectors.create call in this file.
-        // Missing _id and schemaVersion.
         const newRevisionDoc = await createMutator({
           collection: Revisions,
           document: newRevision,
