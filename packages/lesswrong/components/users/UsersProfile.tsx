@@ -10,7 +10,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
-import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory'
+import PencilIcon from '@material-ui/icons/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -171,7 +171,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
         <Tooltip title={`${tagRevisionCount} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
           <span className={classes.userMetaInfo}>
-            <ChangeHistoryIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo>
               { tagRevisionCount }
             </Components.MetaInfo>
