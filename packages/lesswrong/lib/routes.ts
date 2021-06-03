@@ -610,6 +610,11 @@ addRoute(
     noIndex: true
   },
   {
+    name: 'moderatorComments',
+    path: '/moderatorComments',
+    componentName: 'ModeratorComments',
+  },
+  {
     name: 'emailHistory',
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
@@ -716,11 +721,6 @@ switch (forumTypeSetting.get()) {
         path:'/tags',
         redirect: () => `/tags/all`,
       },
-      {
-        name: 'moderatorComments',
-        path: '/moderatorComments',
-        componentName: 'ModeratorComments',
-      }
     );
     break
   default:
