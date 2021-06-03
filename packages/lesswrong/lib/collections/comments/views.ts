@@ -459,3 +459,7 @@ Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
     sort: {postedAt: -1},
   },
 }));
+ensureIndex(Comments,
+  augmentForDefaultView({moderatorHat: 1}),
+  { name: "comments.moderatorHat" }
+);
