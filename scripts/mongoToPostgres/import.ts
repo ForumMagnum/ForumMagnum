@@ -10,24 +10,29 @@ type CommandLineOptions = {
   mongoDumpDirectory: string
   postgresConnectionString: string
   dryRun: boolean
+  onlyCollection: string|null
 }
 const defaultOptions: CommandLineOptions = {
   mongoDumpDirectory: "",
   postgresConnectionString: "",
-  dryRun: false
+  dryRun: false,
+  onlyCollection: null,
 }
 
 function parseCommandLine(argv: string[]) {
   let ret: Partial<CommandLineOptions> = defaultOptions;
   for (let i=2; i<argv.length; i++) {
-    if (argv[i]==="--mongoDumpDirectory") {
+    if (argv[i]==="--mongo-dump-directory") {
       if (i+1>=argv.length) throw new Error("Additional argument required");
       ret.mongoDumpDirectory = argv[++i];
-    } else if (argv[i]==="--postgresConnectionString") {
+    } else if (argv[i]==="--postgres-connection-string") {
       if (i+1>=argv.length) throw new Error("Additional argument required");
       ret.postgresConnectionString = argv[++i];
     } else if (argv[i]==="--dry-run") {
       ret.dryRun = true;
+    } else if (argv[i]==="--only-collection") {
+      if (i+1>=argv.length) throw new Error("Additional argument required");
+      ret.onlyCollection = argv[++i];
     } else {
       throw new Error("Unrecognized argument: "+argv[i]);
     }
@@ -52,7 +57,9 @@ const excludedCollections: string[] = [
   // rather than string.)
   "databasemetadata", "debouncerevents", "lwevents", "readstatuses",
 ];
-function isExcludedCollection(collectionName: string) {
+function isExcludedCollection(collectionName: string, options: CommandLineOptions) {
+  if (options.onlyCollection)
+    return collectionName!==options.onlyCollection;
   return collectionName.startsWith("ROLLBACKS_")
     || collectionName.startsWith("meteor_")
     || excludedCollections.find(c=>c===collectionName)
@@ -88,14 +95,14 @@ async function foreachRowInBsonFile(filename: string, fn: (row: any)=>Promise<vo
 // returns false if there's an error which means the row should be skipped,
 // and throws an exception if there's a serious problem.
 function validateMongoRow(row: any, collectionName: string): boolean {
-  if (!row._id)
+  if (!row._id) {
     throw new Error("Row is missing _id");
-  if (typeof row._id !== 'string') {
+  /*} else if (typeof row._id !== 'string') {
     console.error(`_id in ${collectionName} is not a string: type ${typeof row._id}, stringifies to ${JSON.stringify(row._id)}`);
     if (row.slug)
       console.log(`    slug is: ${row.slug}`);
-    return false;
-  } else if (row._id.length > 24) {
+    return false;*/
+  } else if (row._id.toString().length > 24) {
     console.error(`_id in ${collectionName} is too long: ${row._id}`);
     return false;
   }
@@ -129,7 +136,7 @@ async function createTable(collectionName: string, options: CommandLineOptions, 
 async function performImport(options: CommandLineOptions, connectionPool: Pool) {
   const filesInDump = fs.readdirSync(options.mongoDumpDirectory);
   const collectionNames = map(filter(filesInDump, filename=>filename.endsWith(".bson")), filename=>filename.substr(0, filename.length-".bson".length));
-  const filteredCollectionNames = filter(collectionNames, c=>!isExcludedCollection(c));
+  const filteredCollectionNames = filter(collectionNames, c=>!isExcludedCollection(c, options));
   
   for (let collectionName of filteredCollectionNames)
   {
@@ -140,7 +147,7 @@ async function performImport(options: CommandLineOptions, connectionPool: Pool) 
       if (validateMongoRow(row, collectionName)) {
         if (!options.dryRun) {
           const rowCopy = {...row};
-          const id = row._id;
+          const id = row._id.toString();
           delete rowCopy._id;
           await runQuery(connectionPool, `INSERT INTO ${collectionName}(id, json) values ($1, $2)`, [id, rowCopy]);
         }

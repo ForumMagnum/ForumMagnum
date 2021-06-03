@@ -1,10 +1,18 @@
 import { randomId } from './random';
+import { mongoSelectorToSql } from './mongoToPostgres';
+import { Globals } from './vulcan-lib/config';
+import { getCollection } from './vulcan-lib/getCollection';
 
+let queryCount = 0;
 let client: any = null;
 let db: any = null;
 export const setDatabaseConnection = (_client, _db) => {
   client = _client;
   db = _db;
+}
+let postgresConnectionPool: any = null;
+export const setPostgresConnection = (connectionPool) => {
+  postgresConnectionPool = connectionPool;
 }
 export const getDatabase = () => db;
 export const databaseIsConnected = () => (db !== null);
@@ -81,6 +89,43 @@ function removeUndefinedFields(selector: any) {
   return filtered;
 }
 
+function postgresResultToMongo(collection: any, result: any) {
+  return result.rows.map(row => postgresRowToMongo(collection, row));
+}
+function postgresRowToMongo(collection: any, row: any) {
+  return {
+    _id: row.id,
+    ...row.json,
+  };
+}
+
+Globals.testTranslateQuery = (tableName: string, selector: any, options: any) => {
+  const {sql, arg} = mongoSelectorToSql(selector, options);
+  console.log(sql);
+  console.log(arg);
+}
+Globals.testTranslateAndRunQuery = async (collectionName: CollectionNameString, selector: any, options: any) => {
+  const collection = getCollection(collectionName);
+  const tableName = (collection as any).tableName;
+  
+  const result: any = await new Promise((resolve, reject) => {
+    const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
+    const query = `select * from ${tableName} ${queryFragment}`;
+    postgresConnectionPool.query({
+      name: "translatedQuery"+(++queryCount),
+      text: query,
+      values: queryArgs,
+    }, (err,res) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+  console.log(postgresResultToMongo(collection, result));
+}
+
 export class MongoCollection<T extends DbObject> {
   tableName: string
   table: any
@@ -89,6 +134,39 @@ export class MongoCollection<T extends DbObject> {
     _suppressSameNameError?: boolean // Used only by Meteor; disables warning about name conflict over users collection
   }) {
     this.tableName = tableName;
+  }
+  
+  getConnectionPool = () => {
+    if (bundleIsServer) {
+      if (!postgresConnectionPool)
+        throw new Error("No database connection");
+      return postgresConnectionPool;
+    } else {
+      throw new Error("Attempted to run mongodb query on the client");
+    }
+  }
+  
+  runQuery = async (query: string, args: any[]): Promise<any> => {
+    console.log(query);
+    console.log(args);
+    const pool = this.getConnectionPool();
+    const result: any = await new Promise((resolve, reject) => {
+      pool.query({
+        name: "translatedQuery"+(++queryCount),
+        text: query,
+        values: args,
+      }, (err,res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+    if (result?.rows)
+      return postgresResultToMongo(this, result);
+    else
+      throw new Error("No result");
   }
   
   getTable = () => {
@@ -104,37 +182,37 @@ export class MongoCollection<T extends DbObject> {
   find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>): FindResult<T> => {
     return {
       fetch: async () => {
-        const table = this.getTable();
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).fetch`, async () => {
-          return await table.find(removeUndefinedFields(selector), {
-            ...options,
-          }).toArray()
+          const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
+          return await this.runQuery(`select * from ${this.tableName} ${queryFragment}`, queryArgs);
         });
       },
       count: async () => {
         const table = this.getTable();
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).count`, async () => {
-          return await table.countDocuments(removeUndefinedFields(selector), {
-            ...options,
-          });
+          const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
+          return await this.runQuery(`select count(*) from ${this.tableName} ${queryFragment}`, queryArgs);
         });
       }
     };
   }
+  
   findOne = async (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>): Promise<T|null> => {
     const table = this.getTable();
     return await wrapQuery(`${this.tableName}.findOne(${JSON.stringify(selector)})`, async () => {
       if (typeof selector === "string") {
-        return await table.findOne({_id: selector}, {
-          ...options,
-        });
+        const result = await this.runQuery(`select * from ${this.tableName} where id=$1 limit 1`, [selector]);
+        if (!result.length) return null;
+        return result[0];
       } else {
-        return await table.findOne(removeUndefinedFields(selector), {
-          ...options,
-        });
+        const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
+        const result = await this.runQuery(`select * from ${this.tableName} ${queryFragment} limit 1`, queryArgs);
+        if (!result.length) return null;
+        return result[0];
       }
     });
   }
+  
   insert = async (doc, options) => {
     if (disableAllWrites) return;
     if (!doc._id) {

@@ -4,6 +4,7 @@ import fs from 'fs';
 
 interface CommandLineArguments {
   mongoUrl: string
+  postgresUrl: string
   settingsFileName: string
   shellMode: boolean,
 }
@@ -11,6 +12,7 @@ interface CommandLineArguments {
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
     mongoUrl: process.env.MONGO_URL || "mongodb://localhost:27017",
+    postgresUrl: process.env.PG_URL || "postgres://lesswrong@localhost/lesswrong",
     settingsFileName: "settings.json",
     shellMode: false,
   }

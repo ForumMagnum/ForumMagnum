@@ -17,6 +17,8 @@ const [opts, args] = cliopts.parse(
   ["settings", "A JSON config file for the server", "<file>"],
   ["mongoUrl", "A mongoDB connection connection string", "<url>"],
   ["mongoUrlFile", "The name of a text file which contains a mongoDB URL for the database", "<file>"],
+  ["postgresUrl", "A postgresql connection connection string", "<url>"],
+  ["postgresUrlFile", "The name of a text file which contains a postgresql URL for the database", "<file>"],
   ["shell", "Open an interactive shell instead of running a webserver"],
 );
 
@@ -38,6 +40,16 @@ if (opts.mongoUrl) {
 } else if (opts.mongoUrlFile) {
   try {
     process.env.MONGO_URL = fs.readFileSync(opts.mongoUrlFile, 'utf8').trim();
+  } catch(e) {
+    console.log(e);
+    process.exit(1);
+  }
+}
+if (opts.postgresUrl) {
+  process.env.PG_URL = opts.postgresUrl;
+} else if (opts.postgresUrlFile) {
+  try {
+    process.env.PG_URL = fs.readFileSync(opts.postgresUrlFile, 'utf8').trim();
   } catch(e) {
     console.log(e);
     process.exit(1);
