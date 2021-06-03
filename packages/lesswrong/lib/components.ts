@@ -21,7 +21,6 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
-  importComponent("ModeratorComments", () => require('../components/ea-forum/ModeratorComments'));
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -308,6 +307,7 @@ importComponent("CommentBottomCaveats", () => require('../components/comments/Co
 importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentActions/ToggleIsModeratorComment'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
+importComponent("ModeratorComments", () => require('../components/comments/ModeratorComments'));
 
 importComponent("CommentById", () => require('../components/comments/CommentById'));
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
