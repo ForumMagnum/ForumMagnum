@@ -17,7 +17,7 @@ import take from 'lodash/take';
 import * as _ from 'underscore';
 
 addGraphQLSchema(`
-  type TagUpdatesTimeBlock {
+  type TagUpdates {
     tag: Tag!
     revisionIds: [String!]
     commentCount: Int
@@ -79,7 +79,47 @@ addGraphQLResolvers({
   }
 });
 
-addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdatesTimeBlock!]');
+addGraphQLResolvers({
+  Query: {
+    async TagUpdatesByUser(root: void, {userId,limit}: {userId: string, limit: number}, context: ResolverContext) {
+
+      // NOTE: do we need to keep these checks?
+      if (!userId) throw new Error("Missing graphql parameter: userId");
+      if (!limit) throw new Error("Missing graphql parameter: limit");
+
+      // Get revisions to tags
+      const tagRevisions = await Revisions.find({
+        collectionName: "Tags",
+        fieldName: "description",
+        userId,
+        documentId: { $exists: true},
+        $or: [
+          {"changeMetrics.added": {$gt: 0}},
+          {"changeMetrics.removed": {$gt: 0}}
+        ],
+      }, { limit, sort: { editedAt: -1} }).fetch();
+
+      // Get the tags themselves
+      const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
+      const tags = await context.loaders.Tags.loadMany(tagIds);
+
+      return tags.map(tag => {
+        const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
+
+        return {
+          tag,
+          revisionIds: _.map(relevantRevisions, r=>r._id),
+          lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
+          added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
+          removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
+        };
+      });
+    }
+  }
+});
+
+addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
+addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!): [TagUpdates!]');
 
 addFieldsDict(Tags, {
   contributors: {

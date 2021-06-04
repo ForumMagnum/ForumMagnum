@@ -3,7 +3,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
 import { tagGetUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { ExpandedDate } from '../common/FormatDate';
 import classNames from 'classnames';
+import moment from 'moment';
+
+export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -45,10 +49,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   changeMetrics: {
     marginTop: 6,
+    cursor: "pointer",
+  },
+  postedAt: {
+    '&&': {
+      cursor: "pointer",
+      width: POSTED_AT_WIDTH,
+      marginTop: 5,
+      fontWeight: 300,
+      fontSize: "1rem",
+      color: "rgba(0,0,0,.9)",
+      [theme.breakpoints.down('xs')]: {
+        width: "auto",
+      }
+    }
   },
 });
 
-const SingleLineTagUpdates = ({tag, revisionCount, revisionIds, commentCount, commentIds, changeMetrics, before, after, classes}: {
+const SingleLineTagUpdates = ({tag, revisionCount, revisionIds, commentCount, commentIds, changeMetrics, before, after, lastRevisedAt, classes}: {
   tag: TagBasicInfo,
   revisionCount: number,
   revisionIds: string[],
@@ -58,9 +76,10 @@ const SingleLineTagUpdates = ({tag, revisionCount, revisionIds, commentCount, co
   before: string,
   after: string,
   classes: ClassesType,
+  lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById } = Components;
+  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo } = Components;
   
   return <div className={classNames(classes.root, {
     expanded: expanded,
@@ -71,6 +90,15 @@ const SingleLineTagUpdates = ({tag, revisionCount, revisionIds, commentCount, co
         ? <Link className={classes.title} to={tagGetUrl(tag)}>{tag.name}</Link>
         : <div className={classes.title}>{tag.name}</div>
       }
+
+      {/* Show lastRevised date with tooltip*/}
+      {lastRevisedAt
+        ? <LWTooltip placement="right" title={<ExpandedDate date={lastRevisedAt}/>} >
+            <PostsItem2MetaInfo className={classes.postedAt}> {moment(new Date(lastRevisedAt)).fromNow()} </PostsItem2MetaInfo>
+          </LWTooltip>
+        : null
+      }
+
       {(changeMetrics.added>0 || changeMetrics.removed>0) && <div className={classes.changeMetrics}>
         <ChangeMetricsDisplay changeMetrics={changeMetrics}/>
       </div>}

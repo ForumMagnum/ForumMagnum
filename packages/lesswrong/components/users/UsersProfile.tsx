@@ -184,7 +184,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -321,6 +321,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
               <PostsList2 terms={terms} hideAuthor />
+            </AnalyticsContext>
+          </SingleColumnSection>
+
+          {/* Wiki Section */}
+          <SingleColumnSection>
+            <SectionTitle title={"Wiki Contributions"}>
+            </SectionTitle>
+
+            <AnalyticsContext listContext={"userPageWiki"}>
+              <TagEditsByUser
+                userId={user._id}
+                limit={10}
+                reportEmpty={() => {}} // No need to report when empty here
+              />
             </AnalyticsContext>
           </SingleColumnSection>
 
