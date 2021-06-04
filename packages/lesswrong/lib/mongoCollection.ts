@@ -7,6 +7,7 @@ export const setDatabaseConnection = (_client, _db) => {
   db = _db;
 }
 export const getDatabase = () => db;
+export const getMongoClient = () => client
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = () => {
   if (client) {
@@ -223,4 +224,3 @@ export class MongoCollection<T extends DbObject> {
     },
   })
 }
-
