@@ -1,25 +1,28 @@
 import * as _ from 'underscore';
 
-export const mongoSelectorToSql = <T extends DbObject>(selector: MongoSelector<T>, options?: MongoFindOptions<T>) => {
+export const mongoSelectorToSql = <T extends DbObject>(selector: MongoSelector<T>, options?: MongoFindOptions<T>, argOffset?: number) => {
   let queryTextFragments: string[] = [];
   let args: any[] = [];
-  
-  console.log(`Converting query: ${JSON.stringify(selector)}, ${JSON.stringify(options)}`);
   
   let selectorFragments: string[] = [];
   for (let selectorKey of Object.keys(selector)) {
     if (selector[selectorKey] === undefined) continue;
-    const {sql,arg} = mongoSelectorFieldToSql(selectorKey, selector[selectorKey], args.length+1);
+    const {sql,arg} = mongoSelectorFieldToSql(selectorKey, selector[selectorKey], (argOffset||1)+args.length);
     selectorFragments.push(sql);
     args = [...args, ...arg];
   }
   if (selectorFragments.length > 0)
-    queryTextFragments.push('where '+selectorFragments.join(' and '));
+    queryTextFragments.push(selectorFragments.join(' and '));
   
-  if (options?.sort) {
-    const {sql: sortFragment, arg: sortArgs} = mongoSortToOrderBy(options.sort, args.length+1);
-    queryTextFragments.push(sortFragment);
-    args = [...args, ...sortArgs];
+  if (options) {
+    if (options.sort) {
+      const {sql: sortFragment, arg: sortArgs} = mongoSortToOrderBy(options.sort, (argOffset||1)+args.length);
+      queryTextFragments.push(sortFragment);
+      args = [...args, ...sortArgs];
+    }
+    if (options.limit) {
+      queryTextFragments.push('limit '+options.limit);
+    }
   }
   
   return {
@@ -37,32 +40,47 @@ export const mongoSelectorFieldToSql = (fieldName: string, value: any, argOffset
       };
     } else if (typeof value==="object" && value.$in) {
       return {
-        sql: `id IN ($${argOffset})`,
-        arg: [value.$in],
+        sql: `id IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
+        arg: value.$in,
       };
     } else {
       throw new Error(`Don't know how to handle selector for ${fieldName}`); // TODO
     }
   } else if (fieldName==="$or") {
-    const subselectors = value.map(s => mongoSelectorToSql(s));
+    const subselectors: any[] = [];
+    for (let s of value) {
+      const subselector = mongoSelectorToSql(s, undefined, argOffset);
+      subselectors.push(subselector);
+      argOffset += subselector.arg.length;
+    }
     return {
       sql: `(${subselectors.map(s=>s.sql).join(" or ")})`,
       arg: _.flatten(subselectors.map(s=>s.arg, true)),
     };
   } else if (fieldName==="$and") {
-    const subselectors = value.map(s => mongoSelectorToSql(s));
+    const subselectors: any[] = [];
+    for (let s of value) {
+      const subselector = mongoSelectorToSql(s, undefined, argOffset);
+      subselectors.push(subselector);
+      argOffset += subselector.arg.length;
+    }
     return {
       sql: `(${subselectors.map(s=>s.sql).join(" and ")})`,
       arg: _.flatten(subselectors.map(s=>s.arg, true)),
     };
   } else if (fieldName==="$not") {
     throw new Error(`Don't know how to handle selector for ${fieldName}: $not`); // TODO
+  } else if (value === null) {
+    return {
+      sql: `(jsonb_typeof(json->'fieldName') IS NULL OR jsonb_typeof(json->'fieldName')='null')`,
+      arg: [],
+    };
   } else if (typeof value==='object') {
     for (let op of Object.keys(value)) {
       if (op==="$in") {
         return {
-          sql: `${mongoFieldToSql(fieldName, value.$in[0])} IN ($${argOffset})`,
-          arg: [value.$in],
+          sql: `${mongoFieldToSql(fieldName, value.$in[0])} IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
+          arg: value.$in,
         }
       } else if (op==="$gt") {
         return {
@@ -71,35 +89,42 @@ export const mongoSelectorFieldToSql = (fieldName: string, value: any, argOffset
         }
       } else if (op==="$gte") {
         return {
-          sql: `${mongoFieldToSql(fieldName, value.$gt)} >= $${argOffset}`,
+          sql: `${mongoFieldToSql(fieldName, value.$gte)} >= $${argOffset}`,
           arg: [value.$gte],
         }
       } else if (op==="$lt") {
         return {
-          sql: `${mongoFieldToSql(fieldName, value.$gt)} < $${argOffset}`,
+          sql: `${mongoFieldToSql(fieldName, value.$lt)} < $${argOffset}`,
           arg: [value.$lt],
         }
       } else if (op==="$lte") {
         return {
-          sql: `${mongoFieldToSql(fieldName, value.$gt)} <= $${argOffset}`,
+          sql: `${mongoFieldToSql(fieldName, value.$lte)} <= $${argOffset}`,
           arg: [value.$lte],
         }
       } else if (op==="$exists") {
         if (value.$exists) {
           return {
-            sql: `json ? 'fieldName'`,
+            sql: `json ? '${fieldName}'`,
             arg: [],
           }
         } else {
           return {
-            sql: `not (json ? 'fieldName')`,
+            sql: `not (json ? '${fieldName}')`,
             arg: [],
           }
         }
       } else if (op==="$ne") {
-        return {
-          sql: `${mongoFieldToSql(fieldName, value.$gt)} != $${argOffset}`,
-          arg: [value.$lt],
+        if (value.$ne === null) {
+          return {
+            sql: `json ? '${fieldName}' and json->>'${fieldName}'!='null'`,
+            arg: [],
+          }
+        } else {
+          return {
+            sql: `${mongoFieldToSql(fieldName, value.$ne)} != $${argOffset}`,
+            arg: [value.$ne],
+          }
         }
       } else {
         throw new Error(`Don't know how to handle selector for ${fieldName} op ${op}`); // TODO
@@ -122,7 +147,7 @@ const mongoFieldToSql = (fieldName: string, inferTypeFromValue: any) => {
   } else if (typeof inferTypeFromValue==='boolean') {
     return `(json->'${fieldName}')::boolean`;
   } else if (inferTypeFromValue instanceof Date) {
-    return `(json->'${fieldName}')::datetime`;
+    return `(json->>'${fieldName}')`;
   } else {
     // TODO
     throw new Error(`Don't know how to handle selector for ${fieldName}: cannot infer type from ${inferTypeFromValue}`);

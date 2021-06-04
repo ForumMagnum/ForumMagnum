@@ -2,6 +2,7 @@ import { randomId } from './random';
 import { mongoSelectorToSql } from './mongoToPostgres';
 import { Globals } from './vulcan-lib/config';
 import { getCollection } from './vulcan-lib/getCollection';
+import { getSchema } from './utils/getSchema';
 
 let queryCount = 0;
 let client: any = null;
@@ -90,27 +91,37 @@ function removeUndefinedFields(selector: any) {
 }
 
 function postgresResultToMongo(collection: any, result: any) {
-  return result.rows.map(row => postgresRowToMongo(collection, row));
+  if (!result) throw new Error("Missing result");
+  return result.rows.map(row => postgresRowToMongo<any>(collection, row));
 }
-function postgresRowToMongo(collection: any, row: any) {
-  return {
+function postgresRowToMongo<T extends DbObject>(collection: CollectionBase<T>, row: any) {
+  const result = {
     _id: row.id,
     ...row.json,
   };
+  const schema = collection._schemaFields;
+  for (let key of Object.keys(schema)) {
+    if (schema[key].type === Date) {
+      const untranslatedDate = result[key];
+      result[key] = untranslatedDate ? new Date(untranslatedDate) : untranslatedDate ;
+    }
+  }
+  if (result?.contents?.editedAt)
+    result.contents.editedAt = new Date(result.contents.editedAt);
+  
+  return result;
 }
 
 Globals.testTranslateQuery = (tableName: string, selector: any, options: any) => {
   const {sql, arg} = mongoSelectorToSql(selector, options);
-  console.log(sql);
-  console.log(arg);
 }
 Globals.testTranslateAndRunQuery = async (collectionName: CollectionNameString, selector: any, options: any) => {
   const collection = getCollection(collectionName);
   const tableName = (collection as any).tableName;
+  const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
+  const query = `select * from ${tableName} where ${queryFragment}`;
   
   const result: any = await new Promise((resolve, reject) => {
-    const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
-    const query = `select * from ${tableName} ${queryFragment}`;
     postgresConnectionPool.query({
       name: "translatedQuery"+(++queryCount),
       text: query,
@@ -123,7 +134,6 @@ Globals.testTranslateAndRunQuery = async (collectionName: CollectionNameString, 
       }
     });
   });
-  console.log(postgresResultToMongo(collection, result));
 }
 
 export class MongoCollection<T extends DbObject> {
@@ -147,8 +157,6 @@ export class MongoCollection<T extends DbObject> {
   }
   
   runQuery = async (query: string, args: any[]): Promise<any> => {
-    console.log(query);
-    console.log(args);
     const pool = this.getConnectionPool();
     const result: any = await new Promise((resolve, reject) => {
       pool.query({
@@ -163,8 +171,9 @@ export class MongoCollection<T extends DbObject> {
         }
       });
     });
+    const translatedResult = postgresResultToMongo(this, result);
     if (result?.rows)
-      return postgresResultToMongo(this, result);
+      return translatedResult;
     else
       throw new Error("No result");
   }
@@ -184,14 +193,15 @@ export class MongoCollection<T extends DbObject> {
       fetch: async () => {
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).fetch`, async () => {
           const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
-          return await this.runQuery(`select * from ${this.tableName} ${queryFragment}`, queryArgs);
+          return await this.runQuery(`select * from ${this.tableName} where ${queryFragment}`, queryArgs);
         });
       },
       count: async () => {
         const table = this.getTable();
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).count`, async () => {
           const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
-          return await this.runQuery(`select count(*) from ${this.tableName} ${queryFragment}`, queryArgs);
+          const result = await this.runQuery(`select count(*) from ${this.tableName} ${queryFragment}`, queryArgs);
+          return result;
         });
       }
     };
@@ -206,7 +216,7 @@ export class MongoCollection<T extends DbObject> {
         return result[0];
       } else {
         const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(selector, options);
-        const result = await this.runQuery(`select * from ${this.tableName} ${queryFragment} limit 1`, queryArgs);
+        const result = await this.runQuery(`select * from ${this.tableName} where ${queryFragment} limit 1`, queryArgs);
         if (!result.length) return null;
         return result[0];
       }
