@@ -1446,8 +1446,7 @@ addFieldsDict(Users, {
       foreignFieldName: "userId",
       filterFn: revision => revision.collectionName === "Tags"
     }),
-    canRead: ['guests'],
-    ...schemaDefaultValue(0)
+    canRead: ['guests']
   },
 
   abTestKey: {
