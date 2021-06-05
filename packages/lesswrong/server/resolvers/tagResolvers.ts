@@ -81,11 +81,7 @@ addGraphQLResolvers({
 
 addGraphQLResolvers({
   Query: {
-    async TagUpdatesByUser(root: void, {userId,limit}: {userId: string, limit: number}, context: ResolverContext) {
-
-      // NOTE: do we need to keep these checks?
-      if (!userId) throw new Error("Missing graphql parameter: userId");
-      if (!limit) throw new Error("Missing graphql parameter: limit");
+    async TagUpdatesByUser(root: void, {userId,limit,skip}: {userId: string, limit: number, skip: number}, context: ResolverContext) {
 
       // Get revisions to tags
       const tagRevisions = await Revisions.find({
@@ -97,21 +93,24 @@ addGraphQLResolvers({
           {"changeMetrics.added": {$gt: 0}},
           {"changeMetrics.removed": {$gt: 0}}
         ],
-      }, { limit, sort: { editedAt: -1} }).fetch();
+      }, { limit, skip, sort: { editedAt: -1} }).fetch();
 
-      // Get the tags themselves
+      // Get the tags themselves, keyed by the id
       const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
-      const tags = await context.loaders.Tags.loadMany(tagIds);
+      const tags = (await context.loaders.Tags.loadMany(tagIds)).reduce( (acc, tag) => {
+        acc[tag._id] = tag;
+        return acc;
+      }, {});
 
-      return tags.map(tag => {
-        const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
-
+      // unlike TagUpdatesInTimeBlock we only return info on one revision per tag. i.e. we do not collect them by tag.
+      return tagRevisions.map(rev => {
+        const tag = tags[rev.documentId];
         return {
           tag,
-          revisionIds: _.map(relevantRevisions, r=>r._id),
-          lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
-          added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
-          removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
+          revisionIds: [rev._id],
+          lastRevisedAt: rev.editedAt,
+          added: rev.changeMetrics.added,
+          removed: rev.changeMetrics.removed,
         };
       });
     }
@@ -119,7 +118,7 @@ addGraphQLResolvers({
 });
 
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
-addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!): [TagUpdates!]');
+addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]');
 
 addFieldsDict(Tags, {
   contributors: {

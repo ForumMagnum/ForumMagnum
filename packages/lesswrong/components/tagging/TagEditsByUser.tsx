@@ -19,16 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
-const TagEditsByUser = ({userId, limit, reportEmpty, classes}: {
+const TagEditsByUser = ({userId, limit, classes}: {
   userId: string,
   limit: number,
-  reportEmpty?: ()=>void,
   classes: ClassesType
 }) => {
-  const { ContentType, SingleLineTagUpdates } = Components;
   const { data, loading } = useQuery(gql`
-    query getTagUpdates($userId: String!, $limit: Int!) {
-      TagUpdatesByUser(userId: $userId, limit: $limit) {
+    query getTagUpdates($userId: String!, $limit: Int!, $skip: Int!) {
+      TagUpdatesByUser(userId: $userId, limit: $limit, skip: $skip) {
         tag {
           ...TagBasicInfo
         }
@@ -41,22 +39,16 @@ const TagEditsByUser = ({userId, limit, reportEmpty, classes}: {
     ${fragmentTextForQuery('TagBasicInfo')}
   `, {
     variables: {
-      userId, limit,
+      userId, limit, skip: 0,
     },
     ssr: true,
   });
-  
-  useEffect(() => {
-    if (!loading && !data?.TagUpdatesByUser?.length && reportEmpty) {
-      reportEmpty();
-    }
-  }, [loading, data, reportEmpty]);
   
   if (!data?.TagUpdatesByUser?.length)
     return (<Components.Typography variant="body2" className={classes.wikiEmpty}>No wiki contributions to display.</Components.Typography>)
 
   return <div className={classes.root}>
-    {data.TagUpdatesByUser.map(tagUpdates => <SingleLineTagUpdates
+    {data.TagUpdatesByUser.map(tagUpdates => <Components.SingleLineTagUpdates
       key={tagUpdates.tag._id}
       tag={tagUpdates.tag}
       revisionIds={tagUpdates.revisionIds}
