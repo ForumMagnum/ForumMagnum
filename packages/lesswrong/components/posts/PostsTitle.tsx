@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2
   },
   primaryIcon: {
-    color: theme.palette.primary.light,
+    color: "rgba(0,0,0,.55)",
     paddingRight: theme.spacing.unit,
     top: -2,
     width: "auto",
