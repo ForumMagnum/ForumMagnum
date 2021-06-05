@@ -1394,6 +1394,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly spamRiskScore: number,
+  readonly tagRevisionCount: number,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
@@ -1405,7 +1406,6 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
   readonly sequenceDraftCount: number,
-  readonly tagRevisionCount: number,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionDisplay|null,
   readonly bannedUserIds: Array<string>,
