@@ -60,8 +60,6 @@ const TagEditsByUser = ({userId, limit, reportEmpty, classes}: {
       key={tagUpdates.tag._id}
       tag={tagUpdates.tag}
       revisionIds={tagUpdates.revisionIds}
-      commentIds={[]} // NOTE:: we do not fetch comments for tag edits on the user page
-      commentCount={0} // NOTE:: we do not fetch comments for tag edits on the user page
       changeMetrics={{added: tagUpdates.added, removed: tagUpdates.removed}}
       lastRevisedAt={tagUpdates.lastRevisedAt}
     />)}

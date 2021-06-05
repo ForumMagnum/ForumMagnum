@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
+import TagHistory from '@material-ui/icons/History';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
 import { tagGetUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
-import classNames from 'classnames';
 import moment from 'moment';
 
 export const POSTED_AT_WIDTH = 38
@@ -16,13 +16,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     marginBottom: 4,
   },
-  collapsed: {
-    cursor: "pointer",
-  },
   metadata: {
     display: "flex",
     paddingRight: 8,
     paddingLeft: 8,
+    cursor: "pointer",
   },
   title: {
     flexGrow: 1,
@@ -45,17 +43,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   commentBubble: {
-    marginLeft: 6,
+    marginLeft: 11,
+    marginTop: 4,
   },
   changeMetrics: {
-    marginTop: 6,
+    marginTop: 11,
     cursor: "pointer",
   },
   postedAt: {
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
-      marginTop: 5,
+      marginTop: 10,
       fontWeight: 300,
       fontSize: "1rem",
       color: "rgba(0,0,0,.9)",
@@ -64,13 +63,19 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     }
   },
+  icon: {
+    height: "1.5rem",
+    width: "1.5rem",
+    position: "relative",
+    top: 4,
+  },
 });
 
 const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, changeMetrics, lastRevisedAt, classes}: {
   tag: TagBasicInfo,
   revisionIds: string[],
-  commentCount: number,
-  commentIds: string[],
+  commentCount?: number,
+  commentIds?: string[],
   changeMetrics: ChangeMetrics,
   classes: ClassesType,
   lastRevisedAt?: Date
@@ -78,15 +83,16 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
   const [expanded,setExpanded] = useState(false);
   const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo } = Components;
   
-  return <div className={classNames(classes.root, {
-    expanded: expanded,
-    collapsed: !expanded,
-  })} onClick={ev => setExpanded(true)}>
-    <div className={classes.metadata}>
-      {expanded
-        ? <Link className={classes.title} to={tagGetUrl(tag)}>{tag.name}</Link>
-        : <div className={classes.title}>{tag.name}</div>
-      }
+  return <div className={classes.root} >
+    <div className={classes.metadata} onClick={ev => setExpanded(!expanded)}>
+
+      <div className={classes.title} >
+        <Link to={tagGetUrl(tag)}>{tag.name}</Link>
+        
+        {revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`} className={classes.subheading}>
+          <TagHistory className={classes.icon}  />
+        </Link>}
+      </div>
 
       {/* Show lastRevised date with tooltip*/}
       {lastRevisedAt
@@ -99,7 +105,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
       {(changeMetrics.added>0 || changeMetrics.removed>0) && <div className={classes.changeMetrics}>
         <ChangeMetricsDisplay changeMetrics={changeMetrics}/>
       </div>}
-      {commentCount>0 && <Link to={tagGetDiscussionUrl(tag)} className={classes.commentBubble}>
+      {!!commentCount && commentCount>0 && <Link to={tagGetDiscussionUrl(tag)} className={classes.commentBubble}>
         <PostsItemComments
           small={true}
           commentCount={commentCount}
@@ -110,7 +116,8 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
     </div>
     
     {expanded && <div className={classes.expandedBody}>
-      {revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`} className={classes.subheading}>
+      {/* Only show this subtitle if there are both edits and comments */}
+      {commentIds && commentIds.length>0 && revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`} className={classes.subheading}>
         Edits
       </Link>}
       {revisionIds.map(revId => <div className={classes.tagRevision} key={revId}>
@@ -121,10 +128,10 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
         />
       </div>)}
       
-      {commentIds.length>0 && <Link to={tagGetDiscussionUrl(tag)} className={classes.subheading}>
+      {commentIds && commentIds.length>0 && <Link to={tagGetDiscussionUrl(tag)} className={classes.subheading}>
         Comment Threads
       </Link>}
-      {commentIds.map(commentId =>
+      {commentIds && commentIds.map(commentId =>
         <CommentById
           key={commentId}
           commentId={commentId}
