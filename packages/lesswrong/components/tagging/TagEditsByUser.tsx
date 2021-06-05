@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagEditsByUser = ({userId, limit, reportEmpty, classes}: {
   userId: string,
   limit: number,
-  reportEmpty: ()=>void,
+  reportEmpty?: ()=>void,
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates } = Components;
@@ -47,9 +47,8 @@ const TagEditsByUser = ({userId, limit, reportEmpty, classes}: {
   });
   
   useEffect(() => {
-    if (!loading && !data?.TagUpdatesByUser?.length) {
+    if (!loading && !data?.TagUpdatesByUser?.length && reportEmpty) {
       reportEmpty();
-      
     }
   }, [loading, data, reportEmpty]);
   
@@ -60,13 +59,10 @@ const TagEditsByUser = ({userId, limit, reportEmpty, classes}: {
     {data.TagUpdatesByUser.map(tagUpdates => <SingleLineTagUpdates
       key={tagUpdates.tag._id}
       tag={tagUpdates.tag}
-      revisionCount={tagUpdates.revisionIds.length}
       revisionIds={tagUpdates.revisionIds}
       commentIds={[]} // NOTE:: we do not fetch comments for tag edits on the user page
       commentCount={0} // NOTE:: we do not fetch comments for tag edits on the user page
       changeMetrics={{added: tagUpdates.added, removed: tagUpdates.removed}}
-      before="" // NOTE: not used inside SingleLineTagUpdates and we dont have the data
-      after="" // NOTE: not used inside SingleLineTagUpdates and we dont have the data
       lastRevisedAt={tagUpdates.lastRevisedAt}
     />)}
   </div>

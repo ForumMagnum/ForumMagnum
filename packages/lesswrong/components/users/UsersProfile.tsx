@@ -333,7 +333,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <TagEditsByUser
                 userId={user._id}
                 limit={10}
-                reportEmpty={() => {}} // No need to report when empty here
               />
             </AnalyticsContext>
           </SingleColumnSection>

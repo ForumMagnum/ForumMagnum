@@ -66,15 +66,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SingleLineTagUpdates = ({tag, revisionCount, revisionIds, commentCount, commentIds, changeMetrics, before, after, lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, changeMetrics, lastRevisedAt, classes}: {
   tag: TagBasicInfo,
-  revisionCount: number,
   revisionIds: string[],
   commentCount: number,
   commentIds: string[],
   changeMetrics: ChangeMetrics,
-  before: string,
-  after: string,
   classes: ClassesType,
   lastRevisedAt?: Date
 }) => {
