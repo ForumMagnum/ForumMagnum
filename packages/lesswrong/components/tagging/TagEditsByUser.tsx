@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
+import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -24,37 +23,35 @@ const TagEditsByUser = ({userId, limit, classes}: {
   limit: number,
   classes: ClassesType
 }) => {
-  const { data, loading } = useQuery(gql`
-    query getTagUpdates($userId: String!, $limit: Int!, $skip: Int!) {
-      TagUpdatesByUser(userId: $userId, limit: $limit, skip: $skip) {
-        tag {
-          ...TagBasicInfo
-        }
-        revisionIds
-        lastRevisedAt
-        added
-        removed
-      }
-    }
-    ${fragmentTextForQuery('TagBasicInfo')}
-  `, {
-    variables: {
-      userId, limit, skip: 0,
-    },
-    ssr: true,
+
+  const { loadingInitial, loadMoreProps, results } = useMulti({
+    terms: {view: "revisionsByUser", userId, limit},
+    collectionName: "Revisions",
+    fragmentName: 'RevisionTagFragment',
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
   });
-  
-  if (!data?.TagUpdatesByUser?.length)
+
+  console.log('+++++++++++++++++++++++++++++++++++++++++', userId);
+  console.log(results);
+  console.log('-----------------------------------------', userId);  
+
+  if (loadingInitial || !results) {
+    return <Components.Loading />
+  }
+
+  if (!loadingInitial && (!results || results.length === 0))
     return (<Components.Typography variant="body2" className={classes.wikiEmpty}>No wiki contributions to display.</Components.Typography>)
 
   return <div className={classes.root}>
-    {data.TagUpdatesByUser.map(tagUpdates => <Components.SingleLineTagUpdates
-      key={tagUpdates.tag._id}
-      tag={tagUpdates.tag}
-      revisionIds={tagUpdates.revisionIds}
-      changeMetrics={{added: tagUpdates.added, removed: tagUpdates.removed}}
-      lastRevisedAt={tagUpdates.lastRevisedAt}
+    {results.filter(elm => !!elm.tag).map(tagUpdates => <Components.SingleLineTagUpdates
+      key={tagUpdates.documentId + " " + tagUpdates.editedAt}
+      tag={tagUpdates.tag!}
+      revisionIds={[tagUpdates._id]}
+      changeMetrics={{added: tagUpdates.changeMetrics.added, removed: tagUpdates.changeMetrics.removed}}
+      lastRevisedAt={tagUpdates.editedAt}
     />)}
+    <Components.LoadMore {...loadMoreProps} />
   </div>
 }
 
