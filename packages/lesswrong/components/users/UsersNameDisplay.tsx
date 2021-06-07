@@ -1,6 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { userGetCommentCount, userGetPostCount, userGetDisplayName, userGetProfileUrl, userGetWikiContributionCount } from '../../lib/collections/users/helpers';
+import { userGetCommentCount, userGetPostCount, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -60,7 +60,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = userGetPostCount(user)
   const commentCount = userGetCommentCount(user)
-  const wikiContributionCount = userGetWikiContributionCount(user)
+  const wikiContributionCount = user.tagRevisionCount
   const sequenceCount = user.sequenceCount; // TODO: Counts LW sequences on Alignment Forum
 
   const tooltip = <span>

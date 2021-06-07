@@ -36,7 +36,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
     return <Components.Loading />
   }
 
-  if (!loadingInitial && (!results || results.length === 0))
+  if (results.length === 0)
     return (<Components.Typography variant="body2" className={classes.wikiEmpty}>No wiki contributions to display.</Components.Typography>)
 
   return <div className={classes.root}>
