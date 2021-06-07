@@ -1446,8 +1446,7 @@ addFieldsDict(Users, {
       foreignFieldName: "userId",
       filterFn: revision => revision.collectionName === "Tags"
     }),
-    canRead: ['guests'],
-    ...schemaDefaultValue(0)
+    canRead: ['guests']
   },
 
   abTestKey: {
@@ -1485,7 +1484,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional:true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() === "EAForum",
   },
