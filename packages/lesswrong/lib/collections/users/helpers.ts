@@ -346,3 +346,8 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
     return user.commentCount;
   }
 }
+
+export const userGetWikiContributionCount = (user: UsersMinimumInfo|DbUser): number => {
+  // NOTE: the other userGet...Count() function have a special case for the alignment forum do I need one here?
+  return user.tagRevisionCount;
+}
