@@ -32,10 +32,6 @@ const TagEditsByUser = ({userId, limit, classes}: {
     nextFetchPolicy: "cache-only",
   });
 
-  console.log('+++++++++++++++++++++++++++++++++++++++++', userId);
-  console.log(results);
-  console.log('-----------------------------------------', userId);  
-
   if (loadingInitial || !results) {
     return <Components.Loading />
   }

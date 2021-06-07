@@ -16,7 +16,7 @@ Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
   return {
     selector: {
       userId: terms.userId,
-      // tag: {$ne:null} for some reason this returns a view where tag is often null. if we filter by this then it returns nothing.
+      collectionName: 'Tags'
     },
     options: {sort: {editedAt: -1}},
   }
