@@ -159,7 +159,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.tagRevisions.map(tagChange => (
               <MenuItemUntyped className={classes.votedItemRow}
                 component={Link} key={tagChange._id}
-                to={`/tag/${tagChange.tagSlug}/history?user=${currentUser.slug}`}
+                to={`/tag/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
