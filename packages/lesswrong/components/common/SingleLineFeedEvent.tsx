@@ -39,7 +39,7 @@ const SingleLineFeedEvent = ({expands=false, setExpanded, children, classes}: {
   classes: ClassesType,
 }) => {
   return <div className={classes.root}>
-    {expands && <span className={classes.expandButton} onClick={ev => setExpanded(true)} >{"+"}</span>}
+    {expands && <span className={classes.expandButton} onClick={ev => (setExpanded && setExpanded(true))} >{"+"}</span>}
     {!expands && <span className={classes.itemDot}>{"\u2022"}</span>}
     <div className={classes.contents}>
       {children}

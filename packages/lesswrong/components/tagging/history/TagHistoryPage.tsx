@@ -14,7 +14,7 @@ const TagHistoryPage = ({classes}: {
 }) => {
   const { params, query } = useLocation();
   const { slug } = params;
-  const focusedUser = query.user;
+  const focusedUser: string = query.user;
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
   const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent } = Components;
   
@@ -49,7 +49,7 @@ const TagHistoryPage = ({classes}: {
           render: (revision: RevisionHistoryEntry) => <div>
             <TagRevisionItem
               tag={tag}
-              collapsed={focusedUser && focusedUser!==revision.user?.slug}
+              collapsed={!!focusedUser && focusedUser!==revision.user?.slug}
               revision={revision}
               headingStyle={"abridged"}
               documentId={tag._id}

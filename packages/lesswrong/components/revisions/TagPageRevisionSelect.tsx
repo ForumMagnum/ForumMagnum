@@ -59,7 +59,7 @@ const TagPageRevisionSelect = ({ classes }: {
         return <TagRevisionItem
           key={rev.version}
           tag={tag}
-          collapsed={focusedUser && rev.user.slug!==focusedUser}
+          collapsed={!!focusedUser && rev.user?.slug!==focusedUser}
           headingStyle="abridged"
           documentId={tag._id}
           revision={rev}

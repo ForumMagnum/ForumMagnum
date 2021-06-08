@@ -704,6 +704,7 @@ interface RevisionMetadata { // fragment on Revisions
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
