@@ -164,22 +164,18 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/logout', (req, res, next) => {
     passport.authenticate('custom', (err, user, info) => {
-      console.log('logout handler maybe', err)
       if (err) return next(err)
-      console.log('user', user)
       if (!user) return next()
-      console.log('got here ')
       req.logOut()
-      console.log('got here too')
 
-      // The accepted way to delete a cookie is to set an expiration date in the past.
-      if (getCookieFromReq(req, "meteor_login_token")) {
-        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)
+      // Remove session cookies
+      const cookieUpdates = ['meteor_login_token', 'loginToken', 'connect.sid']
+        .filter(cookieName => getCookieFromReq(req, cookieName))
+        // The accepted way to delete a cookie is to set an expiration date in the past.
+        .map(cookieName => `${cookieName}= ; expires=${new Date(0).toUTCString()}`)
+      if (cookieUpdates.length) {
+        res.setHeader('Set-Cookie', cookieUpdates)
       }
-      if (getCookieFromReq(req, "loginToken")) {
-        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)
-      }
-      // TODO; Do I need to remove express cookie from here
       
       res.statusCode=302;
       // Need to log the user out of their Auth0 account. Otherwise when they
