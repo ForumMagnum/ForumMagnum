@@ -125,6 +125,12 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
   }
 }
 
+export function ensurePgIndex<T extends DbObject>(collection: CollectionBase<T>, indexName: string, indexDescription: string): void {
+  if (isServer && !isAnyTest) {
+    void collection._ensurePgIndex(indexName, indexDescription);
+  }
+}
+
 // Given an index partial definition for a collection's default view,
 // represented as an index field-list prefix and suffix, plus an index partial
 // definition for a specific view on the same collection, combine them into

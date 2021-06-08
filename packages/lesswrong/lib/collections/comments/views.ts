@@ -1,6 +1,6 @@
 import moment from 'moment';
 import * as _ from 'underscore';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { combineIndexWithDefaultViewIndex, ensureIndex, ensurePgIndex } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -450,3 +450,5 @@ ensureIndex(Comments,
   augmentForDefaultView({tagId: 1}),
   { name: "comments.tagId" }
 );
+
+ensurePgIndex(Comments, "commentsOnPost", "USING BTREE ((json->>'postId'), (json->>'postedAt'), ((json->'deleted')::boolean), ((json->'deletedPublic')::boolean), ((json->'score')::float))");

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import * as _ from 'underscore';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
+import { combineIndexWithDefaultViewIndex, ensureIndex, ensurePgIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
@@ -1183,3 +1183,7 @@ ensureIndex(Posts,
     name: "posts.users_tagged_posts",
   }
 );
+
+ensurePgIndex(Posts, "startTime", "USING BTREE ((json->>'startTime'))");
+ensurePgIndex(Posts, "lastCommentedAt", "USING BTREE ((json->>'lastCommentedAt'))");
+ensurePgIndex(Posts, "latestPosts", "USING BTREE ((json->'sticky'), (json->'stickyPriority'), (json->'score'))");

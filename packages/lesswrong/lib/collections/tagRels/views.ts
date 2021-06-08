@@ -1,5 +1,5 @@
 import { TagRels } from './collection';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex, ensurePgIndex } from '../../collectionUtils';
 
 declare global {
   interface TagRelsViewTerms extends ViewTermsBase {
@@ -41,3 +41,5 @@ TagRels.addView('tagsOnPost', (terms: TagRelsViewTerms) => {
 
 ensureIndex(TagRels, {postId:1});
 ensureIndex(TagRels, {tagId:1});
+
+ensurePgIndex(TagRels, "tagsOnPost", "USING BTREE (((json->'deleted')::boolean), (json->>'postId'), ((json->'baseScore')::float))");

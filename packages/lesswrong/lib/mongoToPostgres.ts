@@ -1,22 +1,34 @@
 import * as _ from 'underscore';
 
-export const mongoSelectorToSql = <T extends DbObject>(selector: MongoSelector<T>, options?: MongoFindOptions<T>, argOffset?: number) => {
+export const mongoSelectorToSql = <T extends DbObject>(collection: CollectionBase<T>, selector: MongoSelector<T>, argOffset?: number) => {
   let queryTextFragments: string[] = [];
   let args: any[] = [];
   
   let selectorFragments: string[] = [];
   for (let selectorKey of Object.keys(selector)) {
     if (selector[selectorKey] === undefined) continue;
-    const {sql,arg} = mongoSelectorFieldToSql(selectorKey, selector[selectorKey], (argOffset||1)+args.length);
-    selectorFragments.push(sql);
-    args = [...args, ...arg];
+    const {sql,arg} = mongoSelectorFieldToSql(collection, selectorKey, selector[selectorKey], (argOffset||1)+args.length);
+    if (sql && sql.length > 0) {
+      selectorFragments.push(sql);
+      args = [...args, ...arg];
+    }
   }
   if (selectorFragments.length > 0)
     queryTextFragments.push(selectorFragments.join(' and '));
   
+  return {
+    sql: queryTextFragments.join(" "),
+    arg: args,
+  };
+}
+
+export const mongoFindOptionsToSql = <T extends DbObject>(collection: CollectionBase<T>, options?: MongoFindOptions<T>) => {
+  let queryTextFragments: string[] = [];
+  let args: any[] = [];
+  
   if (options) {
     if (options.sort) {
-      const {sql: sortFragment, arg: sortArgs} = mongoSortToOrderBy(options.sort, (argOffset||1)+args.length);
+      const {sql: sortFragment, arg: sortArgs} = mongoSortToOrderBy(options.sort, args.length+1);
       queryTextFragments.push(sortFragment);
       args = [...args, ...sortArgs];
     }
@@ -28,10 +40,15 @@ export const mongoSelectorToSql = <T extends DbObject>(selector: MongoSelector<T
   return {
     sql: queryTextFragments.join(" "),
     arg: args,
-  };
+  }
 }
 
-export const mongoSelectorFieldToSql = (fieldName: string, value: any, argOffset: number): {sql: string, arg: any[]} => {
+export const mongoSelectorFieldToSql = <T extends DbObject>(collection: CollectionBase<T>, fieldName: string, value: any, argOffset: number): {sql: string|null, arg: any[]} => {
+  if (typeof fieldName !== 'string')
+    throw new Error("fieldName is not a string: was "+(typeof fieldName));
+  if (typeof argOffset !== 'number')
+    throw new Error("argOffset is not a number: was "+(typeof argOffset));
+  
   if (fieldName==="_id") {
     if (typeof value==="string") {
       return {
@@ -47,9 +64,15 @@ export const mongoSelectorFieldToSql = (fieldName: string, value: any, argOffset
       throw new Error(`Don't know how to handle selector for ${fieldName}`); // TODO
     }
   } else if (fieldName==="$or") {
+    if (!value || !value.length) {
+      return {
+        sql: null,
+        arg: [],
+      }
+    }
     const subselectors: any[] = [];
     for (let s of value) {
-      const subselector = mongoSelectorToSql(s, undefined, argOffset);
+      const subselector = mongoSelectorToSql(collection, s, argOffset);
       subselectors.push(subselector);
       argOffset += subselector.arg.length;
     }
@@ -58,9 +81,15 @@ export const mongoSelectorFieldToSql = (fieldName: string, value: any, argOffset
       arg: _.flatten(subselectors.map(s=>s.arg, true)),
     };
   } else if (fieldName==="$and") {
+    if (!value || !value.length) {
+      return {
+        sql: null,
+        arg: [],
+      }
+    }
     const subselectors: any[] = [];
     for (let s of value) {
-      const subselector = mongoSelectorToSql(s, undefined, argOffset);
+      const subselector = mongoSelectorToSql(collection, s, argOffset);
       subselectors.push(subselector);
       argOffset += subselector.arg.length;
     }
@@ -72,7 +101,7 @@ export const mongoSelectorFieldToSql = (fieldName: string, value: any, argOffset
     throw new Error(`Don't know how to handle selector for ${fieldName}: $not`); // TODO
   } else if (value === null) {
     return {
-      sql: `(jsonb_typeof(json->'fieldName') IS NULL OR jsonb_typeof(json->'fieldName')='null')`,
+      sql: `(jsonb_typeof(json->'${fieldName}') IS NULL OR jsonb_typeof(json->'${fieldName}')='null')`,
       arg: [],
     };
   } else if (typeof value==='object') {

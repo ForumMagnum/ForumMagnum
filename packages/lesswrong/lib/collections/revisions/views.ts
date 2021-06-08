@@ -1,5 +1,5 @@
 import { Revisions } from './collection';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex, ensurePgIndex } from '../../collectionUtils';
 
 declare global {
   interface RevisionsViewTerms extends ViewTermsBase {
@@ -33,3 +33,5 @@ Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
 });
 
 ensureIndex(Revisions, {collectionName:1, fieldName:1, editedAt:1, changeMetrics:1});
+
+ensurePgIndex(Revisions, "editedAt", "USING BTREE ((json->>'collectionName'), (json->>'fieldName'), (json->>'editedAt'), (json->'changeMetrics'))");
