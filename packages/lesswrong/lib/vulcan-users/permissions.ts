@@ -9,12 +9,12 @@ class Group {
     this.actions = [];
   }
 
-  can(actions) {
+  can(actions: string|string[]) {
     actions = Array.isArray(actions) ? actions : [actions];
     this.actions = this.actions.concat(actions);
   }
 
-  cannot(actions) {
+  cannot(actions: string|string[]) {
     actions = Array.isArray(actions) ? actions : [actions];
     this.actions = _.difference(this.actions, actions);
   }
@@ -151,7 +151,7 @@ const getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUse
 export const restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>): any {
   if (!docOrDocs) return {};
 
-  const restrictDoc = document => {
+  const restrictDoc = (document: T) => {
     // get array of all keys viewable by user
     const viewableKeys: Set<string> = getViewableFields(user, collection, document);
     
@@ -159,7 +159,7 @@ export const restrictViewableFields = function <T extends DbObject>(user: UsersC
     const restrictedDocument: Record<string,any> = {};
     for (let key of Object.keys(document)) {
       if (viewableKeys.has(key))
-        restrictedDocument[key] = document[key];
+        restrictedDocument[key] = (document as any)[key];
     }
 
     return restrictedDocument;
@@ -169,7 +169,7 @@ export const restrictViewableFields = function <T extends DbObject>(user: UsersC
 };
 
 // Check if a user can submit a field
-export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>) => {
+export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>): boolean => {
   const canCreate = field.canCreate || field.insertableBy; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
@@ -188,7 +188,7 @@ export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent
 };
 
 // Check if a user can edit a field
-export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: Partial<T>) => {
+export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: Partial<T>): boolean => {
   const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
 
   if (canUpdate) {

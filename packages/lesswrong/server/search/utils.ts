@@ -501,7 +501,7 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   }
   let algoliaIndex = client.initIndex(getAlgoliaIndexName(collection.collectionName as AlgoliaIndexCollectionName));
   
-  let totalErrors = [];
+  let totalErrors: any[] = [];
   
   await algoliaIndexDocumentBatch({
     documents,

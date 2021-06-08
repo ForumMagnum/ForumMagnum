@@ -105,7 +105,7 @@ export const reviewAlgorithm: RecommendationsAlgorithm = {
   excludeDefaultRecommendations: true
 }
 
-const FrontpageReviewPhase = ({classes}) => {
+const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
   const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
 

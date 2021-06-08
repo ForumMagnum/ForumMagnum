@@ -87,7 +87,7 @@ describe('renderEmail', () => {
     const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
     
-    const PostTitleComponent = ({documentId}) => {
+    const PostTitleComponent = ({documentId}: {documentId: string}) => {
       const { document } = useSingle({
         documentId,
         collectionName: "Posts",

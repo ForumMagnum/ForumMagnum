@@ -16,12 +16,12 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
 export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = false): Promise<string> {
   if (comment.postId) {
     const post = await mongoFindOne("Posts", comment.postId);
-    if (!post) throw Error(`Unable to find post for comment: ${comment}`)
+    if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
     const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
     const tag = await mongoFindOne("Tags", {_id:comment.tagId});
-    if (!tag) throw Error(`Unable to find tag for comment: ${comment}`)
+    if (!tag) throw Error(`Unable to find tag for comment: ${comment._id}`)
     return `${prefix}/tag/${tag.slug}/discussion#${comment._id}`;
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
@@ -77,9 +77,9 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
   }
 }
 
-export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): string => {
+export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
   const fallback = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
-  return (post?.commentSortOrder) || (currentUser?.commentSorting) || fallback
+  return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {

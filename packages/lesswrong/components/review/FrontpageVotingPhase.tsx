@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { reviewAlgorithm } from "./FrontpageReviewPhase";
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -27,7 +28,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const FrontpageVotingPhase = ({classes, settings}) => {
+const FrontpageVotingPhase = ({settings, classes}: {
+  settings: RecommendationsAlgorithm,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components
 

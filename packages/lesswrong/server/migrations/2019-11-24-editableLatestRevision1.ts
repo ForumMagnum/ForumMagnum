@@ -33,7 +33,7 @@ registerMigration({
           [`${fieldName}_latest`]: {$exists: false},
         },
         batchSize: 1000,
-        callback: async (documents) => {
+        callback: async (documents: any[]) => {
           const updates: Array<any> = [];
           await Promise.all(
             documents.map(async doc => {

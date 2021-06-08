@@ -206,7 +206,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       services: {
         google: profile
       },
-      emails: profile.emails,
+      emails: [{address: profile.emails?.[0].value, verified: true}],
       username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
       displayName: profile.displayName,
       emailSubscribedToCurated: true

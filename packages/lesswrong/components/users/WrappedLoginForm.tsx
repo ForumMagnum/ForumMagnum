@@ -8,7 +8,7 @@ import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import classnames from 'classnames'
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme, true),
     padding: 16,

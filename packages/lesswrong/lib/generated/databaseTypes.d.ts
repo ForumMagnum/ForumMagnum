@@ -590,6 +590,8 @@ interface DbTag extends DbObject {
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
   lesswrongWikiImportCompleted: boolean
+  htmlWithContributorAnnotations: string
+  contributionScores: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
 }
 
@@ -711,6 +713,7 @@ interface DbUser extends DbObject {
   maxPostCount: number
   commentCount: number
   maxCommentCount: number
+  tagRevisionCount: number
   abTestKey: string
   abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   reenableDraftJs: boolean

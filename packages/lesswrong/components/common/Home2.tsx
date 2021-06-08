@@ -3,16 +3,11 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, GatherTown, SingleColumnSection } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <SingleColumnSection>
-            <AnalyticsContext pageSectionContext="gatherTownWelcome">
-              <GatherTown/>
-            </AnalyticsContext>
-          </SingleColumnSection>
           <RecommendationsAndCurated configName="frontpage" />
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
