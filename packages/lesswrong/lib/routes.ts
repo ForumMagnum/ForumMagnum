@@ -291,8 +291,8 @@ addRoute(
     name: 'tagHistory',
     path: '/tag/:slug/history',
     componentName: 'TagHistoryPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
+    titleComponentName: 'TagHistoryPageTitle',
+    subtitleComponentName: 'TagHistoryPageTitle',
   },
   {
     name: 'tagEdit',
