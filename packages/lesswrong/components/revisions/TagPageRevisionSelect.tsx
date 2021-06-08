@@ -20,7 +20,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
   
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
-  const { results: revisions, loading: loadingRevisions, loadMoreProps, count, totalCount } = useMulti({
+  const { results: revisions, loading, loadMoreProps, count, totalCount } = useMulti({
     skip: !tag,
     terms: {
       view: "revisionsOnDocument",

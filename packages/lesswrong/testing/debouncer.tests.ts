@@ -14,7 +14,7 @@ describe('EventDebouncer', () => {
     
     try {
       // Clear the DebouncerEvents table
-      DebouncerEvents.remove({});
+      await DebouncerEvents.remove({});
       
       let numEventsHandled = 0;
       let numEventBatchesHandled = 0;
