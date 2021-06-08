@@ -7,7 +7,7 @@ import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
-import { rssTermsToUrl } from '../lib/rss_urls';
+import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
@@ -17,7 +17,7 @@ import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
 
-export const getMeta = (url) => {
+export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
 
   return {
@@ -30,12 +30,13 @@ export const getMeta = (url) => {
 };
 
 // LESSWRONG - this was added to handle karmaThresholds
-const roundKarmaThreshold = threshold => (threshold < 16 || !threshold) ? 2
-                                       : (threshold < 37) ? 30
-                                       : (threshold < 60) ? 45
-                                       : 75;
+const roundKarmaThreshold = (threshold: number) =>
+    (threshold < 16 || !threshold) ? 2
+  : (threshold < 37) ? 30
+  : (threshold < 60) ? 45
+  : 75;
 
-export const servePostRSS = async (terms, url?: string) => {
+export const servePostRSS = async (terms: RSSTerms, url?: string) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
@@ -86,7 +87,7 @@ export const servePostRSS = async (terms, url?: string) => {
   return feed.xml();
 };
 
-export const serveCommentRSS = async (terms, url?: string) => {
+export const serveCommentRSS = async (terms: RSSTerms, url?: string) => {
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
 

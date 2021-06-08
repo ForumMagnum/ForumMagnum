@@ -20,9 +20,9 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Users,
       batchSize: 1000,
-      callback: async (users) => {
+      callback: async (users: DbUser[]) => {
         for (let user of users) {
-          const oldSubscriptions = user.subscribedItems;
+          const oldSubscriptions = (user as any).subscribedItems;
           const newSubscriptions: Array<any> = [];
           
           // Fetch subscribed posts and comments. A user's subscription to

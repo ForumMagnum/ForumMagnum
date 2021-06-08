@@ -21,6 +21,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
+  importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -308,6 +309,7 @@ importComponent("CommentBottomCaveats", () => require('../components/comments/Co
 importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentActions/ToggleIsModeratorComment'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
+importComponent("ModeratorComments", () => require('../components/comments/ModeratorComments'));
 
 importComponent("CommentById", () => require('../components/comments/CommentById'));
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
@@ -398,6 +400,7 @@ importComponent("NewTagsList", () => require('../components/tagging/NewTagsList'
 importComponent("AddTagButton", () => require('../components/tagging/AddTagButton'));
 importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTagsChecklist'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
+importComponent("TagPageButtonRow", () => require('../components/tagging/TagPageButtonRow'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
 importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
@@ -412,6 +415,7 @@ importComponent("WikiGradeDisplay", () => require('../components/tagging/WikiGra
 importComponent("TaggingDashboard", () => require('../components/tagging/TaggingDashboard'));
 importComponent("TagFlagEditAndNewForm", () => require('../components/tagging/TagFlagEditAndNewForm'));
 importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'));
+importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
 importComponent("TagCTAPopup", () => require('../components/tagging/TagCTAPopup'));

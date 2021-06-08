@@ -3,7 +3,7 @@ import React from 'react';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 
-const EmailConfirmationRequiredCheckbox = (props) => {
+const EmailConfirmationRequiredCheckbox = (props: any) => {
   const currentUser = useCurrentUser();
   let { label, ...otherProps } = props;
   

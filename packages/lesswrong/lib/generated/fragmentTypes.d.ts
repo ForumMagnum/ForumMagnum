@@ -216,6 +216,9 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportCompleted: boolean,
+  readonly htmlWithContributorAnnotations: string,
+  readonly contributors: any /*TagContributorsList*/,
+  readonly contributionScores: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1324,6 +1327,20 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
   readonly tagFlags: Array<TagFlagFragment>,
 }
 
+interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
+  readonly tableOfContents: any,
+  readonly contributors: any,
+}
+
+interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
+  readonly tableOfContents: any,
+  readonly contributors: any,
+}
+
+interface TagFullContributorsList { // fragment on Tags
+  readonly contributors: any,
+}
+
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
   readonly description: RevisionEdit|null,
@@ -1388,6 +1405,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
   readonly sequenceDraftCount: number,
+  readonly tagRevisionCount: number,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionDisplay|null,
   readonly bannedUserIds: Array<string>,
@@ -1747,6 +1765,9 @@ interface FragmentTypes {
   TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
+  TagPageFragment: TagPageFragment
+  TagPageWithRevisionFragment: TagPageWithRevisionFragment
+  TagFullContributorsList: TagFullContributorsList
   TagEditFragment: TagEditFragment
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
@@ -1878,6 +1899,9 @@ interface CollectionNamesByFragmentName {
   TagDetailedPreviewFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagWithFlagsAndRevisionFragment: "Tags"
+  TagPageFragment: "Tags"
+  TagPageWithRevisionFragment: "Tags"
+  TagFullContributorsList: "Tags"
   TagEditFragment: "Tags"
   TagRecentDiscussion: "Tags"
   SunshineTagFragment: "Tags"

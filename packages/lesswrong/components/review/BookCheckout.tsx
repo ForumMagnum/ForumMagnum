@@ -7,7 +7,7 @@ import classNames from 'classnames';
 
 const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     
@@ -75,7 +75,7 @@ const ProductDisplay = ({ handleClickAmazon, handleClickStripe, text="Buy", clas
     </button> */}
   </>
 };
-const Message = ({ message, classes }) => (
+const Message = ({ message, classes }: {message: string, classes: ClassesType}) => (
   <section>
     <p className={classes.messageParagraph}>{message}</p>
   </section>
@@ -91,11 +91,11 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
       setMessage("Order placed! You will receive an email confirmation.");
     }
   }, []);
-  const handleClickAmazon = async (event) => {
+  const handleClickAmazon = async (event: Event) => {
     captureEvent("preOrderButtonClicked")
     window.location.assign(amazonLink);
   }
-  const handleClickStripe = async (event) => {
+  const handleClickStripe = async (event: Event) => {
     captureEvent("preOrderButtonClicked")
     const stripe = await stripePromise;
     if (stripe) {

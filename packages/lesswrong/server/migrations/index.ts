@@ -72,3 +72,4 @@ import './2020-12-04-nominationCount2019.ts'
 import './2021-03-11-readStatusesIndex.ts'
 import './2021-04-28-populateCommentDescendentCounts';
 import './2021-05-09-selfVoteOnTagRevisions';
+import './2021-06-05-fillWikiEditCount'

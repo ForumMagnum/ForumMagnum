@@ -30,7 +30,8 @@ const TagPageRevisionSelect = ({ classes }: {
     fetchPolicy: "cache-then-network" as any,
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
-    enableTotal: true
+    enableTotal: true,
+    itemsPerPage: 30,
   });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
