@@ -13,6 +13,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Posts from '../../lib/collections/posts/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { postStatuses } from '../../lib/collections/posts/constants';
 
 // TODO: LessWrong, you'll want to set this
 // lw-look-here
@@ -34,7 +35,7 @@ registerMigration({
       batchSize: 100,
       filter: {
         reviewedByUserId: {$exists: false},
-        status: Posts.config.STATUS_APPROVED,
+        status: postStatuses.STATUS_APPROVED,
         draft: false,
         isFuture: false,
         unlisted: false,
