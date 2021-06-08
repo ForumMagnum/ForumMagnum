@@ -94,7 +94,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
     } }>
       <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
     </a>} 
-    {<Link className={classes.button} to={`/revisions/tag/${tag.slug}`}>
+    {<Link className={classes.button} to={`/tag/${tag.slug}/history`}>
       <HistoryIcon /><span className={classes.buttonLabel}>History</span>
     </Link>}
     {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>

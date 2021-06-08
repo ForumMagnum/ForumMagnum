@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withSingle } from '../../lib/crud/withSingle';
-import withUser from '../common/withUser';
+import withUser, { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
@@ -112,6 +112,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   handleClose: (ev: MouseEvent)=>any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
+  const currentUser = useCurrentUser();
   const noKarmaChanges = !(
     (posts && (posts.length > 0))
     || (comments && (comments.length > 0))
@@ -158,7 +159,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.tagRevisions.map(tagChange => (
               <MenuItemUntyped className={classes.votedItemRow}
                 component={Link} key={tagChange._id}
-                to={`/revisions/tag/${tagChange.tagSlug}` /*TODO this should be a better link*/}
+                to={`/tag/${tagChange.tagSlug}/history?user=${currentUser.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
