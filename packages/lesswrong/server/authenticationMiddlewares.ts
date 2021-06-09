@@ -62,7 +62,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       // Probably impossible, but if it is null, we just log the person in as a
       // random user, which is bad, so we'll check anyway.
       if (!profileId) {
-        throw new Error('OAuth profile does not have a profile ID')
+        done(new Error('OAuth profile does not have a profile ID'))
       }
       let user = await Users.findOne({[idPath]: profileId})
       if (!user) {
