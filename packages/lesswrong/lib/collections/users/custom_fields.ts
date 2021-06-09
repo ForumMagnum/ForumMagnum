@@ -195,6 +195,7 @@ addFieldsDict(Users, {
     type: Object,
   },
 
+  // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
     type: Date,
     optional: true,
@@ -202,7 +203,9 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: forumTypeSetting.get() === 'EAForum' ?
+      [] :
+      [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
