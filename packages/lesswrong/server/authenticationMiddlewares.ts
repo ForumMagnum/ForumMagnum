@@ -57,36 +57,40 @@ type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<Db
  */
 function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProfile: IdFromProfile<P>, getUserDataFromProfile: UserDataFromProfile<P>) {
   return async (_accessToken: string, _refreshToken: string, profile: P, done: VerifyCallback) => {
-    const profileId = getIdFromProfile(profile)
-    // Probably impossible, but if it is null, we just log the person in as a
-    // random user, which is bad, so we'll check anyway.
-    if (!profileId) {
-      throw new Error('OAuth profile does not have a profile ID')
-    }
-    let user = await Users.findOne({[idPath]: profileId})
-    if (!user) {
-      const email = profile.emails?.[0]?.value
-      if (forumTypeSetting.get() === 'EAForum' && email) {
-        const user = await Users.findOne({'emails.address': email})
-        if (user) {
-          // Forum only uses Auth0Profile
-          const { data: updatedUser } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
-          return done(null, updatedUser)
-        }
+    try {
+      const profileId = getIdFromProfile(profile)
+      // Probably impossible, but if it is null, we just log the person in as a
+      // random user, which is bad, so we'll check anyway.
+      if (!profileId) {
+        throw new Error('OAuth profile does not have a profile ID')
       }
-      const { data: userCreated } = await createMutator({
-        collection: Users,
-        document: await getUserDataFromProfile(profile),
-        validate: false,
-        currentUser: null
-      })
-      return done(null, userCreated)
+      let user = await Users.findOne({[idPath]: profileId})
+      if (!user) {
+        const email = profile.emails?.[0]?.value
+        if (forumTypeSetting.get() === 'EAForum' && email) {
+          const user = await Users.findOne({'emails.address': email})
+          if (user) {
+            // Forum only uses Auth0Profile
+            const { data: updatedUser } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
+            return done(null, updatedUser)
+          }
+        }
+        const { data: userCreated } = await createMutator({
+          collection: Users,
+          document: await getUserDataFromProfile(profile),
+          validate: false,
+          currentUser: null
+        })
+        return done(null, userCreated)
+      }
+      user = await syncOAuthUser(user, profile as unknown as Auth0Profile)
+      if (user.banned && new Date(user.banned) > new Date()) {
+        return done(new Error("banned"))
+      }
+      return done(null, user)
+    } catch (err) {
+      return done(err)
     }
-    user = await syncOAuthUser(user, profile as unknown as Auth0Profile)
-    if (user.banned && new Date(user.banned) > new Date()) {
-      return done(new Error("banned"))
-    }
-    return done(null, user)
   }
 }
 

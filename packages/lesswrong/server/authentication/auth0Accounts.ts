@@ -4,7 +4,6 @@ import { slugify, Utils } from "../../lib/vulcan-lib/utils";
 import { updateMutator } from "../vulcan-lib/mutators";
 
 export async function mergeAccountWithAuth0(user: DbUser, profile: Profile) {
-  delete profile._json
   return await updateMutator({
     collection: Users,
     documentId: user._id,
@@ -13,21 +12,24 @@ export async function mergeAccountWithAuth0(user: DbUser, profile: Profile) {
     set: {'services.auth0': profile} as any,
     // Normal updates are not supposed to update services
     validate: false
-    // TODO: Soon we should delete passwords, and prolly resume tokens when we do this
+    // TODO: Soon we should delete passwords, and maybe(?) resume tokens when we do this
   })
 }
 
 export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser>> {
-  // Already have the raw version, and the structured content. No need to store the json.
-  delete profile._json
+  const email = profile.emails?.[0].value
   return {
-    email: profile.emails?.[0].value,
+    email,
+    emails: email ?
+      [{
+        address: email,
+        verified: !!profile._json.email_verified
+      }] :
+      undefined,
     services: {
       auth0: profile
     },
     username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
     displayName: profile.displayName,
-    // emailverified
-    // emailSubscribedToCurated: true
   }
 }
