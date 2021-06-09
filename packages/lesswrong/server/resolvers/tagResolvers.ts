@@ -75,11 +75,23 @@ addGraphQLResolvers({
           removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
         };
       });
+    },
+    
+    async RandomTag(root: void, args: void, context: ResolverContext): Promise<DbTag> {
+      const sample = await Tags.aggregate([
+        {$match: {deleted: false, adminOnly: false}},
+        {$sample: {size: 1}}
+      ]).toArray();
+      if (!sample || !sample.length)
+        throw new Error("No tags found");
+      console.log(`Random tag: ${sample[0].slug}`);
+      return sample[0];
     }
   }
 });
 
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdatesTimeBlock!]');
+addGraphQLQuery('RandomTag: Tag!');
 
 addFieldsDict(Tags, {
   contributors: {

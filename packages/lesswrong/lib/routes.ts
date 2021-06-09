@@ -310,6 +310,11 @@ addRoute(
     background: "white"
   },
   {
+    name: 'randomTag',
+    path: '/tags/random',
+    componentName: 'RandomTagPage',
+  },
+  {
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
