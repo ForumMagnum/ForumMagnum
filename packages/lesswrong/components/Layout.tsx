@@ -312,7 +312,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {currentUser?.userNameUnset
-                      ? <NewUserCompleteProfile currentUser={currentUser} />
+                      ? <NewUserCompleteProfile />
                       : children
                     }
                   </ErrorBoundary>
