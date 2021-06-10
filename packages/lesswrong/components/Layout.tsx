@@ -109,6 +109,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
+  // FIXME sure seems like this should be an optional prop
   currentUser: UsersCurrent,
   messages: any,
   children?: React.ReactNode,
@@ -200,7 +201,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -245,9 +246,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       currentRoute?.name == "home"
       && forumTypeSetting.get() === "LessWrong"
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+      
 
-    
-    return (
+      return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
@@ -310,7 +311,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
+                    {currentUser?.userNameUnset
+                      ? <NewUserCompleteProfile currentUser={currentUser} />
+                      : children
+                    }
                   </ErrorBoundary>
                   <Footer />
                 </div>

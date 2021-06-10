@@ -153,6 +153,7 @@ importComponent("UserNameDeleted", () => require('../components/users/UserNameDe
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
+importComponent("NewUserCompleteProfile", () => require('../components/users/NewUserCompleteProfile'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));

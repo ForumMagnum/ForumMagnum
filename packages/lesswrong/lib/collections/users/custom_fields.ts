@@ -1505,6 +1505,14 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  userNameUnset: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    hidden: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  }
 });
 
 makeEditable({

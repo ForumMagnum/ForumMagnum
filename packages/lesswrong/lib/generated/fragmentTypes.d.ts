@@ -1539,6 +1539,7 @@ interface SharedUserBooleans { // fragment on Users
   readonly hideWalledGardenUI: boolean,
   readonly walledGardenPortalOnboarded: boolean,
   readonly taggingDashboardCollapsed: boolean,
+  readonly userNameUnset: boolean,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users

@@ -133,17 +133,12 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
 }
 
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
-  console.log('cookieAuthStrat')
   const loginToken = getCookieFromReq(req, 'loginToken') || getCookieFromReq(req, 'meteor_login_token') // Backwards compatibility with meteor_login_token here
-  console.log('🚀 ~ file: authenticationMiddlewares.ts ~ line 138 ~ cookieAuthStrategy ~ loginToken', loginToken)
   if (!loginToken) {
-    console.log(' exit no loginToken')
     return done(null, false)
   }
   const user = await getUser(loginToken)
-  console.log('🚀 ~ file: authenticationMiddlewares.ts ~ line 144 ~ cookieAuthStrategy ~ user', user)
   if (!user) {
-    console.log(' exit no user')
     return done(null, false)
   }
   done(null, user)
@@ -151,7 +146,6 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
 
 async function deserializeUserPassport(id, done) {
   const user = await Users.findOne({_id: id})
-  console.log('deserialize user.slug', user?.slug)
   if (!user) done()
   done(null, user)
 }
@@ -178,12 +172,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/logout', (req, res, next) => {
-    console.log('logout 1')
-    console.log('i wonder if therere multiple strategies going on causing issues')
     passport.authenticate('custom', (err, user, info) => {
-      console.log('logout 2')
       if (err) return next(err)
-      console.log('user', user)
       // if (!user) return next()
       req.logOut()
 

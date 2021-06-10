@@ -18,6 +18,10 @@ export async function mergeAccountWithAuth0(user: DbUser, profile: Profile) {
 
 export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser>> {
   const email = profile.emails?.[0].value
+  const displayNameMatchesEmail = email === profile.displayName
+  const displayName = displayNameMatchesEmail
+    ? `new_user_${Math.floor(Math.random() * 10e9)}`
+    : profile.displayName
   return {
     email,
     emails: email ?
@@ -29,7 +33,8 @@ export async function userFromAuth0Profile(profile: Profile): Promise<Partial<Db
     services: {
       auth0: profile
     },
-    username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-    displayName: profile.displayName,
+    username: await Utils.getUnusedSlugByCollectionName("Users", slugify(displayName)),
+    displayName: displayName,
+    userNameUnset: displayNameMatchesEmail
   }
 }

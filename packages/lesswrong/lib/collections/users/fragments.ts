@@ -219,6 +219,7 @@ registerFragment(`
     hideWalledGardenUI
     walledGardenPortalOnboarded
     taggingDashboardCollapsed
+    userNameUnset
   }
 `)
 
