@@ -203,6 +203,8 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
+    // Disable updating on the EA Forum until we can get it to play well with
+    // Auth0
     canUpdate: forumTypeSetting.get() === 'EAForum' ?
       [] :
       [userOwns, 'sunshineRegiment', 'admins'],
@@ -1519,7 +1521,7 @@ addFieldsDict(Users, {
   usernameUnset: {
     type: Boolean,
     optional: true,
-    canRead: ['guests'],
+    canRead: ['members'],
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),

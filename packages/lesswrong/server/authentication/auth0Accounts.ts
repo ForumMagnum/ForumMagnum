@@ -7,8 +7,9 @@ export async function mergeAccountWithAuth0(user: DbUser, profile: Profile) {
   return await updateMutator({
     collection: Users,
     documentId: user._id,
-    // Annoying that typescript is concerned - `services` is a valid property
-    // that's currently set to any
+    // This is the correct way to set a nested property according to Mongo, but
+    // it's very hard to get it to type correctly. TS thinks we're setting a
+    // completely different field, `services.auth0`, not setting a nested one.
     set: {'services.auth0': profile} as any,
     // Normal updates are not supposed to update services
     validate: false
@@ -35,6 +36,8 @@ export async function userFromAuth0Profile(profile: Profile): Promise<Partial<Db
     },
     username: await Utils.getUnusedSlugByCollectionName("Users", slugify(displayName)),
     displayName: displayName,
+    // Might want to set this to always be true, and just prefill the username
+    // if they have their name in Auth0
     usernameUnset: displayNameMatchesEmail
   }
 }

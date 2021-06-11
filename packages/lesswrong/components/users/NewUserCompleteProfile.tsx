@@ -31,7 +31,7 @@ type NewUserCompleteProfileProps = {
 }
 
 const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes }) => {
-  // TODO: Prefill with existing username if it's not an email?
+  // TODO: Prefill with existing username if it's not an email / new_user_N
   const [username, setUsername] = useState('')
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [validationError, setValidationError] = useState('')
@@ -47,7 +47,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
   const {flash} = useMessages();
   const {SingleColumnSection} = Components
 
-  async function validateUsername(username: string): Promise<void> {
+  function validateUsername(username: string): void {
     if (username.length === 0) {
       setValidationError('Please enter a username')
       return
@@ -58,17 +58,24 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
     }
     // TODO: Really want them to be able to tell live if their username is
     // taken, but I think that's gonna have to be a later PR.
+    // Note: Probably want to prevent someone from taking an existing
+    // displayName
     // if (usernameIsUnique) ...
     setValidationError('')
   }
   
   async function handleSave() {
     try {
+      if (validationError)return
+      
+      // TODO: loading spinner while running
       await updateUser({variables: {username, subscribeToDigest}})
-      // No errors were thrown, reset form
-      setUsername('')
-      setSubscribeToDigest(false)
     } catch (err) {
+      if (/duplicate key error/.test(err.toString?.())) {
+        setValidationError('Username already taken')
+      }
+      // eslint-disable-next-line no-console
+      console.error(err)
       flash(`${err}`)
     }
   }
@@ -91,9 +98,10 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
           people in the community to identify you, but you can choose a pseudonym
           if you'd prefer.
         </Typography>
-        <TextField 
+        <TextField
           label='Username'
-          helperText='Spaces and special characters allowed'
+          error={!!validationError}
+          helperText={validationError || 'Spaces and special characters allowed'}
           value={username}
           onChange={(event) => setUsername(event.target.value)}
           onBlur={(_event) => validateUsername(username)}

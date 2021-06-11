@@ -62,7 +62,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       // Probably impossible, but if it is null, we just log the person in as a
       // random user, which is bad, so we'll check anyway.
       if (!profileId) {
-        done(new Error('OAuth profile does not have a profile ID'))
+        return done(new Error('OAuth profile does not have a profile ID'))
       }
       let user = await Users.findOne({[idPath]: profileId})
       if (!user) {
@@ -71,8 +71,12 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
           const user = await Users.findOne({'emails.address': email})
           if (user) {
             // Forum only uses Auth0Profile
-            const { data: updatedUser } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
-            return done(null, updatedUser)
+            // TODO: Guard with zod for isAUth0Profile
+            const { data: userUpdated } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
+            if (user.banned && new Date(user.banned) > new Date()) {
+              return done(new Error("banned"))
+            }
+            return done(null, userUpdated)
           }
         }
         const { data: userCreated } = await createMutator({
@@ -121,13 +125,13 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
   // ever report one email, in which case this is over-thought.
   const profileEmails = profile.emails.map(emailObj => emailObj.value)
   if (!profileEmails.includes(user.email)) {
-    const udpatedUserResponse = await updateMutator({
+    const updatedUserResponse = await updateMutator({
       collection: Users,
       documentId: user._id,
       set: {email: profileEmails[0]},
       validate: false
     })
-    return udpatedUserResponse.data
+    return updatedUserResponse.data
   }
   return user
 }
@@ -180,6 +184,10 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         // The accepted way to delete a cookie is to set an expiration date in the past.
         .map(cookieName => `${cookieName}= ; expires=${new Date(0).toUTCString()}`)
       if (cookieUpdates.length) {
+        // We need to set all Set-Cookie headers at once, or we'd overwrite the
+        // previous ones. The way to set multiple Set-Cookie headers is to set
+        // it with an array.
+        // https://nodejs.org/api/http.html#http_request_setheader_name_value
         res.setHeader('Set-Cookie', cookieUpdates)
       }
       
@@ -187,7 +195,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       // Need to log the user out of their Auth0 account. Otherwise when they
       // next try to login they won't be given a choice, just auto-resumed to
       // the same Auth0 account.
-      if (auth0DomainSetting.get() && auth0ClientIdSetting.get()) {
+      if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && forumTypeSetting.get() === 'EAForum') {
         // Will redirect to our homepage, and is a noop if they're not logged in
         // to an Auth0 account, so this is very non-disruptive
         res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}`);
