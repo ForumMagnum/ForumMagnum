@@ -451,4 +451,17 @@ ensureIndex(Comments,
   { name: "comments.tagId" }
 );
 
+Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    moderatorHat: true,
+  },
+  options: {
+    sort: {postedAt: -1},
+  },
+}));
+ensureIndex(Comments,
+  augmentForDefaultView({moderatorHat: 1}),
+  { name: "comments.moderatorHat" }
+);
+
 ensurePgIndex(Comments, "commentsOnPost", "USING BTREE ((json->>'postId'), (json->>'postedAt'), ((json->'deleted')::boolean), ((json->'deletedPublic')::boolean), ((json->'score')::float))");

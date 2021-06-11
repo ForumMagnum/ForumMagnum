@@ -1,4 +1,3 @@
-import { Connectors } from '../vulcan-lib/connectors';
 import { trimLatexAndAddCSS, preProcessLatex } from './utils';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { sanitize } from '../vulcan-lib/utils';
@@ -14,6 +13,7 @@ import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
+import { createMutator } from '../vulcan-lib/mutators';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
 import * as _ from 'underscore';
@@ -51,6 +51,9 @@ mdi.use(markdownItSup)
 import { mjpage }  from 'mathjax-node-page'
 import { onStartup, isAnyTest } from '../../lib/executionEnvironment';
 
+// TODO: Now that the make_editable callbacks use createMutator to create
+// revisions, we can now add these to the regular ${collection}.create.after
+// callbacks
 interface AfterCreateRevisionCallbackContext {
   revisionID: string
 }
@@ -61,7 +64,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
     let finished = false;
-    
+
     if (!isAnyTest) {
       setTimeout(() => {
         if (!finished) {
@@ -73,19 +76,19 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
           resolve(html);
         }
       }, 10000);
-    } 
-    
+    }
+
     const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
       // eslint-disable-next-line no-console
       console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
       reject(`Error in $${sourceFormula}$: ${errors}`)
     }
-    
+
     const callbackAndMarkFinished = (dom: any, css: string) => {
       finished = true;
       return beforeSerializationCallback(dom, css);
     };
-    
+
     mjpage(html, { fragment: true, errorHandler, format: ["MathML", "TeX"] } , {html: true, css: true}, resolve)
       .on('beforeSerialization', callbackAndMarkFinished);
   })
@@ -95,7 +98,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
 const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
   if (toWrap.length < 1) {
     return toWrap;
-  } 
+  }
 
   if (toWrap.length < 2 && ($ as any).wrap) { // wrap not defined in npm version,
     return ($ as any).wrap(wrapper);      // and git version fails testing.
@@ -108,7 +111,7 @@ const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Roo
     $(v).remove();
     section.append($(v));
   });
-  section.insertBefore(marker); 
+  section.insertBefore(marker);
   marker.remove();
   return section;                 // This is what jQuery would return, IIRC.
 }
@@ -122,7 +125,7 @@ const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-t
 function wrapSpoilerTags(html: string): string {
   //@ts-ignore
   const $ = cheerio.load(html, null, false)
-  
+
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
   let spoilerBlockGroups: Array<cheerio.Element[]> = [];
@@ -140,12 +143,12 @@ function wrapSpoilerTags(html: string): string {
   if (currentBlockGroup.length > 0) {
     spoilerBlockGroups.push(currentBlockGroup);
   }
-  
+
   // Having collected the elements into groups, wrap each group.
   for (let spoilerBlockGroup of spoilerBlockGroups) {
     cheerioWrapAll($(spoilerBlockGroup), '<div class="spoilers" />', $);
   }
-  
+
   // Serialize back to HTML.
   return $.html()
 }
@@ -219,7 +222,7 @@ export function removeCKEditorSuggestions(markup: string): string {
   const markupWithoutInsertions = markupWithoutDeletionsAndModifications.replace(
     /<suggestion\s*id="([a-zA-Z0-9:]+)"\s*suggestion-type="insertion" type="start"><\/suggestion>.*<suggestion\s*id="\1"\s*suggestion-type="insertion"\s*type="end"><\/suggestion>/g,
     ''
-  ) 
+  )
   return markupWithoutInsertions
 }
 
@@ -263,7 +266,7 @@ export function dataToMarkdown(data, type) {
       try {
         const contentState = convertFromRaw(data);
         const html = draftToHTML(contentState)
-        return htmlToMarkdown(html)  
+        return htmlToMarkdown(html)
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e)
@@ -329,7 +332,7 @@ async function buildRevision({ originalContents, currentUser }) {
   const { data, type } = originalContents;
   const html = await dataToHTML(data, type, !currentUser.isAdmin)
   const wordCount = await dataToWordCount(data, type)
-  
+
   return {
     html, wordCount, originalContents,
     editedAt: new Date(),
@@ -342,18 +345,18 @@ async function buildRevision({ originalContents, currentUser }) {
 const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
-  
+
   if (!previousVersion)
     return true;
-  
+
   if (!_.isEqual(doc[fieldName].originalContents, previousVersion.originalContents)) {
     return true;
   }
-  
+
   if (doc[fieldName].commitMessage && doc[fieldName].commitMessage.length>0) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -393,12 +396,12 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         commitMessage,
         changeMetrics,
       };
-      // FIXME: This doesn't define documentId, because it's filled in in the
-      // after-create callback, passing through an intermediate state where it's
-      // undefined; and it's missing _id and schemaVersion, which leads to having
-      // ObjectID types in the database which can cause problems.
-      const firstRevision = await Connectors.create(Revisions, newRevision as DbRevision);
-      
+      const firstRevision = await createMutator({
+        collection: Revisions,
+        document: newRevision,
+        validate: false
+      });
+
       return {
         ...doc,
         [fieldName]: {
@@ -406,7 +409,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           html, version, userId, editedAt, wordCount,
           updateType: 'initial'
         },
-        [`${fieldName}_latest`]: firstRevision,
+        [`${fieldName}_latest`]: firstRevision.data._id,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, null),
         } : null),
@@ -420,7 +423,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
-      
+
       const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
@@ -433,12 +436,12 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const version = await getNextVersion(document._id, updateType, fieldName, (newDocument as DbPost).draft)
       const userId = currentUser._id
       const editedAt = new Date()
-      
+
       let newRevisionId;
       if (await revisionIsChange(newDocument, fieldName)) {
         const previousRev = await getLatestRev(newDocument._id, fieldName);
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
-        
+
         const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "score" | "inactive" > = {
           documentId: document._id,
           ...await buildRevision({
@@ -452,15 +455,18 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           commitMessage,
           changeMetrics,
         }
-        // FIXME: See comment on the other Connectors.create call in this file.
-        // Missing _id and schemaVersion.
-        newRevisionId = await Connectors.create(Revisions, newRevision as DbRevision);
+        const newRevisionDoc = await createMutator({
+          collection: Revisions,
+          document: newRevision,
+          validate: false
+        });
+        newRevisionId = newRevisionDoc.data._id;
       } else {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
-      
+
       await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
-      
+
       return {
         ...docData,
         [fieldName]: {
@@ -514,10 +520,10 @@ onStartup(addAllEditableCallbacks);
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
   // @ts-ignore
   const parsedHtml = cheerio.load(diffHtml, null, false);
-  
+
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");
-  
+
   return { added: insertedChars, removed: removedChars };
 }
 

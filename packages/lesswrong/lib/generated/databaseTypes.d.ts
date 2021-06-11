@@ -713,6 +713,7 @@ interface DbUser extends DbObject {
   maxPostCount: number
   commentCount: number
   maxCommentCount: number
+  tagRevisionCount: number
   abTestKey: string
   abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   reenableDraftJs: boolean

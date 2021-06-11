@@ -16,6 +16,7 @@ export const setPostgresConnection = (connectionPool) => {
   postgresConnectionPool = connectionPool;
 }
 export const getDatabase = () => db;
+export const getMongoClient = () => client
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = () => {
   if (client) {
@@ -345,4 +346,3 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
     },
   })
 }
-
