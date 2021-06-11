@@ -661,6 +661,7 @@ interface DbUser extends DbObject {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: boolean
+  subscribedToDigest: boolean
   unsubscribeFromAll: boolean
   hideSubscribePoke: boolean
   frontpagePostCount: number
@@ -818,3 +819,4 @@ interface ObjectsByCollectionName {
   Users: DbUser
   Votes: DbVote
 }
+

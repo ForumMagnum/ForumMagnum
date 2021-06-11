@@ -1467,6 +1467,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly nearbyPeopleNotificationThreshold: number,
   readonly hideFrontpageMap: boolean,
   readonly emailSubscribedToCurated: boolean,
+  readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly whenConfirmationEmailSent: Date,
@@ -1568,6 +1569,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
+  readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
   readonly moderatorAssistance: boolean,
   readonly collapseModerationGuidelines: boolean,
@@ -1926,3 +1928,4 @@ interface CollectionNamesByFragmentName {
 }
 
 type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+

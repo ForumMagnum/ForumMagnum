@@ -1,7 +1,7 @@
 import { markdownToHtml } from '../editor/make_editable_callbacks';
 import Users from '../../lib/collections/users/collection';
 import { addFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, Utils } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 
 addFieldsDict(Users, {
@@ -52,18 +52,19 @@ addGraphQLResolvers({
       if (!currentUser.usernameUnset) {
         throw new Error('Only new users can set their username this way')
       }
-      // TODO; should we use a updateMutator?
-      await Users.update(
-        {_id: currentUser._id,},
-        {$set: {
+      const updatedUser = (await updateMutator({
+        collection: Users,
+        documentId: currentUser._id,
+        set: {
           usernameUnset: false,
           username,
           displayName: username,
           slug: await Utils.getUnusedSlugByCollectionName("Users", slugify(username)),
           subscribedToDigest: subscribeToDigest
-        }}
-      )
-      const updatedUser = await Users.findOne(currentUser._id)
+        },
+        // We've already done necessary gating
+        validate: false
+      })).data
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
     }
