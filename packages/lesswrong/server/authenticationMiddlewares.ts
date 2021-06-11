@@ -83,7 +83,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
         })
         return done(null, userCreated)
       }
-      user = await syncOAuthUser(user, profile as unknown as Auth0Profile)
+      user = await syncOAuthUser(user, profile)
       if (user.banned && new Date(user.banned) > new Date()) {
         return done(new Error("banned"))
       }
@@ -153,8 +153,6 @@ async function deserializeUserPassport(id, done) {
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
-// removeSessionCookies
-
 export const addAuthMiddlewares = (addConnectHandler) => {
   addConnectHandler(passport.initialize())
   addConnectHandler(passport.session())
@@ -174,7 +172,6 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   addConnectHandler('/logout', (req, res, next) => {
     passport.authenticate('custom', (err, user, info) => {
       if (err) return next(err)
-      // if (!user) return next()
       req.logOut()
 
       // Remove session cookies
