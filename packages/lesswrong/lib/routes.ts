@@ -151,6 +151,11 @@ addRoute(
     path:'/abTestGroups',
     componentName: 'UsersViewABTests',
   },
+  {
+    name: "users.banNotice",
+    path: "/banNotice",
+    componentName: "BannedNotice",
+  },
 
   // Miscellaneous LW2 routes
   {
@@ -605,6 +610,11 @@ addRoute(
     noIndex: true
   },
   {
+    name: 'moderatorComments',
+    path: '/moderatorComments',
+    componentName: 'ModeratorComments',
+  },
+  {
     name: 'emailHistory',
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
@@ -819,6 +829,12 @@ addRoute(
     path:'/users/:slug/reviews',
     componentName: 'UserReviews',
     title: "User Reviews",
+  },
+  {
+    name: 'userReplies',
+    path:'/users/:slug/replies',
+    componentName: 'UserCommentsReplies',
+    title: "User Comment Replies",
   },
   {
     name: 'reviews2018',

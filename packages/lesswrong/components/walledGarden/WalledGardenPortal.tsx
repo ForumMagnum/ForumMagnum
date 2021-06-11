@@ -129,14 +129,20 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   </WalledGardenMessage>
 
   const codeIsValid = validateGardenCode(gardenCode)
-  const userIsAllowed = currentUser?.walledGardenInvite || isOpenToPublic || codeIsValid
-
+  const afMembershipMismatch = gardenCode?.afOnly && !currentUser?.groups.includes("alignmentForum")
+  const userIsAllowed = (currentUser?.walledGardenInvite || isOpenToPublic || codeIsValid) && !afMembershipMismatch
 
   if (!userIsAllowed) {
     const codeExpiredDuringSession = onboarded && expiredGardenCode
     const codeExpiredBeforeSession = moment(gardenCode?.endTime).isBefore(new Date())
     const codeNotYetValid = moment(gardenCode?.startTime).isAfter(new Date())
     const deletedOrMalformedCode = (!!inviteCodeQuery && !gardenCode)
+
+    // Code is only for AF user and current user isn't logged in or is not an AF user
+    if (afMembershipMismatch) return <WalledGardenMessage>
+      <p>This event is only for AI Alignment Forum members.</p>
+      {!currentUser && <p>If you have an AI Alignment Forum account, please log in with your account.</p>}
+    </WalledGardenMessage>
 
     //Access Denied Messages
     if (codeExpiredDuringSession) return <WalledGardenMessage>

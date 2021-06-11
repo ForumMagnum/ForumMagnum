@@ -77,6 +77,12 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
     color: "rgba(0,0,0,0.5)",
     fontSize: 11,
   },
+  ".thoughtSaverFrame": {
+    width: "100%",
+    height: "500px",
+    border: "none",
+    borderRadius: 5
+  },
 });
 
 const commentsStyle = (theme: ThemeType): JssStyles => ({

@@ -34,7 +34,7 @@ const RecentDiscussionFeed = ({
     [setShowShortformFeed, showShortformFeed]
   );
   
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag } = Components
+  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder } = Components
   
   const refetch = useCallback(() => {
     if (refetchRef.current)
@@ -101,6 +101,10 @@ const RecentDiscussionFeed = ({
                 documentId={revision.documentId}
               />}
             </div>,
+          },
+          subscribeReminder: {
+            fragmentName: null,
+            render: () => <RecentDiscussionSubscribeReminder/>
           },
         }}
       />

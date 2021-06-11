@@ -7,6 +7,8 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+
 export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -60,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const getFrontPageOverwrites = (haveCurrentUser: boolean) => {
+const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
   if (forumTypeSetting.get() === 'EAForum') {
     return {
       method: haveCurrentUser ? 'sample' : 'top',
@@ -93,7 +95,7 @@ const RecommendationsAndCurated = ({
     const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
-    const frontpageRecommendationSettings = {
+    const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,
       ...getFrontPageOverwrites(!!currentUser)
     }

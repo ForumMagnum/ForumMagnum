@@ -243,7 +243,7 @@ export const wrapAndSendEmail = async ({user, from, subject, body}: {user: DbUse
   }
 }
 
-function validateSheets(sheetsRegistry)
+function validateSheets(sheetsRegistry: SheetsRegistry)
 {
   let styleValidator = new StyleValidator();
   

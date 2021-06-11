@@ -56,7 +56,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
           </div>
           <PostsPageActions post={post} />
         </div>
-        <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />
+        {!post.draft && <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />}
       </div>)}
     </div>
   )

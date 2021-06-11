@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, loadChildrenSeparately, classes }: {
+const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, expandByDefault, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, noHash, hoverPreview, forceSingleLine, forceNotSingleLine, childComments, loadChildrenSeparately, loadDirectReplies = false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
@@ -52,6 +52,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   forceNotSingleLine?: boolean,
   childComments?: Array<CommentTreeNode<CommentsList>>,
   loadChildrenSeparately?: boolean,
+  loadDirectReplies?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -160,7 +161,6 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
       treeOptions={treeOptions}
       onClick={(event) => handleExpand(event)}
       id={!noHash ? comment._id : undefined}
-      
       nestingLevel={updatedNestingLevel}
       hasChildren={childComments && childComments.length>0}
       highlighted={highlighted}
@@ -181,6 +181,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
                   nestingLevel={updatedNestingLevel}
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
+                  showDescendentCount={loadChildrenSeparately}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
@@ -221,6 +222,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
           <RepliesToCommentList
             parentCommentId={comment._id}
             post={post as PostsBase}
+            directReplies={loadDirectReplies}
           />
         </div>
       }

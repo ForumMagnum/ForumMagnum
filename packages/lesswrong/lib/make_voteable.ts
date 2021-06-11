@@ -1,7 +1,13 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 
+interface CollectionVoteOptions {
+  timeDecayScoresCronjob: boolean,
+  customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
+}
+
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
+export const VoteableCollectionOptions: Partial<Record<CollectionNameString,CollectionVoteOptions>> = {};
 
 export const collectionIsVoteable = (collectionName: CollectionNameString): boolean => {
   for (let collection of VoteableCollections) {
@@ -21,13 +27,12 @@ export const apolloCacheVoteablePossibleTypes = () => {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBase<T>, options?: {
-  customBaseScoreReadAccess?: (user: DbUser|null, object: T) => boolean
-}): void => {
+export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBase<T>, options: CollectionVoteOptions): void => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 
   VoteableCollections.push(collection);
+  VoteableCollectionOptions[collection.collectionName] = options;
 
   addFieldsDict(collection, {
     currentUserVote: {

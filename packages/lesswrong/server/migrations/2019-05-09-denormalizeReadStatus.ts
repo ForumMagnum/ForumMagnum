@@ -11,7 +11,7 @@ registerMigration({
       collection: LWEvents,
       batchSize: 1000,
       filter: {name: "post-view"},
-      callback: async (postViews) => {
+      callback: async (postViews: DbLWEvent[]) => {
         // eslint-disable-next-line no-console
         console.log(`Updating batch of ${postViews.length} read statuses`);
         const updates = postViews.map(view => ({

@@ -27,12 +27,12 @@ export default class StyleValidator {
     }
   }
 
-  validate(style, componentName) {
+  validate(style: any, componentName: any) {
     // eslint-disable-next-line no-restricted-syntax
     for (const propNameCamelCase of Object.keys(style)) {
       const propName = propNameCamelCase.replace(capsRe, match => `-${match[0].toLowerCase()}`)
 
-      const supportInfo = supportMatrix[propName]
+      const supportInfo = (supportMatrix as any)[propName]
 
       if (!supportInfo) {
         if (this.config.strict) {

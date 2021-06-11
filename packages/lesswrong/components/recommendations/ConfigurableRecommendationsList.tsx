@@ -1,74 +1,54 @@
-import React, { PureComponent } from 'react';
+import React, {useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-interface ExternalProps {
-  configName: string,
-}
-interface ConfigurableRecommendationsListProps extends ExternalProps, WithUserProps {
-}
-interface ConfigurableRecommendationsListState {
-  settingsVisible: boolean,
-  settings: Partial<RecommendationsAlgorithm>|null,
-}
+const ConfigurableRecommendationsList = ({configName}: {
+  configName: string
+}) => {
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const [settings, setSettings] = useState<Partial<RecommendationsAlgorithm>|null>(null);
+  const currentUser = useCurrentUser();
 
-class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommendationsListProps,ConfigurableRecommendationsListState> {
-  state = {
-    settingsVisible: false,
-    settings: null
+  const toggleSettings = () => {
+    setSettingsVisible(!settingsVisible);
   }
 
-  toggleSettings = () => {
-    this.setState({
-      settingsVisible: !this.state.settingsVisible,
-    });
+  const changeSettings = (newSettings: Partial<RecommendationsAlgorithm>) => {
+    setSettings(newSettings);
   }
 
-  changeSettings = (newSettings: Partial<RecommendationsAlgorithm>) => {
-    this.setState({
-      settings: newSettings
-    });
-  }
+  const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
+    RecommendationsList, SettingsButton, LWTooltip } = Components;
+  const settingsOrDefault = getRecommendationSettings({settings, currentUser, configName})
 
-  render() {
-    const { currentUser, configName } = this.props;
-    const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      RecommendationsList, SettingsButton, LWTooltip } = Components;
-    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
-
-    return <SingleColumnSection>
-      <SectionTitle
-        title={<LWTooltip
-          title={`A weighted, randomized sample of the highest karma posts${settings.onlyUnread ? " that you haven't read yet" : ""}.`}
-        >
-          <Link to={'/recommendations'}>
-            {archiveRecommendationsName}
-          </Link>
-        </LWTooltip>}
+  return <SingleColumnSection>
+    <SectionTitle
+      title={<LWTooltip
+        title={`A weighted, randomized sample of the highest karma posts${settingsOrDefault.onlyUnread ? " that you haven't read yet" : ""}.`}
       >
-        <SettingsButton onClick={this.toggleSettings}/>
-      </SectionTitle>
-      { this.state.settingsVisible &&
-        <RecommendationsAlgorithmPicker
-          configName={configName}
-          settings={settings}
-          onChange={(newSettings) => this.changeSettings(newSettings)}
-        /> }
-      <RecommendationsList
-        algorithm={settings}
-      />
-    </SingleColumnSection>
-  }
+        <Link to={'/recommendations'}>
+          {archiveRecommendationsName}
+        </Link>
+      </LWTooltip>}
+    >
+      <SettingsButton onClick={toggleSettings}/>
+    </SectionTitle>
+    { settingsVisible &&
+      <RecommendationsAlgorithmPicker
+        configName={configName}
+        settings={settingsOrDefault}
+        onChange={(newSettings) => changeSettings(newSettings)}
+      /> }
+    <RecommendationsList
+      algorithm={settingsOrDefault}
+    />
+  </SingleColumnSection>
 }
 
-const ConfigurableRecommendationsListComponent = registerComponent<ExternalProps>(
-  "ConfigurableRecommendationsList", ConfigurableRecommendationsList, {
-    hocs: [withUser]
-  }
-);
+const ConfigurableRecommendationsListComponent = registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList);
 
 declare global {
   interface ComponentTypes {

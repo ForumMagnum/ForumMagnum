@@ -195,6 +195,7 @@ addFieldsDict(Users, {
     type: Object,
   },
 
+  // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
     type: Date,
     optional: true,
@@ -202,7 +203,11 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // Disable updating on the EA Forum until we can get it to play well with
+    // Auth0
+    canUpdate: forumTypeSetting.get() === 'EAForum' ?
+      [] :
+      [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -291,7 +296,7 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
   },
-  
+
   hideElicitPredictions: {
     order: 80,
     type: Boolean,
@@ -309,7 +314,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
-  
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
@@ -775,6 +780,17 @@ addFieldsDict(Users, {
     hidden: ['AlignmentForum', 'EAForum'].includes(forumTypeSetting.get()),
     canRead: ['members'],
   },
+  // Not reusing curated, because we might actually use that as well
+  subscribedToDigest: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.emails,
+    label: "Subscribe to the EA Forum Digest emails",
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: ['members'],
+  },
   unsubscribeFromAll: {
     type: Boolean,
     optional: true,
@@ -783,6 +799,16 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+
+  hideSubscribePoke: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
@@ -1010,9 +1036,27 @@ addFieldsDict(Users, {
     label: "Hide the frontpage book ad"
   },
 
+  sunshineNotes: {
+    type: String,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(""),
+  },
+
+  sunshineFlagged: {
+    type: Boolean,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
   needsReview: {
     type: Boolean,
-    canRead: ['guests'],
+    canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
@@ -1021,7 +1065,7 @@ addFieldsDict(Users, {
 
   sunshineSnoozed: {
     type: Boolean,
-    canRead: ['guests'],
+    canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
@@ -1071,7 +1115,7 @@ addFieldsDict(Users, {
     type: Number,
     graphQLtype: "Float",
     canRead: ['guests'],
-    resolver: (user, args, context: ResolverContext) => {
+    resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
 
@@ -1203,7 +1247,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
-  
+
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1297,7 +1341,7 @@ addFieldsDict(Users, {
   signUpReCaptchaRating: {
     type: Number,
     optional: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins']
+    canRead: ['guests'],
   },
   // Unique user slug for URLs, copied over from Vulcan-Accounts
   slug: {
@@ -1408,6 +1452,19 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     ...schemaDefaultValue(0)
   },
+
+  tagRevisionCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "tagRevisionCount",
+      collectionName: "Users",
+      foreignCollectionName: "Revisions",
+      foreignTypeName: "revision",
+      foreignFieldName: "userId",
+      filterFn: revision => revision.collectionName === "Tags"
+    }),
+    canRead: ['guests']
+  },
+
   abTestKey: {
     type: String,
     optional: true,
@@ -1443,7 +1500,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional:true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() === "EAForum",
   },
@@ -1461,6 +1518,14 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  usernameUnset: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    hidden: true,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  }
 });
 
 makeEditable({

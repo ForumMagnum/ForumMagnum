@@ -13,6 +13,9 @@
           },
           {
             "name": "Comment"
+          },
+          {
+            "name": "Revision"
           }
         ]
       }
