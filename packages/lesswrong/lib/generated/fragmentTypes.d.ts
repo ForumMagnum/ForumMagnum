@@ -1539,7 +1539,7 @@ interface SharedUserBooleans { // fragment on Users
   readonly hideWalledGardenUI: boolean,
   readonly walledGardenPortalOnboarded: boolean,
   readonly taggingDashboardCollapsed: boolean,
-  readonly userNameUnset: boolean,
+  readonly usernameUnset: boolean,
 }
 
 interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
@@ -1926,4 +1926,3 @@ interface CollectionNamesByFragmentName {
 }
 
 type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
-

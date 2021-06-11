@@ -35,6 +35,6 @@ export async function userFromAuth0Profile(profile: Profile): Promise<Partial<Db
     },
     username: await Utils.getUnusedSlugByCollectionName("Users", slugify(displayName)),
     displayName: displayName,
-    userNameUnset: displayNameMatchesEmail
+    usernameUnset: displayNameMatchesEmail
   }
 }

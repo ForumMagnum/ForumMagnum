@@ -104,6 +104,7 @@ registerFragment(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
+    subscribedToDigest
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
@@ -219,7 +220,7 @@ registerFragment(`
     hideWalledGardenUI
     walledGardenPortalOnboarded
     taggingDashboardCollapsed
-    userNameUnset
+    usernameUnset
   }
 `)
 
@@ -262,6 +263,7 @@ registerFragment(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    subscribedToDigest
     unsubscribeFromAll
 
     # Moderation

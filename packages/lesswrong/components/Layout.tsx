@@ -311,7 +311,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.userNameUnset
+                    {currentUser?.usernameUnset
                       ? <NewUserCompleteProfile />
                       : children
                     }

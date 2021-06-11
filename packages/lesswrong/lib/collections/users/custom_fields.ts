@@ -778,6 +778,17 @@ addFieldsDict(Users, {
     hidden: ['AlignmentForum', 'EAForum'].includes(forumTypeSetting.get()),
     canRead: ['members'],
   },
+  // Not reusing curated, because we might actually use that as well
+  subscribedToDigest: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.emails,
+    label: "Subscribe to the EA Forum Digest emails",
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: ['members'],
+  },
   unsubscribeFromAll: {
     type: Boolean,
     optional: true,
@@ -1505,7 +1516,7 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
-  userNameUnset: {
+  usernameUnset: {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
