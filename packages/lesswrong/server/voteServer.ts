@@ -151,6 +151,9 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   }
   if (!voteTypes[voteType]) throw new Error("Invalid vote type");
 
+  if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
+    throw new Error("Revisions are only voteable if they're revisions of tags");
+  
   const existingVote = await hasVotedServer({document, voteType, user});
 
   if (existingVote) {

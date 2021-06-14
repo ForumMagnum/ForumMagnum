@@ -2,7 +2,7 @@ import pick from 'lodash/pick';
 import mjAPI from 'mathjax-node'
 import Revisions from '../../lib/collections/revisions/collection';
 
-export const trimLatexAndAddCSS = (dom, css) => {
+export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
   var paragraphs = dom.getElementsByClassName("MJXc-display");
   // We trim all display equations that don't have any textContent. This seems

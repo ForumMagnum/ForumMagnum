@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
+import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   hideOnMobile: {
@@ -18,7 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const FrontpageNominationPhase = ({classes, settings}) => {
+const FrontpageNominationPhase = ({classes, settings}: {
+  classes: ClassesType,
+  settings: RecommendationsAlgorithm,
+}) => {
   const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink, LWTooltip } = Components
   const currentUser = useCurrentUser();
 
@@ -38,9 +42,9 @@ const FrontpageNominationPhase = ({classes, settings}) => {
 
   if (settings.hideReview) return null
 
-  const algorithm = {
+  const algorithm: RecommendationsAlgorithm = {
     ...settings, 
-    review2018: true, 
+    reviewNominations: 2018,
     onlyUnread: false,
     excludeDefaultRecommendations: true
   }

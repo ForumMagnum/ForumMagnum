@@ -14,7 +14,7 @@ registerMigration({
       const collection = getCollection(collectionName);
       await forEachDocumentBatchInCollection({
         collection, batchSize: 1000,
-        callback: async (documents) => {
+        callback: async (documents: any[]) => {
           await Revisions.update(
             { documentId: { $in: documents.map(doc => doc._id) } },
             { $set: {fieldName} },

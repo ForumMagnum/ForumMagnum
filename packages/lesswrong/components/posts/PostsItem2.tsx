@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt } from "../../lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -11,12 +11,15 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
-export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#fafafa"
+
+const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
+const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
+const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -133,14 +136,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       padding: 0,
     }
-  },
-  commentsIcon: {
-    width: COMMENTS_WIDTH,
-    height: 24,
-    cursor: "pointer",
-    position: "relative",
-    flexShrink: 0,
-    top: 2
   },
   actions: {
     opacity: 0,
@@ -287,6 +282,21 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) => {
     )
   }
 }
+
+const isAMA = (post: PostsList) => {
+  if (!amaTagIdSetting.get()) return false
+  return !!(post.sticky && post.tags.filter(tag => tag._id === amaTagIdSetting.get()).length > 0);
+};
+
+const isOpenThread = (post: PostsList) => {
+  if (!openThreadTagIdSetting.get()) return false
+  return !!(post.sticky && post.tags.filter(tag => tag._id === openThreadTagIdSetting.get()).length > 0);
+};
+
+const isStartHerePost = (post: PostsList) => {
+  if (!startHerePostIdSetting.get()) return false
+  return !!(post.sticky && post._id === startHerePostIdSetting.get());
+};
 
 const PostsItem2 = ({
   // post: The post displayed.
@@ -459,6 +469,9 @@ const PostsItem2 = ({
                       post={post}
                       read={isRead}
                       sticky={isSticky(post, terms)}
+                      isAMA={isAMA(post)}
+                      isOpenThread={isOpenThread(post)}
+                      isStartHerePost={isStartHerePost(post)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}
@@ -503,11 +516,11 @@ const PostsItem2 = ({
                 </div>}
 
                 {!resumeReading && <PostsItemComments
-                  post={post}
+                  small={false}
+                  commentCount={postGetCommentCount(post)}
                   onClick={toggleComments}
                   unreadComments={hasUnreadComments()}
                   newPromotedComments={hasNewPromotedComments()}
-                  className={classes.commentsIcon}
                 />}
 
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">

@@ -6,8 +6,9 @@ const intercomTokenSetting = new DatabaseServerSetting<string | null>("intercomT
 
 let intercomClient: any = null;
 export const getIntercomClient = () => {
-  if (!intercomClient && intercomTokenSetting.get()) {
-    intercomClient =  new Client({ token: intercomTokenSetting.get() })
+  const intercomToken = intercomTokenSetting.get();
+  if (!intercomClient && intercomToken) {
+    intercomClient =  new Client({ token: intercomToken })
   }
   return intercomClient;
 }

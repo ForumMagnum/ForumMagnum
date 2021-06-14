@@ -55,7 +55,7 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
     }
   }
 
-  const submitFreeEntryText = async (e) => {
+  const submitFreeEntryText = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (freeEntryText.length > 0) {
@@ -65,7 +65,7 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
     setFreeEntryText("")
   }
   
-  const handleEnter = e => {
+  const handleEnter = (e: React.KeyboardEvent) => {
     if (e.keyCode == 13) {
       void submitFreeEntryText(e)
     }

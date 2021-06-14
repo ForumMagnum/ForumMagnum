@@ -11,6 +11,6 @@ export function getSchema<T extends DbObject>(collection: CollectionBase<T>): Sc
 
 export function getSimpleSchema<T extends DbObject>(collection: CollectionBase<T>): SimpleSchemaType<T> {
   if (!collection._simpleSchema)
-    collection._simpleSchema = new SimpleSchema(collection._schemaFields);
+    collection._simpleSchema = new SimpleSchema(collection._schemaFields as any);
   return collection._simpleSchema;
 }

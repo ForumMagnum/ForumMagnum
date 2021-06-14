@@ -1,1 +1,1 @@
-export const onServerConnect = (fn) => {}
+export const onServerConnect = (fn: any) => {}

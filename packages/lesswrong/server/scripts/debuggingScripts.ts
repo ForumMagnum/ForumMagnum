@@ -6,12 +6,13 @@ import { performSubscriptionAction } from '../../lib/collections/subscriptions/m
 import moment from 'moment';
 import * as _ from 'underscore';
 
-Vulcan.populateNotifications = async ({username,
-  messageNotifications = 3,
-  postNotifications = 3,
-  commentNotifications = 3,
-  replyNotifications = 3 }) =>
-{
+Vulcan.populateNotifications = async ({username, messageNotifications = 3, postNotifications = 3, commentNotifications = 3, replyNotifications = 3}: {
+  username: string,
+  messageNotifications?: number,
+  postNotifications?: number,
+  commentNotifications?: number,
+  replyNotifications?: number
+}) => {
   const user = await Users.findOne({username});
   if (!user) throw Error(`Can't find user with username: ${username}`)
   const randomUser = await Users.findOne({_id: {$ne: user._id}});
@@ -71,7 +72,7 @@ function getLoremIpsumToken() {
 }
 
 // Generate a given number of characters of lorem ipsum.
-function makeLoremIpsum(length) {
+function makeLoremIpsum(length: number) {
   let result: Array<string> = [];
   let lengthSoFar = 0;
 
@@ -91,7 +92,7 @@ function makeLoremIpsum(length) {
 // of lorem ipsum, formatted like:
 //   <p>Lorem ipsum dolor sit ame</p>
 // This is strictly for making big/slow posts for test purposes.
-function makeLoremIpsumBody(numParagraphs, paragraphLength) {
+function makeLoremIpsumBody(numParagraphs: number, paragraphLength: number) {
   let result: Array<string> = [];
 
   for(var ii=0; ii<numParagraphs; ii++) {

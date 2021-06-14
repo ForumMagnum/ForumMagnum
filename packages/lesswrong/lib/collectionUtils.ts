@@ -36,6 +36,15 @@ SimpleSchema.extendOptions([ 'foreignKey' ]);
 // should treat this field as nullable 
 SimpleSchema.extendOptions([ 'nullable' ]);
 
+declare module "simpl-schema" {
+  interface SchemaDefinition {
+    canAutofillDefault?: boolean
+    denormalized?: boolean
+    foreignKey?: CollectionNameString | {collection:CollectionNameString,field:string}
+    nullable?: boolean
+  }
+}
+
 export const expectedIndexes: Partial<Record<CollectionNameString,Array<any>>> = {};
 
 // Returns true if the specified index has a name, and the collection has an

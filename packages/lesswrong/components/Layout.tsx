@@ -21,6 +21,7 @@ import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../lib/globalStyles';
+import type { ToCData, ToCSection } from '../server/tableOfContents';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
@@ -108,6 +109,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
+  // FIXME sure seems like this should be an optional prop
   currentUser: UsersCurrent,
   messages: any,
   children?: React.ReactNode,
@@ -118,7 +120,7 @@ interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps,
 }
 interface LayoutState {
   timezone: string,
-  toc: any,
+  toc: {title: string|null, sections?: ToCSection[]}|null,
   postsRead: Record<string,boolean>,
   tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
@@ -143,12 +145,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
   }
 
-  setToC = (document, sectionData) => {
-    if (document) {
+  setToC = (title: string|null, sectionData: ToCData|null) => {
+    if (title) {
       this.setState({
         toc: {
-          document: document,
-          sections: sectionData && sectionData.sections
+          title: title,
+          sections: sectionData?.sections
         }
       });
     } else {
@@ -199,7 +201,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -244,9 +246,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       currentRoute?.name == "home"
       && forumTypeSetting.get() === "LessWrong"
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
+      
 
-    
-    return (
+      return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
@@ -309,7 +311,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
+                    {currentUser?.usernameUnset
+                      ? <NewUserCompleteProfile />
+                      : children
+                    }
                   </ErrorBoundary>
                   <Footer />
                 </div>

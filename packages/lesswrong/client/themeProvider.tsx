@@ -6,7 +6,7 @@ import forumTheme from '../themes/forumTheme';
 import JssCleanup from '../components/themes/JssCleanup';
 
 
-export function wrapWithMuiTheme (app) {
+export function wrapWithMuiTheme (app: React.ReactNode) {
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });

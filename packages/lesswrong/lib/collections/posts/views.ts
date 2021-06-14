@@ -60,6 +60,9 @@ export const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
+  "nonSticky": {
+    sticky: false,
+  },
   "frontpage": {
     frontpageDate: {$gt: new Date(0)}
   },
@@ -358,9 +361,13 @@ const stickiesIndexPrefix = {
 };
 
 
-Posts.addView("magic", (terms: PostsViewTerms) => ({
-  options: {sort: setStickies(sortings.magic, terms)}
-}))
+Posts.addView("magic", (terms: PostsViewTerms) => {
+  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : undefined;
+  return {
+    selector,
+    options: {sort: setStickies(sortings.magic, terms)},
+  };
+});
 ensureIndex(Posts,
   augmentForDefaultView({ score:-1 }),
   {
@@ -688,7 +695,7 @@ ensureIndex(Posts, {"slug": "hashed"});
 Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
   if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
   const legacyId = parseInt(terms.legacyId, 36)
-  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36");
+  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
   return {
     selector: {
       legacyId: ""+legacyId
@@ -1183,3 +1190,16 @@ ensureIndex(Posts,
     name: "posts.users_tagged_posts",
   }
 );
+
+Posts.addView("stickied", (terms: PostsViewTerms) => (
+  {
+    selector: {
+      sticky: true,
+    },
+    options: {
+      sort: {
+        stickyPriority: -1,
+      },
+    },
+  }
+));

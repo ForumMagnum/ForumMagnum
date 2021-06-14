@@ -3,7 +3,7 @@ import moment from 'moment';
 import {registerComponent, Components } from '../../lib/vulcan-lib';
 import { getUrlClass } from '../../lib/routeUtil';
 
-export const eventRoot = theme => ({
+export const eventRoot = (theme: ThemeType) => ({
   ...theme.typography.commentStyle,
   fontSize: '1.1rem',
   color: 'rgba(0,0,0,0.55)',
@@ -15,7 +15,7 @@ export const eventRoot = theme => ({
   }
 })
 
-export const eventName = theme => ({
+export const eventName = (theme: ThemeType) => ({
   width: 230,
   [theme.breakpoints.down('xs')]: {
     width: "100%",
@@ -27,7 +27,7 @@ export const eventName = theme => ({
   whiteSpace: "nowrap"
 })
 
-export const eventTime = theme => ({
+export const eventTime = (theme: ThemeType) => ({
   fontSize: ".9em",
   opacity: .75,
   width: 150,

@@ -87,7 +87,7 @@ async function getSubscribedUsers({
   }
 }
 
-const createNotifications = async (userIds: Array<string>, notificationType: string, documentType, documentId) => {
+const createNotifications = async (userIds: Array<string>, notificationType: string, documentType: string|null, documentId: string|null) => {
   return Promise.all(
     userIds.map(async userId => {
       await createNotification(userId, notificationType, documentType, documentId);
@@ -117,7 +117,7 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
   }
 }
 
-const createNotification = async (userId: string, notificationType: string, documentType, documentId) => {
+const createNotification = async (userId: string, notificationType: string, documentType: string|null, documentId: string|null) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
@@ -125,8 +125,8 @@ const createNotification = async (userId: string, notificationType: string, docu
 
   let notificationData = {
     userId: userId,
-    documentId: documentId,
-    documentType: documentType,
+    documentId: documentId||undefined,
+    documentType: documentType||undefined,
     message: await notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
     link: await getLink(notificationType, documentType, documentId),
@@ -230,7 +230,7 @@ const getLink = async (notificationType: string, documentType: string|null, docu
   }
 }
 
-const notificationMessage = async (notificationType, documentType, documentId) => {
+const notificationMessage = async (notificationType: string, documentType: string|null, documentId: string|null) => {
   return await getNotificationTypeByName(notificationType)
     .getMessage({documentType, documentId});
 }
@@ -340,7 +340,7 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
   }
 });
 
-async function findUsersToEmail(filter) {
+async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
 
   let usersToEmail = usersMatchingFilter.filter(u => {

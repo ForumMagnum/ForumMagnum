@@ -2,14 +2,14 @@ import { expectedIndexes, isUnbackedCollection } from '../lib/collectionUtils';
 import { getCollection, getAllCollections } from '../lib/vulcan-lib/getCollection';
 import * as _ from 'underscore';
 
-function indexesMatch(indexA, indexB)
+function indexesMatch(indexA: any, indexB: any)
 {
   return (_.isEqual(indexA.key, indexB.key)
       && _.isEqual(_.keys(indexA.key), _.keys(indexB.key))
       && _.isEqual(indexA.partialFilterExpression, indexB.partialFilterExpression));
 }
 
-function isUnrecognizedIndex(collection, index)
+function isUnrecognizedIndex(collection: CollectionBase<any>, index: any)
 {
   let expectedIndexesForCollection = expectedIndexes[collection.collectionName]
   if (!expectedIndexesForCollection)
@@ -38,7 +38,7 @@ export async function getUnrecognizedIndexes()
       
       let indexes = await collection.rawCollection().indexes();
       
-      indexes.forEach(index => {
+      indexes.forEach((index: any) => {
         if (isUnrecognizedIndex(collection, index)) {
           unrecognizedIndexes.push({
             collectionName: collection.collectionName,
@@ -54,7 +54,7 @@ export async function getUnrecognizedIndexes()
   return unrecognizedIndexes;
 }
 
-function isMissingIndex(index, actualIndexes)
+function isMissingIndex(index: any, actualIndexes: any[])
 {
   for (let actualIndex of actualIndexes)
   {
