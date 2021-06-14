@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userCanEdit, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
+import PencilIcon from '@material-ui/icons/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -103,7 +104,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
-  
+
   const currentUser = useCurrentUser();
   const {loading, results} = useMulti({
     terms,
@@ -123,7 +124,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const renderMeta = () => {
     const document = getUserFromResults(results)
     if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = document;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -167,14 +168,23 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </Components.MetaInfo>
           </span>
         </Tooltip>
+
+        <Tooltip title={`${tagRevisionCount} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
+          <span className={classes.userMetaInfo}>
+            <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <Components.MetaInfo>
+              { tagRevisionCount }
+            </Components.MetaInfo>
+          </span>
+        </Tooltip>
       </div>
   }
 
   const { query } = useLocation();
-  
+
   const render = () => {
     const user = getUserFromResults(results)
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -217,7 +227,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
-    
+
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
 
@@ -261,6 +271,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </Typography>
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+          </SingleColumnSection>
+
+          <SingleColumnSection>
+            <SunshineNewUsersProfileInfo userId={user._id} />
           </SingleColumnSection>
 
           {/* Sequences Section */}
@@ -313,7 +327,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
-              <SectionTitle title={"Comments"} />
+              <Link to={`${userGetProfileUrl(user)}/replies`}>
+                <SectionTitle title={"Comments"} />
+              </Link>
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
@@ -321,7 +337,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     )
   }
-  
+
   return render();
 }
 

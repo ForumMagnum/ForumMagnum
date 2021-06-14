@@ -99,7 +99,7 @@ function wrapConsoleLogFunctions(wrapper: (originalFn: any, ...message: any[])=>
   }
 }
 
-function wrappedConsoleLog(unwrappedConsoleLog, message)
+function wrappedConsoleLog(unwrappedConsoleLog: (...messages: string[])=>void, message: string)
 {
   const screenHeight = process.stdout.rows;
   const ESC = '\x1b';

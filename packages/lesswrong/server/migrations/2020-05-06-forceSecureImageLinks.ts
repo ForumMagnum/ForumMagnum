@@ -7,6 +7,7 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { urlIsBroken } from '../scripts/utils'
 import { Posts } from '../../lib/collections/posts/collection';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import cheerio from 'cheerio'
 
 function findInsecureImages ($: any): Array<string> {
@@ -91,7 +92,7 @@ registerMigration({
       collection: Posts,
       batchSize: 500,
       filter: {
-        status: 2,
+        status: postStatuses.STATUS_APPROVED,
         draft: {$ne: true},
       },
       callback: async (posts: Array<DbPost>): Promise<void> => {

@@ -14,6 +14,7 @@ addGraphQLResolvers({
       await ReadStatuses.update({
         postId: postId,
         userId: currentUser._id,
+        tagId: null,
       }, {
         $set: {
           isRead: isRead,

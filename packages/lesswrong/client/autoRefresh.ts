@@ -1,4 +1,5 @@
 import { onStartup } from '../lib/executionEnvironment';
+import type { MessageEvent, OpenEvent, CloseEvent } from 'ws';
 
 declare global {
   var buildId: string; //Preprocessor-replaced with an ID in the bundle
@@ -16,7 +17,7 @@ function connectWebsocket() {
 
   connectedWebsocket.addEventListener("message", (event: MessageEvent) => {
     try {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data+"");
       if (data.latestBuildId) {
         if (data.latestBuildId !== buildId) {
           // eslint-disable-next-line no-console
@@ -34,9 +35,9 @@ function connectWebsocket() {
       console.log(e);
     }
   });
-  connectedWebsocket.addEventListener("open", (event) => {
+  connectedWebsocket.addEventListener("open", (event: OpenEvent) => {
   });
-  connectedWebsocket.addEventListener("error", (event) => {
+  connectedWebsocket.addEventListener("error", (event: CloseEvent) => {
   });
 }
 

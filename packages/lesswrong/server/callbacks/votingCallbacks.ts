@@ -8,7 +8,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-const collectionsThatAffectKarma = ["Posts", "Comments"]
+const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {

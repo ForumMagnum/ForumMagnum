@@ -36,8 +36,12 @@ userIdentifiedCallback.add(function identifyUserToSentry(user: UsersCurrent) {
 });
 
 userIdentifiedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent) {
-  if (window && (window as any).ga) {
-    (window as any).ga('set', 'userId', user._id); // Set the user ID using signed-in user_id.
+  const dataLayer = (window as any).dataLayer
+  if (!dataLayer) {
+    // eslint-disable-next-line no-console
+    console.warn("Trying to call gtag before dataLayer has been initialized")
+  } else {
+    dataLayer.push({userId: user._id})
   }
 });
 

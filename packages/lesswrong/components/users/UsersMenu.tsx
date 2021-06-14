@@ -65,6 +65,15 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   const { LWPopper, LWTooltip } = Components
 
   if (!currentUser) return null;
+  if (currentUser?.usernameUnset) {
+    return <div className={classes.root}>
+      <Button href='/logout' classes={{root: classes.userButtonRoot}}>
+        <span className={classes.userButtonContents} style={{ color: color }}>
+          LOG OUT
+        </span>
+      </Button>
+    </div>
+  }
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')

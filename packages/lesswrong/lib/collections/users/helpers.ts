@@ -216,6 +216,10 @@ export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): bool
   return false;
 };
 
+export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => {
+  return !!(user?.emails && user.emails.length > 0);
+}
+
 // Replaces Users.getProfileUrl from the vulcan-users package.
 export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
   if (!user) return "";

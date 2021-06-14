@@ -7,4 +7,4 @@ cd Credentials
 transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET -y
 cd ..
 
-./build.js -run --settings ./Credentials/$SETTINGS_FILE_NAME --production
+NODE_OPTIONS=--max_old_space_size=2560 ./build.js -run --settings ./Credentials/$SETTINGS_FILE_NAME --production

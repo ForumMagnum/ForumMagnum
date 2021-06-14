@@ -7,6 +7,7 @@ import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
 import { PartialDeep } from 'type-fest'
+import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -250,14 +251,14 @@ export const createDummyMessage = async (user: any, data?: any) => {
 }
 
 export const clearDatabase = async () => {
-  (await Users.find().fetch()).forEach((i)=>{
-    Users.remove(i._id)
+  await asyncForeachSequential(await Users.find().fetch(), async (i) => {
+    await Users.remove(i._id)
   });
-  (await Posts.find().fetch()).forEach((i)=>{
-    Posts.remove(i._id)
+  await asyncForeachSequential(await Posts.find().fetch(), async (i) => {
+    await Posts.remove(i._id)
   });
-  (await Comments.find().fetch()).forEach((i)=>{
-    Posts.remove(i._id)
+  await asyncForeachSequential(await Comments.find().fetch(), async (i) => {
+    await Comments.remove(i._id)
   });
 }
 
@@ -266,7 +267,7 @@ export const clearDatabase = async () => {
 // Copied from here: https://stackoverflow.com/a/11233515/8083739
 
 // Jim's note: This will not work on objects that contain arrays that contain objects
-function stringifyObject(obj_from_json: {}): string {
+function stringifyObject(obj_from_json: any): string {
   if(typeof obj_from_json !== "object" || Array.isArray(obj_from_json) || obj_from_json instanceof Date){
       // not an object or is a Date, stringify using native function
       return JSON.stringify(obj_from_json);
@@ -275,7 +276,7 @@ function stringifyObject(obj_from_json: {}): string {
   // but without quotes around the keys.
   let props = Object
       .keys(obj_from_json)
-      .map(key => `${key}:${stringifyObject(obj_from_json[key])}`)
+      .map((key: any) => `${key}:${stringifyObject(obj_from_json[key])}`)
       .join(",");
   return `{${props}}`;
 }

@@ -1,4 +1,25 @@
 
+export function getGraphQLErrorID(error: any): string|null {
+  if (!error) {
+    return null;
+  } else if (error.id) {
+    return error.id;
+  } else if (error.message) {
+    try {
+      const parsed = JSON.parse(error.message);
+      return getGraphQLErrorID(parsed);
+    } catch(e) {
+      // It wasn't JSON
+    }
+  }
+  
+  return null;
+}
+
+export function getGraphQLErrorMessage(error: any): string {
+  return getGraphQLErrorID(error) || "Error";
+}
+
 export function isMissingDocumentError(error: any): boolean {
   return (error && error.message==='app.missing_document');
 }

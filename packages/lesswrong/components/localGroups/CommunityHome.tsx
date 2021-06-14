@@ -1,12 +1,11 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import { withMessages } from '../common/withMessages';
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetLocation } from '../../lib/collections/users/helpers';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
-import { withLocation } from '../../lib/routeUtil';
-import withDialog from '../common/withDialog'
+import { useLocation } from '../../lib/routeUtil';
+import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
@@ -18,52 +17,48 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 interface ExternalProps {
 }
-interface CommunityHomeProps extends ExternalProps, WithUserProps, WithMessagesProps, WithLocationProps, WithDialogProps, WithStylesProps {
+interface CommunityHomeProps extends ExternalProps, WithMessagesProps, WithLocationProps, WithDialogProps {
 }
 interface CommunityHomeState {
   currentUserLocation: any,
 }
 
-class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
-  constructor(props: CommunityHomeProps) {
-    super(props);
-    this.state = {
-      currentUserLocation: userGetLocation(props.currentUser)
-    }
-  }
-
-  componentDidMount() {
-    const { currentUser } = this.props
+const CommunityHome = ({classes}: {
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  const { query } = useLocation();
+  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser));
+  
+  useEffect(() => {
     const newLocation = userGetLocation(currentUser);
-    if (!_.isEqual(this.state.currentUserLocation, newLocation)) {
-      this.setState({ currentUserLocation: userGetLocation(currentUser) });
+    if (!_.isEqual(currentUserLocation, newLocation)) {
+      setCurrentUserLocation(userGetLocation(currentUser));
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
 
-  openSetPersonalLocationForm = () => {
-    const { openDialog, currentUser } = this.props
+  const openSetPersonalLocationForm = () => {
     openDialog({
       componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
     });
   }
 
-  openEventNotificationsForm = () => {
-    const { openDialog, currentUser } = this.props
+  const openEventNotificationsForm = () => {
     openDialog({
       componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
     });
   }
 
-  render() {
-    const { classes, currentUser } = this.props;
-    const { query } = this.props.location; // From withLocation
+  const render = () => {
     const filters = query?.filters || [];
     const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography } = Components
 
     const eventsListTerms = {
       view: 'nearbyEvents',
-      lat: this.state.currentUserLocation.lat,
-      lng: this.state.currentUserLocation.lng,
+      lat: currentUserLocation.lat,
+      lng: currentUserLocation.lng,
       limit: 5,
       filters: filters,
       onlineEvent: false
@@ -74,15 +69,15 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
     }
     const groupsListTerms: LocalgroupsViewTerms = {
       view: 'nearby',
-      lat: this.state.currentUserLocation.lat,
-      lng: this.state.currentUserLocation.lng,
+      lat: currentUserLocation.lat,
+      lng: currentUserLocation.lng,
       limit: 4,
       filters: filters,
     }
     const mapEventTerms: PostsViewTerms = {
       view: 'nearbyEvents',
-      lat: this.state.currentUserLocation.lat,
-      lng: this.state.currentUserLocation.lng,
+      lat: currentUserLocation.lat,
+      lng: currentUserLocation.lng,
       filters: filters,
     }
     return (
@@ -97,10 +92,10 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
                 On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
               </Typography>
                 <SectionFooter>
-                  <a onClick={this.openSetPersonalLocationForm}>
+                  <a onClick={openSetPersonalLocationForm}>
                     {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
                   </a>
-                  <a onClick={this.openEventNotificationsForm}>
+                  <a onClick={openEventNotificationsForm}>
                     {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
                   </a>
                 </SectionFooter>
@@ -122,9 +117,9 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Local Groups">
-                {this.props.currentUser && <GroupFormLink />}
+                {currentUser && <GroupFormLink />}
               </SectionTitle>
-              { this.state.currentUserLocation.loading
+              { currentUserLocation.loading
                 ? <Components.Loading />
                 : <Components.LocalGroupsList terms={groupsListTerms}>
                       <Link to={"/allGroups"}>View All Groups</Link>
@@ -141,14 +136,10 @@ class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
       </React.Fragment>
     )
   }
+  return render();
 }
 
-const CommunityHomeComponent = registerComponent<ExternalProps>(
-  'CommunityHome', CommunityHome, {
-    styles,
-    hocs: [withUser, withMessages, withLocation, withDialog]
-  }
-);
+const CommunityHomeComponent = registerComponent('CommunityHome', CommunityHome, {styles});
 
 declare global {
   interface ComponentTypes {

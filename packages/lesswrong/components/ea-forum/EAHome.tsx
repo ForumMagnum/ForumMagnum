@@ -13,8 +13,7 @@ const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBann
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner,
-    EventBanner
+    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner, StickiedPosts, EventBanner
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -28,6 +27,8 @@ const EAHome = () => {
       
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
+
+      <StickiedPosts />
       <HomeLatestPosts />
 
       <RecommendationsAndCurated configName="frontpageEA" />

@@ -14,7 +14,7 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-export function eligibleToNominate (currentUser) {
+export function eligibleToNominate (currentUser: UsersCurrent|null) {
   if (!currentUser) return false;
   if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return false
   return true

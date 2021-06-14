@@ -145,7 +145,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   classes: ClassesType,
   comment?: any,
 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate } = Components
   const [expanded, setExpanded] = useState(false)
 
   if (!post) return null
@@ -188,6 +188,9 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
                   <LWTooltip title={`${postGetCommentCountStr(post)}`}>
                     <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
                   </LWTooltip>
+                  <span className={classes.smallText}>
+                    <FormatDate date={post.postedAt}/>
+                  </span>
                 </div>
               </>}
             </div>

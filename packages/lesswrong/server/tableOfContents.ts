@@ -8,6 +8,21 @@ import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
+import { updateDenormalizedHtmlAttributions } from './resolvers/tagResolvers';
+import { annotateAuthors } from './attributeEdits';
+
+export interface ToCSection {
+  title?: string
+  answer?: any
+  anchor: string
+  level: number
+  divider?: boolean,
+}
+export interface ToCData {
+  html: string|null
+  sections: ToCSection[]
+  headingsCount: number
+}
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -49,8 +64,9 @@ const headingSelector = _.keys(headingTags).join(",");
 export function extractTableOfContents(postHTML: string)
 {
   if (!postHTML) return null;
-  const postBody = cheerio.load(postHTML);
-  let headings: Array<any> = [];
+  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
+  const postBody = cheerio.load(postHTML, null, false);
+  let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string,boolean> = {};
 
   // First, find the headings in the document, create a linear list of them,
@@ -59,6 +75,9 @@ export function extractTableOfContents(postHTML: string)
   for (let i=0; i<headingTags.length; i++) {
     let tag = headingTags[i];
 
+    if (tag.type !== "tag") {
+      continue;
+    }
     if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
       continue;
     }
@@ -106,7 +125,7 @@ export function extractTableOfContents(postHTML: string)
   }
 }
 
-function elementToToCText(cheerioTag: CheerioElement) {
+function elementToToCText(cheerioTag: cheerio.Element) {
   const tagHtml = cheerio(cheerioTag).html();
   if (!tagHtml) return null;
   const tagClone = cheerio.load(tagHtml);
@@ -157,6 +176,7 @@ function tagIsWholeParagraph(tag): boolean {
   let parents = cheerio(tag).parent();
   if (!parents || !parents.length) return false;
   let parent = parents[0];
+  if (parent.type !== 'tag') return false;
   if (parent.tagName.toLowerCase() !== 'p') return false;
   let selfAndSiblings = cheerio(parent).contents();
   if (selfAndSiblings.length != 1) return false;
@@ -175,10 +195,10 @@ function tagToHeadingLevel(tagName: string): number
     return 0;
 }
 
-async function getTocAnswers (document) {
+async function getTocAnswers (document: DbPost) {
   if (!document.question) return []
 
-  let answersTerms: any = {
+  let answersTerms: MongoSelector<DbComment> = {
     answer:true,
     postId: document._id,
     deleted:false,
@@ -187,7 +207,7 @@ async function getTocAnswers (document) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-  const answerSections = answers.map((answer) => {
+  const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
     let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
@@ -217,7 +237,7 @@ async function getTocAnswers (document) {
   }
 }
 
-async function getTocComments (document) {
+async function getTocComments (document: DbPost) {
   const commentSelector: any = {
     ...Comments.defaultView({}).selector,
     answer: false,
@@ -231,17 +251,16 @@ async function getTocComments (document) {
   return [{anchor:"comments", level:0, title: postGetCommentCountStr(document, commentCount)}]
 }
 
-const getTableOfContentsData = async ({document, version, currentUser, context}: {
-  document: any,
-  version: string,
-  currentUser: DbUser|null,
+const getToCforPost = async ({document, version, context}: {
+  document: DbPost,
+  version: string|null,
   context: ResolverContext,
-}) => {
-  let html;
+}): Promise<ToCData|null> => {
+  let html: string;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
     if (!revision) return null;
-    if (!await Revisions.checkAccess(currentUser, revision, context))
+    if (!await Revisions.checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
   } else {
@@ -251,19 +270,66 @@ const getTableOfContentsData = async ({document, version, currentUser, context}:
   const tableOfContents = extractTableOfContents(html)
   let tocSections = tableOfContents?.sections || []
   
-  const tocAnswers = await getTocAnswers(document)
-  const tocComments = await getTocComments(document)
-  tocSections.push(...tocAnswers)
-  tocSections.push(...tocComments)
-  
   if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
+    const tocAnswers = await getTocAnswers(document)
+    const tocComments = await getTocComments(document)
+    tocSections.push(...tocAnswers)
+    tocSections.push(...tocComments)
+  
     return {
-      html: tableOfContents?.html,
+      html: tableOfContents?.html||null,
       sections: tocSections,
       headingsCount: tocSections.length
     }
   }
+  return null;
 }
 
-Utils.getTableOfContentsData = getTableOfContentsData;
-Utils.extractTableOfContents = extractTableOfContents;
+const getToCforTag = async ({document, version, context}: {
+  document: DbTag,
+  version: string|null,
+  context: ResolverContext,
+}): Promise<ToCData|null> => {
+  let html: string;
+  if (version) {
+    try {
+      html = await annotateAuthors(document._id, "Tags", "description", version);
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
+      if (!revision) return null;
+      if (!await Revisions.checkAccess(context.currentUser, revision, context))
+        return null;
+      html = revision.html;
+    }
+  } else {
+    try {
+      if (document.htmlWithContributorAnnotations) {
+        html = document.htmlWithContributorAnnotations;
+      } else {
+        html = await updateDenormalizedHtmlAttributions(document);
+      }
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log("Author annotation failed");
+      // eslint-disable-next-line no-console
+      console.log(e);
+      html = document.description?.html;
+    }
+  }
+  
+  const tableOfContents = extractTableOfContents(html)
+  let tocSections = tableOfContents?.sections || []
+  
+  return {
+    html: tableOfContents?.html||null,
+    sections: tocSections,
+    headingsCount: tocSections.length
+  }
+}
+
+Utils.getToCforPost = getToCforPost;
+Utils.getToCforTag = getToCforTag;

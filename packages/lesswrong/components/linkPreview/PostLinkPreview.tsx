@@ -297,7 +297,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={false}>
         <Card>
           <div className={classes.hovercard}>
-            {decodeURIComponent(href)}
+            {href}
           </div>
         </Card>
       </LWPopper>
@@ -543,13 +543,12 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
       }
     }
   `, {
-    ssr: true
+    ssr: true,
+    skip: !arbitalSlug,
   });
 
   if (!arbitalSlug || loading) {
-    return <a href={href}>
-      <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
-    </a>  
+    return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
   }
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
@@ -563,7 +562,7 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
-            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}}/>
+            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
           </div>
         </Card>
       </LWPopper>

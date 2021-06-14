@@ -3,6 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import type { ChangeMetrics } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    fontFamily: theme.typography.fontFamily,
+  },
   charsAdded: {
     color: "#008800",
   },
@@ -18,7 +21,7 @@ const ChangeMetricsDisplay = ({changeMetrics, classes}: {
 }) => {
   const {added, removed} = changeMetrics;
   
-  return <span>
+  return <span className={classes.root}>
     {(added>0 && removed>0)
       && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>)</>}
     {(added>0 && removed==0)

@@ -14,6 +14,7 @@ import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
+import { forumTypeSetting } from "../../lib/instanceSettings";
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
@@ -106,7 +107,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
-  if (!isAnyTest) {
+  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
     void sendVerificationEmail(user);
     
     if (user.emailSubscribedToCurated) {
