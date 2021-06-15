@@ -212,7 +212,7 @@ addFieldsDict(Users, {
     optional: true,
     defaultValue: false,
     hidden: true,
-    canRead: ['guests'],
+    canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
