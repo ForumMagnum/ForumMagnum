@@ -84,7 +84,6 @@ addGraphQLResolvers({
       ]).toArray();
       if (!sample || !sample.length)
         throw new Error("No tags found");
-      console.log(`Random tag: ${sample[0].slug}`);
       return sample[0];
     }
   }
