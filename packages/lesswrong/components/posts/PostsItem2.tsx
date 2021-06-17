@@ -17,10 +17,6 @@ export const KARMA_WIDTH = 42
 
 const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 
-const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
-const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
-const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
-
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
