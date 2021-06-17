@@ -704,6 +704,7 @@ interface RevisionMetadata { // fragment on Revisions
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
@@ -1405,6 +1406,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
   readonly sequenceDraftCount: number,
+  readonly tagRevisionCount: number,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionDisplay|null,
   readonly bannedUserIds: Array<string>,
