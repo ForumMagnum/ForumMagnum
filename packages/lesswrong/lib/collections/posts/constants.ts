@@ -1,3 +1,7 @@
+import { DatabasePublicSetting } from "../../publicSettings";
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
+import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 
 export const postStatuses = {
   STATUS_PENDING: 1,
@@ -31,3 +35,16 @@ export const postStatusLabels = [
     label: 'deleted'
   }
 ];
+
+const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
+const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
+const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
+
+export const postTagIcons = new Map([
+  [amaTagIdSetting.get(), QuestionAnswerIcon], 
+  [openThreadTagIdSetting.get(), AllInclusiveIcon],
+]);
+
+export const postIdIcons = new Map([
+  [startHerePostIdSetting.get(), PlayCircleOutlineIcon]
+]);

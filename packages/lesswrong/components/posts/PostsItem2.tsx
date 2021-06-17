@@ -283,21 +283,6 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) => {
   }
 }
 
-const isAMA = (post: PostsList) => {
-  if (!amaTagIdSetting.get()) return false
-  return !!(post.sticky && post.tags.filter(tag => tag._id === amaTagIdSetting.get()).length > 0);
-};
-
-const isOpenThread = (post: PostsList) => {
-  if (!openThreadTagIdSetting.get()) return false
-  return !!(post.sticky && post.tags.filter(tag => tag._id === openThreadTagIdSetting.get()).length > 0);
-};
-
-const isStartHerePost = (post: PostsList) => {
-  if (!startHerePostIdSetting.get()) return false
-  return !!(post.sticky && post._id === startHerePostIdSetting.get());
-};
-
 const PostsItem2 = ({
   // post: The post displayed.
   post,
@@ -469,9 +454,6 @@ const PostsItem2 = ({
                       post={post}
                       read={isRead}
                       sticky={isSticky(post, terms)}
-                      isAMA={isAMA(post)}
-                      isOpenThread={isOpenThread(post)}
-                      isStartHerePost={isStartHerePost(post)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}
