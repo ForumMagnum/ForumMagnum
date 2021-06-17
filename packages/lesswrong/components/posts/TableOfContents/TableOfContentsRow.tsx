@@ -100,7 +100,7 @@ const TableOfContentsRow = ({
   highlighted?: boolean,
   href: string,
   onClick?: (ev: any)=>void,
-  children: React.ReactNode,
+  children?: React.ReactNode,
   classes: ClassesType,
   title?: boolean,
   divider?: boolean,
