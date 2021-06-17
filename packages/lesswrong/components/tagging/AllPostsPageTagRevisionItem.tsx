@@ -36,7 +36,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
     return <Loading/>
   
   return <div className={classes.root}>
-    <TagRevisionItemShortMetadata tag={tag} revision={revision}/>
+    <div><TagRevisionItemShortMetadata tag={tag} revision={revision}/></div>
     
     {<div className={classes.textBody}>
       <CompareRevisions
