@@ -1,7 +1,7 @@
 import React from 'react';
 import { DatabasePublicSetting } from "../../publicSettings";
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 
 export const postStatuses = {
@@ -47,5 +47,5 @@ export const tagSettingIcons = new Map<DatabasePublicSetting<string | null>, Rea
 ]);
 
 export const idSettingIcons = new Map([
-  [startHerePostIdSetting, PlayCircleOutlineIcon]
+  [startHerePostIdSetting, ArrowForwardIcon]
 ]);
