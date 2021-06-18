@@ -53,6 +53,9 @@ registerFragment(`
   fragment RevisionMetadataWithChangeMetrics on Revision {
     ...RevisionMetadata
     changeMetrics
+    user {
+      ...UsersMinimumInfo
+    }
   }
 `);
 
