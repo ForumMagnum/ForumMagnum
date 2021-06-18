@@ -5,6 +5,11 @@ import type { SimpleSchema } from 'simpl-schema';
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
+type SingleFieldCreatePermission = string|((user: DbUser|UsersCurrent|null)=>boolean);
+type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
+type SingleFieldPermissions = string|((user: DbUser|UsersCurrent|null, object: any)=>boolean);
+type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
+
 interface CollectionFieldSpecification<T extends DbObject> {
   type?: any,
   description?: string,
@@ -44,8 +49,8 @@ interface CollectionFieldSpecification<T extends DbObject> {
   tooltip?: string,
   control?: string,
   placeholder?: string,
-  hidden?: any,
-  group?: any,
+  hidden?: boolean|((formProps: any)=>boolean),
+  group?: FormGroup,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -65,14 +70,24 @@ interface CollectionFieldSpecification<T extends DbObject> {
   onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
   
   
-  viewableBy?: any,
-  insertableBy?: any,
-  editableBy?: any,
-  canRead?: any,
-  canUpdate?: any,
-  canCreate?: any,
+  viewableBy?: FieldPermissions,
+  insertableBy?: FieldCreatePermissions,
+  editableBy?: FieldPermissions,
+  canRead?: FieldPermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
 }
 
+type FormGroup = {
+  name?: string,
+  order: number,
+  label?: string,
+  paddingStyle?: boolean,
+  startCollapsed?: boolean,
+  defaultStyle?: boolean,
+  helpText?: string,
+  flexStyle?: boolean,
+}
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
 type SimpleSchemaType<T extends DbObject> = SimpleSchema & {_schema: SchemaType<T>};

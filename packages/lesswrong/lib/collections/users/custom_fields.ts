@@ -95,7 +95,7 @@ const notificationTypeSettingsField = (overrideSettings?: any) => ({
   control: "NotificationTypeSettings",
   canRead: [userOwns, 'admins'],
   canUpdate: [userOwns, 'admins'],
-  canCreate: [userOwns, 'admins'],
+  canCreate: ['members', 'admins'],
   ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
@@ -245,7 +245,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   currentFrontpageFilter: {
@@ -253,7 +253,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   frontpageFilterSettings: {
@@ -263,7 +263,7 @@ addFieldsDict(Users, {
     hidden: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     ...schemaDefaultValue(getDefaultFilterSettings),
   },
   allPostsTimeframe: {
@@ -271,7 +271,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   allPostsFilter: {
@@ -279,7 +279,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   allPostsSorting: {
@@ -288,14 +288,14 @@ addFieldsDict(Users, {
     hidden: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
   },
   allPostsShowLowKarma: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   allPostsOpenSettings: {
@@ -303,7 +303,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   lastNotificationsCheck: {
@@ -311,7 +311,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: userOwns,
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
 
@@ -426,7 +426,7 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     canRead: ['guests'],
     canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-    canCreate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
     control: 'UsersListEditor'
@@ -443,7 +443,7 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     canRead: ['guests'],
     canUpdate: [userOwnsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
-    canCreate: [userOwnsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
     control: 'UsersListEditor',
@@ -667,7 +667,7 @@ addFieldsDict(Users, {
     control: "KarmaChangeNotifierSettings",
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['guests'],
     ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
   },
 
@@ -676,7 +676,7 @@ addFieldsDict(Users, {
     hidden: true,
     type: Date,
     optional: true,
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
   },
@@ -688,7 +688,7 @@ addFieldsDict(Users, {
     hidden: true,
     type: Date,
     optional: true,
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
   },

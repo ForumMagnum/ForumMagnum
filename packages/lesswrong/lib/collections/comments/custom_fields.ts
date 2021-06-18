@@ -4,7 +4,7 @@ import { makeEditable } from '../../editor/make_editable'
 import { foreignKeyField, addFieldsDict } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
-export const moderationOptionsGroup = {
+export const moderationOptionsGroup: FormGroup = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -60,7 +60,7 @@ addFieldsDict(Comments, {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canCreate: userOwns,
+    canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: "checkbox",
     hidden: true,

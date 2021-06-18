@@ -1,5 +1,5 @@
 
-export const formGroups = {
+export const formGroups: Partial<Record<string,FormGroup>> = {
   default: {
     name: "default",
     order: 0,

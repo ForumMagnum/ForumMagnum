@@ -8,7 +8,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
 
-const formGroups = {
+const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 20,

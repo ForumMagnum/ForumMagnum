@@ -587,7 +587,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    insertableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
+    insertableBy: (currentUser: DbUser|null) => userCanCommentLock(currentUser, null),
     editableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
     optional: true,
     control: "checkbox",
@@ -940,7 +940,7 @@ addFieldsDict(Posts, {
     label: "Style",
     viewableBy: ['guests'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {
