@@ -8,7 +8,7 @@ import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme, true),
     padding: 16,
@@ -142,7 +142,12 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
       {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
       {["signup", "login"].includes(currentAction) && <>
         <input value={username} type="text" name="username" placeholder={currentAction === "signup" ? "username" : "username or email"} className={classes.input} onChange={event => setUsername(event.target.value)}/>
-        <input value={password} type="password" name="password" placeholder="create password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
+        <input
+          value={password} type="password" name="password"
+          placeholder={(currentAction==="signup") ? "create password" : "password"}
+          className={classes.input}
+          onChange={event => setPassword(event.target.value)}
+        />
       </>}
       <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
       
@@ -160,6 +165,8 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
         <a className={classes.oAuthLink} href="/auth/facebook">FACEBOOK</a>
         <a className={classes.oAuthLink} href="/auth/google">GOOGLE</a>
         <a className={classes.oAuthLink} href="/auth/github">GITHUB</a>
+        {/* Temporarily here for EA Forum testing */}
+        {/* <a className={classes.oAuthLink} href="/auth/auth0">AUTH 0</a> */}
       </div>
       {/* <a href="/auth/facebook"><FacebookIcon /></a>
       <a href="/auth/github"><GithubIcon /></a> */}

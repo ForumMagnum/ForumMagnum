@@ -42,7 +42,7 @@ export function registerMigration({ name, dateWritten, idempotent, action })
   migrationRunners[name] = async () => await runMigration(name);
 }
 
-export async function runMigration(name)
+export async function runMigration(name: string)
 {
   if (!(name in availableMigrations))
     throw new Error(`Unrecognized migration: ${name}`);
@@ -78,7 +78,7 @@ export async function runMigration(name)
   }
 }
 
-function sleep(ms)
+function sleep(ms: number)
 {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -88,7 +88,7 @@ function sleep(ms)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function runThenSleep(loadFactor, func)
+export async function runThenSleep(loadFactor: number, func: ()=>Promise<void>)
 {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);

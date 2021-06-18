@@ -33,7 +33,7 @@ import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
 import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../migrations/2020-05-13-noIndexLowKarma';
 
-function getPosts (selector) {
+function getPosts (selector: any) {
   const defaultSelector = {
     baseScore: {$gte: 0},
     draft: {$ne: true},

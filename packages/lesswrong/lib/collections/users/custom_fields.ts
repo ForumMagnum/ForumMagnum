@@ -212,7 +212,7 @@ addFieldsDict(Users, {
     optional: true,
     defaultValue: false,
     hidden: true,
-    canRead: ['guests'],
+    canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
@@ -291,7 +291,7 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
   },
-  
+
   hideElicitPredictions: {
     order: 80,
     type: Boolean,
@@ -309,7 +309,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
-  
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
@@ -736,8 +736,8 @@ addFieldsDict(Users, {
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
-    canCreate: [userOwns, 'admins', 'sunshineRegiment'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: [userOwns, 'admins'],
     ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
   },
 
@@ -784,7 +784,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
   },
-  
+
   hideSubscribePoke: {
     type: Boolean,
     optional: true,
@@ -1231,7 +1231,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
-  
+
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1436,6 +1436,19 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     ...schemaDefaultValue(0)
   },
+
+  tagRevisionCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "tagRevisionCount",
+      collectionName: "Users",
+      foreignCollectionName: "Revisions",
+      foreignTypeName: "revision",
+      foreignFieldName: "userId",
+      filterFn: revision => revision.collectionName === "Tags"
+    }),
+    canRead: ['guests']
+  },
+
   abTestKey: {
     type: String,
     optional: true,
@@ -1471,7 +1484,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional:true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() === "EAForum",
   },

@@ -11,7 +11,7 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: TagRels,
       batchSize: 1000,
-      callback: async (tagRels) => {
+      callback: async (tagRels: DbTagRel[]) => {
         // eslint-disable-next-line no-console
         console.log(`Filling createdAt and userId fields for ${tagRels.length} tagRels`);
         const changes: Array<any> = [];
@@ -70,7 +70,7 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Tags,
       batchSize: 1000,
-      callback: async (tags) => {
+      callback: async (tags: DbTag[]) => {
         // eslint-disable-next-line no-console
         console.log(`Filling createdAt and userId fields for ${tags.length} tags`);
         const changes: Array<any> = [];
