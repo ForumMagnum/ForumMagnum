@@ -8,14 +8,14 @@ import './config';
 
 // collections used to auto-generate schemas
 let collections: any = [];
-export const addGraphQLCollection = (collection) => {
+export const addGraphQLCollection = (collection: any) => {
   collections.push(collection);
 }
 export const getCollections = () => collections;
 
 // additional schemas
-let schemas: any = [];
-export const addGraphQLSchema = (schema) => {
+let schemas: string[] = [];
+export const addGraphQLSchema = (schema: string) => {
   schemas.push(schema);
 }
 
@@ -26,29 +26,22 @@ export const getAdditionalSchemas = () => {
 }
 
 // queries
-export const queries: any = [];
-export const addGraphQLQuery = (query, description?: string) => {
+export type QueryAndDescription = {query: string, description?: string};
+export const queries: QueryAndDescription[] = [];
+export const addGraphQLQuery = (query: string, description?: string) => {
   queries.push({ query, description });
 }
 
 // mutations
-export const mutations: any = [];
-export const addGraphQLMutation = (mutation, description?: string) => {
+export type MutationAndDescription = {mutation: string, description?: string}
+export const mutations: MutationAndDescription[] = [];
+export const addGraphQLMutation = (mutation: string, description?: string) => {
   mutations.push({ mutation, description });
 }
 
 // add resolvers
 let resolvers: any = {};
-export const addGraphQLResolvers = (addedResolvers) => {
+export const addGraphQLResolvers = (addedResolvers: any) => {
   resolvers = deepmerge(resolvers, addedResolvers);
 }
 export const getResolvers = () => resolvers;
-export const removeGraphQLResolver = (typeName, resolverName) => {
-  delete resolvers[typeName][resolverName];
-}
-
-let directives: any = {};
-export const addGraphQLDirective = (directive) => {
-  directives = deepmerge(directives, directive);
-}
-export const getDirectives = () => directives;

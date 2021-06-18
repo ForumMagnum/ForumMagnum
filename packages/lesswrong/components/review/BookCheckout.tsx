@@ -7,7 +7,7 @@ import classNames from 'classnames';
 
 const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     
@@ -70,12 +70,12 @@ const ProductDisplay = ({ handleClickAmazon, handleClickStripe, text="Buy", clas
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
       {`${text} (US) - $29`}
     </button>
-    <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
+    {/* <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
       {`${text} (international) - $29`}
-    </button>
+    </button> */}
   </>
 };
-const Message = ({ message, classes }) => (
+const Message = ({ message, classes }: {message: string, classes: ClassesType}) => (
   <section>
     <p className={classes.messageParagraph}>{message}</p>
   </section>
@@ -91,11 +91,11 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
       setMessage("Order placed! You will receive an email confirmation.");
     }
   }, []);
-  const handleClickAmazon = async (event) => {
+  const handleClickAmazon = async (event: Event) => {
     captureEvent("preOrderButtonClicked")
     window.location.assign(amazonLink);
   }
-  const handleClickStripe = async (event) => {
+  const handleClickStripe = async (event: Event) => {
     captureEvent("preOrderButtonClicked")
     const stripe = await stripePromise;
     if (stripe) {

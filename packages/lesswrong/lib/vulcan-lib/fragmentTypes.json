@@ -6,13 +6,16 @@
         "name": "Voteable",
         "possibleTypes": [
           {
-            "name": "Comment"
-          },
-          {
             "name": "TagRel"
           },
           {
             "name": "Post"
+          },
+          {
+            "name": "Comment"
+          },
+          {
+            "name": "Revision"
           }
         ]
       }

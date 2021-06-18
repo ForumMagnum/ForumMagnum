@@ -9,7 +9,7 @@ import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, } from "../.
 import { getForwardedWhitelist } from "../../forwarded_whitelist";
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
-import { hashLoginToken } from "../../loginTokens";
+import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../lib/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { EmailTokenType } from "../../emails/emailTokens";
@@ -19,35 +19,49 @@ import { userEmailAddressIsVerified } from '../../../lib/collections/users/helpe
 import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
+import { forumTitleSetting } from '../../../lib/instanceSettings';
+import { mongoFindOne } from '../../../lib/mongoQueries';
+import { userFindByEmail } from '../../../lib/vulcan-users/helpers';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
 // with Meteor passwords, we do the same, but do it both on the server-side
-function createMeteorClientSideHash(password) {
+function createMeteorClientSideHash(password: string) {
   return createHash('sha256').update(password).digest('hex')
 }
 
-async function createPasswordHash(password) {
+async function createPasswordHash(password: string) {
   const meteorClientSideHash = createMeteorClientSideHash(password)
   return await bcrypt.hash(meteorClientSideHash, 10)
 }
 
 
-async function comparePasswords(password, hash) {
+async function comparePasswords(password: string, hash: string) {
   return await bcrypt.compare(createMeteorClientSideHash(password), hash)
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
   if (!user) return done(null, false, { message: 'Incorrect username.' });
+  
+  // Load legacyData, if applicable. Needed because imported users had their
+  // passwords hashed differently.
+  // @ts-ignore -- legacyData isn't really handled right in our schemas.
+  const legacyData = user.legacyData ? user.legacyData : await LegacyData.findOne({ objectId: user._id })?.legacyData;
+  
+  if (legacyData?.password && legacyData.password===password) {
+    // For legacy accounts, the bcrypt-hashed password stored in user.services.password.bcrypt
+    // is a hash of the LW1-hash of their password. Don't accept an LW1-hash as a password.
+    // (If passwords from the DB were ever leaked, this prevents logging into legacy accounts
+    // that never changed their password.)
+    return done(null, false, { message: 'Incorrect password.' });
+  }
+  
   const match = await comparePasswords(password, user.services.password.bcrypt);
 
   // If no immediate match, we check whether we have a match with their legacy password
   if (!match) {
-    // @ts-ignore -- legacyData isn't really handled right in our schemas.
-    const dbLegacyData = user.legacyData ? user.legacyData : LegacyData.findOne({ objectId: user._id });
-    if (dbLegacyData?.legacyData?.password) {
-      const legacyData = dbLegacyData.legacyData
+    if (legacyData?.password) {
       const salt = legacyData.password.substring(0,3)
       const toHash = (`${salt}${user.username} ${password}`)
       const lw1PW = salt + sha1(toHash).toString();
@@ -125,10 +139,10 @@ export async function sendVerificationEmail(user: DbUser) {
   const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
   await wrapAndSendEmail({
     user, 
-    subject: "Verify your LessWrong email",
+    subject: `Verify your ${forumTitleSetting.get()} email`,
     body: <div>
       <p>
-        Click here to verify your LessWrong email 
+        Click here to verify your {forumTitleSetting.get()} email
       </p>
       <p>
         <a href={verifyEmailLink}>
@@ -165,14 +179,14 @@ const ResetPasswordToken = new EmailTokenType({
 
 const authenticationResolvers = {
   Mutation: {
-    async login(root, { username, password }, { req, res }: ResolverContext) {
+    async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
       let token:string | null = null
 
       await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
         return new Promise((resolve, reject) => {
           if (err) throw Error(err)
           if (!user) throw new AuthenticationError("Invalid username/password")
-          if (user.banned && new Date(user.banned) > new Date()) throw new AuthenticationError("This user is banned")
+          if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
 
           req!.logIn(user, async err => {
             if (err) throw new AuthenticationError(err)
@@ -183,7 +197,7 @@ const authenticationResolvers = {
       })
       return { token }
     },
-    async logout(root, args: {}, { req, res }: ResolverContext) {
+    async logout(root: void, args: {}, { req, res }: ResolverContext) {
       req!.logOut()
       clearCookie(req, res, "loginToken");
       clearCookie(req, res, "meteor_login_token");
@@ -191,12 +205,19 @@ const authenticationResolvers = {
         token: null
       }
     },
-    async signup(root, args, context: ResolverContext) {
+    async signup(root: void, args, context: ResolverContext) {
       const { email, username, password, subscribeToCurated, reCaptchaToken, abTestKey } = args;
       if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
       if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+      
+      if (await userFindByEmail(email)) {
+        throw Error("Email address is already taken");
+      }
+      if (await mongoFindOne("Users", { username })) {
+        throw Error("Username is already taken");
+      }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
       const reCaptchaData = JSON.parse(reCaptchaResponse)
@@ -238,7 +259,7 @@ const authenticationResolvers = {
         token
       }
     },
-    async resetPassword(root, { email }, context: ResolverContext) {
+    async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
       if (!email) throw Error("Email is required for resetting passwords")
       const user = await Users.findOne({'emails.address': email})
       if (!user) throw Error("Can't find user with given email address")
@@ -260,7 +281,7 @@ const authenticationResolvers = {
       else
         return `Failed to send password reset email. The account might not have a valid email address configured.`;
     },
-    async verifyEmail(root, { userId }, context: ResolverContext) {
+    async verifyEmail(root: void, { userId }: {userId: string}, context: ResolverContext) {
       if (!userId) throw Error("User ID is required for validating your email")
       const user = await Users.findOne({_id: userId})
       if (!user) throw Error("Can't find user with given ID")
@@ -277,7 +298,7 @@ addGraphQLMutation('logout: LoginReturnData');
 addGraphQLMutation('resetPassword(email: String): String');
 addGraphQLMutation('verifyEmail(userId: String): String');
 
-async function insertHashedLoginToken(userId, hashedToken) {
+async function insertHashedLoginToken(userId: string, hashedToken: string) {
   const tokenWithMetadata = {
     when: new Date(),
     hashedToken
@@ -312,7 +333,7 @@ function registerLoginEvent(user, req) {
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
-export const getCaptchaRating = async (token): Promise<string> => {
+export const getCaptchaRating = async (token: string): Promise<string> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
     request.post({url: 'https://www.google.com/recaptcha/api/siteverify',

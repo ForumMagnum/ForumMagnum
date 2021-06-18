@@ -268,7 +268,7 @@ Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
 Comments.addView("legacyIdComment", (terms: CommentsViewTerms) => {
   if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
   const legacyId = parseInt(terms.legacyId, 36)
-  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36");
+  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
   
   return {
     selector: {
@@ -297,6 +297,16 @@ Comments.addView("sunshineNewUsersComments", (terms: CommentsViewTerms) => {
   };
 });
 ensureIndex(Comments, augmentForDefaultView({userId:1, postedAt:1}));
+
+Comments.addView("defaultModeratorResponses", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      tagId: terms.tagId,
+    }
+  };
+});
+ensureIndex(Comments, augmentForDefaultView({tagId:1}));
+
 
 Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
   return {
@@ -439,4 +449,17 @@ Comments.addView('commentsOnTag', (terms: CommentsViewTerms) => ({
 ensureIndex(Comments,
   augmentForDefaultView({tagId: 1}),
   { name: "comments.tagId" }
+);
+
+Comments.addView('moderatorComments', (terms: CommentsViewTerms) => ({
+  selector: {
+    moderatorHat: true,
+  },
+  options: {
+    sort: {postedAt: -1},
+  },
+}));
+ensureIndex(Comments,
+  augmentForDefaultView({moderatorHat: 1}),
+  { name: "comments.moderatorHat" }
 );

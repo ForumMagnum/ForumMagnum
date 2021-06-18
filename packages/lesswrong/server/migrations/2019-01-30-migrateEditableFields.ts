@@ -31,7 +31,7 @@ function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markd
   return null
 }
 
-function determineSemVer({draft}) {
+function determineSemVer({draft}: {draft: boolean}) {
   return draft ? "0.1.0" : "1.0.0"
 }
 

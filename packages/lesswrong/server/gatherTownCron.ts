@@ -9,6 +9,7 @@ import { isProduction, onStartup } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import type { OpenEvent } from 'ws';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
@@ -16,7 +17,7 @@ const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherT
 // number field in the GatherTown connection header, ie it tracks their releases.
 // If this is a non-integer, the integer part is the GatherTown version number and
 // the fractional part is our internal iteration on the bot.
-const currentGatherTownTrackerVersion = 6;
+const currentGatherTownTrackerVersion = 7;
 
 // Minimum version number of the GatherTown bot that should run. If this is higher
 // than the bot version in this file, then the cronjob shuts off so some other
@@ -27,7 +28,7 @@ if (isProduction && forumTypeSetting.get() === "LessWrong") {
   onStartup(() => {
     if (currentGatherTownTrackerVersion >= minGatherTownTrackerVersion.get()) {
       addCronJob({
-        name: 'gatherTownBot',
+        name: 'gatherTownBot'+currentGatherTownTrackerVersion,
         interval: "every 3 minutes",
         job() {
           void pollGatherTownUsers();
@@ -207,7 +208,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   // eslint-disable-next-line no-console
   console.log(`Connecting to websocket server ${websocketServerUrl}`);
   const socket = new WebSocket(websocketServerUrl);
-  socket.on('open', function (data) {
+  socket.on('open', function (data: OpenEvent) {
     socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
       event: "init",
@@ -290,8 +291,8 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   }
 }
 
-function stringToArrayBuffer(string) {
-  var binary_string = Buffer.from(string).toString(`binary`);
+function stringToArrayBuffer(str: string) {
+  var binary_string = Buffer.from(str).toString(`binary`);
   var len = binary_string.length;
   var bytes = new Uint8Array(len);
   for (var i = 0; i <= len; i++) {
@@ -323,12 +324,13 @@ function isJson(str: string): boolean {
   return true;
 }
 
-const playerMessageHeaderLen = 30;
+const playerMessageHeaderLen = 32;
 const mapNameOffset = 18
 const playerNameOffset = 20
 const playerStatusOffset = 24
 const playerIconOffset = 26
-const playerIdOffset = 28
+const unknownStringFieldOffset = 28;
+const playerIdOffset = 30
 
 // Decoded using echo AS...<rest of base64 message> | base64 -d | hexdump -C
 
@@ -357,24 +359,28 @@ function interpretBinaryMessage(data: any): {players: {map: string, name: string
       const playerNameLen = buf.readUInt8(pos+playerNameOffset);
       const playerStatusLen = buf.readUInt8(pos+playerStatusOffset)
       const playerIconLen = buf.readUInt8(pos+playerIconOffset);
+      const unknownStringFieldLen = buf.readUInt8(pos+unknownStringFieldOffset);
       const playerIdLen = buf.readUInt8(pos+playerIdOffset);
       
       const mapNameStart = pos+playerMessageHeaderLen;
       const playerNameStart = mapNameStart+mapNameLen;
       const playerStatusStart = playerNameStart+playerNameLen;
       const playerIconStart = playerStatusStart+playerIconLen;
-      const playerIdStart = playerIconStart+playerStatusLen;
+      const unknownStringFieldStart = playerIconStart+unknownStringFieldLen;
+      const playerIdStart = unknownStringFieldStart+playerStatusLen;
       
       const mapName = buf.slice(mapNameStart, mapNameStart+mapNameLen).toString("utf8");
       const playerName = buf.slice(playerNameStart, playerNameStart+playerNameLen).toString("utf8");
       const playerstatus = buf.slice(playerStatusStart, playerStatusStart+playerStatusLen).toString("utf8");
+      const unknownField = buf.slice(unknownStringFieldStart, unknownStringFieldStart+unknownStringFieldLen).toString("utf8");
       const playerId = buf.slice(playerIdStart, playerIdStart+playerIdLen).toString("utf8");
       
       players.push({
         map: mapName,
         name: playerName,
         id: playerId,
-        status: playerstatus
+        status: playerstatus,
+        unknownField,
       });
       
       pos = playerIdStart+playerIdLen;

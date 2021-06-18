@@ -6,16 +6,20 @@ import { Bans } from '../lib/collections/bans/collection';
 import Users from '../lib/collections/users/collection';
 import { Votes } from '../lib/collections/votes';
 import { clearVotesServer } from './voteServer';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
+import { postStatuses } from '../lib/collections/posts/constants';
 import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
 
-import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
+import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, getCollectionsByName } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
-import { Utils, capitalize, slugify } from '../lib/vulcan-lib/utils';
+import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import Tags from '../lib/collections/tags/collection';
+import Revisions from '../lib/collections/revisions/collection';
+import { syncDocumentWithLatestRevision } from './editor/utils';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -69,7 +73,7 @@ export const nullifyVotesForUser = async (user: DbUser) => {
   }
 }
 
-const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
+const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<DbVoteableType>) => {
   const collectionName = capitalize(collection.collectionName);
   const votes = await Votes.find({
     collectionName: collectionName,
@@ -85,7 +89,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
+export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
@@ -95,7 +99,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
     await updateMutator({
       collection: Posts,
       documentId: post._id,
-      set: {status: 5},
+      set: {status: postStatuses.STATUS_DELETED},
       unset: {},
       currentUser: deletingUser,
       validate: false,
@@ -178,8 +182,54 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
 
     await commentReportPurgeAsSpam(comment);
   }
+  
+  if (deleteTags) {
+    await deleteUserTagsAndRevisions(user, deletingUser)
+  }
+
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
+}
+
+async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
+  const tags = await Tags.find({userId: user._id}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting tags: ", tags)
+  for (let tag of tags) {
+    if (!tag.deleted) {
+      try {
+        await updateMutator({
+          collection: Tags,
+          documentId: tag._id,
+          set: {deleted: true},
+          currentUser: deletingUser,
+          validate: false
+        })
+      } catch(err) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to delete tag")
+        // eslint-disable-next-line no-console
+        console.error(err)
+      }
+    }
+  }
+  
+  const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting tag revisions: ", tagRevisions)
+  await Revisions.remove({userId: user._id})
+  // Revert revision documents
+  for (let revision of tagRevisions) {
+    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    const document = await collection.findOne({_id: revision.documentId})
+    if (document) {
+      await syncDocumentWithLatestRevision(
+        collection,
+        document,
+        revision.fieldName
+      )
+    }
+  }
 }
 
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
@@ -218,29 +268,20 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   await Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 
-getCollectionHooks("Users").newSync.add(function fixUsernameOnExternalLogin(user: DbUser) {
-  if (!user.username) {
-    user.username = user.slug;
-  }
-  return user;
-});
-
-getCollectionHooks("Users").newSync.add(async function fixUsernameOnGithubLogin(user: DbUser) {
-  if (user.services && user.services.github) {
-    //eslint-disable-next-line no-console
-    console.info("Github login detected, setting username and slug manually");
-    user.username = user.services.github.username
-    const basicSlug = slugify(user.services.github.username)
-    user.slug = await Utils.getUnusedSlugByCollectionName('Users', basicSlug)
-  }
-  return user;
-});
 
 getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event: DbLWEvent) {
   if (event.userId && event.documentId) {
+    // Upsert. This operation is subtle and fragile! We have a unique index on
+    // (postId,userId,tagId). If two copies of a page-view event fire at the
+    // same time, this creates a race condition. In order to not have this throw
+    // an exception, we need to meet the conditions in
+    //   https://docs.mongodb.com/manual/core/retryable-writes/#retryable-update-upsert
+    // In particular, this means the selector has to exactly match the unique
+    // index's keys.
     await ReadStatuses.update({
       postId: event.documentId,
       userId: event.userId,
+      tagId: null,
     }, {
       $set: {
         isRead: true,

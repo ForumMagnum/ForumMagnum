@@ -77,7 +77,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
 
   return <span {...eventHandlers} className={className}>
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-    <LWTooltip title={tooltip} placement={tooltipPlacement}>
+    <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}
           {...(nofollow ? {rel:"nofollow"} : {})}
         >

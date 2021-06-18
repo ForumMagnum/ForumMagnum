@@ -2,8 +2,9 @@ import React, { useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
+import Button from '@material-ui/core/Button';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle
   },
@@ -30,7 +31,9 @@ const styles = theme => ({
   }, 
 })
 
-const PasswordResetPage = ({classes}) => {
+const PasswordResetPage = ({classes}: {
+  classes: ClassesType
+}) => {
   const { mutate: emailTokenMutation } = useNamedMutation({name: "useEmailToken", graphqlArgs: {token: "String", args: "JSON"}})
   const [useTokenResult, setUseTokenResult] = useState<any>(null)
   const { params: { token } } = useLocation()
@@ -43,15 +46,11 @@ const PasswordResetPage = ({classes}) => {
   
   const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName]
   return <SingleColumnSection className={classes.root}>
-    <form onSubmit={submitFunction}>
-      {!useTokenResult && <> 
-        <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
-        <input type="submit" className={classes.submit} value="Set New Password"/>
-      </>}
-      {useTokenResult && ResultComponent && <ResultComponent {...useTokenResult.props}/>}
-      {useTokenResult?.message && <span>{useTokenResult?.message}</span>}
-    </form>
-    
+    {!useTokenResult && <> 
+      <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
+      <Button onClick={submitFunction} className={classes.submit}>Set New Password</Button>
+    </>}
+    {useTokenResult && ResultComponent && <ResultComponent {...useTokenResult.props}/>}
   </SingleColumnSection>
 }
 

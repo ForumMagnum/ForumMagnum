@@ -106,7 +106,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const GatherTown = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
+  const { results, loading } = useMulti({
     terms: {
       view: "gatherTownUsers",
       limit: 1,
@@ -116,7 +116,7 @@ const GatherTown = ({classes}: {
     enableTotal: false,
   });
   const lastCheckResults = results && results[0]?.properties;
-  const checkFailed = lastCheckResults?.checkFailed;
+  const checkFailed = !lastCheckResults || lastCheckResults.checkFailed;
   const users = lastCheckResults?.gatherTownUsers;
   const userList = users && Object.keys(users)
   const currentUser = useCurrentUser()
@@ -168,7 +168,7 @@ const GatherTown = ({classes}: {
             {Object.keys(users).map(user => <span className={classes.userName} key={user}><FiberManualRecordIcon className={classes.onlineDot}/> {user} {users[user]?.status && `(${users[user].status})`}</span>)}
             {tooltip}
         </div>}
-        {userList && !userList.length && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
+        {!loading && (!userList || !userList.length) && <div className={classNames(classes.usersOnlineList, classes.noUsers)}>
           <FiberManualRecordIcon className={classNames(classes.onlineDot, classes.greyDot)}/>
           {(gatherTownUserTrackingIsBroken.get() || checkFailed)
             ? "Unable to autodetect whether users are currently online. Pop in to find out!"

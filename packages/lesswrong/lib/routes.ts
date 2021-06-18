@@ -151,6 +151,11 @@ addRoute(
     path:'/abTestGroups',
     componentName: 'UsersViewABTests',
   },
+  {
+    name: "users.banNotice",
+    path: "/banNotice",
+    componentName: "BannedNotice",
+  },
 
   // Miscellaneous LW2 routes
   {
@@ -286,8 +291,8 @@ addRoute(
     name: 'tagHistory',
     path: '/tag/:slug/history',
     componentName: 'TagHistoryPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
+    titleComponentName: 'TagHistoryPageTitle',
+    subtitleComponentName: 'TagHistoryPageTitle',
   },
   {
     name: 'tagEdit',
@@ -303,6 +308,11 @@ addRoute(
     title: "New Tag",
     subtitleComponentName: 'TagPageTitle',
     background: "white"
+  },
+  {
+    name: 'randomTag',
+    path: '/tags/random',
+    componentName: 'RandomTagPage',
   },
   {
     name: 'allTags',
@@ -605,6 +615,11 @@ addRoute(
     noIndex: true
   },
   {
+    name: 'moderatorComments',
+    path: '/moderatorComments',
+    componentName: 'ModeratorComments',
+  },
+  {
     name: 'emailHistory',
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
@@ -819,6 +834,12 @@ addRoute(
     path:'/users/:slug/reviews',
     componentName: 'UserReviews',
     title: "User Reviews",
+  },
+  {
+    name: 'userReplies',
+    path:'/users/:slug/replies',
+    componentName: 'UserCommentsReplies',
+    title: "User Comment Replies",
   },
   {
     name: 'reviews2018',

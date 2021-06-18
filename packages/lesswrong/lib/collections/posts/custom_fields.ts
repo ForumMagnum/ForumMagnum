@@ -875,9 +875,8 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
     resolver: async (document: DbPost, args: void, context: ResolverContext) => {
-      const { currentUser } = context;
       try {
-        return await Utils.getTableOfContentsData({document, version: null, currentUser, context});
+        return await Utils.getToCforPost({document, version: null, context});
       } catch(e) {
         captureException(e);
         return null;
@@ -892,9 +891,8 @@ addFieldsDict(Posts, {
     graphqlArguments: 'version: String',
     resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
       const { version=null } = args;
-      const { currentUser } = context;
       try {
-        return await Utils.getTableOfContentsData({document, version, currentUser, context});
+        return await Utils.getToCforPost({document, version, context});
       } catch(e) {
         captureException(e);
         return null;

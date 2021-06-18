@@ -60,6 +60,9 @@ export const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
+  "nonSticky": {
+    sticky: false,
+  },
   "frontpage": {
     frontpageDate: {$gt: new Date(0)}
   },
@@ -221,15 +224,18 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
       softFilter: []
     }
   } else {
+    const personalBonus = filterModeToKarmaModifier(filterSettings.personalBlog)
     return {
       filter: {},
-      softFilter: [
-        {$cond: {
-          if: "$frontpageDate",
-          then: 0,
-          else: filterModeToKarmaModifier(filterSettings.personalBlog)
-        }},
-      ]
+      softFilter: personalBonus ? [
+        {
+          $cond: {
+            if: "$frontpageDate",
+            then: 0,
+            else: personalBonus
+          }
+        },
+      ] : []
     }
   }
 }
@@ -241,7 +247,6 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
   const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
-  
   let tagsFilter = {};
   for (let tag of tagsRequired) {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$gte: 1};
@@ -252,7 +257,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   
   const tagsSoftFiltered = _.filter(filterSettings.tags, t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0));
   let scoreExpr: any = null;
-  if (tagsSoftFiltered.length > 0) {
+  if (tagsSoftFiltered.length > 0 || frontpageSoftFilter.length > 0) {
     scoreExpr = {
       syntheticFields: {
         score: {$divide:[
@@ -342,23 +347,27 @@ ensureIndex(Posts,
 
 const setStickies = (sortOptions, terms: PostsViewTerms) => {
   if (terms.af && terms.forum) {
-    return { afSticky: -1, ...sortOptions}
+    return { afSticky: -1, stickyPriority: -1, ...sortOptions}
   } else if (terms.meta && terms.forum) {
-    return { metaSticky: -1, ...sortOptions}
+    return { metaSticky: -1, stickyPriority: -1, ...sortOptions}
   } else if (terms.forum) {
-    return { sticky: -1, ...sortOptions}
+    return { sticky: -1, stickyPriority: -1, ...sortOptions}
   }
   return sortOptions
 }
 
 const stickiesIndexPrefix = {
-  afSticky: -1, metaSticky: -1
+  sticky: -1, afSticky: -1, metaSticky: -1, stickyPriority: -1
 };
 
 
-Posts.addView("magic", (terms: PostsViewTerms) => ({
-  options: {sort: setStickies(sortings.magic, terms)}
-}))
+Posts.addView("magic", (terms: PostsViewTerms) => {
+  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : undefined;
+  return {
+    selector,
+    options: {sort: setStickies(sortings.magic, terms)},
+  };
+});
 ensureIndex(Posts,
   augmentForDefaultView({ score:-1 }),
   {
@@ -476,11 +485,11 @@ Posts.addView("tagRelevance", (terms: PostsViewTerms) => ({
 Posts.addView("frontpage", (terms: PostsViewTerms) => ({
   selector: filters.frontpage,
   options: {
-    sort: {sticky: -1, score: -1}
+    sort: {sticky: -1, stickyPriority: -1, score: -1}
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
+  augmentForDefaultView({ sticky: -1, stickyPriority: -1, score: -1, frontpageDate:1 }),
   {
     name: "posts.frontpage",
     partialFilterExpression: filters.frontpage,
@@ -686,7 +695,7 @@ ensureIndex(Posts, {"slug": "hashed"});
 Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
   if (!terms.legacyId) throw new Error("Missing view argument: legacyId");
   const legacyId = parseInt(terms.legacyId, 36)
-  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36");
+  if (isNaN(legacyId)) throw new Error("Invalid view argument: legacyId must be base36, was "+terms.legacyId);
   return {
     selector: {
       legacyId: ""+legacyId
@@ -980,6 +989,7 @@ Posts.addView("sunshineNewUsersPosts", (terms: PostsViewTerms) => {
       userId: terms.userId,
       authorIsUnreviewed: null,
       groupId: null,
+      draft: viewFieldAllowAny
     },
     options: {
       sort: {
@@ -1180,3 +1190,16 @@ ensureIndex(Posts,
     name: "posts.users_tagged_posts",
   }
 );
+
+Posts.addView("stickied", (terms: PostsViewTerms) => (
+  {
+    selector: {
+      sticky: true,
+    },
+    options: {
+      sort: {
+        stickyPriority: -1,
+      },
+    },
+  }
+));

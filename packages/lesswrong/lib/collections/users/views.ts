@@ -109,6 +109,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
     },
     options: {
       sort: {
+        sunshineFlagged: -1,
         reviewedByUserId: 1,
         postCount: -1,
         signUpReCaptchaRating: -1,

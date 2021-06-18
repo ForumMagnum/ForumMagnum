@@ -86,6 +86,7 @@ interface DbComment extends DbObject {
   answer: boolean
   parentAnswerId: string
   directChildrenCount: number
+  descendentCount: number
   shortform: boolean
   nominatedForReview: string
   reviewingForReview: string
@@ -190,6 +191,7 @@ interface DbGardenCode extends DbObject {
   type: string
   hidden: boolean
   deleted: boolean
+  afOnly: boolean
   contents: EditableFieldContents
   pingbacks: any /*{"definitions":[{}]}*/
 }
@@ -319,6 +321,7 @@ interface DbPost extends DbObject {
   status: number
   isFuture: boolean
   sticky: boolean
+  stickyPriority: number
   userIP: string
   userAgent: string
   referrer: string
@@ -489,6 +492,10 @@ interface DbRevision extends DbObject {
   html: string
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  voteCount: number
+  baseScore: number
+  score: number
+  inactive: boolean
 }
 
 interface SequencesCollection extends CollectionBase<DbSequence, "Sequences"> {
@@ -583,6 +590,8 @@ interface DbTag extends DbObject {
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
   lesswrongWikiImportCompleted: boolean
+  htmlWithContributorAnnotations: string
+  contributionScores: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
 }
 
@@ -653,6 +662,7 @@ interface DbUser extends DbObject {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: boolean
   unsubscribeFromAll: boolean
+  hideSubscribePoke: boolean
   frontpagePostCount: number
   sequenceCount: number
   sequenceDraftCount: number
@@ -671,6 +681,8 @@ interface DbUser extends DbObject {
   hideFrontpageMap: boolean
   hideTaggingProgressBar: boolean
   hideFrontpageBookAd: boolean
+  sunshineNotes: string
+  sunshineFlagged: boolean
   needsReview: boolean
   sunshineSnoozed: boolean
   reviewedByUserId: string
@@ -701,6 +713,7 @@ interface DbUser extends DbObject {
   maxPostCount: number
   commentCount: number
   maxCommentCount: number
+  tagRevisionCount: number
   abTestKey: string
   abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   reenableDraftJs: boolean

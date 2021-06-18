@@ -7,8 +7,7 @@ import { renderWithCache } from './vulcan-lib/apollo-ssr/renderPage';
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import getVoyagerConfig from './vulcan-lib/apollo-server/voyager';
-import { graphiqlMiddleware, getGraphiqlConfig } from './vulcan-lib/apollo-server/graphiql';
+import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
@@ -32,7 +31,13 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
+import expressSession from 'express-session';
+import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
+import { DatabaseServerSetting } from './databaseSettings';
+import { getMongoClient } from '../lib/mongoCollection';
+
+const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -64,8 +69,27 @@ const getClientBundle = () => {
 export function startWebserver() {
   const addMiddleware = (...args) => app.use(...args);
   const config = { path: '/graphql' };
+  const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+  const store = MongoStore.create({
+    client: getMongoClient()
+  })
+  if (expressSessionSecret) {
+    // Required by passport-auth0
+    app.use(expressSession({
+      secret: expressSessionSecret,
+      resave: false,
+      saveUninitialized: false,
+      store,
+      cookie: {
+        // We match LW - ten year login tokens
+        // NB: Although the Set-Cookie HTTP header takes seconds,
+        // express-session wants milliseconds for some reason
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10
+      }
+    }))
+  }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use(pickerMiddleware);
 
@@ -81,7 +105,7 @@ export function startWebserver() {
   // given options contains the schema
   const apolloServer = new ApolloServer({
     // graphql playground (replacement to graphiql), available on the app path
-    playground: getPlaygroundConfig(config),
+    playground: getPlaygroundConfig(config.path),
     introspection: true,
     debug: isDevelopment,
     
@@ -137,9 +161,14 @@ export function startWebserver() {
   app.use(express.static(path.join(__dirname, '../../../public')))
   
   // Voyager is a GraphQL schema visual explorer
-  app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
+  app.use("/graphql-voyager", voyagerMiddleware({
+    endpointUrl: config.path,
+  }));
   // Setup GraphiQL
-  app.use("/graphiql", graphiqlMiddleware(getGraphiqlConfig(config)));
+  app.use("/graphiql", graphiqlMiddleware({
+    endpointURL: config.path,
+    passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
+  }));
   
 
   app.get('*', async (request, response) => {
@@ -183,4 +212,3 @@ export function startWebserver() {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
 }
-

@@ -8,6 +8,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginRight: 8,
     wordBreak: "break-word"
+  },
+  draft: {
+    color: theme.palette.grey[400]
+  },
+  default: {
+    color: theme.palette.grey[900],
   }
 })
 
@@ -22,7 +28,7 @@ const PostKarmaWithPreview = ({ post, classes }: {
   if (!post) return null 
 
   return <span className={classes.root} {...eventHandlers}>
-    <Link to={postGetPageUrl(post)}>{post.baseScore}</Link>
+    <Link className={post.draft ? classes.draft : classes.default} to={postGetPageUrl(post)}>{post.baseScore}</Link>
     <LWPopper
         open={hover}
         anchorEl={anchorEl}

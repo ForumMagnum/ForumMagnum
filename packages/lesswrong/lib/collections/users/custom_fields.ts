@@ -148,7 +148,7 @@ addFieldsDict(Users, {
     optional: true,
     defaultValue: false,
     hidden: true,
-    canRead: ['guests'],
+    canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
@@ -227,7 +227,7 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
   },
-  
+
   hideElicitPredictions: {
     order: 80,
     type: Boolean,
@@ -666,8 +666,8 @@ addFieldsDict(Users, {
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
-    canCreate: [userOwns, 'admins', 'sunshineRegiment'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: [userOwns, 'admins'],
     ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
   },
 
@@ -713,6 +713,16 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+
+  hideSubscribePoke: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
@@ -929,9 +939,27 @@ addFieldsDict(Users, {
     label: "Hide the frontpage book ad"
   },
 
+  sunshineNotes: {
+    type: String,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(""),
+  },
+
+  sunshineFlagged: {
+    type: Boolean,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
   needsReview: {
     type: Boolean,
-    canRead: ['guests'],
+    canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
@@ -940,7 +968,7 @@ addFieldsDict(Users, {
 
   sunshineSnoozed: {
     type: Boolean,
-    canRead: ['guests'],
+    canRead: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     optional: true,
@@ -990,7 +1018,7 @@ addFieldsDict(Users, {
     type: Number,
     graphQLtype: "Float",
     canRead: ['guests'],
-    resolver: (user, args, context: ResolverContext) => {
+    resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
 
@@ -1122,7 +1150,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
-  
+
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1216,7 +1244,7 @@ addFieldsDict(Users, {
   signUpReCaptchaRating: {
     type: Number,
     optional: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins']
+    canRead: ['guests'],
   },
   oldSlugs: {
     type: Array,
@@ -1304,6 +1332,19 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     ...schemaDefaultValue(0)
   },
+
+  tagRevisionCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "tagRevisionCount",
+      collectionName: "Users",
+      foreignCollectionName: "Revisions",
+      foreignTypeName: "revision",
+      foreignFieldName: "userId",
+      filterFn: revision => revision.collectionName === "Tags"
+    }),
+    canRead: ['guests']
+  },
+
   abTestKey: {
     type: String,
     optional: true,
@@ -1339,7 +1380,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional:true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() === "EAForum",
   },

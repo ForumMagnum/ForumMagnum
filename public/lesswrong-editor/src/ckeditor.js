@@ -159,7 +159,7 @@ const embedConfig = {
 	extraProviders: [
 		{
 			name: 'Elicit',
-			url: /^elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
+			url: /^(?:forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
 			html: ([match, questionId]) => `
 				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
 					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
@@ -174,6 +174,15 @@ const embedConfig = {
 					<iframe style="height: 400px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
 				</div>
 			`
+		},
+		{
+		  name: 'Thoughtsaver',
+		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
+		  html: ([match,urlParams]) => `
+		    <div class="thoughtSaverFrameWrapper">
+		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
+		    </div>
+		  `
 		}
 	]
 }

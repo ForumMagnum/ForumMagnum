@@ -12,18 +12,15 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
   post?: PostsMinimumInfo,
   showEdit: ()=>void,
 }) => {
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment, Loading } = Components
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment } = Components
   
-  const { document: postDetails, loading } = useSingle({
+  const { document: postDetails } = useSingle({
     skip: !post,
     documentId: post?._id,
     collectionName: "Posts",
     fetchPolicy: "cache-first",
     fragmentName: "PostsDetails",
   });
-  
-  if (loading)
-    return <Loading/>
   
   return <>
     <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
@@ -51,15 +48,15 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
       </MenuItem>
     }
     {post && <ReportCommentMenuItem comment={comment}/>}
-    {post && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
-    {post && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
-    { userCanModeratePost(currentUser, postDetails) && postDetails?.user && <Divider />}
-    {post && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
-    {post && <DeleteCommentMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
+    {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && <DeleteCommentMenuItem comment={comment} post={postDetails}/>}
     <RetractCommentMenuItem comment={comment}/>
-    {post && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
-    {post && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
-    {post && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}
+    {postDetails && <BanUserFromAllPersonalPostsMenuItem comment={comment} post={postDetails}/>}
     <ToggleIsModeratorComment comment={comment}/>
   </>
 }

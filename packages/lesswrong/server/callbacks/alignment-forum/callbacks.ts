@@ -92,7 +92,7 @@ voteCallbacks.cancelSync.add(function cancelAlignmentKarmaServerCallback({newDoc
 });
 
 
-async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
+async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
   if (document.af && !oldDocument.af) {
     await Users.update({_id:document.userId}, {
       $inc: {afKarma: document.afBaseScore || 0},

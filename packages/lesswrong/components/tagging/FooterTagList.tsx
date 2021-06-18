@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8
   },
   smallText: {
-    ...smallTagTextStyle,
+    ...smallTagTextStyle(theme),
   }
 });
 
@@ -137,10 +137,10 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
     )
 
   if (loading || !results) {
-    return <div className={classes.root}>
-     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore />)}
+    return <span className={classes.root}>
+     {sortTags(post.tags, t=>t).map(tag => <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText}/>)}
      {postType}
-    </div>;
+    </span>;
   }
 
 

@@ -174,7 +174,7 @@ const BookFrontpageWidget = ({ classes }: {
       <BookAnimation successContent={
         <BookMarketingText 
           title={"Thank you!"}
-          subtitle={"You will receive a confirmation email imminently."}
+          subtitle={"You will receive a confirmation email imminently. Your order should ship within 2 weeks."}
           description={<> 
             <Link to="/posts/QB6BkkpwiecfF6Ekq/thanksgiving-prayer">Dear Global Economy</Link>, we thank thee for thy economies of scale, thy professional specialization, and thy international networks of trade under Ricardo's Law of Comparative Advantage, without which we would all starve to death while trying to assemble the ingredients for such a [book] as this.  Amen. 
           </>}

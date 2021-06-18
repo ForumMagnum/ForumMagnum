@@ -17,9 +17,9 @@ export const addStripeMiddleware = (addMiddleware) => {
         shipping_address_collection: {
           allowed_countries: [
             // European Countries: https://www.europeancuisines.com/Europe-European-Two-Letter-Country-Code-Abbreviations
-            'AL', 'AD', 'AM', 'AT', 'BE', 'BA', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GR', 'HU', 'HR', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'VA', 'PL',
+            'AL', 'AD', 'AM', 'AT', 'BE', 'BA', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FO', 'FI', 'FR', 'GB', 'GE', 'GR', 'HU', 'HR', 'IE', 'IT', 'LT', 'LU', 'LV', 'MC', 'MK', 'MT', 'NL', 'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'VA', 'PL',
             // Tricky European Countries -- excluding for now, can add back later if we find a good shipping solution
-              // 'BY', 'CH', 'GI', 'IE', 'IS', 'NO', 'TR', 'UA',
+              // 'BY', 'CH', 'GI', 'IS', 'NO', 'TR', 'UA',
             // North American Countries
             'US', 'CA',
             // Oceania Countries

@@ -11,7 +11,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-export const filteringStyles = theme => ({
+export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
   paddingTop: 12,
   paddingRight: 16,

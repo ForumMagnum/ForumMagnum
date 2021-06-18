@@ -71,6 +71,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   classes: ClassesType
 }) => {
   const [noShortform, setNoShortform] = useState(false);
+  const [noTags, setNoTags] = useState(false);
   const { timezone } = useTimezone();
   
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
@@ -93,6 +94,9 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   const reportEmptyShortform = useCallback(() => {
     setNoShortform(true);
   }, []);
+  const reportEmptyTags = useCallback(() => {
+    setNoTags(true);
+  }, []);
 
   const getTitle = (startDate, timeframe, size) => {
     if (timeframe === 'yearly') return startDate.format('YYYY')
@@ -103,14 +107,14 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
   }
 
   const render = () => {
-    const { PostsItem2, LoadMore, ShortformTimeBlock, ContentType, Divider, Typography } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType, Divider, Typography } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
     // The most recent timeBlock is hidden if there are no posts or shortforms
     // on it, to avoid having an awkward empty partial timeBlock when it's close
     // to midnight.
-    if (noPosts && noShortform && hideIfEmpty) {
+    if (noPosts && noShortform && noTags && hideIfEmpty) {
       return null
     }
 
@@ -182,6 +186,12 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
               before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
               after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
             }}
+          />}
+          
+          {timeframe==="daily" && <TagEditsTimeBlock
+            before={moment.tz(startDate, timezone).endOf(timeBlock).toString()}
+            after={moment.tz(startDate, timezone).startOf(timeBlock).toString()}
+            reportEmpty={reportEmptyTags}
           />}
         </div>
         {!loading && <div className={classes.divider}>

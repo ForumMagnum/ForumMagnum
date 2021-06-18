@@ -49,7 +49,7 @@ onStartup(() => {
   }
 });
 
-export const addSentryMiddlewares = (addConnectHandler) => {
+export const addSentryMiddlewares = (addConnectHandler: (handler: any)=>void) => {
   addConnectHandler(Sentry.Handlers.requestHandler());
   addConnectHandler(Sentry.Handlers.errorHandler());
 }

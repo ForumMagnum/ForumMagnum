@@ -73,10 +73,6 @@ const SubscribeTo = ({
     enableTotal: false,
   });
   
-  if (loading) {
-    return <Components.Loading/>
-  }
-  
   const isSubscribed = () => {
     // Get the last element of the results array, which will be the most recent subscription
     if (results && results.length > 0) {
@@ -120,7 +116,15 @@ const SubscribeTo = ({
   }
 
   return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
-    {showIcon && <ListItemIcon>{isSubscribed() ? <NotificationsIcon /> : <NotificationsNoneIcon /> }</ListItemIcon>}
+    {showIcon && <ListItemIcon>
+      {loading
+        ? <Components.Loading/>
+        : (isSubscribed()
+          ? <NotificationsIcon />
+          : <NotificationsNoneIcon />
+        )
+      }
+    </ListItemIcon>}
     <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
   </a>
 }

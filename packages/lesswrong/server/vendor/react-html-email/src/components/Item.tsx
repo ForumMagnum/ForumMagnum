@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import EmailPropTypes from '../PropTypes'
 import includeDataProps from '../includeDataProps'
 
-export default function Item(props) {
+export default function Item(props: any) {
   // Bypass type system because it doesn't know "valign" is a real prop (in HTML5, it wouldn't be)
   const valignProp: any = {
     valign: props.valign

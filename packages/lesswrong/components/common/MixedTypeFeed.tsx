@@ -3,6 +3,7 @@ import { fragmentTextForQuery, registerComponent, Components } from '../../lib/v
 import { useQuery, gql } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
+import * as _ from 'underscore';
 
 const loadMoreDistance = 500;
 
@@ -23,12 +24,12 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   sortKeyType: string,
   renderers: any,
 }) => {
-  const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName);
-  const queryArgsList=["$limit: Int", "$cutoff: Date",
+  const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
+  const queryArgsList=["$limit: Int", "$cutoff: Date", "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
   ];
-  const resolverArgsList=["limit: $limit", "cutoff: $cutoff",
+  const resolverArgsList=["limit: $limit", "cutoff: $cutoff", "offset: $offset",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
   ];
   
@@ -37,9 +38,14 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
       ${resolverName}(${resolverArgsList.join(", ")}) {
         __typename
         cutoff
+        endOffset
         results {
           type
-          ${Object.keys(renderers).map(rendererName => `${rendererName} { ...${renderers[rendererName].fragmentName} }`)}
+          ${Object.keys(renderers).map(rendererName =>
+            renderers[rendererName].fragmentName
+              ? `${rendererName} { ...${renderers[rendererName].fragmentName} }`
+              : ''
+          )}
         }
       }
     }
@@ -117,6 +123,7 @@ const MixedTypeFeed = (args: {
       ...resolverArgsValues,
       ...fragmentArgsValues,
       cutoff: null,
+      offset: 0,
       limit: firstPageSize,
     },
     fetchPolicy: "cache-and-network",
@@ -149,6 +156,7 @@ const MixedTypeFeed = (args: {
             ...resolverArgsValues,
             ...fragmentArgsValues,
             cutoff: data[resolverName].cutoff,
+            offset: data[resolverName].endOffset,
             limit: pageSize,
           },
           updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
@@ -161,6 +169,7 @@ const MixedTypeFeed = (args: {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
+                endOffset: data[resolverName].endOffset,
                 results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
               }
             };

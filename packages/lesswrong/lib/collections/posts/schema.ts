@@ -10,6 +10,14 @@ import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
+import SimpleSchema from 'simpl-schema'
+
+const STICKY_PRIORITIES = {
+  1: "Low",
+  2: "Normal",
+  3: "Elevated",
+  4: "Max",
+}
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post creation
@@ -204,6 +212,23 @@ const schema: SchemaType<DbPost> = {
         return false;
       }
     }
+  },
+  // Priority of the stickied post. Higher priorities will be sorted before
+  // lower priorities.
+  stickyPriority: {
+    type: SimpleSchema.Integer,
+    ...schemaDefaultValue(2),
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    control: 'select',
+    options: () => Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
+      value: parseInt(level),
+      label: name
+    })),
+    group: formGroups.adminOptions,
+    order: 11,
+    optional: true,
   },
   // Save info for later spam checking on a post. We will use this for the akismet package
   userIP: {
@@ -460,10 +485,10 @@ const schema: SchemaType<DbPost> = {
   canonicalSource: {
     type: String,
     optional: true,
-    hidden: true,
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
+    group: formGroups.adminOptions,
   },
 
   nominationCount2018: {

@@ -18,7 +18,7 @@ import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
-import { hashLoginToken, tokenExpiration } from '../../loginTokens';
+import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import type { Request, Response } from 'express';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
@@ -33,7 +33,7 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
       'services.resume.loginTokens.hashedToken': hashedToken
     })
 
-    if (user) {
+    if (user && !userIsBanned(user)) {
       // find the right login token corresponding, the current user may have
       // several sessions logged on different browsers / computers
       const tokenInformation = user.services.resume.loginTokens.find(
