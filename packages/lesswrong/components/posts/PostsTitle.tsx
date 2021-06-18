@@ -85,12 +85,13 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 </svg>
 
 const postIcon = post => {
-  if (Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())) {
-    return idSettingIcons.get(post._id);
+  const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
+  if (matchingIdSetting) {
+    return idSettingIcons.get(matchingIdSetting);
   }
-  const matchingTag = Array.from(tagSettingIcons.keys()).find(tagSetting => post.tags.find(tag => tag._id === tagSetting.get()));
-  if (matchingTag) {
-    return tagSettingIcons.get(matchingTag);
+  const matchingTagSetting = Array.from(tagSettingIcons.keys()).find(tagSetting => post.tags.find(tag => tag._id === tagSetting.get()));
+  if (matchingTagSetting) {
+    return tagSettingIcons.get(matchingTagSetting);
   }
 }
 
