@@ -6,7 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userHasBoldPostItems } from '../../lib/betas';
-import {postIdIcons, postTagIcons} from "../../lib/collections/posts/constants";
+import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -85,12 +85,12 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 </svg>
 
 const postIcon = post => {
-  if (postIdIcons.has(post._id)) {
-    return postIdIcons.get(post._id);
+  if (Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())) {
+    return idSettingIcons.get(post._id);
   }
-  const matchingTag = Array.from(postTagIcons.keys()).find(savedTag => post.tags.find(tag => tag._id === savedTag));
+  const matchingTag = Array.from(tagSettingIcons.keys()).find(tagSetting => post.tags.find(tag => tag._id === tagSetting.get()));
   if (matchingTag) {
-    return postTagIcons.get(matchingTag);
+    return tagSettingIcons.get(matchingTag);
   }
 }
 
