@@ -50,11 +50,6 @@ const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
  * @type {Object}
  */
 const schema: SchemaType<DbUser> = {
-  _id: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-  },
   username: {
     type: String,
     optional: true,
@@ -218,7 +213,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     control: 'checkboxgroup',
     canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canUpdate: ['alignmentForumAdmins', 'admins'],
     canRead: ['guests'],
     group: adminGroup,
     form: {

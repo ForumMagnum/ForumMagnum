@@ -174,35 +174,35 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
 
 // Given a collection and a fieldName=>fieldSchema dictionary, add fields to
 // the collection schema. If any of the fields mentioned are already present,
-// they will be shallow-merged. This is used for making parts of the schema
-// (in particular, resolvers, onCreate callbacks, etc) specific to server-side
-// code.
+// throws an error.
 export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
+  collection._simpleSchema = null;
+  
+  for (let key in fieldsDict) {
+    if (key in collection._schemaFields) {
+      throw new Error("Field already exists: "+key);
+      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
+    } else {
+      collection._schemaFields[key] = fieldsDict[key];
+    }
+  }
+}
+
+// Given a collection and a fieldName=>fieldSchema dictionary, add properties
+// to existing fields on the collection schema, by shallow merging them. If any
+// of the fields named don't already exist, throws an error. This is used for
+// making parts of the schema (in particular, resolvers, onCreate callbacks,
+// etc) specific to server-side code.
+export const augmentFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
   collection._simpleSchema = null;
   
   for (let key in fieldsDict) {
     if (key in collection._schemaFields) {
       collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
     } else {
-      collection._schemaFields[key] = fieldsDict[key];
+      throw new Error("Field does not exist: "+key);
     }
   }
-  
-  /*const schema = collection.simpleSchema()._schema;
-  const mergedSchema = {};
-  
-  // loop over fields and add them to schema (or extend existing fields)
-  for (let key in fieldsDict) {
-    if (key in schema)
-      mergedSchema[key] = {...schema[key], ...fieldsDict[key]};
-    else
-      mergedSchema[key] = fieldsDict[key];
-  }
-  
-
-  // add field schema to collection schema
-  const newSchema = collection.simpleSchema().extend(mergedSchema);
-  collection.simpleSchema = () => newSchema;*/
 }
 
 // For auto-generated database type definitions, provides a (string) definition

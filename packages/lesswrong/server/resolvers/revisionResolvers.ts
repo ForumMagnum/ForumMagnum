@@ -3,7 +3,7 @@ import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
-import { addFieldsDict } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
@@ -73,7 +73,7 @@ export function dataToDraftJS(data: any, type: string) {
   }
 }
 
-addFieldsDict(Revisions, {
+augmentFieldsDict(Revisions, {
   markdown: {
     type: String,
     resolveAs: {

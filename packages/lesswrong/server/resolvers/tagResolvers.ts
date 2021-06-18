@@ -3,7 +3,7 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Votes } from '../../lib/collections/votes/collection';
-import { addFieldsDict } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
 import moment from 'moment';
@@ -92,7 +92,7 @@ addGraphQLResolvers({
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdatesTimeBlock!]');
 addGraphQLQuery('RandomTag: Tag!');
 
-addFieldsDict(Tags, {
+augmentFieldsDict(Tags, {
   contributors: {
     resolveAs: {
       arguments: 'limit: Int, version: String',
