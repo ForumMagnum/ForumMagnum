@@ -49,23 +49,20 @@ interface CollectionFieldSpecification<T extends DbObject> {
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
-  //  * onInsert, onEdit, and onRemove are deprecated (but still used) because
+  //  * onInsert and onEdit are deprecated (but still used) because
   //    of Vulcan's mass-renaming and switch to named arguments
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup
   //    (breaking change) affecting whether it means oldDocument or newDocument
-  //  * FIXME: onUpdate doesn't actually get fieldName (but some callbacks use
-  //    it anyways)
   //  * Return type of these callbacks is not enforced because we don't have the
   //    field's type in a usable format here. onInsert, onCreate, onEdit, and
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
-  //    
+  //
   onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
   onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: SchemaType<T>, fieldName: string}) => any,
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
-  onRemove?: any,
-  onDelete?: any,
+  onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
   
   
   viewableBy?: any,
