@@ -6,14 +6,15 @@ import { Votes } from '../../lib/collections/votes/collection';
 import { addFieldsDict } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
+import { toDictionary } from '../../lib/utils/toDictionary';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
 import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
-import { toDictionary } from '../../lib/utils/toDictionary';
 import take from 'lodash/take';
+import filter from 'lodash/filter';
 import * as _ from 'underscore';
 
 addGraphQLSchema(`
@@ -92,22 +93,38 @@ addGraphQLResolvers({
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdatesTimeBlock!]');
 addGraphQLQuery('RandomTag: Tag!');
 
+type ContributorWithStats = {
+  user: DbUser,
+  contributionScore: number,
+  numCommits: number,
+  voteCount: number,
+};
+type ContributorStats = {
+  contributionScore: number,
+  numCommits: number,
+  voteCount: number,
+};
+type ContributorStatsList = Partial<Record<string,ContributorStats>>;
+
 addFieldsDict(Tags, {
   contributors: {
     resolveAs: {
       arguments: 'limit: Int, version: String',
       type: "TagContributorsList",
-      resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext) => {
-        const contributionScoresByUserId = await getContributorsList(tag, version||null);
-        const contributorUserIds = Object.keys(contributionScoresByUserId);
+      resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
+        contributors: ContributorWithStats[],
+        totalCount: number,
+      }> => {
+        const contributionStatsByUserId = await getContributorsList(tag, version||null);
+        const contributorUserIds = Object.keys(contributionStatsByUserId);
         const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
   
-        const sortedContributors = orderBy(contributorUserIds, userId => -(contributionScoresByUserId[userId] || 0));
+        const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
         
-        const topContributors = sortedContributors.map(userId => ({
+        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => ({
           user: usersById[userId],
-          contributionScore: contributionScoresByUserId[userId],
-        }))
+          ...contributionStatsByUserId[userId]!,
+        }));
         
         if (limit) {
           return {
@@ -125,19 +142,16 @@ addFieldsDict(Tags, {
   },
 });
 
-async function getContributorsList(tag: DbTag, version: string|null) {
+async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (version)
     return await buildContributorsList(tag, version);
-  else if (tag.contributionScores)
-    return tag.contributionScores;
+  else if (tag.contributionStats)
+    return tag.contributionStats;
   else
     return await updateDenormalizedContributorsList(tag);
 }
 
-async function buildContributorsList(tag: DbTag, version: string|null) {
-  // TODO: When computing contribution score, only count the user's
-  // self-vote power once, rather than once per contributed revision.
-  
+async function buildContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (!(tag?._id))
     throw new Error("Invalid tag");
   
@@ -170,8 +184,12 @@ async function buildContributorsList(tag: DbTag, version: string|null) {
   const selfVoteScoreAdjustmentByUser = mapValues(selfVotesByUser,
     selfVotes => {
       const totalSelfVotePower = sumBy(selfVotes, v=>v.power)
-      const strongestSelfVote = _.max(selfVotes, v=>v.power).power
-      return totalSelfVotePower - strongestSelfVote;
+      const strongestSelfVote = _.max(selfVotes, v=>v.power)?.power
+      const numSelfVotes = selfVotes.length;
+      return {
+        excludedPower: totalSelfVotePower - strongestSelfVote,
+        excludedVoteCount: numSelfVotes>0 ? (numSelfVotes-1) : 0,
+      };
     }
   );
   
@@ -181,25 +199,36 @@ async function buildContributorsList(tag: DbTag, version: string|null) {
   
   const revisionsByUserId: Record<string,DbRevision[]> = groupBy(filteredTagRevisions, r=>r.userId);
   const contributorUserIds: string[] = Object.keys(revisionsByUserId);
-  const contributionScoresByUserId: Partial<Record<string,number>> = toDictionary(contributorUserIds,
-    userId=>userId, userId => {
+  const contributionStatsByUserId: Partial<Record<string,ContributorStats>> = toDictionary(contributorUserIds,
+    userId => userId,
+    userId => {
+      const revisionsByThisUser = filter(tagRevisions, r=>r.userId===userId);
       const totalRevisionScore = sumBy(revisionsByUserId[userId], r=>r.baseScore)||0
-      const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]||0;
-      return totalRevisionScore - selfVoteAdjustment;
-    });
-  return contributionScoresByUserId;
+      const selfVoteAdjustment = selfVoteScoreAdjustmentByUser[userId]
+      const excludedPower = selfVoteAdjustment?.excludedPower || 0;
+      const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
+      
+      return {
+        contributionScore: totalRevisionScore - excludedPower,
+        numCommits: revisionsByThisUser.length,
+        voteCount: sumBy(revisionsByThisUser, r=>r.voteCount) - excludedVoteCount,
+      };
+    }
+  );
+  console.log(contributionStatsByUserId);
+  return contributionStatsByUserId;
 }
 
-export async function updateDenormalizedContributorsList(tag: DbTag) {
-  const contributionScores = await buildContributorsList(tag, null);
+export async function updateDenormalizedContributorsList(tag: DbTag): Promise<ContributorStatsList> {
+  const contributionStats = await buildContributorsList(tag, null);
   
-  if (JSON.stringify(tag.contributionScores) !== JSON.stringify(contributionScores)) {
+  if (JSON.stringify(tag.contributionStats) !== JSON.stringify(contributionStats)) {
     await Tags.update({_id: tag._id}, {$set: {
-      contributionScores: contributionScores,
+      contributionStats: contributionStats,
     }});
   }
   
-  return contributionScores;
+  return contributionStats;
 }
 
 export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
