@@ -28,7 +28,7 @@ export const mongoFindOptionsToSql = <T extends DbObject>(collection: Collection
   
   if (options) {
     if (options.sort) {
-      const {sql: sortFragment, arg: sortArgs} = mongoSortToOrderBy(options.sort, args.length+1);
+      const {sql: sortFragment, arg: sortArgs} = mongoSortToOrderBy(collection, options.sort, args.length+1);
       queryTextFragments.push(sortFragment);
       args = [...args, ...sortArgs];
     }
@@ -183,13 +183,24 @@ const mongoFieldToSql = (fieldName: string, inferTypeFromValue: any) => {
   }
 }
 
-const mongoSortToOrderBy = (mongoSort: any, argOffset: number): {sql: string, arg: string[]} => {
+const mongoFieldToSqlWithSchema = <T extends DbObject>(fieldName: string, collection: CollectionBase<T>) => {
+  const schemaField = collection._schemaFields[fieldName];
+  if (!schemaField) throw new Error(`Field not in schema: ${fieldName}`);
+  const fieldType = schemaField.type;
+  
+  if (fieldType === Number)
+    return `json->'${fieldName}'`
+  else
+    return `json->>'${fieldName}'`
+}
+
+const mongoSortToOrderBy = <T extends DbObject>(collection: CollectionBase<T>, mongoSort: MongoSort<T>, argOffset: number): {sql: string, arg: string[]} => {
   const fragments: string[] = [];
   for (let sortKey of Object.keys(mongoSort)) {
     if (sortKey==='_id') {
-      fragments.push(`id ${mongoSortDirectionToSql(mongoSort[sortKey])}`);
+      fragments.push(`id ${mongoSortDirectionToSql(mongoSort[sortKey]!)}`);
     } else {
-      fragments.push(`json->>'${sortKey}' ${mongoSortDirectionToSql(mongoSort[sortKey])}`);
+      fragments.push(`${mongoFieldToSqlWithSchema(sortKey, collection)} ${mongoSortDirectionToSql(mongoSort[sortKey])}`);
     }
   }
   

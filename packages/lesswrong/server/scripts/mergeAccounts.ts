@@ -69,7 +69,7 @@ const mergeReadStatusForPost = async ({sourceUserId, targetUserId, postId}: {sou
   } else if (sourceUserStatus) {
     // eslint-disable-next-line no-unused-vars
     const {_id, ...sourceUserStatusWithoutId} = sourceUserStatus
-    ReadStatuses.insert({...sourceUserStatusWithoutId, userId: targetUserId})
+    await ReadStatuses.insert({...sourceUserStatusWithoutId, userId: targetUserId})
   }
 }
 
