@@ -115,6 +115,8 @@ import './server/resolvers/tagResolvers';
 import './server/resolvers/allTagsActivityFeed';
 import './server/resolvers/recentDiscussionFeed';
 import './server/resolvers/elicitPredictions';
+import './server/resolvers/reviewVoteResolvers';
+import './server/resolvers/petrovDayResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
