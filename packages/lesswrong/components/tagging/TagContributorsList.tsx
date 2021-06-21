@@ -63,6 +63,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
     {tag.contributors && contributorsList.map(contributor => <div key={contributor.user._id} className={classes.contributorRow} >
       <LWTooltip
         className={classes.contributorScore}
+        placement="left"
         title={<span>
           {contributor.contributionScore} total points from {contributor.voteCount} votes on {contributor.numCommits} edits
         </span>}
