@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
