@@ -93,6 +93,7 @@ const postIcon = (post: PostsListBase) => {
   if (matchingTagSetting) {
     return tagSettingIcons.get(matchingTagSetting);
   }
+  return null;
 }
 
 const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true, showLinkTag=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true}: {
