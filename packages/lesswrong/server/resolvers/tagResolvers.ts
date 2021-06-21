@@ -215,7 +215,6 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       };
     }
   );
-  console.log(contributionStatsByUserId);
   return contributionStatsByUserId;
 }
 
