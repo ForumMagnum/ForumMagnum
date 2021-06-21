@@ -1,5 +1,4 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
-import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbMessage> = {
   userId: {

@@ -181,7 +181,6 @@ export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>,
   for (let key in fieldsDict) {
     if (key in collection._schemaFields) {
       throw new Error("Field already exists: "+key);
-      collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
     } else {
       collection._schemaFields[key] = fieldsDict[key];
     }

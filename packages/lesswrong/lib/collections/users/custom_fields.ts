@@ -5,7 +5,6 @@ import { makeEditable } from '../../editor/make_editable';
 import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
-import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
 import { userOwnsAndInGroup } from "./helpers";
@@ -1419,14 +1418,3 @@ makeEditable({
 })
 
 addUniversalFields({collection: Users})
-
-// Copied over utility function from Vulcan
-const createDisplayName = (user: DbInsertion<DbUser>): string=> {
-  const profileName = getNestedProperty(user, 'profile.name');
-  const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
-  if (profileName) return profileName;
-  if (linkedinFirstName) return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
-  if (user.username) return user.username;
-  if (user.email) return user.email.slice(0, user.email.indexOf('@'));
-  return "[missing username]";
-}
