@@ -63,7 +63,7 @@ const PostsPage = ({post, refetch, classes}: {
     return false;
   }
 
-  const getDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
+  const getPostDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
     if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
     if (post.shortform) return `A collection of shorter posts ${post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ''}`
     return null
@@ -99,7 +99,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   const commentId = query.commentId || params.commentId
 
-  const description = getDescription(post)
+  const description = getPostDescription(post)
   const ogUrl = postGetPageUrl(post, true) // open graph
   const canonicalUrl = post.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
@@ -113,14 +113,14 @@ const PostsPage = ({post, refetch, classes}: {
           : null
       }
       header={<>
-        <HeadTags
+        {!commentId && <HeadTags
           ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-          title={post.title} description={description} noIndex={post.noIndex || !!commentId}
-        />
+          title={post.title} description={description} noIndex={post.noIndex}
+        />}
         {/* Header/Title */}
         <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
           <div className={classes.centralColumn}>
-            {commentId && <CommentPermalink documentId={commentId} post={post}/>}
+            {commentId && <CommentPermalink documentId={commentId} post={post} />}
             <PostsPagePostHeader post={post}/>
           </div>
         </div></AnalyticsContext>

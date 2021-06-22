@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dividerMargins: {
@@ -27,9 +28,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+const getCommentDescription = (comment: CommentWithRepliesFragment) => {
+  return `Comment ${comment?.user ? 
+    `by ${comment.user.displayName} ` : 
+    ''
+  }- ${comment?.contents?.plaintextMainText}`
+}
+
 const CommentPermalink = ({ documentId, post, classes }: {
   documentId: string,
-  post: PostsList,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
   const { document: comment, data, loading, error } = useSingle({
@@ -38,14 +46,22 @@ const CommentPermalink = ({ documentId, post, classes }: {
     fragmentName: 'CommentWithRepliesFragment',
   });
   const refetch = data?.refetch;
-  const { Loading, Divider, CommentWithReplies } = Components;
+  const { Loading, Divider, CommentWithReplies, HeadTags } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
 
   if (!documentId) return null
 
+  const description = getCommentDescription(comment)
+  const ogUrl = postGetPageUrl(post, true) // open graph
+  const canonicalUrl = post.canonicalSource || ogUrl
+  // For imageless posts this will be an empty string
+  const socialPreviewImageUrl = post.socialPreviewImageUrl
+
   // NB: classes.root is not in the above styles, but is used by eaTheme
   return <div className={classes.root}>
+      <HeadTags ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl} 
+      description={description} noIndex={true} />
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       {loading ? <Loading /> : <div>
         <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} expandByDefault showTitle={false}/>
