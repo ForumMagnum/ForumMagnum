@@ -37,7 +37,7 @@ const getCommentDescription = (comment: CommentWithRepliesFragment) => {
 
 const CommentPermalink = ({ documentId, post, classes }: {
   documentId: string,
-  post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  post: PostsDetails,
   classes: ClassesType,
 }) => {
   const { document: comment, data, loading, error } = useSingle({
