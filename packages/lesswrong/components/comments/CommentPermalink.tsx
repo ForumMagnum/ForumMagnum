@@ -29,10 +29,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const getCommentDescription = (comment: CommentWithRepliesFragment) => {
-  return `Comment ${comment?.user ? 
+  return `Comment ${comment.user ? 
     `by ${comment.user.displayName} ` : 
     ''
-  }- ${comment?.contents?.plaintextMainText}`
+  }- ${comment.contents?.plaintextMainText}`
 }
 
 const CommentPermalink = ({ documentId, post, classes }: {
@@ -52,7 +52,6 @@ const CommentPermalink = ({ documentId, post, classes }: {
 
   if (!documentId) return null
 
-  const description = getCommentDescription(comment)
   const ogUrl = postGetPageUrl(post, true) // open graph
   const canonicalUrl = post.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
@@ -60,10 +59,10 @@ const CommentPermalink = ({ documentId, post, classes }: {
 
   // NB: classes.root is not in the above styles, but is used by eaTheme
   return <div className={classes.root}>
-      <HeadTags ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl} 
-      description={description} noIndex={true} />
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       {loading ? <Loading /> : <div>
+        <HeadTags ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl} 
+        description={getCommentDescription(comment)} noIndex={true} />
         <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} expandByDefault showTitle={false}/>
         <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
       </div>}
