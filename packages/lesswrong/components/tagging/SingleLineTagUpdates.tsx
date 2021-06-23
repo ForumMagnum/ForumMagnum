@@ -18,11 +18,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   metadata: {
     display: "flex",
+    alignItems: "center",
     paddingRight: 8,
     paddingLeft: 8,
     cursor: "pointer",
   },
   title: {
+    display: "flex",
+    alignItems: "center",
     flexGrow: 1,
     cursor: "pointer",
     padding: 4,
@@ -44,17 +47,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentBubble: {
     marginLeft: 11,
-    marginTop: 4,
+    marginTop: -5,
   },
   changeMetrics: {
-    marginTop: 11,
     cursor: "pointer",
   },
   postedAt: {
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
-      marginTop: 10,
       fontWeight: 300,
       fontSize: "1rem",
       color: "rgba(0,0,0,.9)",
@@ -65,9 +66,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     height: "1.5rem",
-    width: "1.5rem",
     position: "relative",
-    top: 4,
+    top: 3,
+    marginLeft: 8,
   },
 });
 
@@ -89,7 +90,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
       <div className={classes.title} >
         <Link to={tagGetUrl(tag)}>{tag.name}</Link>
         
-        {revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`} className={classes.subheading}>
+        {revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`}>
           <TagHistory className={classes.icon}  />
         </Link>}
       </div>
