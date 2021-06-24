@@ -29,7 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     cursor: "pointer",
     padding: 4,
-    
     fontFamily: theme.typography.fontFamily,
     fontSize: 17,
     fontVariant: "small-caps",
@@ -65,10 +64,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   icon: {
-    height: "1.5rem",
-    position: "relative",
-    top: 3,
-    marginLeft: 8,
+    height: "20px",
+  },
+  history: {
+    display: "inline-flex",
+    alignItems: "center",
+    fontSize: "1rem",
+    fontFamily: theme.typography.fontFamily,
+    color: "rgba(0, 0, 0, .4)",
+    margin: "-8px 0 8px 8px",
+    paddingLeft: 4,
   },
 });
 
@@ -89,10 +94,6 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
 
       <div className={classes.title} >
         <Link to={tagGetUrl(tag)}>{tag.name}</Link>
-        
-        {revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`}>
-          <TagHistory className={classes.icon}  />
-        </Link>}
       </div>
 
       {/* Show lastRevised date with tooltip*/}
@@ -117,6 +118,12 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
     </div>
     
     {expanded && <div className={classes.expandedBody}>
+      {revisionIds.length>0 && 
+        <Link to={`/revisions/tag/${tag.slug}`} className={classes.history}>
+          <TagHistory className={classes.icon}  />
+          <span>History</span>
+        </Link>}
+      
       {/* Only show this subtitle if there are both edits and comments */}
       {commentIds && commentIds.length>0 && revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`} className={classes.subheading}>
         Edits
