@@ -33,7 +33,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position:"absolute",
     right:"50%",
     top:"50%",
-    marginTop:-3,
     transform:"translate(50%, -50%)",
     color:"white",
     fontVariantNumeric:"lining-nums",
