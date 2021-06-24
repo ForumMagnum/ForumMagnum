@@ -118,12 +118,12 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
     
     {expanded && <div className={classes.expandedBody}>
       {revisionIds.length>0 && 
-        <Link to={`/revisions/tag/${tag.slug}`} className={classes.history}>
+        <Link to={`/tag/${tag.slug}/history`} className={classes.history}>
           <TagHistory className={classes.icon}  />
           <span>History</span>
         </Link>}
       
-      {revisionIds.length>0 && <Link to={`/tag/${tag.slug}/history`} className={classes.subheading}>
+      {revisionIds.length>0 && <Link to={`revisions/tag/${tag.slug}`} className={classes.subheading}>
         Edits
       </Link>}
       {revisionIds.map(revId => <div className={classes.tagRevision} key={revId}>
