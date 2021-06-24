@@ -231,8 +231,8 @@ const TagPage = ({classes}: {
     >
       <div className={classNames(classes.wikiSection,classes.centralColumn)}>
         <AnalyticsContext pageSectionContext="wikiSection">
-          { revision && tag.description && (tag as TagRevisionFragment)?.description?.user && <div className={classes.pastRevisionNotice}>
-            You are viewing revision {(tag as TagRevisionFragment)?.description?.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment)?.description?.user}/>
+          { revision && tag.description && (tag as TagRevisionFragment).description.user && <div className={classes.pastRevisionNotice}>
+            You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag as TagRevisionFragment).description.user}/>
           </div>}
           {editing ? <EditTagForm
             tag={tag}
