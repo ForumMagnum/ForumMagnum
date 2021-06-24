@@ -67,13 +67,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: "20px",
   },
   history: {
-    display: "inline-flex",
+    display: "flex",
     alignItems: "center",
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
     color: "rgba(0, 0, 0, .4)",
     margin: "-8px 0 8px 8px",
-    paddingLeft: 4,
   },
 });
 
@@ -124,8 +123,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
           <span>History</span>
         </Link>}
       
-      {/* Only show this subtitle if there are both edits and comments */}
-      {commentIds && commentIds.length>0 && revisionIds.length>0 && <Link to={`/revisions/tag/${tag.slug}`} className={classes.subheading}>
+      {revisionIds.length>0 && <Link to={`/tag/${tag.slug}/history`} className={classes.subheading}>
         Edits
       </Link>}
       {revisionIds.map(revId => <div className={classes.tagRevision} key={revId}>

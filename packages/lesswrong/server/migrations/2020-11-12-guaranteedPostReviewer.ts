@@ -13,11 +13,12 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Posts from '../../lib/collections/posts/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { postStatuses } from '../../lib/collections/posts/constants';
 
 // TODO: LessWrong, you'll want to set this
 // lw-look-here
 const defaultReviewerByForum = {
-  LessWrong: null,
+  LessWrong: "XtphY3uYHwruKqDyG",
   AlignmentForum: null,            // Shoudn't be necessary to set
   EAForum: '9qZsZAzbC2zxsPHzN',    // JP
 }
@@ -32,7 +33,16 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,
-      filter: {reviewedByUserId: {$exists: false}},
+      filter: {
+        reviewedByUserId: {$exists: false},
+        status: postStatuses.STATUS_APPROVED,
+        draft: false,
+        isFuture: false,
+        unlisted: false,
+        shortform: false,
+        authorIsUnreviewed: false,
+        hiddenRelatedQuestion: false,
+      },
       callback: async (posts: Array<DbPost>) => {
         // eslint-disable-next-line no-console
         console.log("Migrating post batch");

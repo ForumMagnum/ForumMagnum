@@ -49,38 +49,50 @@ export const styles = (theme: ThemeType): JssStyles => ({
     width: MAX_TOC_WIDTH,
     left: -DEFAULT_TOC_MARGIN,
   },
-  stickyBlock: {
+  stickyBlockScroller: {
     position: "sticky",
     fontSize: 12,
     top: 92,
     lineHeight: 1.0,
-    marginLeft:1,
-    paddingLeft:theme.spacing.unit*2,
-    textAlign:"left",
-    height:"80vh",
-    overflowY:"scroll",
+    marginLeft: 1,
+    paddingLeft: theme.spacing.unit*2,
+    textAlign: "left",
+    height: "80vh",
+    overflowY: "auto",
+    
+    // Moves the scrollbar to the left side. Cancelled out by a matching
+    // direction:ltr on the next div in.
+    direction: "rtl",
+    
+    // Nonstandard WebKit-specific scrollbar styling.
     "&::-webkit-scrollbar": {
       width: 1,
     },
-
-    /* Track */
+    // Track
     "&::-webkit-scrollbar-track": {
-        background: "none",
+      background: "none",
     },
 
-    /* Handle */
+    // Handle
     "&::-webkit-scrollbar-thumb": {
-        background: theme.palette.grey[300],
-    },
-
-    /* Handle on hover */
-    "&::-webkit-scrollbar-thumb:hover": {
+      background: theme.palette.grey[300],
+      "&:hover": {
         background: theme.palette.grey[700],
+      },
     },
+    
+    // Pre-standard Firefox-specific scrollbar styling. See
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Scrollbars.
+    scrollbarWidth: "thin",
+    scrollbarColor: `rgba(255,255,255,0) ${theme.palette.grey[300]}`,
 
     [theme.breakpoints.down('sm')]:{
       display:'none'
     }
+  },
+  stickyBlock: {
+    // Cancels the direction:rtl in stickyBlockScroller
+    direction: "ltr",
   },
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
@@ -99,8 +111,10 @@ export const ToCColumn = ({tableOfContents, header, children, classes}: {
         {header}
       </div>
       {tableOfContents && <div className={classes.toc}>
-        <div className={classes.stickyBlock}>
-          {tableOfContents}
+        <div className={classes.stickyBlockScroller}>
+          <div className={classes.stickyBlock}>
+            {tableOfContents}
+          </div>
         </div>
       </div>}
       <div className={classes.gap1}/>

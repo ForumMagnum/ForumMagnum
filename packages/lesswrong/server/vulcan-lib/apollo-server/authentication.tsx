@@ -20,6 +20,8 @@ import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
+import { mongoFindOne } from '../../../lib/mongoQueries';
+import { userFindByEmail } from '../../../lib/vulcan-users/helpers';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -209,6 +211,13 @@ const authenticationResolvers = {
       if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+      
+      if (await userFindByEmail(email)) {
+        throw Error("Email address is already taken");
+      }
+      if (await mongoFindOne("Users", { username })) {
+        throw Error("Username is already taken");
+      }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
       const reCaptchaData = JSON.parse(reCaptchaResponse)

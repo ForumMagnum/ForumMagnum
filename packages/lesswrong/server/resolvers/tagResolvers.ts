@@ -75,12 +75,18 @@ addGraphQLResolvers({
           removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
         };
       });
-    }
-  }
-});
-
-addGraphQLResolvers({
-  Query: {
+    },
+    
+    async RandomTag(root: void, args: void, context: ResolverContext): Promise<DbTag> {
+      const sample = await Tags.aggregate([
+        {$match: {deleted: false, adminOnly: false}},
+        {$sample: {size: 1}}
+      ]).toArray();
+      if (!sample || !sample.length)
+        throw new Error("No tags found");
+      return sample[0];
+    },
+    
     async TagUpdatesByUser(root: void, {userId,limit,skip}: {userId: string, limit: number, skip: number}, context: ResolverContext) {
 
       // Get revisions to tags
@@ -119,6 +125,7 @@ addGraphQLResolvers({
 
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
 addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]');
+addGraphQLQuery('RandomTag: Tag!');
 
 addFieldsDict(Tags, {
   contributors: {

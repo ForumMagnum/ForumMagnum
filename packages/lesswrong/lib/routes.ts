@@ -291,8 +291,8 @@ addRoute(
     name: 'tagHistory',
     path: '/tag/:slug/history',
     componentName: 'TagHistoryPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
+    titleComponentName: 'TagHistoryPageTitle',
+    subtitleComponentName: 'TagHistoryPageTitle',
   },
   {
     name: 'tagEdit',
@@ -308,6 +308,11 @@ addRoute(
     title: "New Tag",
     subtitleComponentName: 'TagPageTitle',
     background: "white"
+  },
+  {
+    name: 'randomTag',
+    path: '/tags/random',
+    componentName: 'RandomTagPage',
   },
   {
     name: 'allTags',
@@ -608,6 +613,11 @@ addRoute(
     componentName: 'ModerationLog',
     title: "Moderation Log",
     noIndex: true
+  },
+  {
+    name: 'moderatorComments',
+    path: '/moderatorComments',
+    componentName: 'ModeratorComments',
   },
   {
     name: 'emailHistory',

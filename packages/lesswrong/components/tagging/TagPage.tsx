@@ -68,6 +68,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  randomTagLink: {
+    ...theme.typography.commentStyle,
+    fontSize: "1.16rem",
+    color: theme.palette.grey[600],
+    display: "inline-block",
+    marginTop: 8,
+    marginBottom: 8,
+  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -83,7 +91,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TagContributorsList } = Components;
+  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -203,6 +211,8 @@ const TagPage = ({classes}: {
                 title={tag.name}
                 onClickSection={expandAll}
               />
+              <Link to="/tags/random" className={classes.randomTagLink}>Random Tag</Link>
+              <TableOfContentsRow href="#" divider={true}/>
               <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
             </span>
           : null
