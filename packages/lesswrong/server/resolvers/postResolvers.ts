@@ -1,9 +1,9 @@
 import { Posts } from '../../lib/collections/posts/collection';
-import { addFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { getDefaultPostLocationFields } from '../posts/utils'
 
-addFieldsDict(Posts, {
+augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
   // timezone the event's location is in. This is subtly wrong: it computes a
   // correct timestamp, but then the timezone part of that timezone gets lost

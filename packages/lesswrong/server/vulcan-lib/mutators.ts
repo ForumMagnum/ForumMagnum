@@ -564,11 +564,9 @@ export const deleteMutator = async <T extends DbObject>({
 
   */
   for (let fieldName of Object.keys(schema)) {
-    if (schema[fieldName].onDelete) {
-      await schema[fieldName].onDelete(properties); // eslint-disable-line no-await-in-loop
-    } else if (schema[fieldName].onRemove) {
-      // OpenCRUD backwards compatibility
-      await schema[fieldName].onRemove(document, currentUser); // eslint-disable-line no-await-in-loop
+    const onDelete = schema[fieldName].onDelete;
+    if (onDelete) {
+      await onDelete(properties); // eslint-disable-line no-await-in-loop
     }
   }
 
