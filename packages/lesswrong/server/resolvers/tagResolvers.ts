@@ -18,7 +18,7 @@ import filter from 'lodash/filter';
 import * as _ from 'underscore';
 
 addGraphQLSchema(`
-  type TagUpdatesTimeBlock {
+  type TagUpdates {
     tag: Tag!
     revisionIds: [String!]
     commentCount: Int
@@ -86,11 +86,46 @@ addGraphQLResolvers({
       if (!sample || !sample.length)
         throw new Error("No tags found");
       return sample[0];
+    },
+    
+    async TagUpdatesByUser(root: void, {userId,limit,skip}: {userId: string, limit: number, skip: number}, context: ResolverContext) {
+
+      // Get revisions to tags
+      const tagRevisions = await Revisions.find({
+        collectionName: "Tags",
+        fieldName: "description",
+        userId,
+        documentId: { $exists: true},
+        $or: [
+          {"changeMetrics.added": {$gt: 0}},
+          {"changeMetrics.removed": {$gt: 0}}
+        ],
+      }, { limit, skip, sort: { editedAt: -1} }).fetch();
+
+      // Get the tags themselves, keyed by the id
+      const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
+      const tags = (await context.loaders.Tags.loadMany(tagIds)).reduce( (acc, tag) => {
+        acc[tag._id] = tag;
+        return acc;
+      }, {});
+
+      // unlike TagUpdatesInTimeBlock we only return info on one revision per tag. i.e. we do not collect them by tag.
+      return tagRevisions.map(rev => {
+        const tag = tags[rev.documentId];
+        return {
+          tag,
+          revisionIds: [rev._id],
+          lastRevisedAt: rev.editedAt,
+          added: rev.changeMetrics.added,
+          removed: rev.changeMetrics.removed,
+        };
+      });
     }
   }
 });
 
-addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdatesTimeBlock!]');
+addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
+addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]');
 addGraphQLQuery('RandomTag: Tag!');
 
 type ContributorWithStats = {

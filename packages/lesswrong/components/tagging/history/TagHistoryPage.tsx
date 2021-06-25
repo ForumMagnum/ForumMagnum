@@ -34,7 +34,7 @@ const TagHistoryPage = ({classes}: {
         tagId: "String!",
       }}
       resolverArgsValues={{
-        tagId: tag?._id
+        tagId: tag._id
       }}
       sortKeyType="Date"
       renderers={{
