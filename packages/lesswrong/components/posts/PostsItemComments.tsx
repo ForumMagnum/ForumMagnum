@@ -14,6 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& .MuiSvgIcon-root": {
       height: "100%",
     },
+    '& div': {
+      marginTop: -2,
+    }
   },
   commentsIconLarge: {
     width: 48,
@@ -22,12 +25,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     flexShrink: 0,
     top: 2,
+    '& div': {
+      marginTop: -3,
+    }
   },
   commentCount: {
     position:"absolute",
     right:"50%",
     top:"50%",
-    marginTop:-3,
     transform:"translate(50%, -50%)",
     color:"white",
     fontVariantNumeric:"lining-nums",

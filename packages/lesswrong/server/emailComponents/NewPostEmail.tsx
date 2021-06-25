@@ -6,6 +6,7 @@ import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
 import './EmailPostDate';
+import './EmailFooterRecommendations';
 
 const styles = (theme: ThemeType): JssStyles => ({
   heading: {
@@ -25,6 +26,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 50,
     marginBottom: 35,
   },
+  hr: {
+    marginTop: 30,
+    marginBottom: 30,
+  },
 });
 
 const NewPostEmail = ({documentId, classes, reason}: {
@@ -41,7 +46,7 @@ const NewPostEmail = ({documentId, classes, reason}: {
       version: 'String'
     }
   });
-  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate } = Components;
+  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
   if (!document) return null;
   return (<React.Fragment>
     <div className={classes.heading}>
@@ -71,7 +76,13 @@ const NewPostEmail = ({documentId, classes, reason}: {
       __html: document.contents.html
     }} />}
     
-    <a href={postGetPageUrl(document, true)}>Discuss</a><br/><br/>
+    <a href={postGetPageUrl(document, true)}>Discuss</a>
+    
+    <hr className={classes.hr}/>
+    
+    <EmailFooterRecommendations />
+    
+    <hr className={classes.hr}/>
     
     {reason && `You are receiving this email because ${reason}.`}
   </React.Fragment>);
