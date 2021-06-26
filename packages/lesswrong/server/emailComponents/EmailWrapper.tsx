@@ -78,11 +78,11 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}: {
                       </td>
                     </tr>
                     <tr><td className="container-padding">
-                      <br/><br/>
+                      <br/>
                       <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
                       (from all emails from {siteNameWithArticle})
                       or <a href={accountLink}>Change your notifications settings</a>
-                      <br/><br/>
+                      <br/>
                     </td></tr>
                   </tbody>
                 </table>

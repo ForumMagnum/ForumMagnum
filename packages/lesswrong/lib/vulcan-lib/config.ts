@@ -34,7 +34,6 @@ SimpleSchema.extendOptions([
   'onEdit', // field edit callback (OpenCRUD backwards compatibility)
 
   'onDelete', // field remove callback
-  'onRemove', // field remove callback (OpenCRUD backwards compatibility)
 
   'canRead', // who can view the field
   'viewableBy', // who can view the field (OpenCRUD backwards compatibility)

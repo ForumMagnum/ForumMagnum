@@ -8,8 +8,20 @@ declare global {
     fieldName?: string
     before?: Date|string|null,
     after?: Date|string|null,
+    userId?: string
   }
 }
+
+Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
+  return {
+    selector: {
+      userId: terms.userId,
+      collectionName: 'Tags'
+    },
+    options: {sort: {editedAt: -1}},
+  }
+});
+ensureIndex(Revisions, {userId: 1, editedAt: 1});
 
 Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
   const result = {

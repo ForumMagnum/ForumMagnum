@@ -40,7 +40,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   onHoverUser: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
-  const { UsersNameDisplay, Loading } = Components;
+  const { UsersNameDisplay, Loading, LWTooltip } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const {document: tagWithExpandedList, loading: loadingMore} = useSingle({
@@ -61,9 +61,15 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
     </div>
     
     {tag.contributors && contributorsList.map(contributor => <div key={contributor.user._id} className={classes.contributorRow} >
-      <span className={classes.contributorScore}>
+      <LWTooltip
+        className={classes.contributorScore}
+        placement="left"
+        title={<span>
+          {contributor.contributionScore} total points from {contributor.voteCount} votes on {contributor.numCommits} edits
+        </span>}
+      >
         {contributor.contributionScore}
-      </span>
+      </LWTooltip>
       <span className={classes.contributorName}
         onMouseEnter={ev => {
           onHoverUser(contributor.user._id);

@@ -19,6 +19,7 @@ registerFragment(`
     afPostCount
     afCommentCount
     spamRiskScore
+    tagRevisionCount
   }
 `);
 
@@ -33,7 +34,6 @@ registerFragment(`
     afSequenceCount
     afSequenceDraftCount
     sequenceDraftCount
-    tagRevisionCount
     moderationStyle
     moderationGuidelines {
       ...RevisionDisplay

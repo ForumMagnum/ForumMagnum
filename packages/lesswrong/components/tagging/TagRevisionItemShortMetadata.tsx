@@ -22,7 +22,7 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
   const revUrl = tagGetRevisionLink(tag, revision.version);
   
-  return <div>
+  return <>
     <span className={classes.username}>
       <UsersName documentId={revision.userId}/>
     </span>
@@ -50,7 +50,7 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
       document={revision}
       collection={Revisions}
     /></MetaInfo>
-  </div>;
+  </>;
 }
 
 const TagRevisionItemShortMetadataComponent = registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadata, {styles});
