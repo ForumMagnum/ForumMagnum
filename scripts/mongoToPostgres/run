@@ -1,0 +1,13 @@
+#!/bin/bash
+# Wrapper script for scripts/mongoToPostgres/import importer. Does TS-to-JS
+# compilation, then runs the JS. Run with "--help" for information about command
+# line options.
+
+SCRIPT_DIR="$(dirname "$0")"
+
+(
+	cd "$SCRIPT_DIR"
+	yarn run tsc
+) \
+&& node "$SCRIPT_DIR/import.js" "$@"
+

@@ -9,12 +9,14 @@ import { Pool } from 'pg';
 type CommandLineOptions = {
   mongoDumpDirectory: string
   postgresConnectionString: string
+  doNothing: boolean
   dryRun: boolean
   onlyCollection: string|null
 }
 const defaultOptions: CommandLineOptions = {
   mongoDumpDirectory: "",
   postgresConnectionString: "",
+  doNothing: false,
   dryRun: false,
   onlyCollection: null,
 }
@@ -22,7 +24,10 @@ const defaultOptions: CommandLineOptions = {
 function parseCommandLine(argv: string[]) {
   let ret: Partial<CommandLineOptions> = defaultOptions;
   for (let i=2; i<argv.length; i++) {
-    if (argv[i]==="--mongo-dump-directory") {
+    if (argv[i]==="-h" || argv[i]=="--help") {
+      printHelpText();
+      ret.doNothing = true;
+    }else if (argv[i]==="--mongo-dump-directory") {
       if (i+1>=argv.length) throw new Error("Additional argument required");
       ret.mongoDumpDirectory = argv[++i];
     } else if (argv[i]==="--postgres-connection-string") {
@@ -38,12 +43,45 @@ function parseCommandLine(argv: string[]) {
     }
   }
   
-  if (!(ret.mongoDumpDirectory?.length))
-    throw new Error("Requires a mongo dump directory");
-  if (!(ret.postgresConnectionString?.length))
-    throw new Error("Requires a postgres connection string");
+  if (!(ret.mongoDumpDirectory?.length)) {
+    printHelpText();
+    console.log("Missing required argument: --mongo-dump-directory");
+    ret.doNothing = true;
+  }
+  if (!(ret.postgresConnectionString?.length)) {
+    printHelpText();
+    console.log("Missing required argument: --postgres-connection-string");
+    ret.doNothing = true;
+  }
   
   return ret as CommandLineOptions;
+}
+
+let helpPrinted = false;
+function printHelpText()
+{
+  if (helpPrinted) return;
+  helpPrinted = true;
+  
+  console.log(`Usage: scripts/mongoToPostgres/run
+    --mongo-dump-directory [dir]
+      Directory of an exported mongodb database dump. Created with the
+      "mongodump" tool, with an invocation that looks something like:
+        mongodump -o <output-directory> <mongo-connection-string>
+      Check that you have enough free disk space for a copy of the database
+      you're exporting first.
+      
+    --postgres-connection-string [dir]
+      Connection string for the postgres database to import into. Looks like:
+      postgres://user:password@host/database
+
+    --dry-run
+      Go through the importing process without actually writing anything. Used
+      for testing.
+
+    --only-collection [collection]
+      Optional. Only import the named collection, rather than all collections.
+`);
 }
 
 const excludedCollections: string[] = [
@@ -160,6 +198,7 @@ async function performImport(options: CommandLineOptions, connectionPool: Pool) 
 
 function main() {
   const commandLineOptions = parseCommandLine(process.argv);
+  if (commandLineOptions.doNothing) return;
   const connectionPool = new Pool({ connectionString: commandLineOptions.postgresConnectionString });
   performImport(commandLineOptions, connectionPool);
 }

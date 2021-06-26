@@ -1,7 +1,6 @@
 {
   "name": "mongoToPostgres",
   "version": "1.0.0",
-  "main": "import.ts",
   "dependencies": {
     "@types/pg": "^8.6.0",
     "bson": "^4.4.0",
