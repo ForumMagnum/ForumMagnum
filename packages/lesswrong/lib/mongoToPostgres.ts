@@ -22,6 +22,29 @@ export const mongoSelectorToSql = <T extends DbObject>(collection: CollectionBas
   };
 }
 
+export const mongoModifierToSql = <T extends DbObject>(collection: CollectionBase<T>, modifier: MongoModifier<T>) => {
+  let sql = "json";
+  let args: any[] = [];
+  
+  if (modifier.$set && Object.keys(modifier.$set).length > 0) {
+    sql = `${sql} || jsonb_build_object(${Object.keys(modifier.$set).map((k,i)=>`"${k}",$${args.length+i+1}`).join(',')})`;
+    args = [...args, ...Object.keys(modifier.$set).map(k => modifier.$set[k])];
+  }
+  if (modifier.$unset && Object.keys(modifier.$unset).length > 0) {
+    sql = `((${sql}) ${Object.keys(modifier.$unset).map(k => `- '${k}'`).join(' ')})`;
+  }
+  if (modifier.$inc && Object.keys(modifier.$inc).length > 0) {
+    sql = `${sql} || jsonb_build_object(${Object.keys(modifier.$inc).map((k,i)=>`"${k}",${mongoFieldToSqlWithSchema(k,collection)} + $${args.length+i+1}`).join(",")})`;
+    args = [...args, ...Object.keys(modifier.$inc).map(k => modifier.$inc[k])];
+  }
+  for (let key of Object.keys(modifier)) {
+    if (key!=="$set" && key!=="$unset" && key!=="$inc")
+      throw new Error(`Unrecognized mongo modifier: ${key}`);
+  }
+  
+  return {sql: `json=${sql}`, arg: args};
+}
+
 export const mongoFindOptionsToSql = <T extends DbObject>(collection: CollectionBase<T>, options?: MongoFindOptions<T>) => {
   let queryTextFragments: string[] = [];
   let args: any[] = [];

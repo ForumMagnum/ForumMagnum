@@ -171,7 +171,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
   }
   
   runQuery = async (query: string, args: any[]): Promise<any> => {
-    const pool = this.getConnectionPool();
+    const pool = await this.getConnectionPool();
     const startTime = new Date();
     const result: any = await new Promise((resolve, reject) => {
       pool.query({
@@ -255,9 +255,14 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
       doc._id = randomId();
     }
     const table = this.getTable();
+    
+    const docMinusId = {...doc};
+    delete docMinusId._id;
+    
     return await wrapQuery(`${this.tableName}.insert`, async () => {
-      const insertResult = await table.insertOne(doc, options);
-      return insertResult.insertedId;
+      const rawResult = await this.runQuery(`insert into ${this.tableName}(id,json) values ($1,$2)`, [doc._id, docMinusId]);
+      // TODO: Error handling
+      return doc._id;
     });
   }
   update = async (selector, update, options) => {
@@ -266,11 +271,14 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
       const table = this.getTable();
       return await wrapQuery(`${this.tableName}.update`, async () => {
         if (typeof selector === 'string') {
-          const updateResult = await table.update({_id: selector}, update, options);
-          return updateResult.matchedCount;
+          // TODO: Handle $set, $unset, $inc, etc
+          const rawResult = await this.runQuery(`update ${this.tableName} set json=mergeJson(json, $1) where id=$2`, []);
+          
+          //const updateResult = await table.update({_id: selector}, update, options);
+          //return updateResult.matchedCount;
         } else {
-          const updateResult = await table.update(removeUndefinedFields(selector), update, options);
-          return updateResult.matchedCount;
+          //const updateResult = await table.update(removeUndefinedFields(selector), update, options);
+          //return updateResult.matchedCount;
         }
       });
     } catch(e) {

@@ -1,19 +1,33 @@
 import { testStartup } from './testMain';
 import chai from 'chai';
-import { mongoSelectorToSql } from '../lib/mongoToPostgres';
+import { mongoSelectorToSql, mongoModifierToSql } from '../lib/mongoToPostgres';
+import { Comments } from '../lib/collections/comments/collection';
 testStartup();
 
 describe('Mongodb to postgres query translation', () => {
   it('translates selectors correctly', () => {
-    /*chai.assert.deepEqual(
-      mongoSelectorToSql({ num: 123, str: "xyz", bool: true }),
+    chai.assert.deepEqual(
+      mongoSelectorToSql(Comments, { num: 123, str: "xyz", bool: true }),
       {
         sql: normalizeWhitespace(`
-          where (json->'num')::int=$1 and (json->>'str')=$2 and (json->'bool')::boolean=$3
+          (json->'num')::int=$1 and (json->>'str')=$2 and (json->'bool')::boolean=$3
         `),
         arg: [123, "xyz", true],
       }
-    );*/
+    );
+  });
+  it('translates modifiers correctly', () => {
+    chai.assert.deepEqual(
+      mongoModifierToSql(Comments, { $set: {answer: false}, $inc: {voteCount:1} }),
+      {
+        sql: normalizeWhitespace(`
+          json=json
+          || jsonb_build_object("answer",$1)
+          || jsonb_build_object("voteCount",json->'voteCount' + $2)
+        `),
+        arg: [false,1],
+      }
+    );
   });
 });
 
