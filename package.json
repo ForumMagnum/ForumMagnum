@@ -206,7 +206,7 @@
     "passport-local": "^1.0.0",
     "path-to-regexp": "^1.2.0",
     "pg": "^8.5.1",
-    "pg-promise": "^10.9.2",
+    "pg-promise": "^10.10.2",
     "prop-types": "^15.7.2",
     "qs": "6.7.0",
     "raf": "3.4.1",

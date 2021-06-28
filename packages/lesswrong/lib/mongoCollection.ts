@@ -1,10 +1,9 @@
 import { randomId } from './random';
-import { mongoSelectorToSql, mongoFindOptionsToSql } from './mongoToPostgres';
+import { mongoSelectorToSql, mongoFindOptionsToSql, mongoModifierToSql } from './mongoToPostgres';
 import { Globals } from './vulcan-lib/config';
 import { getCollection } from './vulcan-lib/getCollection';
 import { getSchema } from './utils/getSchema';
 
-let queryCount = 0;
 let client: any = null;
 let db: any = null;
 export const setDatabaseConnection = (_client, _db) => {
@@ -91,10 +90,6 @@ function removeUndefinedFields(selector: any) {
   return filtered;
 }
 
-function postgresResultToMongo(collection: any, result: any) {
-  if (!result) throw new Error("Missing result");
-  return result.rows.map(row => postgresRowToMongo<any>(collection, row));
-}
 function postgresRowToMongo<T extends DbObject>(collection: CollectionBase<T>, row: any) {
   const result = {
     _id: row.id,
@@ -107,8 +102,12 @@ function postgresRowToMongo<T extends DbObject>(collection: CollectionBase<T>, r
       result[key] = untranslatedDate ? new Date(untranslatedDate) : untranslatedDate ;
     }
   }
+  
+  // HACK: Convert editedAt in denormalized content-editable fields to date.
   if (result?.contents?.editedAt)
     result.contents.editedAt = new Date(result.contents.editedAt);
+  if (result?.moderationGuidelines?.editedAt)
+    result.moderationGuidelines.editedAt = new Date(result.moderationGuidelines.editedAt);
   
   return result;
 }
@@ -116,30 +115,19 @@ function postgresRowToMongo<T extends DbObject>(collection: CollectionBase<T>, r
 Globals.testTranslateQuery = (collectionName: CollectionNameString, selector: any, options: any) => {
   const collection = getCollection(collectionName);
   const tableName = (collection as any).tableName;
-  const {sql, arg} = mongoSelectorToSql(collection, selector, options);
+  const {sql, arg} = mongoSelectorToSql(collection, selector, 1);
   const {sql: optionsSql, arg: optionsArg} = mongoFindOptionsToSql(collection, options);
 }
 Globals.testTranslateAndRunQuery = async (collectionName: CollectionNameString, selector: any, options: any) => {
   const collection = getCollection(collectionName);
   const tableName = (collection as any).tableName;
-  const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(collection, selector, options);
-  const {sql: optionsFragment, arg: optionsArgs} = mongoSelectorToSql(collection, selector, options);
-  const query = `select * from ${tableName} where ${queryFragment} ${optionsFragment}`;
+  const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(collection, selector, 1);
+  const {sql: optionsFragment, arg: optionsArgs} = mongoSelectorToSql(collection, selector, 1);
+  const {sql: optionsSql, arg: optionsArg} = mongoFindOptionsToSql(collection, options);
+  const query = `select * from ${tableName} where ${queryFragment} ${optionsSql}`;
   
   
-  const result: any = await new Promise((resolve, reject) => {
-    postgresConnectionPool.query({
-      name: "translatedQuery"+(++queryCount),
-      text: query,
-      values: queryArgs,
-    }, (err,res) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
-  });
+  await postgresConnectionPool.any(query, queryArgs);
 }
 
 export class MongoCollection<T extends DbObject, N extends CollectionNameString> implements CollectionBase<T,N>{
@@ -173,29 +161,34 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
   runQuery = async (query: string, args: any[]): Promise<any> => {
     const pool = await this.getConnectionPool();
     const startTime = new Date();
-    const result: any = await new Promise((resolve, reject) => {
-      pool.query({
-        name: "translatedQuery"+(++queryCount),
-        text: query,
-        values: args,
-      }, (err,res) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(res);
-        }
-      });
-    });
+    let result;
+    try {
+      result = await pool.query(query, this.translatePgArgs(args));
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.log(`Postgres query FAILED: ${query} (${JSON.stringify(args)})`);
+      // eslint-disable-next-line no-console
+      console.log(e);
+      throw e;
+    }
     const timeElapsed = new Date().getTime()-startTime.getTime();
+    // eslint-disable-next-line no-console
+    console.log(`Postgres query: ${query} (${JSON.stringify(args)}) (${result?.length} rows, ${timeElapsed}ms)`);
+    return result;
+  }
+  
+  translatePgArgs = (args: any[]): any[] => {
+    let result = [...args];
+    for (let i=0; i<result.length; i++) {
+      if (result[i] instanceof Date)
+        result[i] = result[i].toISOString();
+    }
     return result;
   }
   
   translateResult = (result: any): any => {
-    const translatedResult = postgresResultToMongo(this, result);
-    if (result?.rows)
-      return translatedResult;
-    else
-      throw new Error("No result");
+    if (!result) throw new Error("Missing result");
+    return result.map(row => postgresRowToMongo<any>(this, row));
   }
   
   getTable = () => {
@@ -224,7 +217,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
           const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
           const {sql: optionsFragment, arg: optionsArgs} = mongoFindOptionsToSql(this, options);
           const result = await this.runQuery(`select count(*) from ${this.tableName} where ${queryFragment} ${optionsFragment}`, [...queryArgs, ...optionsArgs]);
-          return result.rows[0].count;
+          return result[0].count;
         });
       }
     };
@@ -240,8 +233,15 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
         if (!result.length) return null;
         return result[0];
       } else {
-        const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector, options);
-        const rawResult = await this.runQuery(`select * from ${this.tableName} where ${queryFragment} limit 1`, queryArgs)
+        const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
+        const {sql: optionsFragment, arg: optionArgs} = mongoFindOptionsToSql({
+          ...options,
+          limit: 1,
+        });
+        const rawResult = await this.runQuery(
+          `select * from ${this.tableName} where ${queryFragment} ${optionsFragment}`,
+          [...queryArgs, ...optionArgs]
+        )
         const result = this.translateResult(rawResult);
         if (!result.length) return null;
         return result[0];
@@ -271,12 +271,25 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
       const table = this.getTable();
       return await wrapQuery(`${this.tableName}.update`, async () => {
         if (typeof selector === 'string') {
-          // TODO: Handle $set, $unset, $inc, etc
-          const rawResult = await this.runQuery(`update ${this.tableName} set json=mergeJson(json, $1) where id=$2`, []);
+          const {sql: modifierSql, arg: modifierArgs} = mongoModifierToSql(this, update);
+          const rawResult = await this.runQuery(
+            `update ${this.tableName}
+             set ${modifierSql}
+             where id=$${modifierArgs.length+1}
+            `, [...modifierArgs, selector]
+          );
           
           //const updateResult = await table.update({_id: selector}, update, options);
           //return updateResult.matchedCount;
         } else {
+          const {sql: modifierSql, arg: modifierArgs} = mongoModifierToSql(this, update);
+          const {sql: selectorSql, arg: selectorArgs} = mongoSelectorToSql(this, selector, modifierArgs.length+1);
+          const rawResult = await this.runQuery(
+            `update ${this.tableName}
+             set ${modifierSql}
+             where ${selectorSql}
+            `, [...modifierArgs, ...selectorArgs]
+          );
           //const updateResult = await table.update(removeUndefinedFields(selector), update, options);
           //return updateResult.matchedCount;
         }
@@ -308,7 +321,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
   
   _ensurePgIndex = async (indexName: string, indexDescription: string) => {
     try {
-      await this.runQuery(`CREATE INDEX IF NOT EXIST ${indexName} ON ${this.tableName} ${indexDescription}`, []);
+      await this.runQuery(`CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName} ${indexDescription}`, []);
       // TODO
     } catch(e) {
       // eslint-disable-next-line no-console

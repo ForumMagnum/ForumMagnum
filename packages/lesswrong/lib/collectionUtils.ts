@@ -126,8 +126,19 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
 }
 
 export function ensurePgIndex<T extends DbObject>(collection: CollectionBase<T>, indexName: string, indexDescription: string): void {
+  void ensurePgIndexAsync(collection, indexName, indexDescription);
+}
+
+export async function ensurePgIndexAsync<T extends DbObject>(collection: CollectionBase<T>, indexName: string, indexDescription: string): Promise<void> {
   if (isServer && !isAnyTest) {
-    void collection._ensurePgIndex(indexName, indexDescription);
+    const buildIndex = () => {
+      void collection._ensurePgIndex(indexName, indexDescription);
+    }
+    if (isAnyTest) {
+      await buildIndex();
+    } else {
+      runAfterDelay(buildIndex, 15000);
+    }
   }
 }
 

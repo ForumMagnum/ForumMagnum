@@ -22,28 +22,39 @@ export const mongoSelectorToSql = <T extends DbObject>(collection: CollectionBas
   };
 }
 
-export const mongoModifierToSql = <T extends DbObject>(collection: CollectionBase<T>, modifier: MongoModifier<T>) => {
+export const mongoModifierToSql = <T extends DbObject>(collection: CollectionBase<T>, modifier: MongoModifier<T>, argOffset?: number) => {
   let sql = "json";
   let args: any[] = [];
   
   if (modifier.$set && Object.keys(modifier.$set).length > 0) {
-    sql = `${sql} || jsonb_build_object(${Object.keys(modifier.$set).map((k,i)=>`"${k}",$${args.length+i+1}`).join(',')})`;
+    // TODO: This doesn't handle dotted paths correctly
+    sql = `${sql} || jsonb_build_object(${Object.keys(modifier.$set).map((k,i)=>`'${k}',$${(argOffset||1)+args.length+i}`).join(',')})`;
     args = [...args, ...Object.keys(modifier.$set).map(k => modifier.$set[k])];
   }
   if (modifier.$unset && Object.keys(modifier.$unset).length > 0) {
+    // TODO: This doesn't handle dotted paths correctly
     sql = `((${sql}) ${Object.keys(modifier.$unset).map(k => `- '${k}'`).join(' ')})`;
   }
   if (modifier.$inc && Object.keys(modifier.$inc).length > 0) {
-    sql = `${sql} || jsonb_build_object(${Object.keys(modifier.$inc).map((k,i)=>`"${k}",${mongoFieldToSqlWithSchema(k,collection)} + $${args.length+i+1}`).join(",")})`;
+    // TODO: This doesn't handle dotted paths correctly
+    sql = `${sql} || jsonb_build_object(${Object.keys(modifier.$inc).map((k,i)=>`'${k}',${mongoFieldToSqlWithSchema(k,collection)} + $${(argOffset||1)+args.length+i}`).join(",")})`;
     args = [...args, ...Object.keys(modifier.$inc).map(k => modifier.$inc[k])];
   }
+  if (modifier.$addToSet) {
+    for (let key of Object.keys(modifier.$addToSet)) {
+      let path = `'{${key.split('.').join(',')},-1}'`;
+      sql = `jsonb_insert(${sql}, ${path}, $${(argOffset||1)+args.length}, true)`
+      args = [...args, modifier.$addToSet[key]];
+    }
+  }
   for (let key of Object.keys(modifier)) {
-    if (key!=="$set" && key!=="$unset" && key!=="$inc")
+    if (key!=="$set" && key!=="$unset" && key!=="$inc" && key!=="$addToSet")
       throw new Error(`Unrecognized mongo modifier: ${key}`);
   }
   
   return {sql: `json=${sql}`, arg: args};
 }
+
 
 export const mongoFindOptionsToSql = <T extends DbObject>(collection: CollectionBase<T>, options?: MongoFindOptions<T>) => {
   let queryTextFragments: string[] = [];
@@ -130,30 +141,24 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
   } else if (typeof value==='object') {
     for (let op of Object.keys(value)) {
       if (op==="$in") {
-        return {
-          sql: `${mongoFieldToSql(fieldName, value.$in[0])} IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
-          arg: value.$in,
+        // Special case: all strings (used in query-by-ID)
+        if (_.all(Object.keys(value.$in), k=>(typeof k == "string"))) {
+          return {
+            sql: `${mongoFieldToSql(fieldName, collection, value.$in[0])} IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
+            arg: value.$in,
+          }
+        } else {
+          // TODO
+          throw new Error("Don't know how to handle $in with mixed types");
         }
       } else if (op==="$gt") {
-        return {
-          sql: `${mongoFieldToSql(fieldName, value.$gt)} > $${argOffset}`,
-          arg: [value.$gt],
-        }
+        return mongoInequalityToSql(fieldName, value.$gt, ">");
       } else if (op==="$gte") {
-        return {
-          sql: `${mongoFieldToSql(fieldName, value.$gte)} >= $${argOffset}`,
-          arg: [value.$gte],
-        }
+        return mongoInequalityToSql(fieldName, value.$gte, ">=");
       } else if (op==="$lt") {
-        return {
-          sql: `${mongoFieldToSql(fieldName, value.$lt)} < $${argOffset}`,
-          arg: [value.$lt],
-        }
+        return mongoInequalityToSql(fieldName, value.$lt, "<");
       } else if (op==="$lte") {
-        return {
-          sql: `${mongoFieldToSql(fieldName, value.$lte)} <= $${argOffset}`,
-          arg: [value.$lte],
-        }
+        return mongoInequalityToSql(fieldName, value.$lte, "<=");
       } else if (op==="$exists") {
         if (value.$exists) {
           return {
@@ -174,7 +179,7 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
           }
         } else {
           return {
-            sql: `${mongoFieldToSql(fieldName, value.$ne)} != $${argOffset}`,
+            sql: `${mongoFieldToSql(fieldName, collection, value.$ne)} != $${argOffset}`,
             arg: [value.$ne],
           }
         }
@@ -185,24 +190,43 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
     throw new Error(`Don't know how to handle selector for ${fieldName}: unrecognized object`); // TODO
   } else {
     return {
-      sql: `${mongoFieldToSql(fieldName, value)}=$${argOffset}`,
-      arg: [value],
+      sql: `jsonb_path_match(json, '$.${fieldName} == ${JSON.stringify(value)}')`,
+      arg: [],
     };
   }
 }
 
-const mongoFieldToSql = (fieldName: string, inferTypeFromValue: any) => {
-  if (typeof inferTypeFromValue === 'string') {
-    return `(json->>'${fieldName}')`;
-  } else if (typeof inferTypeFromValue === 'number') {
-    return `(json->'${fieldName}')::int`;
-  } else if (typeof inferTypeFromValue==='boolean') {
-    return `(json->'${fieldName}')::boolean`;
-  } else if (inferTypeFromValue instanceof Date) {
-    return `(json->>'${fieldName}')`;
+const mongoInequalityToSql = (fieldName: string, value: any, op: string) => {
+  return {
+    sql: `jsonb_path_match(json, '$.${fieldName} ${op} ${JSON.stringify(value)}')`,
+    arg: [],
+  };
+}
+
+const mongoFieldToSql = <T extends DbObject>(fieldName: string, collection: CollectionBase<T>, inferTypeFromValue: any) => {
+  let jsonObject = "json";
+  
+  const schemaField = collection._schemaFields[fieldName];
+  if (schemaField) {
+    const fieldType = schemaField.type;
+    
+    if (fieldType === Number)
+      return `${jsonObject}->'${fieldName}'`
+    else
+      return `${jsonObject}->>'${fieldName}'`
   } else {
-    // TODO
-    throw new Error(`Don't know how to handle selector for ${fieldName}: cannot infer type from ${inferTypeFromValue}`);
+    if (typeof inferTypeFromValue === 'string') {
+      return `(${jsonObject}->>'${fieldName}')`;
+    } else if (typeof inferTypeFromValue === 'number') {
+      return `(${jsonObject}->'${fieldName}')::int`;
+    } else if (typeof inferTypeFromValue==='boolean') {
+      return `(${jsonObject}->'${fieldName}')::boolean`;
+    } else if (inferTypeFromValue instanceof Date) {
+      return `(${jsonObject}->>'${fieldName}')`;
+    } else {
+      // TODO
+      throw new Error(`Don't know how to handle selector for ${fieldName}: cannot infer type from ${inferTypeFromValue}`);
+    }
   }
 }
 
