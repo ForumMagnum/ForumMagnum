@@ -142,7 +142,7 @@ const PostsPagePostHeader = ({post, classes}: {
             </LWTooltip>
           }
           {!!wordCount && !post.isEvent && <LWTooltip title={`${wordCount} words`}>
-            <span className={classes.wordCount}>{Math.floor(wordCount/300) || 1 } min read</span>
+            <span className={classes.wordCount}>{Math.floor(wordCount/200) || 1 } min read</span>
           </LWTooltip>}
           {!post.isEvent && <span className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
