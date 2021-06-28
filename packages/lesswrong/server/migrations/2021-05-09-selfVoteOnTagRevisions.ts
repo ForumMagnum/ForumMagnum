@@ -20,7 +20,7 @@ registerMigration({
         }
         const user = usersCache[revision.userId];
         
-        await performVoteServer({ document: revision, voteType: 'smallUpvote', collection: Revisions, user });
+        await performVoteServer({ document: revision, voteType: 'smallUpvote', collection: Revisions, user, toggleIfAlreadyVoted: false });
       }
     });
   }
