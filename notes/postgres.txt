@@ -1,0 +1,48 @@
+Mongo-to-Postgres Conversion Prototype Notes
+
+Setting Up and Importing a Local Copy of the Dev DB
+===================================================
+
+1. Install postgres
+    Linux:
+      sudo apt install postgresql
+    MacOS:
+      brew install postgresql
+      brew services start postgresql
+
+2. Create a database and a user
+    Create a database; create a user; grant privileges on the DB to the user;
+    get a connection string. The connection string looks like:
+        postgres://user:password@localhost/db
+    Start by getting a psql shell:
+        psql postgres
+    In the postgres shell:
+        CREATE DATABASE lesswrong;
+        CREATE ROLE lesswrong WITH LOGIN PASSWORD 'ReplaceThisWithAPassword';
+        GRANT ALL PRIVILEGES ON DATABASE lesswrong TO lesswrong;
+        exit
+
+3. Export a copy of the dev DB
+    NOTE: This step and the next step require a lot of disk space
+
+    brew install mongocli
+    mkdir lwDbExport
+    mongodump -o lwDbExport <mongodb connection string>
+
+4. Import the dev DB into postgres
+    First try it with --dry-run, which will go through the motions of
+    importing but will not write anything. Then do it again without the
+    --dry-run option.
+
+    cd LessWrong2
+    scripts/mongoTOPostgres/run --dry-run --mongo-dump-directory lwDbExport --postgres-connection-string <postgres-connection-string>
+    scripts/mongoTOPostgres/run --mongo-dump-directory lwDbExport --postgres-connection-string <postgres-connection-string>
+
+5. Run the development server
+    Note that this will connect to *both* postgres and mongodb. The mongodb
+    connection will only be used for stuff that can't yet be translated into
+    SQL (in particular, aggregate pipelines).
+
+    export PG_URL="postgres://user:password@localhost/db"
+    yarn run start-dev-db
+
