@@ -83,7 +83,6 @@ import './collections/collections/collection';
 import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
-import './collections/reviewVotes/mutations'
 
 
 import './collections/localgroups/collection'

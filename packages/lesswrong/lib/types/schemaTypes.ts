@@ -5,6 +5,11 @@ import type { SimpleSchema } from 'simpl-schema';
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
+type SingleFieldCreatePermission = string|((user: DbUser|UsersCurrent|null)=>boolean);
+type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
+type SingleFieldPermissions = string|((user: DbUser|UsersCurrent|null, object: any)=>boolean);
+type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
+
 interface CollectionFieldSpecification<T extends DbObject> {
   type?: any,
   description?: string,
@@ -44,38 +49,45 @@ interface CollectionFieldSpecification<T extends DbObject> {
   tooltip?: string,
   control?: string,
   placeholder?: string,
-  hidden?: any,
-  group?: any,
+  hidden?: boolean|((formProps: any)=>boolean),
+  group?: FormGroup,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
-  //  * onInsert, onEdit, and onRemove are deprecated (but still used) because
+  //  * onInsert and onEdit are deprecated (but still used) because
   //    of Vulcan's mass-renaming and switch to named arguments
   //  * The "document" field in onUpdate is deprecated due to an earlier mixup
   //    (breaking change) affecting whether it means oldDocument or newDocument
-  //  * FIXME: onUpdate doesn't actually get fieldName (but some callbacks use
-  //    it anyways)
   //  * Return type of these callbacks is not enforced because we don't have the
   //    field's type in a usable format here. onInsert, onCreate, onEdit, and
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
-  //    
+  //
   onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
   onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: SchemaType<T>, fieldName: string}) => any,
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
-  onRemove?: any,
-  onDelete?: any,
+  onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
   
   
-  viewableBy?: any,
-  insertableBy?: any,
-  editableBy?: any,
-  canRead?: any,
-  canUpdate?: any,
-  canCreate?: any,
+  viewableBy?: FieldPermissions,
+  insertableBy?: FieldCreatePermissions,
+  editableBy?: FieldPermissions,
+  canRead?: FieldPermissions,
+  canUpdate?: FieldPermissions,
+  canCreate?: FieldCreatePermissions,
 }
 
+type FormGroup = {
+  name?: string,
+  order: number,
+  label?: string,
+  paddingStyle?: boolean,
+  startCollapsed?: boolean,
+  defaultStyle?: boolean,
+  helpText?: string,
+  flexStyle?: boolean,
+}
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
 type SimpleSchemaType<T extends DbObject> = SimpleSchema & {_schema: SchemaType<T>};

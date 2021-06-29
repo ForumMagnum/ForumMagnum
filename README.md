@@ -8,7 +8,7 @@ The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescop
 
 Lesswrong2 is built on top of a number major open-source libraries.
 
-1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably.
+1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from.
 
 2. [Typescript](https://www.typescriptlang.org/) is the programming language we're using. It's like Javascript, but with type annotations. We're gradually moving from un-annotated Javascript towards having annotations on everything, and any new code should have type annotations when it's added.
 
@@ -116,18 +116,29 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 
 * **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
 
+* **Configuration and Secrets** We store most configuration and secrets in the
+  database, not in environment variables like you might expect. See
+  `packages/lesswrong/server/databaseSettings.ts` for more.
+
+* **Logging** - If there's a part of the codebase you often want to see debug
+  logging for, you can create a specific debug logger for that section by using
+  `loggerConstructor(scope)`. You can then enable or disable that logger by
+  setting the public database setting `debuggers` to include your scope, or by
+  setting the instance setting `instanceDebuggers`. See
+  `packages/lesswrong/lib/utils/logging.ts` for more.
+
+* **Collection callbacks** - One important thing to know when diving into the
+  codebase is how much logic is done by callbacks. Collections have hooks on
+  them where we add callbacks that react to CRUD operations. They can fire
+  before or after the operation. The running of these callbacks is found in
+  `packages/lesswrong/server/vulcan-lib/mutators.ts`.
+
 ### Development Tips
 
-#### Iteration
-* Prefer `_.range(n).forEach(i => my_function())` over `for (var i=0; i<n; i++)...`
-* If the body of a for loop performs a stateful action (i.e. modifies a variable outside the scope of the for body), use `forEach`. Else, use `map`.
-* Use underscore.js when possible.
-
-#### Style guide
-
-* [Syntax rules](https://github.com/Khan/style-guides/blob/master/style/javascript.md#syntax)
-* [Comments and documentation](https://github.com/Khan/style-guides/blob/master/style/javascript.md#comments-and-documentation)
-* [ES6 rules](https://github.com/Khan/style-guides/blob/master/style/javascript.md#es67-rules)
+When developing, we make good use of project-wide search. One benefit of a
+monorepo codebase at a non-megacorp is that we can get good results just by
+searching for `hiddenRelatedQuestion` to find exactly how that database field is
+used.
 
 ### Debugging
 
@@ -136,6 +147,4 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 * Use `console.warn(variable)` when you want to see the stacktrace of `variable`
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
-* If you fix a bug, **write a test for it**.
-* For debugging server-side code, start the server with `npm run debug` instead of `npm run start`. Then open Chrome to chrome://inspect, and click "Open dedicated DevTools for Node". The server will have stopped at an instance of the `debugger` keyword during startup.
-* When server-side debugging, everything works except for setting breakpoints in the GUI, which is broken by a Chrome bug: https://bugs.chromium.org/p/chromium/issues/detail?id=844070 . Until they fix it, you can work around this by installing NiM, https://chrome.google.com/webstore/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj, in which breakpoints work but profiling doesn't.
+* (Note: currently aspirational): If you fix a bug, **write a test for it**.

@@ -1,9 +1,9 @@
 import Users from "../../lib/collections/users/collection";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { addFieldsDict } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "../karmaChanges";
 
-addFieldsDict(Users, {
+augmentFieldsDict(Users, {
   karmaChanges: {
     type: 'KarmaChanges',
     resolveAs: {
