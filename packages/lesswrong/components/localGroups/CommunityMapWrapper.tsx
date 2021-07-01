@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const CommunityMapWrapper = ({classes, groupQueryTerms, currentUserLocation, mapOptions, terms, showHideMap, petrovButton}: {
   classes: ClassesType,
@@ -11,8 +12,12 @@ const CommunityMapWrapper = ({classes, groupQueryTerms, currentUserLocation, map
   showHideMap?: boolean,
   petrovButton?: any,
 }) => {
+  const { CommunityMap, EACommunityMap } = Components;
+  const MapComponent = forumTypeSetting.get() === 'EAForum' ?
+    EACommunityMap :
+    CommunityMap;
   return (
-    <Components.CommunityMap
+    <MapComponent
       groupTerms={groupQueryTerms}
       eventTerms={terms}
       center={currentUserLocation}

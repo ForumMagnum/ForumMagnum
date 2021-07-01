@@ -4,7 +4,7 @@ import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
-import { mapboxAPIKeySetting } from './CommunityMap';
+import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   previewWrapper: {

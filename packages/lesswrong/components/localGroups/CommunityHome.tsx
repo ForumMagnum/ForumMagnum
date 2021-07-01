@@ -8,6 +8,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   welcomeText: {
@@ -23,7 +24,7 @@ interface CommunityHomeState {
   currentUserLocation: any,
 }
 
-const CommunityHome = ({classes}: {
+const CommunityHome = ({classes, }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -50,6 +51,8 @@ const CommunityHome = ({classes}: {
       componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
     });
   }
+
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   const render = () => {
     const filters = query?.filters || [];
@@ -92,9 +95,10 @@ const CommunityHome = ({classes}: {
                 On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
               </Typography>
                 <SectionFooter>
+                  {!isEAForum &&
                   <a onClick={openSetPersonalLocationForm}>
                     {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
-                  </a>
+                  </a>}
                   <a onClick={openEventNotificationsForm}>
                     {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
                   </a>
