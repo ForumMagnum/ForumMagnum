@@ -217,7 +217,7 @@ addFieldsDict(Users, {
     optional: true,
     defaultValue: false,
     hidden: true,
-    canRead: ['guests'],
+    canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
@@ -741,8 +741,8 @@ addFieldsDict(Users, {
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
-    canCreate: [userOwns, 'admins', 'sunshineRegiment'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: [userOwns, 'admins'],
     ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
   },
 
