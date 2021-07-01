@@ -32,6 +32,7 @@ interface ExternalProps {
   dimWhenLoading?: boolean,
   reverse?: boolean,
   displayShortform?: boolean,
+  includeTags?: boolean,
 }
 interface PostsTimeframeListProps extends ExternalProps, WithStylesProps, WithTimezoneProps {
 }
@@ -52,6 +53,10 @@ interface PostsTimeframeListState {
 }
 
 class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTimeframeListState> {
+  static defaultProps = {
+    includeTags: true,
+  };
+
   constructor(props: PostsTimeframeListProps) {
     super(props);
     this.state = {
@@ -153,6 +158,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
             displayShortform={displayShortform}
+            includeTags={this.props.includeTags}
           />
         )}
         {renderLoadMoreTimeBlocks && 
