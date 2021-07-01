@@ -793,7 +793,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || forumTypeSetting.get() === 'EAForum',
     control: 'MultiSelectButtons',
     label: "Group Type:",
     group: formGroups.event,
