@@ -92,7 +92,10 @@ const CommunityHome = ({classes, }: {
             <SingleColumnSection>
               <SectionTitle title="Welcome to the Community Section"/>
               <Typography variant="body2" className={classes.welcomeText}>
-                On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
+                On the map above you can find nearby events (blue arrows)
+                {isEAForum ? ' and ' : ', '}
+                local groups (green house icons)
+                {!isEAForum && 'and other users who have added themselves to the map (purple person icons)'}
               </Typography>
                 <SectionFooter>
                   {!isEAForum &&
@@ -130,12 +133,16 @@ const CommunityHome = ({classes, }: {
                   </Components.LocalGroupsList>
               }
             </SingleColumnSection>
+            {isEAForum ?
+            <SingleColumnSection >
+              
+            </SingleColumnSection> :
             <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
                 <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
               </AnalyticsContext>
-            </SingleColumnSection>
+            </SingleColumnSection>}
         </AnalyticsContext>
       </React.Fragment>
     )
