@@ -91,9 +91,9 @@ const LocalGroupsItem = ({group, classes}: {
       <div  className={classes.location}>
         <PostsItemMetaInfo>{ group.location }</PostsItemMetaInfo>
       </div>
-      <div className={classes.links}>
+      {!isEAForum && <div className={classes.links}>
         <GroupLinks document={group} />
-      </div>    
+      </div>}    
     </div>
   )
 }
