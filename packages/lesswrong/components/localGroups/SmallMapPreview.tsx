@@ -5,6 +5,7 @@ import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   previewWrapper: {
@@ -59,6 +60,10 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
     const { post, group, classes } = this.props
     const { viewport } = this.state
 
+    const mapStyle = forumTypeSetting.get() === 'EAForum' ? 
+      undefined : 
+      "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra";
+
     return <div className={classes.previewWrapper}>
       <Helmet> 
         <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -67,7 +72,7 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={mapStyle}
         onViewportChange={viewport => this.setState({ viewport })}
         mapboxApiAccessToken={mapboxAPIKeySetting.get()}
       >
