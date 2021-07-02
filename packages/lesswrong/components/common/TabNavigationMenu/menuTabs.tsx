@@ -251,11 +251,11 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     //   subItem: true,
     }, {
       id: 'groups',
-      title: 'EA Groups',
+      title: 'EA Groups and Events',
       mobileTitle: 'EA Groups and Events',
       link: '/community',
       iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See EA groups in your area',
+      tooltip: 'See EA groups and events in your area',
       showOnMobileStandalone: true,
       showOnCompressed: true
     }, {
