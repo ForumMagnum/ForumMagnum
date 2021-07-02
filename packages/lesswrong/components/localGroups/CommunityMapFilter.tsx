@@ -16,6 +16,8 @@ import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
 
@@ -236,11 +238,16 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
 
+  
   render() {
     const { classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals, history } = this.props;
   
+    const isEAForum = forumTypeSetting.get() === 'EAForum';
+
+    const isAdmin = userIsAdmin(currentUser);
+
     return <Paper>
-        <div className={classes.filters}>
+        {!isEAForum && <div className={classes.filters}>
           {availableFilters.map((value, i) => {
             const checked = this.state.filters.includes(value)
             return <span 
@@ -253,7 +260,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
               </span>
             </span>
           })}
-        </div>
+        </div>}
         <Divider className={classNames(classes.divider, classes.topDivider)} />
         <div className={classes.actions}>
           <div 
@@ -267,9 +274,9 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
             </span>
             <span className={classes.buttonText}>Groups</span>
             <span className={classes.actionContainer}>
-              <Tooltip title="Create New Group">
+              {(!isEAForum || isAdmin) && <Tooltip title="Create New Group">
                 <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)} />
-              </ Tooltip>
+              </ Tooltip>}
               <Tooltip title="Hide groups from map">
                 <VisibilityIcon 
                   onClick={toggleGroups}
@@ -291,9 +298,9 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
             </span>
             <span className={classes.buttonText}> Events </span>
             <span className={classes.actionContainer}>
-              <Tooltip title="Create New Event">
+              {(!isEAForum || isAdmin) && <Tooltip title="Create New Event">
                 <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: '/newPost', search: `?eventForm=true`})}/>
-              </Tooltip>
+              </Tooltip>}
               <Tooltip title="Hide events from map">
                 <VisibilityIcon 
                   onClick={toggleEvents}
@@ -303,7 +310,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
               
             </span>
           </div>
-          <div
+          {!isEAForum && <div
             className={classes.filterSection}
           >
             <span className={classes.desktopFilter}>
@@ -324,7 +331,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
                 />
               </Tooltip>
             </span>
-          </div>
+          </div>}
         </div>
         <Divider className={classNames(classes.divider, classes.bottomDivider)} />
         <div

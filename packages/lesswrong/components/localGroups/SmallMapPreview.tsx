@@ -60,9 +60,7 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
     const { post, group, classes } = this.props
     const { viewport } = this.state
 
-    const mapStyle = forumTypeSetting.get() === 'EAForum' ? 
-      undefined : 
-      "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra";
+    const isEAForum = forumTypeSetting.get() === 'EAForum';
 
     return <div className={classes.previewWrapper}>
       <Helmet> 
@@ -72,7 +70,7 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={mapStyle}
+        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => this.setState({ viewport })}
         mapboxApiAccessToken={mapboxAPIKeySetting.get()}
       >

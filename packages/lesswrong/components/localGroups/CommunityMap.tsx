@@ -9,6 +9,7 @@ import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const mapsHeight = 440
 const mapsWidth = "100vw"
@@ -122,17 +123,20 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     limit: 500,
   })
 
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
       {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      {showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {!isEAForum && showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       <div className={classes.mapButtons}>
         <Components.CommunityMapFilter 
           showHideMap={showHideMap} 
           toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
           toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
-          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
+          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} 
+          showIndividuals={showIndividuals}
           setShowMap={setShowMap}
         />
       </div>
@@ -149,7 +153,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => setViewport(viewport)}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >
