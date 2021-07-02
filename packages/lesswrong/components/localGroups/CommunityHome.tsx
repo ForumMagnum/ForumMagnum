@@ -12,9 +12,16 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  link: {
+    display: "block",
+    color: theme.palette.primary.main,
+    "& + &": {
+      marginTop: theme.spacing.unit,
+    },
+  },
   welcomeText: {
-    margin: 12
-  }
+    margin: 12,
+  },
 }))
 
 interface ExternalProps {
@@ -135,13 +142,17 @@ const CommunityHome = ({classes, }: {
                   </Components.LocalGroupsList>
               }
             </SingleColumnSection>
-            {!isEAForum &&
             <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
-                <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+                {isEAForum ?
+                  <Typography variant="body1">
+                      <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>
+                  </Typography> :
+                  <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+                }
               </AnalyticsContext>
-            </SingleColumnSection>}
+            </SingleColumnSection>
         </AnalyticsContext>
       </React.Fragment>
     )

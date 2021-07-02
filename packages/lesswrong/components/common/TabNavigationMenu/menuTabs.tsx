@@ -252,8 +252,8 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     }, {
       id: 'groups',
       title: 'EA Groups',
-      mobileTitle: 'EA Groups',
-      link: 'https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage',
+      mobileTitle: 'EA Groups and Events',
+      link: '/community',
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups in your area',
       showOnMobileStandalone: true,
