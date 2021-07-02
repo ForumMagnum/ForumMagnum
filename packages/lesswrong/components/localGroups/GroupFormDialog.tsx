@@ -9,6 +9,7 @@ import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -99,7 +100,8 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
-  
+const isEAForum = forumTypeSetting.get() === 'EAForum';
+
   return <LWDialog
     open={true}
     onClose={onClose}
@@ -113,6 +115,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
         formComponents={{
           FormSubmit: SubmitComponent
         }}
+        removeFields={isEAForum ? ['types'] : []}
         prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id]}} // If edit form, do not prefill organizerIds
         successCallback={group => {
           onClose();
