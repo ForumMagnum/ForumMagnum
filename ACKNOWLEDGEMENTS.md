@@ -1,3 +1,5 @@
+Contains code from Vulcan (aka Telescope), which is licensed as follows:
+
 The MIT License (MIT)
 
 Copyright (c) 2017 Telescope Nova
