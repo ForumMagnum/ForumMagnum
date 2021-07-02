@@ -9,6 +9,8 @@ import { createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -70,6 +72,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   const { html = ""} = group.contents || {}
   const htmlBody = {__html: html}
+  const isAdmin = userIsAdmin(currentUser);
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   const { googleLocation: { geometry: { location } }} = group;
   return (
@@ -99,11 +103,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
               </span>
               {Posts.options.mutations.new.check(currentUser) &&
                 <React.Fragment>
-                  <SectionButton>
+                  {(!isEAForum || isAdmin) && <SectionButton>
                     <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
                       New event
                     </Link>
-                  </SectionButton>
+                  </SectionButton>}
                   <SectionButton>
                     <Link to={{pathname:"/newPost", search: `?${qs.stringify({groupId})}`}} className={classes.leftAction}>
                       New group post

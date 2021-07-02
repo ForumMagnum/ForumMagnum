@@ -9,6 +9,7 @@ import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   welcomeText: {
@@ -53,6 +54,7 @@ const CommunityHome = ({classes, }: {
   }
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';
+  const isAdmin = userIsAdmin(currentUser);
 
   const render = () => {
     const filters = query?.filters || [];
@@ -124,7 +126,7 @@ const CommunityHome = ({classes, }: {
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Local Groups">
-                {currentUser && <GroupFormLink />}
+                {currentUser && (!isEAForum || isAdmin) && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Components.Loading />
@@ -133,10 +135,7 @@ const CommunityHome = ({classes, }: {
                   </Components.LocalGroupsList>
               }
             </SingleColumnSection>
-            {isEAForum ?
-            <SingleColumnSection >
-              
-            </SingleColumnSection> :
+            {!isEAForum &&
             <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>

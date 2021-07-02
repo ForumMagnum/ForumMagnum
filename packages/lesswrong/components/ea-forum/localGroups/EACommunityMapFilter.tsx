@@ -5,6 +5,7 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../../hooks/useUpdateCurrentUser';
 import { withMessages } from '../../common/withMessages';
 import { groupTypes } from '../../../lib/collections/localgroups/groupTypes';
+import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames'
 import Divider from '@material-ui/core/Divider';
 import VisibilityIcon from '@material-ui/icons/VisibilityOff';
@@ -251,16 +252,15 @@ class EACommunityMapFilter extends Component<EACommunityMapFilterProps,EACommuni
             </span>
             <span className={classes.buttonText}>Groups</span>
             <span className={classes.actionContainer}>
-              <Tooltip title="Create New Group">
+              {userIsAdmin(currentUser) && <Tooltip title="Create New Group">
                 <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)} />
-              </ Tooltip>
+              </ Tooltip>}
               <Tooltip title="Hide groups from map">
                 <VisibilityIcon 
                   onClick={toggleGroups}
                   className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showGroups})} 
                 />
               </Tooltip>
-              
             </span>
           </div>
           <div 
@@ -275,16 +275,15 @@ class EACommunityMapFilter extends Component<EACommunityMapFilterProps,EACommuni
             </span>
             <span className={classes.buttonText}> Events </span>
             <span className={classes.actionContainer}>
-              <Tooltip title="Create New Event">
+              {userIsAdmin(currentUser) && <Tooltip title="Create New Event">
                 <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: '/newPost', search: `?eventForm=true`})}/>
-              </Tooltip>
+              </Tooltip>}
               <Tooltip title="Hide events from map">
                 <VisibilityIcon 
                   onClick={toggleEvents}
                   className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showEvents})} 
                 />
               </Tooltip>
-              
             </span>
           </div>
         </div>
