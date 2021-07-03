@@ -32,7 +32,7 @@ interface CommunityHomeState {
   currentUserLocation: any,
 }
 
-const CommunityHome = ({classes, }: {
+const CommunityHome = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
