@@ -52,6 +52,11 @@ addGraphQLResolvers({
       if (!currentUser.usernameUnset) {
         throw new Error('Only new users can set their username this way')
       }
+      // Check for uniqueness
+      const existingUser = await Users.findOne({username})
+      if (existingUser && existingUser._id !== currentUser._id) {
+        throw new Error('Username already exists')
+      }
       const updatedUser = (await updateMutator({
         collection: Users,
         documentId: currentUser._id,

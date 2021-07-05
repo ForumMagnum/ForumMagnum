@@ -790,6 +790,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: forumTypeSetting.get() !== 'EAForum',
     canRead: ['members'],
+    ...schemaDefaultValue(false)
   },
   unsubscribeFromAll: {
     type: Boolean,
@@ -1523,7 +1524,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['members'],
     hidden: true,
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   }
 });
