@@ -63,8 +63,6 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
   render() {
     const { color, classes, location } = this.props
     const { pathname } = location
-    console.log('🚀 ~ file: UsersAccountMenu.tsx ~ line 65 ~ UsersAccountMenu ~ render ~ pathname', pathname)
-    console.log('usersaccountmenu')
 
     return (
       <div className={classes.root}>

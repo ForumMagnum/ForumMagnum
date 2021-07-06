@@ -15,6 +15,7 @@ import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils
 import pick from 'lodash/pick';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile, mergeAccountWithAuth0 } from './authentication/auth0Accounts';
+import moment from 'moment';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -138,22 +139,39 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
   return user
 }
 
-// TODO; doc
+/**
+ * Saves desired return path to session data for redirection upon authentication
+ *
+ * Assumes the request was made with a query, like /auth/google?returnTo=bar/baz
+ *
+ * Requires express-session to be enabled
+ *
+ * Sets an expiration - otherwise a stale returnTo could cause future
+ * non-returnTo logins to erroneously redirect
+ */
 function saveReturnTo(req: any): void {
   if (!expressSessionSecretSetting.get()) return
-  
   let { returnTo } = req.query
-  if (!returnTo) returnTo = '/'
-  // This will store the desired redirection in the server's session, for
-  // redirecting the user when they get back from the auth provider
-  req.session.loginReturnTo = returnTo
+  if (!returnTo) return
+  
+  req.session.loginReturnTo = {
+    path: returnTo,
+    // Enough time to login, even if you have to go looking for your password.
+    // If you take longer than that, then hey, you probably forgot what you were
+    // doing anyway.
+    expiration: moment().add(30, 'minutes').toISOString()
+  }
 }
 
-// TODO; doc
+/**
+ * Gets desired return path from session data
+ *
+ * Assumes that the initial request was made with a returnTo query parameter
+ */
 function getReturnTo(req: any): string {
-  if (!expressSessionSecretSetting.get()) return '/'
-  if (req.session.loginReturnTo) return req.session.loginReturnTo
-  return '/'
+  if (!expressSessionSecretSetting.get() || !req.session.loginReturnTo) return '/'
+  if (moment(req.session.loginReturnTo.expiration) < moment()) return '/'
+  return req.session.loginReturnTo.path
 }
 
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {

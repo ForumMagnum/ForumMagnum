@@ -191,7 +191,6 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
 
 const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
   const { pathname } = useLocation()
-  console.log('this loginform?')
   
   return <div className={classes.root}>
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>

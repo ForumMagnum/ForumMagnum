@@ -45,17 +45,13 @@ export const AnalyticsUtil: any = {
 function getShowAnalyticsDebug() {
   if (isAnyTest)
     return false;
-  const loaded = getPublicSettingsLoaded()
-  const debug = loaded ? showAnalyticsDebug.get() : "dev";
-  if (debug==="always") {
+  const debug = getPublicSettingsLoaded() ? showAnalyticsDebug.get() : "dev";
+  if (debug==="always")
     return true;
-  }
-  else if (debug==="dev") {
+  else if (debug==="dev")
     return isDevelopment;
-  }
-  else {
+  else
     return false;
-  }
 }
 
 export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
@@ -71,7 +67,6 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
         }
       }
       if (getShowAnalyticsDebug()) {
-        console.log('log anal')
         serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
