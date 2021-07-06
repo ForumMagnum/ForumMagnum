@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 interface UsersAccountMenuProps extends WithStylesProps {
   captureEvent?: any,
   color?: string,
-  location: RouterLocation
+  location?: RouterLocation
 }
 interface UsersAccountMenuState {
   open: boolean,
@@ -62,7 +62,9 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
 
   render() {
     const { color, classes, location } = this.props
-    const { pathname } = location
+    // Location is always passed in by hoc. We can't make it a required prop due
+    // to a limitation in our typings
+    const { pathname } = location!
 
     return (
       <div className={classes.root}>
