@@ -11,15 +11,11 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
 const COMMENTS_BACKGROUND_COLOR = "#fafafa"
-
-const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
-const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
-const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -283,21 +279,6 @@ const isSticky = (post: PostsList, terms: PostsViewTerms) => {
   }
 }
 
-const isAMA = (post: PostsList) => {
-  if (!amaTagIdSetting.get()) return false
-  return !!(post.sticky && post.tags.filter(tag => tag._id === amaTagIdSetting.get()).length > 0);
-};
-
-const isOpenThread = (post: PostsList) => {
-  if (!openThreadTagIdSetting.get()) return false
-  return !!(post.sticky && post.tags.filter(tag => tag._id === openThreadTagIdSetting.get()).length > 0);
-};
-
-const isStartHerePost = (post: PostsList) => {
-  if (!startHerePostIdSetting.get()) return false
-  return !!(post.sticky && post._id === startHerePostIdSetting.get());
-};
-
 const PostsItem2 = ({
   // post: The post displayed.
   post,
@@ -469,9 +450,6 @@ const PostsItem2 = ({
                       post={post}
                       read={isRead}
                       sticky={isSticky(post, terms)}
-                      isAMA={isAMA(post)}
-                      isOpenThread={isOpenThread(post)}
-                      isStartHerePost={isStartHerePost(post)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}

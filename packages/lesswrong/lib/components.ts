@@ -437,6 +437,7 @@ importComponent("TagCompareRevisions", () => require('../components/tagging/TagC
 importComponent("TagDiscussionPage", () => require('../components/tagging/TagDiscussionPage'));
 importComponent("TagDiscussion", () => require('../components/tagging/TagDiscussion'));
 importComponent("TagEditsTimeBlock", () => require('../components/tagging/TagEditsTimeBlock'));
+importComponent("TagEditsByUser", () => require('../components/tagging/TagEditsByUser'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));

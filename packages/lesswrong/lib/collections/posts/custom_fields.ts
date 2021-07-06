@@ -14,88 +14,15 @@ import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
+import { formGroups } from './formGroups';
 
 const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
-
-export const formGroups = {
-  default: {
-    name: "default",
-    order: 0,
-    paddingStyle: true
-  },
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
-  },
-  event: {
-    name: "event details",
-    order: 21,
-    label: "Event Details"
-  },
-  moderationGroup: {
-    order: 60,
-    name: "moderation",
-    label: "Moderation Guidelines",
-    helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
-    startCollapsed: true,
-  },
-  options: {
-    order:10,
-    name: "options",
-    defaultStyle: true,
-    paddingStyle: true,
-    flexStyle: true
-  },
-  content: { //TODO – should this be 'contents'? is it needed?
-    order:20,
-    name: "Content",
-    defaultStyle: true,
-    paddingStyle: true,
-  },
-  canonicalSequence: {
-    order:30,
-    name: "canonicalSequence",
-    label: "Canonical Sequence",
-    startCollapsed: true,
-  },
-  advancedOptions: {
-    order:40,
-    name: "advancedOptions",
-    label: "Options",
-    startCollapsed: true,
-  },
-  highlight: {
-    order: 21,
-    name: "highlight",
-    label: "Highlight"
-  }
-};
-
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
 addFieldsDict(Posts, {
-  // URL (Overwriting original schema)
-  url: {
-    order: 12,
-    control: 'EditUrl',
-    placeholder: 'Add a linkpost URL',
-    group: formGroups.options,
-    editableBy: [userOwns, 'sunshineRegiment', 'admins']
-  },
-  // Title (Overwriting original schema)
-  title: {
-    order: 10,
-    placeholder: "Title",
-    control: 'EditTitle',
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
-  },
-
   // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     type: Boolean,
@@ -197,15 +124,6 @@ addFieldsDict(Posts, {
     }
   }),
 
-  lastCommentedAt: {
-    type: Date,
-    denormalized: true,
-    optional: true,
-    hidden: true,
-    viewableBy: ['guests'],
-    onInsert: (post: DbPost) => post.postedAt || new Date(),
-  },
-
   // curatedDate: Date at which the post was promoted to curated (null or false
   // if it never has been promoted to curated)
   curatedDate: {
@@ -286,23 +204,6 @@ addFieldsDict(Posts, {
     editableBy: ['admins', 'sunshineRegiment'],
     insertableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.canonicalSequence,
-  },
-
-  userId: {
-    ...foreignKeyField({
-      idFieldName: "userId",
-      resolverName: "user",
-      collectionName: "Users",
-      type: "User",
-      nullable: true,
-    }),
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-    hidden: false,
-    control: "text",
-    group: formGroups.adminOptions,
   },
 
   coauthorUserIds: {
@@ -686,7 +587,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
-    insertableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
+    insertableBy: (currentUser: DbUser|null) => userCanCommentLock(currentUser, null),
     editableBy: (currentUser: DbUser|null, document: DbPost) => userCanCommentLock(currentUser, document),
     optional: true,
     control: "checkbox",
@@ -930,19 +831,6 @@ addFieldsDict(Posts, {
     }
   },
 
-  sticky: {
-    order:10,
-    group: formGroups.adminOptions
-  },
-
-  postedAt: {
-    group: formGroups.adminOptions
-  },
-
-  status: {
-    group: formGroups.adminOptions,
-  },
-
   shareWithUsers: {
     type: Array,
     order: 15,
@@ -1052,7 +940,7 @@ addFieldsDict(Posts, {
     label: "Style",
     viewableBy: ['guests'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {

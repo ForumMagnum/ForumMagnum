@@ -26,15 +26,16 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
   title: React.ReactNode,
   classes: ClassesType,
 }) => {
-  const { SubscribedItem, SectionTitle, Loading } = Components;
+  const { SubscribedItem, SectionTitle, Loading, LoadMore } = Components;
   const currentUser = useCurrentUser();
   
-  const { results, loading } = useMulti({
+  const { results, loading, loadMoreProps, showLoadMore } = useMulti({
     terms: {
       view: "subscriptionsOfType",
       userId: currentUser?._id,
       collectionName: collectionName,
       subscriptionType: subscriptionType,
+      limit: 50
     },
     collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
@@ -61,6 +62,7 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
     {results.length===0 && <div className={classes.subscribedItem}>
       {noSubscriptionsMessage}
     </div>}
+    {showLoadMore && <LoadMore {...loadMoreProps} />}
   </div>
 }
 

@@ -1,10 +1,10 @@
 import { markdownToHtml } from '../editor/make_editable_callbacks';
 import Users from '../../lib/collections/users/collection';
-import { addFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 
-addFieldsDict(Users, {
+augmentFieldsDict(Users, {
   htmlBio: {
     ...denormalizedField({
       needsUpdate: (data: Partial<DbUser>) => ('bio' in data),
