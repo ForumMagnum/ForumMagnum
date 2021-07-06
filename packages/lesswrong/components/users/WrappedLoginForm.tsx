@@ -7,6 +7,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import classnames from 'classnames'
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -189,10 +190,13 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
 }
 
 const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
+  const { pathname } = useLocation()
+  console.log('this loginform?')
+  
   return <div className={classes.root}>
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
-      <a className={classes.oAuthLink} href="/auth/auth0">Login</a>
-      <a className={classes.oAuthLink} href="/auth/auth0?screen_hint=signup">Sign Up</a>
+      <a className={classes.oAuthLink} href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
+      <a className={classes.oAuthLink} href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
     </div>
   </div>
 }

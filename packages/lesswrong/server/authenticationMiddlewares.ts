@@ -47,6 +47,8 @@ const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAu
 
 const githubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.github.clientId', null)
 const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.github.secret', null)
+export const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
+
 
 type IdFromProfile<P extends Profile> = (profile: P) => string | number
 type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser>>
@@ -134,6 +136,24 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
     return updatedUserResponse.data
   }
   return user
+}
+
+// TODO; doc
+function saveReturnTo(req: any): void {
+  if (!expressSessionSecretSetting.get()) return
+  
+  let { returnTo } = req.query
+  if (!returnTo) returnTo = '/'
+  // This will store the desired redirection in the server's session, for
+  // redirecting the user when they get back from the auth provider
+  req.session.loginReturnTo = returnTo
+}
+
+// TODO; doc
+function getReturnTo(req: any): string {
+  if (!expressSessionSecretSetting.get()) return '/'
+  if (req.session.loginReturnTo) return req.session.loginReturnTo
+  return '/'
 }
 
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
@@ -290,8 +310,10 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     req.logIn(user, async (err) => {
       if (err) return next(err)
       await createAndSetToken(req, res, user)
+      
+      const returnTo = getReturnTo(req)
       res.statusCode=302;
-      res.setHeader('Location', '/')
+      res.setHeader('Location', returnTo)
       return res.end();
     })
   }
@@ -321,6 +343,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/google', (req, res, next) => {
+    saveReturnTo(req)
     passport.authenticate('google', {
       scope: [
         'https://www.googleapis.com/auth/plus.login',
@@ -336,6 +359,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/facebook', (req, res, next) => {
+    saveReturnTo(req)
     passport.authenticate('facebook')(req, res, next)
   })
 
@@ -347,6 +371,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/auth0', (req, res, next) => {
     const extraParams = pick(req.query, ['screen_hint', 'prompt'])
+    saveReturnTo(req)
+    
     passport.authenticate('auth0', {
       scope: 'profile email openid offline_access',
       ...extraParams
@@ -360,6 +386,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/github', (req, res, next) => {
+    saveReturnTo(req)
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })
 }
