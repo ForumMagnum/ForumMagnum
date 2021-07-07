@@ -34,7 +34,6 @@ import crypto from 'crypto';
 import expressSession from 'express-session';
 import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
-import { DatabaseServerSetting } from './databaseSettings';
 import { getMongoClient } from '../lib/mongoCollection';
 
 const loadClientBundle = () => {
