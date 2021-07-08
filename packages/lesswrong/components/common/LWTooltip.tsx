@@ -9,6 +9,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
   },
+  noMouseEvents: {
+    pointerEvents: "none",
+  },
   tooltip: {
     maxWidth: 300
   }
@@ -65,4 +68,3 @@ declare global {
     LWTooltip: typeof LWTooltipComponent
   }
 }
-

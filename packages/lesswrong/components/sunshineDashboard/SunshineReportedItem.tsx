@@ -96,7 +96,7 @@ const SunshineReportedItem = ({report, updateReport}: {
           <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
             <DoneIcon/>
           </SidebarAction>
-          <SidebarAction title="Spam/Eugin (delete immediately)" onClick={handleDelete} warningHighlight>
+          <SidebarAction title="Spam (delete immediately)" onClick={handleDelete} warningHighlight>
             <DeleteIcon/>
           </SidebarAction>
         </SidebarActionMenu>
@@ -115,4 +115,3 @@ declare global {
     SunshineReportedItem: typeof SunshineReportedItemComponent
   }
 }
-

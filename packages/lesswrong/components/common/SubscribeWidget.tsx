@@ -26,12 +26,12 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
     return (
       <div>
         <a onClick={() => this.openDialog("rss")}>
-          <TabNavigationSubItem>Subscribe (RSS/Email)</TabNavigationSubItem>
+          <TabNavigationSubItem>Subscribe (RSS)</TabNavigationSubItem>
         </a>
         { dialogOpen && <SubscribeDialog
           open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
-          view={"curated"}
+          view={"frontpage"}
           method={method} /> }
       </div>
     )

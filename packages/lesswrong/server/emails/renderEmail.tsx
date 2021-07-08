@@ -73,7 +73,7 @@ const emailGlobalCss = `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: #5f9b65
+    color: #0C869B
   }
   blockquote {
     border-left: solid 3px #e0e0e0;

@@ -1,12 +1,10 @@
-# What's LessWrong2?
+# Welcome to the code behind the EA Forum
 
-LessWrong2 is a clean-slate overhaul of the [LessWrong](https://lesswrong.com) discussion platform.
-
-The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
+The EA Forum is a synced fork of [LessWrong](https://github.com/LessWrong2/Lesswrong2).
 
 ## Technologies
 
-Lesswrong2 is built on top of a number major open-source libraries.
+The EA Forum is built on top of a number major open-source libraries.
 
 1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from.
 
@@ -25,7 +23,7 @@ Lesswrong2 is built on top of a number major open-source libraries.
 ### Requirements
 
   * MacOS or Linux
-    * Known to work on MacOS 10.14 and Ubuntu 18.04, should work on others
+    * Known to work on MacOS 10.15 and Ubuntu 18.04, should work on others
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
@@ -34,54 +32,28 @@ Lesswrong2 is built on top of a number major open-source libraries.
 
 Clone our repo:
 
-    git clone https://github.com/LessWrong2/Lesswrong2
+```
+git clone git@github.com:centre-for-effective-altruism/EAForum.git
+```
+
+(CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
-    cd Lesswrong2
-    yarn install
+```
+cd EAForum
+yarn install
+```
 
 Start the development server:
 
-    yarn start
+```
+yarn ea-start
+```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
-If it is NOT working, there is most likely some issues with your `yarn install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself.
-
-It will start out with an empty database. (This means that some of the hardcoded links on the frontpage, such as Eliezer’s Sequences or the Codex, will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins.
-
-## Contributing
-
-### What Contributions Are Helpful?
-
-The most *reliably* helpful thing would be to tackle outstanding issues that have been tagged on [github](https://github.com/LessWrong2/Lesswrong2/issues).
-
-In particular, you can filter them by the tag “[good first issue](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%2200.+Good+First+Issue%22).” (Some of these might require some explanation, but I expect I can explain them fairly easily to a new contributor)
-
-There are [also issues tagged “help wanted.”](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) These are issues that might be a bit complex, but which don’t require much context or understanding of our longterm goals or philosophy to implement.
-
-#### Creating Issues
-
-You can create a new issue. If so, please leave it untagged for the time being (so that admins can quickly look for untagged issues, and sort through them)
-
-*Bugs* – If you run into a bug, the most helpful thing to do is to search for related keywords in the issue tracker. If you can’t find anything relevant, create a new issue. Try to provide as specific information as possible (your browser, exact links to the post or page where you had the issue, information on how to replicate the bug if you can)
-
-*Feature Requests* – Feature requests will often need to undergo some discussion to get refined into something executable, and may sometimes need to be split into sub-features.
-
-Features tend to cluster into either “things that are pretty straightforward and we almost certainly want to do” and “things that we have weird conceptual philosophical opinions about that may sometimes be hard to explain succinctly.” (An upcoming post will go into some of this).
-
-After you’ve posted a feature, an admin will tag it (If it’s been a week and we haven’t done so, feel free to bug us about it. We’re still adapting to the role of “open source facilitators” so we may drup things a bit)
-
-#### Creating a Branch
-
-If you are creating a branch for an existing issue, use this naming schema: branchTitle[issueNumber]. For example, if addressing this issue, your branch might be defaultSettingsFix425.
-
-Once you create the branch, please comment on the issue so that people know someone is working on it.
-
-If you’re creating a branch for an issue that *hasn’t* been created yet, first create an issue for it.
-
-(Disclaimer: this is a different practice than what the full-time developers of the site are currently doing, which means we’ll probably fail at it a bunch, and for commits that take less than a day we may just skip it for momentum reasons. It seems most important for open source contributors to stick to it to maintain sanity as more people work on the codebase)
+## Documentation
 
 ### Read the Docs
 
@@ -148,3 +120,11 @@ used.
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
 * (Note: currently aspirational): If you fix a bug, **write a test for it**.
+
+## EA Forum-Specific
+
+### Where to branch off of
+
+I usually branch off of LW's devel branch when I'm making changes. That way, if I discover a bug while developing, I know it's legit. And I generally want to submit changes upstream before merging them locally.
+
+To do this I create a git remote called upstream, which points to `git@github.com:LessWrong2/Lesswrong2.git`. Then I create a local branch called lw-devel which tracks upstream/devel.

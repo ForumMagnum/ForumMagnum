@@ -18,11 +18,12 @@ import { getCollectionHooks } from '../mutationCallbacks';
 const MINIMUM_APPROVAL_KARMA = 5
 
 const getLessWrongAccount = async () => {
-  let account = await Users.findOne({username: "LessWrong"});
+  let account = await Users.findOne({username: "AdminTeam"});
   if (!account) {
     const userData = {
-      username: "LessWrong",
-      email: "lesswrong@lesswrong.com",
+      // TODO nicer solution
+      username: "AdminTeam",
+      email: "forum@effectivealtruism.org",
     }
     const newAccount = await createMutator({
       collection: Users,

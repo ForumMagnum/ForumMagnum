@@ -8,14 +8,16 @@ import { useCurrentUser } from '../common/withUser'
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
+const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner, StickiedPosts,
+    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner, StickiedPosts, EventBanner
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
+  const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderEAHomeHandbook = showHandbookBannerSetting.get() && userHasEAHomeHandbook(currentUser)
   const shouldRenderSmallpox = showSmallpoxSetting.get()
 
@@ -24,6 +26,7 @@ const EAHome = () => {
       {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>}
       
       {shouldRenderSmallpox && <SmallpoxBanner/>}
+      {shouldRenderEventBanner && <EventBanner />}
 
       <StickiedPosts />
       <HomeLatestPosts />

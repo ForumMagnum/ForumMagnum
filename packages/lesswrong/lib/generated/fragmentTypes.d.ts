@@ -1220,6 +1220,17 @@ interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
   readonly tagRel: WithVoteTagRel|null,
 }
 
+interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment|null,
+  readonly post: TagRelCreationFragment_post|null,
+  readonly currentUserVotes: Array<VoteFragment>,
+}
+
+interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
+  readonly tagRel: WithVoteTagRel|null,
+}
+
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVote: string,

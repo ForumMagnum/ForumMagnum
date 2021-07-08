@@ -62,7 +62,7 @@ const SunshineNewCommentsItem = ({comment}: {
               <Components.SidebarAction title="Mark as Reviewed" onClick={handleReview}>
                 <DoneIcon/>
               </Components.SidebarAction>
-              <Components.SidebarAction title="Spam/Eugin (delete immediately)" onClick={handleDelete} warningHighlight>
+              <Components.SidebarAction title="Spam (delete immediately)" onClick={handleDelete} warningHighlight>
                 <ClearIcon/>
               </Components.SidebarAction>
             </Components.SidebarActionMenu>}
@@ -80,4 +80,3 @@ declare global {
     SunshineNewCommentsItem: typeof SunshineNewCommentsItemComponent
   }
 }
-

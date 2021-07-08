@@ -220,12 +220,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'tags',
-      title: 'Tags',
-      mobileTitle: 'Tags',
+      id: 'wiki',
+      title: 'Wiki',
+      mobileTitle: 'Wiki',
       link: '/tags/all',
       iconComponent: LocalOffer,
-      tooltip: 'See posts tagged by their subject matter',
+      tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

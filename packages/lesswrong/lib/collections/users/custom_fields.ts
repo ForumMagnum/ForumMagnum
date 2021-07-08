@@ -391,7 +391,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
-    label: "I'm happy for LW site moderators to help enforce my policy",
+    label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],

@@ -186,4 +186,3 @@ declare global {
     SequencesPage: typeof SequencesPageComponent
   }
 }
-

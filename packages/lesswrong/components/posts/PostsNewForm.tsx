@@ -147,4 +147,3 @@ declare global {
     PostsNewForm: typeof PostsNewFormComponent
   }
 }
-

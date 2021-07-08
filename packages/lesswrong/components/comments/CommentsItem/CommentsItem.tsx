@@ -61,11 +61,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: "inline-block",
       marginRight: 5,
     },
-    
+
     marginBottom: 8,
     color: "rgba(0,0,0,0.5)",
     paddingTop: ".6em",
-  
+
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: "rgba(0,0,0,0.3) !important",

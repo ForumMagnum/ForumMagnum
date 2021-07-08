@@ -20,7 +20,7 @@ const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-d
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userCanEditTagPortal = adminOnly;
+export const userCanEditTagPortal = moderatorOnly;
 export const userHasCkEditor = shippedFeature;
 export const userHasCkCollaboration = adminOnly;
 export const userHasBoldPostItems = disabled

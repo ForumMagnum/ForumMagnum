@@ -208,10 +208,10 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         disabled={method === "email" && !currentUser}
         inputProps={{ id: "subscribe-dialog-view" }}
       >
-        <MenuItem value="curated">Curated</MenuItem>
+        {/* <MenuItem value="curated">Curated</MenuItem> */}
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
         <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
-        <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem>
+        {/* <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem> */}
       </Select>
     </FormControl>
 
@@ -221,7 +221,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         open={open}
         onClose={onClose}
       >
-        <Tabs
+        {/* <Tabs
           value={method}
           indicatorColor="primary"
           textColor="primary"
@@ -231,7 +231,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         >
           <Tab label="RSS" key="tabRSS" value="rss" />
           <Tab label="Email" key="tabEmail" value="email" />
-        </Tabs>
+        </Tabs> */}
 
         <DialogContent className={classes.content}>
           { method === "rss" && <React.Fragment>

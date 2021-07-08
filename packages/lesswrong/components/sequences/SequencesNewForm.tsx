@@ -90,7 +90,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: 45,
+          top: 84,
           left: 7,
           textAlign: "left",
         }
@@ -165,4 +165,3 @@ declare global {
     SequencesNewForm: typeof SequencesNewFormComponent
   }
 }
-

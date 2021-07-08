@@ -201,7 +201,6 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
     );
   }
   return render();
-
 };
 
 const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock, {
