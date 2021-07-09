@@ -20,9 +20,9 @@ export async function mergeAccountWithAuth0(user: DbUser, profile: Profile) {
 export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser>> {
   const email = profile.emails?.[0].value
   const displayNameMatchesEmail = email === profile.displayName
-  const displayName = displayNameMatchesEmail
-    ? `new_user_${Math.floor(Math.random() * 10e9)}`
-    : profile.displayName
+  const displayName = displayNameMatchesEmail ?
+    `new_user_${Math.floor(Math.random() * 10e9)}` :
+    profile.displayName
   return {
     email,
     emails: email ?
@@ -36,8 +36,6 @@ export async function userFromAuth0Profile(profile: Profile): Promise<Partial<Db
     },
     username: await Utils.getUnusedSlugByCollectionName("Users", slugify(displayName)),
     displayName: displayName,
-    // Might want to set this to always be true, and just prefill the username
-    // if they have their name in Auth0
-    usernameUnset: displayNameMatchesEmail
+    usernameUnset: true
   }
 }

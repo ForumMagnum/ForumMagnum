@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -30,9 +31,17 @@ type NewUserCompleteProfileProps = {
   classes: ClassesType
 }
 
+function prefillUsername(maybeUsername: string | undefined | null): string {
+  if (!maybeUsername) return ''
+  if (/^\S+@\S+\.\S+$/.test(maybeUsername)) return ''
+  if (/new_user_\d+/.test(maybeUsername)) return ''
+  return maybeUsername
+}
+
 const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes }) => {
   // TODO: Prefill with existing username if it's not an email / new_user_N
-  const [username, setUsername] = useState('')
+  const currentUser = useCurrentUser()
+  const [username, setUsername] = useState(prefillUsername(currentUser?.displayName))
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
@@ -124,9 +133,6 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
           label='Yes, subscribe me to EA Forum digest emails'
         />
       </div>}
-      {!!validationError && <Typography variant='body1' color='error' gutterBottom>
-        {validationError}
-      </Typography>}
       {/* TODO: Something about bio? */}
       <div className={classes.submitButtonSection}>
         <Button

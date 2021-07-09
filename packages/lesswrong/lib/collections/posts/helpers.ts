@@ -177,6 +177,6 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
 //  2) The post does not exist yet
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
-export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
