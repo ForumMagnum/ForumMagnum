@@ -46,7 +46,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     float: "right",
     marginRight: 5,
     color: theme.palette.grey[600],
-  }
+  },
+  addTagButton: {
+    verticalAlign: "middle",
+  },
 })
 
 
@@ -57,7 +60,6 @@ const AllTagsPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { tag } = useTagBySlug("portal", "TagFragment");
   const [ editing, setEditing ] = useState(false)
-  // Type hack because MenuItem is too narrowly typed and doesn't properly take into account props-forwarding
 
   const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody } = Components;
 
@@ -68,16 +70,21 @@ const AllTagsPage = ({classes}: {
           <AnalyticsContext pageSectionContext="tagPortal">
             <SectionTitle title="EA Forum Wiki">
               <SectionButton>
-                <AddBoxIcon/>
-                {currentUser ? 
-                  <Link to="/tag/create">New Tag</Link> :
-                  <a onClick={(ev) => {
-                    openDialog({
-                      componentName: "LoginPopup",
-                      componentProps: {}
-                    });
-                    ev.preventDefault();
-                  }}>New Tag</a>
+                {currentUser
+                  ? <Link to="/tag/create">
+                      <AddBoxIcon className={classes.addTagButton}/>
+                      New Tag
+                    </Link>
+                  : <a onClick={(ev) => {
+                      openDialog({
+                        componentName: "LoginPopup",
+                        componentProps: {}
+                      });
+                      ev.preventDefault();
+                    }}>
+                      <AddBoxIcon className={classes.addTagButton}/>
+                      New Tag
+                    </a>
                 }
               </SectionButton>
             </SectionTitle>

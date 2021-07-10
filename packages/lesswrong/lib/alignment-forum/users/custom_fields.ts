@@ -1,17 +1,10 @@
 import { Users } from '../../collections/users/collection';
 import { userOwns } from '../../vulcan-users/permissions';
-import { formGroups } from "../../collections/users/custom_fields"
+import { formGroups } from "../../collections/users/formGroups"
 import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { postStatuses } from '../../collections/posts/constants';
 
 addFieldsDict(Users, {
-  afKarma: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    canRead: ['guests'],
-  },
-
   afPostCount: {
     ...denormalizedCountOfReferences({
       fieldName: "afPostCount",
@@ -71,14 +64,6 @@ addFieldsDict(Users, {
     canCreate: ['alignmentForumAdmins', 'admins'],
     group: formGroups.adminOptions,
     label: "AF Review UserId"
-  },
-
-  groups: {
-    canUpdate: ['alignmentForumAdmins', 'admins'],
-  },
-  'groups.$': {
-    type: String,
-    optional: true
   },
 
   afApplicationText: {

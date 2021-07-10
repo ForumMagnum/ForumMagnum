@@ -8,7 +8,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
 
-const formGroups = {
+const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 20,
@@ -21,6 +21,8 @@ addGraphQLSchema(`
   type TagContributor {
     user: User!
     contributionScore: Int!
+    numCommits: Int!
+    voteCount: Int!
   }
   type TagContributorsList {
     contributors: [TagContributor!]
@@ -357,8 +359,11 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
   },
   
-  // Denormalized copy of contribution-scores, for the latest revision.
-  contributionScores: {
+  // Denormalized copy of contribution-stats, for the latest revision.
+  // Replaces contributionScores, which was the same denormalized thing but for
+  // contribution scores only, without number of commits and vote count, and
+  // which is no longer on the schema.
+  contributionStats: {
     type: Object,
     optional: true,
     blackbox: true,
