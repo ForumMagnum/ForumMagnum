@@ -68,11 +68,6 @@ lodash@^4.17.21:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-nan@~1.6.0:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-1.6.2.tgz#2657d1c43b00f1e847e083832285b7d8f5ba8ec8"
-  integrity sha1-JlfRxDsA8ehH4IODIoW32PW6jsg=
-
 packet-reader@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/packet-reader/-/packet-reader-1.0.0.tgz#9238e5480dedabacfe1fe3f2771063f164157d74"
@@ -97,13 +92,6 @@ pg-protocol@*, pg-protocol@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/pg-protocol/-/pg-protocol-1.5.0.tgz#b5dd452257314565e2d54ab3c132adc46565a6a0"
   integrity sha512-muRttij7H8TqRNu/DxrAJQITO4Ac7RmX3Klyr/9mJEOBeIpgnF8f9jAfRz5d3XwQZl5qBjF9gLsUtMPJE0vezQ==
-
-pg-sync@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/pg-sync/-/pg-sync-0.2.0.tgz#f53151290eeb645747d758130575993242065dde"
-  integrity sha1-9TFRKQ7rZFdH11gTBXWZMkIGXd4=
-  dependencies:
-    nan "~1.6.0"
 
 pg-types@^2.1.0, pg-types@^2.2.0:
   version "2.2.0"

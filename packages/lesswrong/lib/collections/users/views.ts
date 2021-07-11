@@ -1,5 +1,5 @@
 import Users from "../users/collection";
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex, ensurePgIndex } from '../../collectionUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
@@ -320,3 +320,5 @@ Users.addView("walledGardenInvitees", function () {
   }
 })
 ensureIndex(Users, {walledGardenInvite: 1})
+
+ensurePgIndex(Users, "loginTokens", "USING BTREE ((Json->'services'->'resume'->'loginTokens'->>'hashedToken'))");

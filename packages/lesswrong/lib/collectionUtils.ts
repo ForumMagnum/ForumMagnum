@@ -228,6 +228,7 @@ export function addUniversalFields<T extends DbObject>({ collection, schemaVersi
     }
   })
   ensureIndex(collection, {schemaVersion: 1});
+  ensurePgIndex(collection, `${collection.collectionName}_gin`, "USING GIN(json)");
 }
 
 export function isUniversalField(fieldName: string): boolean {

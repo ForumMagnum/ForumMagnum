@@ -1206,3 +1206,4 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
 ensurePgIndex(Posts, "startTime", "USING BTREE ((json->>'startTime'))");
 ensurePgIndex(Posts, "lastCommentedAt", "USING BTREE ((json->>'lastCommentedAt'))");
 ensurePgIndex(Posts, "latestPosts", "USING BTREE ((json->'sticky'), (json->'stickyPriority'), (json->'score'))");
+ensurePgIndex(Posts, "futurePosts", "USING BTREE ((json->'isFuture'))");

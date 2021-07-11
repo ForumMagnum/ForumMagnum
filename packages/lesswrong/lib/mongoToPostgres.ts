@@ -188,6 +188,11 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
       }
     }
     throw new Error(`Don't know how to handle selector for ${fieldName}: unrecognized object`); // TODO
+  } else if (typeof value=='boolean') {
+    return {
+      sql: `(json->'${fieldName}')::bool=${value}`,
+      arg: [],
+    }
   } else {
     return {
       sql: `jsonb_path_match(json, '$.${fieldName} == ${JSON.stringify(value)}')`,

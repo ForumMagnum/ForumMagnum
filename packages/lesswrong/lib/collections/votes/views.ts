@@ -1,5 +1,5 @@
 import { Votes } from './collection';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex, ensurePgIndex } from '../../collectionUtils';
 
 declare global {
   interface VotesViewTerms extends ViewTermsBase {
@@ -29,3 +29,7 @@ Votes.addView("tagVotes", function () {
   }
 })
 ensureIndex(Votes, {collectionName: 1, votedAt: 1})
+
+ensurePgIndex(Votes, "userAndDocument", "USING BTREE (((json->'cancelled')::bool), (json->>'userId'), (json->>'documentId'))");
+ensurePgIndex(Votes, "allOnDocument", "USING BTREE (((json->'cancelled')::bool), (json->>'documentId'))");
+ensurePgIndex(Votes, "karmaChanges", "USING BTREE ((json->>'authorId'), (json->>'votedAt'), (json->>'userId'), (json->>'collectionName'), (json->'afPower'))");
