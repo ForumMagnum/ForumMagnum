@@ -62,7 +62,7 @@ const postHasModerationGuidelines = post => {
   return post.moderationGuidelines?.originalContents || post.moderationStyle
 }
 
-export const userCanModeratePost = (user: UsersProfile|DbUser|null, post: PostsBase|DbPost|null): boolean => {
+export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
   if (userCanDo(user,"posts.moderate.all")) {
     return true
   }
@@ -102,7 +102,7 @@ export const userCanModerateComment = (user: UsersProfile|DbUser|null, post: Pos
   return false
 }
 
-export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null): boolean => {
   if (userCanDo(user,"posts.commentLock.all")) {
     return true
   }

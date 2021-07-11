@@ -7,11 +7,14 @@ import { getCookieFromReq } from './utils/httpUtil';
 import { Strategy as GoogleOAuthStrategy, Profile as GoogleProfile, VerifyCallback as GoogleVerifyCallback } from 'passport-google-oauth20';
 import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'passport-facebook';
 import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passport-github2';
-import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams } from 'passport-auth0';
+import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
 import { DatabaseServerSetting } from './databaseSettings';
-import { createMutator } from './vulcan-lib/mutators';
+import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
+import pick from 'lodash/pick';
+import { forumTypeSetting } from '../lib/instanceSettings';
+import { userFromAuth0Profile, mergeAccountWithAuth0 } from './authentication/auth0Accounts';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -54,26 +57,44 @@ type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<Db
  */
 function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProfile: IdFromProfile<P>, getUserDataFromProfile: UserDataFromProfile<P>) {
   return async (_accessToken: string, _refreshToken: string, profile: P, done: VerifyCallback) => {
-    const profileId = getIdFromProfile(profile)
-    // Probably impossible, but if it is null, we just log the person in as a
-    // random user, which is bad, so we'll check anyway.
-    if (!profileId) {
-      throw new Error('OAuth profile does not have a profile ID')
+    try {
+      const profileId = getIdFromProfile(profile)
+      // Probably impossible, but if it is null, we just log the person in as a
+      // random user, which is bad, so we'll check anyway.
+      if (!profileId) {
+        return done(new Error('OAuth profile does not have a profile ID'))
+      }
+      let user = await Users.findOne({[idPath]: profileId})
+      if (!user) {
+        const email = profile.emails?.[0]?.value
+        if (forumTypeSetting.get() === 'EAForum' && email) {
+          const user = await Users.findOne({'emails.address': email})
+          if (user) {
+            // Forum only uses Auth0Profile
+            // TODO: Guard with zod for isAUth0Profile
+            const { data: userUpdated } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
+            if (user.banned && new Date(user.banned) > new Date()) {
+              return done(new Error("banned"))
+            }
+            return done(null, userUpdated)
+          }
+        }
+        const { data: userCreated } = await createMutator({
+          collection: Users,
+          document: await getUserDataFromProfile(profile),
+          validate: false,
+          currentUser: null
+        })
+        return done(null, userCreated)
+      }
+      user = await syncOAuthUser(user, profile)
+      if (user.banned && new Date(user.banned) > new Date()) {
+        return done(new Error("banned"))
+      }
+      return done(null, user)
+    } catch (err) {
+      return done(err)
     }
-    const user = await Users.findOne({[idPath]: profileId})
-    if (!user) {
-      const { data: userCreated } = await createMutator({
-        collection: Users,
-        document: await getUserDataFromProfile(profile),
-        validate: false,
-        currentUser: null
-      })
-      return done(null, userCreated)
-    }
-    if (user.banned && new Date(user.banned) > new Date()) {
-      return done(new Error("banned"))
-    }
-    return done(null, user)
   }
 }
 
@@ -87,11 +108,43 @@ function createOAuthUserHandlerAuth0(idPath: string, getIdFromProfile: IdFromPro
   }
 }
 
+/**
+ * If the user's email has been updated by their OAuth provider, change their
+ * email to match their OAuth provider's given email
+ */
+async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
+  if (!profile.emails || !profile.emails.length) {
+    return user
+  }
+  // I'm unable to find documenation of how to interpret the emails object. It's
+  // plausible we should always set the users email to the first one, but it
+  // could be that the ordering doesn't matter, in which case we'd want to avoid
+  // spuriously updating the user's email based on whichever one happened to be
+  // first. But if their email is entirely missing, we should update it to be
+  // one given by their OAuth provider. Probably their OAuth provider will only
+  // ever report one email, in which case this is over-thought.
+  const profileEmails = profile.emails.map(emailObj => emailObj.value)
+  if (!profileEmails.includes(user.email)) {
+    const updatedUserResponse = await updateMutator({
+      collection: Users,
+      documentId: user._id,
+      set: {email: profileEmails[0]},
+      validate: false
+    })
+    return updatedUserResponse.data
+  }
+  return user
+}
+
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
   const loginToken = getCookieFromReq(req, 'loginToken') || getCookieFromReq(req, 'meteor_login_token') // Backwards compatibility with meteor_login_token here
-  if (!loginToken) return done(null, false)
+  if (!loginToken) {
+    return done(null, false)
+  }
   const user = await getUser(loginToken)
-  if (!user) return done(null, false)
+  if (!user) {
+    return done(null, false)
+  }
   done(null, user)
 })
 
@@ -103,7 +156,6 @@ async function deserializeUserPassport(id, done) {
 
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
-
 
 export const addAuthMiddlewares = (addConnectHandler) => {
   addConnectHandler(passport.initialize())
@@ -124,20 +176,32 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   addConnectHandler('/logout', (req, res, next) => {
     passport.authenticate('custom', (err, user, info) => {
       if (err) return next(err)
-      if (!user) return next()
       req.logOut()
 
-      // The accepted way to delete a cookie is to set an expiration date in the past.
-      if (getCookieFromReq(req, "meteor_login_token")) {
-        res.setHeader("Set-Cookie", `meteor_login_token= ; expires=${new Date(0).toUTCString()};`)
+      // Remove session cookies
+      const cookieUpdates = ['meteor_login_token', 'loginToken', 'connect.sid']
+        .filter(cookieName => getCookieFromReq(req, cookieName))
+        // The accepted way to delete a cookie is to set an expiration date in the past.
+        .map(cookieName => `${cookieName}= ; expires=${new Date(0).toUTCString()}`)
+      if (cookieUpdates.length) {
+        // We need to set all Set-Cookie headers at once, or we'd overwrite the
+        // previous ones. The way to set multiple Set-Cookie headers is to set
+        // it with an array.
+        // https://nodejs.org/api/http.html#http_request_setheader_name_value
+        res.setHeader('Set-Cookie', cookieUpdates)
       }
-      if (getCookieFromReq(req, "loginToken")) {
-        res.setHeader("Set-Cookie", `loginToken= ; expires=${new Date(0).toUTCString()};`)
-      }
-      
       
       res.statusCode=302;
-      res.setHeader('Location','/');
+      // Need to log the user out of their Auth0 account. Otherwise when they
+      // next try to login they won't be given a choice, just auto-resumed to
+      // the same Auth0 account.
+      if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && forumTypeSetting.get() === 'EAForum') {
+        // Will redirect to our homepage, and is a noop if they're not logged in
+        // to an Auth0 account, so this is very non-disruptive
+        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}`);
+      } else {
+        res.setHeader('Location', '/');
+      }
       return res.end();
     })(req, res, next);
   })
@@ -246,19 +310,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         domain: auth0Domain,
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
-      createOAuthUserHandlerAuth0('services.auth0.id', profile => profile.id, async profile => {
-        // Already have the raw version, and the structured content. No need to store the json.
-        delete profile._json
-        return {
-          email: profile.emails?.[0].value,
-          services: {
-            auth0: profile
-          },
-          username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-          displayName: profile.displayName,
-          emailSubscribedToCurated: true
-        }
-      })
+      createOAuthUserHandlerAuth0('services.auth0.id', profile => profile.id, userFromAuth0Profile)
     ));
   }
 
@@ -294,7 +346,11 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/auth0', (req, res, next) => {
-    passport.authenticate('auth0', { scope: 'profile email openid offline_access'})(req, res, next)
+    const extraParams = pick(req.query, ['screen_hint', 'prompt'])
+    passport.authenticate('auth0', {
+      scope: 'profile email openid offline_access',
+      ...extraParams
+    } as AuthenticateOptions)(req, res, next)
   })
 
   addConnectHandler('/auth/github/callback', (req, res, next) => {

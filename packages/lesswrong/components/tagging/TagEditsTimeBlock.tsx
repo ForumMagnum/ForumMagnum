@@ -58,13 +58,10 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
     {data.TagUpdatesInTimeBlock.map(tagUpdates => <SingleLineTagUpdates
       key={tagUpdates.tag._id}
       tag={tagUpdates.tag}
-      revisionCount={tagUpdates.revisionIds.length}
       revisionIds={tagUpdates.revisionIds}
       commentIds={tagUpdates.commentIds}
       commentCount={tagUpdates.commentCount}
       changeMetrics={{added: tagUpdates.added, removed: tagUpdates.removed}}
-      before={before}
-      after={after}
     />)}
   </div>
 }

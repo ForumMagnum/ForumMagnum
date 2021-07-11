@@ -6,7 +6,7 @@ import { gql, useMutation, DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
-
+import classnames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -50,7 +50,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   oAuthBlock: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    '&.ea-forum': {
+      justifyContent: 'space-around'
+    }
   },
   oAuthComment: {
     textAlign: 'center',
@@ -60,7 +63,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   oAuthLink: {
     color: 'rgba(0,0,0,0.7) !important',
     fontSize: '0.9em',
-    padding: 6
+    padding: 6,
+    textTransform: 'uppercase'
   },
   toggle: {
     cursor: 'pointer',
@@ -106,10 +110,19 @@ const currentActionToButtonText : Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-const WrappedLoginForm = ({ startingState = "login", classes }: {
+type WrappedLoginFormProps = {
   startingState?: possibleActions,
   classes: ClassesType
-}) => {
+}
+
+const WrappedLoginForm = (props: WrappedLoginFormProps) => {
+  if (forumTypeSetting.get() === 'EAForum') {
+    return <WrappedLoginFormEA {...props} />
+  }
+  return <WrappedLoginFormDefault {...props} />
+}
+
+const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLoginFormProps) => {
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
   const [username, setUsername] = useState<string | undefined>(undefined)
@@ -173,6 +186,15 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
       {error && <div className={classes.error}>{error.message}</div>}
     </form>
   </React.Fragment>;
+}
+
+const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
+  return <div className={classes.root}>
+    <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
+      <a className={classes.oAuthLink} href="/auth/auth0">Login</a>
+      <a className={classes.oAuthLink} href="/auth/auth0?screen_hint=signup">Sign Up</a>
+    </div>
+  </div>
 }
 
 const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, { styles });
