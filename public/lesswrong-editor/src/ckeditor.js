@@ -257,6 +257,7 @@ CommentEditor.builtinPlugins = [
 	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
+	CloudServicesPlugin,
 	ImageResize,
 	Italic,
 	Link,
