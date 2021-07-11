@@ -490,6 +490,8 @@ importComponent("CoreSequences", () => require('../components/sequences/CoreSequ
 importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
 
+importComponent("FormCheckbox", () => require('../components/forms/FormCheckbox'));
+
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
 importComponent("SequencesListEditor", () => require('../components/form-components/SequencesListEditor'));
