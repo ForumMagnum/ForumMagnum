@@ -9,6 +9,7 @@ import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { useForm, Form } from '../forms/formUtil';
 import classNames from 'classnames';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -117,6 +118,32 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   return <div className={classes.root}>
     <Typography variant="display2" className={classes.header}>Edit Account</Typography>
     
+    <Typography variant="display2" className={classes.header}>Edit Account</Typography>
+    {/* TODO(EA): Need to add a management API call to get the reset password
+        link, but for now users can reset their password from the login
+        screen */}
+    {isCurrentUser && forumTypeSetting.get() !== 'EAForum' && <Button
+      color="secondary"
+      variant="outlined"
+      className={classes.resetButton}
+      onClick={requestPasswordReset}
+    >
+      Reset Password
+    </Button>}
+
+    <Components.WrappedSmartForm
+      collection={Users}
+      {...terms}
+      successCallback={async (user) => {
+        flash(`User "${userGetDisplayName(user)}" edited`);
+        await client.resetStore()
+        history.push(userGetProfileUrl(user));
+      }}
+      queryFragment={getFragment('UsersEdit')}
+      mutationFragment={getFragment('UsersEdit')}
+      showRemove={false}
+    />
+    
     <TabBar
       currentTab={currentTab} setCurrentTab={setCurrentTab}
       classes={classes}
@@ -143,30 +170,11 @@ const UsersEditForm = ({currentUser, terms, classes}: {
       </div>}
     </Form>
     
-    { /*
-    {isCurrentUser && <Button
-      color="secondary"
-      variant="outlined"
-      className={classes.resetButton}
-      onClick={requestPasswordReset}
-    >
-      Reset Password
-    </Button>}
-
-    <Components.WrappedSmartForm
-      collection={Users}
-      {...terms}
-      successCallback={async (user) => {
-        flash(`User "${userGetDisplayName(user)}" edited`);
-        await client.resetStore()
-        history.push(userGetProfileUrl(user));
-      }}
-      queryFragment={getFragment('UsersEdit')}
-      mutationFragment={getFragment('UsersEdit')}
-      showRemove={false}
-    />
-    */ }
   </div>
+  return (
+    <div className={classes.root}>
+    </div>
+  );
 };
 
 
