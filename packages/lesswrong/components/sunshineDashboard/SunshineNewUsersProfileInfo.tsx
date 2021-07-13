@@ -63,7 +63,4 @@ declare global {
   }
 }
 
-function updateUser(arg0: { selector: { _id: string; }; data: { sunshineSnoozed: boolean; }; }) {
-  throw new Error('Function not implemented.');
-}
 
