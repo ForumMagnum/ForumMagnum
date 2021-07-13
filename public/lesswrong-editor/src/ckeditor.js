@@ -23,6 +23,7 @@ import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
+import CloudServicesPlugin from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Code from '@ckeditor/ckeditor5-basic-styles/src/code';
@@ -107,6 +108,7 @@ const postEditorPlugins = [
 	ImageToolbar,
 	EasyImage,
 	ImageUpload,
+	CloudServicesPlugin,
 	ImageResize,
 	Italic,
 	Link,
@@ -255,6 +257,7 @@ CommentEditor.builtinPlugins = [
 	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
+	CloudServicesPlugin,
 	ImageResize,
 	Italic,
 	Link,

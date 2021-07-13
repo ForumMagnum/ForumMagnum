@@ -247,6 +247,8 @@ export const NewMessageNotification = registerNotificationType({
   },
 });
 
+// TODO(EA): Fix notificationCallbacks getLink, or the associated component to
+// be EA-compatible. Currently we just disable it in the new user callback.
 export const EmailVerificationRequiredNotification = registerNotificationType({
   name: "emailVerificationRequired",
   userSettingField: null,
