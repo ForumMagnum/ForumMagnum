@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -56,13 +56,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
-const stripePublicKey = stripePublicKeySetting.get()
-const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
+// const stripePublicKey = stripePublicKeySetting.get()
+// const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
 const amazonLink = "https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"
 
-const ProductDisplay = ({ handleClickAmazon, handleClickStripe, text="Buy", classes }: {
+const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
   handleClickAmazon: (event: any)=>void,
-  handleClickStripe: (event: any)=>void,
+  // handleClickStripe: (event: any)=>void,
   text?: string,
   classes: ClassesType,
 }) => {
@@ -119,7 +119,7 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
     { (message && !ignoreMessages) ? (
       <Message message={message} classes={classes} />
     ) : (
-      <ProductDisplay handleClickAmazon={handleClickAmazon} handleClickStripe={handleClickStripe} text={text} classes={classes}/>
+      <ProductDisplay handleClickAmazon={handleClickAmazon}  text={text} classes={classes}/>
     ) }
   </div>
 }
