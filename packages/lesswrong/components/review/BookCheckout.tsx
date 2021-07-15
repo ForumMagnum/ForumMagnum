@@ -56,13 +56,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
-const stripePublicKey = stripePublicKeySetting.get()
-const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
+// const stripePublicKey = stripePublicKeySetting.get()
+// const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
 const amazonLink = "https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"
 
-const ProductDisplay = ({ handleClickAmazon, handleClickStripe, text="Buy", classes }: {
+const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
   handleClickAmazon: (event: any)=>void,
-  handleClickStripe: (event: any)=>void,
+  // handleClickStripe: (event: any)=>void,
   text?: string,
   classes: ClassesType,
 }) => {
@@ -95,31 +95,31 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
     captureEvent("preOrderButtonClicked")
     window.location.assign(amazonLink);
   }
-  const handleClickStripe = async (event: Event) => {
-    captureEvent("preOrderButtonClicked")
-    const stripe = await stripePromise;
-    if (stripe) {
-      const response = await fetch("/create-session", {
-        method: "POST",
-      });
-      const session = await response.json();
-      // When the customer clicks on the button, redirect them to Checkout.
-      const result = await stripe.redirectToCheckout({
-        sessionId: session.id,
-      });
-      if (result.error) {
-        // If `redirectToCheckout` fails due to a browser or network
-        // error, display the localized error message to your customer
-        // using `result.error.message`.
-      }
-    }
+  // const handleClickStripe = async (event: Event) => {
+  //   captureEvent("preOrderButtonClicked")
+  //   const stripe = await stripePromise;
+  //   if (stripe) {
+  //     const response = await fetch("/create-session", {
+  //       method: "POST",
+  //     });
+  //     const session = await response.json();
+  //     // When the customer clicks on the button, redirect them to Checkout.
+  //     const result = await stripe.redirectToCheckout({
+  //       sessionId: session.id,
+  //     });
+  //     if (result.error) {
+  //       // If `redirectToCheckout` fails due to a browser or network
+  //       // error, display the localized error message to your customer
+  //       // using `result.error.message`.
+  //     }
+  //   }
+  // };
 
-  };
   return <div className={classes.root}>
     { (message && !ignoreMessages) ? (
       <Message message={message} classes={classes} />
     ) : (
-      <ProductDisplay handleClickAmazon={handleClickAmazon} handleClickStripe={handleClickStripe} text={text} classes={classes}/>
+      <ProductDisplay handleClickAmazon={handleClickAmazon} text={text} classes={classes}/>
     ) }
   </div>
 }
