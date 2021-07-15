@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 
-const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
+// const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
