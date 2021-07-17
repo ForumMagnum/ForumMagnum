@@ -11,6 +11,7 @@ const schema: SchemaType<DbMessage> = {
     }),
     viewableBy: ['members'],
     insertableBy: ['members'],
+    hidden: true,
     optional: true,
   },
   createdAt: {
