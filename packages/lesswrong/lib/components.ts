@@ -492,6 +492,10 @@ importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
 
 importComponent("FormCheckbox", () => require('../components/forms/FormCheckbox'));
+importComponent("FormDate", () => require('../components/forms/FormDate'));
+importComponent("FormDropdown", () => require('../components/forms/FormDropdown'));
+importComponent("FormTextbox", () => require('../components/forms/FormTextbox'));
+importComponent("FormUsersList", () => require('../components/forms/FormUsersList'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));

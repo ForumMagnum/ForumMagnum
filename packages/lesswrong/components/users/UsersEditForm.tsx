@@ -72,13 +72,13 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   const { flash } = useMessages();
   const { history } = useNavigation();
   const client = useApolloClient();
-  const { FormCheckbox, Typography } = Components;
+  const { FormCheckbox, FormDropdown, FormUsersList, FormDate, Typography } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
 
   const form = useForm({
-    initialValue: currentUser,
-    fragmentName: "UsersCurrent",
-    onChange: (change: Partial<UsersCurrent>) => {
+    initialValue: currentUser as unknown as UsersEdit, //TODO
+    fragmentName: "UsersEdit",
+    onChange: (change: Partial<UsersEdit>) => {
       // eslint-disable-next-line no-console
       console.log("User change:");
       // eslint-disable-next-line no-console
@@ -131,7 +131,7 @@ const UsersEditForm = ({currentUser, terms, classes}: {
       Reset Password
     </Button>}
 
-    <Components.WrappedSmartForm
+    {/*<Components.WrappedSmartForm
       collection={Users}
       {...terms}
       successCallback={async (user) => {
@@ -142,7 +142,7 @@ const UsersEditForm = ({currentUser, terms, classes}: {
       queryFragment={getFragment('UsersEdit')}
       mutationFragment={getFragment('UsersEdit')}
       showRemove={false}
-    />
+    />*/}
     
     <TabBar
       currentTab={currentTab} setCurrentTab={setCurrentTab}
@@ -159,22 +159,84 @@ const UsersEditForm = ({currentUser, terms, classes}: {
     <Form form={form}>
       {currentTab==="profile" && <div>
         <h2>Profile</h2>
-      </div>}
-      {currentTab==="notifications" && <div>
-        <h2>Notifications</h2>
+
+        <div>Reset Password</div>
+        <div>Display name</div>
+        <div>Email</div>
+        <div>Full name</div>
+        <div>Bio</div>
+        <div>Location</div>
       </div>}
       {currentTab==="customization" && <div>
         <h2>Customization</h2>
+
+        <FormDropdown form={form} fieldName="commentSorting" label="Comment Sorting" collectionName="Users" />
+        <FormDropdown form={form} fieldName="sortDrafts" label="Sort Drafts by" collectionName="Users" />
         
+        <FormCheckbox form={form} fieldName="hideTaggingProgressBar" label="Hide the tagging progress bar"/>
+        <FormCheckbox form={form} fieldName="hideFrontpageBookAd" label="Hide the frontpage book ad"/>
         <FormCheckbox form={form} fieldName="hideIntercom" label="Hide Intercom"/>
+        <FormCheckbox form={form} fieldName="beta" label="Opt into experimental features"/>
+        <FormCheckbox form={form} fieldName="markDownPostEditor" label="Activate Markdown editor"/>
+        <FormCheckbox form={form} fieldName="reenableDraftJs" label="Use the previous WYSIWYG editor"/>
+        <FormCheckbox form={form} fieldName="hideElicitPredictions" label="Hide others users' Elicit predictions until I have predicted myself"/>
+
+        <h2>Comment Truncation Options</h2>
+        <FormCheckbox form={form} fieldName="noSingleLineComments" label="Do not collapse comments to Single Line"/>
+        <FormCheckbox form={form} fieldName="noCollapseCommentsPosts" label="Do not truncate comments (in large threads on Post Pages)"/>
+        <FormCheckbox form={form} fieldName="noCollapseCommentsFrontpage" label="Do not truncate comments (on home page)"/>
+      </div>}
+      {currentTab==="notifications" && <div>
+        <h2>Notifications</h2>
+        <div>Manage Active Subscriptions</div>
+        <FormCheckbox form={form} fieldName="auto_subscribe_to_my_posts" label="Auto-subscribe to comments on my posts"/>
+        <FormCheckbox form={form} fieldName="auto_subscribe_to_my_comments" label="Auto-subscribe to replies to my comments"/>
+        <FormCheckbox form={form} fieldName="autoSubscribeAsOrganizer" label="Auto-subscribe to posts and meetups in groups I organize"/>
+
+        <div>Comments on posts I'm subscribed to</div>
+        <div>Shortform by users I'm subscribed to</div>
+        <div>Replies to my comments</div>
+        <div>Replies to comments I'm subscribed to</div>
+        <div>Posts by users I'm subscribed to</div>
+        <div>Posts/events in groups I'm subscribed to</div>
+        <div>Posts added to tags I'm subscribed to</div>
+        <div>Private messages</div>
+        <div>Draft shared with me</div>
+        <div>New Events in my notification radius</div>
+
+        <div>Vote Notifications</div>
+
+        <h2>Emails</h2>
+        <div>(Verification status)</div>
+        <div>Email me new posts in Curated</div>
+        <div>Do not send me any emails (unsubscribe from all)</div>
+      </div>}
+      {currentTab==="moderationGuidelines" && <div>
+        <h2>Moderation Guidelines for My Posts</h2>
+        
+        <FormDropdown form={form} fieldName="moderationStyle" label="Style" collectionName="Users"/>
+        <FormCheckbox form={form} fieldName="moderatorAssistance" label="I'm happy for LW site moderators to help enforce my policy"/>
+        <FormCheckbox form={form} fieldName="collapseModerationGuidelines" label="On my posts, collapse my moderation guidelines by default"/>
+        
+        <FormUsersList form={form} fieldName="bannedUserIds" label="Users banned from all my posts"/>
+        <FormUsersList form={form} fieldName="bannedPersonalUserIds" label="Users banned from my Personal Blog posts"/>
+      </div>}
+      {currentTab==="admin" && <div>
+        <h2>Admin Options</h2>
+        
+        <h3>Banning</h3>
+        <FormCheckbox form={form} fieldName="voteBanned" label="Set all future votes of this user to have zero weight"/>
+        <FormCheckbox form={form} fieldName="nullifyVotes" label="Nullify all past votes"/>
+        <FormCheckbox form={form} fieldName="deleteContent" label="Delete all user content"/>
+        <FormDate form={form} fieldName="banned" label="Ban user until"/>
+        
+        <h3>Permissions</h3>
+        <FormCheckbox form={form} fieldName="isAdmin" label="Admin"/>
+        <div>Groups</div>
       </div>}
     </Form>
     
   </div>
-  return (
-    <div className={classes.root}>
-    </div>
-  );
 };
 
 
