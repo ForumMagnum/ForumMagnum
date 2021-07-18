@@ -169,11 +169,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </span>
         </Tooltip>
 
-        <Tooltip title={`${tagRevisionCount} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
+        <Tooltip title={`${tagRevisionCount||0} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
           <span className={classes.userMetaInfo}>
             <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo>
-              { tagRevisionCount }
+              { tagRevisionCount||0 }
             </Components.MetaInfo>
           </span>
         </Tooltip>
