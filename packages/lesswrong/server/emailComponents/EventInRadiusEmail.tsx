@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import moment from '../../lib/moment-timezone';
+import './EmailPostDate';
 
 const eventTimeFormat = "Do MMMM YYYY h:mm A"
 
@@ -26,9 +27,10 @@ const EventInRadiusEmail = ({openingSentence, postId}: {
     <p>
       Location: {post.location}
     </p>
-    <p>
+    {!post.localStartTime && !post.localEndTime && <p>Time: TBD</p>}
+    {post.localStartTime && <p>
       Start Time: {moment(post.localStartTime).utc().format(eventTimeFormat)}
-    </p>
+    </p>}
     {post.localEndTime && <p>
       End Time: {moment(post.localEndTime).utc().format(eventTimeFormat)}
     </p>}
