@@ -51,6 +51,7 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   highlight: {
     order: 21,
     name: "highlight",
-    label: "Highlight"
+    label: "Highlight",
+    startCollapsed: true,
   }
 };
