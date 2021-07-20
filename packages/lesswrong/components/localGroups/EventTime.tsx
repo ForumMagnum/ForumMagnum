@@ -38,7 +38,7 @@ const EventTime = ({post, dense=false}: {
 
   // Neither start nor end time specified
   if (!start && !end) {
-    return <>"TBD"</>;
+    return <>TBD</>;
   }
   // Start time specified, end time missing. Use
   // moment.calendar, which has a bunch of its own special
