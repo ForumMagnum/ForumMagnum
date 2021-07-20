@@ -8,8 +8,8 @@
 // server/codegen/generateFragmentTypes.ts.
 //
 interface UsersDefaultFragment { // fragment on Users
-  readonly _id: string,
   readonly username: string,
+  readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly createdAt: Date,
   readonly isAdmin: boolean,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1398,7 +1398,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly tagRevisionCount: number,
 }
 
-interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
+interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly groups: Array<string>,
   readonly bio: string,

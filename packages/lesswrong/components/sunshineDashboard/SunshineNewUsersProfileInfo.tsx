@@ -5,6 +5,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
 import NoSsr from '@material-ui/core/NoSsr';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,7 +19,7 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
 
   const currentUser = useCurrentUser()
 
-  const { SunshineNewUsersInfo } = Components
+  const { SunshineNewUsersInfo, SectionButton } = Components
 
   const { document: user } = useSingle({
     documentId:userId,
@@ -26,9 +27,27 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
     fragmentName: 'SunshineUsersList',
   });
 
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+  });
+
+  const unapproveUser = async () => {
+    await updateUser({
+      selector: { _id: userId },
+      data: {
+        sunshineSnoozed: true
+      },
+    })
+  }
+
   if (!user) return null
   if (!userCanDo(currentUser, 'posts.moderate.all')) return null
-  if (user.reviewedByUserId && !user.sunshineSnoozed) return null
+  
+  if (user.reviewedByUserId && !user.sunshineSnoozed) return <div className={classes.root} onClick={unapproveUser}>
+    <SectionButton>Unapprove</SectionButton>
+  </div>
+  
   return <div className={classes.root}>
     <NoSsr>
       <SunshineNewUsersInfo user={user}/>
@@ -43,4 +62,5 @@ declare global {
     SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfoComponent
   }
 }
+
 
