@@ -102,18 +102,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                 <div className={classes.groupLinks}><GroupLinks document={group} /></div>
               </span>
               {Posts.options.mutations.new.check(currentUser) &&
-                <React.Fragment>
-                  {(!isEAForum || isAdmin) && <SectionButton>
-                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
-                      New event
-                    </Link>
-                  </SectionButton>}
-                  <SectionButton>
-                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({groupId})}`}} className={classes.leftAction}>
-                      New group post
-                    </Link>
-                  </SectionButton>
-                </React.Fragment>}
+                (!isEAForum || isAdmin) && <SectionButton>
+                  <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
+                    New event
+                  </Link>
+                </SectionButton>}
               {Localgroups.options.mutations.edit.check(currentUser, group) && 
                 <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
