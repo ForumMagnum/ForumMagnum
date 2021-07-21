@@ -13,6 +13,7 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
 import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 
 const suggestionToGoogleMapsLocation = (suggestion) => {
@@ -127,6 +128,8 @@ const EventNotificationsDialog = ({ onClose, classes }: {
     onChange={(e) => setNotifyPeopleThreshold(parseFloat(e.target.value))}
   />
 
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  
   return (
     <LWDialog
       open={true}
@@ -179,7 +182,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
             }}
           />
         </div>
-        <div className={classes.peopleThreshold}>
+        {!isEAForum && <div className={classes.peopleThreshold}>
           <div>
             <Checkbox
               className={classes.peopleThresholdCheckbox}
@@ -190,7 +193,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
           <div className={classes.peopleThresholdText}>
             Notify me when there are {peopleThresholdInput} or more people in my area
           </div>
-        </div>
+        </div>}
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({
