@@ -107,7 +107,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                     New event
                   </Link>
                 </SectionButton>}
-              {Localgroups.options.mutations.edit.check(currentUser, group) && 
+              {Localgroups.options.mutations.edit.check(currentUser, group) &&
+               (!isEAForum || isAdmin ) && 
                 <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
             </SectionFooter>
