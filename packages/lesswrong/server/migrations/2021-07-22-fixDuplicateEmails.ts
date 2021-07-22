@@ -106,6 +106,7 @@ registerMigration({
     await mergeResults.filter(result => result.action != 'ManualNeeded').forEach(async result => {
       const action = result.action as RunnableMergeAction
       action.sourceIds.forEach(async sourceId => {
+        //eslint-disable-next-line no-console
         console.log('merging account ', sourceId, ' into ', action.destinationId, ' for email ', result.email)
         await Vulcan.mergeAccounts(sourceId, action.destinationId)
       })
@@ -115,6 +116,7 @@ registerMigration({
     mergeResults.forEach(mergeResult => {
       const actionRow = mergeResult.action == 'ManualNeeded' ? 'ManualNeeded' :
         [mergeResult.action.destinationId, mergeResult.action.sourceIds.join('^'), mergeResult.action.justification].join(',')
+      //eslint-disable-next-line no-console
       console.log([mergeResult.email, actionRow].join(','))
     });
   }
