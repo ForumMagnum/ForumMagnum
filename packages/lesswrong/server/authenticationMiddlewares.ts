@@ -152,7 +152,7 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
 function saveReturnTo(req: any): void {
   if (!expressSessionSecretSetting.get()) return
   let { returnTo } = req.query
-  if (!returnTo) return
+  if (!returnTo || !req.session) return
   
   req.session.loginReturnTo = {
     path: returnTo,
@@ -169,7 +169,7 @@ function saveReturnTo(req: any): void {
  * Assumes that the initial request was made with a returnTo query parameter
  */
 function getReturnTo(req: any): string {
-  if (!expressSessionSecretSetting.get() || !req.session.loginReturnTo) return '/'
+  if (!expressSessionSecretSetting.get() || !req.session?.loginReturnTo) return '/'
   if (moment(req.session.loginReturnTo.expiration) < moment()) return '/'
   return req.session.loginReturnTo.path
 }

@@ -124,6 +124,7 @@ const WrappedLoginForm = (props: WrappedLoginFormProps) => {
 }
 
 const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLoginFormProps) => {
+  const { pathname } = useLocation()
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
   const [username, setUsername] = useState<string | undefined>(undefined)
@@ -176,9 +177,9 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
       </div>
       <div className={classes.oAuthComment}>...or continue with</div>
       <div className={classes.oAuthBlock}>
-        <a className={classes.oAuthLink} href="/auth/facebook">FACEBOOK</a>
-        <a className={classes.oAuthLink} href="/auth/google">GOOGLE</a>
-        <a className={classes.oAuthLink} href="/auth/github">GITHUB</a>
+        <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
+        <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
+        <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
         {/* Temporarily here for EA Forum testing */}
         {/* <a className={classes.oAuthLink} href="/auth/auth0">AUTH 0</a> */}
       </div>
