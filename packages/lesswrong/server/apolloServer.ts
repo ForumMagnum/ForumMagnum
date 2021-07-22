@@ -40,7 +40,7 @@ import { getMongoClient } from '../lib/mongoCollection';
 const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 const loadClientBundle = () => {
-  const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
+  const bundlePath = path.join(__dirname, "../../client/js/bundles/clientStartup.js");
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
   const lastModified = fs.statSync(bundlePath).mtimeMs;
   return {
@@ -128,7 +128,7 @@ export function startWebserver() {
   app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
   apolloServer.applyMiddleware({ app })
 
-  addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
+  addStaticRoute("/js/bundles/clientStartup.js", ({query}, req, res, context) => {
     const {bundleHash, bundleText} = getClientBundle();
     if (query.hash && query.hash !== bundleHash) {
       // If the query specifies a hash, but it's wrong, this probably means there's a
@@ -177,7 +177,7 @@ export function startWebserver() {
     const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, allAbTestGroups} = renderResult;
     const {bundleHash} = getClientBundle();
 
-    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script defer src="/js/bundles/clientStartup.js?hash=${bundleHash}"></script>`
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     

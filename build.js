@@ -60,15 +60,20 @@ const bundleDefinitions = {
   "bundleIsTest": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
+  "caches": "caches_optimism", // rename identifier to avoid conflict with browser "caches" interface
 };
 
 build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   bundle: true,
-  target: "es6",
+  metafile: "./metafile.json",
+  target: "esnext",
+  format: "esm",
   sourcemap: true,
-  outfile: "./build/client/js/bundle.js",
-  minify: isProduction,
+  // outfile: "./build/client/js/bundle.js",
+  outdir: "./build/client/js/bundles",
+  splitting: true,
+  minify: false, //isProduction,
   banner: clientBundleBanner,
   treeShaking: "ignore-annotations",
   run: false,
@@ -90,7 +95,7 @@ build({
   define: {
     ...bundleDefinitions,
     "bundleIsServer": false,
-    "global": "window",
+    "global": "window"
   },
 });
 

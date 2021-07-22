@@ -10,7 +10,7 @@
     "build": "./build.js",
     "start": "NODE_OPTIONS=--max_old_space_size=8192 ./build.js --no-clear -run -watch --settings settings.json",
     "start-dev-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LessWrong-Credentials/settings-local-dev-devdb.json",
-    "start-prod-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",
+    "start-prod-db": "./build.js --no-clear -run --watch --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-proddb.json --production",
     "shell": "./build.js --no-clear -run --settings settings.json --shell",
     "shell-dev-db": "./build.js --no-clear -run --mongoUrlFile ../LessWrong-Credentials/connectionStrings/dev-db.txt --settings ../LessWrong-Credentials/settings-local-dev-devdb.json --shell",
     "shell-prod-db": "./build.js --no-clear -run --mongoUrlFile ../LessWrong-Credentials/connectionStrings/prod-db.txt --settings ../LessWrong-Credentials/settings-local-dev-proddb.json --shell",
@@ -38,7 +38,7 @@
     "ea-load-prod-db": "mongo $(< ../ForumCredentials/prod-db-conn.txt) ../ForumCredentials/loadProdDbSettings.js"
   },
   "dependencies": {
-    "@apollo/client": "^3.2.0",
+    "@apollo/client": "3.3.21",
     "@babel/runtime": "^7.12.1",
     "@google/maps": "^0.5.5",
     "@googlemaps/google-maps-services-js": "^3.1.13",
