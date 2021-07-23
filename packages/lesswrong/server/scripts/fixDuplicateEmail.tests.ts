@@ -21,6 +21,7 @@ describe("mergeSingleUser", () => {
       { '_id': '2', posts: [{ '_id': '1' }], comments: [] },
       { '_id': '3', posts: [], comments: [] }]
     const expected = {
+      type: 'RunnableMergeAction',
       destinationId: '2',
       sourceIds: ['1', '3'],
       justification: 'only one nonempty account'
@@ -36,6 +37,7 @@ describe("mergeSingleUser", () => {
       { '_id': '2', posts: [], comments: [] },
       { '_id': '3', posts: [], comments: [] }]
     const expected = {
+      type: 'RunnableMergeAction',
       destinationId: '1',
       sourceIds: ['2', '3'],
       justification: 'all empty accounts'
@@ -46,21 +48,25 @@ describe("mergeSingleUser", () => {
 
   it("handles good users not sharing a name", async () => {
     const userList = [
-      { '_id': '1', posts: [{ '_id': '1' }], comments: [], matches: { username: "test" } },
-      { '_id': '2', posts: [], comments: [{ '_id': '1' }], matches: { username: "test" } },
-      { '_id': '3', posts: [], comments: [{ '_id': '1' }], matches: { username: "t" } },
+      { '_id': '1', posts: [{ '_id': '1' }], comments: [], matches: { displayName: "test" } },
+      { '_id': '2', posts: [], comments: [{ '_id': '1' }], matches: { displayName: "test" } },
+      { '_id': '3', posts: [], comments: [{ '_id': '1' }], matches: { displayName: "t" } },
       { '_id': '4', posts: [], comments: [] }]
-
+    const expected = {
+        type: 'ManualMergeAction',
+        sourceIds: ['1', '2', '3', '4'],
+      }
     const results = mergeSingleUser(userList)
-    expect(results).toStrictEqual('ManualNeeded');
+    expect(results).toStrictEqual(expected);
   });
 
   it("handles good users sharing a name", async () => {
     const userList = [
-      { '_id': '1', posts: [{ '_id': '1' }], comments: [], matches: { username: "test" } },
-      { '_id': '2', posts: [], comments: [{ '_id': '1' }], matches: { username: "test" } },
+      { '_id': '1', posts: [{ '_id': '1' }], comments: [], matches: { displayName: "Test Name" } },
+      { '_id': '2', posts: [], comments: [{ '_id': '1' }], matches: { displayName: "test_name" } },
       { '_id': '3', posts: [], comments: [] }]
     const expected = {
+      type: 'RunnableMergeAction',
       destinationId: '1',
       sourceIds: ['2', '3'],
       justification: 'all accounts share the same name'
