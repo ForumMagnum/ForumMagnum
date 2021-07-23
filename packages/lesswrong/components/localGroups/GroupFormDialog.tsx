@@ -115,7 +115,6 @@ const isEAForum = forumTypeSetting.get() === 'EAForum';
         formComponents={{
           FormSubmit: SubmitComponent
         }}
-        removeFields={isEAForum ? ['types'] : []}
         prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id]}} // If edit form, do not prefill organizerIds
         successCallback={group => {
           onClose();
