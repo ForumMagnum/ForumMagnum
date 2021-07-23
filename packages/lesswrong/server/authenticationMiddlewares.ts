@@ -15,6 +15,7 @@ import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils
 import pick from 'lodash/pick';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile, mergeAccountWithAuth0 } from './authentication/auth0Accounts';
+import moment from 'moment';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -47,6 +48,8 @@ const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAu
 
 const githubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.github.clientId', null)
 const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.github.secret', null)
+export const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
+
 
 type IdFromProfile<P extends Profile> = (profile: P) => string | number
 type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser>>
@@ -134,6 +137,41 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
     return updatedUserResponse.data
   }
   return user
+}
+
+/**
+ * Saves desired return path to session data for redirection upon authentication
+ *
+ * Assumes the request was made with a query, like /auth/google?returnTo=bar/baz
+ *
+ * Requires express-session to be enabled
+ *
+ * Sets an expiration - otherwise a stale returnTo could cause future
+ * non-returnTo logins to erroneously redirect
+ */
+function saveReturnTo(req: any): void {
+  if (!expressSessionSecretSetting.get()) return
+  let { returnTo } = req.query
+  if (!returnTo || !req.session) return
+  
+  req.session.loginReturnTo = {
+    path: returnTo,
+    // Enough time to login, even if you have to go looking for your password.
+    // If you take longer than that, then hey, you probably forgot what you were
+    // doing anyway.
+    expiration: moment().add(30, 'minutes').toISOString()
+  }
+}
+
+/**
+ * Gets desired return path from session data
+ *
+ * Assumes that the initial request was made with a returnTo query parameter
+ */
+function getReturnTo(req: any): string {
+  if (!expressSessionSecretSetting.get() || !req.session?.loginReturnTo) return '/'
+  if (moment(req.session.loginReturnTo.expiration) < moment()) return '/'
+  return req.session.loginReturnTo.path
 }
 
 const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
@@ -290,8 +328,10 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     req.logIn(user, async (err) => {
       if (err) return next(err)
       await createAndSetToken(req, res, user)
+      
+      const returnTo = getReturnTo(req)
       res.statusCode=302;
-      res.setHeader('Location', '/')
+      res.setHeader('Location', returnTo)
       return res.end();
     })
   }
@@ -321,6 +361,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/google', (req, res, next) => {
+    saveReturnTo(req)
     passport.authenticate('google', {
       scope: [
         'https://www.googleapis.com/auth/plus.login',
@@ -336,6 +377,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/facebook', (req, res, next) => {
+    saveReturnTo(req)
     passport.authenticate('facebook')(req, res, next)
   })
 
@@ -347,6 +389,8 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/auth0', (req, res, next) => {
     const extraParams = pick(req.query, ['screen_hint', 'prompt'])
+    saveReturnTo(req)
+    
     passport.authenticate('auth0', {
       scope: 'profile email openid offline_access',
       ...extraParams
@@ -360,6 +404,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   })
 
   addConnectHandler('/auth/github', (req, res, next) => {
+    saveReturnTo(req)
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })
 }

@@ -137,6 +137,10 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
     options,
   };
   
+  // The Omit is a hacky way of ensuring that hocs props are omitted from the
+  // ones required to be passed in by parent components. It doesn't work for
+  // hocs that share prop names that overlap with actually passed-in props, like
+  // `location`.
   return (null as any as React.ComponentType<Omit<PropType,"classes">>);
 }
 
