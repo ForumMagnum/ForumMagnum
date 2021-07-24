@@ -72,10 +72,10 @@ export function startWebserver() {
   const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
-  const store = MongoStore.create({
-    client: getMongoClient()
-  })
   if (expressSessionSecret) {
+    const store = MongoStore.create({
+      client: getMongoClient()
+    })
     // Required by passport-auth0
     app.use(expressSession({
       secret: expressSessionSecret,

@@ -130,6 +130,7 @@ const partiallyReadSequenceItem = new SimpleSchema({
 });
 
 addFieldsDict(Users, {
+  // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
     type: Date,
     optional: true,
@@ -137,7 +138,11 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // Disable updating on the EA Forum until we can get it to play well with
+    // Auth0
+    canUpdate: forumTypeSetting.get() === 'EAForum' ?
+      [] :
+      [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -704,6 +709,18 @@ addFieldsDict(Users, {
     hidden: ['AlignmentForum', 'EAForum'].includes(forumTypeSetting.get()),
     canRead: ['members'],
   },
+  // Not reusing curated, because we might actually use that as well
+  subscribedToDigest: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.emails,
+    label: "Subscribe to the EA Forum Digest emails",
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: ['members'],
+    ...schemaDefaultValue(false)
+  },
   unsubscribeFromAll: {
     type: Boolean,
     optional: true,
@@ -985,7 +1002,7 @@ addFieldsDict(Users, {
       nullable: true,
     }),
     optional: true,
-    canRead: ['sunshineRegiment', 'admins'],
+    canRead: ['sunshineRegiment', 'admins', 'guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
@@ -1026,7 +1043,9 @@ addFieldsDict(Users, {
       else if (isReviewed && karma>=20) return 1.0;
       else if (isReviewed && karma>=0) return 0.9;
       else if (isReviewed) return 0.8;
-      else if (signUpReCaptchaRating>=0) {
+      else if (signUpReCaptchaRating !== null && 
+              signUpReCaptchaRating !== undefined && 
+              signUpReCaptchaRating>=0) {
         // Rescale recaptcha ratings to [0,.8]
         return signUpReCaptchaRating * 0.8;
       } else {
@@ -1397,6 +1416,14 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
   },
+  usernameUnset: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    hidden: true,
+    canUpdate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  }
 });
 
 makeEditable({
