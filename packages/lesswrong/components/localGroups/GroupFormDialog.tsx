@@ -100,7 +100,6 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
-const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   return <LWDialog
     open={true}
