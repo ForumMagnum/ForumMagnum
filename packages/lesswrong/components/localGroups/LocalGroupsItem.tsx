@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const postsItemLikeStyles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -82,8 +81,6 @@ const LocalGroupsItem = ({group, classes}: {
   const { PostsItemMetaInfo, GroupLinks } = Components
   
   if (!group) { return null }
-
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   return (
     <div className={classes.root}>

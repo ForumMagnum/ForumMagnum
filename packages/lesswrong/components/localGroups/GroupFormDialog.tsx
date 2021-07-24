@@ -9,7 +9,6 @@ import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -100,7 +99,6 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
-
   return <LWDialog
     open={true}
     onClose={onClose}
