@@ -4,7 +4,12 @@ import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 
-const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
+export const communityPath = isEAForum ? '/groupsAndEvents' : '/community';
+const communitySectionName = isEAForum ? 'Groups and Events' : 'Community';
+
+const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
@@ -496,16 +501,16 @@ if (hasEventsSetting.get()) {
 
     {
       name: 'CommunityHome',
-      path: '/community',
+      path: communityPath,
       componentName: 'CommunityHome',
-      title: "Community",
+      title: communitySectionName,
       ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
       path: '/meetups',
       componentName: 'CommunityHome',
-      title: "Community"
+      title: communitySectionName,
     },
 
     {

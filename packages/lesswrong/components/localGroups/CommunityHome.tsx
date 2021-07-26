@@ -92,6 +92,7 @@ const CommunityHome = ({classes}: {
       lng: currentUserLocation.lng,
       filters: filters,
     }
+    const title = forumTypeSetting.get() === 'EAForum' ? 'Groups and Events' : 'Welcome to the Community Section';
     return (
       <React.Fragment>
         <AnalyticsContext pageContext="communityHome">
@@ -99,7 +100,7 @@ const CommunityHome = ({classes}: {
             terms={mapEventTerms}
           />
             <SingleColumnSection>
-              <SectionTitle title="Welcome to the Community Section"/>
+              <SectionTitle title={title}/>
               <Typography variant="body2" className={classes.welcomeText}>
                 On the map above you can find nearby events (blue arrows)
                 {isEAForum ? ' and ' : ', '}
