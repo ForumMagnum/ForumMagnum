@@ -141,7 +141,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         />
       </div>
     </React.Fragment>
-  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap])
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap, isEAForum])
 
   if (!showMap) return null
 
