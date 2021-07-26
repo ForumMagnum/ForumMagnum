@@ -13,7 +13,6 @@ import { userIsAdmin } from '../../lib/vulcan-users'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
-    display: "block",
     color: theme.palette.primary.main,
     "& + &": {
       marginTop: theme.spacing.unit,
@@ -93,6 +92,16 @@ const CommunityHome = ({classes}: {
       filters: filters,
     }
     const title = forumTypeSetting.get() === 'EAForum' ? 'Groups and Events' : 'Welcome to the Community Section';
+    const WelcomeText = () => (isEAForum ?
+    <Typography variant="body2" className={classes.welcomeText}>
+      On the map above you can find nearby events (blue arrows) and local groups (green house icons). 
+      For more, visit the <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>.
+    </Typography> : 
+    <Typography variant="body2" className={classes.welcomeText}>
+      On the map above you can find nearby events (blue arrows), local groups (green house icons), and other users who have added themselves to the map (purple person icons)
+    </Typography>);
+
+
     return (
       <React.Fragment>
         <AnalyticsContext pageContext="communityHome">
@@ -101,21 +110,16 @@ const CommunityHome = ({classes}: {
           />
             <SingleColumnSection>
               <SectionTitle title={title}/>
-              <Typography variant="body2" className={classes.welcomeText}>
-                On the map above you can find nearby events (blue arrows)
-                {isEAForum ? ' and ' : ', '}
-                local groups (green house icons)
-                {!isEAForum && 'and other users who have added themselves to the map (purple person icons)'}
-              </Typography>
-                <SectionFooter>
-                  {!isEAForum &&
-                  <a onClick={openSetPersonalLocationForm}>
-                    {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
-                  </a>}
-                  <a onClick={openEventNotificationsForm}>
-                    {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
-                  </a>
-                </SectionFooter>
+              <WelcomeText />
+              <SectionFooter>
+                {!isEAForum &&
+                <a onClick={openSetPersonalLocationForm}>
+                  {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
+                </a>}
+                <a onClick={openEventNotificationsForm}>
+                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
+                </a>
+              </SectionFooter>
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Online Events"/>
@@ -146,12 +150,7 @@ const CommunityHome = ({classes}: {
             <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
-                {isEAForum ?
-                  <Typography variant="body1">
-                      <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>
-                  </Typography> :
-                  <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
-                }
+                {isEAForum && <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />}
               </AnalyticsContext>
             </SingleColumnSection>
         </AnalyticsContext>
