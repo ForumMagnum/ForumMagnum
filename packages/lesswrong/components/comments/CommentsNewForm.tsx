@@ -73,9 +73,21 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
 
   const wrappedSuccessCallback = (...args) => {
+    if (forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) {
+      openDialog({
+        componentName: "AFNonMemberSuccessPopup",
+        componentProps: {submission: args}
+      });
+    }
+    
     if (successCallback) {
       successCallback(...args)
     }
+    
+    // console.log(...args)
+    // const submission = args[0]
+    // console.log(submission)
+    //
     setLoading(false)
   };
 
@@ -107,8 +119,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
     };
   }
 
+  const { openDialog } = useDialog();
+
   const SubmitComponent = ({submitLabel = "Submit"}) => {
-    const { openDialog } = useDialog();
     return <div className={classes.submit}>
       {(type === "reply") && <Button
         onClick={cancelCallback}
@@ -127,12 +140,13 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
             });
             ev.preventDefault();
           }
-          else if (!currentUser.hideAFNonMemberWarning && forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) {
+          else if (!currentUser.hideAFNonMemberSubmissionWarning && forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) {
             //// redirect to LessWrong
-            openDialog({
-              componentName: "AFNonMemberPopup",
-              componentProps: {}
-            });
+            console.log({submissionWarningState: currentUser.hideAFNonMemberSubmissionWarning})
+            // openDialog({
+            //   componentName: "AFNonMemberPopup",
+            //   componentProps: {initialWarning: false}
+            // });
             ev.preventDefault();
           }
         }}
@@ -162,28 +176,36 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
         {commentWillBeHidden && <div className={classes.modNote}><em>
           A moderator will need to review your account before your comments will show up.
         </em></div>}
-
-        <WrappedSmartForm
-          collection={Comments}
-          mutationFragment={getFragment(fragment)}
-          successCallback={wrappedSuccessCallback}
-          cancelCallback={wrappedCancelCallback}
-          submitCallback={(data) => { 
-            setLoading(true);
-            return data
-          }}
-          errorCallback={() => setLoading(false)}
-          prefilledProps={prefilledProps}
-          layout="elementOnly"
-          formComponents={{
-            FormSubmit: SubmitComponent,
-            FormGroupLayout: Components.DefaultStyleFormGroup
-          }}
-          alignmentForumPost={post?.af}
-          addFields={currentUser?[]:["contents"]}
-          removeFields={removeFields}
-          formProps={formProps}
-        />
+        <div onClick={(ev) => {
+          if (!currentUser?.hideAFNonMemberInitialWarning && forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) { //this line is very long. what do we usually do?
+            openDialog({
+              componentName: "AFNonMemberPopup",
+              componentProps: {}
+            })
+          }
+        }}>
+          <WrappedSmartForm
+            collection={Comments}
+            mutationFragment={getFragment(fragment)}
+            successCallback={wrappedSuccessCallback}
+            cancelCallback={wrappedCancelCallback}
+            submitCallback={(data) => { 
+              setLoading(true);
+              return data
+            }}
+            errorCallback={() => setLoading(false)}
+            prefilledProps={prefilledProps}
+            layout="elementOnly"
+            formComponents={{
+              FormSubmit: SubmitComponent,
+              FormGroupLayout: Components.DefaultStyleFormGroup
+            }}
+            alignmentForumPost={post?.af}
+            addFields={currentUser?[]:["contents"]}
+            removeFields={removeFields}
+            formProps={formProps}
+          />
+        </div>
         </div>
         {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
           <ModerationGuidelinesBox post={post} />

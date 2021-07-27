@@ -23,8 +23,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberPopup = ({initialWarning=true, onClose, classes}: {
-  initialWarning: boolean,
+const AFNonMemberSuccessPopup = ({submission, onClose, classes}: {
+  submission: any //TODO: figure out correct types here
   onClose: ()=>void,
   classes: ClassesType,
 }) => {
@@ -32,13 +32,15 @@ const AFNonMemberPopup = ({initialWarning=true, onClose, classes}: {
   const { flash } = useMessages();
   const [open, setOpen] = useState(true)
   const { ContentItemBody, LWDialog, Button } = Components
-  const { tag } = useTagBySlug(initialWarning ? "af-non-member-popup-first" : "af-non-member-popup-submission", "TagFragment")
+  const { tag } = useTagBySlug("af-non-member-submission-success", "TagFragment")
   
   const handleClose = () => {
     setOpen(false)
     onClose()
   };
-
+  
+  const submissionIsComment = !!submission?.postId 
+  
   return (
     <LWDialog
       open={open}
@@ -54,26 +56,25 @@ const AFNonMemberPopup = ({initialWarning=true, onClose, classes}: {
           dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
           description={`tag ${tag?.name}`}
         />
-        <Button className={classes.understandConfirmation} onClick={() => {
-          if (initialWarning) { //not sure of best syntax. Ternary within updateCurrentUser didn't seem to work
-            void updateCurrentUser({hideAFNonMemberInitialWarning: true}) 
-           } else {
-            void updateCurrentUser({hideAFNonMemberSubmissionWarning: true})
-          }
-          flash({messageString: "Alignment Forum posting policy acknowledged"});
+        <Button className={classes.goToLW}>
+          <a href={submissionIsComment ? `https://www.lesswrong.com/${submission.postId}#${submission._id}`: `https://www.lesswrong.com/${submission._id}`}>
+            {`Take me to my ${submissionIsComment ? "comment" : "post"} on LessWrong.`}
+          </a>
+        </Button>
+        <Button className={classes.stayHere} onClick={() => {
           handleClose()
         }}>
-          <strong>I understand.</strong>
+          <strong>No thanks, I'll stay here.</strong>
         </Button>
       </Card>
     </LWDialog>
   );
 }
 
-const AFNonMemberPopupComponent = registerComponent('AFNonMemberPopup', AFNonMemberPopup, {styles});
+const AFNonMemberSuccessPopupComponent = registerComponent('AFNonMemberSuccessPopup', AFNonMemberSuccessPopup, {styles});
 
 declare global {
   interface ComponentTypes {
-    AFNonMemberPopup: typeof AFNonMemberPopupComponent
+    AFNonMemberSuccessPopup: typeof AFNonMemberSuccessPopupComponent
   }
 }
