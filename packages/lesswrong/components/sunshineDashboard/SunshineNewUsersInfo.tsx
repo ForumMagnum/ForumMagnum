@@ -171,7 +171,6 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     updateUser({
       selector: {_id: user._id},
       data: {
-        sunshineFlagged: false,
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
