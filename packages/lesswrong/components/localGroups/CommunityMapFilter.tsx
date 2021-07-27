@@ -10,6 +10,8 @@ import Divider from '@material-ui/core/Divider';
 import VisibilityIcon from '@material-ui/icons/VisibilityOff';
 import EmailIcon from '@material-ui/icons/Email';
 import AddIcon from '@material-ui/icons/Add';
+import RoomIcon from '@material-ui/icons/Room';
+import HomeIcon from '@material-ui/icons/Home';
 import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser';
@@ -103,8 +105,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'rgba(0,0,0,0.05)'
   },
   buttonIcon: {
-    width: '1.2em',
-    height: '1.2em'
+    width: '1.2rem',
+    height: '1.2rem',
+  },
+  eaButtonIcon: {
+    width: '1.7rem',
+    height: '1.7rem',
   },
   actionIcon: {
     width: '0.7em',
@@ -237,12 +243,13 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
-
   
   render() {
     const { classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals, history } = this.props;
   
     const isEAForum = forumTypeSetting.get() === 'EAForum';
+    const GroupIcon = () => isEAForum ? <HomeIcon className={classes.eaButtonIcon}/> : <GroupIconSVG className={classes.buttonIcon}/>;
+    const EventIcon = () => isEAForum ? <RoomIcon  className={classes.eaButtonIcon}/> : <ArrowSVG className={classes.buttonIcon}/>;
 
     const isAdmin = userIsAdmin(currentUser);
 
@@ -267,10 +274,10 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
             className={classes.filterSection} 
           >
             <span className={classes.desktopFilter}>
-              <GroupIconSVG className={classes.buttonIcon} /> 
+              <GroupIcon/> 
             </span>
             <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showGroups})} onClick={toggleGroups}>
-              <GroupIconSVG className={classes.buttonIcon} /> 
+              <GroupIcon/>
             </span>
             <span className={classes.buttonText}>Groups</span>
             <span className={classes.actionContainer}>
@@ -283,18 +290,15 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
                   className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showGroups})} 
                 />
               </Tooltip>
-              
             </span>
           </div>
           <div 
-            className={classes.filterSection}
-            
-          >
+            className={classes.filterSection}>
             <span className={classes.desktopFilter}>
-              <ArrowSVG className={classes.buttonIcon} /> 
+              <EventIcon/> 
             </span>
             <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showEvents})} onClick={toggleEvents}>
-              <ArrowSVG className={classes.buttonIcon} /> 
+              <EventIcon/>
             </span>
             <span className={classes.buttonText}> Events </span>
             <span className={classes.actionContainer}>
@@ -307,7 +311,6 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
                   className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showEvents})} 
                 />
               </Tooltip>
-              
             </span>
           </div>
           {!isEAForum && <div

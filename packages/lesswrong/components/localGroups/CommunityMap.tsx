@@ -4,12 +4,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import { PersonSVG } from './Icons'
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import PersonIcon from '@material-ui/icons/PersonPin';
 
 export const mapsHeight = 440
 const mapsWidth = "100vw"
@@ -165,8 +165,8 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
 const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
   icon: {
-    height: 15,
-    width: 15,
+    height: 20,
+    width: 20,
     fill: '#3f51b5',
     opacity: 0.8
   }
@@ -193,7 +193,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
           offsetTop={-20}
         >
           <span onClick={() => handleClick(user._id)}>
-            <PersonSVG className={classes.icon}/>
+            <PersonIcon className={classes.icon}/>
           </span>
         </Marker>
         {openWindows.includes(user._id) && 
