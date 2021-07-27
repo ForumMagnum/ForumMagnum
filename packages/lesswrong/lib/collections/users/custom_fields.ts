@@ -244,6 +244,19 @@ addFieldsDict(Users, {
     label: "Hide other users' Elicit predictions until I have predicted myself",
   },
   
+  hideAFNonMemberWarning: {
+    order: 90,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() !== 'AlignmentForum',
+    label: "Don't warn me about how non-member AIAF posting works",
+  },
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,

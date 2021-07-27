@@ -10,6 +10,7 @@ import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -122,6 +123,14 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
           if (!currentUser) {
             openDialog({
               componentName: "LoginPopup",
+              componentProps: {}
+            });
+            ev.preventDefault();
+          }
+          else if (!currentUser.hideAFNonMemberWarning && forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) {
+            //// redirect to LessWrong
+            openDialog({
+              componentName: "AFNonMemberPopup",
               componentProps: {}
             });
             ev.preventDefault();

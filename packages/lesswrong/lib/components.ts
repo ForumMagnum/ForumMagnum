@@ -522,6 +522,8 @@ importComponent("PetrovDayLossScreen", () => require('../components/seasonal/Pet
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
+importComponent("AFNonMemberPopup", () => require('../components/alignment-forum/AFNonMemberPopup'));
+
 
 importComponent("NewQuestionDialog", () => require('../components/questions/NewQuestionDialog'));
 importComponent("NewRelatedQuestionForm", () => require('../components/questions/NewRelatedQuestionForm'));
