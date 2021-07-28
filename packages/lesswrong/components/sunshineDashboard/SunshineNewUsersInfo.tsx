@@ -270,6 +270,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     }
 
     let signatureString = `${currentUser?.displayName}, ${getTodayString()}`
+    
     if (!sunshineNotes.match(signatureString)) {
       signatureString += !sunshineNotes ? ": " : ": \n\n"
       return signatureString + sunshineNotes
