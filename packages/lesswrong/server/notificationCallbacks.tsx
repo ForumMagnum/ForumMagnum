@@ -100,7 +100,7 @@ const createNotifications = async ({ userIds, notificationType, documentType, do
   notificationType: string, 
   documentType: string|null, 
   documentId: string|null, 
-  noEmail?: boolean|null
+  noEmail?: boolean
 }) => {
   return Promise.all(
     userIds.map(async userId => {
@@ -136,7 +136,7 @@ const createNotification = async ({userId, notificationType, documentType, docum
     notificationType: string, 
     documentType: string|null, 
     documentId: string|null, 
-    noEmail?: boolean|null
+    noEmail?: boolean
   }) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
