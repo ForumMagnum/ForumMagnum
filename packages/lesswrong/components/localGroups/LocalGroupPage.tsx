@@ -73,6 +73,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const { html = ""} = group.contents || {}
   const htmlBody = {__html: html}
   const isAdmin = userIsAdmin(currentUser);
+  const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
   const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   const { googleLocation: { geometry: { location } }} = group;
@@ -102,13 +103,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                 <div className={classes.groupLinks}><GroupLinks document={group} /></div>
               </span>
               {Posts.options.mutations.new.check(currentUser) &&
-                (!isEAForum || isAdmin) && <SectionButton>
+                (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
                   <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
                     New event
                   </Link>
                 </SectionButton>}
               {Localgroups.options.mutations.edit.check(currentUser, group) &&
-               (!isEAForum || isAdmin ) && 
+               (!isEAForum || isAdmin || isGroupAdmin ) && 
                 <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
             </SectionFooter>
