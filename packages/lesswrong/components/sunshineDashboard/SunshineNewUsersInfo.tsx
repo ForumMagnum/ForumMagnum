@@ -263,6 +263,26 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
+  const getTodayString = () => {
+    const today = new Date();
+    return today.toLocaleString('default', { month: 'short', day: 'numeric'});
+  }
+  
+
+  const signAndDate = (sunshineNotes:string, inputType:string) => {
+    if (inputType !== "deleteContentBackward") {
+      let signatureString = `${currentUser?.displayName}, ${getTodayString()}`
+      if (!sunshineNotes.match(signatureString)) {
+        signatureString += sunshineNotes.length == 1 ? ": " : ": \n\n"
+        return signatureString + sunshineNotes
+      } 
+    }
+
+    return sunshineNotes
+  }
+
+  
+
   return (
       <div className={classes.root}>
         <Typography variant="body2">
@@ -275,7 +295,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
               <Input 
                 value={notes} 
                 fullWidth
-                onChange={(e) => { setNotes(e.target.value)}} 
+                onChange={(e) => {console.log(!e.target.value); setNotes(signAndDate(e.target.value, e.nativeEvent?.inputType))}} 
                 disableUnderline 
                 placeholder="Notes for other moderators"
                 multiline
