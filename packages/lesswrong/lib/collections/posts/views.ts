@@ -60,6 +60,9 @@ export const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
+  "uncurated": {
+    curatedDate: viewFieldNullOrMissing
+  },
   "nonSticky": {
     sticky: false,
   },
