@@ -288,7 +288,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     return sunshineNotes
   }
 
-  const handleClick = (e) => {
+  const handleClick = () => {
     const signedNotes = signAndDate(notes)
     if (signedNotes != notes) {
       setNotes(signedNotes)
@@ -308,7 +308,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                 value={notes} 
                 fullWidth
                 onChange={e => setNotes(e.target.value)}
-                onClick={e => handleClick(e)}
+                onClick={e => handleClick()}
                 disableUnderline 
                 placeholder="Notes for other moderators"
                 multiline
