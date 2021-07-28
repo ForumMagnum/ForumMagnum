@@ -23,8 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberPopup = ({initialWarning=true, onClose, classes}: {
-  initialWarning: boolean,
+const AFNonMemberInitialPopup = ({onClose, classes}: {
   onClose: ()=>void,
   classes: ClassesType,
 }) => {
@@ -32,7 +31,7 @@ const AFNonMemberPopup = ({initialWarning=true, onClose, classes}: {
   const { flash } = useMessages();
   const [open, setOpen] = useState(true)
   const { ContentItemBody, LWDialog, Button } = Components
-  const { tag } = useTagBySlug(initialWarning ? "af-non-member-popup-first" : "af-non-member-popup-submission", "TagFragment")
+  const { tag } = useTagBySlug("af-non-member-popup-first", "TagFragment")
   
   const handleClose = () => {
     setOpen(false)
@@ -55,11 +54,7 @@ const AFNonMemberPopup = ({initialWarning=true, onClose, classes}: {
           description={`tag ${tag?.name}`}
         />
         <Button className={classes.understandConfirmation} onClick={() => {
-          if (initialWarning) { //not sure of best syntax. Ternary within updateCurrentUser didn't seem to work
-            void updateCurrentUser({hideAFNonMemberInitialWarning: true}) 
-           } else {
-            void updateCurrentUser({hideAFNonMemberSubmissionWarning: true})
-          }
+          void updateCurrentUser({hideAFNonMemberInitialWarning: true}) 
           flash({messageString: "Alignment Forum posting policy acknowledged"});
           handleClose()
         }}>
@@ -70,10 +65,10 @@ const AFNonMemberPopup = ({initialWarning=true, onClose, classes}: {
   );
 }
 
-const AFNonMemberPopupComponent = registerComponent('AFNonMemberPopup', AFNonMemberPopup, {styles});
+const AFNonMemberInitialPopupComponent = registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopup, {styles});
 
 declare global {
   interface ComponentTypes {
-    AFNonMemberPopup: typeof AFNonMemberPopupComponent
+    AFNonMemberPopup: typeof AFNonMemberInitialPopupComponent
   }
 }

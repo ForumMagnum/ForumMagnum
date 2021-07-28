@@ -23,8 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberSuccessPopup = ({submission, onClose, classes}: {
-  submission: any //TODO: figure out correct types here
+const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
+  _id: string,
+  postId: string | null,
   onClose: ()=>void,
   classes: ClassesType,
 }) => {
@@ -39,7 +40,8 @@ const AFNonMemberSuccessPopup = ({submission, onClose, classes}: {
     onClose()
   };
   
-  const submissionIsComment = !!submission?.postId 
+  
+  const submissionIsComment = !!postId 
   
   return (
     <LWDialog
@@ -57,7 +59,7 @@ const AFNonMemberSuccessPopup = ({submission, onClose, classes}: {
           description={`tag ${tag?.name}`}
         />
         <Button className={classes.goToLW}>
-          <a href={submissionIsComment ? `https://www.lesswrong.com/${submission.postId}#${submission._id}`: `https://www.lesswrong.com/${submission._id}`}>
+          <a href={submissionIsComment ? `https://www.lesswrong.com/${postId}#${_id}`: `https://www.lesswrong.com/${_id}`}>
             {`Take me to my ${submissionIsComment ? "comment" : "post"} on LessWrong.`}
           </a>
         </Button>
