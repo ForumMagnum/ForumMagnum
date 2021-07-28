@@ -288,22 +288,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     return sunshineNotes
   }
 
-  const positionCaret = ({referenceString, target}) => {
-    // NOT WORKING RIGHT NOW
-    const position = referenceString.length
-    target.selectionStart = position
-    target.selectionEnd = position
-  }
-
   const handleClick = (e) => {
     const signedNotes = signAndDate(notes)
     if (signedNotes != notes) {
-      
       setNotes(signedNotes)
-     positionCaret({
-        referenceString:`${signature}: `, 
-        target: e.target
-      }) 
     }
   }
 
