@@ -268,20 +268,15 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     return today.toLocaleString('default', { month: 'short', day: 'numeric'});
   }
   
-
-  const signAndDate = (sunshineNotes:string, inputType:string) => {
-    if (inputType !== "deleteContentBackward") {
-      let signatureString = `${currentUser?.displayName}, ${getTodayString()}`
-      if (!sunshineNotes.match(signatureString)) {
-        signatureString += sunshineNotes.length == 1 ? ": " : ": \n\n"
-        return signatureString + sunshineNotes
-      } 
-    }
-
+  const signAndDate = (sunshineNotes:string) => {
+    let signatureString = `${currentUser?.displayName}, ${getTodayString()}`
+    if (!sunshineNotes.match(signatureString)) {
+      signatureString += !sunshineNotes ? ": " : ": \n\n"
+      return signatureString + sunshineNotes
+    } 
+    
     return sunshineNotes
   }
-
-  
 
   return (
       <div className={classes.root}>
@@ -293,9 +288,9 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
             <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
             <div className={classes.notes}>
               <Input 
-                value={notes} 
+                value={signAndDate(notes)} 
                 fullWidth
-                onChange={(e) => {console.log(!e.target.value); setNotes(signAndDate(e.target.value, e.nativeEvent?.inputType))}} 
+                onChange={(e) => {setNotes(e.target.value)}} 
                 disableUnderline 
                 placeholder="Notes for other moderators"
                 multiline
