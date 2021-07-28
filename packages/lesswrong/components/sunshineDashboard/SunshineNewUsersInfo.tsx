@@ -179,6 +179,8 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         sunshineNotes: notes
       }
     })
+
+    setNotes( signatureWithNote("Snooze")+notes )
   }
 
   const banMonths = 3
@@ -197,6 +199,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           sunshineNotes: notes
         }
       })
+      setNotes( signatureWithNote("Ban")+notes )
     }
   }
 
@@ -216,6 +219,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           sunshineNotes: notes
         }
       })
+      setNotes( signatureWithNote("Purge")+notes )
     }
   }
 
@@ -227,6 +231,9 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         sunshineNotes: notes
       }
     })
+
+    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
+    setNotes( signatureWithNote(flagStatus)+notes )
   }
 
   const { results: posts, loading: postsLoading } = useMulti({
@@ -263,20 +270,39 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
-  const signAndDate = (sunshineNotes:string) => {
-    const getTodayString = () => {
-      const today = new Date();
-      return today.toLocaleString('default', { month: 'short', day: 'numeric'});
-    }
+  const getTodayString = () => {
+    const today = new Date();
+    return today.toLocaleString('default', { month: 'short', day: 'numeric'});
+  }
 
-    let signatureString = `${currentUser?.displayName}, ${getTodayString()}`
-    
-    if (!sunshineNotes.match(signatureString)) {
-      signatureString += !sunshineNotes ? ": " : ": \n\n"
-      return signatureString + sunshineNotes
+  const signature = `${currentUser?.displayName}, ${getTodayString()}`
+  const signatureWithNote = (note:string) => {
+    return `${signature}: ${note}\n`
+  }
+
+  const signAndDate = (sunshineNotes:string) => {
+    if (!sunshineNotes.match(signature)) {
+      const padding = !sunshineNotes ? ": " : ": \n\n"
+      return signature + padding + sunshineNotes
     } 
-    
     return sunshineNotes
+  }
+
+  const positionCaret = ({referenceString, target}) => {
+    const position = referenceString.length
+    target.selectionStart = position
+    target.selectionEnd = position
+  }
+
+  const handleClick = (e) => {
+    const signedNotes = signAndDate(notes)
+    if (signedNotes != notes) {
+      setNotes(signedNotes)
+      positionCaret({
+        referenceString:`${currentUser?.displayName}, ${getTodayString()}: `, 
+        target: e.target
+      })
+    }
   }
 
   return (
@@ -289,9 +315,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
             <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
             <div className={classes.notes}>
               <Input 
-                value={signAndDate(notes)} 
+                value={notes} 
                 fullWidth
-                onChange={(e) => {setNotes(e.target.value)}} 
+                onChange={e => setNotes(e.target.value)}
+                onClick={e => handleClick(e)}
                 disableUnderline 
                 placeholder="Notes for other moderators"
                 multiline
