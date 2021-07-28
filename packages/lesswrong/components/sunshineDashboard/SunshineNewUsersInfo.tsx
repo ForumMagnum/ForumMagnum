@@ -263,12 +263,12 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
-  const getTodayString = () => {
-    const today = new Date();
-    return today.toLocaleString('default', { month: 'short', day: 'numeric'});
-  }
-  
   const signAndDate = (sunshineNotes:string) => {
+    const getTodayString = () => {
+      const today = new Date();
+      return today.toLocaleString('default', { month: 'short', day: 'numeric'});
+    }
+
     let signatureString = `${currentUser?.displayName}, ${getTodayString()}`
     if (!sunshineNotes.match(signatureString)) {
       signatureString += !sunshineNotes ? ": " : ": \n\n"
