@@ -297,9 +297,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   const handleClick = (e) => {
     const signedNotes = signAndDate(notes)
     if (signedNotes != notes) {
+      
       setNotes(signedNotes)
       positionCaret({
-        referenceString:`${currentUser?.displayName}, ${getTodayString()}: `, 
+        referenceString:`${signature}: `, 
         target: e.target
       })
     }
