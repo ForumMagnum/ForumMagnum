@@ -8,11 +8,19 @@ import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  link: {
+    color: theme.palette.primary.main,
+    "& + &": {
+      marginTop: theme.spacing.unit,
+    },
+  },
   welcomeText: {
-    margin: 12
-  }
+    margin: 12,
+  },
 }))
 
 interface ExternalProps {
@@ -51,6 +59,9 @@ const CommunityHome = ({classes}: {
     });
   }
 
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  const isAdmin = userIsAdmin(currentUser);
+
   const render = () => {
     const filters = query?.filters || [];
     const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography } = Components
@@ -80,6 +91,18 @@ const CommunityHome = ({classes}: {
       lng: currentUserLocation.lng,
       filters: filters,
     }
+    const title = forumTypeSetting.get() === 'EAForum' ? 'Groups and Events' : 'Welcome to the Community Section';
+    const WelcomeText = () => (isEAForum ?
+    <Typography variant="body2" className={classes.welcomeText}>
+      <p>On the map above you can find nearby events (blue pin icons) and local groups (green house icons).</p>
+      <p>This page is being trialed with a handful of EA groups, so the map isn't yet fully populated.
+      For more, visit the <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>.</p>
+    </Typography> : 
+    <Typography variant="body2" className={classes.welcomeText}>
+      On the map above you can find nearby events (blue arrows), local groups (green house icons), and other users who have added themselves to the map (purple person icons)
+    </Typography>);
+
+
     return (
       <React.Fragment>
         <AnalyticsContext pageContext="communityHome">
@@ -87,18 +110,17 @@ const CommunityHome = ({classes}: {
             terms={mapEventTerms}
           />
             <SingleColumnSection>
-              <SectionTitle title="Welcome to the Community Section"/>
-              <Typography variant="body2" className={classes.welcomeText}>
-                On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
-              </Typography>
-                <SectionFooter>
-                  <a onClick={openSetPersonalLocationForm}>
-                    {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
-                  </a>
-                  <a onClick={openEventNotificationsForm}>
-                    {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
-                  </a>
-                </SectionFooter>
+              <SectionTitle title={title}/>
+              <WelcomeText />
+              <SectionFooter>
+                {!isEAForum &&
+                <a onClick={openSetPersonalLocationForm}>
+                  {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
+                </a>}
+                <a onClick={openEventNotificationsForm}>
+                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
+                </a>
+              </SectionFooter>
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Online Events"/>
@@ -117,7 +139,7 @@ const CommunityHome = ({classes}: {
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Local Groups">
-                {currentUser && <GroupFormLink />}
+                {currentUser && (!isEAForum || isAdmin) && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Components.Loading />
@@ -129,7 +151,7 @@ const CommunityHome = ({classes}: {
             <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
-                <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+                {isEAForum && <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />}
               </AnalyticsContext>
             </SingleColumnSection>
         </AnalyticsContext>

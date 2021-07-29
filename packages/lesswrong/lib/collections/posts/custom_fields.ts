@@ -16,7 +16,8 @@ import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 
-const frontpageDefault = forumTypeSetting.get() === "EAForum" ? () => new Date() : undefined
+const isEAForum = forumTypeSetting.get() === 'EAForum'
+const frontpageDefault = isEAForum ? () => new Date() : undefined
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
@@ -793,7 +794,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => isEAForum || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
     group: formGroups.event,
@@ -963,7 +964,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['admins', postCanEditHideCommentKarma],
     editableBy: ['admins', postCanEditHideCommentKarma],
-    hidden: forumTypeSetting.get() !== 'EAForum',
+    hidden: !isEAForum,
     denormalized: true,
     ...schemaDefaultValue(false),
   },

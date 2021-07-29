@@ -50,7 +50,6 @@ export class DatabasePublicSetting<SettingValueType> {
 
 export const googleTagManagerIdSetting = new DatabasePublicSetting<string | null>('googleTagManager.apiKey', null) // Google Tag Manager ID
 export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>('reCaptcha.apiKey', null) // ReCaptcha API Key
-
 // Algolia Search Settings
 export const algoliaAppIdSetting = new DatabasePublicSetting<string | null>('algolia.appId', null)
 export const algoliaSearchKeySetting = new DatabasePublicSetting<string | null>('algolia.searchKey', null)
@@ -81,3 +80,5 @@ export const gatherTownRoomName = new DatabasePublicSetting<string | null>("gath
 // Public elicit settings
 export const elicitSourceURL = new DatabasePublicSetting('elicitSourceURL', 'https://LessWrong.com')
 export const elicitSourceId = new DatabasePublicSetting('elicitSourceId', 'XCjOpumu-')
+
+export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
