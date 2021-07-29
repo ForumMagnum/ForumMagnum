@@ -2,9 +2,10 @@ import { Comments } from "../../collections/comments";
 import { ensureIndex } from '../../collectionUtils';
 import { augmentForDefaultView } from '../../collections/comments/views';
 
-Comments.addView("alignmentSuggestedComments", function () {
+Comments.addView("alignmentSuggestedComments", function (terms) {
   return {
     selector: {
+      postId: terms.postId,
       af: false,
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
       reviewForAlignmentUserId: {$exists:false}

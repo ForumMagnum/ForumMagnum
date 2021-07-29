@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
@@ -20,6 +20,8 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import {userNeedsAFNonMemberWarning} from "../../lib/alignment-forum/users/helpers";
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -63,7 +65,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const { LWPopper, LWTooltip } = Components
-
+  
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
     return <div className={classes.root}>
@@ -77,7 +79,9 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-
+  
+  
+  
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -103,20 +107,32 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
           placement="bottom-start"
         >
           <Paper>
-            {showNewButtons &&
+            <div onClick={(ev) => {
+              console.log("Fire dialog")
+              console.log({hideWarning: currentUser?.hideAFNonMemberInitialWarning})
+              console.log({
+                needsWarningFunction: userNeedsAFNonMemberWarning(currentUser),
+                haveUser: !!currentUser,
+                forumIsAlignment: forumTypeSetting.get() === 'AlignmentForum',
+                userHasnotConfirmed: (!currentUser.hideAFNonMemberInitialWarning || !true),
+                userCannotDoStuff: !(userCanDo(currentUser, 'comments.alignment.new')||userCanDo(currentUser, 'posts.alignment.new'))
+              })
+              
+              if (userNeedsAFNonMemberWarning(currentUser)) {
+                openDialog({componentName: "AFNonMemberInitialPopup"})
+              }
+              ev.preventDefault()
+            }}>
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 New Question
               </MenuItem>
-            }
-            {showNewButtons && <Link to={`/newPost`}>
+              <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>
-            }
-            {showNewButtons &&
-              <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-                New Shortform
-              </MenuItem>
-            }
+            </div>
+            {showNewButtons && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
+               New Shortform
+            </MenuItem> }
             {showNewButtons && <Divider/>}
             {showNewButtons && forumTypeSetting.get() !== 'EAForum' &&
               <Link to={`/newPost?eventForm=true`}>

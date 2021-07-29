@@ -168,12 +168,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
     return false
   }
 
-  // if (forumTypeSetting.get() === 'AlignmentForum') {
-  //   if (!userCanDo(user, 'comments.alignment.new')) {
-  //     return userOwns(user, post) && userCanDo(user, 'votes.alignment')
-  //   }
-  // }
-
   return true
 }
 
@@ -186,11 +180,6 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
     return "This post's author has blocked you from commenting."
   }
 
-  // if (forumTypeSetting.get() === 'AlignmentForum') {
-  //   if (!userCanDo(user, 'comments.alignment.new')) {
-  //     return "You must be approved by an admin to comment on the AI Alignment Forum"
-  //   }
-  // }
   if (userIsBannedFromAllPosts(user, post, postAuthor)) {
     return "This post's author has blocked you from commenting."
   }

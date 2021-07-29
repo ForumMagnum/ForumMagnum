@@ -92,7 +92,6 @@ registerFragment(`
     markDownPostEditor
     hideElicitPredictions
     hideAFNonMemberInitialWarning
-    hideAFNonMemberSubmissionWarning
     commentSorting
     location
     googleLocation
@@ -256,7 +255,6 @@ registerFragment(`
     markDownPostEditor
     hideElicitPredictions
     hideAFNonMemberInitialWarning
-    hideAFNonMemberSubmissionWarning
     hideIntercom
     commentSorting
     currentFrontpageFilter

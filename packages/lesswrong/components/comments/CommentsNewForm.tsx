@@ -10,7 +10,10 @@ import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import {userNeedsAFNonMemberWarning} from "../../lib/alignment-forum/users/helpers";
+import {commentSuggestForAlignment} from "../../lib/alignment-forum/comments/helpers";
+import {useUpdate} from "../../lib/crud/withUpdate";
+import {AFNonMemberSuccessHandling} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,23 +74,20 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  
+  const { openDialog } = useDialog();
+  const { mutate: updateComment } = useUpdate({
+    collectionName: "Comments",
+    fragmentName: 'SuggestAlignmentComment',
+  })
+  
 
   const wrappedSuccessCallback = (...args) => {
-    if (forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) {
-      openDialog({
-        componentName: "AFNonMemberSuccessPopup",
-        componentProps: {submission: args}
-      });
-    }
-    
+    const comment = args as unknown as CommentsList
+    // AFNonMemberSuccessHandling({currentUser, comment, openDialog, updateComment})
     if (successCallback) {
       successCallback(...args)
     }
-    
-    // console.log(...args)
-    // const submission = args[0]
-    // console.log(submission)
-    //
     setLoading(false)
   };
 
@@ -119,8 +119,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
     };
   }
 
-  const { openDialog } = useDialog();
-
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     return <div className={classes.submit}>
       {(type === "reply") && <Button
@@ -138,15 +136,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
               componentName: "LoginPopup",
               componentProps: {}
             });
-            ev.preventDefault();
-          }
-          else if (!currentUser.hideAFNonMemberSubmissionWarning && forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) {
-            //// redirect to LessWrong
-            console.log({submissionWarningState: currentUser.hideAFNonMemberSubmissionWarning})
-            // openDialog({
-            //   componentName: "AFNonMemberPopup",
-            //   componentProps: {initialWarning: false}
-            // });
             ev.preventDefault();
           }
         }}
@@ -176,36 +165,33 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
         {commentWillBeHidden && <div className={classes.modNote}><em>
           A moderator will need to review your account before your comments will show up.
         </em></div>}
-        <div onClick={(ev) => {
-          if (!currentUser?.hideAFNonMemberInitialWarning && forumTypeSetting.get() === 'AlignmentForum' && !userCanDo(currentUser, 'comments.alignment.new')) { //this line is very long. what do we usually do?
-            openDialog({
-              componentName: "AFNonMemberPopup",
-              componentProps: {}
-            })
-          }
-        }}>
-          <WrappedSmartForm
-            collection={Comments}
-            mutationFragment={getFragment(fragment)}
-            successCallback={wrappedSuccessCallback}
-            cancelCallback={wrappedCancelCallback}
-            submitCallback={(data) => { 
-              setLoading(true);
-              return data
-            }}
-            errorCallback={() => setLoading(false)}
-            prefilledProps={prefilledProps}
-            layout="elementOnly"
-            formComponents={{
-              FormSubmit: SubmitComponent,
-              FormGroupLayout: Components.DefaultStyleFormGroup
-            }}
-            alignmentForumPost={post?.af}
-            addFields={currentUser?[]:["contents"]}
-            removeFields={removeFields}
-            formProps={formProps}
-          />
-        </div>
+          <div className={classes.afNonMemberPopDiv} onFocus={(ev) => {
+              if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
+                openDialog({componentName: "AFNonMemberInitialPopup"})
+              }
+          }}>
+            <WrappedSmartForm
+              collection={Comments}
+              mutationFragment={getFragment(fragment)}
+              successCallback={wrappedSuccessCallback}
+              cancelCallback={wrappedCancelCallback}
+              submitCallback={(data) => { 
+                setLoading(true);
+                return data
+              }}
+              errorCallback={() => setLoading(false)}
+              prefilledProps={prefilledProps}
+              layout="elementOnly"
+              formComponents={{
+                FormSubmit: SubmitComponent,
+                FormGroupLayout: Components.DefaultStyleFormGroup
+              }}
+              alignmentForumPost={post?.af}
+              addFields={currentUser?[]:["contents"]}
+              removeFields={removeFields}
+              formProps={formProps}
+            />
+          </div>
         </div>
         {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
           <ModerationGuidelinesBox post={post} />

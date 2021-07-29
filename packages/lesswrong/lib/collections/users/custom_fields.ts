@@ -257,19 +257,6 @@ addFieldsDict(Users, {
     label: "Don't warn me about how non-member AIAF posting works before writing",
   },
 
-  hideAFNonMemberSubmissionWarning: {
-    order: 91,
-    type: Boolean,
-    optional: true,
-    defaultValue: false,
-    canRead: [userOwns],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    control: 'checkbox',
-    group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'AlignmentForum', //make this completely hidden later??
-    label: "Don't warn me about how non-member AIAF posting works before submission",
-  },
-
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,

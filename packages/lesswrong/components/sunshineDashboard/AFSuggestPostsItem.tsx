@@ -11,6 +11,7 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { defaultAFModeratorPMsTagSlug } from "./AFSuggestCommentsItem";
 
 interface ExternalProps {
   post: SuggestAlignmentPost,
@@ -58,6 +59,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
               { post.title }
             </Link>
           </Components.Typography>
+          <Components.SunshineSendMessageWithDefaults user={post.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/> 
           <br/>
           <Components.PostsHighlight post={post} maxLengthWords={600}/>
         </Components.SidebarHoverOver>

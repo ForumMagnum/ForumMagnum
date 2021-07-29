@@ -10,6 +10,7 @@ import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
+import {useMulti} from "../../../lib/crud/withMulti";
 
 export const MAX_COLUMN_WIDTH = 720
 
@@ -104,7 +105,15 @@ const PostsPage = ({post, refetch, classes}: {
   const canonicalUrl = post.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
   const socialPreviewImageUrl = post.socialPreviewImageUrl
-
+  
+  //Get number of unreviewed comments for AF
+  const { count: numUnreviewedAFComments} = useMulti({
+    terms: {view: "alignmentSuggestedComments", postId: post._id},
+    collectionName: "Comments",
+    fragmentName: 'SuggestAlignmentComment',
+    fetchPolicy: 'cache-and-network',
+  });
+ 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
       tableOfContents={
@@ -152,6 +161,10 @@ const PostsPage = ({post, refetch, classes}: {
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+            {numUnreviewedAFComments && (numUnreviewedAFComments > 0) && <div className={classes.numUnreviewedAFComments}>
+              {`There are ${numUnreviewedAFComments} comments pending acceptance to the Alignment Forum. `}
+              <a href={`https://www.lesswrong.com/posts/${post._id}`}>View them on LessWrong</a>
+            </div>}
           </AnalyticsContext>
         </div>
       </AnalyticsInViewTracker>

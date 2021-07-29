@@ -10,6 +10,7 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { DatabasePublicSetting } from "../../lib/publicSettings";
 
 interface ExternalProps {
   comment: SuggestAlignmentComment,
@@ -17,6 +18,9 @@ interface ExternalProps {
 interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
   updateComment: WithUpdateFunction<CommentsCollection>,
 }
+
+
+export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses") // ea-forum-look-here; maybe should pull the tagId or tagName from the other?
 
 class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 
@@ -56,6 +60,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
               Commented on post: <strong>{ comment.post.title }</strong>
             </Link>}
             <Components.CommentBody comment={comment}/>
+            <Components.SunshineSendMessageWithDefaults user={comment.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
           </Components.Typography>
         </Components.SidebarHoverOver>
         <Components.SunshineCommentsItemOverview comment={comment}/>

@@ -657,7 +657,8 @@ switch (forumTypeSetting.get()) {
       {
         name:'alignment.home',
         path:'/',
-        componentName: 'AlignmentForumHome'
+        componentName: 'AlignmentForumHome',
+        sunshineSidebar: true
       },
       {
         name:'about',
@@ -777,7 +778,7 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database"
+      title: "COVID-19 Link Database",
     }
   )
 }

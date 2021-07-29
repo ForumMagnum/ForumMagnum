@@ -619,7 +619,6 @@ interface DbUser extends DbObject {
   markDownPostEditor: boolean
   hideElicitPredictions: boolean
   hideAFNonMemberInitialWarning: boolean
-  hideAFNonMemberSubmissionWarning: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
