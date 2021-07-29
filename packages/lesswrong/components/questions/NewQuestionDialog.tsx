@@ -10,10 +10,10 @@ import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { userNeedsAFNonMemberWarning } from "../../lib/alignment-forum/users/helpers";
-import { postSuggestForAlignment } from "../../lib/alignment-forum/posts/helpers";
 import { useDialog } from "../common/withDialog";
 import { useUpdate } from "../../lib/crud/withUpdate";
+import {afNonMemberSuccessHandling} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import {userCanDo} from "../../lib/vulcan-users";
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -65,18 +65,10 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
           }}
           cancelCallback={onClose}
           successCallback={(post: PostsList) => {
-            // if (currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
-            //   console.log("Firing non-member process")
-            //   postSuggestForAlignment({currentUser, post, updatePost})
-            //   // openDialog({
-            //   //   componentName: "AFNonMemberSuccessPopup",
-            //   //   componentProps: {_id: post._id}
-            //   // })
-            // }
-            console.log("Finishined non-member process")
-            history.push({pathname: postGetPageUrl(post)});
+            onClose();
+            (af && !userCanDo(currentUser, "posts.alignment.new")) ? history.push({pathname: '/'}) : history.push({pathname: postGetPageUrl(post)})
             flash({ messageString: "Post created.", type: 'success'});
-            onClose()
+            afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
           }}
           formComponents={{
             FormSubmit: QuestionSubmit,

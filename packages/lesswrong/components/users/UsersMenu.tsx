@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, {useState, useCallback} from 'react';
+import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
@@ -20,7 +20,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import {userNeedsAFNonMemberWarning} from "../../lib/alignment-forum/users/helpers";
+import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -60,7 +60,6 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   color?: string,
   classes: ClassesType
 }) => {
-  const [open,setOpen] = useState(false);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
@@ -108,19 +107,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
         >
           <Paper>
             <div onClick={(ev) => {
-              console.log("Fire dialog")
-              console.log({hideWarning: currentUser?.hideAFNonMemberInitialWarning})
-              console.log({
-                needsWarningFunction: userNeedsAFNonMemberWarning(currentUser),
-                haveUser: !!currentUser,
-                forumIsAlignment: forumTypeSetting.get() === 'AlignmentForum',
-                userHasnotConfirmed: (!currentUser.hideAFNonMemberInitialWarning || !true),
-                userCannotDoStuff: !(userCanDo(currentUser, 'comments.alignment.new')||userCanDo(currentUser, 'posts.alignment.new'))
-              })
-              
-              if (userNeedsAFNonMemberWarning(currentUser)) {
-                openDialog({componentName: "AFNonMemberInitialPopup"})
-              }
+              afNonMemberDisplayInitialPopup(currentUser, openDialog)
               ev.preventDefault()
             }}>
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
@@ -144,7 +131,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
                 <MenuItem>New Sequence</MenuItem>
               </Link>
             }
-            {showNewButtons && <Divider/>}
+            <Divider/>
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }

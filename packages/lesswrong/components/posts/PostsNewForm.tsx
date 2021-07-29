@@ -7,6 +7,10 @@ import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSsr from '@material-ui/core/NoSsr';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useDialog } from "../common/withDialog";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import {useUpdate} from "../../lib/crud/withUpdate";
+import {userCanDo} from "../../lib/vulcan-users";
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -91,6 +95,11 @@ const PostsNewForm = ({classes}: {
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const { openDialog } = useDialog();
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SuggestAlignmentPost',
+  })
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
@@ -125,7 +134,8 @@ const PostsNewForm = ({classes}: {
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={post => {
-              history.push({pathname: postGetPageUrl(post)});
+              afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+              (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new")) ? history.push({pathname: '/'}) : history.push({pathname: postGetPageUrl(post)}) 
               flash({ messageString: "Post created.", type: 'success'});
             }}
             eventForm={eventForm}

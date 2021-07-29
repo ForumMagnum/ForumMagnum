@@ -10,10 +10,11 @@ import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import {userNeedsAFNonMemberWarning} from "../../lib/alignment-forum/users/helpers";
-import {commentSuggestForAlignment} from "../../lib/alignment-forum/comments/helpers";
 import {useUpdate} from "../../lib/crud/withUpdate";
-import {afNonMemberSuccessHandling} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import {
+  afNonMemberDisplayInitialPopup,
+  afNonMemberSuccessHandling
+} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -161,13 +162,12 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
     }}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classes.form : null}>
-        {commentWillBeHidden && <div className={classes.modNote}><em>
-          A moderator will need to review your account before your comments will show up.
-        </em></div>}
-          <div className={classes.afNonMemberPopDiv} onFocus={(ev) => {
-              if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
-                openDialog({componentName: "AFNonMemberInitialPopup"})
-              }
+          {commentWillBeHidden && <div className={classes.modNote}><em>
+            A moderator will need to review your account before your comments will show up.
+          </em></div>}
+          <div onFocus={(ev) => {
+            afNonMemberDisplayInitialPopup(currentUser, openDialog)
+            ev.preventDefault()
           }}>
             <WrappedSmartForm
               collection={Comments}
