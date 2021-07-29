@@ -54,8 +54,9 @@ voteCallbacks.castVoteAsync.add(async function handleDisableCommenting (document
   const power = await Users.findOne(document.vote.power)
   console.log("author karma: ", author?.karma, " author commenting disabled: ", author?.commentingDisabled)
 
+  // TODO: make it robust to unfortunate first comment
   // Prevent users from commenting once their karma goes below a threshold
-  const threshold = -1
+  const threshold = -10
   if (author) {
     // BUG: this can fail for async reasons, in the case where the karma is updated before the author object is queried, and hence power has already been included
     if (author?.karma <= threshold ) {
