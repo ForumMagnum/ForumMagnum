@@ -84,6 +84,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+export const postingDisabledWarning = <div>
+  <p>You can't make new posts right now.</p>
+</div>
+
 const PostsNewForm = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -108,6 +112,9 @@ const PostsNewForm = ({classes}: {
 
   if (!Posts.options.mutations.new.check(currentUser)) {
     return (<WrappedLoginForm />);
+  }
+  if (currentUser?.postingDisabled) {
+    return postingDisabledWarning
   }
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
@@ -147,4 +154,3 @@ declare global {
     PostsNewForm: typeof PostsNewFormComponent
   }
 }
-

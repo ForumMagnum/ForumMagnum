@@ -1425,6 +1425,8 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly petrovPressedButtonDate: Date,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
+  readonly postingDisabled: boolean,
+  readonly commentingDisabled: boolean,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users

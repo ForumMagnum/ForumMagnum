@@ -78,6 +78,8 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
+  const userCanPost = userCanDo(currentUser, 'posts.new') //!currentUser.postingDisabled
+
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -103,12 +105,12 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
           placement="bottom-start"
         >
           <Paper>
-            {showNewButtons &&
+            {showNewButtons && userCanPost && 
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 New Question
               </MenuItem>
             }
-            {showNewButtons && <Link to={`/newPost`}>
+            {showNewButtons && userCanPost &&  <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>
             }
@@ -118,7 +120,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
               </MenuItem>
             }
             {showNewButtons && <Divider/>}
-            {showNewButtons && forumTypeSetting.get() !== 'EAForum' &&
+            {showNewButtons && forumTypeSetting.get() !== 'EAForum' && userCanPost && 
               <Link to={`/newPost?eventForm=true`}>
                 <MenuItem>New Event</MenuItem>
               </Link>

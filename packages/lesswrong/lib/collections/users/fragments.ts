@@ -56,6 +56,8 @@ registerFragment(`
     reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
+    postingDisabled
+    commentingDisabled
   }
 `);
 

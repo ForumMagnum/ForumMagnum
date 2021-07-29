@@ -5,6 +5,7 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
+import {schemaDefaultValue} from '../../collectionUtils';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -276,6 +277,24 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
+  },
+  postingDisabled: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.banUser,
+    label: "Disable posting",
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false)
+  },
+  commentingDisabled: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.banUser,
+    label: "Disable commenting",
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false)
   }
 };
 

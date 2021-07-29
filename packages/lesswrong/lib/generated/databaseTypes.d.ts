@@ -611,6 +611,8 @@ interface DbUser extends DbObject {
   slug: string
   groups: Array<string>
   lwWikiImport: boolean
+  postingDisabled: boolean
+  commentingDisabled: boolean
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string

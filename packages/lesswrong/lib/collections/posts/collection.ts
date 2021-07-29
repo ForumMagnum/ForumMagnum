@@ -8,6 +8,7 @@ import { postCanEdit } from './helpers';
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
     if (!user) return false;
+    if (user.postingDisabled) return false
     return userCanDo(user, 'posts.new')
   },
 

@@ -45,6 +45,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+export const commentingDisabledWarning = <div>
+  <p>You can't make new comments right now.</p>
+</div>
+
 const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
 {
   prefilledProps?: any,
@@ -70,6 +74,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+
+  if (currentUser?.commentingDisabled) return commentingDisabledWarning
 
   const wrappedSuccessCallback = (...args) => {
     if (successCallback) {
@@ -194,4 +200,3 @@ declare global {
     CommentsNewForm: typeof CommentsNewFormComponent,
   }
 }
-
