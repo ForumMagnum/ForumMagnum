@@ -13,7 +13,7 @@ import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import {userNeedsAFNonMemberWarning} from "../../lib/alignment-forum/users/helpers";
 import {commentSuggestForAlignment} from "../../lib/alignment-forum/comments/helpers";
 import {useUpdate} from "../../lib/crud/withUpdate";
-import {AFNonMemberSuccessHandling} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import {afNonMemberSuccessHandling} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -82,11 +82,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   })
   
 
-  const wrappedSuccessCallback = (...args) => {
-    const comment = args as unknown as CommentsList
-    // AFNonMemberSuccessHandling({currentUser, comment, openDialog, updateComment})
+  const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
+    afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
     if (successCallback) {
-      successCallback(...args)
+      successCallback(comment, { form })
     }
     setLoading(false)
   };
