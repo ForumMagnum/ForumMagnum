@@ -20,6 +20,8 @@ registerFragment(`
     afCommentCount
     spamRiskScore
     tagRevisionCount
+    postingDisabled
+    commentingDisabled
   }
 `);
 
@@ -56,8 +58,6 @@ registerFragment(`
     reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
-    postingDisabled
-    commentingDisabled
   }
 `);
 

@@ -12,7 +12,9 @@ import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
-import DescriptionIcon from '@material-ui/icons/Description'
+import DescriptionIcon from '@material-ui/icons/Description';
+import SpeakerNotesOffOutlinedIcon from '@material-ui/icons/SpeakerNotesOffOutlined';
+import ChatIcon from '@material-ui/icons/Chat';
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
@@ -182,6 +184,21 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     setNotes( signatureWithNote("Snooze")+notes )
   }
 
+  const handleCommentingDisabled = () => {
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        reviewedAt: new Date(),
+        reviewedByUserId: currentUser!._id,
+        sunshineNotes: notes,
+        commentingDisabled: !user?.commentingDisabled
+      }
+    })
+
+    const commentingDisabledStatus = user?.commentingDisabled ? "Re-enable commenting" : "Disable commenting"
+    setNotes( signatureWithNote(commentingDisabledStatus)+notes )
+  }
+
   const banMonths = 3
 
   const handleBan = async () => {
@@ -323,6 +340,11 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                 <LWTooltip title="Snooze (approve all posts)">
                   <Button title="Snooze" onClick={handleSnooze}>
                     <SnoozeIcon />
+                  </Button>
+                </LWTooltip>
+                <LWTooltip title={user?.commentingDisabled ? "Reenable commenting" : "Disable commenting"}>
+                  <Button onClick={handleCommentingDisabled}>
+                    {user?.commentingDisabled ?  <ChatIcon /> : <SpeakerNotesOffOutlinedIcon />}
                   </Button>
                 </LWTooltip>
                 <LWTooltip title="Ban for 3 months">

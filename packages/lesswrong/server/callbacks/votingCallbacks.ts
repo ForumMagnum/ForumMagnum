@@ -1,3 +1,4 @@
+import {valueToObjectRepresentation} from '@apollo/client/utilities';
 import Users from '../../lib/collections/users/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 
@@ -17,7 +18,7 @@ voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDo
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
-  // only update karma is the operation isn't done by the item's author
+  // only update karma if the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.update({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
   }
@@ -47,3 +48,22 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
     void Users.update({_id:voter._id}, {$set:{needsReview: true}})
   }
 });
+
+voteCallbacks.castVoteAsync.add(async function handleDisableCommenting (document: VoteDocTuple) {
+  const author = await Users.findOne(document.vote.authorId);
+  const power = await Users.findOne(document.vote.power)
+  console.log("author karma: ", author?.karma, " author commenting disabled: ", author?.commentingDisabled)
+
+  // Prevent users from commenting once their karma goes below a threshold
+  const threshold = -1
+  if (author) {
+    // BUG: this can fail for async reasons, in the case where the karma is updated before the author object is queried, and hence power has already been included
+    if (author?.karma <= threshold ) {
+      if (power + (author?.karma) > threshold) {
+        void Users.update({_id:author?._id}, {$set:{commentingDisabled: false}})
+      } else {
+        void Users.update({_id:author?._id}, {$set:{commentingDisabled: true}})
+      }
+    }
+  }
+})
