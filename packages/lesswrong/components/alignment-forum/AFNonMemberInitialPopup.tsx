@@ -69,6 +69,6 @@ const AFNonMemberInitialPopupComponent = registerComponent('AFNonMemberInitialPo
 
 declare global {
   interface ComponentTypes {
-    AFNonMemberPopup: typeof AFNonMemberInitialPopupComponent
+    AFNonMemberInitialPopup: typeof AFNonMemberInitialPopupComponent
   }
 }

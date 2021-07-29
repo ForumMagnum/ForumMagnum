@@ -1,7 +1,7 @@
 import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {commentSuggestForAlignment} from "./comments/helpers";
 import {postSuggestForAlignment} from "./posts/helpers";
-import {OpenDialogContext, OpenDialogContextType} from "../../components/common/withDialog";
+import {OpenDialogContextType} from "../../components/common/withDialog";
 
 
 const isComment = (document: PostsBase | CommentsList) : document is CommentsList => {
@@ -9,13 +9,21 @@ const isComment = (document: PostsBase | CommentsList) : document is CommentsLis
   return false
 }
 
+export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]) => {
+  if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
+    openDialog({componentName: "AFNonMemberInitialPopup"})
+  }
+}
+  
 export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, updateDocument}: {
-    currentUser: UsersCurrent|null,
-    document: PostsBase | CommentsList,
-    openDialog: OpenDialogContextType["openDialog"], //TODO: let's come back to this
-    updateDocument: WithUpdateFunction<CommentsCollection | PostsCollection> //TODO: gah, what is this?
-  }) => {
-  //displays explanation of what happens upon non-member submission and submits to queue
+  currentUser: UsersCurrent|null,
+  document: PostsBase | CommentsList,
+  openDialog: OpenDialogContextType["openDialog"],
+  updateDocument: WithUpdateFunction<CommentsCollection | PostsCollection>
+}) => {
+//displays explanation of what happens upon non-member submission and submits to queue
+
+  console.log('success popup code firing')
   
   if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) { 
     if (isComment(document)) {
@@ -33,3 +41,10 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
     }
   }
 }
+
+
+//   <div className={classes.afNonMemberPopDiv} onFocus={(ev) => {
+//   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
+//     openDialog({componentName: "AFNonMemberInitialPopup"})
+//   }
+// }}>
