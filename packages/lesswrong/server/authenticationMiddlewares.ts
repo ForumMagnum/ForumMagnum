@@ -71,7 +71,12 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       if (!user) {
         const email = profile.emails?.[0]?.value
         if (forumTypeSetting.get() === 'EAForum' && email) {
-          const user = await Users.findOne({'emails.address': email})
+          // Collation here means we're using the case-insensitive index
+          const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
+          if (matchingUsers.length > 1) {
+            throw new Error(`Multiple users found with email ${email}`)
+          }
+          const user = matchingUsers[0]
           if (user) {
             // Forum only uses Auth0Profile
             // TODO: Guard with zod for isAUth0Profile
