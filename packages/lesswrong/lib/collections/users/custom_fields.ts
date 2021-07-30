@@ -254,7 +254,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() !== 'AlignmentForum',
-    label: "Don't warn me about how non-member AIAF posting works before writing",
+    label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
   },
 
   hideNavigationSidebar: {

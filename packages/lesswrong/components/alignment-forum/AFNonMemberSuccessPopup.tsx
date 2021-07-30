@@ -6,18 +6,30 @@ import { useTagBySlug } from '../tagging/useTag';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
+import Button  from '@material-ui/core/Button'
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
-    zIndex: theme.zIndexes.tagCTAPopup
+    zIndex: theme.zIndexes.afNonMemberPopup
   },
   body: {
     ...commentBodyStyles(theme),
   },
   popupCard: {
-    padding: "20px",
+    padding: 30,
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: 16
+  },
+  goToLWButton: {
+    color: theme.palette.secondary.main,
+  },
+  stayHereButton: {
+   color: theme.palette.grey[600]
   }
 });
 
@@ -29,10 +41,8 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   onClose: ()=>void,
   classes: ClassesType,
 }) => {
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { flash } = useMessages();
   const [open, setOpen] = useState(true)
-  const { ContentItemBody, LWDialog, Button } = Components
+  const { ContentItemBody, LWDialog } = Components
   const { tag } = useTagBySlug("af-non-member-submission-success", "TagFragment")
   
   const handleClose = () => {
@@ -58,16 +68,18 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
           dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
           description={`tag ${tag?.name}`}
         />
-        <Button className={classes.goToLW}>
-          <a href={submissionIsComment ? `https://www.lesswrong.com/${postId}#${_id}`: `https://www.lesswrong.com/${_id}`}>
-            {`Take me to my ${submissionIsComment ? "comment" : "post"} on LessWrong.`}
-          </a>
-        </Button>
-        <Button className={classes.stayHere} onClick={() => {
-          handleClose()
-        }}>
-          <strong>No thanks, I'll stay here.</strong>
-        </Button>
+        <div className={classes.buttonContainer}>
+          <Button className={classes.stayHereButton} onClick={() => {
+            handleClose()
+          }}>
+            No thanks, I'll stay here
+          </Button>
+          <Button color="primary">
+            <a href={submissionIsComment ? `https://www.lesswrong.com/${postId}#${_id}`: `https://www.lesswrong.com/${_id}`}>
+              {`Take me to my ${submissionIsComment ? "comment" : "post"} on LessWrong`}
+            </a>
+          </Button>
+        </div>
       </Card>
     </LWDialog>
   );

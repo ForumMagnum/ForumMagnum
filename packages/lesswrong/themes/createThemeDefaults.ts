@@ -45,6 +45,7 @@ export const zIndexes = {
   notificationsMenu: 1500,
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   tagCTAPopup: 9999,
+  afNonMemberPopup: 9999,
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,
