@@ -27,10 +27,18 @@ import { Components } from '../lib/vulcan-lib/components';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
+
+// Callback for a post being published. This is distinct from being created in
+// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
+// moderator approval because they're a user's first post (but does fire when
+// they're approved).
+export const postPublishedCallback = new CallbackHook<[DbPost]>("post.published");
+
 
 // Return a list of users (as complete user objects) subscribed to a given
 // document. This is the union of users who have subscribed to it explicitly,
@@ -546,7 +554,7 @@ async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Ar
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-getCollectionHooks("Posts").createAsync.add(async function PostsNewMeetupNotifications ({document: newPost}: {document: DbPost}) {
+postPublishedCallback.add(async function PostsNewMeetupNotifications (newPost: DbPost) {
   if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
