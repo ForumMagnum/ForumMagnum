@@ -658,7 +658,7 @@ switch (forumTypeSetting.get()) {
         name:'alignment.home',
         path:'/',
         componentName: 'AlignmentForumHome',
-        sunshineSidebar: true
+        sunshineSidebar: true //TODO: remove this in production?
       },
       {
         name:'about',
