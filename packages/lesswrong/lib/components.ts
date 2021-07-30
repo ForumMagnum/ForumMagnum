@@ -387,6 +387,7 @@ importComponent("SunshineCuratedSuggestionsList", () => require('../components/s
 importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));
 importComponent("SunshineNewTagsItem", () => require('../components/sunshineDashboard/SunshineNewTagsItem'));
 importComponent("SunshineSidebar", () => require('../components/sunshineDashboard/SunshineSidebar'));
+importComponent("SunshineSendMessageWithDefaults", () => require('../components/sunshineDashboard/SunshineSendMessageWithDefaults'));
 importComponent("SunshineListTitle", () => require('../components/sunshineDashboard/SunshineListTitle'));
 importComponent("SunshineListItem", () => require('../components/sunshineDashboard/SunshineListItem'));
 importComponent("SidebarHoverOver", () => require('../components/sunshineDashboard/SidebarHoverOver'));
@@ -522,7 +523,7 @@ importComponent("PetrovDayLossScreen", () => require('../components/seasonal/Pet
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
-importComponent("AFNonMemberPopup", () => require('../components/alignment-forum/AFNonMemberPopup'));
+importComponent("AFNonMemberInitialPopup", () => require('../components/alignment-forum/AFNonMemberInitialPopup'));
 importComponent("AFNonMemberSuccessPopup", () => require('../components/alignment-forum/AFNonMemberSuccessPopup'));
 
 
