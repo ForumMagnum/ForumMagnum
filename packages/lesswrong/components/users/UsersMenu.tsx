@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';

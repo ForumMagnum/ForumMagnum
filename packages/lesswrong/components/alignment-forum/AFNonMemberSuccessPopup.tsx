@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import Card from "@material-ui/core/Card";
 import { useTagBySlug } from '../tagging/useTag';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useMessages } from '../common/withMessages';
 import Button  from '@material-ui/core/Button'
 
 const styles = (theme: ThemeType): JssStyles => ({

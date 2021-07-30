@@ -2,7 +2,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { useEffect, useState } from 'react';
-import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -16,11 +15,8 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
-import EditIcon from '@material-ui/icons/Edit';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 
@@ -249,7 +245,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
 
-  const { CommentBody, MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography, SunshineSendMessageWithDefaults } = Components
+  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography, SunshineSendMessageWithDefaults } = Components
 
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount

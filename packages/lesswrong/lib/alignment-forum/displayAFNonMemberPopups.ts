@@ -30,7 +30,7 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
       commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument}) 
       openDialog({
         componentName: "AFNonMemberSuccessPopup",
-        componentProps: {_id: document._id, postId: document?.postId}
+        componentProps: {_id: document._id, postId: document.postId}
       })
     } else {
       postSuggestForAlignment({currentUser, post: document, updatePost: updateDocument})
