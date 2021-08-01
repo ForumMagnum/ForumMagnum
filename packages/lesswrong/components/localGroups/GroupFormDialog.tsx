@@ -99,7 +99,6 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
-  
   return <LWDialog
     open={true}
     onClose={onClose}

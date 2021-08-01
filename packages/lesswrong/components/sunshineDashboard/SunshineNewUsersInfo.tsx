@@ -19,7 +19,8 @@ import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { Select, MenuItem } from '@material-ui/core';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 
@@ -170,7 +171,6 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     updateUser({
       selector: {_id: user._id},
       data: {
-        sunshineFlagged: false,
         needsReview: false,
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
@@ -178,6 +178,8 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         sunshineNotes: notes
       }
     })
+
+    setNotes( signatureWithNote("Snooze")+notes )
   }
 
   const banMonths = 3
@@ -196,6 +198,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           sunshineNotes: notes
         }
       })
+      setNotes( signatureWithNote("Ban")+notes )
     }
   }
 
@@ -215,6 +218,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
           sunshineNotes: notes
         }
       })
+      setNotes( signatureWithNote("Purge")+notes )
     }
   }
 
@@ -226,6 +230,9 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         sunshineNotes: notes
       }
     })
+
+    const flagStatus = user.sunshineFlagged ? "Unflag" : "Flag"
+    setNotes( signatureWithNote(flagStatus)+notes )
   }
 
   const { results: posts, loading: postsLoading } = useMulti({
@@ -262,6 +269,31 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
 
+  const getTodayString = () => {
+    const today = new Date();
+    return today.toLocaleString('default', { month: 'short', day: 'numeric'});
+  }
+
+  const signature = `${currentUser?.displayName}, ${getTodayString()}`
+  const signatureWithNote = (note:string) => {
+    return `${signature}: ${note}\n`
+  }
+
+  const signAndDate = (sunshineNotes:string) => {
+    if (!sunshineNotes.match(signature)) {
+      const padding = !sunshineNotes ? ": " : ": \n\n"
+      return signature + padding + sunshineNotes
+    } 
+    return sunshineNotes
+  }
+
+  const handleClick = () => {
+    const signedNotes = signAndDate(notes)
+    if (signedNotes != notes) {
+      setNotes(signedNotes)
+    }
+  }
+
   return (
       <div className={classes.root}>
         <Typography variant="body2">
@@ -274,7 +306,8 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
               <Input 
                 value={notes} 
                 fullWidth
-                onChange={(e) => { setNotes(e.target.value)}} 
+                onChange={e => setNotes(e.target.value)}
+                onClick={e => handleClick()}
                 disableUnderline 
                 placeholder="Notes for other moderators"
                 multiline

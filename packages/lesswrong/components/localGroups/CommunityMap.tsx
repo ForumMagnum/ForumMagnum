@@ -4,13 +4,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import { PersonSVG } from './Icons'
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
-
-export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
+import { mapboxAPIKeySetting } from '../../lib/publicSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import PersonIcon from '@material-ui/icons/PersonPin';
 
 export const mapsHeight = 440
 const mapsWidth = "100vw"
@@ -124,22 +123,25 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     limit: 500,
   })
 
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
       {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      {showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {!isEAForum && showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       <div className={classes.mapButtons}>
         <Components.CommunityMapFilter 
           showHideMap={showHideMap} 
           toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
           toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
-          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
+          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} 
+          showIndividuals={showIndividuals}
           setShowMap={setShowMap}
         />
       </div>
     </React.Fragment>
-  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap])
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap, isEAForum])
 
   if (!showMap) return null
 
@@ -151,7 +153,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => setViewport(viewport)}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >
@@ -163,8 +165,8 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
 const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
   icon: {
-    height: 15,
-    width: 15,
+    height: 20,
+    width: 20,
     fill: '#3f51b5',
     opacity: 0.8
   }
@@ -191,7 +193,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
           offsetTop={-20}
         >
           <span onClick={() => handleClick(user._id)}>
-            <PersonSVG className={classes.icon}/>
+            <PersonIcon className={classes.icon}/>
           </span>
         </Marker>
         {openWindows.includes(user._id) && 

@@ -54,6 +54,7 @@ registerFragment(`
     petrovPressedButtonDate
     sortDrafts
     reenableDraftJs
+    ...SunshineUsersList
     ...SharedUserBooleans
   }
 `);

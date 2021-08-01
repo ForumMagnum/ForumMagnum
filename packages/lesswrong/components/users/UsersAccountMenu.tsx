@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
@@ -6,6 +6,7 @@ import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withTracking } from '../../lib/analyticsEvents';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { withLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,6 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 interface UsersAccountMenuProps extends WithStylesProps {
   captureEvent?: any,
   color?: string,
+  location?: RouterLocation
 }
 interface UsersAccountMenuState {
   open: boolean,
@@ -59,18 +61,21 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
   }
 
   render() {
-    const { color, classes } = this.props
+    const { color, classes, location } = this.props
+    // Location is always passed in by hoc. We can't make it a required prop due
+    // to a limitation in our typings
+    const { pathname } = location!
 
     return (
       <div className={classes.root}>
         {forumTypeSetting.get() === 'EAForum' ? <>
-          <Button href='/auth/auth0'>
+          <Button href={`/auth/auth0?returnTo=${pathname}`}>
             <span className={classes.userButton} style={{ color: color }}>
               Login
             </span>
           </Button>
           <div className={classes.signUpButton}>
-            <Button href='/auth/auth0?screen_hint=signup'>
+            <Button href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>
               <span className={classes.userButton} style={{ color: color }}>
                 Sign Up
               </span>
@@ -106,7 +111,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
 
 const UsersAccountMenuComponent = registerComponent('UsersAccountMenu', UsersAccountMenu, {
   styles,
-  hocs: [withTracking]
+  hocs: [withTracking, withLocation]
 });
 
 declare global {

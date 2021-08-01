@@ -11,8 +11,9 @@ const CommunityMapWrapper = ({classes, groupQueryTerms, currentUserLocation, map
   showHideMap?: boolean,
   petrovButton?: any,
 }) => {
+  const { CommunityMap } = Components;
   return (
-    <Components.CommunityMap
+    <CommunityMap
       groupTerms={groupQueryTerms}
       eventTerms={terms}
       center={currentUserLocation}

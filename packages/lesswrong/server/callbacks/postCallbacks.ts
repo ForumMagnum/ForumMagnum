@@ -9,7 +9,7 @@ import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
 import { getCollectionHooks } from '../mutationCallbacks';
-import { postsUndraftNotification } from '../notificationCallbacks';
+import { postsUndraftNotification, postPublishedCallback } from '../notificationCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -73,6 +73,12 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
  var postAuthor = await Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost} as DbPost;
+});
+
+getCollectionHooks("Posts").createAfter.add((post: DbPost) => {
+  if (!post.authorIsUnreviewed && !post.draft) {
+    void postPublishedCallback.runCallbacksAsync([post]);
+  }
 });
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
@@ -161,8 +167,15 @@ getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
 });
 
 getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
+  // Is this a non-draft post that was awaiting moderator review, which just got
+  // approved?
+  if (!newPost.draft && oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed) {
+    await postPublishedCallback.runCallbacksAsync([newPost]);
+  }
+  // Is this a post being undrafted?
   if (!newPost.draft && oldPost.draft) {
     await newDocumentMaybeTriggerReview(newPost)
+    await postPublishedCallback.runCallbacksAsync([newPost]);
   }
 });
 

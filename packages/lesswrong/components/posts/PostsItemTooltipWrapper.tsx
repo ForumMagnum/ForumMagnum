@@ -18,11 +18,6 @@ const PostsItemTooltipWrapper = ({children, post, className}: {
         anchorEl={anchorEl}
         clickable={false}
         placement="bottom-end"
-        modifiers={{
-          flip: {
-            enabled: false
-          }
-        }}
       >
         <PostsPreviewTooltip post={post} postsList />
       </LWPopper>
