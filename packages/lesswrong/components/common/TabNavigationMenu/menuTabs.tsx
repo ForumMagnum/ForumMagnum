@@ -15,6 +15,7 @@ import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import type { ForumTypeString } from '../../../lib/instanceSettings';
+import { communityPath } from '../../../lib/routes';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -100,7 +101,7 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
-      link: '/community',
+      link: communityPath,
       icon: communityGlobeIcon,
       tooltip: 'Find a meetup near you.',
       showOnMobileStandalone: true,
@@ -250,12 +251,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     //   tooltip: "TODO: Aaron's cool",
     //   subItem: true,
     }, {
-      id: 'groups',
-      title: 'EA Groups',
-      mobileTitle: 'EA Groups',
-      link: 'https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage',
+      id: 'groupsAndEvents',
+      title: 'Groups and Events',
+      mobileTitle: 'Groups/Events',
+      link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See EA groups in your area',
+      tooltip: 'See EA groups and events in your area',
       showOnMobileStandalone: true,
       showOnCompressed: true
     }, {
