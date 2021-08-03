@@ -20,7 +20,7 @@ import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 
-const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses") // ea-forum-look-here; maybe should pull the tagId or tagName from the other?
+const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses") // ea-forum-look-here
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 

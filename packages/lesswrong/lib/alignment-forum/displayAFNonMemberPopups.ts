@@ -23,8 +23,6 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
 }) => {
 //displays explanation of what happens upon non-member submission and submits to queue
 
-  console.log('success popup code firing')
-  
   if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) { 
     if (isComment(document)) {
       commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument}) 

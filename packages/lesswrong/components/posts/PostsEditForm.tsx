@@ -7,11 +7,10 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
-import {useDialog} from "../common/withDialog";
-import {userNeedsAFNonMemberWarning} from "../../lib/alignment-forum/users/helpers";
+import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
-import {postSuggestForAlignment} from "../../lib/alignment-forum/posts/helpers";
 import { useUpdate } from "../../lib/crud/withUpdate";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
@@ -46,15 +45,6 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     fragmentName: 'SuggestAlignmentComment',
   })
 
-  const displayAFNonMemberSuccessPopup = (post, openDialog, updatePost) => {
-    if (currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
-      postSuggestForAlignment({currentUser, post, updatePost}) 
-      openDialog({
-        componentName: "AFNonMemberSuccessPopup",
-        componentProps: {_id: post._id}
-      })
-    }
-  }
   
   return (
     <div className={classes.postForm}>
@@ -65,7 +55,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           queryFragment={getFragment('PostsEdit')}
           mutationFragment={getFragment('PostsEdit')}
           successCallback={post => {
-            displayAFNonMemberSuccessPopup(post, openDialog, updatePost)
+            afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
             flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             history.push({pathname: postGetPageUrl(post)});
           }}

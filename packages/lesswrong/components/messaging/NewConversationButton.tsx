@@ -14,7 +14,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   templateCommentId?: string,
   children: any
 }) => {
-  console.log({templateCommentId})
+  
   const { create: createConversation } = useCreate({
     collection: Conversations,
     fragmentName: 'newConversationFragment',
@@ -27,7 +27,6 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
       data: {participantIds:[user._id, currentUser?._id], ...alignmentFields},
     })
     const conversationId = response.data.createConversation.data._id
-    console.log({templateCommentId})
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
     history.push({pathname: `/inbox/${conversationId}`, ...search})
   }, [createConversation, user, currentUser, history, templateCommentId]);

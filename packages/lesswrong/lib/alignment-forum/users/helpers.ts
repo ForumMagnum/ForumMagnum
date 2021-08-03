@@ -30,7 +30,13 @@ export const userCanMakeAlignmentComment = (user: DbUser|UsersCurrent|null) => {
 }
 
 export const userNeedsAFNonMemberWarning = (user: DbUser|UsersCurrent|null, initial =true) => {
-  console.log("checking whether warninging needed")
+  
+  console.log({
+    haveUser: !!user,
+    isAF: forumTypeSetting.get()=== 'AlignmentForum',
+    warningNotHidden: !user?.hideAFNonMemberInitialWarning,
+    userDoesNotHavePermission: !(userCanDo(user, 'comments.alignment.new')||userCanDo(user, 'posts.alignment.new'))
+})
   
   return (!!user
     && forumTypeSetting.get()=== 'AlignmentForum' 

@@ -525,6 +525,7 @@ importComponent("CoronavirusFrontpageWidget", () => require('../components/seaso
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
 importComponent("AFNonMemberInitialPopup", () => require('../components/alignment-forum/AFNonMemberInitialPopup'));
 importComponent("AFNonMemberSuccessPopup", () => require('../components/alignment-forum/AFNonMemberSuccessPopup'));
+importComponent("AFUnreviewedCommentCount", () => require('../components/alignment-forum/AFUnreviewedCommentCount'));
 
 
 importComponent("NewQuestionDialog", () => require('../components/questions/NewQuestionDialog'));

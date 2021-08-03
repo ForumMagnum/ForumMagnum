@@ -73,7 +73,7 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
             No thanks, I'll stay here
           </Button>
           <Button color="primary">
-            <a href={submissionIsComment ? `https://www.lesswrong.com/${postId}#${_id}`: `https://www.lesswrong.com/${_id}`}>
+            <a href={submissionIsComment ? `https://www.lesswrong.com/posts/${postId}#${_id}`: `https://www.lesswrong.com/posts/${_id}`}>
               {`Take me to my ${submissionIsComment ? "comment" : "post"} on LessWrong`}
             </a>
           </Button>

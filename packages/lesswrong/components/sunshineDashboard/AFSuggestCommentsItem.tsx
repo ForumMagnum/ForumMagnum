@@ -10,17 +10,24 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { defaultAFModeratorPMsTagSlug } from "./AFSuggestPostsItem";
+import { afSubmissionHeader } from "./AFSuggestPostsItem";
+
+
+const styles = (theme: ThemeType): JssStyles => ({
+  afSubmissionHeader: {
+    ...afSubmissionHeader(theme)
+  }
+})
 
 interface ExternalProps {
   comment: SuggestAlignmentComment,
 }
-interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
+interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithStylesProps {
   updateComment: WithUpdateFunction<CommentsCollection>,
 }
 
 
-export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses") // ea-forum-look-here; maybe should pull the tagId or tagName from the other?
 
 class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 
@@ -47,7 +54,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
   }
 
   render () {
-    const { comment, currentUser, hover, anchorEl, updateComment } = this.props
+    const { classes, comment, currentUser, hover, anchorEl, updateComment } = this.props
     if (!currentUser) return null;
 
     const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
@@ -56,11 +63,14 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="body2">
+            { comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId) && <div className={classes.afSubmissionHeader}>
+              AF Submission
+              <Components.SunshineSendMessageWithDefaults user={comment.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
+            </div>}
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>
             </Link>}
             <Components.CommentBody comment={comment}/>
-            <Components.SunshineSendMessageWithDefaults user={comment.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
           </Components.Typography>
         </Components.SidebarHoverOver>
         <Components.SunshineCommentsItemOverview comment={comment}/>
@@ -90,6 +100,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 }
 
 const AFSuggestCommentsItemComponent = registerComponent<ExternalProps>('AFSuggestCommentsItem', AFSuggestCommentsItem, {
+  styles,
   hocs: [
     withUpdate({
       collectionName: "Comments",
