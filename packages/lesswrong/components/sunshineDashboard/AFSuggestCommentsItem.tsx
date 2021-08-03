@@ -10,13 +10,15 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { defaultAFModeratorPMsTagSlug } from "./AFSuggestPostsItem";
-import { afSubmissionHeader } from "./AFSuggestPostsItem";
+import { defaultAFModeratorPMsTagSlug, afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   afSubmissionHeader: {
     ...afSubmissionHeader(theme)
+  },
+  afSubmissionHeaderText: {
+    ...afSubmissionHeaderText(theme)
   }
 })
 
@@ -63,8 +65,11 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="body2">
-            { comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId) && <div className={classes.afSubmissionHeader}>
-              AF Submission
+            {/*{ comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId) && <div>*/}
+            { comment.suggestForAlignmentUsers && <div className={classes.afSubmissionHeader}>
+              <span className={classes.afSubmissionHeaderText}>
+                AF Submission
+              </span>
               <Components.SunshineSendMessageWithDefaults user={comment.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
             </div>}
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>

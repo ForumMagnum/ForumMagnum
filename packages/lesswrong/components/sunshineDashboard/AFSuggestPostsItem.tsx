@@ -18,7 +18,15 @@ export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('d
 
 export const afSubmissionHeader = (theme) => ({
   ...commentBodyStyles(theme),
-  marginBottom: theme.spacing.unit*3,
+  marginBottom: 24,
+  display: "flex",
+  flex: "flex-start",
+  alignContent: "center",
+  justifyContent: "space-between"
+})
+
+export const afSubmissionHeaderText = (theme) => ({
+  ...commentBodyStyles(theme),
   fontStyle: 'italic',
   color: theme.palette.primary.main
 })
@@ -26,6 +34,9 @@ export const afSubmissionHeader = (theme) => ({
 const styles = (theme: ThemeType): JssStyles => ({
   afSubmissionHeader: {
     ...afSubmissionHeader(theme)
+  },
+  afSubmissionHeaderText: {
+    ...afSubmissionHeaderText(theme)
   }
 })
 
@@ -71,8 +82,11 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          { post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId) && <div className={classes.afSubmissionHeader}>
-            AF Submission
+          { post.suggestForAlignmentUsers &&  <div className={classes.afSubmissionHeader}>
+          {/*{ post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId) && <div className={classes.afSubmissionHeader}>*/}
+            <span className={classes.afSubmissionHeaderText}>
+                AF Submission
+            </span>
             <Components.SunshineSendMessageWithDefaults user={post.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
           </div>}
           <Components.Typography variant="title">

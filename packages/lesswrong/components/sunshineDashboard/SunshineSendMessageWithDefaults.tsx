@@ -1,7 +1,7 @@
-import React from 'react';
-import Select from "@material-ui/core/Select";
+import React, {useState} from 'react';
 import MenuItem from "@material-ui/core/MenuItem";
-import {Link} from "../../lib/reactRouterWrapper";
+import Menu from '@material-ui/core/Menu';
+import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@material-ui/icons/Edit";
 import {Components, registerComponent} from "../../lib/vulcan-lib";
 import { useTagBySlug } from '../tagging/useTag'
@@ -21,6 +21,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: "white",
     padding:12,
     boxShadow: "0 0 10px rgba(0,0,0,0.5)"
+  },
+  sendMessageButton: {
+    marginLeft: 8,
+    marginRight: 4,
+    marginTop: 16,
+    // marginBottom: 16,
+    width: 64,
+    height: 32,
+    padding: 8,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200]
+    }
   }
 })
 
@@ -32,21 +44,35 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
   
   const { CommentBody, LWTooltip, NewConversationButton } = Components
   
+  
   const currentUser = useCurrentUser()
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  
   const { tag: defaultResponsesTag } = useTagBySlug(tagSlug, "TagBasicInfo")
   const { results: defaultResponses } = useMulti({
     terms:{view:"defaultModeratorResponses", tagId: defaultResponsesTag?._id},
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first', //TODO: unsure, but maybe helped  
     limit: 50
   });
+  
   
   if (!(user && currentUser)) return null
   
   return (
     <div>
-      {user && <Select value={0} variant="outlined">
+      <span
+        className={classes.sendMessageButton}
+        onClick={(ev) => setAnchorEl(ev.currentTarget)}
+      >
+        Start Message
+      </span>
+      <Menu
+        onClick={() => setAnchorEl(null)}
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+      >
         <MenuItem value={0}>
           <NewConversationButton user={user} currentUser={currentUser}>
             Start a message
@@ -60,14 +86,13 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
               </div>}
             >
               <MenuItem>
-                {console.log({comment, commentId: comment._id})}
                 <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id}>
                   {getTitle(comment.contents?.plaintextMainText || null)}
                 </NewConversationButton>
               </MenuItem>
             </LWTooltip>
           </div>)}
-      </Select>}
+        </Menu>
       <Link to={`/tag/${tagSlug}/discussion`}><EditIcon className={classes.editIcon}/></Link>
     </div>
   )
