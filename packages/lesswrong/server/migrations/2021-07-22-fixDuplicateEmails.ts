@@ -35,79 +35,88 @@ registerMigration({
       group by lower(email), user.id
     */
     const userInfo: Array<MongoDuplicateUser> = await Users.aggregate([
-        {
-          '$match': {
-            'deleted': false
-          }
-        },
-        {
-          '$project': {
-            lowerEmail: { $toLower: "$email" },
-            displayName: '$displayName'
-          }
-        },
-        {
-          '$group': {
-            '_id': '$lowerEmail',
-            'count': {
-              '$sum': 1
-            },
-            'matches': {
-              '$push': {
-                '_id': '$_id',
-                'email': '$lowerEmail',
-                'displayName': '$displayName'
-              }
-            }
-          }
-        }, {
-          '$match': {
-            'count': {
-              '$gt': 1
-            }
-          }
-        },
-        {
-          $unwind:
-          {
-            path: '$matches',
-          }
-        },
-        {
-          '$lookup': {
-            from: 'comments',
-            localField: 'matches._id',
-            foreignField: 'userId',
-            as: 'comments',
-          }
-        },
-        {
-          '$lookup': {
-            from: 'posts',
-            localField: 'matches._id',
-            foreignField: 'userId',
-            as: 'posts',
-          }
-        },
-        {
-          $project: {
-            '_id': 1,
-            'matches': 1,
-            'comments._id': 1,
-            'posts._id': 1
-          }
-        }, {
-          '$group': {
-            '_id': '$_id',
-            'count': {
-              '$sum': 1
-            },
-            'matches': {
-              '$push': '$$ROOT'
+      {
+        '$match': {
+          'deleted': false
+        }
+      },
+      {
+        '$project': {
+          lowerEmail: { $toLower: "$email" },
+          displayName: '$displayName',
+          arrayEmail: {
+            $map: {
+              input: "$emails.address",
+              as: "arrayEmail",
+              in: { $toLower: "$$arrayEmail" }
             }
           }
         }
-      ]).toArray()
+      },
+      {
+        '$group': {
+          '_id': '$lowerEmail',
+          'count': {
+            '$sum': 1
+          },
+          'matches': {
+            '$push': {
+              '_id': '$_id',
+              'email': '$lowerEmail',
+              'displayName': '$displayName',
+              'arrayEmail': '$arrayEmail'
+            }
+          }
+        }
+      }, {
+        '$match': {
+          'count': {
+            '$gt': 1
+          }
+        }
+      },
+      {
+        $unwind:
+        {
+          path: '$matches',
+        }
+      },
+      {
+        '$lookup': {
+          from: 'comments',
+          localField: 'matches._id',
+          foreignField: 'userId',
+          as: 'comments',
+        }
+      },
+      {
+        '$lookup': {
+          from: 'posts',
+          localField: 'matches._id',
+          foreignField: 'userId',
+          as: 'posts',
+        }
+      },
+      {
+        $project: {
+          '_id': 1,
+          'matches': 1,
+          'comments._id': 1,
+          'posts._id': 1,
+          'arrayEmail': 1
+        }
+      }, {
+        '$group': {
+          '_id': '$_id',
+          'count': {
+            '$sum': 1
+          },
+          'matches': {
+            '$push': '$$ROOT'
+          }
+        }
+      }
+    ]).toArray()
 
     // The Mongo aggregation requires the id to be the email address,
     // so we need to replace the email address with the actual record id
@@ -133,7 +142,7 @@ registerMigration({
 
     // Report results
     mergeResults.forEach(mergeResult => {
-      const actionRow = mergeResult.action.type === 'ManualMergeAction' ? 
+      const actionRow = mergeResult.action.type === 'ManualMergeAction' ?
         ['ManualNeeded', mergeResult.action.sourceIds.join('^')].join(',')
         : [mergeResult.action.destinationId, mergeResult.action.sourceIds.join('^'), mergeResult.action.justification].join(',')
       //eslint-disable-next-line no-console

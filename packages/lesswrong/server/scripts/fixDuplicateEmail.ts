@@ -23,7 +23,8 @@ export type DuplicateUser = {
   comments: Array<{ _id: string }>
   matches?: {
     _id?: string,
-    displayName?: string
+    displayName?: string,
+    arrayEmail?: Array<string>
   }
 }
 
@@ -46,11 +47,24 @@ export function mergeSingleUser(userList: Array<DuplicateUser>)
 
   // If we only want to keep one user, we are done
   if (classifications.filter(x => x.classification == MergeType.KeepAccount).length === 1) {
+    const destinationUser = classifications.filter(x => x.classification === MergeType.KeepAccount)[0].user
+    const sourceIds = classifications.filter(x => x.classification !== MergeType.KeepAccount).map(x => x.user['_id'])
+    
+    // If the account we want to keep doesn't have an array emailed, but other accounts do, 
+    // that's a problem that must be manually resolved
+    if (!destinationUser?.matches?.arrayEmail &&
+      classifications.filter(x => x.user?.matches?.arrayEmail).length > 0) {
+      return {
+        type: 'ManualMergeAction',
+        sourceIds: classifications.map(x => x.user['_id'])
+      }
+    }
+
     return {
       type: 'RunnableMergeAction',
-      destinationId: classifications.filter(x => x.classification === MergeType.KeepAccount)[0].user['_id'],
-      sourceIds: classifications.filter(x => x.classification !== MergeType.KeepAccount).map(x => x.user['_id']),
-      justification: 'only one nonempty account'
+      justification: 'only one nonempty account',
+      destinationId: destinationUser._id,
+      sourceIds
     }
   }
 
@@ -58,9 +72,8 @@ export function mergeSingleUser(userList: Array<DuplicateUser>)
   if (classifications.filter(x => x.classification === MergeType.KeepAccount).length === 0) {
     return {
       type: 'RunnableMergeAction',
-      destinationId: classifications[0].user['_id'],
-      sourceIds: classifications.slice(1).map(x => x.user['_id']),
-      justification: 'all empty accounts'
+      justification: 'all empty accounts',
+      ...identifyTargetUser(classifications)
     }
   }
 
@@ -71,11 +84,11 @@ export function mergeSingleUser(userList: Array<DuplicateUser>)
   const allshareName = keptUsersNames.every(username => username === keptUsersNames[0])
   if (allshareName) {
     // All users have the same username, so we can merge them automatically
-
+    const { destinationId } = identifyTargetUser(keptUsers)
     return {
       type: 'RunnableMergeAction',
-      destinationId: keptUsers[0].user['_id'],
-      sourceIds: classifications.map(x => x.user['_id']).filter(x => x !== keptUsers[0].user['_id']),
+      destinationId: destinationId,
+      sourceIds: classifications.map(x => x.user['_id']).filter(x => x !== destinationId),
       justification: 'all accounts share the same name'
     }
   }
@@ -84,5 +97,23 @@ export function mergeSingleUser(userList: Array<DuplicateUser>)
   return {
     type: 'ManualMergeAction',
     sourceIds: classifications.map(x => x.user['_id'])
+  }
+}
+
+function identifyTargetUser(userList: Array<ClassifiedUser>): { destinationId: string, sourceIds: string[] } {
+  const usersWithEmails = userList.filter(x => x.user.matches?.arrayEmail
+    && x.user.matches.arrayEmail.length > 0)
+  // No users with emails, choose one arbitrarily
+  if (usersWithEmails.length == 0) {
+    return {
+      destinationId: userList[0].user._id,
+      sourceIds: userList.map(x => x.user._id).filter(x => x !== userList[0].user._id)
+    }
+  }
+
+  const destinationId = usersWithEmails[0].user._id
+  return {
+    destinationId,
+    sourceIds: userList.map(x => x.user._id).filter(x => x !== destinationId)
   }
 }
