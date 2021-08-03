@@ -53,7 +53,7 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
     terms:{view:"defaultModeratorResponses", tagId: defaultResponsesTag?._id},
     collectionName: "Comments",
     fragmentName: 'CommentsListWithParentMetadata',
-    fetchPolicy: 'cache-first', //TODO: unsure, but maybe helped  
+    fetchPolicy: 'cache-and-network',
     limit: 50
   });
   
