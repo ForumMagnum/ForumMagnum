@@ -794,11 +794,19 @@ addRoute(
     componentName: 'Home2',
     title: "Home2 Beta",
   },
+  // {
+  //   name: 'allPosts',
+  //   path: '/allPosts',
+  //   componentName: 'AllPostsPage',
+  //   title: "All Posts",
+  // },
   {
-    name: 'allPosts',
+    name: 'allPostsDown',
     path: '/allPosts',
-    componentName: 'AllPostsPage',
-    title: "All Posts",
+    componentName: 'PostsSingleRoute',
+    _id: 'pgGh4xrvvg4X25suH',
+    getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "pgGh4xrvvg4X25suH"),
+    background: postBackground,
   },
   {
     name: 'questions',
