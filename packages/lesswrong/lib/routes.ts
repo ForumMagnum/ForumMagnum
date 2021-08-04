@@ -794,12 +794,12 @@ addRoute(
     componentName: 'Home2',
     title: "Home2 Beta",
   },
-  // {
-  //   name: 'allPosts',
-  //   path: '/allPosts',
-  //   componentName: 'AllPostsPage',
-  //   title: "All Posts",
-  // },
+  {
+    name: 'allPosts',
+    path: '/allPosts',
+    componentName: 'AllPostsPage',
+    title: "All Posts",
+  },
   {
     name: 'questions',
     path: '/questions',

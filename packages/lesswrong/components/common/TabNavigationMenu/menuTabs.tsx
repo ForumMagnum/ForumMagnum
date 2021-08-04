@@ -212,14 +212,14 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    // }, {
-    //   id: 'allPosts',
-    //   title: 'All Posts',
-    //   link: '/allPosts',
-    //   iconComponent: Sort,
-    //   tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
-    //   showOnMobileStandalone: false,
-    //   showOnCompressed: true,
+    }, {
+      id: 'allPosts',
+      title: 'All Posts',
+      link: '/allPosts',
+      iconComponent: Sort,
+      tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
+      showOnMobileStandalone: false,
+      showOnCompressed: true,
     }, {
       id: 'wiki',
       title: 'Wiki',
