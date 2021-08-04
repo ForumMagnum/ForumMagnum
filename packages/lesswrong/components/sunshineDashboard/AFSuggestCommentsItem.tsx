@@ -45,9 +45,9 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
     })
   }
 
-  handleDisregardForAlignment = async () => {
+  handleDisregardForAlignment = () => {
     const { currentUser, comment, updateComment } = this.props
-    await updateComment({
+    void updateComment({
       selector: { _id: comment._id},
       data: {
         reviewForAlignmentUserId: currentUser!._id,

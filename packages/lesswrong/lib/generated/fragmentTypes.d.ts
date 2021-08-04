@@ -587,6 +587,7 @@ interface CommentsList { // fragment on Comments
   readonly moveToAlignmentUserId: string,
   readonly afBaseScore: number,
   readonly suggestForAlignmentUserIds: Array<string>,
+  readonly reviewForAlignmentUserId: string,
   readonly needsReview: boolean,
   readonly answer: boolean,
   readonly parentAnswerId: string,

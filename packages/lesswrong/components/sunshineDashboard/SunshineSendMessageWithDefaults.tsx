@@ -30,6 +30,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 64,
     height: 32,
     padding: 8,
+    fontSize: "1rem",
+    color: theme.palette.grey[500],
     '&:hover': {
       backgroundColor: theme.palette.grey[200]
     }
