@@ -801,6 +801,14 @@ addRoute(
   //   title: "All Posts",
   // },
   {
+    name: 'allPostsDown',
+    path: '/allPosts',
+    componentName: 'PostsSingleRoute',
+    _id: 'pgGh4xrvvg4X25suH',
+    getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "pgGh4xrvvg4X25suH"),
+    background: postBackground,
+  },
+  {
     name: 'questions',
     path: '/questions',
     componentName: 'QuestionsPage',
