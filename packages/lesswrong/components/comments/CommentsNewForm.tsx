@@ -10,6 +10,7 @@ import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import { useMessages } from '../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -62,6 +63,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   padding?: boolean
 }) => {
   const currentUser = useCurrentUser();
+  const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
     af: commentDefaultToAlignment(currentUser, post, parentComment),
@@ -71,9 +73,12 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   const [loading, setLoading] = useState(false)
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
 
-  const wrappedSuccessCallback = (...args) => {
+  const wrappedSuccessCallback = (submittedComment, form) => {
+    if (submittedComment.deleted) {
+      flash(submittedComment.deletedReason);
+    }
     if (successCallback) {
-      successCallback(...args)
+      successCallback(submittedComment, form)
     }
     setLoading(false)
   };
