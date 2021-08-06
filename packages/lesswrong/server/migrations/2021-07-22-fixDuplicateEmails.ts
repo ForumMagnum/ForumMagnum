@@ -37,7 +37,7 @@ registerMigration({
     const userInfo: Array<MongoDuplicateUser> = await Users.aggregate([
       {
         '$match': {
-          'deleted': false
+          '$or': [ {'deleted': false}, {'deleted': {'$exists': false}} ]
         }
       },
       {
