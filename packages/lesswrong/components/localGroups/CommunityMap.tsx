@@ -11,13 +11,10 @@ import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/PersonPin';
 
-export const mapsHeight = 440
-const mapsWidth = "100vw"
-
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
-    width: mapsWidth,
-    height: mapsHeight,
+    width: "100%",
+    height: 440,
     // We give this a negative margin to make sure that the map is flush with the top
     marginTop: -50,
     [theme.breakpoints.down('sm')]: {
