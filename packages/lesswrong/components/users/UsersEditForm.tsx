@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { useForm, Form } from '../forms/formUtil';
+import { useAutosavingEditForm, Form } from '../forms/formUtil';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -75,15 +75,14 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   const { FormCheckbox, FormDropdown, FormUsersList, FormDate, Typography } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
 
-  const form = useForm({
-    initialValue: currentUser as unknown as UsersEdit, //TODO
+  const form = useAutosavingEditForm({
+    documentId: currentUser._id,
+    collectionName: "Users",
     fragmentName: "UsersEdit",
     onChange: (change: Partial<UsersEdit>) => {
       // eslint-disable-next-line no-console
-      console.log("User change:");
-      // eslint-disable-next-line no-console
-      console.log(change);
-      // TODO
+      console.log("User change:", change);
+      flash("Saved changes.");
     },
   });
   

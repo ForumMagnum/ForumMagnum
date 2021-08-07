@@ -1,27 +1,29 @@
 import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useSingle } from '../../lib/crud/withSingle';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 export interface LWForm<T> {
-  currentValue: T,
-  setCurrentValue: (newValue: T)=>void,
-  onChange: ((change: Partial<T>)=>void) | null,
+  loading: boolean,
+  currentValue: T|null,
+  updateCurrentValue: (change: Partial<T>)=>void,
 }
 
 export function Form<T>({form, children}: {form: LWForm<T>, children: React.ReactNode}) {
   return <form>{children}</form>
 }
 
-export function useForm<N extends FragmentName, T=FragmentTypes[N]>({initialValue, fragmentName, onChange}: {
-  initialValue: T,
+export function useForm<N extends FragmentName, T=FragmentTypes[N]>({currentValue, updateCurrentValue, fragmentName, loading=false}: {
+  currentValue: T|null,
+  updateCurrentValue: (newValue: Partial<T>)=>void,
   fragmentName: N,
-  onChange?: (change: Partial<T>)=>void,
+  loading?: boolean,
 }): LWForm<T> 
 {
-  const [currentValue, setCurrentValue] = useState(initialValue);
   return {
+    loading,
     currentValue,
-    setCurrentValue: (newValue: T)=>setCurrentValue(newValue),
-    onChange: onChange||null,
+    updateCurrentValue,
   };
 }
 
@@ -30,13 +32,33 @@ export function useFormComponentContext<FieldType,FormFragment>(form: LWForm<For
   setValue: (newValue: FieldType)=>void
 } {
   return {
-    value: form.currentValue[fieldName] as unknown as FieldType,
+    value: form.currentValue![fieldName] as unknown as FieldType,
     setValue: (newValue: FieldType) => {
       const change = {[fieldName]: newValue} as unknown as Partial<FormFragment>;
-      if (form.onChange) {
-        form.onChange(change);
-      }
-      form.setCurrentValue({...form.currentValue, ...change});
+      form.updateCurrentValue(change);
     },
   };
+}
+
+export function useAutosavingEditForm<N extends FragmentName>({documentId, collectionName, onChange, fragmentName}: {
+  documentId: string,
+  collectionName: CollectionNameString,
+  onChange: (change: Partial<FragmentTypes[N]>)=>void,
+  fragmentName: N,
+}): LWForm<FragmentTypes[N]> {
+  type T = FragmentTypes[N];
+  const {document, loading} = useSingle({ collectionName, fragmentName, documentId });
+  const {mutate, loading: loadingUpdate} = useUpdate({ collectionName, fragmentName });
+  const [currentValue, setCurrentValue] = useState(document);
+  
+  return useForm<N>({
+    loading, currentValue, fragmentName,
+    updateCurrentValue: async (change: Partial<T>) => {
+       await mutate({
+         selector: {_id: documentId},
+         data: change,
+       });
+       onChange(change);
+    },
+  });
 }
