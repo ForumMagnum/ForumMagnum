@@ -1,3 +1,4 @@
+import fetch from "node-fetch";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { updateMutator } from '../vulcan-lib/mutators';
@@ -10,11 +11,13 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
+import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
+import { forumTypeSetting } from "../../lib/instanceSettings";
+import { mailchimpAPIKeySetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { userGetLocation } from "../../lib/collections/users/helpers";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
-import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { forumTypeSetting } from "../../lib/instanceSettings";
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
@@ -194,4 +197,35 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     }
   }
   return modifier;
+});
+
+getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
+  if (
+    isAnyTest ||
+    forumTypeSetting.get() !== 'EAForum' ||
+    newUser.subscribedToDigest === oldUser.subscribedToDigest
+  ) {
+    return;
+  }
+
+  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+  const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
+  const { lat: latitude, lng: longitude } = userGetLocation(newUser);
+  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';   
+  await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email_address: newUser.email,
+      email_type: 'html', 
+      location: {
+        latitude,
+        longitude,
+      },
+      status,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `API_KEY ${mailchimpAPIKey}`,
+    },
+  });
 });

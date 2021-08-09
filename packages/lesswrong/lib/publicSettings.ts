@@ -82,3 +82,6 @@ export const elicitSourceURL = new DatabasePublicSetting('elicitSourceURL', 'htt
 export const elicitSourceId = new DatabasePublicSetting('elicitSourceId', 'XCjOpumu-')
 
 export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
+
+export const mailchimpAPIKeySetting = new DatabasePublicSetting<string | null>('mailchimp.apiKey', null)
+export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null)
