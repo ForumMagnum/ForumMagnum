@@ -65,8 +65,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="body2">
-            {/*{ comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId) && <div>*/}
-            { comment.suggestForAlignmentUsers && <div className={classes.afSubmissionHeader}>
+            { comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId) && <div>
               <span className={classes.afSubmissionHeaderText}>
                 AF Submission
               </span>

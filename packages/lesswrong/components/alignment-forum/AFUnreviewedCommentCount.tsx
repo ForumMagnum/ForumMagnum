@@ -1,6 +1,5 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
-import { useTagBySlug } from '../tagging/useTag';
+import { registerComponent } from '../../lib/vulcan-lib';
+import React from 'react';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useMulti } from "../../lib/crud/withMulti";
 

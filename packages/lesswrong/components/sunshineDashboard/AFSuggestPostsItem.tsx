@@ -28,7 +28,6 @@ export const afSubmissionHeader = (theme) => ({
 export const afSubmissionHeaderText = (theme) => ({
   ...commentBodyStyles(theme),
   fontStyle: 'italic',
-  color: theme.palette.primary.main
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -82,8 +81,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          { post.suggestForAlignmentUsers &&  <div className={classes.afSubmissionHeader}>
-          {/*{ post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId) && <div className={classes.afSubmissionHeader}>*/}
+          { post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId) && <div className={classes.afSubmissionHeader}>
             <span className={classes.afSubmissionHeaderText}>
                 AF Submission
             </span>
