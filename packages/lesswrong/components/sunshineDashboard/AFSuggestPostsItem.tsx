@@ -77,11 +77,12 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
     if (!currentUser) return null;
 
     const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+    const userHasSelfSuggested = post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
 
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          { post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId) && <div className={classes.afSubmissionHeader}>
+          { userHasSelfSuggested && <div className={classes.afSubmissionHeader}>
             <span className={classes.afSubmissionHeaderText}>
                 AF Submission
             </span>

@@ -60,12 +60,13 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
     if (!currentUser) return null;
 
     const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
+    const userHasSelfSuggested = comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId)
 
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="body2">
-            { comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId) && <div>
+            { userHasSelfSuggested && <div>
               <span className={classes.afSubmissionHeaderText}>
                 AF Submission
               </span>

@@ -40,9 +40,9 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
     })
     const conversationId = response.data.createConversation.data._id
     history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, currentUser, history, templateCommentId]);
+  }, [createConversation, user, currentUser, history]);
 
-  function existingConversationCheck(){
+  const existingConversationCheck = () => {
     let conversationExists = false;
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
     results?.forEach(conversation => {

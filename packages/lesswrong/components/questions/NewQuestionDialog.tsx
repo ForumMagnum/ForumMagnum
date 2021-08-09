@@ -66,7 +66,11 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
           cancelCallback={onClose}
           successCallback={(post: PostsList) => {
             onClose();
-            (af && !userCanDo(currentUser, "posts.alignment.new")) ? history.push({pathname: '/'}) : history.push({pathname: postGetPageUrl(post)})
+            if (af && !userCanDo(currentUser, "posts.alignment.new")) {
+              history.push({pathname: '/'})
+            } else {
+              history.push({pathname: postGetPageUrl(post)})
+            }
             flash({ messageString: "Post created.", type: 'success'});
             afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
           }}
