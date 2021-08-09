@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       '&:hover': {
         backgroundColor: grey[100],
       },
-      wordBreak: "break-word"
+      overflowWrap: "break-word"
     },
   })
 
