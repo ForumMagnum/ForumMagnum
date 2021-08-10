@@ -13,7 +13,7 @@ import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { mailchimpAPIKeySetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpAPIKeySetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { userGetLocation } from "../../lib/collections/users/helpers";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -221,7 +221,38 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
         latitude,
         longitude,
       },
+      merge_fields: {
+        FNAME: newUser.fullName
+      },
       status,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `API_KEY ${mailchimpAPIKey}`,
+    },
+  });
+});
+
+getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(user: DbUser) {
+  if (isAnyTest || forumTypeSetting.get() !== 'EAForum') {
+    return;
+  }
+  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+  const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
+  const { lat: latitude, lng: longitude } = userGetLocation(user);
+  await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email_address: user.email,
+      email_type: 'html', 
+      location: {
+        latitude,
+        longitude,
+      },
+      merge_fields: {
+        FNAME: user.fullName
+      },
+      status: "subscribed",
     }),
     headers: {
       'Content-Type': 'application/json',

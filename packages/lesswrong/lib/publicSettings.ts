@@ -85,3 +85,4 @@ export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('map
 
 export const mailchimpAPIKeySetting = new DatabasePublicSetting<string | null>('mailchimp.apiKey', null)
 export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null)
+export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaForumListId', null)
