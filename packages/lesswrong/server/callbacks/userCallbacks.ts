@@ -210,6 +210,9 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
 
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
+  if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
+    return;
+  }
   const { lat: latitude, lng: longitude } = userGetLocation(newUser);
   const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';   
   await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members`, {
@@ -239,6 +242,9 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(
   }
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
+  if (!mailchimpAPIKey || !mailchimpEAForumListId) {
+    return;
+  }
   const { lat: latitude, lng: longitude } = userGetLocation(user);
   await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
     method: 'POST',
