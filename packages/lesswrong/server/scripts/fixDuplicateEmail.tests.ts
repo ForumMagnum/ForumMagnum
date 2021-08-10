@@ -30,7 +30,7 @@ describe("mergeSingleUser", () => {
     expect(results).toStrictEqual(expected);
   });
   
-  it("handles only one good user who doesn't have any mail", () => {
+  it("handles only one good user who doesn't have an email", () => {
     const userList = [
       { '_id': '1', posts: [], comments: [], matches: { arrayEmail: ['foo'] }  },
       { '_id': '2', posts: [{ '_id': '1' }], comments: [] },
