@@ -213,17 +213,17 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
     return;
   }
-  const { lat: latitude, lng: longitude } = userGetLocation(newUser);
-  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';   
+  const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
+  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
   await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members`, {
     method: 'POST',
     body: JSON.stringify({
       email_address: newUser.email,
       email_type: 'html', 
-      location: {
+      ...(known && {location: {
         latitude,
         longitude,
-      },
+      }}),
       merge_fields: {
         FNAME: newUser.fullName
       },
@@ -245,16 +245,16 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(
   if (!mailchimpAPIKey || !mailchimpEAForumListId) {
     return;
   }
-  const { lat: latitude, lng: longitude } = userGetLocation(user);
+  const { lat: latitude, lng: longitude, known } = userGetLocation(user);
   await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
     method: 'POST',
     body: JSON.stringify({
       email_address: user.email,
       email_type: 'html', 
-      location: {
+      ...(known && {location: {
         latitude,
         longitude,
-      },
+      }}),
       merge_fields: {
         FNAME: user.fullName
       },
