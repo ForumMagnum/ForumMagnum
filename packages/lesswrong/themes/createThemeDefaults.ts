@@ -27,6 +27,7 @@ export const zIndexes = {
   singleLineCommentMeta: 2,
   postItemTitle: 2,
   sidebarHoverOver: 2,
+  sidebarActionMenu: 2,
   commentPermalinkIcon: 2,
   reviewVotingMenu: 3,
   singleLineCommentHover: 3,

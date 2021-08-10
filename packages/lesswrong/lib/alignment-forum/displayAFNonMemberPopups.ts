@@ -5,7 +5,7 @@ import {OpenDialogContextType} from "../../components/common/withDialog";
 
 
 const isComment = (document: PostsBase | CommentsList) : document is CommentsList => {
-  if (document.hasOwnProperty("postId")) return true
+  if (document.hasOwnProperty("answer")) return true //only comments can be answers
   return false
 }
 
@@ -25,13 +25,13 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
 
   if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) { 
     if (isComment(document)) {
-      commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument}) 
+      void commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument}) 
       openDialog({
         componentName: "AFNonMemberSuccessPopup",
         componentProps: {_id: document._id, postId: document.postId}
       })
     } else {
-      postSuggestForAlignment({currentUser, post: document, updatePost: updateDocument})
+      void postSuggestForAlignment({currentUser, post: document, updatePost: updateDocument})
       openDialog({
         componentName: "AFNonMemberSuccessPopup",
         componentProps: {_id: document._id}
@@ -39,10 +39,3 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
     }
   }
 }
-
-
-//   <div className={classes.afNonMemberPopDiv} onFocus={(ev) => {
-//   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
-//     openDialog({componentName: "AFNonMemberInitialPopup"})
-//   }
-// }}>

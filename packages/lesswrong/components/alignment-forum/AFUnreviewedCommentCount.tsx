@@ -30,7 +30,7 @@ const AFUnreviewedCommentCount = ({ post, classes }: {
     fetchPolicy: 'cache-and-network',
   });
   
- if (loading && count && !(count>0)) {
+ if (loading || !count) {
    return null
  } else {
    return (
