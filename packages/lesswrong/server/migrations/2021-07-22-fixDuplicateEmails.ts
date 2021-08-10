@@ -28,7 +28,8 @@ registerMigration({
         user.id,
         user.displayName,
         array_agg(posts.id) as postIds,
-        array_agg(comments.id) as commentIds
+        array_agg(comments.id) as commentIds,
+        array_agg(emails.address) as arrayEmail
       from users
       left join posts on users.id = posts.userId
       left join comments on users.id = comments.userId
