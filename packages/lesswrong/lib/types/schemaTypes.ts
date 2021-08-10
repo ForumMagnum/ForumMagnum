@@ -32,6 +32,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   needsUpdate?: (doc: Partial<T>) => boolean,
   getValue?: (doc: T, context: ResolverContext) => any,
   foreignKey?: any,
+  logChanges?: boolean,
   
   min?: number,
   max?: number,

@@ -193,7 +193,8 @@ export const GardenCodes: GardenCodesCollection = createCollection({
   typeName: 'GardenCode',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
-  mutations: getDefaultMutations('GardenCodes') //, options),
+  mutations: getDefaultMutations('GardenCodes'), //, options),
+  logChanges: true,
 });
 
 addUniversalFields({collection: GardenCodes})

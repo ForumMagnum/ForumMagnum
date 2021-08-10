@@ -317,6 +317,7 @@ addFieldsDict(Users, {
     canUpdate: userOwns,
     canCreate: 'guests',
     hidden: true,
+    logChanges: false,
   },
 
   // Bio (Markdown version)
@@ -683,6 +684,7 @@ addFieldsDict(Users, {
     canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
+    logChanges: false,
   },
 
   // If, the last time you opened the karma-change notifier, you saw more than
@@ -695,6 +697,7 @@ addFieldsDict(Users, {
     canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
+    logChanges: false,
   },
 
   // Email settings
