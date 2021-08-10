@@ -670,6 +670,10 @@ addFieldsDict(Users, {
     label: "Draft shared with me",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationAlignmentSubmissionApproved: {
+    label: "Alignment Forum submission approvals",
+    ...notificationTypeSettingsField({ channel: "both"})
+  },
   notificationEventInRadius: {
     label: "New Events in my notification radius",
     hidden: !hasEventsSetting.get(),

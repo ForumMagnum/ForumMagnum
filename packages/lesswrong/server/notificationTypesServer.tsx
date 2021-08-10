@@ -17,6 +17,7 @@ import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventInRadiusEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 
 interface ServerNotificationType {
   name: string,
@@ -280,6 +281,40 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
     return <p>
       You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
     </p>
+  },
+});
+
+export const isComment = (document: DbPost | DbComment) : document is DbComment => {
+  if (document.hasOwnProperty("answer")) return true //only comments can be answers
+  return false
+}
+
+export const AlignmentSubmissionApprovalNotification = serverRegisterNotificationType({
+  name: "alignmentForumSubmissionApproval",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    return "Your submission to the Alignment Forum has been approved!";
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let document: DbPost|DbComment|null 
+    document = await Posts.findOne(notifications[0].documentId);
+    if (!document) {
+      document = await Comments.findOne(notifications[0].documentId)
+    }
+    if (!document) throw Error(`Can't find document for notification: ${notifications[0]}`)
+    
+    if (isComment(document)) {
+      const link = commentGetPageUrlFromIds({postId: document.postId, commentId: document._id, isAbsolute: true})
+      return <p>
+        Your <a href={link}>comment submission</a> to the Alignment Forum has been approved.
+      </p>
+    }
+    else {
+      const link = postGetPageUrl(document, true)
+      return <p>
+        Your post, <a href={link}>{document.title}</a>, has been accepted to the Alignment Forum.
+      </p>
+    }
   },
 });
 

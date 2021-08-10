@@ -273,6 +273,23 @@ export const PostSharedWithUserNotification = registerNotificationType({
   },
 });
 
+export const AlignmentSubmissionApprovalNotification = registerNotificationType({
+  name: "alignmentForumSubmissionApproved",
+  userSettingField: "notificationAlignmentSubmissionApproved",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    
+    if (documentType==='comment') {
+      return "Your comment has been accepted to the Alignment Forum";
+    } else if (documentType==='post') {
+      let post = await getDocument(documentType, documentId) as DbPost
+      return `Your post has been accepted to the Alignment Forum: ${post.title}`
+    } else return "Your submission to the Alignment Forum has been accepted" //TODO: proper error handling?
+  },
+  getIcon() {
+    return <AllIcon style={iconStyles} />
+  },
+});
+
 export const NewEventInNotificationRadiusNotification = registerNotificationType({
   name: "newEventInRadius",
   userSettingField: "notificationEventInRadius",
