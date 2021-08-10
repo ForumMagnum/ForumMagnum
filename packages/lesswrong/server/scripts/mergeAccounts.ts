@@ -108,6 +108,16 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // Transfer localgroups
   await transferCollection({sourceUserId, targetUserId, collectionName: "Localgroups"})
   
+  // Transfer votes that target content from source user (authorId)
+  // eslint-disable-next-line no-console
+  console.log("Transferring votes that target source user")
+  await Votes.update({authorId: sourceUserId}, {$set: {authorId: targetUserId}}, {multi: true})
+
+  // Transfer votes cast by source user
+  // eslint-disable-next-line no-console
+  console.log("Transferring votes cast by source user")
+  await Votes.update({userId: sourceUserId}, {$set: {userId: targetUserId}}, {multi: true})
+
   // Transfer karma
   // eslint-disable-next-line no-console
   console.log("Transferring karma")
@@ -123,16 +133,6 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
     },
     validate: false
   })
-  
-  // Transfer votes that target content from source user (authorId)
-  // eslint-disable-next-line no-console
-  console.log("Transferring votes that target source user")
-  await Votes.update({authorId: sourceUserId}, {$set: {authorId: targetUserId}}, {multi: true})
-
-  // Transfer votes cast by source user
-  // eslint-disable-next-line no-console
-  console.log("Transferring votes cast by source user")
-  await Votes.update({userId: sourceUserId}, {$set: {userId: targetUserId}}, {multi: true})
   
   // Change slug of source account by appending "old" and reset oldSlugs array
   // eslint-disable-next-line no-console
