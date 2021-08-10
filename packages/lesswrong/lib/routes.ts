@@ -13,6 +13,7 @@ const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "W
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
@@ -667,6 +668,14 @@ switch (forumTypeSetting.get()) {
         _id: aboutPostIdSetting.get()
       },
       {
+        name: 'faq',
+        path: '/faq',
+        componentName: 'PostsSingleRoute',
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+        background: postBackground
+      },
+      {
         name: 'Meta',
         path: '/meta',
         componentName: 'Meta',
@@ -750,8 +759,8 @@ switch (forumTypeSetting.get()) {
         name: 'faq',
         path: '/faq',
         componentName: 'PostsSingleRoute',
-        _id:"2rWKkWuPrgTMpLRbp",
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
         background: postBackground
       },
       {

@@ -526,7 +526,7 @@ importComponent("AFApplicationForm", () => require('../components/alignment-foru
 importComponent("AFNonMemberInitialPopup", () => require('../components/alignment-forum/AFNonMemberInitialPopup'));
 importComponent("AFNonMemberSuccessPopup", () => require('../components/alignment-forum/AFNonMemberSuccessPopup'));
 importComponent("AFUnreviewedCommentCount", () => require('../components/alignment-forum/AFUnreviewedCommentCount'));
-
+importComponent("AlignmentPendingApprovalMessage", () => require('../components/alignment-forum/AlignmentPendingApprovalMessage'));
 
 importComponent("NewQuestionDialog", () => require('../components/questions/NewQuestionDialog'));
 importComponent("NewRelatedQuestionForm", () => require('../components/questions/NewRelatedQuestionForm'));

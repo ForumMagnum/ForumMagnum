@@ -135,11 +135,7 @@ const PostsNewForm = ({classes}: {
             prefilledProps={prefilledProps}
             successCallback={post => {
               afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-              if (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new")) {
-                history.push({pathname: '/'})
-              } else {
-                history.push({pathname: postGetPageUrl(post)})
-              }
+              history.push({pathname: postGetPageUrl(post)})
               flash({ messageString: "Post created.", type: 'success'});
             }}
             eventForm={eventForm}
