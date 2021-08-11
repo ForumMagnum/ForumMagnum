@@ -283,7 +283,7 @@ export const AlignmentSubmissionApprovalNotification = registerNotificationType(
     } else if (documentType==='post') {
       let post = await getDocument(documentType, documentId) as DbPost
       return `Your post has been accepted to the Alignment Forum: ${post.title}`
-    } else return "Your submission to the Alignment Forum has been accepted" //TODO: proper error handling?
+    } else throw new Error("documentType must be post or comment!")
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
