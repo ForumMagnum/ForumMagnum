@@ -290,7 +290,7 @@ export const isComment = (document: DbPost | DbComment) : document is DbComment 
 }
 
 export const AlignmentSubmissionApprovalNotification = serverRegisterNotificationType({
-  name: "alignmentForumSubmissionApproval",
+  name: "alignmentSubmissionApproved",
   canCombineEmails: false,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return "Your submission to the Alignment Forum has been approved!";
@@ -302,7 +302,7 @@ export const AlignmentSubmissionApprovalNotification = serverRegisterNotificatio
       document = await Comments.findOne(notifications[0].documentId)
     }
     if (!document) throw Error(`Can't find document for notification: ${notifications[0]}`)
-    
+
     if (isComment(document)) {
       const link = commentGetPageUrlFromIds({postId: document.postId, commentId: document._id, isAbsolute: true})
       return <p>
