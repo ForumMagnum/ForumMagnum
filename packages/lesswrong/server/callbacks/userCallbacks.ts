@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { updateMutator } from '../vulcan-lib/mutators';
@@ -216,8 +217,11 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
   const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
-  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members`, {
-    method: 'POST',
+  
+  const emailHash = md5(newUser.email.toLowerCase());
+
+  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
+    method: 'PUT',
     body: JSON.stringify({
       email_address: newUser.email,
       email_type: 'html', 
