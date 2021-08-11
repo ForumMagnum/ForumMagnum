@@ -244,7 +244,11 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   });
 });
 
-getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(user: DbUser) {
+/**
+ * This callback adds all new users to an audience in Mailchimp which will be used for a forthcoming
+ * (as of 2021-08-11) drip campaign.
+ */
+getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudience(user: DbUser) {
   if (isAnyTest || forumTypeSetting.get() !== 'EAForum') {
     return;
   }
