@@ -274,7 +274,7 @@ export const PostSharedWithUserNotification = registerNotificationType({
 });
 
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({
-  name: "alignmentForumSubmissionApproved",
+  name: "alignmentSubmissionApproved",
   userSettingField: "notificationAlignmentSubmissionApproved",
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     
