@@ -1,6 +1,7 @@
 import { Comments } from "../../collections/comments";
 import { ensureIndex } from '../../collectionUtils';
 import { augmentForDefaultView } from '../../collections/comments/views';
+import { viewFieldNullOrMissing } from "../../vulcan-lib";
 
 Comments.addView("alignmentSuggestedComments", function (terms) {
   return {
@@ -8,7 +9,7 @@ Comments.addView("alignmentSuggestedComments", function (terms) {
       postId: terms.postId,
       af: false,
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
-      reviewForAlignmentUserId: {$exists:false}
+      reviewForAlignmentUserId: viewFieldNullOrMissing
     },
     options: {
       sort: {

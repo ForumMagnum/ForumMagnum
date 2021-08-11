@@ -268,6 +268,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly unlisted: boolean,
   readonly score: number,
   readonly lastVisitedAt: Date,
+  readonly isFuture: boolean,
   readonly isRead: boolean,
   readonly lastCommentedAt: Date,
   readonly lastCommentPromotedAt: Date,
