@@ -9,8 +9,7 @@ import NoSsr from '@material-ui/core/NoSsr';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import {useUpdate} from "../../lib/crud/withUpdate";
-import {userCanDo} from "../../lib/vulcan-users";
+import { useUpdate } from "../../lib/crud/withUpdate";
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({

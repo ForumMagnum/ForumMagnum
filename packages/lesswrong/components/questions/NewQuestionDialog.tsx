@@ -12,8 +12,7 @@ import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { useUpdate } from "../../lib/crud/withUpdate";
-import {afNonMemberSuccessHandling} from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import {userCanDo} from "../../lib/vulcan-users";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
