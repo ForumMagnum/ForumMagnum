@@ -215,6 +215,10 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
     return;
   }
+  if (!newUser.email) {
+    captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
+    return;
+  }
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
   const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
   
@@ -247,6 +251,10 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
   if (!mailchimpAPIKey || !mailchimpEAForumListId) {
+    return;
+  }
+  if (!user.email) {
+    captureException(new Error(`Subscription to EA Forum audience failed: no email for user ${user.displayName}`))
     return;
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(user);
