@@ -229,9 +229,6 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
         latitude,
         longitude,
       }}),
-      merge_fields: {
-        FNAME: newUser.fullName
-      },
       status,
     }),
     headers: {
@@ -262,9 +259,6 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(
         latitude,
         longitude,
       }}),
-      merge_fields: {
-        FNAME: user.fullName
-      },
       status: "subscribed",
     }),
     headers: {
