@@ -215,7 +215,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
   const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
-  await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members`, {
+  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members`, {
     method: 'POST',
     body: JSON.stringify({
       email_address: newUser.email,
@@ -246,7 +246,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(
     return;
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(user);
-  await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
+  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
     method: 'POST',
     body: JSON.stringify({
       email_address: user.email,
