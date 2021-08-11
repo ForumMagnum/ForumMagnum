@@ -15,6 +15,7 @@ import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authenticatio
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { mailchimpAPIKeySetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { userGetLocation } from "../../lib/collections/users/helpers";
+import { captureException } from "@sentry/core";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -233,6 +234,8 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
       'Content-Type': 'application/json',
       Authorization: `API_KEY ${mailchimpAPIKey}`,
     },
+  }).catch(e => {
+    captureException(e);
   });
 });
 
@@ -264,5 +267,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToDripCampaign(
       'Content-Type': 'application/json',
       Authorization: `API_KEY ${mailchimpAPIKey}`,
     },
+  }).catch(e => {
+    captureException(e);
   });
 });
