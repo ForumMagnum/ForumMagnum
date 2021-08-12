@@ -26,7 +26,8 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
         <p>
           This post is pending approval to the Alignment Forum and is currently only visible to you.
           However, it is already visible (and commentable) to everyone on LessWrong.
-          <a href={`https://lesswrong.com/posts/${post._id}/${post.slug}`}> View your post on LessWrong</a>.
+          {' '}
+          <a href={`https://lesswrong.com/posts/${post._id}/${post.slug}`}>View your post on LessWrong</a>.
         </p>
         <p>
           For more info about Alignment Forum membership and posting policies, see <Link to={'/faq'}>the FAQ</Link>.
