@@ -10,6 +10,11 @@ import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import {useUpdate} from "../../lib/crud/withUpdate";
+import {
+  afNonMemberDisplayInitialPopup,
+  afNonMemberSuccessHandling
+} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -70,10 +75,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  
+  const { openDialog } = useDialog();
+  const { mutate: updateComment } = useUpdate({
+    collectionName: "Comments",
+    fragmentName: 'SuggestAlignmentComment',
+  })
+  
 
-  const wrappedSuccessCallback = (...args) => {
+  const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
+    afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
     if (successCallback) {
-      successCallback(...args)
+      successCallback(comment, { form })
     }
     setLoading(false)
   };
@@ -107,7 +120,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   }
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
-    const { openDialog } = useDialog();
     return <div className={classes.submit}>
       {(type === "reply") && <Button
         onClick={cancelCallback}
@@ -150,31 +162,35 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
     }}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classes.form : null}>
-        {commentWillBeHidden && <div className={classes.modNote}><em>
-          A moderator will need to review your account before your comments will show up.
-        </em></div>}
-
-        <WrappedSmartForm
-          collection={Comments}
-          mutationFragment={getFragment(fragment)}
-          successCallback={wrappedSuccessCallback}
-          cancelCallback={wrappedCancelCallback}
-          submitCallback={(data) => { 
-            setLoading(true);
-            return data
-          }}
-          errorCallback={() => setLoading(false)}
-          prefilledProps={prefilledProps}
-          layout="elementOnly"
-          formComponents={{
-            FormSubmit: SubmitComponent,
-            FormGroupLayout: Components.DefaultStyleFormGroup
-          }}
-          alignmentForumPost={post?.af}
-          addFields={currentUser?[]:["contents"]}
-          removeFields={removeFields}
-          formProps={formProps}
-        />
+          {commentWillBeHidden && <div className={classes.modNote}><em>
+            A moderator will need to review your account before your comments will show up.
+          </em></div>}
+          <div onFocus={(ev) => {
+            afNonMemberDisplayInitialPopup(currentUser, openDialog)
+            ev.preventDefault()
+          }}>
+            <WrappedSmartForm
+              collection={Comments}
+              mutationFragment={getFragment(fragment)}
+              successCallback={wrappedSuccessCallback}
+              cancelCallback={wrappedCancelCallback}
+              submitCallback={(data) => { 
+                setLoading(true);
+                return data
+              }}
+              errorCallback={() => setLoading(false)}
+              prefilledProps={prefilledProps}
+              layout="elementOnly"
+              formComponents={{
+                FormSubmit: SubmitComponent,
+                FormGroupLayout: Components.DefaultStyleFormGroup
+              }}
+              alignmentForumPost={post?.af}
+              addFields={currentUser?[]:["contents"]}
+              removeFields={removeFields}
+              formProps={formProps}
+            />
+          </div>
         </div>
         {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
           <ModerationGuidelinesBox post={post} />

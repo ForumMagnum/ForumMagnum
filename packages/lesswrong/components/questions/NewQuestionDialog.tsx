@@ -10,6 +10,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useDialog } from "../common/withDialog";
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -26,7 +29,13 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
+  const { openDialog } = useDialog();
   const { PostSubmit, SubmitToFrontpageCheckbox, LWDialog } = Components
+  
+  const {mutate: updatePost} = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+  });
   
   const QuestionSubmit = (props) => {
     return <div className={classes.formSubmit}>
@@ -55,9 +64,10 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
           }}
           cancelCallback={onClose}
           successCallback={(post: PostsList) => {
-            history.push({pathname: postGetPageUrl(post)});
+            onClose();
+            history.push({pathname: postGetPageUrl(post)})
             flash({ messageString: "Post created.", type: 'success'});
-            onClose()
+            afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
           }}
           formComponents={{
             FormSubmit: QuestionSubmit,

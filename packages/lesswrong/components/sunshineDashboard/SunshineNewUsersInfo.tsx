@@ -2,7 +2,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { useEffect, useState } from 'react';
-import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -16,15 +15,12 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import { useMulti } from '../../lib/crud/withMulti';
 import MessageIcon from '@material-ui/icons/Message'
 import Button from '@material-ui/core/Button';
-import EditIcon from '@material-ui/icons/Edit';
 import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 
-export const defaultModeratorPMsTag = new DatabasePublicSetting<string>('defaultModeratorPMsTag', "HTSg8QDKop33L29oe") // ea-forum-look-here
+const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses") // ea-forum-look-here
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
@@ -251,18 +247,11 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     limit: 50
   });
 
-  const { results: defaultResponses } = useMulti({
-    terms:{view:"defaultModeratorResponses", tagId: defaultModeratorPMsTag.get()},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    fetchPolicy: 'cache-and-network',
-    limit: 50
-  });
 
   const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
   const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
 
-  const { CommentBody, MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, NewConversationButton, Typography } = Components
+  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults } = Components
 
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
@@ -345,24 +334,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                 </LWTooltip>
               </div>
               <div className={classes.row}>
-                {currentUser && <Select value={0} variant="outlined">
-                  <MenuItem value={0}>Start a message</MenuItem>
-                  {defaultResponses && defaultResponses.map((comment, i) => 
-                    <div key={`template-${comment._id}`}>
-                      <LWTooltip tooltip={false} placement="left" title={
-                        <div className={classes.defaultMessage}>
-                          <CommentBody comment={comment}/>
-                        </div>} 
-                      >
-                        <MenuItem>
-                          <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id}>
-                            {getTitle(comment.contents?.plaintextMainText||null)}
-                          </NewConversationButton>
-                        </MenuItem>
-                      </LWTooltip>
-                    </div>)}
-                </Select>}
-                <Link to="/tag/moderator-default-responses/discussion"><EditIcon className={classes.editIcon}/></Link>
+                <SunshineSendMessageWithDefaults user={user} tagSlug={defaultModeratorPMsTagSlug.get()}/>
               </div>
             </div>
             <hr className={classes.hr}/>

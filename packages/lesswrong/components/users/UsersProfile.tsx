@@ -218,6 +218,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
+    const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
@@ -230,6 +231,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
+    
+    const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -305,6 +308,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
               showNoResults={false}
             />}
           </SingleColumnSection> }
+          {/* AF Submissions Section */}
+          {ownPage && nonAFMember && <SingleColumnSection>
+            <Components.LWTooltip inlineBlock={false} title="Your posts are pending approval to the Alignment Forum and are only visible to you on the Forum. 
+            They are visible to everyone on LessWrong.">
+              <SectionTitle title="My Submissions"/>
+            </Components.LWTooltip>
+            <Components.PostsList2 hideAuthor showDraftTag={false} terms={afSubmissionTerms}/>
+          </SingleColumnSection>
+          }
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
@@ -323,12 +335,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
-
           {/* Wiki Section */}
           <SingleColumnSection>
             <SectionTitle title={"Wiki Contributions"}>
             </SectionTitle>
-
             <AnalyticsContext listContext={"userPageWiki"}>
               <TagEditsByUser
                 userId={user._id}
@@ -336,9 +346,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
               />
             </AnalyticsContext>
           </SingleColumnSection>
-
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
+            {ownPage && nonAFMember && <SingleColumnSection>
+              <Components.LWTooltip inlineBlock={false } title="Your comments are pending approval to the Alignment Forum and are only visible to you on the Forum. 
+              They are visible to everyone on LessWrong.">
+                <SectionTitle title={"Comment Submissions"} />
+              </Components.LWTooltip>
+              <Components.RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
+            </SingleColumnSection>}
             <SingleColumnSection>
               <Link to={`${userGetProfileUrl(user)}/replies`}>
                 <SectionTitle title={"Comments"} />

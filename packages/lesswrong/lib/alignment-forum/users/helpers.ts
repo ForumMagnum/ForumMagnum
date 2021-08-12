@@ -1,4 +1,5 @@
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import {forumTypeSetting} from "../../instanceSettings";
 
 export const userCanSuggestPostForAlignment = ({currentUser, post}: {
   currentUser: UsersCurrent|DbUser|null,
@@ -22,4 +23,16 @@ export const userCanMakeAlignmentPost = (user: DbUser|UsersCurrent|null, post: P
     userCanDo(user,"posts.alignment.move") &&
     userOwns(user, post)
   )
+}
+
+export const userCanMakeAlignmentComment = (user: DbUser|UsersCurrent|null) => {
+  return userCanDo(user, 'comments.alignment.new')
+}
+
+export const userNeedsAFNonMemberWarning = (user: DbUser|UsersCurrent|null, initial =true) => {
+  
+  return (!!user
+    && forumTypeSetting.get()=== 'AlignmentForum' 
+    && (!user.hideAFNonMemberInitialWarning || !initial) 
+    && !(userCanDo(user, 'comments.alignment.new')||userCanDo(user, 'posts.alignment.new')))
 }
