@@ -241,6 +241,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
     },
   }).catch(e => {
     captureException(e);
+    console.log(e);
   });
 });
 
@@ -279,5 +280,6 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     },
   }).catch(e => {
     captureException(e);
+    console.log(e);
   });
 });
