@@ -20,6 +20,7 @@ const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "W
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
+const eaHandbookPostIdSetting = new PublicInstanceSetting<string | null>('eaHandbookPostId', null, "optional")
 
 async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
   if (!postId)
@@ -693,6 +694,14 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
         getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        background: postBackground
+      },
+      {
+        name:'handbook',
+        path:'/handbook',
+        componentName: 'PostsSingleRoute',
+        _id: eaHandbookPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, eaHandbookPostIdSetting.get()),
         background: postBackground
       },
       {
