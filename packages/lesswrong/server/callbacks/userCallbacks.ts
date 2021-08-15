@@ -233,6 +233,9 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
         latitude,
         longitude,
       }}),
+      merge_fields: {
+        FNAME: newUser.displayName,
+      },
       status,
     }),
     headers: {
