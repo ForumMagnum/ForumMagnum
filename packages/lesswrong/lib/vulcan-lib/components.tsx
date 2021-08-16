@@ -61,9 +61,11 @@ const componentsProxyHandler = {
   }
 }
 
-// Acts like a mapping from component-name to component, based on
-// registerComponents calls. Lazily loads those components when you dereference,
-// using a proxy.
+/**
+ * Acts like a mapping from component-name to component, based on
+ * registerComponents calls. Lazily loads those components when you dereference,
+ * using a proxy.
+ */
 export const Components: ComponentTypes = new Proxy({} as any, componentsProxyHandler);
 
 const PreparedComponents: Record<string,any> = {};
@@ -152,12 +154,6 @@ export function importComponent(componentName: keyof ComponentTypes|Array<keyof 
     }
   } else {
     DeferredComponentsTable[componentName] = importFn;
-  }
-}
-
-export function importAllComponents() {
-  for (let componentName of Object.keys(DeferredComponentsTable)) {
-    prepareComponent(componentName);
   }
 }
 
@@ -283,12 +279,15 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
 }
 
 /**
- * Populate the lookup table for components to be callable
- * ℹ️ Called once on app startup
- **/
-export const populateComponentsApp = (): void => {
+ * Called once on app startup
+ *
+ * See debugComponentImports for intended use
+ */
+export const populateComponentsAppDebug = (): void => {
   if (debugComponentImports) {
-    importAllComponents();
+    for (let componentName of Object.keys(DeferredComponentsTable)) {
+      prepareComponent(componentName);
+    }
   }
 };
 
