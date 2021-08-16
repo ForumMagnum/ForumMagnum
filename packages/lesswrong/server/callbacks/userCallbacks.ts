@@ -244,6 +244,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
     },
   }).catch(e => {
     captureException(e);
+    // eslint-disable-next-line no-console
     console.log(e);
   });
 });
@@ -283,6 +284,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     },
   }).catch(e => {
     captureException(e);
+    // eslint-disable-next-line no-console
     console.log(e);
   });
 });
