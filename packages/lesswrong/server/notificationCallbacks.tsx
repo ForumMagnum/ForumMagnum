@@ -32,7 +32,6 @@ import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
-import { forumTypeSetting } from '../lib/instanceSettings';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
