@@ -157,6 +157,12 @@ export function importComponent(componentName: keyof ComponentTypes|Array<keyof 
   }
 }
 
+export function importAllComponents() {
+  for (let componentName of Object.keys(DeferredComponentsTable)) {
+    prepareComponent(componentName);
+  }
+}
+
 function prepareComponent(componentName: string): any
 {
   if (componentName in PreparedComponents) {
@@ -285,9 +291,7 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
  */
 export const populateComponentsAppDebug = (): void => {
   if (debugComponentImports) {
-    for (let componentName of Object.keys(DeferredComponentsTable)) {
-      prepareComponent(componentName);
-    }
+    importAllComponents();
   }
 };
 
