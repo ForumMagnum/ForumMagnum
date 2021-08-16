@@ -65,6 +65,7 @@ const hoursPerWeek = {
 // Estimated number of posts per week in a frontpage/community feed with the
 // given karma threshold. Calculated based on the average number of posts per
 // week on LW2 as of August 2018.
+// ^^^ Lol
 const postsPerWeek = {
   2: 20,
   30: 11,

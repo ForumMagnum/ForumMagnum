@@ -4,11 +4,10 @@ import AppGenerator from './AppGenerator';
 import { onStartup } from '../lib/executionEnvironment';
 
 import { createApolloClient } from './apolloClient';
-import { populateComponentsApp } from '../lib/vulcan-lib';
+import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 
 onStartup(() => {
-  // init the application components and routes, including components & routes from 3rd-party packages
-  populateComponentsApp();
+  populateComponentsAppDebug();
   const apolloClient = createApolloClient();
   apolloClient.disableNetworkFetches = true;
 

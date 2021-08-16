@@ -92,6 +92,10 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   return restrictedDocs;
 }
 
+/**
+ * This field is stored in the database as a string, but resolved as the
+ * referenced document
+ */
 export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
   resolverName: string,
@@ -156,6 +160,11 @@ interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpeci
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
+
+/**
+ * This field is not stored in the database, but is filled in at query-time by
+ * our GraphQL API using the supplied resolver function.
+ */
 export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
