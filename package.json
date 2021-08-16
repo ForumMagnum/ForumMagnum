@@ -191,6 +191,7 @@
     "mathjax": "^2.7.5",
     "mathjax-node": "^2.1.1",
     "mathjax-node-page": "3.2.0",
+    "md5": "^2.3.0",
     "mingo": "^2.2.11",
     "moment": "^2.22.2",
     "mongodb": "^3.6.3",
