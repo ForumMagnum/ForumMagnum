@@ -531,6 +531,21 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
   }
 });
 
+const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
+  const newlyAF = newDocument.af && !oldDocument.af
+  const userSubmitted = oldDocument.suggestForAlignmentUserIds && oldDocument.suggestForAlignmentUserIds.includes(oldDocument.userId)
+  const reviewed = !!newDocument.reviewForAlignmentUserId
+  
+  const documentType =  newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
+  
+  if (newlyAF && userSubmitted && reviewed) {
+    await createNotifications([newDocument.userId], "alignmentSubmissionApproved", documentType, newDocument._id)
+  }
+}
+  
+getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
+getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
+
 async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
   return await Users.aggregate([
     {

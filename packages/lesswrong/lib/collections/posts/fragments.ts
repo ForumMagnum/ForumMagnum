@@ -36,6 +36,7 @@ registerFragment(`
     unlisted
     score
     lastVisitedAt
+    isFuture
     isRead
     lastCommentedAt
     lastCommentPromotedAt

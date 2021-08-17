@@ -685,6 +685,18 @@ Posts.addView("unlisted", (terms: PostsViewTerms) => {
     }
 }});
 
+Posts.addView("userAFSubmissions", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      userId: terms.userId,
+      af: false,
+      suggestForAlignmentUserIds: terms.userId,
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+  }});
+
 Posts.addView("slugPost", (terms: PostsViewTerms) => ({
   selector: {
     slug: terms.slug,

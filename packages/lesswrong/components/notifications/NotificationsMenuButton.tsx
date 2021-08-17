@@ -6,6 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import * as _ from 'underscore';
+import { getHeaderTextColor } from "../common/Header";
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -15,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   badge: {
     backgroundColor: 'inherit',
-    color: 'rgba(0,0,0,0.6)',
+    color: getHeaderTextColor(theme),
     fontFamily: 'freight-sans-pro, sans-serif',
     fontSize: "12px",
     fontWeight: 500,

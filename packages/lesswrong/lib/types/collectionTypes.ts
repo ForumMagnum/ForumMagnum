@@ -54,6 +54,7 @@ interface CollectionOptions {
   resolvers: any
   interfaces: Array<string>
   description: string
+  logChanges: boolean
 }
 
 interface FindResult<T> {
