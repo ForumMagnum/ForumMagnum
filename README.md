@@ -125,6 +125,4 @@ used.
 
 ### Where to branch off of
 
-I usually branch off of LW's devel branch when I'm making changes. That way, if I discover a bug while developing, I know it's legit. And I generally want to submit changes upstream before merging them locally.
-
-To do this I create a git remote called upstream, which points to `git@github.com:LessWrong2/Lesswrong2.git`. Then I create a local branch called lw-devel which tracks upstream/devel.
+Branch off of `ea-master` and submit to `ea-master`. After review and merging, submit to `LessWrong:master`.
