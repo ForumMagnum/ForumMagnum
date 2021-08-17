@@ -37,6 +37,7 @@ import { getSchema } from '../../lib/utils/getSchema';
 import { throwError } from './errors';
 import { Connectors } from './connectors';
 import { getCollectionHooks, CollectionMutationCallbacks, CreateCallbackProperties, UpdateCallbackProperties, DeleteCallbackProperties } from '../mutationCallbacks';
+import { logFieldChanges } from '../fieldChanges';
 import { createAnonymousContext } from './query';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
@@ -282,6 +283,10 @@ export const updateMutator = async <T extends DbObject>({
   selector = selector || { _id: documentId };
   let data = dataParam || modifierToData({ $set: set, $unset: unset });
   
+  // Save the original mutation (before callbacks add more changes to it) for
+  // logging in LWEvents
+  let origData = {...data};
+  
   // Cast because the type system doesn't know that the collectionName on a
   // collection object identifies the collection object type
   const hooks = getCollectionHooks(collectionName) as unknown as CollectionMutationCallbacks<T>;
@@ -473,6 +478,8 @@ export const updateMutator = async <T extends DbObject>({
     currentUser,
     collection
   ]);
+  
+  void logFieldChanges({currentUser, collection, oldDocument, data: origData});
 
   return { data: document };
 };

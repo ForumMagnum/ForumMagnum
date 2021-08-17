@@ -222,6 +222,11 @@ SimpleSchema.extendOptions(['getValue'])
 // `Vulcan.recomputeDenormalizedValues` in the Meteor shell
 SimpleSchema.extendOptions(['canAutoDenormalize'])
 
+// Whether to log changes to this field to the LWEvents collection. If undefined
+// (neither true nor false), will be logged if the logChanges option is set on
+// the collection and the denormalized option is false.
+SimpleSchema.extendOptions(['logChanges'])
+
 
 // Helper function to add all the correct callbacks and metadata for a field
 // which is denormalized, where its denormalized value is a function only of

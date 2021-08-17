@@ -48,6 +48,7 @@ export const Comments: ExtendedCommentsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),
+  logChanges: true,
 });
 
 Comments.checkAccess = async (currentUser: DbUser|null, comment: DbComment, context: ResolverContext|null): Promise<boolean> => {
