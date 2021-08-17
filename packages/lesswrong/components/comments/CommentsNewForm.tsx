@@ -10,11 +10,9 @@ import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import {useUpdate} from "../../lib/crud/withUpdate";
-import {
-  afNonMemberDisplayInitialPopup,
-  afNonMemberSuccessHandling
-} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useMessages } from '../common/withMessages';
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -67,6 +65,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   padding?: boolean
 }) => {
   const currentUser = useCurrentUser();
+  const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
     af: commentDefaultToAlignment(currentUser, post, parentComment),
@@ -85,6 +84,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
+    if (submittedComment.deleted) {
+      flash(submittedComment.deletedReason);
+    }
     if (successCallback) {
       successCallback(comment, { form })
     }
