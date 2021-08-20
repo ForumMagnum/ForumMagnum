@@ -272,14 +272,9 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
           { method === "email" && [
             viewSelector,
             !!currentUser ? (
-              [
-                !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
-                  Sorry, there's currently no email feed for {viewNames[view]}.
-                </DialogContentText>,
-                subscribedByEmail && !userEmailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
-                  We need to confirm your email address. We sent a link to {currentUser.email}; click the link to activate your subscription.
-                </DialogContentText>
-              ]
+              !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
+                Sorry, there's currently no email feed for {viewNames[view]}.
+              </DialogContentText>
             ) : (
               <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
                 You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email
