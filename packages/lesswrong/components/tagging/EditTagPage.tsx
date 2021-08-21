@@ -4,6 +4,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil'
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
+import { useApolloClient } from "@apollo/client";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback}: {
   tag: TagFragment,
@@ -26,6 +27,7 @@ const EditTagPage = () => {
   const { slug } = params;
   const { tag, loading } = useTagBySlug(slug, "TagFragment");
   const { history } = useNavigation();
+  const client = useApolloClient()
 
   if (loading)
     return <Components.Loading/>
@@ -37,7 +39,10 @@ const EditTagPage = () => {
       <Components.SectionTitle title={`Edit Tag #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
-        successCallback={tag => history.push({pathname: tagGetUrl(tag)})}
+        successCallback={ async (tag) => {
+          await client.resetStore()
+          history.push({pathname: tagGetUrl(tag)})
+        }}
       />
     </Components.SingleColumnSection>
   );
