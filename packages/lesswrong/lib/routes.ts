@@ -188,7 +188,8 @@ addRoute(
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
     title: "Private Conversation",
-    background: "white"
+    background: "white",
+    initialScroll: "bottom",
   },
 
   {
