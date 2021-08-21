@@ -40,6 +40,7 @@ export type Route = {
   background?: string,
   sunshineSidebar?: boolean
   disableAutoRefresh?: boolean,
+  initialScroll?: "top"|"bottom",
 };
 
 // populated by calls to addRoute
