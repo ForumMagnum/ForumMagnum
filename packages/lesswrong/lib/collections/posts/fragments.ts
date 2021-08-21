@@ -235,6 +235,8 @@ registerFragment(`
       }
       order
     }
+    rsvps
+    activateRSVPs
   }
 `);
 

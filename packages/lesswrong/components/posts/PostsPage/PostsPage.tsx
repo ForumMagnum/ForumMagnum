@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
@@ -10,6 +10,8 @@ import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
+import { RSVPType } from '../../../lib/collections/posts/schema';
+import { useMutation, gql } from '@apollo/client';
 
 export const MAX_COLUMN_WIDTH = 720
 
@@ -72,7 +74,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents } = Components
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs } = Components
 
   useEffect(() => {
     recordPostView({
@@ -128,10 +130,10 @@ const PostsPage = ({post, refetch, classes}: {
     >
       <div className={classes.centralColumn}>
         {/* Body */}
+        { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
         <div className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
-          
           <AnalyticsContext pageSectionContext="postBody">
             { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
           </AnalyticsContext>

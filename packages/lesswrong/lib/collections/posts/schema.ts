@@ -49,6 +49,7 @@ const rsvpType = new SimpleSchema({
   },
   createdAt: {
     type: Date,
+    optional: true
   },
 })
 
@@ -678,8 +679,6 @@ const schema: SchemaType<DbPost> = {
   rsvps: {
     type: Array,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [/* userOwns, */ 'sunshineRegiment', 'admins'],
     optional: true,
     // TODO: how to remove people without db access?
     hidden: true,
@@ -688,9 +687,18 @@ const schema: SchemaType<DbPost> = {
   'rsvps.$': {
     type: rsvpType,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [/* userOwns, */ 'sunshineRegiment', 'admins'],
   },
+
+  activateRSVPs: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: (props) => !props.eventForm,
+    group: formGroups.event,
+    control: 'checkbox',
+    label: "Enable RSVPs for this event"
+  }
 };
 
 export default schema;
