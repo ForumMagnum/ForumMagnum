@@ -23,6 +23,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   welcomeText: {
     margin: 12,
   },
+  enableLocationPermissions: {
+    margin: 12,
+  },
 }))
 
 interface ExternalProps {
@@ -39,15 +42,15 @@ const CommunityHome = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { query } = useLocation();
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser));
+  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, null));
   
   useEffect(() => {
-    const newLocation = userGetLocation(currentUser);
-    if (!_.isEqual(currentUserLocation, newLocation)) {
-      setCurrentUserLocation(userGetLocation(currentUser));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+    userGetLocation(currentUser, (newLocation) => {
+      if (!_.isEqual(currentUserLocation, newLocation)) {
+        setCurrentUserLocation(newLocation);
+      }
+    });
+  }, [currentUserLocation, currentUser]);
 
   const openSetPersonalLocationForm = () => {
     openDialog({
@@ -105,7 +108,6 @@ const CommunityHome = ({classes}: {
       On the map above you can find nearby events (blue arrows), local groups (green house icons), and other users who have added themselves to the map (purple person icons)
     </Typography>);
 
-
     return (
       <React.Fragment>
         <AnalyticsContext pageContext="communityHome">
@@ -142,10 +144,15 @@ const CommunityHome = ({classes}: {
                 </SectionButton></Link>}
               </SectionTitle>
               <AnalyticsContext listContext={"communityEvents"}>
-                <PostsList2 terms={eventsListTerms}>
+                {!currentUserLocation.known && !currentUserLocation.loading && 
+                  <Typography variant="body2" className={classes.enableLocationPermissions}>
+                    Enable location permissions to sort this list by distance to you.
+                  </Typography>
+                }
+                {!currentUserLocation.loading && <PostsList2 terms={eventsListTerms}>
                   <Link to="/pastEvents">View Past Events</Link>
                   <Link to="/upcomingEvents">View Upcoming Events</Link>
-                </PostsList2>
+                </PostsList2>}
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
