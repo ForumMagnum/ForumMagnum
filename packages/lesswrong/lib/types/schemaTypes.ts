@@ -17,6 +17,8 @@ interface CollectionFieldSpecification<T extends DbObject> {
   defaultValue?: any,
   graphQLType?: string,
   typescriptType?: string,
+  /** Use the following information in the GraphQL schema and at query-time to
+   * calculate a response */
   resolveAs?: {
     type: string|GraphQLScalarType,
     description?: string,

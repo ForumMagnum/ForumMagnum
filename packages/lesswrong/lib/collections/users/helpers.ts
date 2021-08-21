@@ -196,6 +196,10 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
+  // EA Forum does not do its own email verification
+  if (forumTypeSetting.get() === 'EAForum') {
+    return true
+  }
   if (!user || !user.emails)
     return false;
   for (let email of user.emails) {

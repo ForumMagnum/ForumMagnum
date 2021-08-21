@@ -26,8 +26,6 @@ We then run the mutation argument through all the [after] callbacks.
 5. Async Callbacks
 
 Finally, *after* the operation is performed, we execute any async callbacks.
-Being async, they won't hold up the mutation and slow down its response time
-to the client.
 
 */
 
