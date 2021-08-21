@@ -10,6 +10,8 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
+import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import classNames from 'classnames'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
@@ -61,10 +63,11 @@ const CommunityHome = ({classes}: {
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   const isAdmin = userIsAdmin(currentUser);
+  const canCreateEvents = currentUser && (!isEAForum || isAdmin);
 
   const render = () => {
     const filters = query?.filters || [];
-    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography, SectionButton } = Components
 
     const eventsListTerms = {
       view: 'nearbyEvents',
@@ -123,13 +126,21 @@ const CommunityHome = ({classes}: {
               </SectionFooter>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="Online Events"/>
+              <SectionTitle title="Online Events">
+                {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
+                  <LibraryAddIcon /> Create New Event
+                </SectionButton></Link>}
+              </SectionTitle>
               <AnalyticsContext listContext={"communityEvents"}>
                 <PostsList2 terms={onlineEventsListTerms}/>
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="In-Person Events"/>
+              <SectionTitle title="In-Person Events">
+                {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
+                  <LibraryAddIcon /> Create New Event
+                </SectionButton></Link>}
+              </SectionTitle>
               <AnalyticsContext listContext={"communityEvents"}>
                 <PostsList2 terms={eventsListTerms}>
                   <Link to="/pastEvents">View Past Events</Link>
@@ -139,7 +150,7 @@ const CommunityHome = ({classes}: {
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Local Groups">
-                {currentUser && (!isEAForum || isAdmin) && <GroupFormLink />}
+                {canCreateEvents && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Components.Loading />
