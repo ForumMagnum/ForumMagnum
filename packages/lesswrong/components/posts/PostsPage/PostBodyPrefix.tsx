@@ -31,7 +31,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip} = Components;
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip} = Components;
   
   return <>
     {/* disabled except during Review */}
@@ -43,6 +43,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     </div>} */}
 
     <AlignmentCrosspostMessage post={post} />
+    <AlignmentPendingApprovalMessage post={post} />
     { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       Because this is your first post, this post is awaiting moderator approval.
       <LWTooltip title={<p>

@@ -1,4 +1,5 @@
 import type { FetchResult } from '@apollo/client';
+import { RouterLocation } from '../../lib/vulcan-lib';
 
 declare global {
 
@@ -36,7 +37,7 @@ interface WithNavigationProps {
 }
 
 interface WithLocationProps {
-  location: any,
+  location: RouterLocation,
 }
 
 interface WithDialogProps {

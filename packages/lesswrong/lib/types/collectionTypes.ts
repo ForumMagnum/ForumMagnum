@@ -32,6 +32,7 @@ interface CollectionBase<
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
+  findOneArbitrary: () => Promise<T|null>
   // Return result is number of documents **matched** not affected
   //
   // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
@@ -53,6 +54,7 @@ interface CollectionOptions {
   resolvers: any
   interfaces: Array<string>
   description: string
+  logChanges: boolean
 }
 
 interface FindResult<T> {

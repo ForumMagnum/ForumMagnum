@@ -4,7 +4,12 @@ import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 
-const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
+export const communityPath = isEAForum ? '/groupsAndEvents' : '/community';
+const communitySectionName = isEAForum ? 'Groups/Events' : 'Community';
+
+const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
@@ -13,6 +18,7 @@ const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "W
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
@@ -182,7 +188,8 @@ addRoute(
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
     title: "Private Conversation",
-    background: "white"
+    background: "white",
+    initialScroll: "bottom",
   },
 
   {
@@ -496,16 +503,16 @@ if (hasEventsSetting.get()) {
 
     {
       name: 'CommunityHome',
-      path: '/community',
+      path: communityPath,
       componentName: 'CommunityHome',
-      title: "Community",
+      title: communitySectionName,
       ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
       path: '/meetups',
       componentName: 'CommunityHome',
-      title: "Community"
+      title: communitySectionName,
     },
 
     {
@@ -657,13 +664,22 @@ switch (forumTypeSetting.get()) {
       {
         name:'alignment.home',
         path:'/',
-        componentName: 'AlignmentForumHome'
+        componentName: 'AlignmentForumHome',
+        sunshineSidebar: true //TODO: remove this in production?
       },
       {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get()
+      },
+      {
+        name: 'faq',
+        path: '/faq',
+        componentName: 'PostsSingleRoute',
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'Meta',
@@ -749,8 +765,8 @@ switch (forumTypeSetting.get()) {
         name: 'faq',
         path: '/faq',
         componentName: 'PostsSingleRoute',
-        _id:"2rWKkWuPrgTMpLRbp",
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
         background: postBackground
       },
       {
@@ -777,7 +793,7 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database"
+      title: "COVID-19 Link Database",
     }
   )
 }

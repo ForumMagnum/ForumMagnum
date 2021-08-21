@@ -243,6 +243,19 @@ addFieldsDict(Users, {
     label: "Hide other users' Elicit predictions until I have predicted myself",
   },
   
+  hideAFNonMemberInitialWarning: {
+    order: 90,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() !== 'AlignmentForum',
+    label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
+  },
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
@@ -316,6 +329,7 @@ addFieldsDict(Users, {
     canUpdate: userOwns,
     canCreate: 'guests',
     hidden: true,
+    logChanges: false,
   },
 
   // Bio (Markdown version)
@@ -656,6 +670,10 @@ addFieldsDict(Users, {
     label: "Draft shared with me",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationAlignmentSubmissionApproved: {
+    label: "Alignment Forum submission approvals",
+    ...notificationTypeSettingsField({ channel: "both"})
+  },
   notificationEventInRadius: {
     label: "New Events in my notification radius",
     hidden: !hasEventsSetting.get(),
@@ -682,6 +700,7 @@ addFieldsDict(Users, {
     canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
+    logChanges: false,
   },
 
   // If, the last time you opened the karma-change notifier, you saw more than
@@ -694,6 +713,7 @@ addFieldsDict(Users, {
     canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
+    logChanges: false,
   },
 
   // Email settings

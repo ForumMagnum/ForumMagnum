@@ -235,14 +235,14 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
 });
 
 export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser) {
-  if (currentUser._id !== comment.userId && comment.deleted && comment.contents && comment.contents.html) {
+  if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents && comment.contents.html) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
         ? (await Posts.findOne(comment.postId))?.title
         : null
       );
-    const moderatingUser = await Users.findOne(comment.deletedByUserId);
+    const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
     const lwAccount = await getLessWrongAccount();
 
     const conversationData = {
@@ -257,8 +257,8 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     });
 
     let firstMessageContents =
-        `One of your comments on "${onWhat}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
-    if (comment.deletedReason) {
+        `One of your comments on "${onWhat}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
+    if (comment.deletedReason && moderatingUser) {
       firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 

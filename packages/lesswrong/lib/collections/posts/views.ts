@@ -60,6 +60,9 @@ export const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
+  "uncurated": {
+    curatedDate: viewFieldNullOrMissing
+  },
   "nonSticky": {
     sticky: false,
   },
@@ -681,6 +684,18 @@ Posts.addView("unlisted", (terms: PostsViewTerms) => {
       sort: {createdAt: -1}
     }
 }});
+
+Posts.addView("userAFSubmissions", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      userId: terms.userId,
+      af: false,
+      suggestForAlignmentUserIds: terms.userId,
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+  }});
 
 Posts.addView("slugPost", (terms: PostsViewTerms) => ({
   selector: {
