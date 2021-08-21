@@ -84,8 +84,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
-    if (submittedComment.deleted) {
-      flash(submittedComment.deletedReason);
+    if (comment.deleted) {
+      flash(comment.deletedReason);
     }
     if (successCallback) {
       successCallback(comment, { form })
