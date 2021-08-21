@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userHasBoldPostItems } from '../../lib/betas';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
+import { communityPath } from '../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -120,7 +121,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
-  const shouldRenderEventsTag = pathname !== "/community"
+  const shouldRenderEventsTag = pathname !== communityPath;
 
   const url = postLink || postGetPageUrl(post)
   

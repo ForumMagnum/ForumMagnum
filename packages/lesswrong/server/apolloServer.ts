@@ -24,7 +24,7 @@ import path from 'path'
 import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
-import { addAuthMiddlewares } from './authenticationMiddlewares';
+import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addSentryMiddlewares } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -34,10 +34,7 @@ import crypto from 'crypto';
 import expressSession from 'express-session';
 import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
-import { DatabaseServerSetting } from './databaseSettings';
 import { getMongoClient } from '../lib/mongoCollection';
-
-const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");

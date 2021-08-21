@@ -27,6 +27,7 @@ export const Bans: BansCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Bans'),
   mutations: getDefaultMutations('Bans', options),
+  logChanges: true,
 });
 
 addUniversalFields({collection: Bans})

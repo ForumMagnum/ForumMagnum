@@ -308,7 +308,6 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
-    hidden: true,
     
     group: formGroups.adminOptions,
   },

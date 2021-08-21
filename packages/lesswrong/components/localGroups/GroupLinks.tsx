@@ -5,6 +5,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 
 export const FacebookIcon = (props: any) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -67,9 +68,10 @@ const GroupLinks = ({ document, classes }: {
   document: localGroupsBase|PostsBase,
   classes: ClassesType,
 }) => {
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
   return(
     <span className="group-links">
-      <div className={classes.groupTypes}>
+      {!isEAForum && <div className={classes.groupTypes}>
         {document.types && document.types.map(type => {
           return (
             <Tooltip
@@ -83,7 +85,7 @@ const GroupLinks = ({ document, classes }: {
             </Tooltip>
           )
         })}
-      </div>
+      </div>}
       <div className={classes.groupLinks}>
         {document.facebookLink
           && <Tooltip

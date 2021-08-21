@@ -61,14 +61,15 @@ const postTypes: PostTypeOptions[] = [
   {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
 
-const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, timeframe, displayShortform=true, classes }: {
+const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, timeframe, displayShortform=true, classes, includeTags=true}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: ()=>void,
   startDate: any,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   displayShortform: any,
-  classes: ClassesType
+  classes: ClassesType,
+  includeTags?: boolean,
 }) => {
   const [noShortform, setNoShortform] = useState(false);
   const [noTags, setNoTags] = useState(false);
@@ -188,7 +189,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
             }}
           />}
           
-          {timeframe==="daily" && <TagEditsTimeBlock
+          {timeframe==="daily" && includeTags && <TagEditsTimeBlock
             before={moment.tz(startDate, timezone).endOf(timeBlock).toString()}
             after={moment.tz(startDate, timezone).startOf(timeBlock).toString()}
             reportEmpty={reportEmptyTags}

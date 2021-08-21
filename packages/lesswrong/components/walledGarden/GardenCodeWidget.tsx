@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { GardenCodes } from "../../lib/collections/gardencodes/collection";
-import {Button, TextField} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {commentBodyStyles} from "../../themes/stylePiping";
 import { useTracking } from "../../lib/analyticsEvents";

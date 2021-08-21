@@ -8,7 +8,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { forumTitleSetting } from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import { RSVPType } from '../../../lib/collections/posts/schema';
 import { useMutation, gql } from '@apollo/client';
@@ -74,7 +74,8 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs } = Components
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
+    AFUnreviewedCommentCount } = Components
 
   useEffect(() => {
     recordPostView({
@@ -154,6 +155,7 @@ const PostsPage = ({post, refetch, classes}: {
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+            {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
       </AnalyticsInViewTracker>

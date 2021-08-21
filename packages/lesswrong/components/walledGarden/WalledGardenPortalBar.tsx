@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Typography } from "@material-ui/core";
 import {commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from '../common/withUser';
 import { gatherTownURL } from "./GatherTownIframeWrapper";
@@ -74,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
-  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, } = Components
+  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, Typography } = Components
 
   const currentUser =  useCurrentUser()
 

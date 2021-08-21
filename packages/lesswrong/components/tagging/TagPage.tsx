@@ -12,6 +12,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { EditTagForm } from './EditTagPage';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import classNames from 'classnames';
+import { useApolloClient } from "@apollo/client";
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -115,6 +116,7 @@ const TagPage = ({classes}: {
   const [editing, setEditing] = useState(!!query.edit)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
+  const client = useApolloClient()
 
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -246,7 +248,10 @@ const TagPage = ({classes}: {
           </div>}
           {editing ? <EditTagForm
             tag={tag}
-            successCallback={() => setEditing(false)}
+            successCallback={ async () => {
+              setEditing(false)
+              await client.resetStore()
+            }}
             cancelCallback={() => setEditing(false)}
           /> :
           <div onClick={clickReadMore}>

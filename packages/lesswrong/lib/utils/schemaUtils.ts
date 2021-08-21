@@ -92,6 +92,10 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   return restrictedDocs;
 }
 
+/**
+ * This field is stored in the database as a string, but resolved as the
+ * referenced document
+ */
 export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
   resolverName: string,
@@ -156,6 +160,11 @@ interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpeci
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
+
+/**
+ * This field is not stored in the database, but is filled in at query-time by
+ * our GraphQL API using the supplied resolver function.
+ */
 export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
@@ -221,6 +230,11 @@ SimpleSchema.extendOptions(['getValue'])
 // get the automatically recompute the new denormalized value via
 // `Vulcan.recomputeDenormalizedValues` in the Meteor shell
 SimpleSchema.extendOptions(['canAutoDenormalize'])
+
+// Whether to log changes to this field to the LWEvents collection. If undefined
+// (neither true nor false), will be logged if the logChanges option is set on
+// the collection and the denormalized option is false.
+SimpleSchema.extendOptions(['logChanges'])
 
 
 // Helper function to add all the correct callbacks and metadata for a field

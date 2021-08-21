@@ -19,7 +19,6 @@ const AFSuggestCommentsList = ({ terms, classes }: {
     fragmentName: 'SuggestAlignmentComment',
     fetchPolicy: 'cache-and-network',
   });
-  
   if (results && results.length) {
     return (
       <div>

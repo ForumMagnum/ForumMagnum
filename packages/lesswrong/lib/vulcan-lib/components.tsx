@@ -61,9 +61,11 @@ const componentsProxyHandler = {
   }
 }
 
-// Acts like a mapping from component-name to component, based on
-// registerComponents calls. Lazily loads those components when you dereference,
-// using a proxy.
+/**
+ * Acts like a mapping from component-name to component, based on
+ * registerComponents calls. Lazily loads those components when you dereference,
+ * using a proxy.
+ */
 export const Components: ComponentTypes = new Proxy({} as any, componentsProxyHandler);
 
 const PreparedComponents: Record<string,any> = {};
@@ -137,6 +139,10 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
     options,
   };
   
+  // The Omit is a hacky way of ensuring that hocs props are omitted from the
+  // ones required to be passed in by parent components. It doesn't work for
+  // hocs that share prop names that overlap with actually passed-in props, like
+  // `location`.
   return (null as any as React.ComponentType<Omit<PropType,"classes">>);
 }
 
@@ -283,10 +289,11 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
 }
 
 /**
- * Populate the lookup table for components to be callable
- * ℹ️ Called once on app startup
- **/
-export const populateComponentsApp = (): void => {
+ * Called once on app startup
+ *
+ * See debugComponentImports for intended use
+ */
+export const populateComponentsAppDebug = (): void => {
   if (debugComponentImports) {
     importAllComponents();
   }

@@ -13,7 +13,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       borderBottomColor: grey[200],
       '&:hover': {
         backgroundColor: grey[100],
-      }
+      },
+      overflowWrap: "break-word"
     },
   })
 

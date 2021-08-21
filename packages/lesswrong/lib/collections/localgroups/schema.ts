@@ -1,6 +1,9 @@
 import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { forumTypeSetting } from '../../instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const schema: SchemaType<DbLocalgroup> = {
   createdAt: {
@@ -64,6 +67,7 @@ const schema: SchemaType<DbLocalgroup> = {
     form: {
       options: localGroupTypeFormOptions
     },
+    hidden: isEAForum,
   },
 
   'types.$': {
