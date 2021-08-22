@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
@@ -10,8 +10,6 @@ import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
-import { RSVPType } from '../../../lib/collections/posts/schema';
-import { useMutation, gql } from '@apollo/client';
 
 export const MAX_COLUMN_WIDTH = 720
 

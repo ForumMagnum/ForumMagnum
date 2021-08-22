@@ -1,9 +1,8 @@
-import { gql, useMutation } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 import React, { useCallback, useEffect } from 'react';
 import { RSVPType } from '../../../lib/collections/posts/schema';
 import { useLocation } from '../../../lib/routeUtil';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles, postBodyStyles } from '../../../themes/stylePiping';
 import { useDialog } from '../../common/withDialog';
 import { responseToText } from './RSVPForm';
