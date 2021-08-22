@@ -8,10 +8,19 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import { useNavigation } from '../../../lib/routeUtil';
+import DialogActions from '@material-ui/core/DialogActions';
+import { useCurrentUser } from '../../common/withUser';
 
-const RSVPForm = ({ post, onClose }: {
+export const responseToText = {
+  yes: "Going",
+  maybe: "Maybe",
+  no: "Can't Go"
+}
+
+const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
   userId: string,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  initialResponse: string,
   onClose: ()=>void,
 }) => {
   const [registerRSVP] = useMutation(gql`
@@ -23,9 +32,10 @@ const RSVPForm = ({ post, onClose }: {
     ${getFragment("PostsDetails")}
   `)
   const { history } = useNavigation()
-  const [name, setName] = useState("")
+  const currentUser = useCurrentUser()
+  const [name, setName] = useState(currentUser?.displayName || "")
   const [email, setEmail] = useState("")
-  const [response, setResponse] = useState("yes")
+  const [response, setResponse] = useState(initialResponse)
   return (
     <Components.LWDialog
       title={`RSVP to ${post.title}`}
@@ -53,22 +63,23 @@ const RSVPForm = ({ post, onClose }: {
           value={response}
           onChange={e => setResponse(e.target.value)}
         >
-          <MenuItem value="yes">I'm Going</MenuItem>
-          <MenuItem value="maybe">Maybe</MenuItem>
-          <MenuItem value="no">Can't Go</MenuItem>
+          <MenuItem value="yes">{responseToText["yes"]}</MenuItem>
+          <MenuItem value="maybe">{responseToText["maybe"]}</MenuItem>
+          <MenuItem value="no">{responseToText["no"]}</MenuItem>
         </Select>
-        <div>
-          <Button 
-            type="submit"
-            onClick={() => {
-              registerRSVP({variables: {postId: post._id, name, email, response}})
-              onClose()
-            }}
-          >
-            Submit
-          </Button>
-        </div>
       </DialogContent>
+      <DialogActions>
+        <Button 
+          type="submit"
+          color="primary"
+          onClick={async () => {
+            await registerRSVP({variables: {postId: post._id, name, email, response}})
+            onClose()
+          }}
+        >
+          Submit
+        </Button>
+      </DialogActions>
     </Components.LWDialog>
   )
 }

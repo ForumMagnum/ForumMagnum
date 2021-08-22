@@ -1,6 +1,12 @@
 import { Posts } from '../lib/collections/posts';
 import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from './vulcan-lib';
+import sortBy from 'lodash/sortBy';
 
+const responseSortOrder = {
+  yes: 1,
+  maybe: 2,
+  no: 3
+}
 
 addGraphQLMutation('RSVPToEvent(postId: String, name: String, email: String, private: Boolean, response: String): Post');
 addGraphQLResolvers({
@@ -16,8 +22,8 @@ addGraphQLResolvers({
       }
       if (email && post.rsvps?.find(r => r.email === email && r.name === name)) {
         rsvps = [...rsvps.filter(r => (r.email !== email || r.name !== name)), newRSVP]
-      } else if (post.rsvps && post.rsvps[post.rsvps.length - 1].name === name) {
-        rsvps = [...rsvps.filter(r => r.name !== name), newRSVP]
+      } else if (post.rsvps?.find(r => r.name === name && !r.email)) {
+        rsvps = [...rsvps.filter(r => (r.name !== name || r.email)), newRSVP]
       } else {
         rsvps = [...rsvps, newRSVP]
       }
@@ -29,7 +35,7 @@ addGraphQLResolvers({
           // This creates a race condition where two users could sign up at the
           // same time, and only one would be rsvped, but this should be rare,
           // and the user will immediately not see their name and try again
-          rsvps
+          rsvps: sortBy(rsvps, rsvp => responseSortOrder[rsvp.response] || 0 )
         },
         validate: false
       })).data
