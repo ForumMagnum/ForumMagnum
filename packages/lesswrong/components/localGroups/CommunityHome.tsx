@@ -11,7 +11,6 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
-import classNames from 'classnames'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
