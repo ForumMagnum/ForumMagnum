@@ -9,106 +9,6 @@ import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 
 const what3WordsAPIKey = "FM5HBWEL"
 
-const defaultPostData = {
-	data: {
-		title: 'New Event',
-		submitToFrontpage: true,
-		activateRSVPs: true,
-		draft: false,
-		meta: false,
-		isEvent: true,
-		startTime: '2021-08-25T19:00:00.000Z',
-		googleLocation: {
-			address_components: [
-				{
-					long_name: 'Columbus Avenue',
-					short_name: 'Columbus Ave',
-					types: [
-						'route'
-					]
-				},
-				{
-					long_name: 'San Francisco',
-					short_name: 'SF',
-					types: [
-						'locality',
-						'political'
-					]
-				},
-				{
-					long_name: 'San Francisco County',
-					short_name: 'San Francisco County',
-					types: [
-						'administrative_area_level_2',
-						'political'
-					]
-				},
-				{
-					long_name: 'California',
-					short_name: 'CA',
-					types: [
-						'administrative_area_level_1',
-						'political'
-					]
-				},
-				{
-					long_name: 'United States',
-					short_name: 'US',
-					types: [
-						'country',
-						'political'
-					]
-				}
-			],
-			adr_address: '<span class="street-address">Columbus Ave</span>, <span class="locality">San Francisco</span>, <span class="region">CA</span>, <span class="country-name">USA</span>',
-			formatted_address: 'Columbus Ave, San Francisco, CA, USA',
-			geometry: {
-				location: {
-					lat: 37.8011364,
-					lng: -122.4114559
-				},
-				viewport: {
-					south: 37.79978741970851,
-					west: -122.4128048802915,
-					north: 37.80248538029151,
-					east: -122.4101069197085
-				}
-			},
-			icon: 'https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/geocode-71.png',
-			icon_background_color: '#7B9EB0',
-			icon_mask_base_uri: 'https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet',
-			name: 'Columbus Avenue',
-			place_id: 'EiRDb2x1bWJ1cyBBdmUsIFNhbiBGcmFuY2lzY28sIENBLCBVU0EiLiosChQKEgmlXEc28ICFgBH9ufYDVtkfyBIUChIJIQBpAG2ahYAR_6128GcTUEo',
-			reference: 'EiRDb2x1bWJ1cyBBdmUsIFNhbiBGcmFuY2lzY28sIENBLCBVU0EiLiosChQKEgmlXEc28ICFgBH9ufYDVtkfyBIUChIJIQBpAG2ahYAR_6128GcTUEo',
-			types: [
-				'route'
-			],
-			url: 'https://maps.google.com/?q=Columbus+Ave,+San+Francisco,+CA,+USA&ftid=0x808580f036475ca5:0xc81fd95603f6b9fd',
-			utc_offset: -420,
-			vicinity: 'San Francisco',
-			html_attributions: [],
-			utc_offset_minutes: -420
-		},
-		location: 'Columbus Avenue, San Francisco, CA, USA',
-		contactInfo: 'Email',
-		facebookLink: null,
-		website: 'astralcodexten.com',
-		types: [
-			'SSC'
-		],
-		moderationStyle: 'easy-going',
-		af: false,
-		contents: {
-			originalContents: {
-				type: 'ckEditorMarkup',
-				data: '<p>This year\'s ACX Meetup everywhere in &lt;city&gt;.</p><p>Location: &lt;location&gt;</p><p>&lt;notes&gt;</p><p>Contact: &lt;email&gt; – &lt;additional contact info&gt;</p>'
-			},
-			updateType: 'minor',
-			commitMessage: ''
-		}
-	}
-}
-
 async function what3WordsToCoordinates(words) {
 	const requestOptions : any = {
 		method: 'GET',
@@ -131,17 +31,6 @@ async function coordinatesToGoogleLocation({lat, lng}: {lat: string, lng: string
   const responseText = await response.text()
   const responseData = JSON.parse(responseText)
   return responseData.results[0]
-}
-
-const columns = ["City", "Name/initials/handle", "Email address", "Date",	"Time",	"Location description",	"what3words",	"Notes",	"Additional contact info",	"Identifying	Coordinates",	"Drop pin"]
-const testRow = {
-  City: "Parkland, AB",	
-  "Name/initials/handle": "David Piepgrass",	
-  "Email address": "qwertie256@gmail.com",	
-  Date: "8/29/2021",
-  Time: "1:00 PM",
-  Coordinates: "///readily.rosette.pools",	
-  "Location description": `Pearce Estate Park: parking on 17a St SE, one of the 10 picnic tables northeast of the parking area, unless full. Look for a red-shirt guy and "ACX"`
 }
 
 registerMigration({
