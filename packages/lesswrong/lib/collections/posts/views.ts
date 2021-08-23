@@ -365,7 +365,7 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", (terms: PostsViewTerms) => {
-  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : undefined;
+  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : { isEvent: false };
   return {
     selector,
     options: {sort: setStickies(sortings.magic, terms)},
