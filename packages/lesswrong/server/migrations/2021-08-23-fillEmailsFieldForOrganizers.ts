@@ -1,4 +1,4 @@
-import { registerMigration, fillDefaultValues } from './migrationUtils';
+import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
 
 
