@@ -365,14 +365,14 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", (terms: PostsViewTerms) => {
-  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : undefined;
+  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : { isEvent: false };
   return {
     selector,
     options: {sort: setStickies(sortings.magic, terms)},
   };
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ score:-1 }),
+  augmentForDefaultView({ score:-1, isEvent: 1 }),
   {
     name: "posts.score",
   }
