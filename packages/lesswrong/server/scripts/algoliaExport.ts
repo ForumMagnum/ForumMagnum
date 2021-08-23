@@ -10,11 +10,12 @@ import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments, AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
-import { getAlgoliaIndexName, getAlgoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import * as _ from 'underscore';
 
 async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
+  console.log('🚀 ~ file: algoliaExport.ts ~ line 18 ~ algoliaExport ~ client', client)
   if (!client) return;
   
   const indexName = getAlgoliaIndexName(collection.collectionName);
@@ -48,6 +49,7 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
 }
 
 async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
+  // TODO;
   switch (collectionName) {
     case 'Posts':
       await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
@@ -70,7 +72,10 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
 }
 
 export async function algoliaExportAll() {
-  for (let collectionName in getAlgoliaIndexedCollectionNames) {
+  console.log('hi1')
+  for (let collectionName of algoliaIndexedCollectionNames) {
+    // TODO; throw new error(no run till less data)
+    console.log('collectionName', collectionName)
     // I found it quite surprising that I'd need to type cast this. If algoliaIndexNames
     // is of type <Record<AlgoliaIndexCollectionName, string>>, why would collectionName
     // be a string? (It's not because we have the in / of mixed up.)
@@ -82,7 +87,7 @@ export async function algoliaExportAll() {
 
 Vulcan.runAlgoliaExport = wrapVulcanAsyncScript('runAlgoliaExport', algoliaExportByCollectionName)
 Vulcan.runAlgoliaExportAll = wrapVulcanAsyncScript('runAlgoliaExportAll', algoliaExportAll)
-Vulcan.algoliaExportAll = algoliaExportAll
+Vulcan.algoliaExportAll = wrapVulcanAsyncScript('algoliaExportAll', algoliaExportAll)
 
 
 // Go through the Algolia index for a collection, removing any documents which
@@ -121,7 +126,7 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
 }
 
 export async function algoliaCleanAll() {
-  for (let collectionName in getAlgoliaIndexedCollectionNames) {
+  for (let collectionName in algoliaIndexedCollectionNames) {
     await algoliaCleanIndex(collectionName as AlgoliaIndexCollectionName);
   }
 }
