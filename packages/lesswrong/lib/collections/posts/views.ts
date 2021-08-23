@@ -372,7 +372,7 @@ Posts.addView("magic", (terms: PostsViewTerms) => {
   };
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ score:-1 }),
+  augmentForDefaultView({ score:-1, isEvent: 1 }),
   {
     name: "posts.score",
   }

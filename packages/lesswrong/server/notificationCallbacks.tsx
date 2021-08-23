@@ -95,7 +95,7 @@ async function getSubscribedUsers({
   }
 }
 
-const createNotifications = async (userIds: Array<string>, notificationType: string, documentType: string|null, documentId: string|null) => {
+export const createNotifications = async (userIds: Array<string>, notificationType: string, documentType: string|null, documentId: string|null) => {
   return Promise.all(
     userIds.map(async userId => {
       await createNotification(userId, notificationType, documentType, documentId);
@@ -125,7 +125,7 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
   }
 }
 
-const createNotification = async (userId: string, notificationType: string, documentType: string|null, documentId: string|null) => {
+export const createNotification = async (userId: string, notificationType: string, documentType: string|null, documentId: string|null) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;

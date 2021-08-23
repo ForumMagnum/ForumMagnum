@@ -315,6 +315,8 @@ registerFragment(`
     notificationPrivateMessage
     notificationSharedWithMe
     notificationAlignmentSubmissionApproved
+    notificationEventInRadius
+    notificationRSVPs
 
     hideFrontpageMap
     hideTaggingProgressBar

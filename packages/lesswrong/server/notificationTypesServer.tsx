@@ -18,6 +18,7 @@ import './emailComponents/EventInRadiusEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
+import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 
 interface ServerNotificationType {
   name: string,
@@ -347,5 +348,28 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
       openingSentence="An event in your area has been edited"
       postId={notifications[0].documentId}
     />
+  },
+});
+
+
+export const NewRSVPNotification = serverRegisterNotificationType({
+  name: "newRSVP",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    return `New RSVP for your event: ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    const link = postGetPageUrl(post, true)
+    const rsvps = post.rsvps || []
+    const lastRSVP = _.sortBy(rsvps, r => r.createdAt)[rsvps.length - 1]
+    return <div>
+      <p>
+        {lastRSVP.name} responded "{responseToText[lastRSVP.response]}" to your event <a href={link}>{post.title}</a>
+      </p>
+    </div>
   },
 });
