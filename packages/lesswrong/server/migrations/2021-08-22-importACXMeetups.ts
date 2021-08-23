@@ -86,7 +86,7 @@ registerMigration({
           contents: {
             originalContents: {
               type: 'ckEditorMarkup',
-              data: `<p>This year\'s ACX Meetup everywhere in ${row["City"]}.</p>
+              data: `<p>This year's ACX Meetup everywhere in ${row["City"]}.</p>
                 <p>Location: ${row["Location description"]} – <a href="https://what3words.com/${row["Coordinates"]}">${row["Coordinates"]}</a></p>
                 ${row["Notes"] ? `<p>${row["Notes"]}</p>` : ""}
                 <p>Contact: ${row["Email address"]} ${row["Additional contact info"] ? `– ${row["Additional contact info"]}` : ""}</p>`
