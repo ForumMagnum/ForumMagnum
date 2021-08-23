@@ -107,9 +107,10 @@ registerMigration({
           currentUser: eventOrganizer,
           validate: false
         })
-
+        // eslint-disable-next-line no-console
         console.log("Created new ACX Meetup: ", newPost.title)
       } else {
+        // eslint-disable-next-line no-console
         console.log("Meetup with this name already existed: ", title)
       }
     }
