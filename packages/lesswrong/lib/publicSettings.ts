@@ -81,3 +81,15 @@ export const gatherTownRoomName = new DatabasePublicSetting<string | null>("gath
 // Public elicit settings
 export const elicitSourceURL = new DatabasePublicSetting('elicitSourceURL', 'https://LessWrong.com')
 export const elicitSourceId = new DatabasePublicSetting('elicitSourceId', 'XCjOpumu-')
+
+export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
+
+export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null)
+export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaForumListId', null)
+
+// Staging
+// We need some way to tell if we're running on real production or staging. It's
+// difficult to not run with NODE_ENV=production on a deployed server, so we
+// can't use that. Instead, we'll use a setting.
+// TODO: This is a hack. We should probably integrate this is execution environments.
+export const isStagingSetting = new DatabasePublicSetting<boolean>('isStaging', false)

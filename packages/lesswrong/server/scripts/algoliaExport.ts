@@ -12,11 +12,21 @@ import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
 import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import * as _ from 'underscore';
+import { isStagingSetting } from '../../lib/publicSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isDevelopment } from '../../lib/executionEnvironment';
+import moment from 'moment';
 
-async function algoliaExport(collection, selector?: any, updateFunction?: any) {
+async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
-  console.log('🚀 ~ file: algoliaExport.ts ~ line 18 ~ algoliaExport ~ client', client)
   if (!client) return;
+  
+  // The EA Forum needs to use less algolia resources on Dev and Staging, so we
+  // time-bound our queries
+  const timeBound = forumTypeSetting.get() === 'EAForum' && (isStagingSetting.get() || isDevelopment) ?
+    { createdAt: { $gte: moment().subtract(3, 'months').toDate() } } :
+    {}
+  const computedSelector = {...selector, ...timeBound}
   
   const indexName = getAlgoliaIndexName(collection.collectionName);
   // eslint-disable-next-line no-console
@@ -27,17 +37,22 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
   console.log("Initiated Index connection")
   
   let totalErrors: any[] = [];
-  const totalItems = collection.find(selector||{}).count();
+  const totalItems = await collection.find(computedSelector).count();
   let exportedSoFar = 0;
   
-  await forEachDocumentBatchInCollection({collection, batchSize: 100, loadFactor: 0.5, callback: async (documents) => {
-    await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex,
-      errors: totalErrors, updateFunction });
-    
-    exportedSoFar += documents.length;
-    // eslint-disable-next-line no-console
-    console.log(`Exported ${exportedSoFar}/${totalItems} entries to Algolia`);
-  }});
+  await forEachDocumentBatchInCollection({
+    collection,
+    filter: computedSelector,
+    batchSize: 100,
+    loadFactor: 0.5,
+    callback: async (documents: AlgoliaIndexedDbObject[]) => {
+      await algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors: totalErrors, updateFunction });
+      
+      exportedSoFar += documents.length;
+      // eslint-disable-next-line no-console
+      console.log(`Exported ${exportedSoFar}/${totalItems} entries to Algolia`);
+    }
+  });
   
   if (totalErrors.length) {
     // eslint-disable-next-line no-console
@@ -49,7 +64,6 @@ async function algoliaExport(collection, selector?: any, updateFunction?: any) {
 }
 
 async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollectionName) {
-  // TODO;
   switch (collectionName) {
     case 'Posts':
       await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
@@ -72,15 +86,8 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
 }
 
 export async function algoliaExportAll() {
-  console.log('hi1')
   for (let collectionName of algoliaIndexedCollectionNames) {
-    // TODO; throw new error(no run till less data)
-    console.log('collectionName', collectionName)
-    // I found it quite surprising that I'd need to type cast this. If algoliaIndexNames
-    // is of type <Record<AlgoliaIndexCollectionName, string>>, why would collectionName
-    // be a string? (It's not because we have the in / of mixed up.)
-    // Answer: https://stackoverflow.com/questions/61829651/how-can-i-iterate-over-record-keys-in-a-proper-type-safe-way
-    await algoliaExportByCollectionName(collectionName as AlgoliaIndexCollectionName);
+    await algoliaExportByCollectionName(collectionName);
   }
 }
 
@@ -113,7 +120,7 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
   // eslint-disable-next-line no-console
   console.log("Checking documents against the mongodb...");
   const ids = _.map(allDocuments, doc=>doc._id)
-  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection as unknown as AlgoliaIndexedCollection<DbObject>, ids); // TODO: Pagination
+  const mongoIdsToDelete = await subsetOfIdsAlgoliaShouldntIndex(collection, ids); // TODO: Pagination
   const mongoIdsToDeleteDict = keyBy(mongoIdsToDelete, id=>id);
   
   const hitsToDelete = _.filter(allDocuments, doc=>doc._id in mongoIdsToDeleteDict);
@@ -126,11 +133,38 @@ async function algoliaCleanIndex(collectionName: AlgoliaIndexCollectionName)
 }
 
 export async function algoliaCleanAll() {
-  for (let collectionName in algoliaIndexedCollectionNames) {
-    await algoliaCleanIndex(collectionName as AlgoliaIndexCollectionName);
+  for (let collectionName of algoliaIndexedCollectionNames) {
+    await algoliaCleanIndex(collectionName);
   }
 }
 
 Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
 Vulcan.algoliaCleanAll = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
-Vulcan.algoliaCleanAll = algoliaCleanAll
+
+// TODO; doc
+async function algoliaDestroyIndex(collectionName: AlgoliaIndexCollectionName) {
+  // eslint-disable-next-line no-console
+  console.log('Destroying index:', collectionName)
+  const client = getAlgoliaAdminClient()
+  if (!client) return
+  const algoliaIndex = client.initIndex(getAlgoliaIndexName(collectionName))
+
+  await algoliaIndex.clearIndex()
+}
+
+async function algoliaDestroyAll() {
+  for (let collectionName of algoliaIndexedCollectionNames) {
+    await algoliaDestroyIndex(collectionName)
+  }
+}
+
+Vulcan.algoliaDestroyIndex = wrapVulcanAsyncScript('algoliaDestroyIndex', algoliaDestroyIndex)
+Vulcan.algoliaDestroyAll = wrapVulcanAsyncScript('algoliaDestroyAll', algoliaDestroyAll)
+
+// TODO; doc
+async function algoliaDevRefresh() {
+  await algoliaDestroyAll()
+  await algoliaExportAll()
+}
+
+Vulcan.algoliaDevRefresh = wrapVulcanAsyncScript('algoliaDevRefresh', algoliaDevRefresh)
