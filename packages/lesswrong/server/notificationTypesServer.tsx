@@ -363,12 +363,12 @@ export const NewRSVPNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const link = postGetPageUrl(post, true)
-    const rsvps = post.rsvps || []
-    const lastRSVP = _.sortBy(rsvps, r => r.createdAt)[rsvps.length - 1]
     return <div>
       <p>
-        {lastRSVP.name} responded "{responseToText[lastRSVP.response]}" to your event <a href={link}>{post.title}</a>
+        {notifications[0].message}
+      </p>
+      <p>
+        <a href={postGetPageUrl(post,true)}>Event Link</a>
       </p>
     </div>
   },
