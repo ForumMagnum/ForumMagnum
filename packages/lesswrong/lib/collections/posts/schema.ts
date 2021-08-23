@@ -696,7 +696,8 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !props.eventForm,
     group: formGroups.event,
     control: 'checkbox',
-    label: "Enable RSVPs for this event"
+    label: "Enable RSVPs for this event",
+    optional: true
   }
 };
 
