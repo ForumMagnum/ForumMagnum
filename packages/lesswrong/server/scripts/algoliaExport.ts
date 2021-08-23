@@ -12,10 +12,9 @@ import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
 import { getAlgoliaIndexName, algoliaIndexedCollectionNames, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
 import * as _ from 'underscore';
-import { isStagingSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { isDevelopment } from '../../lib/executionEnvironment';
 import moment from 'moment';
+import { isProductionDBSetting } from '../../lib/publicSettings';
 
 async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>, selector?: {[attr: string]: any}, updateFunction?: any) {
   let client = getAlgoliaAdminClient();
@@ -23,7 +22,7 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
   
   // The EA Forum needs to use less algolia resources on Dev and Staging, so we
   // time-bound our queries
-  const timeBound = forumTypeSetting.get() === 'EAForum' && (isStagingSetting.get() || isDevelopment) ?
+  const timeBound = forumTypeSetting.get() === 'EAForum' && !isProductionDBSetting.get() ?
     { createdAt: { $gte: moment().subtract(3, 'months').toDate() } } :
     {}
   const computedSelector = {...selector, ...timeBound}
@@ -141,7 +140,12 @@ export async function algoliaCleanAll() {
 Vulcan.algoliaCleanIndex = wrapVulcanAsyncScript('algoliaCleanIndex', algoliaCleanIndex);
 Vulcan.algoliaCleanAll = wrapVulcanAsyncScript('algoliaCleanAll', algoliaCleanAll);
 
-// TODO; doc
+/**
+ * Remove all objects from the index
+ *
+ * Not called "clearIndex" following Algolia, because this is extremely
+ * destructive. But it does not actually remove the index, just clears it.
+ */
 async function algoliaDestroyIndex(collectionName: AlgoliaIndexCollectionName) {
   // eslint-disable-next-line no-console
   console.log('Destroying index:', collectionName)
@@ -152,6 +156,7 @@ async function algoliaDestroyIndex(collectionName: AlgoliaIndexCollectionName) {
   await algoliaIndex.clearIndex()
 }
 
+/** Remove all objects from algolia */
 async function algoliaDestroyAll() {
   for (let collectionName of algoliaIndexedCollectionNames) {
     await algoliaDestroyIndex(collectionName)
@@ -161,7 +166,11 @@ async function algoliaDestroyAll() {
 Vulcan.algoliaDestroyIndex = wrapVulcanAsyncScript('algoliaDestroyIndex', algoliaDestroyIndex)
 Vulcan.algoliaDestroyAll = wrapVulcanAsyncScript('algoliaDestroyAll', algoliaDestroyAll)
 
-// TODO; doc
+/**
+ * Destroy and rebuild algolia. (Probably) DO NOT RUN ON PRODUCTION!!
+ *
+ * Because this is dev, it'll only recreate the last few months of documents.
+ */
 async function algoliaDevRefresh() {
   await algoliaDestroyAll()
   await algoliaExportAll()
