@@ -4,7 +4,7 @@
 name: Deploy Baserates
 on:
   push:
-    branches: [ baserates ]
+    branches: [ baserates, devel ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest

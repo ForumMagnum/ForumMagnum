@@ -73,3 +73,5 @@ import './2021-03-11-readStatusesIndex.ts'
 import './2021-04-28-populateCommentDescendentCounts';
 import './2021-05-09-selfVoteOnTagRevisions';
 import './2021-06-05-fillWikiEditCount'
+import './2021-08-22-importACXMeetups'
+import './2021-08-23-defaultRSVPNotificationFill'

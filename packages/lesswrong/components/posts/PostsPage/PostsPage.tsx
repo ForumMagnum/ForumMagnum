@@ -72,7 +72,8 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, AFUnreviewedCommentCount } = Components
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
+    AFUnreviewedCommentCount } = Components
 
   useEffect(() => {
     recordPostView({
@@ -128,10 +129,10 @@ const PostsPage = ({post, refetch, classes}: {
     >
       <div className={classes.centralColumn}>
         {/* Body */}
+        { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
         <div className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
-          
           <AnalyticsContext pageSectionContext="postBody">
             { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
           </AnalyticsContext>
