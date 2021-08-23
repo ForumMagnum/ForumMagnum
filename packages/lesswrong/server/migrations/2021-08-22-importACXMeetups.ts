@@ -10,23 +10,23 @@ import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 const what3WordsAPIKey = "FM5HBWEL"
 
 async function what3WordsToCoordinates(words) {
-	const requestOptions : any = {
-		method: 'GET',
-		redirect: 'follow'
+  const requestOptions: any = {
+    method: 'GET',
+    redirect: 'follow'
   };
-	  
+
   const response = await fetch(`https://api.what3words.com/v3/convert-to-coordinates?words=${words}&key=${what3WordsAPIKey}`, requestOptions)
   const responseText = await response.text()
   const responseData = JSON.parse(responseText)
   return responseData.coordinates
 }
 
-async function coordinatesToGoogleLocation({lat, lng}: {lat: string, lng: string}) {
-  const requestOptions : any = {
+async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
+  const requestOptions: any = {
     method: 'GET',
     redirect: 'follow'
   };
-  
+
   const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get()}`, requestOptions)
   const responseText = await response.text()
   const responseData = JSON.parse(responseText)
@@ -46,7 +46,7 @@ registerMigration({
       if (existingUser) {
         eventOrganizer = existingUser
       } else {
-        const {data: newUser} = await createMutator({
+        const { data: newUser } = await createMutator({
           collection: Users,
           document: {
             username: await Utils.getUnusedSlugByCollectionName("Users", row["Name/initials/handle"].toLowerCase()),
@@ -68,7 +68,7 @@ registerMigration({
       const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
       // Then create event post with that user as owner, if it doesn't exist yet
       const title = `${row["City"]} – ACX Meetups Everywhere 2021 `
-      const existingPost = await Posts.findOne({title});
+      const existingPost = await Posts.findOne({ title });
       if (!existingPost) {
         const newPostData = {
           title,
@@ -101,13 +101,13 @@ registerMigration({
             'SSC'
           ],
         };
-        const {data: newPost} = await createMutator({
+        const { data: newPost } = await createMutator({
           collection: Posts,
           document: newPostData,
           currentUser: eventOrganizer,
           validate: false
         })
-        
+
         console.log("Created new ACX Meetup: ", newPost.title)
       } else {
         console.log("Meetup with this name already existed: ", title)
