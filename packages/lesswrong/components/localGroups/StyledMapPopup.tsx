@@ -22,7 +22,7 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 10,
     marginBottom: 10,
     maxHeight: 150,
-    overflowY: 'scroll'
+    overflowY: 'auto'
   },
   contactInfo: {
     marginBottom: "10px",

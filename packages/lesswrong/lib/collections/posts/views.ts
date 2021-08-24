@@ -60,6 +60,9 @@ export const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
+  "uncurated": {
+    curatedDate: viewFieldNullOrMissing
+  },
   "nonSticky": {
     sticky: false,
   },
@@ -362,14 +365,14 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", (terms: PostsViewTerms) => {
-  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : undefined;
+  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : { isEvent: false };
   return {
     selector,
     options: {sort: setStickies(sortings.magic, terms)},
   };
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ score:-1 }),
+  augmentForDefaultView({ score:-1, isEvent: 1 }),
   {
     name: "posts.score",
   }
@@ -681,6 +684,18 @@ Posts.addView("unlisted", (terms: PostsViewTerms) => {
       sort: {createdAt: -1}
     }
 }});
+
+Posts.addView("userAFSubmissions", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      userId: terms.userId,
+      af: false,
+      suggestForAlignmentUserIds: terms.userId,
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+  }});
 
 Posts.addView("slugPost", (terms: PostsViewTerms) => ({
   selector: {

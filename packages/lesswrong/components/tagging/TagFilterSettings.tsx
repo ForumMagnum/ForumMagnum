@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { Card } from '@material-ui/core';
+import Card from '@material-ui/core/Card';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

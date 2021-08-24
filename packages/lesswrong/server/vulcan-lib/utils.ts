@@ -10,6 +10,22 @@ export const sanitizeAllowedTags = [
   'span', 'sub', 'sup', 'ins', 'del', 'iframe'
 ]
 
+const allowedTableStyles = {
+  'background-color': [/^.*$/],
+  'border-bottom': [/^.*$/],
+  'border-left': [/^.*$/],
+  'border-right': [/^.*$/],
+  'border-top': [/^.*$/],
+  'border': [/^.*$/],
+  'border-color': [/^.*$/],
+  'border-style': [/^.*$/],
+  'width': [/^(?:\d|\.)+(?:px|em|%)$/],
+  'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+  'text-align': [/^.*$/],
+  'vertical-align': [/^.*$/],
+  'padding': [/^.*$/],
+};
+
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
@@ -46,38 +62,13 @@ export const sanitize = function(s: string): string {
         'padding': [/^.*$/],
       },
       table: {
-        'background-color': [/^.*$/],
-        'border-bottom': [/^.*$/],
-        'border-left': [/^.*$/],
-        'border-right': [/^.*$/],
-        'border-top': [/^.*$/],
-        'text-align': [/^.*$/],
-        'vertical-align': [/^.*$/],
-        'padding': [/^.*$/],
+        ...allowedTableStyles,
       },
       td: {
-        'background-color': [/^.*$/],
-        'border-bottom': [/^.*$/],
-        'border-left': [/^.*$/],
-        'border-right': [/^.*$/],
-        'border-top': [/^.*$/],
-        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'text-align': [/^.*$/],
-        'vertical-align': [/^.*$/],
-        'padding': [/^.*$/],
+        ...allowedTableStyles,
       },
       th: {
-        'background-color': [/^.*$/],
-        'border-bottom': [/^.*$/],
-        'border-left': [/^.*$/],
-        'border-right': [/^.*$/],
-        'border-top': [/^.*$/],
-        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'text-align': [/^.*$/],
-        'vertical-align': [/^.*$/],
-        'padding': [/^.*$/],
+        ...allowedTableStyles,
       },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899

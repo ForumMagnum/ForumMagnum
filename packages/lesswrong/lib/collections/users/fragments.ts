@@ -54,6 +54,7 @@ registerFragment(`
     petrovPressedButtonDate
     sortDrafts
     reenableDraftJs
+    ...SunshineUsersList
     ...SharedUserBooleans
   }
 `);
@@ -90,6 +91,7 @@ registerFragment(`
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
+    hideAFNonMemberInitialWarning
     commentSorting
     location
     googleLocation
@@ -252,6 +254,7 @@ registerFragment(`
     # UI Settings
     markDownPostEditor
     hideElicitPredictions
+    hideAFNonMemberInitialWarning
     hideIntercom
     commentSorting
     currentFrontpageFilter
@@ -311,6 +314,9 @@ registerFragment(`
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe
+    notificationAlignmentSubmissionApproved
+    notificationEventInRadius
+    notificationRSVPs
 
     hideFrontpageMap
     hideTaggingProgressBar

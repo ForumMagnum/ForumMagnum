@@ -1,4 +1,3 @@
-import { Typography } from '@material-ui/core';
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
@@ -27,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
-  const { SingleColumnSection, Error404 } = Components
+  const { SingleColumnSection, Error404, Typography } = Components
   const currentUser = useCurrentUser()
   const { results: users, totalCount } = useMulti({
     terms: {

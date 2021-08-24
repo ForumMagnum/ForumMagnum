@@ -90,7 +90,7 @@ const LocalGroupsItem = ({group, classes}: {
       </div>
       <div className={classes.links}>
         <GroupLinks document={group} />
-      </div>    
+      </div>
     </div>
   )
 }

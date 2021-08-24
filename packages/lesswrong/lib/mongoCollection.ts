@@ -232,7 +232,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
         );
         if (!result.length) return null;
         return result[0];
-      } else {
+      } else if (selector) {
         const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
         const {sql: optionsFragment, arg: optionArgs} = mongoFindOptionsToSql({
           ...options,
@@ -245,10 +245,17 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
         const result = this.translateResult(rawResult);
         if (!result.length) return null;
         return result[0];
+      } else {
+        return null;
       }
     });
   }
-  
+  findOneArbitrary = async (): Promise<T|null> => {
+    const table = this.getTable();
+    return await wrapQuery(`${this.tableName}.findOneArbitrary()`, async () => {
+      return await table.findOne({});
+    });
+  }
   insert = async (doc, options): Promise<string> => {
     if (disableAllWrites) return "";
     if (!doc._id) {

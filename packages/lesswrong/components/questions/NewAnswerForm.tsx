@@ -6,6 +6,9 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import { useDialog } from '../common/withDialog';
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
@@ -33,8 +36,13 @@ const NewAnswerForm = ({post, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  const {mutate: updateComment} = useUpdate({
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+  });
+  
   const SubmitComponent = ({submitLabel = "Submit"}) => {
-    const { openDialog } = useDialog();
     return <div className={classes.submit}>
       <Button
         type="submit"
@@ -78,6 +86,9 @@ const NewAnswerForm = ({post, classes}: {
         alignmentForumPost={post.af}
         layout="elementOnly"
         addFields={currentUser?[]:["contents"]}
+        successCallback={(comment: CommentsList, { form }: { form: any }) => {
+          afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment})
+        }}
       />
     </div>
   )
