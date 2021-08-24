@@ -17,7 +17,6 @@ getCollectionHooks("LWEvents").newAsync.add(async function sendIntercomEvent (ev
     ...event.properties,
     documentId: event.documentId,
   }
-  // console.log(event);
   let currentTime = new Date();
   let intercomEvent = {
     event_name: event.name,
