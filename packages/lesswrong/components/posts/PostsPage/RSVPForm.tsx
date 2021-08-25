@@ -72,6 +72,9 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
         {error && <div>
           {error}
         </div>}
+        <p>
+          <i>The provided email is only visible to the organizer.</i>
+        </p>
       </DialogContent>
       <DialogActions>
         <Button 
