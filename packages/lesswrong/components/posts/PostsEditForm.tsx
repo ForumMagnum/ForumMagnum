@@ -55,7 +55,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           queryFragment={getFragment('PostsEdit')}
           mutationFragment={getFragment('PostsEdit')}
           successCallback={post => {
-            afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+            if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
             flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             history.push({pathname: postGetPageUrl(post)});
           }}
