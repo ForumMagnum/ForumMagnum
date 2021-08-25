@@ -325,7 +325,7 @@ export const NewRSVPNotification = registerNotificationType({
     const document = await getDocument(documentType, documentId) as DbPost
     const rsvps = document.rsvps || []
     const lastRSVP = sortBy(rsvps, r => r.createdAt)[rsvps.length - 1]
-    return `${lastRSVP.name} responded "${responseToText[lastRSVP.response]}" to your event ${document.title}`
+    return `${lastRSVP.name} ${lastRSVP.email ? `(${lastRSVP.email})` : ""} responded "${responseToText[lastRSVP.response]}" to your event ${document.title}`
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
