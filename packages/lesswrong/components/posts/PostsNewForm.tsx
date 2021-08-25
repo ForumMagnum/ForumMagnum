@@ -133,7 +133,7 @@ const PostsNewForm = ({classes}: {
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={post => {
-              afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
               history.push({pathname: postGetPageUrl(post)})
               flash({ messageString: "Post created.", type: 'success'});
             }}
