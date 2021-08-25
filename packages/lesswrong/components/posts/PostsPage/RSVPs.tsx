@@ -5,6 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles, postBodyStyles } from '../../../themes/stylePiping';
 import { useDialog } from '../../common/withDialog';
+import { useCurrentUser } from '../../common/withUser';
 import { responseToText } from './RSVPForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -17,6 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 4,
     paddingBottom: 4,
     padding: 8,
+    verticalAlign: "top",
     [theme.breakpoints.down('sm')]: {
       width: "33.3%"
     },
@@ -27,6 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   response: {
     ...commentBodyStyles(theme),
     marginTop: -4
+  },
+  email: {
+    ...commentBodyStyles(theme),
+    marginTop: -4,
+    fontSize: "1rem",
+    color: "rgba(0,0,0,0.7)"
   },
   rsvpBlock: {
     marginTop: 10, 
@@ -54,8 +62,9 @@ const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType
 }) => {
-  const { openDialog } = useDialog();
-  const { query } = useLocation();
+  const { openDialog } = useDialog()
+  const { query } = useLocation()
+  const currentUser = useCurrentUser()
   const openRSVPForm = useCallback((initialResponse) => {
     openDialog({
       componentName: "RSVPForm",
@@ -80,6 +89,7 @@ const RSVPs = ({post, classes}: {
       {post.rsvps.map((rsvp:RSVPType) => <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
         <div>{rsvp.name}</div>
         <div className={classes.response}>{responseToText[rsvp.response]}</div>
+        {currentUser?._id === post.userId && <div className={classes.email}>{rsvp.email}</div>}
       </span>)}
     </div>}
     
