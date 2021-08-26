@@ -24,7 +24,7 @@ import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
 
 export interface RenderedEmail {
-  user: DbUser,
+  user: DbUser | null,
   to: string,
   from: string,
   subject: string,
@@ -129,15 +129,15 @@ function addEmailBoilerplate({ css, title, body }: {
 
 const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 
-export async function generateEmail({user, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
-  user: DbUser,
+export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
+  user: DbUser | null,
+  to: string,
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css:string, title: string, body: string})=>string,
 }): Promise<RenderedEmail>
 {
-  if (!user) throw new Error("Missing required argument: user");
   if (!subject) throw new Error("Missing required argument: subject");
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
@@ -159,7 +159,7 @@ export async function generateEmail({user, from, subject, bodyComponent, boilerp
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
-    <UserContext.Provider value={user as unknown as UsersCurrent /*FIXME*/}>
+    <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
     </TimezoneContext.Provider>
@@ -205,8 +205,8 @@ export async function generateEmail({user, from, subject, bodyComponent, boilerp
   const taggedSubject = `[${sitename}] ${subject}`;
   
   return {
-    user: user,
-    to: user.email,
+    user,
+    to,
     from: fromAddress,
     subject: taggedSubject,
     html: emailDoctype + inlinedHTML,
@@ -214,23 +214,24 @@ export async function generateEmail({user, from, subject, bodyComponent, boilerp
   }
 }
 
-export const wrapAndRenderEmail = async ({user, from, subject, body}: {user: DbUser, from?: string, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user: DbUser | null, to: string, from?: string, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
+  const unsubscribeAllLink = user ? await UnsubscribeAllToken.generateLink(user._id) : null;
   return await generateEmail({
     user,
+    to,
     from,
     subject: subject,
     bodyComponent: <Components.EmailWrapper
-      user={user} unsubscribeAllLink={unsubscribeAllLink}
+      unsubscribeAllLink={unsubscribeAllLink}
     >
       {body}
     </Components.EmailWrapper>
   });
 }
 
-export const wrapAndSendEmail = async ({user, from, subject, body}: {user: DbUser, from?: string, subject: string, body: React.ReactNode}): Promise<boolean> => {
+export const wrapAndSendEmail = async ({user, to, from, subject, body}: {user: DbUser | null, to: string, from?: string, subject: string, body: React.ReactNode}): Promise<boolean> => {
   try {
-    const email = await wrapAndRenderEmail({ user, from, subject, body });
+    const email = await wrapAndRenderEmail({ user, to, from, subject, body });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});
     return succeeded;
@@ -279,18 +280,18 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
   }
 }
 
-export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser, additionalFields: any) {
+export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,
-    user: user._id,
+    user: user?._id,
   };
   // Log in LWEvents table
   await createMutator({
     collection: LWEvents,
     currentUser: user,
     document: {
-      userId: user._id,
+      userId: user?._id,
       name: "emailSent",
       properties: {
         ...emailJson,

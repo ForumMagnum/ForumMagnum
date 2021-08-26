@@ -213,6 +213,10 @@ export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => 
   return !!(user?.emails && user.emails.length > 0);
 }
 
+export function getUserEmail (user: UsersCurrent | DbUser): string | undefined {
+  return user.email || user.emails?.[0]?.address
+}
+
 // Replaces Users.getProfileUrl from the vulcan-users package.
 export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
   if (!user) return "";
