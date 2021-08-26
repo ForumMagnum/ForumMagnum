@@ -205,6 +205,12 @@ addRoute(
     background: "white"
   },
   {
+    name: 'postsMetrics',
+    path: '/postsMetrics/:_id',
+    componentName: 'PostsMetricsPage',
+    background: "white"
+  },
+  {
     name: 'collaboratePost',
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
