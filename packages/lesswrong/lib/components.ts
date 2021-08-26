@@ -207,6 +207,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
+importComponent("PostsMetricsPage", () => require('../components/posts/PostsMetricsPage'));
 importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor'));
 
 
