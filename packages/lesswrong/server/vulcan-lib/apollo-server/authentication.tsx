@@ -41,7 +41,7 @@ async function comparePasswords(password: string, hash: string) {
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
-  const user = await Users.findOne({$or: [{'emails.address': username}, {username: username}]});
+  const user = await Users.findOne({$or: [{'emails.[*].address': username}, {username: username}]});
   if (!user) return done(null, false, { message: 'Incorrect username.' });
   
   // Load legacyData, if applicable. Needed because imported users had their
@@ -261,7 +261,7 @@ const authenticationResolvers = {
     },
     async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
       if (!email) throw Error("Email is required for resetting passwords")
-      const user = await Users.findOne({'emails.address': email})
+      const user = await Users.findOne({'emails.[*].address': email})
       if (!user) throw Error("Can't find user with given email address")
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
       const emailSucceeded = await wrapAndSendEmail({

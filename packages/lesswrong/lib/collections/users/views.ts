@@ -65,7 +65,7 @@ Users.addView('usersProfile', function(terms: UsersViewTerms) {
   }
 
   return {
-    selector: {$or: [{slug: terms.slug}, {oldSlugs: terms.slug}]},
+    selector: {$or: [{slug: terms.slug}, {"oldSlugs.[*]": terms.slug}]},
   }
 });
 

@@ -18,6 +18,7 @@ interface CollectionBase<
 > {
   collectionName: N
   typeName: string,
+  tableName: string,
   options: CollectionOptions
   addDefaultView: (view: ViewFunction<N>) => void
   addView: (viewName: string, view: ViewFunction<N>) => void

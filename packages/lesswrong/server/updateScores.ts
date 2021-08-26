@@ -68,7 +68,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   // x = score increase amount of a single vote after n days (for n=100, x=0.000040295)
   const x = 1 / Math.pow((INACTIVITY_THRESHOLD_DAYS*24) + 2, TIME_DECAY_FACTOR.get());
 
-  const itemsPromise = collection.aggregate([
+  const itemsArray = await collection.aggregate([
     {
       $match: {
         $and: [
@@ -132,10 +132,8 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
         }
       }
     },
-  ])
+  ]).toArray();
 
-  const items = await itemsPromise;
-  const itemsArray = await items.toArray();
   let updatedDocumentsCounter = 0;
   const itemUpdates = _.compact(itemsArray.map(i => {
     if (forceUpdate || i.scoreDiffSignificant) {

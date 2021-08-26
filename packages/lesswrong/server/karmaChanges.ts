@@ -91,6 +91,16 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
       }},
     ]
   ).toArray()
+  /*let changedComments = votes.runQuery(`
+    select *, sum(v.json->'power') as scoreChange from votes v
+    where
+      v.json->'authorId'=$1
+      and v.json->'collectionName'=$2
+      and v.json->'votedAt' >= $3
+      and v.json->'votedAt' <= $4
+      and v.json->'userId' != $5
+    group by v.json->'documentId'
+  `, []);*/
   
   let changedPosts = await Votes.aggregate(
     [

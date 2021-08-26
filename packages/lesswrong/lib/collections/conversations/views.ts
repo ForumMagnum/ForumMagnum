@@ -26,13 +26,13 @@ Conversations.addDefaultView(function (terms: ConversationsViewTerms) {
 Conversations.addView("userConversations", function (terms: ConversationsViewTerms) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
   return {
-    selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter},
+    selector: {"participantIds.[*]": terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter},
     options: {sort: {latestActivity: -1}}
   };
 });
 ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
 Conversations.addView("userUntitledConversations", function (terms: ConversationsViewTerms) {
-  return { selector: {participantIds: terms.userId, title: viewFieldNullOrMissing}, archivedByIds: {$ne: terms.userId}};
+  return { selector: {"participantIds.[*]": terms.userId, title: viewFieldNullOrMissing}, archivedByIds: {$ne: terms.userId}};
 });
 ensureIndex(Conversations, { participantIds: 1, title: 1 })

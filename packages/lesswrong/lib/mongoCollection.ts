@@ -17,13 +17,14 @@ export const setPostgresConnection = (connectionPool) => {
 export const getDatabase = () => db;
 export const getMongoClient = () => client
 export const databaseIsConnected = () => (db !== null);
-export const closeDatabaseConnection = () => {
+export const closeDatabaseConnection = async () => {
   if (client) {
     client.close();
     client = null;
     db = null;
   }
 }
+
 export const isAnyQueryPending = () => (inProgressQueries > 0);
 
 const disableAllWrites = false;
@@ -130,6 +131,45 @@ Globals.testTranslateAndRunQuery = async (collectionName: CollectionNameString, 
   await postgresConnectionPool.any(query, queryArgs);
 }
 
+export function getConnectionPool() {
+  if (bundleIsServer) {
+    if (!postgresConnectionPool)
+      throw new Error("No database connection");
+    return postgresConnectionPool;
+  } else {
+    throw new Error("Attempted to run mongodb query on the client");
+  }
+}
+
+export async function runQuery(query: string, args: any[]): Promise<any> {
+  const pool = await getConnectionPool();
+  const startTime = new Date();
+  let result;
+  try {
+    result = await pool.query(query, translatePgArgs(args));
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.log(`Postgres query FAILED: ${query} (${JSON.stringify(args)})`);
+    // eslint-disable-next-line no-console
+    console.log(e);
+    throw e;
+  }
+  const timeElapsed = new Date().getTime()-startTime.getTime();
+  // eslint-disable-next-line no-console
+  console.log(`Postgres query: ${query} (${JSON.stringify(args)}) (${result?.length} rows, ${timeElapsed}ms)`);
+  return result;
+}
+
+function translatePgArgs(args: any[]): any[] {
+  let result = [...args];
+  for (let i=0; i<result.length; i++) {
+    if (result[i] instanceof Date)
+      result[i] = result[i].toISOString();
+  }
+  return result;
+}
+
+
 export class MongoCollection<T extends DbObject, N extends CollectionNameString> implements CollectionBase<T,N>{
   tableName: string
   table: any
@@ -148,43 +188,6 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
     this.tableName = tableName;
   }
   
-  getConnectionPool = () => {
-    if (bundleIsServer) {
-      if (!postgresConnectionPool)
-        throw new Error("No database connection");
-      return postgresConnectionPool;
-    } else {
-      throw new Error("Attempted to run mongodb query on the client");
-    }
-  }
-  
-  runQuery = async (query: string, args: any[]): Promise<any> => {
-    const pool = await this.getConnectionPool();
-    const startTime = new Date();
-    let result;
-    try {
-      result = await pool.query(query, this.translatePgArgs(args));
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log(`Postgres query FAILED: ${query} (${JSON.stringify(args)})`);
-      // eslint-disable-next-line no-console
-      console.log(e);
-      throw e;
-    }
-    const timeElapsed = new Date().getTime()-startTime.getTime();
-    // eslint-disable-next-line no-console
-    console.log(`Postgres query: ${query} (${JSON.stringify(args)}) (${result?.length} rows, ${timeElapsed}ms)`);
-    return result;
-  }
-  
-  translatePgArgs = (args: any[]): any[] => {
-    let result = [...args];
-    for (let i=0; i<result.length; i++) {
-      if (result[i] instanceof Date)
-        result[i] = result[i].toISOString();
-    }
-    return result;
-  }
   
   translateResult = (result: any): any => {
     if (!result) throw new Error("Missing result");
@@ -207,7 +210,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).fetch`, async () => {
           const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
           const {sql: optionsFragment, arg: optionsArgs} = mongoFindOptionsToSql(this, options);
-          const result = await this.runQuery(`select * from ${this.tableName} where ${queryFragment} ${optionsFragment}`, [...queryArgs, ...optionsArgs]);
+          const result = await runQuery(`select * from ${this.tableName} where ${queryFragment} ${optionsFragment}`, [...queryArgs, ...optionsArgs]);
           return this.translateResult(result);
         });
       },
@@ -216,7 +219,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).count`, async () => {
           const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
           const {sql: optionsFragment, arg: optionsArgs} = mongoFindOptionsToSql(this, options);
-          const result = await this.runQuery(`select count(*) from ${this.tableName} where ${queryFragment} ${optionsFragment}`, [...queryArgs, ...optionsArgs]);
+          const result = await runQuery(`select count(*) from ${this.tableName} where ${queryFragment} ${optionsFragment}`, [...queryArgs, ...optionsArgs]);
           return result[0].count;
         });
       }
@@ -228,7 +231,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
     return await wrapQuery(`${this.tableName}.findOne(${JSON.stringify(selector)})`, async () => {
       if (typeof selector === "string") {
         const result = this.translateResult(
-          await this.runQuery(`select * from ${this.tableName} where id=$1 limit 1`, [selector])
+          await runQuery(`select * from ${this.tableName} where id=$1 limit 1`, [selector])
         );
         if (!result.length) return null;
         return result[0];
@@ -238,7 +241,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
           ...options,
           limit: 1,
         });
-        const rawResult = await this.runQuery(
+        const rawResult = await runQuery(
           `select * from ${this.tableName} where ${queryFragment} ${optionsFragment}`,
           [...queryArgs, ...optionArgs]
         )
@@ -267,7 +270,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
     delete docMinusId._id;
     
     return await wrapQuery(`${this.tableName}.insert`, async () => {
-      const rawResult = await this.runQuery(`insert into ${this.tableName}(id,json) values ($1,$2)`, [doc._id, docMinusId]);
+      const rawResult = await runQuery(`insert into ${this.tableName}(id,json) values ($1,$2)`, [doc._id, docMinusId]);
       // TODO: Error handling
       return doc._id;
     });
@@ -279,7 +282,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
       return await wrapQuery(`${this.tableName}.update`, async () => {
         if (typeof selector === 'string') {
           const {sql: modifierSql, arg: modifierArgs} = mongoModifierToSql(this, update);
-          const rawResult = await this.runQuery(
+          const rawResult = await runQuery(
             `update ${this.tableName}
              set ${modifierSql}
              where id=$${modifierArgs.length+1}
@@ -291,7 +294,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
         } else {
           const {sql: modifierSql, arg: modifierArgs} = mongoModifierToSql(this, update);
           const {sql: selectorSql, arg: selectorArgs} = mongoSelectorToSql(this, selector, modifierArgs.length+1);
-          const rawResult = await this.runQuery(
+          const rawResult = await runQuery(
             `update ${this.tableName}
              set ${modifierSql}
              where ${selectorSql}
@@ -328,7 +331,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
   
   _ensurePgIndex = async (indexName: string, indexDescription: string) => {
     try {
-      await this.runQuery(`CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName} ${indexDescription}`, []);
+      await runQuery(`CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName} ${indexDescription}`, []);
       // TODO
     } catch(e) {
       // eslint-disable-next-line no-console

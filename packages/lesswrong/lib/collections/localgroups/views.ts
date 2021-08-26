@@ -15,9 +15,9 @@ declare global {
 Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
   let selector: any = {};
   if(Array.isArray(terms.filters) && terms.filters.length) {
-    selector.types = {$in: terms.filters};
+    selector["types.[*]"] = {$in: terms.filters};
   } else if (typeof terms.filters === "string") { //If there is only single value we can't distinguish between Array and value
-    selector.types = {$in: [terms.filters]};
+    selector["types.[*]"] = {$in: [terms.filters]};
   }
   return {
     selector: {
@@ -30,7 +30,7 @@ Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
 Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms) {
   return {
     selector: {
-      organizerIds: terms.userId,
+      "organizerIds.[*]": terms.userId,
       inactive: true
     }
   };

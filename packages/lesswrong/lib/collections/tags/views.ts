@@ -68,7 +68,7 @@ ensureIndex(Tags, {deleted:1, adminOnly:1, wikiGrade: 1, defaultOrder: 1, postCo
 Tags.addView('tagBySlug', (terms: TagsViewTerms) => {
   return {
     selector: {
-      $or: [{slug: terms.slug}, {oldSlugs: terms.slug}],
+      $or: [{slug: terms.slug}, {"oldSlugs.[*]": terms.slug}],
       adminOnly: viewFieldAllowAny,
       wikiOnly: viewFieldAllowAny
     },
@@ -148,7 +148,7 @@ Tags.addView('unprocessedLWWikiTags', (terms: TagsViewTerms) => {
   return {
     selector: {
       wikiOnly: viewFieldAllowAny,
-      tagFlagsIds: 'B5nzngQDDci4syEzD',
+      "tagFlagsIds.[*]": 'B5nzngQDDci4syEzD',
     }
   }
 });
@@ -160,7 +160,7 @@ Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
   return {
     selector: terms.tagFlagId ?
     {
-      tagFlagsIds: terms.tagFlagId,
+      "tagFlagsIds.[*]": terms.tagFlagId,
       wikiOnly: viewFieldAllowAny
     } :
     {

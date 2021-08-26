@@ -623,7 +623,7 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   let query = {
     selector: {
       userId: viewFieldAllowAny,
-      $or: [{userId: terms.userId}, {shareWithUsers: terms.userId}],
+      $or: [{userId: terms.userId}, {"shareWithUsers.[*]": terms.userId}],
       draft: true,
       deletedDraft: false,
       hideAuthor: false,
@@ -1063,7 +1063,7 @@ ensureIndex(Posts,
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
-      "pingbacks.Posts": terms.postId,
+      "pingbacks.Posts.[*]": terms.postId,
       baseScore: {$gt: 0}
     },
     options: {

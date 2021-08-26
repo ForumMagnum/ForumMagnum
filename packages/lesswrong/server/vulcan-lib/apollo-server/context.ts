@@ -30,7 +30,7 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
     const hashedToken = hashLoginToken(loginToken)
 
     const user = await Users.findOne({
-      'services.resume.loginTokens.hashedToken': hashedToken
+      'services.resume.loginTokens.[*].hashedToken': hashedToken
     })
 
     if (user && !userIsBanned(user)) {

@@ -72,7 +72,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
         const email = profile.emails?.[0]?.value
         if (forumTypeSetting.get() === 'EAForum' && email) {
           // Collation here means we're using the case-insensitive index
-          const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
+          const matchingUsers = await Users.find({'emails.[*].address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
           if (matchingUsers.length > 1) {
             throw new Error(`Multiple users found with email ${email}`)
           }

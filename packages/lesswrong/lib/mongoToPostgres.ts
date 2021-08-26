@@ -1,11 +1,28 @@
 import * as _ from 'underscore';
 
 export const mongoSelectorToSql = <T extends DbObject>(collection: CollectionBase<T>, selector: MongoSelector<T>, argOffset?: number) => {
-  let queryTextFragments: string[] = [];
+  let selectorFragments: string[] = [];
   let args: any[] = [];
   
-  let selectorFragments: string[] = [];
-  for (let selectorKey of Object.keys(selector)) {
+  // Split selector fields into two groups: simple selectors (which will be handled by postgres' @>
+  // operator) and complex selectors (which require some sort of special case handling).
+  let simpleSelectorKeys: string[] = [];
+  let complexSelectorKeys: string[] = [];
+  for (let key of Object.keys(selector)) {
+    if (isSimpleSelector(selector, key)) {
+      simpleSelectorKeys.push(key);
+    } else {
+      complexSelectorKeys.push(key);
+    }
+  }
+  
+  if (simpleSelectorKeys.length > 0) {
+    const {sql: atGreaterWhereClause, args: atGreaterArgs} = mongoSelectorToAtGreater(selector, simpleSelectorKeys, (argOffset||1)+args.length);
+    selectorFragments.push(atGreaterWhereClause);
+    args = [...args, ...atGreaterArgs];
+  }
+  
+  for (let selectorKey of complexSelectorKeys) {
     if (selector[selectorKey] === undefined) continue;
     const {sql,arg} = mongoSelectorFieldToSql(collection, selectorKey, selector[selectorKey], (argOffset||1)+args.length);
     if (sql && sql.length > 0) {
@@ -13,13 +30,30 @@ export const mongoSelectorToSql = <T extends DbObject>(collection: CollectionBas
       args = [...args, ...arg];
     }
   }
-  if (selectorFragments.length > 0)
-    queryTextFragments.push(selectorFragments.join(' and '));
   
   return {
-    sql: queryTextFragments.join(" "),
+    sql: selectorFragments.join(" and "),
     arg: args,
   };
+}
+
+const mongoSelectorToAtGreater = (selector: any, keys: string[], argOffset: number) => {
+  const queryObject = {};
+  for (let key of keys) {
+    queryObject[key] = selector[key];
+  }
+  return {
+    sql: `json @> $${argOffset}`,
+    args: [JSON.stringify(queryObject)],
+  };
+}
+
+const isSimpleSelector = (selector: any, key: string): boolean => {
+  if (key.indexOf(".") >= 0)
+    return false;
+  if (typeof selector[key] == 'object')
+    return false;
+  return true;
 }
 
 export const mongoModifierToSql = <T extends DbObject>(collection: CollectionBase<T>, modifier: MongoModifier<T>, argOffset?: number) => {
