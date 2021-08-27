@@ -775,6 +775,7 @@ interface MessagesDefaultFragment { // fragment on Messages
   readonly userId: string,
   readonly createdAt: Date,
   readonly conversationId: string,
+  readonly noEmail: boolean,
 }
 
 interface messageListFragment { // fragment on Messages
