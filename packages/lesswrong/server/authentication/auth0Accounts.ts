@@ -1,7 +1,5 @@
 import { Profile } from "passport-auth0";
-import Users from "../../lib/vulcan-users";
 import { slugify, Utils } from "../../lib/vulcan-lib/utils";
-import { updateMutator } from "../vulcan-lib/mutators";
 
 export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser>> {
   const email = profile.emails?.[0].value
