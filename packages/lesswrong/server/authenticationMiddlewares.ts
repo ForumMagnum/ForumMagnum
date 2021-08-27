@@ -14,7 +14,7 @@ import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { forumTypeSetting } from '../lib/instanceSettings';
-import { userFromAuth0Profile, mergeAccountWithAuth0 } from './authentication/auth0Accounts';
+import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import moment from 'moment';
 
 /**
@@ -54,6 +54,20 @@ export const expressSessionSecretSetting = new DatabaseServerSetting<string | nu
 type IdFromProfile<P extends Profile> = (profile: P) => string | number
 type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser>>
 
+async function mergeAccount(idPath: string, user: DbUser, profile: Profile) {
+  return await updateMutator({
+    collection: Users,
+    documentId: user._id,
+    // This is the correct way to set a nested property according to Mongo, but
+    // it's very hard to get it to type correctly. TS thinks we're setting a
+    // completely different field, `services.auth0`, not setting a nested one.
+    set: {[idPath]: profile} as any,
+    // Normal updates are not supposed to update services
+    validate: false
+    // TODO: Soon we should delete passwords, and maybe(?) resume tokens when we do this
+  })
+}
+
 /**
  * Given the provider-appropriate ways to get user info from a profile, create
  * a function that handles successful logins from that provider
@@ -62,25 +76,25 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
   return async (_accessToken: string, _refreshToken: string, profile: P, done: VerifyCallback) => {
     try {
       const profileId = getIdFromProfile(profile)
-      // Probably impossible, but if it is null, we just log the person in as a
-      // random user, which is bad, so we'll check anyway.
+      // Probably impossible
       if (!profileId) {
         return done(new Error('OAuth profile does not have a profile ID'))
       }
       let user = await Users.findOne({[idPath]: profileId})
       if (!user) {
-        const email = profile.emails?.[0]?.value
-        if (forumTypeSetting.get() === 'EAForum' && email) {
+        const email = profile.emails?.[0]?.value 
+        //FB and GitHub require verified emails, so this is secure
+        if (email) {
           // Collation here means we're using the case-insensitive index
           const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
           if (matchingUsers.length > 1) {
-            throw new Error(`Multiple users found with email ${email}`)
+            throw new Error(`Multiple users found with email ${email}, please contact support`)
           }
           const user = matchingUsers[0]
           if (user) {
             // Forum only uses Auth0Profile
             // TODO: Guard with zod for isAUth0Profile
-            const { data: userUpdated } = await mergeAccountWithAuth0(user, profile as unknown as Auth0Profile)
+            const { data: userUpdated } = await mergeAccount(idPath, user, profile as unknown as Auth0Profile)
             if (user.banned && new Date(user.banned) > new Date()) {
               return done(new Error("banned"))
             }
