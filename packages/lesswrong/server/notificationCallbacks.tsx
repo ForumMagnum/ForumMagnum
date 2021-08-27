@@ -430,10 +430,11 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
 }
 
 
-export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{userId: string|null, email: string|undefined}[]> {
+export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{rsvp: RSVPType, userId: string|null, email: string|undefined}[]> {
   return await Promise.all(post.rsvps
     .filter(r => r.response !== "no")
     .map(async (r: RSVPType) => ({
+      rsvp: r,
       userId: r.userId,
       email: await getEmailFromRsvp(r),
     }))
