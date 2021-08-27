@@ -138,7 +138,8 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    // EA Forum does not care about email verification
+    // Disable updating on the EA Forum until we can get it to play well with
+    // Auth0
     canUpdate: forumTypeSetting.get() === 'EAForum' ?
       [] :
       [userOwns, 'sunshineRegiment', 'admins'],
@@ -726,7 +727,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.emails,
-    control: 'checkbox',
+    control: 'EmailConfirmationRequiredCheckbox',
     label: "Email me new posts in Curated",
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],

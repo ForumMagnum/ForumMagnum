@@ -11,6 +11,7 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
+import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import moment from '../../lib/moment-timezone';
 import forumTheme from '../../themes/forumTheme';
@@ -320,6 +321,8 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
 {
   if (!user.email)
     return "No email address";
+  if (!userEmailAddressIsVerified(user))
+    return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";
   

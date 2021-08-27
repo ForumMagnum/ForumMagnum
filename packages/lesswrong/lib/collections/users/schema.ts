@@ -96,7 +96,6 @@ const schema: SchemaType<DbUser> = {
     regEx: SimpleSchema.RegEx.Email,
     optional: true,
   },
-  // NB: Not used on the EA Forum
   'emails.$.verified': {
     type: Boolean,
     optional: true,
