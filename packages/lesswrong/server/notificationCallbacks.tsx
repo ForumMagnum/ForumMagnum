@@ -96,7 +96,13 @@ async function getSubscribedUsers({
 }
 
 
-export const createNotifications = async (userIds: Array<string>, notificationType: string, documentType: string|null, documentId: string|null, noEmail: boolean|null) => {
+export const createNotifications = async ({ userIds, notificationType, documentType, documentId, noEmail }:{
+  userIds: Array<string>
+  notificationType: string,
+  documentType: string|null,
+  documentId: string|null,
+  noEmail?: boolean|null
+}) => { 
   return Promise.all(
     userIds.map(async userId => {
       await createNotification({userId, notificationType, documentType, documentId, noEmail});
@@ -127,7 +133,13 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
 }
 
 
-export const createNotification = async (userId: string, notificationType: string, documentType: string|null, documentId: string|null, noEmail: boolean|null) => {
+export const createNotification = async ({userId, notificationType, documentType, documentId, noEmail}:{
+    userId: string,
+    notificationType: string,
+    documentType: string|null,
+    documentId: string|null,
+    noEmail?: boolean|null
+  }) => { 
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
@@ -526,7 +538,7 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
   const documentType =  newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
   
   if (newlyAF && userSubmitted && reviewed) {
-    await createNotifications([newDocument.userId], "alignmentSubmissionApproved", documentType, newDocument._id)
+    await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
   
