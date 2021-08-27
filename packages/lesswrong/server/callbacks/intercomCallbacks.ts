@@ -4,7 +4,10 @@ import { getCollectionHooks } from '../mutationCallbacks';
 
 getCollectionHooks("LWEvents").newAsync.add(function sendIntercomEvent (event: DbLWEvent, user: DbUser) {
   const intercomClient = getIntercomClient();
-  if (!intercomClient) {
+  if (intercomClient == null) {
+    // If no intercomToken is configured, then intercomClient will be null,
+    // and this is a dev install with Intercom disabled. Don't try to send
+    // Intercom events in that case (it just causes spurious error messages.)
     return;
   }
   if (user && event && event.intercom) {
