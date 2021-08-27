@@ -248,6 +248,7 @@ interface DbMessage extends DbObject {
   userId: string
   createdAt: Date
   conversationId: string
+  noEmail: boolean
   contents: EditableFieldContents
 }
 
