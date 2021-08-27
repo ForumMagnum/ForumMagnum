@@ -27,11 +27,20 @@ addGraphQLResolvers({
       if (!postgres) throw new Error("Unable to connect to analytics database - no database configured");
 
       // TODO; update if we update the post_timer_event view?
+      // TODO; implement median function and change avg call to use it
       const queryStr = `
         SELECT
-          count(distinct clientid) as unique_client_views
-        FROM post_timer_event
-        WHERE post_id = $1
+          count(*) as unique_client_views,
+          avg(max_reading_time) as median_reading time
+        FROM (
+          SELECT
+            clientid,
+            max(seconds) as max_reading_time
+          FROM post_timer_event
+          WHERE post_id = $1
+            AND clientid IS NOT NULL
+          GROUP BY clientid
+        ) a
       `;
       const queryVars = [postId];
 
