@@ -41,7 +41,7 @@ addGraphQLResolvers({
         validate: false
       })).data
 
-      await createNotification(post.userId, "newRSVP", "post", post._id)
+      await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id})
       return updatedPost
     }
   }
