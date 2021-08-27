@@ -21,6 +21,7 @@ import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
+import { userGetEmail } from '../../lib/vulcan-users/helpers';
 import { captureException } from '@sentry/core';
 
 export interface RenderedEmail {
@@ -229,9 +230,19 @@ export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user:
   });
 }
 
-export const wrapAndSendEmail = async ({user, to, from, subject, body}: {user: DbUser | null, to: string, from?: string, subject: string, body: React.ReactNode}): Promise<boolean> => {
+export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
+  user: DbUser|null,
+  to?: string,
+  from?: string,
+  subject: string,
+  body: React.ReactNode}
+): Promise<boolean> => {
+  if (!to && !user) throw new Error("No destination email address for logged-out user email");
+  const destinationAddress = to || userGetEmail(user!);
+  if (!destinationAddress) throw new Error("No destination email address for user email");
+  
   try {
-    const email = await wrapAndRenderEmail({ user, to, from, subject, body });
+    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});
     return succeeded;

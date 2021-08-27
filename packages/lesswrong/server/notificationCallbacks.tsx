@@ -430,34 +430,37 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
 }
 
 
+export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{userId: string|null, email: string|undefined}[]> {
+  return await Promise.all(post.rsvps
+    .filter(r => r.response !== "no")
+    .map(async (r: RSVPType) => ({
+      userId: r.userId,
+      email: await getEmailFromRsvp(r),
+    }))
+  );
+}
+
 async function notifyRsvps(comment: DbComment, post: DbPost) {
   if (!post.rsvps || !post.rsvps.length) {
     return;
   }
-  // TODO; want userid as well
-  const emailsToNotify = post.rsvps
-    .filter(r => r.response !== "no")
-    .map(r => getEmailFromRsvp(r))
-}
-
-/*
-  {
-    "name" : "First Last",
-    "email" : "example@gmail.com",
-    "nonPublic" : null,
-    "response" : "maybe",
-    "userId" : null,
-    "createdAt" : ISODate("2021-08-24T05:25:28.571Z")
-  },
-  {
-    "name" : "First",
-    "email" : "example@gmail.com",
-    "nonPublic" : null,
-    "response" : "maybe",
-    "userId" : null,
-    "createdAt" : ISODate("2021-08-26T01:14:32.423Z")
+  
+  const emailsToNotify = await getUsersToNotifyAboutEvent(post);
+  
+  const postLink = postGetPageUrl(post, true);
+  
+  for (let {userId,email} of emailsToNotify) {
+    if (!email) continue;
+    const user = await Users.findOne(userId);
+    
+    await wrapAndSendEmail({
+      user: user,
+      to: email,
+      subject: `New comment on ${post.title}`,
+      body: <Components.EmailComment commentId={comment._id}/>,
+    });
   }
- */
+}
 
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
