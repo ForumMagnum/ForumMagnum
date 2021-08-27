@@ -196,4 +196,3 @@ function startWebsocketServer() {
 if (cliopts.watch && cliopts.run && !isProduction) {
   startWebsocketServer();
 }
-
