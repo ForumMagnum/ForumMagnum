@@ -6,7 +6,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.6.0
+        with:
+          mongodb-port: 27017
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: yarn ea-start-test
+          start: yarn ea-start-cypress
