@@ -17,6 +17,8 @@ interface CollectionFieldSpecification<T extends DbObject> {
   defaultValue?: any,
   graphQLType?: string,
   typescriptType?: string,
+  /** Use the following information in the GraphQL schema and at query-time to
+   * calculate a response */
   resolveAs?: {
     type: string|GraphQLScalarType,
     description?: string,
@@ -32,6 +34,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   needsUpdate?: (doc: Partial<T>) => boolean,
   getValue?: (doc: T, context: ResolverContext) => any,
   foreignKey?: any,
+  logChanges?: boolean,
   
   min?: number,
   max?: number,

@@ -31,6 +31,7 @@ export const Users: ExtendedUsersCollection = createCollection({
     // Nobody can delete users
     removeCheck: () => false
   }),
+  logChanges: true,
 });
 
 

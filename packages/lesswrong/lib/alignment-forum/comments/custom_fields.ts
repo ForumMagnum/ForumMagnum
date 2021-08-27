@@ -39,7 +39,7 @@ addFieldsDict(Comments, {
       type: "User"
     }),
     viewableBy: ['members'],
-    editableBy: ['alignmentForum', 'alignmentForumAdmins'],
+    editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
     control: "UsersListEditor",

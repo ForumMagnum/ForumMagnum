@@ -8,11 +8,23 @@ import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users'
+import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  link: {
+    color: theme.palette.primary.main,
+    "& + &": {
+      marginTop: theme.spacing.unit,
+    },
+  },
   welcomeText: {
-    margin: 12
-  }
+    margin: 12,
+  },
+  enableLocationPermissions: {
+    margin: 12,
+  },
 }))
 
 interface ExternalProps {
@@ -29,15 +41,15 @@ const CommunityHome = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { query } = useLocation();
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser));
+  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, null));
   
   useEffect(() => {
-    const newLocation = userGetLocation(currentUser);
-    if (!_.isEqual(currentUserLocation, newLocation)) {
-      setCurrentUserLocation(userGetLocation(currentUser));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+    userGetLocation(currentUser, (newLocation) => {
+      if (!_.isEqual(currentUserLocation, newLocation)) {
+        setCurrentUserLocation(newLocation);
+      }
+    });
+  }, [currentUserLocation, currentUser]);
 
   const openSetPersonalLocationForm = () => {
     openDialog({
@@ -51,9 +63,13 @@ const CommunityHome = ({classes}: {
     });
   }
 
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  const isAdmin = userIsAdmin(currentUser);
+  const canCreateEvents = currentUser && (!isEAForum || isAdmin);
+
   const render = () => {
     const filters = query?.filters || [];
-    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography, SectionButton } = Components
 
     const eventsListTerms = {
       view: 'nearbyEvents',
@@ -80,6 +96,17 @@ const CommunityHome = ({classes}: {
       lng: currentUserLocation.lng,
       filters: filters,
     }
+    const title = forumTypeSetting.get() === 'EAForum' ? 'Groups and Events' : 'Welcome to the Community Section';
+    const WelcomeText = () => (isEAForum ?
+    <Typography variant="body2" className={classes.welcomeText}>
+      <p>On the map above you can find nearby events (blue pin icons) and local groups (green house icons).</p>
+      <p>This page is being trialed with a handful of EA groups, so the map isn't yet fully populated.
+      For more, visit the <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>.</p>
+    </Typography> : 
+    <Typography variant="body2" className={classes.welcomeText}>
+      On the map above you can find nearby events (blue arrows), local groups (green house icons), and other users who have added themselves to the map (purple person icons)
+    </Typography>);
+
     return (
       <React.Fragment>
         <AnalyticsContext pageContext="communityHome">
@@ -87,37 +114,49 @@ const CommunityHome = ({classes}: {
             terms={mapEventTerms}
           />
             <SingleColumnSection>
-              <SectionTitle title="Welcome to the Community Section"/>
-              <Typography variant="body2" className={classes.welcomeText}>
-                On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
-              </Typography>
-                <SectionFooter>
-                  <a onClick={openSetPersonalLocationForm}>
-                    {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
-                  </a>
-                  <a onClick={openEventNotificationsForm}>
-                    {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
-                  </a>
-                </SectionFooter>
+              <SectionTitle title={title}/>
+              <WelcomeText />
+              <SectionFooter>
+                {!isEAForum &&
+                <a onClick={openSetPersonalLocationForm}>
+                  {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
+                </a>}
+                <a onClick={openEventNotificationsForm}>
+                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
+                </a>
+              </SectionFooter>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="Online Events"/>
+              <SectionTitle title="Online Events">
+                {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
+                  <LibraryAddIcon /> Create New Event
+                </SectionButton></Link>}
+              </SectionTitle>
               <AnalyticsContext listContext={"communityEvents"}>
                 <PostsList2 terms={onlineEventsListTerms}/>
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="In-Person Events"/>
+              <SectionTitle title="In-Person Events">
+                {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
+                  <LibraryAddIcon /> Create New Event
+                </SectionButton></Link>}
+              </SectionTitle>
               <AnalyticsContext listContext={"communityEvents"}>
-                <PostsList2 terms={eventsListTerms}>
+                {!currentUserLocation.known && !currentUserLocation.loading && 
+                  <Typography variant="body2" className={classes.enableLocationPermissions}>
+                    Enable location permissions to sort this list by distance to you.
+                  </Typography>
+                }
+                {!currentUserLocation.loading && <PostsList2 terms={eventsListTerms}>
                   <Link to="/pastEvents">View Past Events</Link>
                   <Link to="/upcomingEvents">View Upcoming Events</Link>
-                </PostsList2>
+                </PostsList2>}
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Local Groups">
-                {currentUser && <GroupFormLink />}
+                {canCreateEvents && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Components.Loading />
@@ -129,7 +168,7 @@ const CommunityHome = ({classes}: {
             <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
-                <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+                {isEAForum && <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />}
               </AnalyticsContext>
             </SingleColumnSection>
         </AnalyticsContext>

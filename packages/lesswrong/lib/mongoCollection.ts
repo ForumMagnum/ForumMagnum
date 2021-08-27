@@ -129,11 +129,19 @@ export class MongoCollection<T extends DbObject> {
         return await table.findOne({_id: selector}, {
           ...options,
         });
-      } else {
+      } else if (selector) {
         return await table.findOne(removeUndefinedFields(selector), {
           ...options,
         });
+      } else {
+        return null;
       }
+    });
+  }
+  findOneArbitrary = async (): Promise<T|null> => {
+    const table = this.getTable();
+    return await wrapQuery(`${this.tableName}.findOneArbitrary()`, async () => {
+      return await table.findOne({});
     });
   }
   insert = async (doc, options) => {

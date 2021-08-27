@@ -1,5 +1,8 @@
 import { gql, useMutation } from "@apollo/client";
-import { Button, Checkbox, FormControlLabel, TextField, Typography } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import TextField from "@material-ui/core/TextField";
 import React, { useState } from "react";
 import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
@@ -54,7 +57,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
     }
   `, {refetchQueries: ['getCurrentUser']})
   const {flash} = useMessages();
-  const {SingleColumnSection} = Components
+  const {SingleColumnSection, Typography} = Components
 
   function validateUsername(username: string): void {
     if (username.length === 0) {

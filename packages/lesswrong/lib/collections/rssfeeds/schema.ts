@@ -72,6 +72,7 @@ const schema: SchemaType<DbRSSFeed> = {
     insertableBy: ['members'],
     editableBy: ['admins'],
     optional: true,
+    logChanges: false,
   },
   setCanonicalUrl: {
     type: Boolean,

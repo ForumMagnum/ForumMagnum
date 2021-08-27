@@ -50,7 +50,6 @@ export class DatabasePublicSetting<SettingValueType> {
 
 export const googleTagManagerIdSetting = new DatabasePublicSetting<string | null>('googleTagManager.apiKey', null) // Google Tag Manager ID
 export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>('reCaptcha.apiKey', null) // ReCaptcha API Key
-
 // Algolia Search Settings
 export const algoliaAppIdSetting = new DatabasePublicSetting<string | null>('algolia.appId', null)
 export const algoliaSearchKeySetting = new DatabasePublicSetting<string | null>('algolia.searchKey', null)

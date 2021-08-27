@@ -84,6 +84,7 @@ export const TagFlags: TagFlagsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('TagFlags'),
   mutations: getDefaultMutations('TagFlags', options),
+  logChanges: true,
 });
 
 addUniversalFields({collection: TagFlags})

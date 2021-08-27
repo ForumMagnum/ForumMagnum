@@ -168,12 +168,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
     return false
   }
 
-  if (forumTypeSetting.get() === 'AlignmentForum') {
-    if (!userCanDo(user, 'comments.alignment.new')) {
-      return userOwns(user, post) && userCanDo(user, 'votes.alignment')
-    }
-  }
-
   return true
 }
 
@@ -186,11 +180,6 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
     return "This post's author has blocked you from commenting."
   }
 
-  if (forumTypeSetting.get() === 'AlignmentForum') {
-    if (!userCanDo(user, 'comments.alignment.new')) {
-      return "You must be approved by an admin to comment on the AI Alignment Forum"
-    }
-  }
   if (userIsBannedFromAllPosts(user, post, postAuthor)) {
     return "This post's author has blocked you from commenting."
   }
@@ -207,6 +196,10 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
+  // EA Forum does not do its own email verification
+  if (forumTypeSetting.get() === 'EAForum') {
+    return true
+  }
   if (!user || !user.emails)
     return false;
   for (let email of user.emails) {
@@ -284,7 +277,7 @@ interface UserLocation {
 // for server-side rendering, but we can try to get a location client-side
 // using the browser geolocation API. (This won't necessarily work, since not
 // all browsers and devices support it, and it requires user permission.)
-export const userGetLocation = (currentUser: UsersCurrent|null): UserLocation => {
+export const userGetLocation = (currentUser: UsersCurrent|null, onLoadFinished: ((location: UserLocation)=>void)|null): UserLocation => {
   const placeholderLat = 37.871853;
   const placeholderLng = -122.258423;
 
@@ -303,12 +296,22 @@ export const userGetLocation = (currentUser: UsersCurrent|null): UserLocation =>
     if (typeof window !== 'undefined' && typeof navigator !== 'undefined'
         && navigator && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        if(position && position.coords) {
-          const navigatorLat = position.coords.latitude
-          const navigatorLng = position.coords.longitude
-          return {lat: navigatorLat, lng: navigatorLng, loading: false, known: true}
+          if(position && position.coords) {
+            const navigatorLat = position.coords.latitude
+            const navigatorLng = position.coords.longitude
+            if (onLoadFinished)
+              onLoadFinished({lat: navigatorLat, lng: navigatorLng, loading: false, known: true});
+          } else {
+            if (onLoadFinished)
+              onLoadFinished({lat: placeholderLat, lng: placeholderLng, loading: false, known: false});
+          }
+        },
+        (error) => {
+          if (onLoadFinished)
+            onLoadFinished({lat: placeholderLat, lng: placeholderLng, loading: false, known: false});
         }
-      });
+      );
+      return {lat: placeholderLat, lng:placeholderLng, loading: true, known: false};
     }
 
     return {lat: placeholderLat, lng:placeholderLng, loading: false, known: false};

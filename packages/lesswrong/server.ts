@@ -56,6 +56,7 @@ import './server/analyticsWriter';
 import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
+import './server/rsvpToEvent';
 import './server/bookmarkMutation';
 import './server/rss';
 import './server/akismet';
