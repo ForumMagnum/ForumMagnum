@@ -8,9 +8,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     textAlign: "left",
     '&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
+      content: "'' !important",
+      marginLeft: "0 !important",
+      marginRight: "0 !important",
     }
   },
   localGroups: {

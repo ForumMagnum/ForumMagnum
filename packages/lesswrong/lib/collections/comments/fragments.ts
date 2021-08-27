@@ -31,6 +31,7 @@ registerFragment(`
     moveToAlignmentUserId
     afBaseScore
     suggestForAlignmentUserIds
+    reviewForAlignmentUserId
     needsReview
     answer
     parentAnswerId

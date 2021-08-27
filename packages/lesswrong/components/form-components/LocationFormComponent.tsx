@@ -79,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
+export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
 
 export const useGoogleMaps = (identifier, libraries = ['places']) => {
   const [ mapsLoaded, setMapsLoaded ] = useState((typeof window !== 'undefined') ? (window as any).google : null)

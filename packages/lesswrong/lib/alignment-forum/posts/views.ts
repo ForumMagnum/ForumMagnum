@@ -1,13 +1,14 @@
 import { Posts } from '../../collections/posts';
 import { ensureIndex } from '../../collectionUtils';
 import { augmentForDefaultView } from '../../collections/posts/views';
+import {viewFieldNullOrMissing} from "../../vulcan-lib";
 
 Posts.addView("alignmentSuggestedPosts", function () {
   return {
     selector: {
       af: false,
       suggestForAlignmentUserIds: {$exists:true, $ne: []},
-      reviewForAlignmentUserId: {$exists:false}
+      reviewForAlignmentUserId: viewFieldNullOrMissing
     },
     options: {
       sort: {

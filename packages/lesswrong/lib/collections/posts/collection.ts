@@ -38,6 +38,7 @@ export const Posts: ExtendedPostsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
+  logChanges: true,
 });
 
 addUniversalFields({collection: Posts})

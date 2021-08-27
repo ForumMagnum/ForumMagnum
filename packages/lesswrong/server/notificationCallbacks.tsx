@@ -95,13 +95,8 @@ async function getSubscribedUsers({
   }
 }
 
-const createNotifications = async ({ userIds, notificationType, documentType, documentId, noEmail }:{
-  userIds: Array<string>
-  notificationType: string, 
-  documentType: string|null, 
-  documentId: string|null, 
-  noEmail?: boolean
-}) => {
+
+export const createNotifications = async (userIds: Array<string>, notificationType: string, documentType: string|null, documentId: string|null, noEmail: boolean|null) => {
   return Promise.all(
     userIds.map(async userId => {
       await createNotification({userId, notificationType, documentType, documentId, noEmail});
@@ -131,13 +126,8 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
   }
 }
 
-const createNotification = async ({userId, notificationType, documentType, documentId, noEmail}:{
-    userId: string, 
-    notificationType: string, 
-    documentType: string|null, 
-    documentId: string|null, 
-    noEmail?: boolean
-  }) => {
+
+export const createNotification = async (userId: string, notificationType: string, documentType: string|null, documentId: string|null, noEmail: boolean|null) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
@@ -361,23 +351,8 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
 });
 
 async function findUsersToEmail(filter: MongoSelector<DbUser>) {
-  let usersMatchingFilter = await Users.find(filter).fetch();
-
-  let usersToEmail = usersMatchingFilter.filter(u => {
-    if (u.email && u.emails && u.emails.length) {
-      let primaryAddress = u.email;
-
-      for(let i=0; i<u.emails.length; i++)
-      {
-        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
-          return true;
-      }
-      return false;
-    } else {
-      return false;
-    }
-  });
-  return usersToEmail
+  const filterWithEmail = {email: {$exists: true}, ...filter};
+  return await Users.find(filterWithEmail).fetch();
 }
 
 const curationEmailDelay = new EventDebouncer<string,null>({
@@ -542,6 +517,21 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
     await createNotifications({userIds: post.shareWithUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: post._id})
   }
 });
+
+const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
+  const newlyAF = newDocument.af && !oldDocument.af
+  const userSubmitted = oldDocument.suggestForAlignmentUserIds && oldDocument.suggestForAlignmentUserIds.includes(oldDocument.userId)
+  const reviewed = !!newDocument.reviewForAlignmentUserId
+  
+  const documentType =  newDocument.hasOwnProperty("answer") ? 'comment' : 'post'
+  
+  if (newlyAF && userSubmitted && reviewed) {
+    await createNotifications([newDocument.userId], "alignmentSubmissionApproved", documentType, newDocument._id)
+  }
+}
+  
+getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
+getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
 async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
   return await Users.aggregate([

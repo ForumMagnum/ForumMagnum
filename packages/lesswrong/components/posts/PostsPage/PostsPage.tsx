@@ -8,7 +8,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { forumTitleSetting } from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { viewNames } from '../../comments/CommentsViews';
 
 export const MAX_COLUMN_WIDTH = 720
@@ -72,7 +72,8 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents } = Components
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
+    AFUnreviewedCommentCount } = Components
 
   useEffect(() => {
     recordPostView({
@@ -128,10 +129,10 @@ const PostsPage = ({post, refetch, classes}: {
     >
       <div className={classes.centralColumn}>
         {/* Body */}
+        { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
         <div className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
-          
           <AnalyticsContext pageSectionContext="postBody">
             { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
           </AnalyticsContext>
@@ -152,6 +153,7 @@ const PostsPage = ({post, refetch, classes}: {
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+            {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
       </AnalyticsInViewTracker>

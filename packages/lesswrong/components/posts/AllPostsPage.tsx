@@ -9,6 +9,7 @@ import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timef
 import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -138,7 +139,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 
     return (
       <React.Fragment>
-        <HeadTags description={"All of LessWrong's posts, filtered and sorted however you want"}/>
+        <HeadTags description={`All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`}/>
         <AnalyticsContext pageContext="allPostsPage">
           <SingleColumnSection>
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
