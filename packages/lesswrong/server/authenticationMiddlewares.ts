@@ -58,13 +58,9 @@ async function mergeAccount(idPath: string, user: DbUser, profile: Profile) {
   return await updateMutator({
     collection: Users,
     documentId: user._id,
-    // This is the correct way to set a nested property according to Mongo, but
-    // it's very hard to get it to type correctly. TS thinks we're setting a
-    // completely different field, `services.auth0`, not setting a nested one.
     set: {[idPath]: profile} as any,
     // Normal updates are not supposed to update services
     validate: false
-    // TODO: Soon we should delete passwords, and maybe(?) resume tokens when we do this
   })
 }
 
@@ -83,6 +79,9 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       let user = await Users.findOne({[idPath]: profileId})
       if (!user) {
         const email = profile.emails?.[0]?.value 
+        if (!email) {
+          throw new Error('Account must have associated email!')
+        }
         //FB and GitHub require verified emails, so this is secure
         if (email) {
           // Collation here means we're using the case-insensitive index
@@ -92,9 +91,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
           }
           const user = matchingUsers[0]
           if (user) {
-            // Forum only uses Auth0Profile
-            // TODO: Guard with zod for isAUth0Profile
-            const { data: userUpdated } = await mergeAccount(idPath, user, profile as unknown as Auth0Profile)
+            const { data: userUpdated } = await mergeAccount(idPath, user, profile)
             if (user.banned && new Date(user.banned) > new Date()) {
               return done(new Error("banned"))
             }
