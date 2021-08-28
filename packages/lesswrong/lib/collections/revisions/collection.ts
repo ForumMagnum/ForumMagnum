@@ -48,8 +48,8 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // But on wiki/tag pages, major version 0 means "imported from old wiki" rather
   // than "draft" (since there is no concept of wiki pages being drafts).
   if (majorVersion < 1
-    && document.userId !== (user && user._id)
-    && document.collectionName!=="Tags")
+    && revision.userId !== (user && user._id)
+    && revision.collectionName!=="Tags")
   {
     return false
   }
