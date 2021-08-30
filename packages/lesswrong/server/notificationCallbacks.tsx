@@ -6,7 +6,7 @@ import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
-import { userGetProfileUrl } from '../lib/collections/users/helpers';
+import { getUserEmail, userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
@@ -22,7 +22,6 @@ import { notificationDebouncers } from './notificationBatching';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 import * as _ from 'underscore';
-import { isServer } from '../lib/executionEnvironment';
 import { Components } from '../lib/vulcan-lib/components';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
@@ -32,6 +31,7 @@ import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
+import { RSVPType } from '../lib/collections/posts/schema';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -425,73 +425,132 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
   }
 });
 
+async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | undefined> {
+  if (email) {
+    // Email is free text
+    // eslint-disable-next-line
+    const matches = email.match(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/)
+    const foundEmail = matches?.[0]
+    if (foundEmail) {
+      return foundEmail
+    }
+  }
+  if (userId) {
+    const user = await Users.findOne(userId)
+    if (user) {
+      return getUserEmail(user)
+    }
+  }
+}
+
+
+export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{userId: string|null, email: string|undefined}[]> {
+  return await Promise.all(post.rsvps
+    .filter(r => r.response !== "no")
+    .map(async (r: RSVPType) => ({
+      userId: r.userId,
+      email: await getEmailFromRsvp(r),
+    }))
+  );
+}
+
+async function notifyRsvps(comment: DbComment, post: DbPost) {
+  if (!post.rsvps || !post.rsvps.length) {
+    return;
+  }
+  
+  const emailsToNotify = await getUsersToNotifyAboutEvent(post);
+  
+  const postLink = postGetPageUrl(post, true);
+  
+  for (let {userId,email} of emailsToNotify) {
+    if (!email) continue;
+    const user = await Users.findOne(userId);
+    
+    await wrapAndSendEmail({
+      user: user,
+      to: email,
+      subject: `New comment on ${post.title}`,
+      body: <Components.EmailComment commentId={comment._id}/>,
+    });
+  }
+}
+
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
-  if(isServer) {
-    // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
-    // if e.g. they're both the author of the post and the author of a comment being replied to)
-    let notifiedUsers: Array<any> = [];
+  if (!comment.postId) {
+    throw new Error("Comment has no postId");
+  }
 
-    // 1. Notify users who are subscribed to the parent comment
-    if (comment.parentCommentId) {
-      const parentComment = await Comments.findOne(comment.parentCommentId)
-      if (parentComment) {
-        const subscribedUsers = await getSubscribedUsers({
-          documentId: comment.parentCommentId,
-          collectionName: "Comments",
-          type: subscriptionTypes.newReplies,
-          potentiallyDefaultSubscribedUserIds: [parentComment.userId],
-          userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
-        })
-        const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
-        
-        // Don't notify the author of their own comment, and filter out the author
-        // of the parent-comment to be treated specially (with a newReplyToYou
-        // notification instead of a newReply notification).
-        let parentCommentSubscriberIdsToNotify = _.difference(subscribedUserIds, [comment.userId, parentComment.userId])
-        await createNotifications({userIds: parentCommentSubscriberIdsToNotify, notificationType: 'newReply', documentType: 'comment', documentId: comment._id});
+  const post = await Posts.findOne(comment.postId);
+  if (!post) {
+    throw new Error("Comment has no post");
+  }
   
-        // Separately notify author of comment with different notification, if
-        // they are subscribed, and are NOT the author of the comment
-        if (subscribedUserIds.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
-          await createNotifications({userIds: [parentComment.userId], notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id});
-          notifiedUsers = [...notifiedUsers, parentComment.userId];
-        }
-      }
-    }
-    
-    // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
-    let userIdsSubscribedToPost: Array<string> = [];
-    if (comment.postId) {
-      const post = await Posts.findOne(comment.postId);
-      const usersSubscribedToPost = await getSubscribedUsers({
-        documentId: comment.postId,
-        collectionName: "Posts",
-        type: subscriptionTypes.newComments,
-        potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
-        userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
+  if (post.isEvent) {
+    await notifyRsvps(comment, post);
+  }
+
+  // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
+  // if e.g. they're both the author of the post and the author of a comment being replied to)
+  let notifiedUsers: Array<string> = [];
+
+  // 1. Notify users who are subscribed to the parent comment
+  if (comment.parentCommentId) {
+    const parentComment = await Comments.findOne(comment.parentCommentId)
+    if (parentComment) {
+      const subscribedUsers = await getSubscribedUsers({
+        documentId: comment.parentCommentId,
+        collectionName: "Comments",
+        type: subscriptionTypes.newReplies,
+        potentiallyDefaultSubscribedUserIds: [parentComment.userId],
+        userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
       })
-      userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
-  
-      // Notify users who are subscribed to shortform posts
-      if (!comment.topLevelCommentId && comment.shortform) {
-        const usersSubscribedToShortform = await getSubscribedUsers({
-          documentId: comment.postId,
-          collectionName: "Posts",
-          type: subscriptionTypes.newShortform
-        })
-        const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
-        await createNotifications({userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
-        notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
+      const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+      
+      // Don't notify the author of their own comment, and filter out the author
+      // of the parent-comment to be treated specially (with a newReplyToYou
+      // notification instead of a newReply notification).
+      let parentCommentSubscriberIdsToNotify = _.difference(subscribedUserIds, [comment.userId, parentComment.userId])
+      await createNotifications({userIds: parentCommentSubscriberIdsToNotify, notificationType: 'newReply', documentType: 'comment', documentId: comment._id});
+
+      // Separately notify author of comment with different notification, if
+      // they are subscribed, and are NOT the author of the comment
+      if (subscribedUserIds.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
+        await createNotifications({userIds: [parentComment.userId], notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id});
+        notifiedUsers = [...notifiedUsers, parentComment.userId];
       }
     }
-    
-    // remove userIds of users that have already been notified
-    // and of comment author (they could be replying in a thread they're subscribed to)
-    const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
-    if (postSubscriberIdsToNotify.length > 0) {
-      await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
-    }
+  }
+  
+  // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
+  let userIdsSubscribedToPost: Array<string> = [];
+  const usersSubscribedToPost = await getSubscribedUsers({
+    documentId: comment.postId,
+    collectionName: "Posts",
+    type: subscriptionTypes.newComments,
+    potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
+    userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
+  })
+  userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+
+  // Notify users who are subscribed to shortform posts
+  if (!comment.topLevelCommentId && comment.shortform) {
+    const usersSubscribedToShortform = await getSubscribedUsers({
+      documentId: comment.postId,
+      collectionName: "Posts",
+      type: subscriptionTypes.newShortform
+    })
+    const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
+    await createNotifications({userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
+    notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
+  }
+  
+  // remove userIds of users that have already been notified
+  // and of comment author (they could be replying in a thread they're subscribed to)
+  const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
+  if (postSubscriberIdsToNotify.length > 0) {
+    await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
   }
 });
 
