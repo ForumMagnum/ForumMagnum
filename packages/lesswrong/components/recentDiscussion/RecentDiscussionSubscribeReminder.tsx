@@ -70,6 +70,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser();
   const [hide, setHide] = useState(false);
   const [subscribeChecked, setSubscribeChecked] = useState(true);
+  const [verificationEmailSent, setVerificationEmailSent] = useState(false);
   const [subscriptionConfirmed, setSubscriptionConfirmed] = useState(false);
   const [emailAddressInput, setEmailAddressInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -88,7 +89,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   
   useEffect(() => {
     if (adminBranch == -1 && currentUser?.isAdmin) {
-      setAdminBranch(randInt(4));
+      setAdminBranch(randInt(5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
   
@@ -134,7 +135,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
           emailSubscribedToCurated: true,
           unsubscribeFromAll: false,
         });
-        setSubscriptionConfirmed(true);
+        setVerificationEmailSent(true);
       } catch(e) {
         flash(getGraphQLErrorMessage(e));
       }
@@ -168,6 +169,15 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   } else if (subscriptionConfirmed) {
     return <AnalyticsWrapper branch="already-subscribed">
       You are subscribed to the best posts of LessWrong!
+    </AnalyticsWrapper>
+  } else if (verificationEmailSent) {
+    // Clicked Subscribe in one of the other branches, and a confirmation email
+    // was sent. You need to verify your email address to complete the subscription.
+    const yourEmail = currentUser?.emails[0]?.address;
+    return <AnalyticsWrapper branch="needs-email-verification-subscribed-in-other-branch">
+      <div className={classes.message}>
+        We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.
+      </div>
     </AnalyticsWrapper>
   } else if (!currentUser || adminBranch===0) {
     // Not logged in. Show a create-account form and a brief pitch.
@@ -211,7 +221,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
               await updateCurrentUser({
                 whenConfirmationEmailSent: new Date(),
               });
-              setSubscriptionConfirmed(true);
+              setVerificationEmailSent(true);
             } catch(e) {
               if (getGraphQLErrorID(e) === "users.email_already_taken") {
                 flash("That email address is already taken by a different account.");
@@ -268,6 +278,36 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <div className={classes.buttons}>
         {maybeLaterButton}
         {dontAskAgainButton}
+      </div>
+    </AnalyticsWrapper>
+  } else if (!userEmailAddressIsVerified(currentUser) || adminBranch===4) {
+    // User is subscribed, but they haven't verified their email address. Show
+    // a resend-verification-email button.
+    return <AnalyticsWrapper branch="needs-email-verification">
+      <div>
+        <div className={classes.message}>
+          Please verify your email address to activate your subscription to curated posts.
+        </div>
+        <div className={classes.buttons}>
+          <Button className={classes.subscribeButton} onClick={async (ev) => {
+            setLoading(true);
+            try {
+              await updateCurrentUser({
+                whenConfirmationEmailSent: new Date()
+              });
+            } catch(e) {
+              flash(getGraphQLErrorMessage(e));
+            }
+            setLoading(false);
+            setVerificationEmailSent(true);
+            captureEvent("subscribeReminderButtonClicked", {buttonType: "resendVerificationEmailButton"});
+          }}>Resend Verification Email</Button>
+          {adminUiMessage}
+          <div className={classes.buttons}>
+            {maybeLaterButton}
+            {dontAskAgainButton}
+          </div>
+        </div>
       </div>
     </AnalyticsWrapper>
   } else {
