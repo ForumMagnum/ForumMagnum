@@ -75,7 +75,7 @@ const TagHistoryPage = ({classes}: {
           fragmentName: "CommentsList",
           render: (comment: CommentsList) => <div>
             <CommentsNode
-              treeOptions={{}}
+              treeOptions={{ tag }}
               comment={comment}
               loadChildrenSeparately={true}
             />
