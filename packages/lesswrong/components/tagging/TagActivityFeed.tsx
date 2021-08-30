@@ -34,7 +34,10 @@ const TagActivityFeed = ({classes, pageSize = 50}: {
           fragmentName: "CommentsListWithParentMetadata",
           render: (comment: CommentsListWithParentMetadata) => <div>
             <CommentsNode
-              treeOptions={{showPostTitle: true}}
+              treeOptions={{
+                showPostTitle: true,
+                tag: comment.tag || undefined,
+              }}
               comment={comment}
               loadChildrenSeparately={true}
             />

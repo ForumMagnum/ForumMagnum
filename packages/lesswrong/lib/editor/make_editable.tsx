@@ -125,6 +125,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     [fieldName || "contents"]: {
       type: RevisionStorageType,
       optional: true,
+      logChanges: false, //Logged via Revisions rather than LWEvents
       typescriptType: "EditableFieldContents",
       group: formGroup,
       ...permissions,
@@ -207,6 +208,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         viewableBy: 'guests',
         optional: true,
         hidden: true,
+        denormalized: true,
       },
       "pingbacks.$": {
         type: Array,

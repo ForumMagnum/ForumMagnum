@@ -6,7 +6,7 @@ them the fragment.
 
 This component is itself wrapped with:
 
-- withCurrentUser
+- withUser
 - withApollo (used to access the Apollo client for form pre-population)
 
 And wraps the Form component with:
@@ -55,6 +55,9 @@ import * as _ from 'underscore';
 
 const intlSuffix = '_intl';
 
+/**
+ * Note: Only use this through WrappedSmartForm
+ */
 class FormWrapper extends PureComponent<any> {
   FormComponent: any
   
