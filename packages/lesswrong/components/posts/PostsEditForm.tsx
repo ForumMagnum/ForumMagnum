@@ -42,7 +42,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentComment',
+    fragmentName: 'SuggestAlignmentPost',
   })
 
   
@@ -55,7 +55,8 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           queryFragment={getFragment('PostsEdit')}
           mutationFragment={getFragment('PostsEdit')}
           successCallback={post => {
-            if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+            const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
+            if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
             flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             history.push({pathname: postGetPageUrl(post)});
           }}

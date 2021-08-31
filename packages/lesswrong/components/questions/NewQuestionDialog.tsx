@@ -34,7 +34,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'SuggestAlignmentPost',
   });
   
   const QuestionSubmit = (props) => {
@@ -67,7 +67,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
             onClose();
             history.push({pathname: postGetPageUrl(post)})
             flash({ messageString: "Post created.", type: 'success'});
-            afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+            if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
           }}
           formComponents={{
             FormSubmit: QuestionSubmit,
