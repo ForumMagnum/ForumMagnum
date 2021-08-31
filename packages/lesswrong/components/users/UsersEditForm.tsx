@@ -10,6 +10,9 @@ import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { useAutosavingEditForm, Form } from '../forms/formUtil';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { userIsMemberOf } from '../../lib/vulcan-users/permissions';
+import { sunshineRegimentGroup } from '../../lib/permissions';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,12 +36,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:theme.spacing.unit * 4
   },
   
-  tabBar: {
-  },
-  tab: {
-  },
-  selectedTab: {
-  },
 })
 
 const passwordResetMutation = gql`
@@ -46,23 +43,6 @@ const passwordResetMutation = gql`
     resetPassword(email: $email)
   }
 `
-
-const TabBar = ({currentTab, setCurrentTab, tabs, classes}: {
-  currentTab: string,
-  setCurrentTab: (tab: string)=>void,
-  tabs: Array<{name: string, label: string}>,
-  classes: ClassesType,
-}) => {
-  return <div className={classes.tabBar}>
-    {tabs.map(tab => <div
-      key={tab.name}
-      className={classNames(classes.tab, {[classes.selectedTab]: tab.name===currentTab})}
-      onClick={ev => setCurrentTab(tab.name)}
-    >
-      {tab.label}
-    </div>)}
-  </div>
-}
 
 const UsersEditForm = ({currentUser, terms, classes}: {
   currentUser: UsersCurrent,
@@ -72,21 +52,25 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   const { flash } = useMessages();
   const { history } = useNavigation();
   const client = useApolloClient();
-  const { FormCheckbox, FormDropdown, FormUsersList, FormDate, Typography } = Components;
+  const { FormCheckbox, FormDropdown, FormUsersList, FormDate, FormMultilineText, FormTextbox, FormLocation, FormNotificationTypeSettings, FormKarmaChangeNotifierSettings, Typography, TabBar, Loading, ManageSubscriptionsLink, UsersEmailVerification } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
+  //const updateCurrentUser = useUpdateCurrentUser();
 
   const form = useAutosavingEditForm({
     documentId: currentUser._id,
     collectionName: "Users",
     fragmentName: "UsersEdit",
-    onChange: (change: Partial<UsersEdit>) => {
+    onChange: async (change: Partial<UsersEdit>) => {
       // eslint-disable-next-line no-console
       console.log("User change:", change);
+      //const result = await updateCurrentUser(change); // Handled inside useAutosavingEditForm
+      // eslint-disable-next-line no-console
+      //console.log(result); //TODO: Error handling
       flash("Saved changes.");
     },
   });
   
-  const [currentTab,setCurrentTab] = useState<string>("profile");
+  const [currentTab,setCurrentTab] = useState<string>("account");
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -97,7 +81,8 @@ const UsersEditForm = ({currentUser, terms, classes}: {
     );
   }
   if (!userCanEdit(currentUser,
-    terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
+    terms.documentId ? {_id: terms.documentId} : {slug: terms.slug}))
+  {
     return <span>Sorry, you do not have permission to do this at this time.</span>
   }
 
@@ -108,28 +93,23 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   const requestPasswordReset = async () => {
     const { data } = await mutate({variables: { email: currentUser?.emails[0]?.address }})
     flash(data?.resetPassword)
-  } 
+  }
 
   // Since there are two urls from which this component can be rendered, with different terms, we have to
   // check both slug and documentId
   const isCurrentUser = (terms.slug && terms.slug === currentUser?.slug) || (terms.documentId && terms.documentId === currentUser?._id)
   
+  let userIsSunshine = userIsMemberOf(currentUser, "sunshineRegiment");
+  
+  if (form.loading) {
+    return <div className={classes.root}>
+      <Loading/>
+    </div>
+  }
+  
   return <div className={classes.root}>
     <Typography variant="display2" className={classes.header}>Edit Account</Typography>
     
-    <Typography variant="display2" className={classes.header}>Edit Account</Typography>
-    {/* TODO(EA): Need to add a management API call to get the reset password
-        link, but for now users can reset their password from the login
-        screen */}
-    {isCurrentUser && forumTypeSetting.get() !== 'EAForum' && <Button
-      color="secondary"
-      variant="outlined"
-      className={classes.resetButton}
-      onClick={requestPasswordReset}
-    >
-      Reset Password
-    </Button>}
-
     {/*<Components.WrappedSmartForm
       collection={Users}
       {...terms}
@@ -145,26 +125,35 @@ const UsersEditForm = ({currentUser, terms, classes}: {
     
     <TabBar
       currentTab={currentTab} setCurrentTab={setCurrentTab}
-      classes={classes}
       tabs={[
-        {name: "profile", label: "Profile"},
+        {name: "account", label: "Account"},
         {name: "notifications", label: "Notifications"},
         {name: "customization", label: "Customization"},
         {name: "moderationGuidelines", label: "Moderation Guidelines"},
-        {name: "admin", label: "Admin"},
+        ...(userIsSunshine ? [{name: "admin", label: "Admin"}] : []),
       ]}
-    />
-    
+    >
     <Form form={form}>
-      {currentTab==="profile" && <div>
+      {currentTab==="account" && <div>
         <h2>Profile</h2>
 
-        <div>Reset Password</div>
-        <div>Display name</div>
-        <div>Email</div>
-        <div>Full name</div>
-        <div>Bio</div>
-        <div>Location</div>
+        <FormTextbox form={form} fieldName="displayName" label="Display Name" />
+        <FormTextbox form={form} fieldName="fullName" label="Full Name" />
+        <FormTextbox form={form} fieldName="email" label="Email" />
+        <FormMultilineText form={form} fieldName="bio" label="Bio" />
+        <FormLocation form={form} fieldName="location" label="Location" />
+        
+        {/* TODO(EA): Need to add a management API call to get the reset password
+            link, but for now users can reset their password from the login
+            screen */}
+        {isCurrentUser && forumTypeSetting.get() !== 'EAForum' && <Button
+          color="secondary"
+          variant="outlined"
+          className={classes.resetButton}
+          onClick={requestPasswordReset}
+        >
+          Reset Password
+        </Button>}
       </div>}
       {currentTab==="customization" && <div>
         <h2>Customization</h2>
@@ -186,29 +175,32 @@ const UsersEditForm = ({currentUser, terms, classes}: {
         <FormCheckbox form={form} fieldName="noCollapseCommentsFrontpage" label="Do not truncate comments (on home page)"/>
       </div>}
       {currentTab==="notifications" && <div>
+        <h2>Emails</h2>
+        <UsersEmailVerification/>
+        {forumTypeSetting.get() !== "EAForum" && <FormCheckbox form={form} fieldName="emailSubscribedToCurated" label="Email me new posts in Curated"/>}
+        {forumTypeSetting.get() === "EAForum" && <FormCheckbox form={form} fieldName="subscribedToDigest" label="Subscribe to the EA Forum Digest emails"/>}
+        <FormCheckbox form={form} fieldName="unsubscribeFromAll" label="Do not send me any emails (unsubscribe from all)"/>
+        
+        <FormKarmaChangeNotifierSettings fieldName="karmaChangeNotifierSettings" form={form} />
+        
         <h2>Notifications</h2>
-        <div>Manage Active Subscriptions</div>
+        <ManageSubscriptionsLink/>
         <FormCheckbox form={form} fieldName="auto_subscribe_to_my_posts" label="Auto-subscribe to comments on my posts"/>
         <FormCheckbox form={form} fieldName="auto_subscribe_to_my_comments" label="Auto-subscribe to replies to my comments"/>
         <FormCheckbox form={form} fieldName="autoSubscribeAsOrganizer" label="Auto-subscribe to posts and meetups in groups I organize"/>
 
-        <div>Comments on posts I'm subscribed to</div>
-        <div>Shortform by users I'm subscribed to</div>
-        <div>Replies to my comments</div>
-        <div>Replies to comments I'm subscribed to</div>
-        <div>Posts by users I'm subscribed to</div>
-        <div>Posts/events in groups I'm subscribed to</div>
-        <div>Posts added to tags I'm subscribed to</div>
-        <div>Private messages</div>
-        <div>Draft shared with me</div>
-        <div>New Events in my notification radius</div>
-
-        <div>Vote Notifications</div>
-
-        <h2>Emails</h2>
-        <div>(Verification status)</div>
-        <div>Email me new posts in Curated</div>
-        <div>Do not send me any emails (unsubscribe from all)</div>
+        <FormNotificationTypeSettings form={form} fieldName="notificationCommentsOnSubscribedPost" label="Comments on posts I'm subscribed to" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationShortformContent" label="Shortform by users I'm subscribed to" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationRepliesToMyComments" label="Replies to my comments" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationRepliesToSubscribedComments" label="Replies to comments I'm subscribed to" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationSubscribedUserPost" label="Posts by users I'm subscribed to" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationPostsInGroups" label="Posts/events in groups I'm subscribed to" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationSubscribedTagPost" label="Posts added to tags I'm subscribed to" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationPrivateMessage" label="Private messages" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationSharedWithMe" label="Draft shared with me" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationAlignmentSubmissionApproved" label="Alignment Forum submission approvals" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationEventInRadius" label="New Events in my notification radius" />
+        <FormNotificationTypeSettings form={form} fieldName="notificationRSVPs" label="New RSVP responses to my events" />
       </div>}
       {currentTab==="moderationGuidelines" && <div>
         <h2>Moderation Guidelines for My Posts</h2>
@@ -231,10 +223,10 @@ const UsersEditForm = ({currentUser, terms, classes}: {
         
         <h3>Permissions</h3>
         <FormCheckbox form={form} fieldName="isAdmin" label="Admin"/>
-        <div>Groups</div>
+        <div>Groups (PLACEHOLDER)</div>
       </div>}
     </Form>
-    
+    </TabBar>
   </div>
 };
 

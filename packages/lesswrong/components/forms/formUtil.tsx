@@ -10,7 +10,11 @@ export interface LWForm<T> {
 }
 
 export function Form<T>({form, children}: {form: LWForm<T>, children: React.ReactNode}) {
-  return <form>{children}</form>
+  return <form>
+    <Components.Typography variant="body2">
+      {children}
+    </Components.Typography>
+  </form>
 }
 
 export function useForm<N extends FragmentName, T=FragmentTypes[N]>({currentValue, updateCurrentValue, fragmentName, loading=false}: {
@@ -18,7 +22,7 @@ export function useForm<N extends FragmentName, T=FragmentTypes[N]>({currentValu
   updateCurrentValue: (newValue: Partial<T>)=>void,
   fragmentName: N,
   loading?: boolean,
-}): LWForm<T> 
+}): LWForm<T>
 {
   return {
     loading,
@@ -54,6 +58,7 @@ export function useAutosavingEditForm<N extends FragmentName>({documentId, colle
   return useForm<N>({
     loading, currentValue, fragmentName,
     updateCurrentValue: async (change: Partial<T>) => {
+       setCurrentValue({...currentValue, ...change});
        await mutate({
          selector: {_id: documentId},
          data: change,

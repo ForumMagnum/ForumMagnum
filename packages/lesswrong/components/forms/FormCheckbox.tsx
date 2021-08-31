@@ -6,6 +6,9 @@ import Checkbox from '@material-ui/core/Checkbox';
 const styles = (theme: ThemeType): JssStyles => ({
   label: {
   },
+  checkbox: {
+    padding: 8,
+  },
 });
 
 export function FormCheckbox<T, FN extends keyof T>({form, fieldName, label}: {
@@ -16,7 +19,7 @@ export function FormCheckbox<T, FN extends keyof T>({form, fieldName, label}: {
   const classes = useStyles(styles, "FormCheckbox");
   const {value,setValue} = useFormComponentContext<boolean,T>(form, fieldName);
   return <div>
-    <Checkbox checked={value} onChange={(event) => {
+    <Checkbox className={classes.checkbox} checked={value} onChange={(event) => {
       setValue(event.target.checked);
     }}/>
     <span className={classes.label}>

@@ -11,8 +11,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const ManageSubscriptionsLink = ({document, removeItem, classes }: {
-  document: any,
-  removeItem: any,
+  document?: any,
+  removeItem?: any,
   classes: ClassesType,
 }) => {
   return <Link to="/manageSubscriptions">
