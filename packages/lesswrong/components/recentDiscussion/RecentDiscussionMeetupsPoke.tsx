@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import { useMessages } from '../common/withMessages';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { useGoogleMaps } from '../form-components/LocationFormComponent'
+import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent'
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
@@ -30,9 +31,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   locationInput: {
     display: "inline-block",
     borderBottom: "1px solid rgba(0,0,0,.87)",
-    width: 250,
+    width: 350,
     marginTop: 40,
     marginBottom: 40,
+    position: "relative",
+    
+    ...geoSuggestStyles(theme),
   },
   
   geolocateButton: {
@@ -52,29 +56,139 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+// Google Maps reverse-geocoding gives us a list of interpretations
+// of the latitude-longitude pair we gave it, of different types and
+// granularities. Here's an example result:
+//   {
+//     address_components: [
+//       0: {long_name: "South Berkeley", short_name: "South Berkeley", types: Array(2)}
+//       1: {long_name: "Berkeley", short_name: "Berkeley", types: Array(2)}
+//       2: {long_name: "Alameda County", short_name: "Alameda County", types: Array(2)}
+//       3: {long_name: "California", short_name: "CA", types: Array(2)}
+//       4: {long_name: "United States", short_name: "US", types: Array(2)}
+//     ],
+//     formatted_address: "South Berkeley, Berkeley, CA, USA",
+//     geometry: {...},
+//     place_id: "...",
+//     types: ["neighborhood", "political"]
+//   }
+// When you click the Geocode button, we pick one of the interpretations to
+// prefill the location field with. We don't want to use a result that
+// corresponds to an exact address (people probably don't want to publish that),
+// and also don't want something too imprecise like "California".
+//
+// We have a preference ordering among types, and choose the first result with
+// the most preferred type.
+function pickBestReverseGeocodingResult(results: any[]) {
+  const locationTypePreferenceOrdering = ["neighborhood", "postal_code", "locality", "political"];
+  for (let locationType of locationTypePreferenceOrdering) {
+    for (let result of results) {
+      if (result.types.indexOf(locationType) >= 0)
+        return result;
+    }
+  }
+  return results[0];
+}
+
 const RecentDiscussionMeetupsPoke = ({classes}: {
   classes: ClassesType,
 }) => {
-  const [mapsLoaded] = useGoogleMaps("SetPersonalMapLocationDialog")
-  const [ label, setLabel ] = useState<any>(null)
+  const [mapsLoaded, googleMaps] = useGoogleMaps("SetPersonalMapLocationDialog")
+  const [geolocationLoading, setGeolocationLoading] = useState(false);
+  const [label, setLabel] = useState<any>(null)
+  const [location, setLocation] = useState<any>(null);
   const { flash } = useMessages();
   const { Loading } = Components;
   const [hidden, setHidden] = useState(false);
   const [notificationRadius, setNotificationRadius] = useState(30)
+  const updateCurrentUser = useUpdateCurrentUser();
+  const geosuggestElement = useRef<any>(null);
+  const [enableNotificationsChecked, setEnableNotificationsChecked] = useState(true);
+  const [locationOnPublicProfileChecked, setLocationOnPublicProfileChecked] = useState(false);
   
   const dontAskAgain = () => {
-    // TODO: Save this to user dconfig
     setHidden(true);
+    void updateCurrentUser({hideMeetupsPoke: true});
   }
-  const setLocation = (location) => {
-    // TODO
+  const onSetLocation = (location) => {
+    setLocation(location);
+    
+    // Re-apply the two checkboxes
+    onSetEnableNotificationsChecked(enableNotificationsChecked);
+    onSetLocationOnPublicProfileChecked(locationOnPublicProfileChecked);
+  }
+  const setPublicProfileLocation = (location) => {
+    void updateCurrentUser({
+      location: location.formatted_address,
+    });
+  }
+  const clearPublicProfileLocation = () => {
+    void updateCurrentUser({
+      location: ""
+    });
+  }
+  
+  const onSetEnableNotificationsChecked = (checked: boolean) => {
+    setEnableNotificationsChecked(checked);
+    if (checked) {
+      void updateCurrentUser({
+        nearbyEventsNotifications: true,
+        nearbyEventsNotificationsLocation: location,
+        nearbyEventsNotificationsRadius: notificationRadius,
+      });
+    } else {
+      void updateCurrentUser({
+        nearbyEventsNotifications: false,
+        nearbyEventsNotificationsLocation: null,
+        nearbyEventsNotificationsRadius: null,
+      });
+    }
+  }
+  const onSetLocationOnPublicProfileChecked = (checked: boolean) => {
+    setLocationOnPublicProfileChecked(checked);
+    if (checked) {
+      setPublicProfileLocation(location);
+    } else {
+      clearPublicProfileLocation();
+    }
   }
   const requestGeolocation = () => {
-    // TODO
+    setGeolocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          if(position?.coords) {
+            const geocoder = new googleMaps.Geocoder();
+            const geocodingResponse = await geocoder.geocode({
+              location: {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              }
+            });
+            const geocoderResults = geocodingResponse?.results;
+            if (geocoderResults?.length > 0) {
+              const bestResult = pickBestReverseGeocodingResult(geocoderResults);
+              if (geosuggestElement.current) {
+                geosuggestElement.current!.update(bestResult.formatted_address);
+              }
+              onSetLocation(bestResult)
+            }
+          }
+        } finally {
+          setGeolocationLoading(false);
+        }
+      },
+      (err) => {
+        setGeolocationLoading(false);
+      }
+    );
   }
-  const changeNotificationRadius = (radius: number) => {
-    // TODO: Save this to user config
-    setNotificationRadius(radius);
+  const changeNotificationRadius = (radius: string) => {
+    const radiusNumber = parseFloat(radius);
+    if (!isNaN(radiusNumber)) {
+      setNotificationRadius(radiusNumber);
+      void updateCurrentUser({ nearbyEventsNotificationsRadius: radiusNumber });
+    }
   }
   
   if (hidden)
@@ -86,25 +200,38 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
     
     <div>
       {mapsLoaded ? <Geosuggest
+        ref={geosuggestElement}
         placeholder="My Location"
         className={classes.locationInput}
         onSuggestSelect={(suggestion) => {
-          setLocation(suggestion?.gmaps) //TODO
+          onSetLocation(suggestion?.gmaps)
           setLabel(suggestion?.label)
         }}
         initialValue={label}
       /> : <Loading/>}
       
-      <Button className={classes.geolocateButton} onClick={requestGeolocation}>Geolocate</Button>
+      {geolocationLoading
+        ? <Loading/>
+        : <Button className={classes.geolocateButton} onClick={requestGeolocation}>Geolocate</Button>
+      }
     </div>
     
     <div>
-      <Checkbox className={classes.checkbox} checked={true} />
+      <Checkbox className={classes.checkbox}
+        checked={enableNotificationsChecked}
+        onChange={(ev) => onSetEnableNotificationsChecked(ev.target.checked)}
+      />
       Notify me of events within{" "}
       <Input type="number" className={classes.radiusInput} value={notificationRadius} onChange={(ev) => changeNotificationRadius(ev.target.value)}/>
       {" "}miles
     </div>
-    <div><Checkbox className={classes.checkbox} checked={false} /> Show this location on my public profile</div>
+    <div>
+      <Checkbox className={classes.checkbox}
+        checked={locationOnPublicProfileChecked}
+        onChange={(e) => onSetLocationOnPublicProfileChecked(e.target.checked)}
+      />
+      Show this location on my public profile
+    </div>
     
     <div className={classes.buttons}>
       <Button onClick={() => setHidden(true)}>Maybe Later</Button>

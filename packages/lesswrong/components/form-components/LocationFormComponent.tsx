@@ -100,7 +100,7 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
     }
   }
   if (!mapsLoaded) return [ mapsLoaded ]
-  else return [ mapsLoaded, (window as any)?.google ]
+  else return [ mapsLoaded, (window as any)?.google?.maps ]
 }
 
 
