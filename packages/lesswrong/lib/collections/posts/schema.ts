@@ -698,7 +698,17 @@ const schema: SchemaType<DbPost> = {
     control: 'checkbox',
     label: "Enable RSVPs for this event",
     optional: true
-  }
+  },
+  
+  nextDayReminderSent: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

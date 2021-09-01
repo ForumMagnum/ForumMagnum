@@ -284,7 +284,7 @@ export const forcePendingEvents = async (upToDate=null) => {
 }
 Vulcan.forcePendingEvents = forcePendingEvents;
 
-const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
+export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
 if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
