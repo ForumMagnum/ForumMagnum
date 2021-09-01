@@ -70,6 +70,7 @@ import './server/voteServer';
 import './server/recommendations';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
+import './server/eventReminders';
 
 import './server/gatherTownCron';
 

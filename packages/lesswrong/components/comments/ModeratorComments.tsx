@@ -47,6 +47,7 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
+                tag: comment.tag || undefined,
                 showPostTitle: true,
               }}
               comment={comment}

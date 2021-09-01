@@ -32,10 +32,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NewPostEmail = ({documentId, classes, reason}: {
+const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   documentId: string,
-  classes: any,
   reason?: string,
+  hideRecommendations?: boolean,
+  classes: any,
 }) => {
   const { document } = useSingle({
     documentId,
@@ -80,7 +81,7 @@ const NewPostEmail = ({documentId, classes, reason}: {
     
     <hr className={classes.hr}/>
     
-    <EmailFooterRecommendations />
+    {!hideRecommendations && <EmailFooterRecommendations />}
     
     <hr className={classes.hr}/>
     
