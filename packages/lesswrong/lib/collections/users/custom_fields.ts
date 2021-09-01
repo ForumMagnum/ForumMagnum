@@ -32,7 +32,14 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
-export const defaultNotificationTypeSettings = {
+export type NotificationTypeSettings = {
+  channel: "none"|"onsite"|"email"|"both",
+  batchingFrequency: "realtime"|"daily"|"weekly",
+  timeOfDayGMT: number,
+  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
+};
+
+export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   channel: "onsite",
   batchingFrequency: "realtime",
   timeOfDayGMT: 12,

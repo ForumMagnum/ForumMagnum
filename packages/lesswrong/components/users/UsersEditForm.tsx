@@ -52,7 +52,7 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   const { flash } = useMessages();
   const { history } = useNavigation();
   const client = useApolloClient();
-  const { FormCheckbox, FormDropdown, FormUsersList, FormDate, FormMultilineText, FormTextbox, FormLocation, FormNotificationTypeSettings, FormKarmaChangeNotifierSettings, Typography, TabBar, Loading, ManageSubscriptionsLink, UsersEmailVerification } = Components;
+  const { FormCheckbox, FormDropdown, FormUsersList, FormDate, FormMultilineText, FormTextbox, FormLocation, FormNotificationTypeSettings, FormKarmaChangeNotifierSettings, FormUserPermissionGroupMemberships, Typography, TabBar, Loading, ManageSubscriptionsLink, UsersEmailVerification } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
   //const updateCurrentUser = useUpdateCurrentUser();
 
@@ -61,11 +61,6 @@ const UsersEditForm = ({currentUser, terms, classes}: {
     collectionName: "Users",
     fragmentName: "UsersEdit",
     onChange: async (change: Partial<UsersEdit>) => {
-      // eslint-disable-next-line no-console
-      console.log("User change:", change);
-      //const result = await updateCurrentUser(change); // Handled inside useAutosavingEditForm
-      // eslint-disable-next-line no-console
-      //console.log(result); //TODO: Error handling
       flash("Saved changes.");
     },
   });
@@ -108,21 +103,6 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   }
   
   return <div className={classes.root}>
-    <Typography variant="display2" className={classes.header}>Edit Account</Typography>
-    
-    {/*<Components.WrappedSmartForm
-      collection={Users}
-      {...terms}
-      successCallback={async (user) => {
-        flash(`User "${userGetDisplayName(user)}" edited`);
-        await client.resetStore()
-        history.push(userGetProfileUrl(user));
-      }}
-      queryFragment={getFragment('UsersEdit')}
-      mutationFragment={getFragment('UsersEdit')}
-      showRemove={false}
-    />*/}
-    
     <TabBar
       currentTab={currentTab} setCurrentTab={setCurrentTab}
       tabs={[
@@ -140,8 +120,8 @@ const UsersEditForm = ({currentUser, terms, classes}: {
         <FormTextbox form={form} fieldName="displayName" label="Display Name" />
         <FormTextbox form={form} fieldName="fullName" label="Full Name" />
         <FormTextbox form={form} fieldName="email" label="Email" />
-        <FormMultilineText form={form} fieldName="bio" label="Bio" />
         <FormLocation form={form} fieldName="location" label="Location" />
+        <FormMultilineText form={form} fieldName="bio" label="Bio" />
         
         {/* TODO(EA): Need to add a management API call to get the reset password
             link, but for now users can reset their password from the login
@@ -156,18 +136,22 @@ const UsersEditForm = ({currentUser, terms, classes}: {
         </Button>}
       </div>}
       {currentTab==="customization" && <div>
-        <h2>Customization</h2>
-
+        <h2>General</h2>
+        <FormCheckbox form={form} fieldName="beta" label="Opt into experimental features"/>
+        <FormCheckbox form={form} fieldName="hideElicitPredictions" label="Hide others users' Elicit predictions until I have predicted myself"/>
+        
+        <h2>Sorting</h2>
         <FormDropdown form={form} fieldName="commentSorting" label="Comment Sorting" collectionName="Users" />
         <FormDropdown form={form} fieldName="sortDrafts" label="Sort Drafts by" collectionName="Users" />
         
+        <h2>Hide Elements</h2>
         <FormCheckbox form={form} fieldName="hideTaggingProgressBar" label="Hide the tagging progress bar"/>
         <FormCheckbox form={form} fieldName="hideFrontpageBookAd" label="Hide the frontpage book ad"/>
         <FormCheckbox form={form} fieldName="hideIntercom" label="Hide Intercom"/>
-        <FormCheckbox form={form} fieldName="beta" label="Opt into experimental features"/>
+        
+        <h2>Editor</h2>
         <FormCheckbox form={form} fieldName="markDownPostEditor" label="Activate Markdown editor"/>
         <FormCheckbox form={form} fieldName="reenableDraftJs" label="Use the previous WYSIWYG editor"/>
-        <FormCheckbox form={form} fieldName="hideElicitPredictions" label="Hide others users' Elicit predictions until I have predicted myself"/>
 
         <h2>Comment Truncation Options</h2>
         <FormCheckbox form={form} fieldName="noSingleLineComments" label="Do not collapse comments to Single Line"/>
@@ -223,7 +207,7 @@ const UsersEditForm = ({currentUser, terms, classes}: {
         
         <h3>Permissions</h3>
         <FormCheckbox form={form} fieldName="isAdmin" label="Admin"/>
-        <div>Groups (PLACEHOLDER)</div>
+        <FormUserPermissionGroupMemberships form={form} fieldName="groups"/>
       </div>}
     </Form>
     </TabBar>

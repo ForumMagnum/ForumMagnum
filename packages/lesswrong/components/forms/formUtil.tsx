@@ -3,6 +3,19 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useUpdate } from '../../lib/crud/withUpdate';
 
+export const formCommonStyles = (theme: ThemeType): JssStyles => ({
+  formField: {
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  leftColumn: {
+    minWidth: 140,
+    display: "inline-block",
+  },
+  rightColumn: {
+  },
+});
+
 export interface LWForm<T> {
   loading: boolean,
   currentValue: T|null,

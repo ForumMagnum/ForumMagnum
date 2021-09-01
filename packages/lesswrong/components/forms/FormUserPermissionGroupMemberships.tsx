@@ -6,22 +6,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   ...formCommonStyles(theme),
 });
 
-export function FormUsersList<T, FN extends keyof T>({form, fieldName, label}: {
+export function FormUserPermissionGroupMemberships<T, FN extends keyof T>({form, fieldName}: {
   form: LWForm<T>,
   fieldName: NameOfFieldWithType<T,FN,string[]>,
-  label: string,
 }) {
-  const classes = useStyles(styles, "FormUsersList");
+  const classes = useStyles(styles, "FormUserPermissionGroupMemberships");
   const {value,setValue} = useFormComponentContext<string[],T>(form, fieldName);
   return <div className={classes.formField}>
-    {label}
     { /*TODO*/ }
-  </div>
+   </div>
 }
 
-registerComponent('FormUsersList', FormUsersList, {styles});
+registerComponent('FormUserPermissionGroupMemberships', FormUserPermissionGroupMemberships, {styles});
 declare global {
   interface ComponentTypes {
-    FormUsersList: typeof FormUsersList
+    FormUserPermissionGroupMemberships: typeof FormUserPermissionGroupMemberships
   }
 }
+

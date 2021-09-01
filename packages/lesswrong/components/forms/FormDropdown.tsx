@@ -1,9 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import { useFormComponentContext, LWForm } from './formUtil';
+import { Components, registerComponent, useStyles } from '../../lib/vulcan-lib/components';
+import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
 import { getCollection } from '../../lib/vulcan-lib/collections';
 import { getSchema } from '../../lib/utils/getSchema';
 import MenuItem from '@material-ui/core/MenuItem';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  ...formCommonStyles(theme),
+});
 
 export function FormDropdown<T, FN extends keyof T>({form, fieldName, label, collectionName}: {
   form: LWForm<T>,
@@ -11,6 +15,7 @@ export function FormDropdown<T, FN extends keyof T>({form, fieldName, label, col
   label: string,
   collectionName: CollectionNameString,
 }) {
+  const classes = useStyles(styles, "FormDropdown");
   const {value,setValue} = useFormComponentContext<string,T>(form, fieldName);
   
   // TODO: Move this off the schema
@@ -19,19 +24,25 @@ export function FormDropdown<T, FN extends keyof T>({form, fieldName, label, col
   const options: {value:string, label:string}[] = schemaField?.form?.options?.();
   if (!options) throw new Error(`No options provided for dropdown field: ${collectionName}.${fieldName}`);
   
-  return <Components.MuiTextField select
-    value={value}
-    defaultValue={value}
-    onChange={setValue}
-    label={label}
-  >
-    {options.map(({value,label: optionLabel}) => <MenuItem key={value} value={value}>
-      {optionLabel}
-    </MenuItem>)}
-  </Components.MuiTextField>
+  return <div className={classes.formField}>
+    <span className={classes.leftColumn}>
+      {label}
+    </span>
+    <span className={classes.rightColumn}>
+      <Components.MuiTextField select
+        value={value}
+        defaultValue={value}
+        onChange={setValue}
+      >
+        {options.map(({value,label: optionLabel}) => <MenuItem key={value} value={value}>
+          {optionLabel}
+        </MenuItem>)}
+      </Components.MuiTextField>
+    </span>
+  </div>
 }
 
-registerComponent('FormDropdown', FormDropdown);
+registerComponent('FormDropdown', FormDropdown, {styles});
 declare global {
   interface ComponentTypes {
     FormDropdown: typeof FormDropdown

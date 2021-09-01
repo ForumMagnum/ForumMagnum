@@ -500,6 +500,7 @@ importComponent("FormTextbox", () => require('../components/forms/FormTextbox'))
 importComponent("FormNotificationTypeSettings", () => require('../components/forms/FormNotificationTypeSettings'));
 importComponent("FormMultilineText", () => require('../components/forms/FormMultilineText'));
 importComponent("FormUsersList", () => require('../components/forms/FormUsersList'));
+importComponent("FormUserPermissionGroupMemberships", () => require('../components/forms/FormUserPermissionGroupMemberships'));
 importComponent("FormKarmaChangeNotifierSettings", () => require('../components/forms/FormKarmaChangeNotifierSettings'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));

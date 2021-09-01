@@ -1,19 +1,25 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useFormComponentContext, LWForm } from './formUtil';
+import { registerComponent, useStyles } from '../../lib/vulcan-lib/components';
+import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
+import type { KarmaChangeSettingsType } from '../../lib/collections/users/custom_fields';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  ...formCommonStyles(theme),
+});
 
 export function FormKarmaChangeNotifierSettings<T, FN extends keyof T>({form, fieldName}: {
   form: LWForm<T>,
-  fieldName: NameOfFieldWithType<T,FN,string>,
+  fieldName: NameOfFieldWithType<T,FN,KarmaChangeSettingsType>,
 }) {
-  const {value,setValue} = useFormComponentContext<boolean,T>(form, fieldName);
-  return <div>
+  const classes = useStyles(styles, "FormKarmaChangeNotifierSettings");
+  const {value,setValue} = useFormComponentContext<KarmaChangeSettingsType,T>(form, fieldName);
+  return <div className={classes.formField}>
     Karma change notifier settings
     { /*TODO*/ }
-   </div>
+  </div>
 }
 
-registerComponent('FormKarmaChangeNotifierSettings', FormKarmaChangeNotifierSettings);
+registerComponent('FormKarmaChangeNotifierSettings', FormKarmaChangeNotifierSettings, {styles});
 declare global {
   interface ComponentTypes {
     FormKarmaChangeNotifierSettings: typeof FormKarmaChangeNotifierSettings

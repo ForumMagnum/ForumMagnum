@@ -1,20 +1,34 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useFormComponentContext, LWForm } from './formUtil';
+import { registerComponent, useStyles } from '../../lib/vulcan-lib/components';
+import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
+import Input from '@material-ui/core/Input';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  ...formCommonStyles(theme),
+});
 
 export function FormTextbox<T, FN extends keyof T>({form, fieldName, label}: {
   form: LWForm<T>,
   fieldName: NameOfFieldWithType<T,FN,string>,
   label: string,
 }) {
-  const {value,setValue} = useFormComponentContext<boolean,T>(form, fieldName);
-  return <div>
-    {label}
-    { /*TODO*/ }
-   </div>
+  const classes = useStyles(styles, "FormTextbox");
+  const {value,setValue} = useFormComponentContext<string,T>(form, fieldName);
+  
+  return <div className={classes.formField}>
+    <span className={classes.leftColumn}>
+      {label}
+    </span>
+    <span className={classes.rightColumn}>
+      <Input
+        value={value||""}
+        onChange={(ev) => setValue(ev.target.value)}
+      />
+    </span>
+  </div>
 }
 
-registerComponent('FormTextbox', FormTextbox);
+registerComponent('FormTextbox', FormTextbox, {styles});
 declare global {
   interface ComponentTypes {
     FormTextbox: typeof FormTextbox

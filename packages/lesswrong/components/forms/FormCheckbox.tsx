@@ -1,13 +1,17 @@
 import React from 'react';
 import { registerComponent, useStyles } from '../../lib/vulcan-lib/components';
-import { useFormComponentContext, LWForm } from './formUtil';
+import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
 import Checkbox from '@material-ui/core/Checkbox';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  ...formCommonStyles(theme),
   label: {
   },
   checkbox: {
-    padding: 8,
+    paddingRight: 8,
+    paddingLeft: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
 });
 
@@ -18,7 +22,7 @@ export function FormCheckbox<T, FN extends keyof T>({form, fieldName, label}: {
 }) {
   const classes = useStyles(styles, "FormCheckbox");
   const {value,setValue} = useFormComponentContext<boolean,T>(form, fieldName);
-  return <div>
+  return <div className={classes.formField}>
     <Checkbox className={classes.checkbox} checked={value} onChange={(event) => {
       setValue(event.target.checked);
     }}/>
