@@ -84,6 +84,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
+    // justifyContent: "space-between"
   }
 })
 
@@ -140,7 +141,7 @@ const PostsNewForm = ({classes}: {
             eventForm={eventForm}
             repeatErrors
             formComponents={{
-              FormSubmit: NewPostsSubmit,
+              FormSubmit: NewPostsSubmit
             }}
           />
         </NoSsr>
