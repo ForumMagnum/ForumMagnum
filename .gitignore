@@ -75,3 +75,5 @@ globalConfig.json
 !.elasticbeanstalk/*.global.yml
 
 cypress/db/*
+cypress/screenshots/*
+cypress/videos/*
