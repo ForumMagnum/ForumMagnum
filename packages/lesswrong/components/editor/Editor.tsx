@@ -140,9 +140,7 @@ const nonAdminEditors = ['ckEditorMarkup', 'markdown', 'draftJS']
 const adminEditors = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
 interface ExternalProps {
-  form: any,
   formType: any,
-  formProps: any,
   document: any,
   name: any,
   fieldName: any,
@@ -153,6 +151,11 @@ interface ExternalProps {
   commentStyles: boolean,
   addToSubmitForm: any,
   addToSuccessForm: any,
+  commentEditor: boolean,
+  collectionName: CollectionNameString,
+  hideControls: boolean,
+  editorHintText: string,
+  maxHeight: boolean|null,
 }
 
 interface EditorProps extends ExternalProps, WithUserProps, WithStylesProps {
@@ -201,7 +204,7 @@ class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   async componentDidMount() {
-    const { form, addToSubmitForm, addToSuccessForm } = this.props
+    const { addToSubmitForm, addToSuccessForm, commentEditor } = this.props
 
     addToSubmitForm(this.submitData);
 
@@ -221,7 +224,7 @@ class Editor extends Component<EditorProps,EditorComponentState> {
       window.addEventListener("beforeunload", this.unloadEventListener );
     }
 
-    let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
+    let EditorModule = await (commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
     const Editor = EditorModule.default
     this.ckEditor = Editor
     this.setState({ckEditorLoaded: true})
@@ -332,8 +335,7 @@ class Editor extends Component<EditorProps,EditorComponentState> {
 
 
   getStorageHandlers = () => {
-    const { fieldName, form } = this.props
-    const collectionName = form.collectionName;
+    const { fieldName, collectionName } = this.props
     
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
     return getLSHandlers(getLocalStorageId)
@@ -581,8 +583,8 @@ class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderUpdateTypeSelect = () => {
-    const { currentUser, formType, classes, form } = this.props
-    if (form.hideControls) return null
+    const { currentUser, formType, classes, hideControls } = this.props
+    if (hideControls) return null
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
       value={this.state.updateType}
@@ -597,15 +599,14 @@ class Editor extends Component<EditorProps,EditorComponentState> {
   }
   
   renderCommitMessageInput = () => {
-    const { currentUser, formType, fieldName, form, classes } = this.props
+    const { currentUser, formType, fieldName, collectionName, hideControls, classes } = this.props
     
-    const collectionName = form.collectionName;
     if (!currentUser || (!userCanCreateCommitMessages(currentUser) && collectionName !== "Tags") || formType !== "edit") { return null }
     
     
     const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
     if (!fieldHasCommitMessages) return null;
-    if (form.hideControls) return null
+    if (hideControls) return null
     
     return <div className={classes.changeDescriptionRow}>
       <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
@@ -620,10 +621,10 @@ class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderEditorTypeSelect = () => {
-    const { currentUser, classes, form } = this.props
+    const { currentUser, classes, hideControls } = this.props
     const { LWTooltip } = Components
 
-    if (form.hideControls) return null
+    if (hideControls) return null
     if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
@@ -665,11 +666,11 @@ class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderPlaceholder = (showPlaceholder, collaboration) => {
-    const { classes, formProps, hintText, placeholder, label  } = this.props
+    const { classes, hintText, placeholder, label, editorHintText } = this.props
 
     if (showPlaceholder) {
       return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
-        { formProps?.editorHintText || hintText || placeholder || label }
+        { editorHintText || hintText || placeholder || label }
       </div>
     }
   }
@@ -727,7 +728,7 @@ class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue, markdownImgErrs } = this.state
-    const { classes, document, form: { commentStyles }, label } = this.props
+    const { classes, document, commentStyles, label } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
         { this.renderPlaceholder(!value, false) }
@@ -756,7 +757,7 @@ class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderDraftJSEditor = () => {
     const { draftJSValue } = this.state
-    const { document, form, classes } = this.props
+    const { document, commentEditor, classes } = this.props
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
 
     return <div>
@@ -764,19 +765,19 @@ class Editor extends Component<EditorProps,EditorComponentState> {
         {draftJSValue && <EditorForm
           editorState={draftJSValue}
           onChange={this.setDraftJS}
-          commentEditor={form?.commentEditor}
+          commentEditor={commentEditor}
           className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
         />}
       </div>
   }
 
   getMaxHeightClass = () => {
-    const { classes, formProps } = this.props
-    return formProps?.maxHeight ? classes.maxHeight : null
+    const { classes, maxHeight } = this.props
+    return maxHeight ? classes.maxHeight : null
   }
 
   getHeightClass = () => {
-    const { document, classes, form: { commentStyles } } = this.props
+    const { document, classes, commentStyles } = this.props
     if (commentStyles) {
       return classes.commentEditorHeight
     } else if (document.question) {

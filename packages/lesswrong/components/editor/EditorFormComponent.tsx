@@ -15,10 +15,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   label: string,
   commentStyles: boolean,
 }, context: any) => {
+  const { commentEditor, collectionName, hideControls } = (form || {});
+  const { editorHintText, maxHeight } = (formProps || {});
+  
   return <Components.Editor
-    form={form}
     formType={formType}
-    formProps={formProps}
     document={document}
     name={name}
     fieldName={fieldName}
@@ -29,6 +30,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     commentStyles={commentStyles}
     addToSubmitForm={context.addToSubmitForm}
     addToSuccessForm={context.addToSuccessForm}
+    commentEditor={commentEditor}
+    collectionName={collectionName}
+    hideControls={hideControls}
+    editorHintText={editorHintText}
+    maxHeight={maxHeight}
   />
 }
 
