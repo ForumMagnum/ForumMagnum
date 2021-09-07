@@ -11212,7 +11212,7 @@ react-instantsearch@^6.1.0:
     react-instantsearch-dom "^6.8.2"
     react-instantsearch-native "^6.8.2"
 
-react-intercom@^1.0.15:
+react-intercom@^1.0.13:
   version "1.0.15"
   resolved "https://registry.yarnpkg.com/react-intercom/-/react-intercom-1.0.15.tgz#29180aca961a319eaab88a66126e484e1abd428b"
   integrity sha512-e4NhmearKjdxmu6EjiA0d29FqEXJUvWtyxo4ioipNsKBD7gZgvtyJMty9UhNRSf9RoPqtSX2Fw4ooy6Ld86ddw==

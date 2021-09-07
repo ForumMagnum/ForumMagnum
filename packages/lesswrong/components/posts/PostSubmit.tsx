@@ -86,7 +86,7 @@ const PostSubmit = ({
                 className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
                 onClick={() => {
                   updateCurrentValues({draft: true});
-                  // eslint-disable-next-line new-cap
+                  // eslint-disable-next-line
                   (window as any).Intercom(
                     'trackEvent', 
                     'requested-feedback', 
