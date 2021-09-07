@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpage: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 300,
+    maxWidth: 200,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: "none",

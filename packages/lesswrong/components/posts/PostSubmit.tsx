@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -25,6 +26,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: "rgba(0,0,0,0.4)",
   },
 
+  submitButtons: {
+    marginLeft: 'auto'
+  },
+  
   submitButton: {
     color: theme.palette.secondary.main,
   },
@@ -35,23 +40,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   draft: {
-    marginLeft: 'auto'
+  },
+  feedback: {
+    
   }
 });
+
 
 interface PostSubmitProps {
   submitLabel?: string,
   cancelLabel?: string,
   saveDraftLabel?: string,
+  feedbackLabel?: string,
   cancelCallback: any,
   document: PostsPage,
   collectionName: string,
   classes: ClassesType
 }
 
+
 const PostSubmit = ({
-  submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", cancelCallback, document, collectionName, classes
+  submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", feedbackLabel = "Request Feedback", cancelCallback, document, collectionName, classes
 }: PostSubmitProps, { updateCurrentValues }) => {
+  
+  const currentUser = useCurrentUser();
+  if (!currentUser) throw Error("must be logged in to post")
+  
   return (
     <React.Fragment>
       {!!cancelCallback &&
@@ -67,22 +81,36 @@ const PostSubmit = ({
           </Button>
         </div>
       }
-
-      <Button type="submit"
-        className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-        onClick={() => updateCurrentValues({draft: true})}
-      >
-        {saveDraftLabel}
-      </Button>
-      
-      <Button
-        type="submit"
-        onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
-        className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-        variant={collectionName=="users" ? "outlined" : undefined}
-      >
-        {submitLabel}
-      </Button>
+      <div className={classes.submitButtons}>
+        {currentUser.karma >= 100 && document.draft!==false && <Button //treat as draft when draft is null
+                className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
+                onClick={() => {
+                  updateCurrentValues({draft: true});
+                  // eslint-disable-next-line
+                  (window as any).Intercom(
+                    'trackEvent', 
+                    'requested-feedback', 
+                    {title: document.title, _id: document._id, url: "https://www.lesswrong.com/" + document._id}
+                  )
+                }}
+        >
+          {feedbackLabel}
+        </Button>}
+        <Button type="submit"
+          className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
+          onClick={() => updateCurrentValues({draft: true})}
+        >
+          {saveDraftLabel}
+        </Button>
+        <Button
+          type="submit"
+          onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
+          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+          variant={collectionName=="users" ? "outlined" : undefined}
+        >
+          {submitLabel}
+        </Button>
+      </div>
     </React.Fragment>
   );
 }

@@ -40,7 +40,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   const QuestionSubmit = (props) => {
     return <div className={classes.formSubmit}>
       <SubmitToFrontpageCheckbox {...props}/>
-      <PostSubmit {...props} />
+      <PostSubmit feedbackLabel={"Get Feedback"} {...props} />
     </div>
   }
   const af = forumTypeSetting.get() === 'AlignmentForum'
