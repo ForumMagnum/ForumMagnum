@@ -84,7 +84,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const [hide, setHide] = useState(false);
   const [subscribeChecked, setSubscribeChecked] = useState(true);
   const [subscriptionConfirmed, setSubscriptionConfirmed] = useState(false);
-  const emailAddressInput = useRef(null);
+  const emailAddressInput = useRef<HTMLInputElement|null>(null);
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
   const {WrappedLoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
@@ -154,7 +154,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
-    if (!userEmailAddressIsVerified(currentUser)) {
+    if (forumTypeSetting.get() !== 'EAForum' && !userEmailAddressIsVerified(currentUser)) {
       userSubscriptionData.whenConfirmationEmailSent = new Date();
     }
 
@@ -220,21 +220,24 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
 
       <div className={classes.buttons}>
         <Button className={classes.subscribeButton} onClick={async (ev) => {
-          if (SimpleSchema.RegEx.Email.test(emailAddressInput.current)) {
+          const emailAddress = emailAddressInput.current;
+          if (emailAddress && SimpleSchema.RegEx.Email.test(emailAddress?.value)) {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type
-              const userSubscriptionData = forumTypeSetting.get() === 'EAForum' ?
+              const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = forumTypeSetting.get() === 'EAForum' ?
                 {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
-              userSubscriptionData.email = emailAddressInput.current;
+              userSubscriptionData.email = emailAddress?.value;
               userSubscriptionData.unsubscribeFromAll = false;
-
               await updateCurrentUser(userSubscriptionData);
-              // Confirmation-email mutation is separate from the send-verification-email
-              // mutation because otherwise it goes to the old email address (aka null)
-              await updateCurrentUser({
-                whenConfirmationEmailSent: new Date(),
-              });
+
+              if (forumTypeSetting.get() !== 'EAForum') {
+                // Confirmation-email mutation is separate from the send-verification-email
+                // mutation because otherwise it goes to the old email address (aka null)
+                await updateCurrentUser({
+                  whenConfirmationEmailSent: new Date(),
+                });
+              }
               setSubscriptionConfirmed(true);
             } catch(e) {
               if (getGraphQLErrorID(e) === "users.email_already_taken") {
