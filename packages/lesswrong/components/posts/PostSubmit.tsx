@@ -69,23 +69,24 @@ const PostSubmit = ({
   return (
     <React.Fragment>
       {!!cancelCallback &&
-      <div className={classes.cancelButton}>
-        <Button
-          className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
-          onClick={(e) => {
-            e.preventDefault();
-            cancelCallback(document)
-          }}
-        >
-          {cancelLabel}
-        </Button>
-      </div>
+        <div className={classes.cancelButton}>
+          <Button
+            className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+            onClick={(e) => {
+              e.preventDefault();
+              cancelCallback(document)
+            }}
+          >
+            {cancelLabel}
+          </Button>
+        </div>
       }
       <div className={classes.submitButtons}>
-        {currentUser.karma >= 100 && document.draft!=false && <Button //treat as draft when draft is null
+        {currentUser.karma >= 100 && document.draft!==false && <Button //treat as draft when draft is null
                 className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
                 onClick={() => {
-                  updateCurrentValues({draft: document.draft || true});
+                  updateCurrentValues({draft: true});
+                  // eslint-disable-next-line new-cap
                   (window as any).Intercom(
                     'trackEvent', 
                     'requested-feedback', 
