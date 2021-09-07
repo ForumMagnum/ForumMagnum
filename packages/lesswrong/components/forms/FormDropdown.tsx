@@ -31,7 +31,6 @@ export function FormDropdown<T, FN extends keyof T>({form, fieldName, label, col
     <span className={classes.rightColumn}>
       <Components.MuiTextField select
         value={value}
-        defaultValue={value}
         onChange={setValue}
       >
         {options.map(({value,label: optionLabel}) => <MenuItem key={value} value={value}>

@@ -167,12 +167,13 @@ const UsersEditForm = ({currentUser, terms, classes}: {
         
         <FormKarmaChangeNotifierSettings fieldName="karmaChangeNotifierSettings" form={form} />
         
-        <h2>Notifications</h2>
+        <h2>Subscriptions</h2>
         <ManageSubscriptionsLink/>
         <FormCheckbox form={form} fieldName="auto_subscribe_to_my_posts" label="Auto-subscribe to comments on my posts"/>
         <FormCheckbox form={form} fieldName="auto_subscribe_to_my_comments" label="Auto-subscribe to replies to my comments"/>
         <FormCheckbox form={form} fieldName="autoSubscribeAsOrganizer" label="Auto-subscribe to posts and meetups in groups I organize"/>
 
+        <h2>Notification Types</h2>
         <FormNotificationTypeSettings form={form} fieldName="notificationCommentsOnSubscribedPost" label="Comments on posts I'm subscribed to" />
         <FormNotificationTypeSettings form={form} fieldName="notificationShortformContent" label="Shortform by users I'm subscribed to" />
         <FormNotificationTypeSettings form={form} fieldName="notificationRepliesToMyComments" label="Replies to my comments" />
