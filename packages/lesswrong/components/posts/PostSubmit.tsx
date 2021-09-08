@@ -4,6 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -64,6 +65,7 @@ const PostSubmit = ({
 }: PostSubmitProps, { updateCurrentValues }) => {
   
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
   
   return (
@@ -85,6 +87,7 @@ const PostSubmit = ({
         {currentUser.karma >= 100 && document.draft!==false && <Button //treat as draft when draft is null
                 className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
                 onClick={() => {
+                  captureEvent("feedbackRequestButtonClicked")
                   updateCurrentValues({draft: true});
                   // eslint-disable-next-line
                   (window as any).Intercom(
