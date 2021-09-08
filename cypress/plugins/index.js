@@ -15,11 +15,12 @@ function hashLoginToken(loginToken) {
 };
 
 /**
- * Loads bson data output by mongodump into an array. Uses metadata to determine the number of documents to load.
+ * Loads bson data for a list of documents (e.g. output by mongodump) into an array. 
+ * Uses metadata file to determine the number of documents to load.
  * 
- * @param {String} dataPath path to the bson data.
- * @param {String} metadataPath path to the corresponding metadata.json file.
- * @returns 
+ * @param dataPath path to the bson data.
+ * @param metadataPath path to the corresponding metadata.json file.
+ * @returns an array of objects
  */
 function loadBsonAsArray(dataPath, metadataPath) {
   const data = [];
@@ -44,15 +45,17 @@ module.exports = (on, config) => {
       });
       return null;
     },
-    async seedPosts() {
-      const seedPosts = loadBsonAsArray('./cypress/fixtures/posts.bson', './cypress/fixtures/posts.metadata.json');
+    async seedDatabase() {
+      const posts = loadBsonAsArray('./cypress/fixtures/posts/posts.bson', './cypress/fixtures/posts/posts.metadata.json');
+      const comments = loadBsonAsArray('./cypress/fixtures/comments/comments.bson', './cypress/fixtures/comments/comments.metadata.json');
       MongoClient.connect("mongodb://localhost:27017", async function(err, client) {
         if(err) {
           console.error(err);
           return;
         }
         const db = await client.db();
-        await db.collection('posts').insertMany(seedPosts);
+        await db.collection('posts').insertMany(posts);
+        await db.collection('comments').insertMany(comments);
       });
       return null;
     },
