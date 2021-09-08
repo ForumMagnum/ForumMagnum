@@ -1,33 +1,19 @@
 /// <reference types="cypress" />
 
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
 const fs = require('fs');
-const Bson = require('bson');
 
 const testAdmin = require('../fixtures/testAdmin.json');
 const testUser = require('../fixtures/testUser.json');
+const seedPosts = require('../fixtures/posts/index.js');
+const seedComments = require('../fixtures/comments/index.js');
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
   hash.update(loginToken);
   return hash.digest('base64');
 };
-
-/**
- * Loads bson data for a list of documents (e.g. output by mongodump) into an array. 
- * Uses metadata file to determine the number of documents to load.
- * 
- * @param dataPath path to the bson data.
- * @param metadataPath path to the corresponding metadata.json file.
- * @returns an array of objects
- */
-function loadBsonAsArray(dataPath, metadataPath) {
-  const data = [];
-  const documentCount = JSON.parse(fs.readFileSync(metadataPath, 'utf-8')).indexes[0].v;
-  (new Bson()).deserializeStream(fs.readFileSync(dataPath), 0, documentCount, data, 0);
-  return data;
-}
 
 /**
  * @type {Cypress.PluginConfig}
@@ -46,8 +32,20 @@ module.exports = (on, config) => {
       return null;
     },
     async seedDatabase() {
-      const posts = loadBsonAsArray('./cypress/fixtures/posts/posts.bson', './cypress/fixtures/posts/posts.metadata.json');
-      const comments = loadBsonAsArray('./cypress/fixtures/comments/comments.bson', './cypress/fixtures/comments/comments.metadata.json');
+      const now = new Date();
+      const posts = seedPosts
+        .map(post => ({...post, 
+          createdAt: now,
+          postedAt: now,
+          modifiedAt: now,
+          frontpageDate: now,
+        }));
+      const comments = seedComments
+        .map(post => ({...post, 
+          createdAt: now,
+          postedAt: now,
+          lastSubthreadActivity: now,
+        }));
       MongoClient.connect("mongodb://localhost:27017", async function(err, client) {
         if(err) {
           console.error(err);
