@@ -45,7 +45,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "flex-start",
     fontSize: 18,
     lineHeight: 1.75,
-    // marginBottom: 18,
   },
   mailIcon: {
     marginTop: 4,
@@ -62,7 +61,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   subscribeButton: {
     margin: "18px auto 0",
     display: "block",
-    // background: "#d2e8d2",
     background: theme.palette.primary.main,
     color: "white"
   },
@@ -100,7 +98,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   </div>: null
 
   useEffect(() => {
-    if (adminBranch == -1 && currentUser?.isAdmin) {
+    if (adminBranch === -1 && currentUser?.isAdmin) {
       setAdminBranch(randInt(5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
@@ -116,7 +114,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   }
 
   // Placeholder to prevent SSR mismatch, changed on load.
-  if (adminBranch == -1 && currentUser?.isAdmin)
+  if (adminBranch === -1 && currentUser?.isAdmin)
     return <div/>
 
   const maybeLaterButton = <Button
@@ -155,6 +153,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
+    // EA Forum does not care about email verification
     if (forumTypeSetting.get() !== 'EAForum' && !userEmailAddressIsVerified(currentUser)) {
       userSubscriptionData.whenConfirmationEmailSent = new Date();
     }
@@ -210,10 +209,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         <WrappedLoginForm startingState="signup" />
       </div>
       {adminUiMessage}
-      {/*<div className={classes.buttons}>
-        {maybeLaterButton}
-        {dontAskAgainButton}
-      </div>*/}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
     const emailType = forumTypeSetting.get() === 'EAForum' ? 'our weekly digest email' : 'curated posts';
