@@ -16,4 +16,4 @@ jobs:
       run: yarn install
 
     - name: start server
-      run: ls .*
+      run: ls ./*
