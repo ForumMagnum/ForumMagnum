@@ -15,7 +15,5 @@ jobs:
     - name: yarn install
       run: yarn install
 
-    - name: Cypress run
-      uses: cypress-io/github-action@v2
-      with:
-          start: yarn ea-start-cypress-db
+    - name: start server
+      run: yarn ea-start-cypress-db
