@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     backgroundColor: "rgba(253,253,253)",
-
+    
     padding: 16,
     ...theme.typography.body2,
     boxShadow: theme.boxShadow,
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   adminNotice: {
     fontStyle: "italic",
     textAlign: "left",
-    marginTop: 8,
+    marginTop: 22,
     fontSize: 12,
     lineHeight: 1.3,
   },
@@ -45,6 +45,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "flex-start",
     fontSize: 18,
     lineHeight: 1.75,
+  },
+  messageDescription: {
+    fontSize: 12,
+    marginTop: 8
   },
   mailIcon: {
     marginTop: 4,
@@ -62,7 +66,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: "18px auto 0",
     display: "block",
     background: theme.palette.primary.main,
-    color: "white"
+    color: "white",
+    fontSize: 15
   },
   buttons: {
     marginTop: 16,
@@ -87,8 +92,9 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
   const {WrappedLoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
+  const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
-
+  
   // Show admins a random version of the widget. Makes sure we notice if it's intrusive/bad.
   const [adminBranch, setAdminBranch] = useState(-1);
   const adminUiMessage = currentUser?.isAdmin ? <div className={classes.adminNotice}>
@@ -96,26 +102,27 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     subscribe-reminder even if they're already subscribed, to make sure it still works and isn't
     annoying.
   </div>: null
-
+  
   useEffect(() => {
     if (adminBranch === -1 && currentUser?.isAdmin) {
       setAdminBranch(randInt(5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
 
-  // adjust functionality based on forum type
-  let forumType = 'LessWrong';
-  let subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
-  let currentUserSubscribed = currentUser?.emailSubscribedToCurated;
-  if (forumTypeSetting.get() === 'EAForum') {
-    forumType = 'the EA Forum';
-    subscriptionDescription = '';
-    currentUserSubscribed = currentUser?.subscribedToDigest;
+  // disable on AlignmentForum
+  if (forumTypeSetting.get() === 'AlignmentForum') {
+    return null;
   }
 
   // Placeholder to prevent SSR mismatch, changed on load.
   if (adminBranch === -1 && currentUser?.isAdmin)
     return <div/>
+
+  // adjust functionality based on forum type
+  let currentUserSubscribed = currentUser?.emailSubscribedToCurated;
+  if (forumTypeSetting.get() === 'EAForum') {
+    currentUserSubscribed = currentUser?.subscribedToDigest;
+  }
 
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
@@ -126,7 +133,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   >
     Maybe Later
   </Button>
-
+  
   const dontAskAgainButton = <span>
     {currentUser && <Button
       className={classes.dontAskAgainButton}
@@ -139,11 +146,11 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       Don't Ask Again
     </Button>}
   </span>
-
+  
   if (hide || currentUser?.hideSubscribePoke) {
     return null;
   }
-
+  
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
 
@@ -167,7 +174,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
 
     setLoading(false);
   }
-
+  
   const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
     return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
       <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
@@ -177,16 +184,36 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       </AnalyticsInViewTracker>
     </AnalyticsContext>
   }
-
+  
+  // the EA Forum uses this prompt in most cases
+  const eaForumSubscribePrompt = (
+    <>
+      <div className={classes.message}>
+        <MailOutline className={classes.mailIcon} />
+        Sign up for the Forum's email digest
+      </div>
+      <div className={classes.messageDescription}>
+        Want a weekly email containing the best posts from the past week?
+        Our moderator Aaron sends out a weekly digest of recent posts that
+        have a lot of karma/discussion or seemed really good to him, as well
+        as question posts that could use more answers.
+      </div>
+    </>
+  );
+  
   if (loading) {
     return <div className={classes.root}>
       <Loading/>
     </div>
   } else if (subscriptionConfirmed) {
+    // Show the confirmation after the user subscribes
+    const confirmText = forumTypeSetting.get() === 'EAForum' ?
+      "You're subscribed to the EA Forum Digest!" :
+      "You are subscribed to the best posts of LessWrong!"
     return <AnalyticsWrapper branch="already-subscribed">
       <div className={classes.message}>
         <CheckRounded className={classes.checkIcon} />
-        You are subscribed to the best posts of {forumType}!
+        {confirmText}
       </div>
     </AnalyticsWrapper>
   } else if (verificationEmailSent) {
@@ -200,11 +227,13 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     </AnalyticsWrapper>
   } else if (!currentUser || adminBranch===0) {
     // Not logged in. Show a create-account form and a brief pitch.
-    return <AnalyticsWrapper branch="logged-out">
+    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
       <div className={classes.message}>
-        <MailOutline className={classes.mailIcon} />
         To get the best posts emailed to you, create an account! {subscriptionDescription}
       </div>
+    );
+    return <AnalyticsWrapper branch="logged-out">
+      {subscribeTextNode}
       <div className={classes.loginForm}>
         <WrappedLoginForm startingState="signup" />
       </div>
@@ -219,10 +248,10 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <div className={classes.message}>
         Your account does not have an email address associated. Add an email address to subscribe to {emailType} and enable notifications.
       </div>
-
+      
       <Input placeholder="Email address" inputRef={emailAddressInput} className={classes.emailInput} />
       <SignupSubscribeToCurated defaultValue={true} onChange={(checked: boolean) => setSubscribeChecked(true)}/>
-
+      
       <div className={classes.buttons}>
         <Button className={classes.subscribeButton} onClick={async (ev) => {
           const emailAddress = emailAddressInput.current;
@@ -269,11 +298,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // on re-subscribing. A big Subscribe button, which clears the
     // unsubscribe-from-all option, activates curation emails (if not already
     // activated), and sends a confirmation email (if needed).
-    return <AnalyticsWrapper branch="previously-unsubscribed">
+    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
       <div className={classes.message}>
-        <MailOutline className={classes.mailIcon} />
-        You previously unsubscribed from all emails from {forumType}. Re-subscribe to get the best posts emailed to you! {subscriptionDescription}
+        You previously unsubscribed from all emails from LessWrong.
+        Re-subscribe to get the best posts emailed to you! {subscriptionDescription}
       </div>
+    );
+    return <AnalyticsWrapper branch="previously-unsubscribed">
+      {subscribeTextNode}
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
         captureEvent("subscribeReminderButtonClicked", {buttonType: "subscribeButton"});
@@ -289,14 +321,13 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // account, but is not subscribed to curated posts. A Subscribe button which
     // sets the subscribe-to-curated option, and (if their email address isn't
     // verified) resends the verification email.
-    const subscribeText = forumTypeSetting.get() === 'EAForum' ?
-      'Subscribe to our weekly EA Forum Digest email!' :
-      `Subscribe to get the best of LessWrong emailed to you. ${subscriptionDescription}`;
-    return <AnalyticsWrapper branch="logged-in-not-subscribed">
+    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
       <div className={classes.message}>
-        <MailOutline className={classes.mailIcon} />
-        {subscribeText}
+        Subscribe to get the best of LessWrong emailed to you. {subscriptionDescription}
       </div>
+    );
+    return <AnalyticsWrapper branch="logged-in-not-subscribed">
+      {subscribeTextNode}
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
         captureEvent("subscribeReminderButtonClicked", {buttonType: "subscribeButton"});
