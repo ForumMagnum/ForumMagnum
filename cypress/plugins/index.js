@@ -4,8 +4,8 @@ const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
 const fs = require('fs');
 
-const testAdmin = require('../fixtures/testAdmin.json');
-const testUser = require('../fixtures/testUser.json');
+const testAdmin = require('../fixtures/users/testAdmin.json');
+const testUser = require('../fixtures/users/testUser.json');
 const seedPosts = require('../fixtures/posts/index.js');
 const seedComments = require('../fixtures/comments/index.js');
 

@@ -4,7 +4,7 @@
 describe('Comments', function() {
   beforeEach(function() {
     cy.task('dropDatabase');
-    cy.fixture('testUser').as('testUser').then(() => {
+    cy.fixture('users/testUser').as('testUser').then(() => {
       cy.loginAs(this.testUser);
     });
     cy.fixture('posts/testPost').as('testPost');
