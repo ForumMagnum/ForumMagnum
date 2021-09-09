@@ -16,4 +16,4 @@ jobs:
       run: yarn install
 
     - name: start server
-      run: yarn ea-start-cypress-db
+      run: yarn run ea-start-cypress-db
