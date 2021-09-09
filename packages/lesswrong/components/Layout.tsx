@@ -311,7 +311,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   <ErrorBoundary>
                     <FlashMessages />
                   </ErrorBoundary>
-                  <ErrorBoundary>                  
+                  <ErrorBoundary>
                     {userIsBanned
                       ? <BannedNotice />
                       : (currentUser?.usernameUnset

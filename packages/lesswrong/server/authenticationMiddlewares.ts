@@ -164,7 +164,6 @@ passport.deserializeUser(deserializeUserPassport)
 
 export const addAuthMiddlewares = (addConnectHandler) => {
   addConnectHandler(passport.initialize())
-  addConnectHandler(passport.session())
   passport.use(cookieAuthStrategy)
   
   addConnectHandler('/', (req, res, next) => {
