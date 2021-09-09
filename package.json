@@ -29,7 +29,7 @@
     "ea-start": "./build.js -run -watch --settings ../ForumCredentials/settings-dev.json --mongoUrlFile ../ForumCredentials/dev-db-conn.txt",
     "ea-start-staging-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --settings ../ForumCredentials/settings-local-dev-staging-db.json",
     "ea-start-prod-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/prod-db-conn.txt --settings ../ForumCredentials/settings-local-dev-prod-db.json",
-    "ea-start-cypress-db": "./scripts/mongoMemoryServer.js & ./build.js -run --watch --mongoUrl mongodb://localhost:27017 --settings ./cypress/instance-settings-test.json",
+    "ea-start-in-memory-db": "./scripts/mongoMemoryServer.js & ./build.js -run --watch --mongoUrl mongodb://localhost:27017 --settings ./cypress/instance-settings-test.json",
     "ea-mongod": "mongod --dbpath .meteor/local/db --port 3001",
     "ea-mongo": "mongo $(< ../ForumCredentials/dev-db-conn.txt)",
     "ea-mongo-staging": "mongo $(< ../ForumCredentials/staging-db-conn.txt)",
