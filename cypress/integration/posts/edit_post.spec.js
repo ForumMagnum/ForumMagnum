@@ -2,12 +2,11 @@
 
 describe('Posts', function() {
   beforeEach(function() {
-    cy.task('dropDatabase');
+    cy.task('dropAndSeedDatabase');
     cy.fixture('users/testUser').as('testUser').then(() => {
       cy.loginAs(this.testUser);
     });
     cy.fixture('posts/testPost').as('testPost');
-    cy.task('seedDatabase');
   });
 
   it('can edit an existing post', function() {
