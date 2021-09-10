@@ -2,7 +2,7 @@
 
 describe('Basic Login and Signup', function() {
   beforeEach(function() {
-    cy.task('dropDatabase');
+    cy.task('dropAndSeedDatabase');
     cy.fixture('users/testUser').as('testUser');
   });
 

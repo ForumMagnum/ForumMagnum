@@ -2,11 +2,10 @@
 
 describe('Comments', function() {
   beforeEach(function() {
-    cy.task('dropDatabase');
-    cy.fixture('users/testUser').as('testUser').then(() => {
+    cy.task('dropAndSeedDatabase');
+    cy.fixture('users/otherTestUser').as('testUser').then(() => {
       cy.loginAs(this.testUser);
     });
-    cy.task('seedDatabase');
   });
 
   it('can add a new comment', function() {
