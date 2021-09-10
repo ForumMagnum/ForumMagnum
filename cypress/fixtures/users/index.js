@@ -1,9 +1,9 @@
-const testUser = require('./testUser.json');
-const otherTestUser = require('./otherTestUser.json');
+const freshTestUser = require('./freshTestUser.json');
+const testUserWithContent = require('./testUserWithContent.json');
 const testAdmin = require('./testAdmin.json');
 
 module.exports = [
-  testUser,
-  otherTestUser,
+  freshTestUser,
+  testUserWithContent,
   testAdmin,
 ];

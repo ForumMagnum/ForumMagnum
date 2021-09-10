@@ -1,9 +1,0 @@
-{
-    "_id": "test-user",
-    "username": "test-user",
-    "slug": "test-user",
-    "displayName": "Test User",
-    "email": "test-user@testingaltrusim.org",
-    "isAdmin": false,
-    "reviewedByUserId": "test-admin"
-}

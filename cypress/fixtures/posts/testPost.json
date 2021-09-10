@@ -17,10 +17,10 @@
         "commitMessage" : "",
         "html" : "Test seeded post body",
         "version" : "1.0.0",
-        "userId" : "test-user",
+        "userId" : "test-user-with-content",
         "wordCount" : 2
     },
-    "userId" : "test-user",
+    "userId" : "test-user-with-content",
     "slug" : "test-seeded-post",
     "deletedDraft" : false,
     "status" : 2,
