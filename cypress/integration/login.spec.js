@@ -3,7 +3,7 @@
 describe('Basic Login and Signup', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
-    cy.fixture('users/testUser').as('testUser');
+    cy.fixture('users/freshTestUser').as('testUser');
   });
 
   it('Can successfully login with token', function() {
