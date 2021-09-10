@@ -37,7 +37,7 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   const [checked, setChecked] = useState(defaultValue);
 
   // this component is not used in the EA Forum signup flow,
-  // but it does appear on the EA Forum via RecentDiscussionSubscribeReminder.jsx
+  // but it does appear on the EA Forum via RecentDiscussionSubscribeReminder.tsx
   const emailType = forumTypeSetting.get() === 'EAForum' ?
     'the EA Forum weekly digest email' : 'Curated posts';
 
