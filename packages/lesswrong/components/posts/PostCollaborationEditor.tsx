@@ -30,17 +30,7 @@ const PostCollaborationEditor = ({ classes }: {
 }) => {
   const { SingleColumnSection, Loading } = Components
   const currentUser = useCurrentUser();
-  const editorRef = useRef<any>(null)
   const [editorLoaded, setEditorLoaded] = useState(false)
-  useEffect(() => {
-    const importEditor = async () => {
-      let EditorModule = await import('../async/CKPostEditor')
-      const Editor = EditorModule.default
-      editorRef.current = Editor
-      setEditorLoaded(true)
-    }
-    void importEditor();
-  }, [])
 
   const { query: { postId } } = useLocation();
 
@@ -50,16 +40,15 @@ const PostCollaborationEditor = ({ classes }: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postId,
   });
-  const Editor = editorRef.current
   return <SingleColumnSection>
       <div className={classes.title}>{post?.title}</div>
       <div className={classes.editor}>
-        {editorLoaded ? <Editor 
+        <Components.CKPostEditor 
           documentId={postId}
           formType="edit"
           userId={currentUser?._id}
           collaboration
-        /> : <Loading />}
+        />
       </div>
   </SingleColumnSection>
 };

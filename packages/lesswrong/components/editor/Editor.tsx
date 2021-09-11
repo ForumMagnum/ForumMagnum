@@ -166,7 +166,6 @@ interface EditorProps extends ExternalProps, WithUserProps, WithStylesProps {
 
 interface EditorComponentState {
   editorOverride: any,
-  ckEditorLoaded: any,
   updateType: string,
   commitMessage: string,
   ckEditorReference: any,
@@ -184,7 +183,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   throttledSetCkEditor: any
   debouncedCheckMarkdownImgErrs: any
   unloadEventListener: any
-  ckEditor: any
 
   constructor(props: EditorProps) {
     super(props)
@@ -192,7 +190,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const editorType = this.getCurrentEditorType()
     this.state = {
       editorOverride: null,
-      ckEditorLoaded: null,
       updateType: 'minor',
       commitMessage: "",
       ckEditorReference: null,
@@ -208,8 +205,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   async componentDidMount() {
-    const { commentEditor } = this.props
-
     if (isClient && window) {
       this.unloadEventListener = (ev) => {
         if (this.hasUnsavedData) {
@@ -221,11 +216,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       window.addEventListener("beforeunload", this.unloadEventListener );
     }
 
-    let EditorModule = await (commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
-    const Editor = EditorModule.default
-    this.ckEditor = Editor
-    this.setState({ckEditorLoaded: true})
-    
     if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
@@ -613,11 +603,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderCkEditor = () => {
     const { ckEditorValue, ckEditorReference } = this.state
-    const { documentId, currentUser, formType } = this.props
+    const { documentId, currentUser, commentEditor, formType } = this.props
     const { Loading } = Components
-    const CKEditor = this.ckEditor
+    const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
     const value = ckEditorValue || ckEditorReference?.getData()
-    if (!this.state.ckEditorLoaded || !CKEditor) {
+    if (!CKEditor) {
       return <Loading />
     } else {
       const editorProps = {
@@ -639,7 +629,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
           { this.renderPlaceholder(!value, collaboration)}
           { collaboration ?
-            <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
+            <Components.CKPostEditor key="ck-collaborate" { ...editorProps } collaboration />
             :
             <CKEditor key="ck-default" { ...editorProps } />}
         </div>
