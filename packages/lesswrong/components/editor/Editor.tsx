@@ -150,15 +150,12 @@ interface ExternalProps {
   initialFieldValue: any,
   isCollaborative: boolean,
   value: any,
-  hintText?: string,
   placeholder?: string,
-  label?: string,
   commentStyles?: boolean,
   answerStyles?: boolean,
   questionStyles?: boolean,
   commentEditor?: boolean,
   hideControls?: boolean,
-  editorHintText?: string,
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
   getLocalStorageHandlers: (editorType?: string) => any,
@@ -601,11 +598,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderPlaceholder = (showPlaceholder, collaboration) => {
-    const { classes, hintText, placeholder, label, editorHintText } = this.props
+    const { classes, placeholder } = this.props
 
     if (showPlaceholder) {
       return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
-        { editorHintText || hintText || placeholder || label }
+        { placeholder }
       </div>
     }
   }
@@ -662,7 +659,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue, markdownImgErrs } = this.state
-    const { classes, commentStyles, questionStyles, label } = this.props
+    const { classes, commentStyles, questionStyles } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
         { this.renderPlaceholder(!value, false) }

@@ -78,6 +78,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const initialFieldValue = document[fieldName] || {};
   
   if (!document) return null;
+  
+  const actualPlaceholder = (editorHintText || hintText || placeholder || label);
 
   return <Components.Editor
     ref={editorRef}
@@ -87,15 +89,12 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     initialFieldValue={initialFieldValue}
     isCollaborative={isCollaborative}
     value={value}
-    hintText={hintText}
-    placeholder={placeholder}
-    label={label}
+    placeholder={actualPlaceholder}
     commentStyles={commentStyles}
     answerStyles={document?.answer}
     questionStyles={document?.question}
     commentEditor={commentEditor}
     hideControls={hideControls}
-    editorHintText={editorHintText}
     maxHeight={maxHeight}
     hasCommitMessages={hasCommitMessages}
     getLocalStorageHandlers={getLocalStorageHandlers}
