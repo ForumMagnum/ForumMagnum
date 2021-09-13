@@ -47,6 +47,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }));
 
+const bodyWithInterpolatedDate = (resource: FeaturedResourcesFragment): string => {
+  return resource.body.replace(/\[\s*DATE\s*\]/, resource.expiresAt.toLocaleDateString());
+}
+
 const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
@@ -57,21 +61,26 @@ const FeaturedResourceBanner = ({terms, classes} : {
     fragmentName: 'FeaturedResourcesFragment',
     enableTotal: false,
   });
+  if(loading || !results.length) {
+    return null;
+  }
+  const resource = results[0];
   return <Card className={classes.card}>
     <Button className={classes.closeButton}>
         <CloseIcon className={classes.closeIcon}/>
     </Button>    
     <Typography variant="title" className={classes.title}>
-      Virtual Programs
+      resource.title
     </Typography>
     <Divider className={classes.divider}/>
     <Typography variant="body2" className={classes.body}>
-      Engage intensively with the ideas of effective altruism through 8-week programs of readings, videos, podcasts, exercises, and weekly small-group discussions.
- Applications close on [DATE].
+      {bodyWithInterpolatedDate(resource)}
     </Typography>
-    <Button color="primary" className={classes.ctaButton}>
-      Apply now
-    </Button>
+    <a href={resource.ctaUrl}>
+      <Button color="primary" className={classes.ctaButton}>
+        {resource.ctaText}
+      </Button>
+    </a>
   </Card>
 }
 
