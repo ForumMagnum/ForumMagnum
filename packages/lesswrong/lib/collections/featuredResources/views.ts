@@ -12,5 +12,8 @@ FeaturedResources.addView("activeUnexpiredResources", function (terms: FeaturedR
       expiresAt: {$gt: new Date(0)},
       isActive: true,
     },
+    options: {
+      sort: { expiresAt: 1 },
+    }
   }
 });
