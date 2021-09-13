@@ -52,7 +52,7 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   const { flash } = useMessages();
   const { history } = useNavigation();
   const client = useApolloClient();
-  const { FormCheckbox, FormDropdown, FormUsersList, FormDate, FormMultilineText, FormTextbox, FormLocation, FormNotificationTypeSettings, FormKarmaChangeNotifierSettings, FormUserPermissionGroupMemberships, Typography, TabBar, Loading, ManageSubscriptionsLink, UsersEmailVerification } = Components;
+  const { FormCheckbox, FormDropdown, FormEditor, FormUsersList, FormDate, FormMultilineText, FormTextbox, FormLocation, FormNotificationTypeSettings, FormKarmaChangeNotifierSettings, FormUserPermissionGroupMemberships, Typography, TabBar, Loading, ManageSubscriptionsLink, UsersEmailVerification } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
   //const updateCurrentUser = useUpdateCurrentUser();
 
@@ -193,6 +193,8 @@ const UsersEditForm = ({currentUser, terms, classes}: {
         <FormDropdown form={form} fieldName="moderationStyle" label="Style" collectionName="Users"/>
         <FormCheckbox form={form} fieldName="moderatorAssistance" label="I'm happy for LW site moderators to help enforce my policy"/>
         <FormCheckbox form={form} fieldName="collapseModerationGuidelines" label="On my posts, collapse my moderation guidelines by default"/>
+        
+        <FormEditor form={form} fieldName="moderationGuidelines" placeholder="Custom moderation guidelines"/>
         
         <FormUsersList form={form} fieldName="bannedUserIds" label="Users banned from all my posts"/>
         <FormUsersList form={form} fieldName="bannedPersonalUserIds" label="Users banned from my Personal Blog posts"/>

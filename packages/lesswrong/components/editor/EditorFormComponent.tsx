@@ -1,14 +1,14 @@
 import React, { useCallback, useRef, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
-import { getLSHandlers } from '../async/localStorageHandlers'
+import { getLSHandlers, getLSKeyPrefix } from '../async/localStorageHandlers'
 import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, getUserDefaultEditor } from './Editor';
+import { Editor, getUserDefaultEditor, styles } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 
-export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles}: {
+export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
   form: any,
   formType: "edit"|"new",
   formProps: any,
@@ -20,24 +20,13 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   placeholder: string,
   label: string,
   commentStyles: boolean,
+  classes: ClassesType,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   
-  // Get an editor-type-specific prefix to use on localStorage keys, to prevent
-  // drafts written with different editors from having conflicting names.
-  const getLSKeyPrefix = (editorType: string): string => {
-    switch(editorType) {
-      default:
-      case "draftJS":  return "";
-      case "markdown": return "md_";
-      case "html":     return "html_";
-      case "ckEditorMarkup": return "ckeditor_";
-    }
-  }
-
   const getLocalStorageHandlers = useCallback((editorType: string) => {
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
@@ -47,7 +36,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   useEffect(() => {
     if (editorRef.current) {
-      context.addToSubmitForm((submission) => {
+      const cleanupSubmitForm = context.addToSubmitForm((submission) => {
         if (editorRef.current)
           return {
             ...submission,
@@ -56,14 +45,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         else
           return submission;
       });
-      context.addToSuccessForm((result) => {
+      const cleanupSuccessForm = context.addToSuccessForm((result) => {
         if (editorRef.current)
           editorRef.current?.resetEditor();
         return result;
       });
+      return () => {
+        cleanupSubmitForm();
+        cleanupSuccessForm();
+      };
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorRef.current, context.addToSubmitForm, context.addToSuccessForm, fieldName]);
+  }, [!!editorRef.current, fieldName]);
   
   const isCollaborative = userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers && (fieldName === "contents")
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
@@ -83,6 +76,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
 
   return <Components.Editor
     ref={editorRef}
+    _classes={classes}
+    currentUser={currentUser}
     formType={formType}
     documentId={document?._id}
     initialEditorType={initialEditorType}
@@ -102,8 +97,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
 }
 
 export const EditorFormComponentComponent = registerComponent('EditorFormComponent', EditorFormComponent, {
-  hocs: [withErrorBoundary],
-  areEqual: "auto",
+  hocs: [withErrorBoundary], styles
 });
 
 (EditorFormComponent as any).contextTypes = {

@@ -1,5 +1,5 @@
 import React, { Component, MutableRefObject } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
 import withUser from '../common/withUser';
@@ -20,7 +20,7 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     position: 'relative',
   },
@@ -142,8 +142,9 @@ export const getUserDefaultEditor = (user: UsersCurrent|null) => {
   return "ckEditorMarkup"
 }
 
-interface ExternalProps {
+interface EditorProps {
   ref?: MutableRefObject<Editor|null>,
+  currentUser: UsersCurrent|null,
   formType: "edit"|"new",
   documentId?: string,
   initialEditorType: string,
@@ -159,9 +160,7 @@ interface ExternalProps {
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
   getLocalStorageHandlers: (editorType?: string) => any,
-}
-
-interface EditorProps extends ExternalProps, WithUserProps, WithStylesProps {
+  _classes: ClassesType,
 }
 
 interface EditorComponentState {
@@ -473,7 +472,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   
 
   renderEditorWarning = () => {
-    const { currentUser, initialEditorType, classes } = this.props
+    const { currentUser, initialEditorType, _classes: classes } = this.props
     const type = initialEditorType;
     const defaultType = getUserDefaultEditor(currentUser)
     return <div>
@@ -509,7 +508,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderUpdateTypeSelect = () => {
-    const { currentUser, formType, classes, hideControls } = this.props
+    const { currentUser, formType, _classes: classes, hideControls } = this.props
     if (hideControls) return null
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
@@ -525,7 +524,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
   
   renderCommitMessageInput = () => {
-    const { hideControls, hasCommitMessages, classes } = this.props
+    const { hideControls, hasCommitMessages, _classes: classes } = this.props
     
     if (!hasCommitMessages) return null;
     if (hideControls) return null
@@ -543,7 +542,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderEditorTypeSelect = () => {
-    const { currentUser, classes, hideControls } = this.props
+    const { currentUser, _classes: classes, hideControls } = this.props
     const { LWTooltip } = Components
 
     if (hideControls) return null
@@ -568,7 +567,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   getBodyStyles = () => {
-    const { classes, commentStyles, answerStyles } = this.props
+    const { _classes: classes, commentStyles, answerStyles } = this.props
     if (commentStyles && answerStyles) return classes.answerStyles
     if (commentStyles) return classes.commentBodyStyles
     return classes.postBodyStyles
@@ -588,7 +587,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderPlaceholder = (showPlaceholder, collaboration) => {
-    const { classes, placeholder } = this.props
+    const { _classes: classes, placeholder } = this.props
 
     if (showPlaceholder) {
       return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
@@ -649,7 +648,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue, markdownImgErrs } = this.state
-    const { classes, commentStyles, questionStyles } = this.props
+    const { _classes: classes, commentStyles, questionStyles } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
         { this.renderPlaceholder(!value, false) }
@@ -678,7 +677,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderDraftJSEditor = () => {
     const { draftJSValue } = this.state
-    const { questionStyles, commentEditor, classes } = this.props
+    const { questionStyles, commentEditor, _classes: classes } = this.props
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
 
     return <div>
@@ -693,12 +692,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   getMaxHeightClass = () => {
-    const { classes, maxHeight } = this.props
+    const { _classes: classes, maxHeight } = this.props
     return maxHeight ? classes.maxHeight : null
   }
 
   getHeightClass = () => {
-    const { classes, commentStyles, questionStyles } = this.props
+    const { _classes: classes, commentStyles, questionStyles } = this.props
     if (commentStyles) {
       return classes.commentEditorHeight
     } else if (questionStyles) {
@@ -711,7 +710,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   render() {
     const { editorOverride, loading } = this.state
-    const { currentUser, initialEditorType, formType, classes } = this.props
+    const { currentUser, initialEditorType, formType, _classes: classes } = this.props
     const { Loading } = Components
     const currentEditorType = this.getCurrentEditorType()
 
@@ -732,13 +731,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 };
 
-export const EditorComponent = registerComponent<ExternalProps>(
-  'Editor', Editor, {
-    styles, forwardRef: true,
-    hocs: [withUser],
-    areEqual: "auto",
-  }
-);
+// HACK: This component needs to be able have a ref so that the parent component
+// can call its methods, which means it can't have any HoCs. In particular, it
+// can't have 'styles' (since that would add a HoC); instead, it exports its
+// styles, and has classes provided by whatever wraps it.
+export const EditorComponent = registerComponent('Editor', Editor);
 
 declare global {
   interface ComponentTypes {

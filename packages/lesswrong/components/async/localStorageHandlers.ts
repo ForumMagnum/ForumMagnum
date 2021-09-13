@@ -69,3 +69,15 @@ export const getLSHandlers = (getLocalStorageId: any, doc: any, name: string, pr
     }
   }
 }
+
+// Get an editor-type-specific prefix to use on localStorage keys, to prevent
+// drafts written with different editors from having conflicting names.
+export const getLSKeyPrefix = (editorType: string): string => {
+  switch(editorType) {
+    default:
+    case "draftJS":  return "";
+    case "markdown": return "md_";
+    case "html":     return "html_";
+    case "ckEditorMarkup": return "ckeditor_";
+  }
+}

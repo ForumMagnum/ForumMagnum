@@ -18,6 +18,7 @@ export const formCommonStyles = (theme: ThemeType): JssStyles => ({
 
 export interface LWForm<T> {
   loading: boolean,
+  collectionName: CollectionNameString,
   currentValue: T|null,
   updateCurrentValue: (change: Partial<T>)=>void,
 }
@@ -30,15 +31,17 @@ export function Form<T>({form, children}: {form: LWForm<T>, children: React.Reac
   </form>
 }
 
-export function useForm<N extends FragmentName, T=FragmentTypes[N]>({currentValue, updateCurrentValue, fragmentName, loading=false}: {
+export function useForm<N extends FragmentName, T=FragmentTypes[N]>({currentValue, updateCurrentValue, collectionName, fragmentName, loading=false}: {
   currentValue: T|null,
   updateCurrentValue: (newValue: Partial<T>)=>void,
+  collectionName: CollectionNameString,
   fragmentName: N,
   loading?: boolean,
 }): LWForm<T>
 {
   return {
     loading,
+    collectionName,
     currentValue,
     updateCurrentValue,
   };
@@ -47,6 +50,7 @@ export function useForm<N extends FragmentName, T=FragmentTypes[N]>({currentValu
 export function useFormComponentContext<FieldType,FormFragment>(form: LWForm<FormFragment>, fieldName: keyof FormFragment): {
   value: FieldType,
   setValue: (newValue: FieldType)=>void
+  collectionName: CollectionNameString,
 } {
   return {
     value: form.currentValue![fieldName] as unknown as FieldType,
@@ -54,6 +58,7 @@ export function useFormComponentContext<FieldType,FormFragment>(form: LWForm<For
       const change = {[fieldName]: newValue} as unknown as Partial<FormFragment>;
       form.updateCurrentValue(change);
     },
+    collectionName: form.collectionName,
   };
 }
 
@@ -69,7 +74,7 @@ export function useAutosavingEditForm<N extends FragmentName>({documentId, colle
   const [currentValue, setCurrentValue] = useState(document);
   
   return useForm<N>({
-    loading, currentValue, fragmentName,
+    loading, currentValue, collectionName, fragmentName,
     updateCurrentValue: async (change: Partial<T>) => {
        setCurrentValue({...currentValue, ...change});
        await mutate({

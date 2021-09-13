@@ -24,10 +24,6 @@ interface ComponentOptions {
   // with.
   hocs?: Array<any>,
   
-  // If true, this component may take a 'ref' property, which is specially wired
-  // to bypass higher-order components. (See: React.forwardRef).
-  forwardRef?: boolean,
-  
   // Determines what changes to props are considered relevant, for rerendering.
   // Takes either "auto" (meaning a shallow comparison of all props), a function
   // that takes before-and-after props, or an object where keys are names of
@@ -207,40 +203,28 @@ const getComponent = (name: string): any => {
     throw new Error(`Component ${name} not registered.`);
   }
   
-  const wrapWithHoCsAndMemo = (rawComponent) => {
-    const componentWithMemo = componentMeta.options?.areEqual
-      ? memoizeComponent(componentMeta.options.areEqual, rawComponent, name, !!componentMeta.options.debugRerenders)
-      : rawComponent;
-    
-    if (componentMeta.hocs && componentMeta.hocs.length) {
-      const hocs = componentMeta.hocs.map(hoc => {
-        if (!Array.isArray(hoc)) {
-          if (typeof hoc !== 'function') {
-            throw new Error(`In registered component ${name}, an hoc is of type ${typeof hoc}`);
-          }
-          return hoc;
-        }
-        const [actualHoc, ...args] = hoc;
-        if (typeof actualHoc !== 'function') {
-          throw new Error(`In registered component ${name}, an hoc is of type ${typeof actualHoc}`);
-        }
-        return actualHoc(...args);
-      });
-      // @ts-ignore
-      return compose(...hocs)(componentWithMemo);
-    } else {
-      return componentWithMemo;
-    }
-  }
+  const componentWithMemo = componentMeta.options?.areEqual
+    ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, name, !!componentMeta.options.debugRerenders)
+    : componentMeta.rawComponent;
   
-  if (componentMeta.options?.forwardRef) {
-    const RawComponent = componentMeta.rawComponent;
-    return React.forwardRef((props, ref) => {
-      const WrappedComponent = wrapWithHoCsAndMemo((innerProps) => <RawComponent ref={ref} {...innerProps}/>)
-      return <WrappedComponent {...props}/>;
+  if (componentMeta.hocs && componentMeta.hocs.length) {
+    const hocs = componentMeta.hocs.map(hoc => {
+      if (!Array.isArray(hoc)) {
+        if (typeof hoc !== 'function') {
+          throw new Error(`In registered component ${name}, an hoc is of type ${typeof hoc}`);
+        }
+        return hoc;
+      }
+      const [actualHoc, ...args] = hoc;
+      if (typeof actualHoc !== 'function') {
+        throw new Error(`In registered component ${name}, an hoc is of type ${typeof actualHoc}`);
+      }
+      return actualHoc(...args);
     });
+    // @ts-ignore
+    return compose(...hocs)(componentWithMemo);
   } else {
-    return wrapWithHoCsAndMemo(componentMeta.rawComponent);
+    return componentWithMemo;
   }
 };
 
