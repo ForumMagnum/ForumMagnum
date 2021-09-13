@@ -173,6 +173,7 @@ interface DbEmailTokens extends DbObject {
   usedAt: Date
   params: any /*{"definitions":[{"blackbox":true}]}*/
 }
+
 interface FeaturedResourcesCollection extends CollectionBase<DbFeaturedResource, "FeaturedResources"> {
 }
 

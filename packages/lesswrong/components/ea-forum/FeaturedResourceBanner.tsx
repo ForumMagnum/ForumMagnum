@@ -2,6 +2,7 @@ import React from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Button, Card, createStyles, Divider, Typography } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -46,7 +47,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }));
 
-const FeaturedResourceBanner = ({classes}) => {
+const FeaturedResourceBanner = ({terms, classes} : {
+  terms: FeaturedResourcesViewTerms,
+  classes: ClassesType
+}) => {
+  const { results, loading } = useMulti({
+    terms,
+    collectionName: 'FeaturedResources',
+    fragmentName: 'FeaturedResourcesFragment',
+    enableTotal: false,
+  });
   return <Card className={classes.card}>
     <Button className={classes.closeButton}>
         <CloseIcon className={classes.closeIcon}/>
