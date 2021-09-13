@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
-    margin: '1em',
+    margin: '1em 0 1em 1em',
     padding: '2em',
     boxShadow: '0 4px 4px rgba(0, 0, 0, 0.07)',
     display: 'flex',
@@ -35,9 +35,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   body: {
     color: '#616161',
-    marginTop: '1em',
-    marginBottom: '1em',
+    marginTop: '1.5rem',
+    marginBottom: '1.5rem',
+    textAlign: 'center',
     fontFamily: theme.typography.fontFamily,
+    fontSize: '1.05rem',
   },
   ctaButton: {
     borderRadius: 'unset',
@@ -48,7 +50,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }));
 
 const bodyWithInterpolatedDate = (resource: FeaturedResourcesFragment): string => {
-  return resource.body.replace(/\[\s*DATE\s*\]/, resource.expiresAt.toLocaleDateString());
+  return resource.body.replace(/\[\s*DATE\s*\]/, resource.expiresAt.toString());
 }
 
 const FeaturedResourceBanner = ({terms, classes} : {
@@ -70,7 +72,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
         <CloseIcon className={classes.closeIcon}/>
     </Button>    
     <Typography variant="title" className={classes.title}>
-      resource.title
+      {resource.title}
     </Typography>
     <Divider className={classes.divider}/>
     <Typography variant="body2" className={classes.body}>
