@@ -182,6 +182,7 @@ interface DbFeaturedResource extends DbObject {
   title: string
   body: string
   ctaText: string
+  ctaUrl: string
   isActive: boolean
   expiresAt: Date
 }

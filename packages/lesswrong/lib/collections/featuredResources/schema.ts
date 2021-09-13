@@ -8,6 +8,9 @@ const schema: SchemaType<DbFeaturedResource> = {
   ctaText: {
     type: String,
   },
+  ctaUrl: {
+    type: String,
+  },
   isActive: {
     type: Boolean,
   },
