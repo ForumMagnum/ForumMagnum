@@ -817,6 +817,7 @@ interface ObjectsByCollectionName {
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   EmailTokens: DbEmailTokens
+  FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData

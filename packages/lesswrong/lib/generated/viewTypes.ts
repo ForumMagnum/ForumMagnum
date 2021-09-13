@@ -7,6 +7,7 @@ type ConversationsViewName = "userConversations"|"userUntitledConversations";
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
 type EmailTokensViewName = never
+type FeaturedResourcesViewName = "activeUnexpiredResources"
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers";
 type LegacyDataViewName = never
@@ -40,6 +41,7 @@ interface ViewTermsByCollectionName {
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
   EmailTokens: ViewTermsBase
+  FeaturedResources: FeaturedResourcesViewTerms 
   GardenCodes: GardenCodesViewTerms
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase
