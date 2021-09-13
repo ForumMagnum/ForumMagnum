@@ -1236,6 +1236,16 @@ interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly currentUserVote: string,
 }
 
+interface FeaturedResourcesFragment {
+  readonly _id: string,
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
+  readonly isActive: boolean,
+}
+
 interface WithVoteTagRel { // fragment on TagRels
   readonly __typename: string,
   readonly _id: string,
@@ -1803,6 +1813,7 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   SuggestAlignmentComment: SuggestAlignmentComment
+  FeaturedResourcesFragment: FeaturedResourcesFragment
 }
 
 interface CollectionNamesByFragmentName {
@@ -1937,6 +1948,7 @@ interface CollectionNamesByFragmentName {
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
   SuggestAlignmentComment: "Comments"
+  FeaturedREsourcesFragment: "FeatuerdResources"
 }
 
 type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"

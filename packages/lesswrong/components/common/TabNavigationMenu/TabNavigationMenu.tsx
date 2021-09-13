@@ -58,7 +58,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
               onClick={onClickSection}
             />
           })}
-          <FeaturedResourceBanner />
+          <FeaturedResourceBanner terms={{view: "activeUnexpiredResources"}}/>
         </div>
     </AnalyticsContext>  )
 };
