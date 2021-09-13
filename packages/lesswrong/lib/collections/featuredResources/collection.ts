@@ -1,11 +1,12 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, ensureIndex } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 
 export const FeaturedResources: FeaturedResourcesCollection = createCollection({
   collectionName: 'FeaturedResources',
-  typeName: 'FeaturedResources',
+  typeName: 'FeaturedResource',
   schema,
+  resolvers: getDefaultResolvers('FeaturedResources'),
 });
 
 addUniversalFields({collection: FeaturedResources})

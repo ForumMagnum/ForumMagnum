@@ -775,6 +775,7 @@ interface CollectionsByName {
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   EmailTokens: EmailTokensCollection
+  FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
