@@ -2,33 +2,45 @@ const schema: SchemaType<DbFeaturedResource> = {
   title: {
     type: String,
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    control: 'text',
   },
   body: {
     type: String,
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    control: 'text',
   },
   ctaText: {
     type: String,
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    control: 'text',
   },
   ctaUrl: {
     type: String,
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: 'EditUrl'
   },
   isActive: {
     type: Boolean,
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    control: 'checkbox',
   },
   expiresAt: {
     type: Date,
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
     optional: true,
+    control: 'datetime',
   },
 }
 
