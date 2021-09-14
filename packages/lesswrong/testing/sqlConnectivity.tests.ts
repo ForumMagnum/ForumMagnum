@@ -16,5 +16,17 @@ describe('Postgres connection', () => {
       await runQuery("select count(*) as rowcount from users", []),
       [{rowcount: "0"}]
     );
+    
+  });
+  
+  it('throws an exception on SQL syntax errors', async () => {
+    // Running a syntactically-invalid query throws an exception which can be caught
+    let threw = false;
+    try {
+      await runQuery("unit test of an invalid query", []);
+    } catch(e) {
+      threw = true;
+    }
+    chai.assert.equal(threw, true);
   });
 });

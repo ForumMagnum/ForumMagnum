@@ -116,14 +116,14 @@ function postgresRowToMongo<T extends DbObject>(collection: CollectionBase<T>, r
 Globals.testTranslateQuery = (collectionName: CollectionNameString, selector: any, options: any) => {
   const collection = getCollection(collectionName);
   const tableName = (collection as any).tableName;
-  const {sql, arg} = mongoSelectorToSql(collection, selector, 1);
+  const {sql, arg} = mongoSelectorToSql(collection._schemaFields, selector, 1);
   const {sql: optionsSql, arg: optionsArg} = mongoFindOptionsToSql(collection, options);
 }
 Globals.testTranslateAndRunQuery = async (collectionName: CollectionNameString, selector: any, options: any) => {
   const collection = getCollection(collectionName);
   const tableName = (collection as any).tableName;
-  const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(collection, selector, 1);
-  const {sql: optionsFragment, arg: optionsArgs} = mongoSelectorToSql(collection, selector, 1);
+  const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(collection._schemaFields, selector, 1);
+  const {sql: optionsFragment, arg: optionsArgs} = mongoSelectorToSql(collection._schemaFields, selector, 1);
   const {sql: optionsSql, arg: optionsArg} = mongoFindOptionsToSql(collection, options);
   const query = `select * from ${tableName} where ${queryFragment} ${optionsSql}`;
   
@@ -156,7 +156,7 @@ export async function runQuery(query: string, args: any[]): Promise<any> {
   }
   const timeElapsed = new Date().getTime()-startTime.getTime();
   // eslint-disable-next-line no-console
-  console.log(`Postgres query: ${query} (${JSON.stringify(args)}) (${result?.length} rows, ${timeElapsed}ms)`);
+  //console.log(`Postgres query: ${query} (${JSON.stringify(args)}) (${result?.length} rows, ${timeElapsed}ms)`);
   return result;
 }
 
@@ -208,7 +208,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
     return {
       fetch: async () => {
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).fetch`, async () => {
-          const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
+          const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this._schemaFields, selector);
           const {sql: optionsFragment, arg: optionsArgs} = mongoFindOptionsToSql(this, options);
           const result = await runQuery(`select * from ${this.tableName} where ${queryFragment} ${optionsFragment}`, [...queryArgs, ...optionsArgs]);
           return this.translateResult(result);
@@ -217,7 +217,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
       count: async () => {
         const table = this.getTable();
         return await wrapQuery(`${this.tableName}.find(${JSON.stringify(selector)}).count`, async () => {
-          const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
+          const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this._schemaFields, selector);
           const {sql: optionsFragment, arg: optionsArgs} = mongoFindOptionsToSql(this, options);
           const result = await runQuery(`select count(*) from ${this.tableName} where ${queryFragment} ${optionsFragment}`, [...queryArgs, ...optionsArgs]);
           return result[0].count;
@@ -236,7 +236,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
         if (!result.length) return null;
         return result[0];
       } else if (selector) {
-        const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this, selector);
+        const {sql: queryFragment, arg: queryArgs} = mongoSelectorToSql(this._schemaFields, selector);
         const {sql: optionsFragment, arg: optionArgs} = mongoFindOptionsToSql({
           ...options,
           limit: 1,
@@ -293,7 +293,7 @@ export class MongoCollection<T extends DbObject, N extends CollectionNameString>
           //return updateResult.matchedCount;
         } else {
           const {sql: modifierSql, arg: modifierArgs} = mongoModifierToSql(this, update);
-          const {sql: selectorSql, arg: selectorArgs} = mongoSelectorToSql(this, selector, modifierArgs.length+1);
+          const {sql: selectorSql, arg: selectorArgs} = mongoSelectorToSql(this._schemaFields, selector, modifierArgs.length+1);
           const rawResult = await runQuery(
             `update ${this.tableName}
              set ${modifierSql}

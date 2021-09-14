@@ -1,6 +1,12 @@
 import * as _ from 'underscore';
 
-export const mongoSelectorToSql = <T extends DbObject>(collection: CollectionBase<T>, selector: MongoSelector<T>, argOffset?: number) => {
+// For unit tests. We need a schema to determine field types in some cases, but
+// unit tests don't involve real collections. This is a more-minimal type that
+// provides just the parts of the schema that the query translation needs.
+export type FakeCollectionSchema = Record<string,{type:any}>
+
+
+export const mongoSelectorToSql = <T extends DbObject>(schema: SchemaType<T>|FakeCollectionSchema, selector: MongoSelector<T>, argOffset?: number) => {
   let selectorFragments: string[] = [];
   let args: any[] = [];
   
@@ -23,12 +29,15 @@ export const mongoSelectorToSql = <T extends DbObject>(collection: CollectionBas
   }
   
   for (let selectorKey of complexSelectorKeys) {
-    if (selector[selectorKey] === undefined) continue;
-    const {sql,arg} = mongoSelectorFieldToSql(collection, selectorKey, selector[selectorKey], (argOffset||1)+args.length);
+    const {sql,arg} = mongoSelectorFieldToSql(schema, selectorKey, selector[selectorKey], (argOffset||1)+args.length);
     if (sql && sql.length > 0) {
       selectorFragments.push(sql);
       args = [...args, ...arg];
     }
+  }
+  
+  if (selectorFragments.length===0) {
+    return { sql: "true", arg: [] };
   }
   
   return {
@@ -49,9 +58,11 @@ const mongoSelectorToAtGreater = (selector: any, keys: string[], argOffset: numb
 }
 
 const isSimpleSelector = (selector: any, key: string): boolean => {
+  if (selector[key] === undefined || selector[key] === null)
+    return false;
   if (key.indexOf(".") >= 0)
     return false;
-  if (typeof selector[key] == 'object')
+  if (typeof selector[key] === 'object')
     return false;
   return true;
 }
@@ -111,7 +122,7 @@ export const mongoFindOptionsToSql = <T extends DbObject>(collection: Collection
   }
 }
 
-export const mongoSelectorFieldToSql = <T extends DbObject>(collection: CollectionBase<T>, fieldName: string, value: any, argOffset: number): {sql: string|null, arg: any[]} => {
+export const mongoSelectorFieldToSql = <T extends DbObject>(schema: SchemaType<T>|FakeCollectionSchema, fieldName: string, value: any, argOffset: number): {sql: string|null, arg: any[]} => {
   if (typeof fieldName !== 'string')
     throw new Error("fieldName is not a string: was "+(typeof fieldName));
   if (typeof argOffset !== 'number')
@@ -140,7 +151,7 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
     }
     const subselectors: any[] = [];
     for (let s of value) {
-      const subselector = mongoSelectorToSql(collection, s, argOffset);
+      const subselector = mongoSelectorToSql(schema, s, argOffset);
       subselectors.push(subselector);
       argOffset += subselector.arg.length;
     }
@@ -157,7 +168,7 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
     }
     const subselectors: any[] = [];
     for (let s of value) {
-      const subselector = mongoSelectorToSql(collection, s, argOffset);
+      const subselector = mongoSelectorToSql(schema, s, argOffset);
       subselectors.push(subselector);
       argOffset += subselector.arg.length;
     }
@@ -167,7 +178,7 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
     };
   } else if (fieldName==="$not") {
     throw new Error(`Don't know how to handle selector for ${fieldName}: $not`); // TODO
-  } else if (value === null) {
+  } else if (value === null || value === undefined) {
     return {
       sql: `(jsonb_typeof(json->'${fieldName}') IS NULL OR jsonb_typeof(json->'${fieldName}')='null')`,
       arg: [],
@@ -178,7 +189,7 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
         // Special case: all strings (used in query-by-ID)
         if (_.all(Object.keys(value.$in), k=>(typeof k == "string"))) {
           return {
-            sql: `${mongoFieldToSql(fieldName, collection, value.$in[0])} IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
+            sql: `${mongoFieldToSql(fieldName, schema, value.$in[0])} IN (${_.range(value.$in.length).map(i => `$${i+argOffset}`)})`,
             arg: value.$in,
           }
         } else {
@@ -213,7 +224,7 @@ export const mongoSelectorFieldToSql = <T extends DbObject>(collection: Collecti
           }
         } else {
           return {
-            sql: `${mongoFieldToSql(fieldName, collection, value.$ne)} != $${argOffset}`,
+            sql: `${mongoFieldToSql(fieldName, schema, value.$ne)} != $${argOffset}`,
             arg: [value.$ne],
           }
         }
@@ -242,10 +253,10 @@ const mongoInequalityToSql = (fieldName: string, value: any, op: string) => {
   };
 }
 
-const mongoFieldToSql = <T extends DbObject>(fieldName: string, collection: CollectionBase<T>, inferTypeFromValue: any) => {
+const mongoFieldToSql = <T extends DbObject>(fieldName: string, schema: SchemaType<T>|FakeCollectionSchema, inferTypeFromValue: any) => {
   let jsonObject = "json";
   
-  const schemaField = collection._schemaFields[fieldName];
+  const schemaField = schema && schema[fieldName];
   if (schemaField) {
     const fieldType = schemaField.type;
     
