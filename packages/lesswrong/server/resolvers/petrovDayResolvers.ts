@@ -329,35 +329,35 @@ addGraphQLSchema(PetrovDayLaunchMissile);
 const petrovDayLaunchResolvers = {
   Query: {
     async PetrovDayCheckIfIncoming(root: void, {external}: {external: boolean}, context: ResolverContext) {
-      // if (external) {
-      //   const externalUrl = `http://lesswrong.com/graphql?`
-      //   const payload = [{ 
-      //     "operationName": "petrovDayLaunchResolvers", 
-      //     "variables": {}, 
-      //     "query": `query petrovDayLaunchResolvers 
-      //       {\n  PetrovDayCheckIfIncoming(external: false)
-      //         {\n    launched\n    __typename\n  }
-      //       \n}
-      //     \n` 
-      //   }]
+      if (external) {
+        const externalUrl = `http://lesswrong.com/graphql?`
+        const payload = [{ 
+          "operationName": "petrovDayLaunchResolvers", 
+          "variables": {}, 
+          "query": `query petrovDayLaunchResolvers 
+            {\n  PetrovDayCheckIfIncoming(external: false)
+              {\n    launched\n    __typename\n  }
+            \n}
+          \n` 
+        }]
 
-      //   const response = await fetch(externalUrl, {
-      //     "headers": {
-      //       "accept": "application/json",
-      //       "accept-language": "en-US,en;q=0.9,de-DE;q=0.8,de;q=0.7",
-      //       "cache-control": "no-cache",
-      //       "content-type": "application/json",
-      //     },
-      //     body: JSON.stringify(payload),
-      //     method: "POST",
-      //     redirect: 'follow'
-      //   });
-      //   const text = await response.text()
-      //   const data = JSON.parse(text)
-      //   return {
-      //     launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched
-      //   }
-      // }
+        const response = await fetch(externalUrl, {
+          "headers": {
+            "accept": "application/json",
+            "accept-language": "en-US,en;q=0.9,de-DE;q=0.8,de;q=0.7",
+            "cache-control": "no-cache",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(payload),
+          method: "POST",
+          redirect: 'follow'
+        });
+        const text = await response.text()
+        const data = JSON.parse(text)
+        return {
+          launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched
+        }
+      }
       const launches = await PetrovDayLaunchs.find().fetch()
       for (const launch of launches) {
         if (hashedCodes.includes(launch.hashedLaunchCode)) {
