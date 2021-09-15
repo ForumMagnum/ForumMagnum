@@ -289,6 +289,7 @@ interface DbPetrovDayLaunch extends DbObject {
   createdAt: Date
   launchCode: string
   hashedLaunchCode: string
+  userId: string
 }
 
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
