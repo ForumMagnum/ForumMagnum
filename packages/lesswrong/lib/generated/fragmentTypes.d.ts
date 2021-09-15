@@ -1639,12 +1639,14 @@ interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
   readonly hashedLaunchCode: string,
+  readonly userId: string,
 }
 
 interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly _id: string,
   readonly createdAt: Date,
   readonly launchCode: string,
+  readonly userId: string,
 }
 
 interface TagRelVotes { // fragment on Votes
