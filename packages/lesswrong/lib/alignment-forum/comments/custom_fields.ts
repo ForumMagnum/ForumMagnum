@@ -44,6 +44,7 @@ addFieldsDict(Comments, {
     label: "Suggested for Alignment by",
     control: "UsersListEditor",
     group: alignmentOptionsGroup,
+    hidden: true
   },
   'suggestForAlignmentUserIds.$': {
     type: String,
