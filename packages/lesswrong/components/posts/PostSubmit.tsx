@@ -84,17 +84,19 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {currentUser.karma >= 100 && document.draft!==false && <Button //treat as draft when draft is null
+        {currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
                 className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
                 onClick={() => {
                   captureEvent("feedbackRequestButtonClicked")
-                  updateCurrentValues({draft: true});
-                  // eslint-disable-next-line
-                  (window as any).Intercom(
-                    'trackEvent', 
-                    'requested-feedback', 
-                    {title: document.title, _id: document._id, url: "https://www.lesswrong.com/" + document._id}
-                  )
+                  if (!!document.title) {
+                    updateCurrentValues({draft: true});
+                    // eslint-disable-next-line
+                    (window as any).Intercom(
+                      'trackEvent',
+                      'requested-feedback',
+                      {title: document.title, _id: document._id, url: "https://www.lesswrong.com/posts/" + document._id}
+                    )
+                  }
                 }}
         >
           {feedbackLabel}
