@@ -3,6 +3,9 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Button, Card, createStyles, Divider, Typography } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCookies } from 'react-cookie';
+import moment from 'moment';
+import { month } from 'later';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -57,18 +60,34 @@ const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
+  const featuredResourceCookie = 'featured_resource';
+  const [cookies, setCookie] = useCookies([featuredResourceCookie])
   const { results, loading } = useMulti({
     terms,
     collectionName: 'FeaturedResources',
     fragmentName: 'FeaturedResourcesFragment',
     enableTotal: false,
   });
+
   if(loading || !results.length) {
     return null;
   }
+
   const resource = results[0];
+  const cookieString = `${resource._id}${resource.expiresAt}`;
+
+  if(cookies[featuredResourceCookie] === cookieString) {
+    return null;
+  }
+
+  const hideBanner = () => setCookie(
+    'featured_resource', 
+    `${resource._id}${resource.expiresAt}`, {
+    expires: moment().add(1, 'month').startOf('month').toDate(),
+  });
+
   return <Card className={classes.card}>
-    <Button className={classes.closeButton}>
+    <Button className={classes.closeButton} onClick={hideBanner}>
         <CloseIcon className={classes.closeIcon}/>
     </Button>    
     <Typography variant="title" className={classes.title}>
