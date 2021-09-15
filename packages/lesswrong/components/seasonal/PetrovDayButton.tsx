@@ -6,7 +6,8 @@ import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 // import fetch from 'node-fetch'
 
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
@@ -145,6 +146,7 @@ const PetrovDayButton = ({classes, refetch}: {
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
   const renderLaunchButton = (launchCode?.length >= 8)
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   if (petrovCodesEntered) return null
 
@@ -157,7 +159,7 @@ const PetrovDayButton = ({classes, refetch}: {
         zoom={2}
         width="100%"
         height="100%"
-        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>
