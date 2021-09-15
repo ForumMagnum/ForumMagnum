@@ -5,5 +5,6 @@ registerFragment(`
     _id
     createdAt
     launchCode
+    userId
   }
 `);

@@ -10,8 +10,11 @@ import { Helmet } from 'react-helmet';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 // import fetch from 'node-fetch'
 
-import { mapboxAPIKeySetting } from '../../lib/publicSettings';
+import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
+
+const petrovPostIdSetting = new DatabasePublicSetting<string>('petrovPostId', '')
+const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrovGamePostId', '')
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -165,7 +168,7 @@ const PetrovDayButton = ({classes, refetch}: {
       <div className={classes.panelBacking}>
         {!launched && !currentUser?.petrovLaunchCodeDate && <div className={classes.panel}>
             <Typography variant="display1" className={classes.title}>
-              <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
+              <Link to={"/posts/" + petrovPostIdSetting.get()}>Petrov Day</Link>
             </Typography>
             {currentUser ? 
                 <div className={classes.button}>
@@ -204,8 +207,10 @@ const PetrovDayButton = ({classes, refetch}: {
                 Launch
               </Button>
             }
-            <p className={classes.info}>Enter launch codes to destroy LessWrong. (This is not an anonymous action)</p>
-            <Link to={"/posts/XfHXQPPKNY8BXkn72/honoring-petrov-day-on-lesswrong-in-2020"} className={classes.link}>
+            <p className={classes.info}>Enter launch codes to destroy 
+            {isEAForum ? ' LessWrong' : " the EA Forum"}
+            . (This is not an anonymous action)</p>
+            <Link to={"/posts/" + petrovGamePostIdSetting.get()} className={classes.link}>
               Learn More
             </Link>
           </div>}
