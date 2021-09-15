@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import { getSiteUrl} from "../../lib/vulcan-lib";
 import {forumTypeSetting} from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
