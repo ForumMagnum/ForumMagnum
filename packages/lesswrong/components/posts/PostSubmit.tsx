@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
+import {forumTypeSetting} from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -84,7 +85,7 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
+        {forumTypeSetting.get()!="EAForum" && currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
                 className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
                 onClick={() => {
                   captureEvent("feedbackRequestButtonClicked")
@@ -94,7 +95,7 @@ const PostSubmit = ({
                     (window as any).Intercom(
                       'trackEvent',
                       'requested-feedback',
-                      {title: document.title, _id: document._id, url: "https://www.lesswrong.com/posts/" + document._id}
+                      {title: document.title, _id: document._id, url: getSiteUrl() + "/posts/" + document._id}
                     )
                   }
                 }}
