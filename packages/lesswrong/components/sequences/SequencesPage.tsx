@@ -125,6 +125,9 @@ const SequencesPage = ({ documentId, classes }: {
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
   const { html = "" } = document.contents || {}
 
+  if (!canEdit && document.draft)
+    throw new Error('This sequence is a draft and is not publicly visible')
+    
   return <div className={classes.root}>
     <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title}/>
     <div className={classes.banner}>
