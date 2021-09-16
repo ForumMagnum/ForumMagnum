@@ -53,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }));
 
 const bodyWithInterpolatedDate = (resource: FeaturedResourcesFragment): string => {
-  return resource.body.replace(/\[\s*DATE\s*\]/, resource.expiresAt.toString());
+  return resource.body.replace(/\[\s*DATE\s*\]/, moment(resource.expiresAt).tz('UTC').format('MMMM DD'));
 }
 
 const FeaturedResourceBanner = ({terms, classes} : {
