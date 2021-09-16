@@ -97,11 +97,11 @@ const FeaturedResourceBanner = ({terms, classes} : {
     <Typography variant="body2" className={classes.body}>
       {bodyWithInterpolatedDate(resource)}
     </Typography>
-    <a href={resource.ctaUrl}>
+    {resource.ctaUrl && resource.ctaText && <a href={resource.ctaUrl}>
       <Button color="primary" className={classes.ctaButton}>
         {resource.ctaText}
       </Button>
-    </a>
+    </a>}
   </Card>
 }
 
