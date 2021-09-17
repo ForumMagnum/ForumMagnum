@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />-````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+/// <reference types="Cypress" />
 
 describe('Basic Login and Signup', function() {
   beforeEach(function() {
