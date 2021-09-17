@@ -5,7 +5,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
-import { month } from 'later';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -82,7 +81,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
 
   const hideBanner = () => setCookie(
     'featured_resource', 
-    `${resource._id}${resource.expiresAt}`, {
+    cookieString, {
     expires: moment().add(1, 'month').startOf('month').toDate(),
   });
 
