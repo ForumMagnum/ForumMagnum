@@ -17,7 +17,15 @@ import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
-const frontpageDefault = isEAForum ? () => new Date() : undefined
+function eaFrontpageDate (document: Partial<DbPost>) {
+  if (document.isEvent || !document.submitToFrontpage) {
+    return undefined
+  }
+  return new Date()
+}
+const frontpageDefault = isEAForum ?
+  eaFrontpageDate :
+  undefined
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
