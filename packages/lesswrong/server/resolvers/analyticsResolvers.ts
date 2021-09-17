@@ -37,6 +37,7 @@ addGraphQLResolvers({
           SELECT
             clientid,
             max(seconds) as max_reading_time
+          -- TODO; rename to whatever the new view is called and check column casing
           FROM post_timer_event
           WHERE post_id = $1
             AND clientid IS NOT NULL
