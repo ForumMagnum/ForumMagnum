@@ -10,6 +10,7 @@ export type PostMetricsResult = {
 addGraphQLResolvers({
   Query: {
     async PostMetrics(root: void, { postId }: { postId: string }, context: ResolverContext): Promise<PostMetricsResult> {
+      console.log('hello1')
       const { currentUser } = context;
       if (!currentUser) throw new Error(`No user`);
       const post = await context.loaders.Posts.load(postId);
@@ -31,7 +32,7 @@ addGraphQLResolvers({
       const queryStr = `
         SELECT
           count(*) as unique_client_views,
-          avg(max_reading_time) as median_reading time
+          avg(max_reading_time) as median_reading_time
         FROM (
           SELECT
             clientid,
@@ -44,7 +45,9 @@ addGraphQLResolvers({
       `;
       const queryVars = [postId];
 
+      console.log('hello2')
       const result = await postgres.query(queryStr, queryVars)
+      console.log('hello3')
       if (!result.length) {
         throw new Error(`No data found for post ${post.title}`)
       }
@@ -53,6 +56,7 @@ addGraphQLResolvers({
       }
       const uniqueClientViews = result[0].unique_client_views;
 
+      console.log('hello4')
       return {
         uniqueClientViews,
       };

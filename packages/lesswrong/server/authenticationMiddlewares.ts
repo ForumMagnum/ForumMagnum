@@ -153,6 +153,13 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
   done(null, user)
 })
 
+const thirdPartyAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
+  const accessToken = getCookieFromReq(req, 'accessToken') //?
+  // validate (we'll need to use the secret somehow, this might be hard)
+  // getUser
+  // handle authenticate
+})
+
 async function deserializeUserPassport(id, done) {
   const user = await Users.findOne({_id: id})
   if (!user) done()
@@ -366,5 +373,12 @@ export const addAuthMiddlewares = (addConnectHandler) => {
 
   addConnectHandler('/auth/github', (req, res, next) => {
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
+  })
+  
+  addConnectHandler('auth/greaterwrong', (req, res, next) => {
+    //
+    passport.authenticate('custom', {}, (err, user, info) => {
+      handleAuthenticate(req, res, next, err, user, info);
+    })(req, res, next)
   })
 }

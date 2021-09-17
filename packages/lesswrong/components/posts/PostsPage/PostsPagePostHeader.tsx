@@ -6,6 +6,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
+import EditIcon from '@material-ui/icons/Edit'
 
 const SECONDARY_SPACING = 20
 
@@ -141,6 +142,7 @@ const PostsPagePostHeader = ({post, classes}: {
               </a>
             </LWTooltip>
           }
+          {/* NB: Currently display:none'd */}
           {!!wordCount && !post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{Math.floor(wordCount/200) || 1 } min read</span>
           </LWTooltip>}

@@ -45,6 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const Loading = ({classes}: {classes: ClassesType}) => {
+console.log('🚀 ~ file: Loading.tsx ~ line 48 ~ Loading ~ classes', classes)
   return (
     <div className={`${classes.spinner}`}>
       <div className={classes.bounce1}></div>
