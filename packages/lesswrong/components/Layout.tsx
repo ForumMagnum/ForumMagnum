@@ -247,8 +247,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       && forumTypeSetting.get() === "LessWrong"
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
       
-    const userIsBanned = currentUser?.banned && new Date(currentUser?.banned) > currentTime;
-
       return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
