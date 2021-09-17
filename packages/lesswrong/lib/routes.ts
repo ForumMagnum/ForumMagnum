@@ -206,8 +206,8 @@ addRoute(
     background: "white"
   },
   {
-    name: 'postsMetrics',
-    path: '/postsMetrics/:_id',
+    name: 'postAnalytics',
+    path: '/postAnalytics',
     componentName: 'PostsMetricsPage',
     background: "white"
   },
