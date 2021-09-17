@@ -165,12 +165,12 @@ const CommunityHome = ({classes}: {
                   </Components.LocalGroupsList>
               }
             </SingleColumnSection>
-            <SingleColumnSection>
+            {!isEAForum && <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
-                {isEAForum && <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />}
+                <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
               </AnalyticsContext>
-            </SingleColumnSection>
+            </SingleColumnSection>}
         </AnalyticsContext>
       </React.Fragment>
     )

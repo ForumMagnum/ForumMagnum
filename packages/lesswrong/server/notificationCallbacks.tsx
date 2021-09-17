@@ -363,8 +363,23 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
 });
 
 async function findUsersToEmail(filter: MongoSelector<DbUser>) {
-  const filterWithEmail = {email: {$exists: true}, ...filter};
-  return await Users.find(filterWithEmail).fetch();
+  let usersMatchingFilter = await Users.find(filter).fetch();
+
+  let usersToEmail = usersMatchingFilter.filter(u => {
+    if (u.email && u.emails && u.emails.length) {
+      let primaryAddress = u.email;
+
+      for(let i=0; i<u.emails.length; i++)
+      {
+        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+          return true;
+      }
+      return false;
+    } else {
+      return false;
+    }
+  });
+  return usersToEmail
 }
 
 const curationEmailDelay = new EventDebouncer<string,null>({

@@ -140,7 +140,7 @@ const PostsNewForm = ({classes}: {
             eventForm={eventForm}
             repeatErrors
             formComponents={{
-              FormSubmit: NewPostsSubmit,
+              FormSubmit: NewPostsSubmit
             }}
           />
         </NoSsr>

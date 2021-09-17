@@ -2,35 +2,49 @@ import { testStartup } from '../../../testing/testMain';
 import chai from 'chai';
 import { runQuery } from '../../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
+import moment from 'moment';
 
 testStartup();
 const { assert } = chai
 
+function createCommentQuery (postId) {
+  return `
+    mutation {
+      createComment(
+        data: {
+          contents: { originalContents: { type: "markdown", data: "test" } }
+          postId: "${postId}"
+        }
+      ){
+        data {
+          contents {
+            markdown
+          }
+        }
+      }
+    }
+  `;
+}
 
 describe('createComment – ', function() {
   it('should return data if a user is provided', async function() {
     const user = await createDummyUser()
     const post = await createDummyPost()
-    const query = `
-      mutation {
-        createComment(
-          data: {
-            contents: { originalContents: { type: "markdown", data: "test" } }
-            postId: "${post._id}"
-          }
-        ){
-          data {
-            contents {
-              markdown
-            }
-          }
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser: user})
+    const response = runQuery(createCommentQuery(post._id), {}, {currentUser: user})
     const expectedOutput = { data: { createComment: { data : {contents: {markdown: "test" } } } } }
     return (response as any).should.eventually.deep.equal(expectedOutput);
   });
+  
+  it('should fail if the user is banned', async function () {
+    const user = await createDummyUser()
+    const post = await createDummyPost()
+    const queryPromise = runQuery(
+      createCommentQuery(post._id),
+      {},
+      {currentUser: {...user, banned: moment().add(1, 'year').toDate()}}
+    )
+    return (queryPromise as any).should.be.rejected
+  })
 });
 describe('updateComment – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);

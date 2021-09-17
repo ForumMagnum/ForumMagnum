@@ -201,7 +201,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -247,7 +247,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       && forumTypeSetting.get() === "LessWrong"
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
       
-
       return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -298,7 +297,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              {renderPetrovDay && <PetrovDayWrapper/>}
+              {/*{renderPetrovDay && <PetrovDayWrapper/>}*/}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
@@ -311,10 +310,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.usernameUnset
-                      ? <NewUserCompleteProfile />
-                      : children
-                    }
+                    {children}
                   </ErrorBoundary>
                   <Footer />
                 </div>
