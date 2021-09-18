@@ -20,13 +20,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previousRevision, documentId, classes}: {
+const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previousRevision, documentId, showDiscussionLink=true, classes}: {
   tag: TagBasicInfo,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
   revision: RevisionMetadataWithChangeMetrics,
   previousRevision?: RevisionMetadataWithChangeMetrics
   documentId: string,
+  showDiscussionLink?: boolean,
   classes: ClassesType,
 }) => {
   const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton } = Components
@@ -55,9 +56,9 @@ const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previous
         versionAfter={revision.version}
       />
     </div>}
-    <div className={classes.discussionButtonPositioning}>
+    {showDiscussionLink && <div className={classes.discussionButtonPositioning}>
       <TagDiscussionButton tag={tag} text={`Discuss this ${tag.wikiOnly ? "wiki" : "tag"}`}/>
-    </div>
+    </div>}
   </div>
 }
 
