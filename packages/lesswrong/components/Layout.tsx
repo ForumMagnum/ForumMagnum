@@ -312,7 +312,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
+                    {currentUser?.usernameUnset
+                        ? <NewUserCompleteProfile />
+                        : children
+                    }
                   </ErrorBoundary>
                   <Footer />
                 </div>
