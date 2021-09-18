@@ -2,7 +2,7 @@
 
 LessWrong2 is a clean-slate overhaul of the [LessWrong](https://lesswrong.com) discussion platform.
 
-The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
+The old LessWrong was famously one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
 
 ## Technologies
 
