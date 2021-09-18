@@ -1,6 +1,7 @@
 import { mongoFind } from '../../mongoQueries';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { Posts } from '../posts/collection';
+import { accessFilterMultiple } from '../../utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
 
@@ -15,8 +16,14 @@ export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
 export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
   const chapters = await mongoFind("Chapters", {sequenceId: sequenceId}, {sort: {number: 1}});
   let allPostIds = _.flatten(_.pluck(chapters, 'postIds'))
+  
+  // Filter out nulls
   const validPostIds = _.filter(allPostIds, postId=>!!postId);
-  return validPostIds;
+  
+  // Filter by user access
+  const posts = await context.loaders.Posts.loadMany(validPostIds);
+  const accessiblePosts = await accessFilterMultiple(context.currentUser, Posts, posts, context);
+  return accessiblePosts.map(post => post._id);
 }
 
 export const sequenceGetAllPosts = async (sequenceId: string, context: ResolverContext): Promise<Array<DbPost>> => {
