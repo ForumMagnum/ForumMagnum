@@ -430,3 +430,13 @@ registerFragment(`
     voteCount
   }
 `);
+
+registerFragment(`
+  fragment HighlightWithHash on Post {
+    _id
+    contents {
+      htmlHighlightStartingAtHash(hash: $hash)
+    }
+  }
+`);
+
