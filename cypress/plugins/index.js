@@ -39,6 +39,10 @@ module.exports = (on, config) => {
           console.error(err);
           return;
         }
+        const isProd = (await client.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
+        if(isProd) {
+          throw new Error('Cannot run tests on production DB.');
+        }
         await client.db().dropDatabase();
         const db = await client.db();
         await db.collection('posts').insertMany(postsWithDates);
