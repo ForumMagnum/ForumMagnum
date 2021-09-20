@@ -247,7 +247,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
     
-    console.log({renderPetrovDay, routeName: currentRoute?.name == 'home', correctTime: beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime, beforeTime, afterTime, currentTime: currentTime.valueOf(), afterTimeDirect: petrovAfterTime.get()})
+    // console.log({renderPetrovDay, routeName: currentRoute?.name == 'home', correctTime: beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime, beforeTime, afterTime, currentTime: currentTime.valueOf(), afterTimeDirect: petrovAfterTime.get()})
 
     return (
       <AnalyticsContext path={location.pathname}>
