@@ -1,5 +1,6 @@
 import { PetrovDayLaunchs } from '../../lib/collections/petrovDayLaunchs/collection';
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation, addGraphQLQuery } from "../../lib/vulcan-lib/graphql";
+import fetch from 'node-fetch'
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { Users } from "../../lib/collections/users/collection";
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -7,6 +8,7 @@ const crypto = require('crypto');
 
 const PetrovDayCheckIfIncoming = `type PetrovDayCheckIfIncomingData {
   launched: Boolean
+  createdAt: Date
 }`
 
 const hashPetrovCode = (code: string): string => {
@@ -233,13 +235,15 @@ const petrovDayLaunchResolvers = {
   Query: {
     async PetrovDayCheckIfIncoming(root: void, {external}: {external: boolean}, context: ResolverContext) {
       if (external) {
-        const externalUrl = `http://lesswrong.com/graphql?`
+        const externalUrl = forumTypeSetting.get() === 'EAForum' ? `http://lessestwrong.com/graphql?` : `https://forum-staging.effectivealtruism.org/graphql`
+        console.log({externalUrl})
         const payload = [{ 
           "operationName": "petrovDayLaunchResolvers", 
           "variables": {}, 
           "query": `query petrovDayLaunchResolvers 
             {\n  PetrovDayCheckIfIncoming(external: false)
               {\n    launched\n    __typename\n  }
+              {\n    createdAt\n    __typename\n  }
             \n}
           \n` 
         }]
@@ -257,6 +261,7 @@ const petrovDayLaunchResolvers = {
         });
         const text = await response.text()
         const data = JSON.parse(text)
+        console.log({fetchResponse: data[0]?.data})
         return {
           launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched
         }
@@ -267,7 +272,7 @@ const petrovDayLaunchResolvers = {
 
       for (const launch of launches) {
         if (hashedCodes.includes(launch.hashedLaunchCode)) {
-          return { launched: true }
+          return { launched: true, createdAt: launch.createdAt }
         }
       }
       return { launched: false }
