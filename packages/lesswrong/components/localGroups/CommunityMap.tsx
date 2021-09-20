@@ -159,7 +159,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
       >
         {renderedMarkers}
       </ReactMapGL>
-      {petrovButton && <Components.PetrovDayButton />}
+      {/*{petrovButton && <Components.PetrovDayButton />}*/}
   </div>
 }
 
