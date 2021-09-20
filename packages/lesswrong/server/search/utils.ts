@@ -20,7 +20,7 @@ import { asyncFilter } from '../../lib/utils/asyncUtils';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
-export interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
+export interface AlgoliaIndexedCollection<T extends AlgoliaIndexedDbObject> extends CollectionBase<T, AlgoliaIndexCollectionName> {
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
@@ -587,7 +587,7 @@ export async function algoliaIndexDocumentBatch<T extends AlgoliaIndexedDbObject
 }
 
 
-export async function subsetOfIdsAlgoliaShouldntIndex<T extends DbObject>(collection: AlgoliaIndexedCollection<T>, ids: Array<string>) {
+export async function subsetOfIdsAlgoliaShouldntIndex<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, ids: Array<string>) {
   // Filter out duplicates
   const sortedIds = _.clone(ids).sort();
   const uniqueIds = _.uniq(sortedIds, true);

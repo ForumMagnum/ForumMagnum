@@ -72,18 +72,17 @@ export function startWebserver() {
   const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+  // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
     const store = MongoStore.create({
       client: getMongoClient()
     })
-    // Required by passport-auth0
     app.use(expressSession({
       secret: expressSessionSecret,
       resave: false,
       saveUninitialized: false,
       store,
       cookie: {
-        // We match LW - ten year login tokens
         // NB: Although the Set-Cookie HTTP header takes seconds,
         // express-session wants milliseconds for some reason
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10

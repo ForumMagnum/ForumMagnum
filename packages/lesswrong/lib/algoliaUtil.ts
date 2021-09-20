@@ -1,7 +1,8 @@
 import algoliasearch from "algoliasearch/lite";
 import { algoliaAppIdSetting, algoliaSearchKeySetting, algoliaPrefixSetting } from './publicSettings';
 
-export type AlgoliaIndexCollectionName = "Comments" | "Posts" | "Users" | "Sequences" | "Tags"
+export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
+export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
 
 export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName): string => {
   const ALGOLIA_PREFIX = algoliaPrefixSetting.get()
@@ -15,12 +16,10 @@ export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName):
   }
 }
 
-export const getAlgoliaIndexedCollectionNames = (): Array<AlgoliaIndexCollectionName> => {
-  return ["Comments", "Posts", "Users", "Sequences", "Tags"];
-}
-
 export const collectionIsAlgoliaIndexed = (collectionName: CollectionNameString): collectionName is AlgoliaIndexCollectionName => {
-  return getAlgoliaIndexedCollectionNames().indexOf(collectionName as AlgoliaIndexCollectionName) >= 0;
+  // .includes is frustratingly typed to only accept variables with the type of
+  // the array contents, and this plays badly with const arrays
+  return (algoliaIndexedCollectionNames as unknown as string[]).includes(collectionName)
 }
 
 export const isAlgoliaEnabled = () => !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get();

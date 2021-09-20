@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -9,6 +9,8 @@ import { randInt } from '../../lib/random';
 import SimpleSchema from 'simpl-schema';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
+import MailOutline from '@material-ui/icons/MailOutline'
+import CheckRounded from '@material-ui/icons/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -17,16 +19,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
-    minHeight: 58,
     backgroundColor: "rgba(253,253,253)",
     
     padding: 16,
     ...theme.typography.body2,
-    
-    border: "1px solid #aaa",
-    borderRadius: 10,
-    boxShadow: "5px 5px 5px rgba(0,0,0,20%)",
-    
+    boxShadow: theme.boxShadow,
+
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: 500,
@@ -34,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   adminNotice: {
     fontStyle: "italic",
     textAlign: "left",
-    marginTop: 8,
+    marginTop: 22,
     fontSize: 12,
     lineHeight: 1.3,
   },
@@ -43,15 +41,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 252,
   },
   message: {
+    display: "flex",
+    alignItems: "flex-start",
     fontSize: 18,
-    marginBottom: 18,
+    lineHeight: 1.75,
+  },
+  messageDescription: {
+    fontSize: 12,
+    marginTop: 8
+  },
+  mailIcon: {
+    marginTop: 4,
+    marginRight: 12
+  },
+  checkIcon: {
+    color: "#4caf50",
+    marginTop: 4,
+    marginRight: 12
   },
   emailInput: {
+    marginTop: 18
   },
   subscribeButton: {
-    margin: "0 auto",
+    margin: "18px auto 0",
     display: "block",
-    background: "#d2e8d2",
+    background: theme.palette.primary.main,
+    color: "white",
+    fontSize: 15
   },
   buttons: {
     marginTop: 16,
@@ -71,11 +87,11 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const [hide, setHide] = useState(false);
   const [subscribeChecked, setSubscribeChecked] = useState(true);
   const [subscriptionConfirmed, setSubscriptionConfirmed] = useState(false);
-  const [emailAddressInput, setEmailAddressInput] = useState("");
+  const emailAddressInput = useRef<HTMLInputElement|null>(null);
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
   const {WrappedLoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
-  const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)'
+  const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
   
   // Show admins a random version of the widget. Makes sure we notice if it's intrusive/bad.
@@ -87,17 +103,26 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   </div>: null
   
   useEffect(() => {
-    if (adminBranch == -1 && currentUser?.isAdmin) {
+    if (adminBranch === -1 && currentUser?.isAdmin) {
       setAdminBranch(randInt(4));
     }
   }, [adminBranch, currentUser?.isAdmin]);
-  
-  if (forumTypeSetting.get() === 'EAForum') return null
-  
+
+  // disable on AlignmentForum
+  if (forumTypeSetting.get() === 'AlignmentForum') {
+    return null;
+  }
+
   // Placeholder to prevent SSR mismatch, changed on load.
-  if (adminBranch == -1)
+  if (adminBranch === -1 && currentUser?.isAdmin)
     return <div/>
-  
+
+  // adjust functionality based on forum type
+  let currentUserSubscribed = currentUser?.emailSubscribedToCurated;
+  if (forumTypeSetting.get() === 'EAForum') {
+    currentUserSubscribed = currentUser?.subscribedToDigest;
+  }
+
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
     onClick={() => {
@@ -127,27 +152,25 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
-    if (!userEmailAddressIsVerified(currentUser)) {
-      try {
-        await updateCurrentUser({
-          whenConfirmationEmailSent: new Date(),
-          emailSubscribedToCurated: true,
-          unsubscribeFromAll: false,
-        });
-        setSubscriptionConfirmed(true);
-      } catch(e) {
-        flash(getGraphQLErrorMessage(e));
-      }
-    } else {
-      try {
-        await updateCurrentUser({
-          emailSubscribedToCurated: true,
-        });
-        setSubscriptionConfirmed(true);
-      } catch(e) {
-        flash(getGraphQLErrorMessage(e));
-      }
+
+    // subscribe to different emails based on forum type
+    const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = forumTypeSetting.get() === 'EAForum' ?
+      {subscribedToDigest: true} : {emailSubscribedToCurated: true};
+    // since they chose to subscribe to an email, make sure this is false
+    userSubscriptionData.unsubscribeFromAll = false;
+
+    // EA Forum does not care about email verification
+    if (forumTypeSetting.get() !== 'EAForum' && !userEmailAddressIsVerified(currentUser)) {
+      userSubscriptionData.whenConfirmationEmailSent = new Date();
     }
+
+    try {
+      await updateCurrentUser(userSubscriptionData);
+      setSubscriptionConfirmed(true);
+    } catch(e) {
+      flash(getGraphQLErrorMessage(e));
+    }
+
     setLoading(false);
   }
   
@@ -161,56 +184,84 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     </AnalyticsContext>
   }
   
+  // the EA Forum uses this prompt in most cases
+  const eaForumSubscribePrompt = (
+    <>
+      <div className={classes.message}>
+        <MailOutline className={classes.mailIcon} />
+        Sign up for the Forum's email digest
+      </div>
+      <div className={classes.messageDescription}>
+        Want a weekly email containing the best posts from the past week?
+        Our moderator Aaron sends out a weekly digest of recent posts that
+        have a lot of karma/discussion or seemed really good to him, as well
+        as question posts that could use more answers.
+      </div>
+    </>
+  );
+  
   if (loading) {
-    return <div>
+    return <div className={classes.root}>
       <Loading/>
     </div>
   } else if (subscriptionConfirmed) {
+    // Show the confirmation after the user subscribes
+    const confirmText = forumTypeSetting.get() === 'EAForum' ?
+      "You're subscribed to the EA Forum Digest!" :
+      "You are subscribed to the best posts of LessWrong!"
     return <AnalyticsWrapper branch="already-subscribed">
-      You are subscribed to the best posts of LessWrong!
+      <div className={classes.message}>
+        <CheckRounded className={classes.checkIcon} />
+        {confirmText}
+      </div>
     </AnalyticsWrapper>
   } else if (!currentUser || adminBranch===0) {
     // Not logged in. Show a create-account form and a brief pitch.
-    return <AnalyticsWrapper branch="logged-out">
+    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
       <div className={classes.message}>
         To get the best posts emailed to you, create an account! {subscriptionDescription}
       </div>
+    );
+    return <AnalyticsWrapper branch="logged-out">
+      {subscribeTextNode}
       <div className={classes.loginForm}>
         <WrappedLoginForm startingState="signup" />
       </div>
       {adminUiMessage}
-      <div className={classes.buttons}>
-        {maybeLaterButton}
-        {dontAskAgainButton}
-      </div>
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
+    const emailType = forumTypeSetting.get() === 'EAForum' ? 'our weekly digest email' : 'curated posts';
     // Logged in, but no email address associated. Probably a legacy account.
     // Show a text box for an email address, with a submit button and a subscribe
     // checkbox.
     return <AnalyticsWrapper branch="missing-email">
       <div className={classes.message}>
-        Your account does not have an email address associated. Add an email address to subscribe to curated posts and enable notifications.
+        Your account does not have an email address associated. Add an email address to subscribe to {emailType} and enable notifications.
       </div>
       
-      <Input placeholder="Email address" onChange={(ev)=>setEmailAddressInput(ev.target.value)} value={emailAddressInput} className={classes.emailInput} />
+      <Input placeholder="Email address" inputRef={emailAddressInput} className={classes.emailInput} />
       <SignupSubscribeToCurated defaultValue={true} onChange={(checked: boolean) => setSubscribeChecked(true)}/>
       
       <div className={classes.buttons}>
         <Button className={classes.subscribeButton} onClick={async (ev) => {
-          if (SimpleSchema.RegEx.Email.test(emailAddressInput)) {
+          const emailAddress = emailAddressInput.current;
+          if (emailAddress && SimpleSchema.RegEx.Email.test(emailAddress?.value)) {
             setLoading(true);
             try {
-              await updateCurrentUser({
-                email: emailAddressInput,
-                emailSubscribedToCurated: subscribeChecked,
-                unsubscribeFromAll: false,
-              });
-              // Confirmation-email mutation is separate from the send-verification-email
-              // mutation because otherwise it goes to the old email address (aka null)
-              await updateCurrentUser({
-                whenConfirmationEmailSent: new Date(),
-              });
+              // subscribe to different emails based on forum type
+              const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = forumTypeSetting.get() === 'EAForum' ?
+                {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
+              userSubscriptionData.email = emailAddress?.value;
+              userSubscriptionData.unsubscribeFromAll = false;
+              await updateCurrentUser(userSubscriptionData);
+
+              if (forumTypeSetting.get() !== 'EAForum') {
+                // Confirmation-email mutation is separate from the send-verification-email
+                // mutation because otherwise it goes to the old email address (aka null)
+                await updateCurrentUser({
+                  whenConfirmationEmailSent: new Date(),
+                });
+              }
               setSubscriptionConfirmed(true);
             } catch(e) {
               if (getGraphQLErrorID(e) === "users.email_already_taken") {
@@ -237,10 +288,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // on re-subscribing. A big Subscribe button, which clears the
     // unsubscribe-from-all option, activates curation emails (if not already
     // activated), and sends a confirmation email (if needed).
-    return <AnalyticsWrapper branch="previously-unsubscribed">
+    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
       <div className={classes.message}>
-        You previously unsubscribed from all emails from LessWrong. Re-subscribe to get the best posts emailed to you! {subscriptionDescription}
+        You previously unsubscribed from all emails from LessWrong.
+        Re-subscribe to get the best posts emailed to you! {subscriptionDescription}
       </div>
+    );
+    return <AnalyticsWrapper branch="previously-unsubscribed">
+      {subscribeTextNode}
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
         captureEvent("subscribeReminderButtonClicked", {buttonType: "subscribeButton"});
@@ -251,15 +306,18 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         {dontAskAgainButton}
       </div>
     </AnalyticsWrapper>
-  } else if (!currentUser.emailSubscribedToCurated || adminBranch===3) {
+  } else if (!currentUserSubscribed || adminBranch===3) {
     // User is logged in, and has an email address associated with their
     // account, but is not subscribed to curated posts. A Subscribe button which
     // sets the subscribe-to-curated option, and (if their email address isn't
     // verified) resends the verification email.
-    return <AnalyticsWrapper branch="logged-in-not-subscribed">
+    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
       <div className={classes.message}>
         Subscribe to get the best of LessWrong emailed to you. {subscriptionDescription}
       </div>
+    );
+    return <AnalyticsWrapper branch="logged-in-not-subscribed">
+      {subscribeTextNode}
       <Button className={classes.subscribeButton} onClick={async (ev) => {
         await updateAndMaybeVerifyEmail();
         captureEvent("subscribeReminderButtonClicked", {buttonType: "subscribeButton"});
