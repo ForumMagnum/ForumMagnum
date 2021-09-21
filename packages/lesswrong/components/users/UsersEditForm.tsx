@@ -16,9 +16,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: "60%",
-    maxWidth: 600,
-    margin: "auto",
     marginBottom: 100,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -65,7 +62,7 @@ const UsersEditForm = ({currentUser, terms, classes}: {
     },
   });
   
-  const [currentTab,setCurrentTab] = useState<string>("account");
+  const [currentTab,setCurrentTab] = useState<string|null>(null);
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -104,6 +101,7 @@ const UsersEditForm = ({currentUser, terms, classes}: {
   
   return <div className={classes.root}>
     <TabBar
+      smallScreenHeading="Account Settings"
       currentTab={currentTab} setCurrentTab={setCurrentTab}
       tabs={[
         {name: "account", label: "Account"},
