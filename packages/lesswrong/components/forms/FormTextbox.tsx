@@ -13,7 +13,7 @@ export function FormTextbox<T, FN extends keyof T>({form, fieldName, label}: {
   label: string,
 }) {
   const classes = useStyles(styles, "FormTextbox");
-  const {value,setValue} = useFormComponentContext<string,T>(form, fieldName);
+  const {value,setBouncyValue,flushDebounced} = useFormComponentContext<string,T>(form, fieldName);
   
   return <div className={classes.formField}>
     <span className={classes.leftColumn}>
@@ -22,7 +22,12 @@ export function FormTextbox<T, FN extends keyof T>({form, fieldName, label}: {
     <span className={classes.rightColumn}>
       <Input
         value={value||""}
-        onChange={(ev) => setValue(ev.target.value)}
+        onChange={(ev) => {
+          setBouncyValue(ev.target.value)
+        }}
+        onBlur={(ev) => {
+          flushDebounced();
+        }}
       />
     </span>
   </div>
