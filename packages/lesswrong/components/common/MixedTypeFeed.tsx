@@ -193,7 +193,7 @@ const MixedTypeFeed = (args: {
     )}
     
     <div ref={bottomRef}/>
-    {error && <div>{error}</div>}
+    {error && <div>{error.toString()}</div>}
     {!reachedEnd && <Loading/>}
   </div>
 }
