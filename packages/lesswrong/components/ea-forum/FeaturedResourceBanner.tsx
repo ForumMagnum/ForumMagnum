@@ -59,8 +59,8 @@ const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
-  const featuredResourceCookie = 'featured_resource';
-  const [cookies, setCookie] = useCookies([featuredResourceCookie])
+  const FEATURED_RESOURCE_COOKIE = 'featured_resource';
+  const [cookies, setCookie] = useCookies([FEATURED_RESOURCE_COOKIE])
   const { results, loading } = useMulti({
     terms,
     collectionName: 'FeaturedResources',
@@ -75,7 +75,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
   const resource = results[0];
   const cookieString = `${resource._id}${resource.expiresAt}`;
 
-  if(cookies[featuredResourceCookie] === cookieString) {
+  if(cookies[FEATURED_RESOURCE_COOKIE] === cookieString) {
     return null;
   }
 
