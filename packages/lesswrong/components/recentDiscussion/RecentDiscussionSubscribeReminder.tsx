@@ -267,7 +267,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
           if (emailAddress && SimpleSchema.RegEx.Email.test(emailAddress?.value)) {
             setLoading(true);
             try {
-<<<<<<< HEAD
               // subscribe to different emails based on forum type
               const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = forumTypeSetting.get() === 'EAForum' ?
                 {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
@@ -283,19 +282,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
                 });
               }
               setSubscriptionConfirmed(true);
-=======
-              await updateCurrentUser({
-                email: emailAddressInput,
-                emailSubscribedToCurated: subscribeChecked,
-                unsubscribeFromAll: false,
-              });
-              // Confirmation-email mutation is separate from the send-verification-email
-              // mutation because otherwise it goes to the old email address (aka null)
-              await updateCurrentUser({
-                whenConfirmationEmailSent: new Date(),
-              });
-              setVerificationEmailSent(true);
->>>>>>> c7c5f5b17... Revert "Remove requirement to have a verified email address before receiving email"
             } catch(e) {
               if (getGraphQLErrorID(e) === "users.email_already_taken") {
                 flash("That email address is already taken by a different account.");
