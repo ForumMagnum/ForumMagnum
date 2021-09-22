@@ -47,7 +47,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     borderRadius: 'unset',
     minWidth: '50%',
     background: theme.palette.primary.main,
-    color: 'white'
+    color: 'white',
+    '&:hover': {
+      background: theme.palette.primary.main,
+    },
   }
 }));
 
