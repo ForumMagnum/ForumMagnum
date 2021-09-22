@@ -54,10 +54,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }));
 
-const bodyWithInterpolatedDate = (resource: FeaturedResourcesFragment): string => {
-  return resource.body.replace(/\[\s*DATE\s*\]/, moment(resource.expiresAt).tz('UTC').format('MMMM DD'));
-}
-
 const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
@@ -97,7 +93,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
     </Typography>
     <Divider className={classes.divider}/>
     <Typography variant="body2" className={classes.body}>
-      {bodyWithInterpolatedDate(resource)}
+      {resource.body}
     </Typography>
     {resource.ctaUrl && resource.ctaText && <a href={resource.ctaUrl}>
       <Button color="primary" className={classes.ctaButton}>
