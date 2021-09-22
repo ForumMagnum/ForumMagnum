@@ -58,8 +58,8 @@ const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
-  const FEATURED_RESOURCE_COOKIE = 'featured_resource';
-  const [cookies, setCookie] = useCookies([FEATURED_RESOURCE_COOKIE])
+  const HIDE_FEATURED_RESOURCE_COOKIE = 'hide_featured_resource';
+  const [cookies, setCookie] = useCookies([HIDE_FEATURED_RESOURCE_COOKIE])
   const { results, loading } = useMulti({
     terms,
     collectionName: 'FeaturedResources',
@@ -72,15 +72,14 @@ const FeaturedResourceBanner = ({terms, classes} : {
   }
 
   const resource = results[0];
-  const cookieString = `${resource._id}${resource.expiresAt}`;
 
-  if(cookies[FEATURED_RESOURCE_COOKIE] === cookieString) {
+  if(cookies[HIDE_FEATURED_RESOURCE_COOKIE]) {
     return null;
   }
 
   const hideBanner = () => setCookie(
-    'featured_resource', 
-    cookieString, {
+    HIDE_FEATURED_RESOURCE_COOKIE, 
+    "true", {
     expires: moment().add(30, 'days').toDate(),
   });
 
