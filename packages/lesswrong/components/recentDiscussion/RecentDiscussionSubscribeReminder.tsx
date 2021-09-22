@@ -15,6 +15,8 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
+const isEAForum = forumTypeSetting.get() === 'EAForum'
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
@@ -105,7 +107,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   
   useEffect(() => {
     if (adminBranch === -1 && currentUser?.isAdmin) {
-      setAdminBranch(randInt(5));
+      setAdminBranch(randInt(isEAForum ? 4 : 5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
 
@@ -338,7 +340,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         {dontAskAgainButton}
       </div>
     </AnalyticsWrapper>
-  } else if (!userEmailAddressIsVerified(currentUser) || adminBranch===4) {
+  } else if ((!isEAForum && !userEmailAddressIsVerified(currentUser)) || adminBranch===4) {
     // User is subscribed, but they haven't verified their email address. Show
     // a resend-verification-email button.
     return <AnalyticsWrapper branch="needs-email-verification">
