@@ -15,6 +15,8 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
+const isEAForum = forumTypeSetting.get() === 'EAForum'
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
@@ -105,7 +107,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   
   useEffect(() => {
     if (adminBranch === -1 && currentUser?.isAdmin) {
-      setAdminBranch(randInt(5)); // TODO; test for eaforum ? 4 : 5
+      setAdminBranch(randInt(isEAForum ? 4 : 5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
 
@@ -214,15 +216,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <div className={classes.message}>
         <CheckRounded className={classes.checkIcon} />
         {confirmText}
-      </div>
-    </AnalyticsWrapper>
-  } else if (verificationEmailSent) {
-    // Clicked Subscribe in one of the other branches, and a confirmation email
-    // was sent. You need to verify your email address to complete the subscription.
-    const yourEmail = currentUser?.emails[0]?.address;
-    return <AnalyticsWrapper branch="needs-email-verification-subscribed-in-other-branch">
-      <div className={classes.message}>
-        We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.
       </div>
     </AnalyticsWrapper>
   } else if (verificationEmailSent) {
@@ -347,7 +340,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         {dontAskAgainButton}
       </div>
     </AnalyticsWrapper>
-  } else if (!userEmailAddressIsVerified(currentUser) || adminBranch===4) {
+  } else if ((!isEAForum && !userEmailAddressIsVerified(currentUser)) || adminBranch===4) {
     // User is subscribed, but they haven't verified their email address. Show
     // a resend-verification-email button.
     return <AnalyticsWrapper branch="needs-email-verification">
