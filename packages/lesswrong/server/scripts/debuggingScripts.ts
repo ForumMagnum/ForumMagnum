@@ -35,7 +35,7 @@ Vulcan.populateNotifications = async ({username, messageNotifications = 3, postN
     _.times(postNotifications, () => createDummyPost(randomUser))
   }
   if (commentNotifications > 0) {
-    const post = await Posts.findOne(); // Grab random post
+    const post = await Posts.findOneArbitrary(); // Grab random post
     //eslint-disable-next-line no-console
     console.log("generating new comments...")
     try {
@@ -48,7 +48,7 @@ Vulcan.populateNotifications = async ({username, messageNotifications = 3, postN
 
   }
   if (replyNotifications > 0) {
-    const post = await Posts.findOne();
+    const post = await Posts.findOneArbitrary();
     //eslint-disable-next-line no-console
     console.log("generating new replies...")
     try {
@@ -157,7 +157,7 @@ function makeStyledBody() {
 }
 
 Vulcan.createStyledPost = async () => {
-  const user = await Users.findOne();
+  const user = await Users.findOneArbitrary();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -185,7 +185,7 @@ Vulcan.createStyledPost = async () => {
 }
 
 Vulcan.createStyledAFPost = async () => {
-  const user = await Users.findOne();
+  const user = await Users.findOneArbitrary();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -214,7 +214,7 @@ Vulcan.createStyledAFPost = async () => {
 }
 
 Vulcan.createStyledQuestion = async () => {
-  const user = await Users.findOne();
+  const user = await Users.findOneArbitrary();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -319,7 +319,7 @@ Vulcan.createBulkyTestPost = async ({
   if(username)
     user = await Users.findOne({username});
   else
-    user = await Users.findOne();
+    user = await Users.findOneArbitrary();
 
   // Create a post
   const body = "<p>This is a programmatically generated test post.</p>" +

@@ -7,6 +7,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import classnames from 'classnames'
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -123,6 +124,7 @@ const WrappedLoginForm = (props: WrappedLoginFormProps) => {
 }
 
 const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLoginFormProps) => {
+  const { pathname } = useLocation()
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
   const [username, setUsername] = useState<string | undefined>(undefined)
@@ -175,13 +177,13 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
       </div>
       {/* <div className={classes.oAuthComment}>...or continue with</div>
       <div className={classes.oAuthBlock}>
-        <a className={classes.oAuthLink} href="/auth/facebook">FACEBOOK</a>
-        <a className={classes.oAuthLink} href="/auth/google">GOOGLE</a>
-        <a className={classes.oAuthLink} href="/auth/github">GITHUB</a>
-        * Temporarily here for EA Forum testing *
-        <a className={classes.oAuthLink} href="/auth/auth0">AUTH 0</a>
-      </div>
-      /* <a href="/auth/facebook"><FacebookIcon /></a>
+        <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
+        <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
+        <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+        {/* Temporarily here for EA Forum testing */}
+        {/* <a className={classes.oAuthLink} href="/auth/auth0">AUTH 0</a> */}
+      {/* </div> */}
+      {/* <a href="/auth/facebook"><FacebookIcon /></a>
       <a href="/auth/github"><GithubIcon /></a> */}
       {error && <div className={classes.error}>{error.message}</div>}
     </form>
@@ -189,10 +191,12 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
 }
 
 const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
+  const { pathname } = useLocation()
+  
   return <div className={classes.root}>
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
-      <a className={classes.oAuthLink} href="/auth/auth0">Login</a>
-      <a className={classes.oAuthLink} href="/auth/auth0?screen_hint=signup">Sign Up</a>
+      <a className={classes.oAuthLink} href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
+      <a className={classes.oAuthLink} href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
     </div>
   </div>
 }

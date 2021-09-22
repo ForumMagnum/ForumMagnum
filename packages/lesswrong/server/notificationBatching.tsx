@@ -10,6 +10,7 @@ import { Posts } from '../lib/collections/posts';
 import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
+import { getUserEmail } from '../lib/collections/users/helpers';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -45,7 +46,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   ).fetch();
   
   if (notificationsToEmail.length) {
-    const emails: any = await notificationBatchToEmails({
+    const emails = await notificationBatchToEmails({
       user, notifications: notificationsToEmail
     });
     
@@ -69,6 +70,7 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   } else {
     return await Promise.all(notifications.map(async (notification: DbNotification) => ({
       user,
+      to: getUserEmail(user),
       from: notificationTypeRenderer.from,
       subject: await notificationTypeRenderer.emailSubject({ user, notifications:[notification] }),
       body: await notificationTypeRenderer.emailBody({ user, notifications:[notification] }),

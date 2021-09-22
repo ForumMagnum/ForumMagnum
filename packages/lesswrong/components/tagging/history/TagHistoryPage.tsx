@@ -2,6 +2,8 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
+import { tagGetUrl } from '../../../lib/collections/tags/helpers';
+import { Link } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   feed: {
@@ -25,7 +27,7 @@ const TagHistoryPage = ({classes}: {
   }
   
   return <SingleColumnSection>
-    <h1>{tag.name}</h1>
+    <Link to={tagGetUrl(tag)}><h1>{tag.name}</h1></Link>
     <div className={classes.feed}>
     <MixedTypeFeed
       pageSize={50}
@@ -73,7 +75,7 @@ const TagHistoryPage = ({classes}: {
           fragmentName: "CommentsList",
           render: (comment: CommentsList) => <div>
             <CommentsNode
-              treeOptions={{}}
+              treeOptions={{ tag }}
               comment={comment}
               loadChildrenSeparately={true}
             />

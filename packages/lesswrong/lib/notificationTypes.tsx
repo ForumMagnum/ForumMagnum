@@ -14,6 +14,8 @@ import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import EventIcon from '@material-ui/icons/Event';
 import MailIcon from '@material-ui/icons/Mail';
+import { responseToText } from '../components/posts/PostsPage/RSVPForm';
+import sortBy from 'lodash/sortBy';
 
 interface NotificationType {
   name: string
@@ -170,6 +172,7 @@ export const NewShortformNotification = registerNotificationType({
   },
 });
 
+
 export const taggedPostMessage = async ({documentType, documentId}: {documentType: string|null, documentId: string|null}) => {
   const tagRel = await getDocument(documentType, documentId) as DbTagRel;
   const tag = await Tags.findOne({_id: tagRel.tagId})
@@ -273,6 +276,23 @@ export const PostSharedWithUserNotification = registerNotificationType({
   },
 });
 
+export const AlignmentSubmissionApprovalNotification = registerNotificationType({
+  name: "alignmentSubmissionApproved",
+  userSettingField: "notificationAlignmentSubmissionApproved",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    
+    if (documentType==='comment') {
+      return "Your comment has been accepted to the Alignment Forum";
+    } else if (documentType==='post') {
+      let post = await getDocument(documentType, documentId) as DbPost
+      return `Your post has been accepted to the Alignment Forum: ${post.title}`
+    } else throw new Error("documentType must be post or comment!")
+  },
+  getIcon() {
+    return <AllIcon style={iconStyles} />
+  },
+});
+
 export const NewEventInNotificationRadiusNotification = registerNotificationType({
   name: "newEventInRadius",
   userSettingField: "notificationEventInRadius",
@@ -291,6 +311,21 @@ export const EditedEventInNotificationRadiusNotification = registerNotificationT
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost
     return `The event ${document.title} changed locations`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})
+
+
+export const NewRSVPNotification = registerNotificationType({
+  name: "newRSVP",
+  userSettingField: "notificationRSVPs",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const document = await getDocument(documentType, documentId) as DbPost
+    const rsvps = document.rsvps || []
+    const lastRSVP = sortBy(rsvps, r => r.createdAt)[rsvps.length - 1]
+    return `${lastRSVP.name} ${lastRSVP.email ? `(${lastRSVP.email})` : ""} responded "${responseToText[lastRSVP.response]}" to your event ${document.title}`
   },
   getIcon() {
     return <EventIcon style={iconStyles} />

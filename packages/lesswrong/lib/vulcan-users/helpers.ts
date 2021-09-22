@@ -38,7 +38,10 @@ export const userGetGitHubName = function(user: DbUser): string|null {
 };
 
 // Get a user's email
-export const userGetEmail = function(user: DbUser): string|null {
+export const userGetEmail = function(user: DbUser|null): string|null {
+  if (!user) {
+    return null;
+  }
   if (user.email) {
     return user.email;
   } else {

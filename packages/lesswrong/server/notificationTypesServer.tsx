@@ -17,6 +17,8 @@ import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventInRadiusEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
+import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 
 interface ServerNotificationType {
   name: string,
@@ -283,6 +285,40 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   },
 });
 
+export const isComment = (document: DbPost | DbComment) : document is DbComment => {
+  if (document.hasOwnProperty("answer")) return true //only comments can be answers
+  return false
+}
+
+export const AlignmentSubmissionApprovalNotification = serverRegisterNotificationType({
+  name: "alignmentSubmissionApproved",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    return "Your submission to the Alignment Forum has been approved!";
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let document: DbPost|DbComment|null 
+    document = await Posts.findOne(notifications[0].documentId);
+    if (!document) {
+      document = await Comments.findOne(notifications[0].documentId)
+    }
+    if (!document) throw Error(`Can't find document for notification: ${notifications[0]}`)
+
+    if (isComment(document)) {
+      const link = commentGetPageUrlFromIds({postId: document.postId, commentId: document._id, isAbsolute: true})
+      return <p>
+        Your <a href={link}>comment submission</a> to the Alignment Forum has been approved.
+      </p>
+    }
+    else {
+      const link = postGetPageUrl(document, true)
+      return <p>
+        Your post, <a href={link}>{document.title}</a>, has been accepted to the Alignment Forum.
+      </p>
+    }
+  },
+});
+
 export const NewEventInRadiusNotification = serverRegisterNotificationType({
   name: "newEventInRadius",
   canCombineEmails: false,
@@ -312,5 +348,28 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
       openingSentence="An event in your area has been edited"
       postId={notifications[0].documentId}
     />
+  },
+});
+
+
+export const NewRSVPNotification = serverRegisterNotificationType({
+  name: "newRSVP",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    return `New RSVP for your event: ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    return <div>
+      <p>
+        {notifications[0].message}
+      </p>
+      <p>
+        <a href={postGetPageUrl(post,true)}>Event Link</a>
+      </p>
+    </div>
   },
 });

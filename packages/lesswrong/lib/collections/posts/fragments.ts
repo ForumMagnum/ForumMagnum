@@ -36,6 +36,7 @@ registerFragment(`
     unlisted
     score
     lastVisitedAt
+    isFuture
     isRead
     lastCommentedAt
     lastCommentPromotedAt
@@ -235,6 +236,8 @@ registerFragment(`
       }
       order
     }
+    rsvps
+    activateRSVPs
   }
 `);
 

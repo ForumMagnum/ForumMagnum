@@ -30,6 +30,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
       return false;
     },
   }),
+  logChanges: true,
 });
 
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {

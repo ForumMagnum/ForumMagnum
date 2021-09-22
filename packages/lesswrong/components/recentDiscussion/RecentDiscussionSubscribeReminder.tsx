@@ -104,7 +104,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   
   useEffect(() => {
     if (adminBranch === -1 && currentUser?.isAdmin) {
-      setAdminBranch(randInt(4));
+      setAdminBranch(randInt(5)); // TODO; test for eaforum ? 4 : 5
     }
   }, [adminBranch, currentUser?.isAdmin]);
 
@@ -210,9 +210,19 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       "You're subscribed to the EA Forum Digest!" :
       "You are subscribed to the best posts of LessWrong!"
     return <AnalyticsWrapper branch="already-subscribed">
+      You are subscribed to the best posts of LessWrong!
       <div className={classes.message}>
         <CheckRounded className={classes.checkIcon} />
         {confirmText}
+      </div>
+    </AnalyticsWrapper>
+  } else if (verificationEmailSent) {
+    // Clicked Subscribe in one of the other branches, and a confirmation email
+    // was sent. You need to verify your email address to complete the subscription.
+    const yourEmail = currentUser?.emails[0]?.address;
+    return <AnalyticsWrapper branch="needs-email-verification-subscribed-in-other-branch">
+      <div className={classes.message}>
+        We sent an email to {yourEmail}. Follow the link in the email to complete your subscription.
       </div>
     </AnalyticsWrapper>
   } else if (!currentUser || adminBranch===0) {

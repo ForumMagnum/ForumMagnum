@@ -90,9 +90,10 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['members'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-    editableBy: ['alignmentForum', 'alignmentForumAdmins'],
+    insertableBy: ['members', 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
+    hidden: true,
     label: "Suggested for Alignment by",
     control: "UsersListEditor",
     group: formGroups.adminOptions,

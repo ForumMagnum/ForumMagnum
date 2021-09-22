@@ -453,7 +453,7 @@ describe('userCanModeratePost --', ()=> {
 describe('userCanEditUsersBannedUserIds --', ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
-    const user = await Users.findOne()
+    const user = await Users.findOneArbitrary()
     if (!user) throw Error("Can't find any user")
     expect(userCanEditUsersBannedUserIds(null, user)).to.be.false;
   })

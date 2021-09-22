@@ -19,6 +19,41 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
+export interface RSVPType {
+  name: string
+  email: string
+  nonPublic: boolean
+  response: "yes" | "maybe" | "no"
+  userId: string
+  createdAt: Date
+}
+const rsvpType = new SimpleSchema({
+  name: {
+    type: String,
+  },
+  email: {
+    type: String,
+    optional: true,
+  },
+  nonPublic: {
+    type: Boolean,
+    optional: true,
+  },
+  response: {
+    type: String,
+    allowedValues: ["yes", "maybe", "no"],
+  },
+  userId: {
+    type: String,
+    optional: true,
+  },
+  createdAt: {
+    type: Date,
+    optional: true
+  },
+})
+
+
 const schema: SchemaType<DbPost> = {
   // Timestamp of post creation
   createdAt: {
@@ -636,6 +671,42 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+  
+  // TODO: doc
+  rsvps: {
+    type: Array,
+    viewableBy: ['guests'],
+    optional: true,
+    // TODO: how to remove people without db access?
+    hidden: true,
+  },
+  
+  'rsvps.$': {
+    type: rsvpType,
+    viewableBy: ['guests'],
+  },
+
+  activateRSVPs: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: (props) => !props.eventForm,
+    group: formGroups.event,
+    control: 'checkbox',
+    label: "Enable RSVPs for this event",
+    optional: true
+  },
+  
+  nextDayReminderSent: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
     ...schemaDefaultValue(false),
   },
 };

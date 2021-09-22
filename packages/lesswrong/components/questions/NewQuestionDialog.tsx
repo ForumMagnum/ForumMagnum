@@ -10,6 +10,9 @@ import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useDialog } from "../common/withDialog";
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -26,12 +29,18 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
+  const { openDialog } = useDialog();
   const { PostSubmit, SubmitToFrontpageCheckbox, LWDialog } = Components
+  
+  const {mutate: updatePost} = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SuggestAlignmentPost',
+  });
   
   const QuestionSubmit = (props) => {
     return <div className={classes.formSubmit}>
       <SubmitToFrontpageCheckbox {...props}/>
-      <PostSubmit {...props} />
+      <PostSubmit feedbackLabel={"Get Feedback"} {...props} />
     </div>
   }
   const af = forumTypeSetting.get() === 'AlignmentForum'
@@ -55,9 +64,10 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
           }}
           cancelCallback={onClose}
           successCallback={(post: PostsList) => {
-            history.push({pathname: postGetPageUrl(post)});
+            onClose();
+            history.push({pathname: postGetPageUrl(post)})
             flash({ messageString: "Post created.", type: 'success'});
-            onClose()
+            if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
           }}
           formComponents={{
             FormSubmit: QuestionSubmit,
