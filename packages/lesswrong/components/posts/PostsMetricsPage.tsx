@@ -11,8 +11,16 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import { Typography } from '@material-ui/core'
+import { Link } from '../../lib/reactRouterWrapper'
+import { forumTypeSetting } from '../../lib/instanceSettings'
 
 const styles = (theme: ThemeType): JssStyles => ({
+  viewingNotice: {
+    marginTop: theme.spacing.unit * 4,
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
 })
 
 const PostsMetricsPage = ({ classes }) => {
@@ -57,6 +65,7 @@ const PostsMetricsPage = ({ classes }) => {
   }
 
   const title = `Analytics for "${post.title}"`
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
   return (<>
     <HeadTags title={title} />
     <SingleColumnSection>
@@ -67,8 +76,17 @@ const PostsMetricsPage = ({ classes }) => {
             <TableCell>Unique client views</TableCell>
             <TableCell>{postMetrics?.uniqueClientViews}</TableCell>
           </TableRow>
+          <TableRow>
+            <TableCell>Unique client views</TableCell>
+            <TableCell>{postMetrics?.uniqueClientViews}</TableCell>
+          </TableRow>
         </TableBody>
       </Table>
+      <Typography variant="body1" className={classes.viewingNotice}>
+        <p>This features is new. <Link to='/contact-us'>Let us know what you think.</Link></p>
+        <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
+      </Typography>
+
     </SingleColumnSection>
   </>)
 }
