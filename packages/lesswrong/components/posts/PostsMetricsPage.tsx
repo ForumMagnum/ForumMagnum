@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsMetricsInner = ({ classes, post }) => {
   const { postMetrics, loading, error } = usePostMetrics(post._id)
-  const { SingleColumnSection, HeadTags, Loading } = Components
+  const { Loading } = Components
   if (loading) {
     return <Loading />
   }
@@ -34,31 +34,18 @@ const PostsMetricsInner = ({ classes, post }) => {
     throw error
   }
 
-  const title = `Analytics for "${post.title}"`
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
-  return (<>
-    <HeadTags title={title} />
-    <SingleColumnSection>
-      <Typography variant='display3' gutterBottom>{title}</Typography>
-      <Table>
-        <TableBody>
-          <TableRow>
-            <TableCell>Views by unique devices</TableCell>
-            <TableCell>{postMetrics?.uniqueClientViews}</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
-            <TableCell>{postMetrics?.uniqueClientViews10Sec}</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-      <Typography variant="body1" className={classes.viewingNotice} component='div'>
-        <p>This features is new. <Link to='/contact-us'>Let us know what you think.</Link></p>
-        <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
-      </Typography>
-
-    </SingleColumnSection>
-  </>)
+  return (<Table>
+    <TableBody>
+      <TableRow>
+        <TableCell>Views by unique devices</TableCell>
+        <TableCell>{postMetrics?.uniqueClientViews}</TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
+        <TableCell>{postMetrics?.uniqueClientViews10Sec}</TableCell>
+      </TableRow>
+    </TableBody>
+  </Table>)
 }
 
 const PostsMetricsInnerComponent = registerComponent('PostsMetricsInner', PostsMetricsInner, {styles})
@@ -69,7 +56,7 @@ declare global {
   }
 }
 
-const PostsMetricsPage = () => {
+const PostsMetricsPage = ({ classes }) => {
   const { query } = useLocation()
   const { document: post } = useSingle({
     documentId: query.postId,
@@ -78,7 +65,7 @@ const PostsMetricsPage = () => {
   })
   const currentUser = useCurrentUser()
   const serverRequestStatus = useServerRequestStatus()
-  const { SingleColumnSection, WrappedLoginForm, PostsMetricsInner } = Components
+  const { SingleColumnSection, WrappedLoginForm, PostsMetricsInner, HeadTags } = Components
 
   if (!query.postId) {
     return <SingleColumnSection>
@@ -104,14 +91,27 @@ const PostsMetricsPage = () => {
     </SingleColumnSection>
   }
   
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
+  const title = `Analytics for "${post.title}"`
+  
   // Metrics query can still be very expensive despire indexes, and we don't
   // want 30 seconds before TTFB
-  return <NoSsr>
-    <PostsMetricsInner post={post} />
-  </NoSsr>
+  return <>
+    <HeadTags title={title} />
+    <SingleColumnSection>
+      <Typography variant='display3' gutterBottom>{title}</Typography>
+      <NoSsr>
+        <PostsMetricsInner post={post} />
+      </NoSsr>
+        <Typography variant="body1" className={classes.viewingNotice} component='div'>
+        <p>This features is new. <Link to='/contact-us'>Let us know what you think.</Link></p>
+        <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
+      </Typography>
+    </SingleColumnSection>
+  </>
 }
 
-const PostsMetricsPageComponent = registerComponent('PostsMetricsPage', PostsMetricsPage)
+const PostsMetricsPageComponent = registerComponent('PostsMetricsPage', PostsMetricsPage, { styles })
 
 declare global {
   interface ComponentTypes {
