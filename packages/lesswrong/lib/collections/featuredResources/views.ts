@@ -14,6 +14,7 @@ FeaturedResources.addView("activeUnexpiredResources", function (terms: FeaturedR
     },
     options: {
       sort: { expiresAt: 1 },
+      limit: 1,
     }
   }
 });
