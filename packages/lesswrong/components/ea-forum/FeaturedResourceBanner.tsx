@@ -1,6 +1,6 @@
 import React from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Button, Card, createStyles, Divider, Typography } from '@material-ui/core';
+import { Button, Card, createStyles, Divider, Tooltip, Typography } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCookies } from 'react-cookie';
@@ -81,13 +81,15 @@ const FeaturedResourceBanner = ({terms, classes} : {
   const hideBanner = () => setCookie(
     'featured_resource', 
     cookieString, {
-    expires: moment().add(1, 'month').startOf('month').toDate(),
+    expires: moment().add(30, 'days').toDate(),
   });
 
   return <Card className={classes.card}>
-    <Button className={classes.closeButton} onClick={hideBanner}>
-        <CloseIcon className={classes.closeIcon}/>
-    </Button>    
+    <Tooltip title="Hide this for the next month">
+      <Button className={classes.closeButton} onClick={hideBanner}>
+          <CloseIcon className={classes.closeIcon}/>
+      </Button>    
+    </Tooltip>
     <Typography variant="title" className={classes.title}>
       {resource.title}
     </Typography>
