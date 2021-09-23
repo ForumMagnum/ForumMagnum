@@ -281,7 +281,7 @@ interface UserLocation {
 // for server-side rendering, but we can try to get a location client-side
 // using the browser geolocation API. (This won't necessarily work, since not
 // all browsers and devices support it, and it requires user permission.)
-export const userGetLocation = (currentUser: UsersCurrent|DbUser|null, onLoadFinished: ((location: UserLocation)=>void)|null): UserLocation => {
+export const userGetLocation = (currentUser: UsersCurrent|DbUser|null, onLoadFinished?: ((location: UserLocation)=>void)|null): UserLocation => {
   const placeholderLat = 37.871853;
   const placeholderLng = -122.258423;
 
