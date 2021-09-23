@@ -1,4 +1,4 @@
-name: With server
+name: Run Cypress Tests
 on: [push]
 jobs:
   buildAndRunCypressTests:
