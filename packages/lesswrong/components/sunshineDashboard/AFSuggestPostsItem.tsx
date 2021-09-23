@@ -14,7 +14,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import {commentBodyStyles} from "../../themes/stylePiping";
 import {DatabasePublicSetting} from "../../lib/publicSettings";
 
-export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses") // ea-forum-look-here; maybe should pull the tagId or tagName from the other?
+export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
 export const afSubmissionHeader = (theme) => ({
   ...commentBodyStyles(theme),
@@ -156,4 +156,3 @@ declare global {
     AFSuggestPostsItem: typeof AFSuggestPostsItemComponent
   }
 }
-
