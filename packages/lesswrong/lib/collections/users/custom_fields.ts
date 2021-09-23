@@ -672,6 +672,7 @@ addFieldsDict(Users, {
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
+    hidden: forumTypeSetting.get() === 'EAForum',
     ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationEventInRadius: {
