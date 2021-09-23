@@ -1,0 +1,13 @@
+diff --git a/packages/lesswrong/components/posts/PostSubmit.tsx b/packages/lesswrong/components/posts/PostSubmit.tsx
+index 4d972d5ff..28b2cf528 100644
+--- a/packages/lesswrong/components/posts/PostSubmit.tsx
++++ b/packages/lesswrong/components/posts/PostSubmit.tsx
+@@ -85,7 +85,7 @@ const PostSubmit = ({
+         </div>
+       }
+       <div className={classes.submitButtons}>
+-        {forumTypeSetting.get()!="EAForum" && currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
++        {(forumTypeSetting.get() === "EAForum" || currentUser.karma >= 100) && document.draft!==false && <Button type="submit"//treat as draft when draft is null
+                 className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
+                 onClick={() => {
+                   captureEvent("feedbackRequestButtonClicked")
