@@ -5,7 +5,7 @@ import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
 import { useSingle } from '../../lib/crud/withSingle'
 import { useCurrentUser } from '../common/withUser'
 import { userOwns } from '../../lib/vulcan-users'
-import { usePostMetrics } from './usePostMetrics'
+import { usePostAnalytics } from './usePostAnalytics'
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -24,8 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsMetricsInner = ({ classes, post }) => {
-  const { postMetrics, loading, error } = usePostMetrics(post._id)
+const PostsAnalyticsInner = ({ classes, post }) => {
+  const { postAnalytics, loading, error } = usePostAnalytics(post._id)
   const { Loading } = Components
   if (loading) {
     return <Loading />
@@ -38,25 +38,25 @@ const PostsMetricsInner = ({ classes, post }) => {
     <TableBody>
       <TableRow>
         <TableCell>Views by unique devices</TableCell>
-        <TableCell>{postMetrics?.uniqueClientViews}</TableCell>
+        <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
-        <TableCell>{postMetrics?.uniqueClientViews10Sec}</TableCell>
+        <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
       </TableRow>
     </TableBody>
   </Table>)
 }
 
-const PostsMetricsInnerComponent = registerComponent('PostsMetricsInner', PostsMetricsInner, {styles})
+const PostsAnalyticsInnerComponent = registerComponent('PostsAnalyticsInner', PostsAnalyticsInner, {styles})
 
 declare global {
   interface ComponentTypes {
-    PostsMetricsInner: typeof PostsMetricsInnerComponent
+    PostsAnalyticsInner: typeof PostsAnalyticsInnerComponent
   }
 }
 
-const PostsMetricsPage = ({ classes }) => {
+const PostsAnalyticsPage = ({ classes }) => {
   const { query } = useLocation()
   const { document: post } = useSingle({
     documentId: query.postId,
@@ -65,7 +65,7 @@ const PostsMetricsPage = ({ classes }) => {
   })
   const currentUser = useCurrentUser()
   const serverRequestStatus = useServerRequestStatus()
-  const { SingleColumnSection, WrappedLoginForm, PostsMetricsInner, HeadTags } = Components
+  const { SingleColumnSection, WrappedLoginForm, PostsAnalyticsInner, HeadTags } = Components
 
   if (!query.postId) {
     return <SingleColumnSection>
@@ -101,7 +101,7 @@ const PostsMetricsPage = ({ classes }) => {
     <SingleColumnSection>
       <Typography variant='display3' gutterBottom>{title}</Typography>
       <NoSsr>
-        <PostsMetricsInner post={post} />
+        <PostsAnalyticsInner post={post} />
       </NoSsr>
         <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p>This features is new. <Link to='/contact-us'>Let us know what you think.</Link></p>
@@ -111,10 +111,10 @@ const PostsMetricsPage = ({ classes }) => {
   </>
 }
 
-const PostsMetricsPageComponent = registerComponent('PostsMetricsPage', PostsMetricsPage, { styles })
+const PostsAnalyticsPageComponent = registerComponent('PostsAnalyticsPage', PostsAnalyticsPage, { styles })
 
 declare global {
   interface ComponentTypes {
-    PostsMetricsPage: typeof PostsMetricsPageComponent
+    PostsAnalyticsPage: typeof PostsAnalyticsPageComponent
   }
 }

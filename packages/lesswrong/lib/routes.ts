@@ -207,7 +207,7 @@ addRoute(
   {
     name: 'postAnalytics',
     path: '/postAnalytics',
-    componentName: 'PostsMetricsPage',
+    componentName: 'PostsAnalyticsPage',
     background: "white"
   },
   {
