@@ -34,7 +34,7 @@ const PetrovDayWrapper = () => {
     ssr: true
   });
   
-  console.log({internal: internalData?.PetrovDayCheckIfIncoming, external: externalData?.PetrovDayCheckIfIncoming})
+  // console.log({internal: internalData?.PetrovDayCheckIfIncoming, external: externalData?.PetrovDayCheckIfIncoming})
   
   const foreignLaunchedAt = externalData?.PetrovDayCheckIfIncoming?.createdAt
   
