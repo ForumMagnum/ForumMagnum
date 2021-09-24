@@ -14,7 +14,8 @@ import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { mailchimpAPIKeySetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import { userGetLocation } from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 

@@ -5,13 +5,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const forumDefaultCheckboxLabels = {
-  LessWrong: 'Moderators may promote to Frontpage',
-  AlignmentForum: 'Moderators may promote to Frontpage',
-  EAForum: 'Moderators may promote to Frontpage or Community'
-}
-
-const defaultCheckboxLabel = forumDefaultCheckboxLabels[forumTypeSetting.get()]
+const defaultCheckboxLabel = 'Moderators may promote to Frontpage'
 
 const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>

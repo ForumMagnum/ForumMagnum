@@ -6,7 +6,7 @@ The EA Forum is a synced fork of [LessWrong](https://github.com/LessWrong2/Lessw
 
 The EA Forum is built on top of a number major open-source libraries.
 
-1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from.
+1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
 
 2. [Typescript](https://www.typescriptlang.org/) is the programming language we're using. It's like Javascript, but with type annotations. We're gradually moving from un-annotated Javascript towards having annotations on everything, and any new code should have type annotations when it's added.
 
@@ -81,12 +81,25 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
   There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). New components should be functional components, using hooks and ideally minimizing usage of higher-order components. Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
 
   We use Vulcan’s `registerComponent` function to add them as children to a central “Components” table.
+  
+* **Smart Forms** - Vulcan also allows us to automatically generate simple forms to create and edit Documents (in the Mongo sense of the word Document, any instance of a Collection). This functionality is called Smart Forms.
 
+  You can create an `EditFoo` page, which renders `WrappedSmartForm`, which then automagically creates a form for you. We use this to edit just about every Document in the codebase. How does it know what type of input you want though? This is the interesting part. You define the way you want to edit fields in the collection schema. So in Posts you have (selected examples):
+
+  - Sticky
+      - Because it's admin-only, it doesn't show up unless it's edited by an admin.
+      - It's control is `'checkbox'`, which makes it editable by a simple checkbox.
+      - It's grouped among admin options, so it appears with the other admin options
+  - Title
+      - It's control is `'EditTitle'`, which means the Smart Form will look in Components for an EditTitle component, and then use that as the UI for modifying the Title.
+      
 * **useFoo (React Hooks)** - We make heavy use of [React hooks](https://reactjs.org/docs/hooks-intro.html) for querying data, managing state, and accessing shared data like the current user.
 
 * **withFoo (Higher Order Components)** – Higher-order components exist as alternatives for most hooks, and are sometimes used because class-components cannot use hooks. However, these are deprecated and we are migrating towards only using hooks.
 
 * **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
+
+* **makeEditable** - To add a long text field to a schema, use `makeEditable`. It add the correct control component, and creates the necessary callbacks to sync it with the Revisions table.
 
 * **Configuration and Secrets** We store most configuration and secrets in the
   database, not in environment variables like you might expect. See
@@ -125,6 +138,4 @@ used.
 
 ### Where to branch off of
 
-I usually branch off of LW's devel branch when I'm making changes. That way, if I discover a bug while developing, I know it's legit. And I generally want to submit changes upstream before merging them locally.
-
-To do this I create a git remote called upstream, which points to `git@github.com:LessWrong2/Lesswrong2.git`. Then I create a local branch called lw-devel which tracks upstream/devel.
+Branch off of `ea-master` and submit to `ea-master`. After review and merging, submit to `LessWrong:master`.

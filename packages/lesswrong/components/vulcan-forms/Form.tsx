@@ -8,7 +8,6 @@ This component expects:
 
 - collection
 - currentUser
-- client (Apollo client)
 
 ### New Form:
 
@@ -135,6 +134,9 @@ const getInitialStateFromProps = nextProps => {
 
 */
 
+/**
+ * Note: Only use this through WrappedSmartForm
+ */
 class SmartForm extends Component<any,any> {
   constructor(props) {
     super(props);
@@ -298,8 +300,6 @@ class SmartForm extends Component<any,any> {
 
     // sort by order
     groups = _.sortBy(groups, 'order');
-
-    // console.log(groups);
 
     return groups;
   };
@@ -1095,7 +1095,6 @@ class SmartForm extends Component<any,any> {
   ...callbackProps,
 
   currentUser: PropTypes.object,
-  client: PropTypes.object
 };
 
 (SmartForm as any).defaultProps = {

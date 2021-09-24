@@ -235,8 +235,8 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
   return comment;
 });
 
-export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser) {
-  if (currentUser._id !== comment.userId && comment.deleted && comment.contents && comment.contents.html) {
+export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser | undefined) {
+  if (currentUser?._id !== comment.userId && comment.deleted && comment.contents?.html) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
@@ -446,4 +446,3 @@ getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
   await newDocumentMaybeTriggerReview(document);
   return document;
 })
-

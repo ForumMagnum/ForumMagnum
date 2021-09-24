@@ -1,0 +1,24 @@
+name: With server
+on: [push]
+jobs:
+  buildAndRunCypressTests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [15.x]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: yarn install
+      run: yarn install
+
+    - name: Cypress run
+      uses: cypress-io/github-action@v2
+      with:
+          start: yarn ea-start-memory-db

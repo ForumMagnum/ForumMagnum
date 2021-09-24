@@ -83,6 +83,7 @@ export const elicitSourceId = new DatabasePublicSetting('elicitSourceId', 'XCjOp
 
 export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
 
-export const mailchimpAPIKeySetting = new DatabasePublicSetting<string | null>('mailchimp.apiKey', null)
 export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null)
 export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaForumListId', null)
+
+export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
