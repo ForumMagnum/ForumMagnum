@@ -242,8 +242,8 @@ const petrovDayLaunchResolvers = {
           "variables": {}, 
           "query": `query petrovDayLaunchResolvers 
             {\n  PetrovDayCheckIfIncoming(external: false)
-              {\n    launched\n    __typename\n  }
-              {\n    createdAt\n    __typename\n  }
+              {\n    launched\n    __typename\n 
+              \n     createdAt\n    __typename\n  }
             \n}
           \n` 
         }]
