@@ -9,10 +9,10 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import { Typography } from '@material-ui/core'
 import { Link } from '../../lib/reactRouterWrapper'
 import { forumTypeSetting } from '../../lib/instanceSettings'
 import NoSsr from '@material-ui/core/NoSsr';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   viewingNotice: {
@@ -21,13 +21,26 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.primary.main,
     },
   },
+  // TODO: right now on lw-master, gutterBottom exists on the Typography class,
+  // but we don't yet have that code
+  gutterBottom: {
+    marginBottom: '0.35em',
+  },
+  calculating: {
+    marginLeft: theme.spacing.unit * 2,
+  },
 })
 
 const PostsAnalyticsInner = ({ classes, post }) => {
   const { postAnalytics, loading, error } = usePostAnalytics(post._id)
-  const { Loading } = Components
+  const { Loading, Typography } = Components
   if (loading) {
-    return <Loading />
+    return <>
+      <Typography variant="body1" className={classNames(classes.gutterBottom, classes.calculating)}>
+        <em>Calculating metrics. (This can take some time for popular posts.)</em>
+      </Typography>
+      <Loading />
+    </>
   }
   if (error) {
     throw error
@@ -64,7 +77,9 @@ const PostsAnalyticsPage = ({ classes }) => {
   })
   const currentUser = useCurrentUser()
   const serverRequestStatus = useServerRequestStatus()
-  const { SingleColumnSection, WrappedLoginForm, PostsAnalyticsInner, HeadTags } = Components
+  const {
+    SingleColumnSection, WrappedLoginForm, PostsAnalyticsInner, HeadTags, Typography
+  } = Components
 
   if (!query.postId) {
     return <SingleColumnSection>
@@ -97,7 +112,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   return <>
     <HeadTags title={title} />
     <SingleColumnSection>
-      <Typography variant='display3' gutterBottom>{title}</Typography>
+      <Typography variant='body1' className={classes.gutterBottom}>{title}</Typography>
       <NoSsr>
         <PostsAnalyticsInner post={post} />
       </NoSsr>
