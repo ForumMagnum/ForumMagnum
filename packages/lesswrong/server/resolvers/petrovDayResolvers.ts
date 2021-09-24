@@ -235,7 +235,7 @@ const petrovDayLaunchResolvers = {
   Query: {
     async PetrovDayCheckIfIncoming(root: void, {external}: {external: boolean}, context: ResolverContext) {
       if (external) {
-        const externalUrl = forumTypeSetting.get() === 'EAForum' ? `http://lessestwrong.com/graphql?` : `https://forum-staging.effectivealtruism.org/graphql`
+        const externalUrl = forumTypeSetting.get() === 'EAForum' ? `https://lessestwrong.com/graphql?` : `https://forum-staging.effectivealtruism.org/graphql`
         const payload = [{ 
           "operationName": "petrovDayLaunchResolvers", 
           "variables": {}, 
