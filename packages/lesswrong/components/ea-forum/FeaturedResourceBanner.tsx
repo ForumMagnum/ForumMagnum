@@ -1,10 +1,11 @@
 import React from 'react'
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { Button, Card, createStyles, Divider, Tooltip, Typography } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import _ from 'underscore';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -71,7 +72,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
     return null;
   }
 
-  const resource = results[0];
+  const resource = _.sample(results) as FeaturedResourcesFragment;
 
   if(cookies[HIDE_FEATURED_RESOURCE_COOKIE]) {
     return null;

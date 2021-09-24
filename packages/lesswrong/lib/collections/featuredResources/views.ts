@@ -12,8 +12,7 @@ FeaturedResources.addView("activeResources", function (terms: FeaturedResourcesV
       expiresAt: {$gt: new Date()},
     },
     options: {
-      sort: { expiresAt: 1 },
-      limit: 1,
+      limit: 5,
     }
   }
 });
