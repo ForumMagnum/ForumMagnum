@@ -6,8 +6,6 @@ jobs:
     strategy:
       matrix:
         node-version: [15.x]
-    environment:
-      name: eaforum-testing
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -23,6 +21,6 @@ jobs:
     - name: Cypress run
       uses: cypress-io/github-action@v2
       env:
-        TEST_DB_URL: ${{ secrets.TEST_DB_URL }}
+        TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
       with:
           start: yarn ea-start
