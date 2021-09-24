@@ -23,4 +23,4 @@ jobs:
       env:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
       with:
-          start: yarn ea-start
+          start: yarn ea-start-testing-db
