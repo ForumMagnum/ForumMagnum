@@ -242,7 +242,7 @@ const petrovDayLaunchResolvers = {
           "query": `query petrovDayLaunchResolvers 
             {\n  PetrovDayCheckIfIncoming(external: false)
               {\n    launched\n    __typename\n  
-              \n    createdAt\n    __typename\n  }
+              \n    createdAt\n      }
             \n}
           \n` 
         }]
@@ -263,7 +263,7 @@ const petrovDayLaunchResolvers = {
         // console.log({fetchResponse: data[0]?.data})
         return {
           launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched,
-          createdAt: data[0]?.data?.PetrovDayCheckIfIncoming.createdAt
+          createdAt: new Date(data[0]?.data?.PetrovDayCheckIfIncoming.createdAt),
         }
       }
       const launches = await PetrovDayLaunchs.find().fetch()
