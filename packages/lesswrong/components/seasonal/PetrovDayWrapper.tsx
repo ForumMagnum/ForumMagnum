@@ -34,7 +34,8 @@ const PetrovDayWrapper = () => {
     ssr: true
   });
   
-  // console.log({internal: internalData?.PetrovDayCheckIfIncoming, external: externalData?.PetrovDayCheckIfIncoming})
+  // eslint-disable-next-line no-console
+  console.log({internal: internalData?.PetrovDayCheckIfIncoming, external: externalData?.PetrovDayCheckIfIncoming})
   
   const foreignLaunchedAt = externalData?.PetrovDayCheckIfIncoming?.createdAt
   

@@ -129,7 +129,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
   const { petrovPressedButtonDate, petrovCodesEntered } = (currentUser || {}) as any; //FIXME: These fields are not in the fragment; add them back for next Petrov day if we want to do it again
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
   const [launchCode, setLaunchCode] = useState(petrovCodesEntered)
-  const [launched, setLaunched] = useState(alreadyLaunched)
+  const [launched, setLaunched] = useState(!!alreadyLaunched)
 
 
   const [ mutate ] = useMutation(gql`
@@ -211,7 +211,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
           }
           {currentUser ? 
               <div className={classes.button}>
-                {(renderButtonAsPressed || alreadyLaunched) ? 
+                {(renderButtonAsPressed || launched) ? 
                   <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
                     <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
                   </LWTooltip>
@@ -235,9 +235,9 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
             </div>
           }
   
-          {alreadyLaunched ?
+          {launched ?
             <div className={classes.info}>
-              <p >{isEAForum ? "the EA Forum's" : "LessWrong's"} missiles have been launched.</p>
+              <p >{isEAForum ? "The EA Forum's" : "LessWrong's"} missiles have been launched.</p>
               <p>We hope you made good choices.</p>
             </div>
             : <div className={classes.inputSection}>
