@@ -1669,7 +1669,6 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly ctaText: string,
   readonly ctaUrl: string,
   readonly expiresAt: Date,
-  readonly isActive: boolean,
 }
 
 interface TagRelVotes { // fragment on Votes

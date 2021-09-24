@@ -6,11 +6,10 @@ declare global {
   }
 }
 
-FeaturedResources.addView("activeUnexpiredResources", function (terms: FeaturedResourcesViewTerms) {
+FeaturedResources.addView("activeResources", function (terms: FeaturedResourcesViewTerms) {
   return {
     selector: {
       expiresAt: {$gt: new Date()},
-      isActive: true,
     },
     options: {
       sort: { expiresAt: 1 },
