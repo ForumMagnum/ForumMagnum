@@ -8,6 +8,5 @@ registerFragment(`
     ctaText
     ctaUrl
     expiresAt
-    isActive
   }
 `);

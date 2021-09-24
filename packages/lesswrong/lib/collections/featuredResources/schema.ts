@@ -27,13 +27,6 @@ const schema: SchemaType<DbFeaturedResource> = {
     canCreate: ['admins'],
     control: 'EditUrl'
   },
-  isActive: {
-    type: Boolean,
-    canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    control: 'checkbox',
-  },
   expiresAt: {
     type: Date,
     canRead: ['guests'],
