@@ -4,7 +4,12 @@ import { getAnalyticsConnection } from "../analytics/postgresConnection"
 import { forumTypeSetting } from "../../lib/instanceSettings"
 import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics"
 
-// TODO; result columns?
+// TODO: Result column means you can't have a single query return multiple
+// results. But getting everything to work with columns plural was tricky and I
+// didn't need it.
+/**
+ * Based on an analytics query, returns a function that runs that query
+ */
 function makePgAnalyticsQuery (query: string, resultColumn: string) {
   return async (post: DbPost) => {
     const postgres = getAnalyticsConnection()
@@ -37,7 +42,7 @@ const queries: Record<keyof PostAnalyticsResult, QueryFunc> = {
     `,
     'unique_client_views'
   ),
-  // TODO; implement median function and change avg call to use it
+  // TODO: implement median function and change avg call to use it
   uniqueClientViews10Sec: makePgAnalyticsQuery(
     `
       SELECT
@@ -68,7 +73,7 @@ addGraphQLResolvers({
       if (forumTypeSetting.get() !== "EAForum" && !currentUser.isAdmin) {
         throw new Error("Permission denied")
       }
-      // TODO; should maybe first test if user has something like Trust Level 1 (e.g. 1k karma)?
+      // Maybe check for karma level here?
       if (!userOwns(currentUser, post) && !currentUser.isAdmin && !currentUser.groups.includes("sunshineRegiment")) {
         throw new Error("Permission denied")
       }

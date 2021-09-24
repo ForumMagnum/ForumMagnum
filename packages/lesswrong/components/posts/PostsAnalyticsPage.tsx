@@ -1,4 +1,3 @@
-// TODO; rename
 import React from 'react'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
@@ -79,7 +78,6 @@ const PostsAnalyticsPage = ({ classes }) => {
       <WrappedLoginForm />
     </SingleColumnSection>
   }
-  // TODO; coauthors (maybe just asana task)
   if (
     !userOwns(currentUser, post) &&
     !currentUser?.isAdmin &&
@@ -94,7 +92,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   const isEAForum = forumTypeSetting.get() === 'EAForum'
   const title = `Analytics for "${post.title}"`
   
-  // Metrics query can still be very expensive despire indexes, and we don't
+  // Analytics query can still be very expensive despire indexes, and we don't
   // want 30 seconds before TTFB
   return <>
     <HeadTags title={title} />
