@@ -23,6 +23,6 @@ jobs:
     - name: Cypress run
       uses: cypress-io/github-action@v2
       env:
-        MONGO_URL: ${{ secrets.MONGO_URL }}
+        TEST_DB_URL: ${{ secrets.TEST_DB_URL }}
       with:
           start: yarn ea-start
