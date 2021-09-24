@@ -73,7 +73,7 @@ async function checkForAkismetSpam({document, type = "post"}) {
     const akismetReport = await constructAkismetReport({document, type})
     const spam = await getAkismetClient().checkSpam(akismetReport)
     // eslint-disable-next-line no-console
-    console.log("Checked document for spam: ", akismetReport, "result: ", spam)
+    console.log("Checked document for spam: ", akismetReport, "result is spam: ", spam)
     return spam
   } catch (e) {
     // eslint-disable-next-line no-console

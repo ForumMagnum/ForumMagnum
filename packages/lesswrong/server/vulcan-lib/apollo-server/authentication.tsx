@@ -57,7 +57,7 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
     return done(null, false, { message: 'Incorrect password.' });
   }
   
-  const match = await comparePasswords(password, user.services.password.bcrypt);
+  const match = !!user.services.password.bcrypt && await comparePasswords(password, user.services.password?.bcrypt);
 
   // If no immediate match, we check whether we have a match with their legacy password
   if (!match) {

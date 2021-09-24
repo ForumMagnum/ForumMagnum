@@ -672,6 +672,7 @@ interface DbUser extends DbObject {
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean
   hideSubscribePoke: boolean
+  hideMeetupsPoke: boolean
   frontpagePostCount: number
   sequenceCount: number
   sequenceDraftCount: number
