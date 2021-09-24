@@ -261,11 +261,14 @@ const petrovDayLaunchResolvers = {
         });
         const text = await response.text()
         const data = JSON.parse(text)
-        console.log({fetchResponse: data[0]?.data})
-        return {
-          launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched,
-          createdAt: new Date(data[0]?.data?.PetrovDayCheckIfIncoming.createdAt),
-        }
+        const createdAt = data[0]?.data?.PetrovDayCheckIfIncoming?.createdAt ?
+          new Date(data[0]?.data?.PetrovDayCheckIfIncoming?.createdAt) : null
+          console.log({fetchResponse: data[0]?.data})
+
+          return {
+            launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched,
+            createdAt,
+          }
       }
       const launches = await PetrovDayLaunchs.find().fetch()
       const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -302,6 +305,8 @@ const petrovDayLaunchResolvers = {
           validate: false
         })
         return newLaunch.data
+      } else {
+        throw new Error('You already launched a missile')
       }
     }
   }
