@@ -2,8 +2,7 @@ import { userOwns } from "../../lib/vulcan-users"
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib"
 import { getAnalyticsConnection } from "../analytics/postgresConnection"
 import { forumTypeSetting } from "../../lib/instanceSettings"
-import { PostMetricsResult } from "../../components/posts/usePostMetrics"
-import mapValues from 'lodash/mapValues'
+import { PostMetricsResult } from "../../components/posts/usePostAnalytics"
 
 // TODO; result columns?
 function makePgAnalyticsQuery (query: string, resultColumn: string) {
