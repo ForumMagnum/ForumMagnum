@@ -2,7 +2,7 @@ import { userOwns } from "../../lib/vulcan-users"
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib"
 import { getAnalyticsConnection } from "../analytics/postgresConnection"
 import { forumTypeSetting } from "../../lib/instanceSettings"
-import { PostMetricsResult } from "../../components/posts/usePostAnalytics"
+import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics"
 
 // TODO; result columns?
 function makePgAnalyticsQuery (query: string, resultColumn: string) {
@@ -25,9 +25,9 @@ function makePgAnalyticsQuery (query: string, resultColumn: string) {
   }
 }
 
-type QueryFunc = (post: DbPost) => Promise<Partial<PostMetricsResult>>
+type QueryFunc = (post: DbPost) => Promise<Partial<PostAnalyticsResult>>
 
-const queries: Record<keyof PostMetricsResult, QueryFunc> = {
+const queries: Record<keyof PostAnalyticsResult, QueryFunc> = {
   uniqueClientViews: makePgAnalyticsQuery(
     `
       SELECT COUNT(DISTINCT client_id) AS unique_client_views
@@ -59,7 +59,7 @@ const queries: Record<keyof PostMetricsResult, QueryFunc> = {
 
 addGraphQLResolvers({
   Query: {
-    async PostMetrics(root: void, { postId }: { postId: string }, context: ResolverContext): Promise<PostMetricsResult> {
+    async PostAnalytics(root: void, { postId }: { postId: string }, context: ResolverContext): Promise<PostAnalyticsResult> {
       const { currentUser } = context
       if (!currentUser) throw new Error(`No user`)
       const post = await context.loaders.Posts.load(postId)
@@ -75,23 +75,23 @@ addGraphQLResolvers({
       
       // I really wanted to do this as a map, but I want to do this in serial,
       // and couldn't get it to work the way I wanted
-      const postMetrics: Partial<PostMetricsResult> = {}
+      const postAnalytics: Partial<PostAnalyticsResult> = {}
       for (const [key, queryFunc] of Object.entries(queries)) {
-        postMetrics[key] = await queryFunc(post)
+        postAnalytics[key] = await queryFunc(post)
       }
       
       // There's no good way to tell TS that because we've iterated over all the
       // keys, the partial is no longer partial
-      return postMetrics as PostMetricsResult
+      return postAnalytics as PostAnalyticsResult
     },
   },
 })
 
 addGraphQLSchema(`
-  type PostMetricsResult {
+  type PostAnalyticsResult {
     uniqueClientViews: Int
     uniqueClientViews10Sec: Int
   }
 `)
 
-addGraphQLQuery("PostMetrics(postId: String!): PostMetricsResult!")
+addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!")
