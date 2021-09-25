@@ -11,8 +11,8 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
 
-const petrovPostIdSetting = new DatabasePublicSetting<string>('petrovPostId', '')
-const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrovGamePostId', '')
+const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
+const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:

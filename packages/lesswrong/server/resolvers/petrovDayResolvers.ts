@@ -4,8 +4,10 @@ import fetch from 'node-fetch'
 import { createMutator, updateMutator } from "../vulcan-lib/mutators";
 import { Users } from "../../lib/collections/users/collection";
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 const crypto = require('crypto');
 
+const petrovServerUrlSetting = new DatabasePublicSetting<string>('petrov.petrovServerUrl', '')
 const PetrovDayCheckIfIncoming = `type PetrovDayCheckIfIncomingData {
   launched: Boolean
   createdAt: Date
@@ -235,7 +237,7 @@ const petrovDayLaunchResolvers = {
   Query: {
     async PetrovDayCheckIfIncoming(root: void, {external}: {external: boolean}, context: ResolverContext) {
       if (external) {
-        const externalUrl = forumTypeSetting.get() === 'EAForum' ? `https://lessestwrong.com/graphql?` : `https://forum-staging.effectivealtruism.org/graphql`
+        const externalUrl = petrovServerUrlSetting.get()
         const payload = [{ 
           "operationName": "petrovDayLaunchResolvers", 
           "variables": {}, 
