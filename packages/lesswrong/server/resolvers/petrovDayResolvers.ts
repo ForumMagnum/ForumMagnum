@@ -7,7 +7,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 const crypto = require('crypto');
 
-const petrovServerUrlSetting = new DatabasePublicSetting<string>('petrovServerUrl', '')
+const petrovServerUrlSetting = new DatabasePublicSetting<string>('petrov.petrovServerUrl', '')
 const PetrovDayCheckIfIncoming = `type PetrovDayCheckIfIncomingData {
   launched: Boolean
   createdAt: Date
