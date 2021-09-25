@@ -238,7 +238,7 @@ const petrovDayLaunchResolvers = {
     async PetrovDayCheckIfIncoming(root: void, {external}: {external: boolean}, context: ResolverContext) {
       if (external) {
         const externalUrl = petrovServerUrlSetting.get()
-        console.log({externalUrl})
+        
         const payload = [{ 
           "operationName": "petrovDayLaunchResolvers", 
           "variables": {}, 
@@ -265,7 +265,6 @@ const petrovDayLaunchResolvers = {
         const data = JSON.parse(text)
         const createdAt = data[0]?.data?.PetrovDayCheckIfIncoming?.createdAt ?
           new Date(data[0]?.data?.PetrovDayCheckIfIncoming?.createdAt) : null
-          console.log({fetchResponse: data[0]?.data})
 
           return {
             launched: data[0]?.data?.PetrovDayCheckIfIncoming.launched,
