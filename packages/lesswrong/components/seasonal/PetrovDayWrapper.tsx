@@ -41,7 +41,9 @@ const PetrovDayWrapper = () => {
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeTillForeignMissileArrival(-(moment(new Date()).diff(moment(foreignLaunchedAt).add(1, 'hour'),'seconds')))
+      if (foreignLaunchedAt) {
+        setTimeTillForeignMissileArrival(-(moment(new Date()).diff(moment(foreignLaunchedAt).add(1, 'hour'),'seconds')))
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, [foreignLaunchedAt]);
