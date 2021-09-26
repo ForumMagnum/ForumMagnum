@@ -2,6 +2,7 @@
 
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
+const process = require('process');;
 
 const seedPosts = require('../fixtures/posts/index.js');
 const seedComments = require('../fixtures/comments/index.js');
@@ -34,11 +35,9 @@ module.exports = (on, config) => {
           postedAt: now,
           lastSubthreadActivity: now,
         }));
-      MongoClient.connect("mongodb://localhost:27017", async function(err, client) {
-        if(err) {
-          console.error(err);
-          return;
-        }
+      const client = new MongoClient(process.env.TESTING_DB_URL);
+      try{
+        await client.connect();
         const isProd = (await client.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
         if(isProd) {
           throw new Error('Cannot run tests on production DB.');
@@ -48,15 +47,18 @@ module.exports = (on, config) => {
         await db.collection('posts').insertMany(postsWithDates);
         await db.collection('comments').insertMany(commentsWithDates);
         await db.collection('users').insertMany(seedUsers);
-      });
+      } catch(err) {
+        console.error(err);
+        return undefined; //  Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
+      } finally {
+        await client.close();
+      }
       return null;
     },
     async associateLoginToken({user, loginToken}) {
-      MongoClient.connect("mongodb://localhost:27017", async function(err, client) {
-        if(err) {
-          console.error(err);
-          return;
-        }
+      const client = new MongoClient(process.env.TESTING_DB_URL);
+      try{
+        await client.connect();
         const db = await client.db();
         await db.collection('users').updateOne({username: user.username}, {
           $addToSet: {
@@ -64,9 +66,14 @@ module.exports = (on, config) => {
               when: new Date(),
               hashedToken: hashLoginToken(loginToken),
             },
-          }
+          },
         });
-      });
+      } catch(err) {
+        console.error(err);
+        return undefined; // Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
+      } finally {
+        await client.close();
+      }
       return null;
     },
   });

@@ -165,7 +165,7 @@ used.
 ## Testing
 We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
 ### Cypress
-* To run Cypress tests locally, first run `yarn lw-start-testing-db`, then run either `yarn cypress run` for a CLI version, or `yarn cypress open` for a GUI version. To run specific tests via the CLI, you can use the `-s <glob-file-pattern>` option.
+* To run Cypress tests locally, first run `yarn lw-start-testing-db`, then in a separate terminal run either `yarn lw-cypress-run` for a CLI version, or `yarn lw-cypress-open` for a GUI version. To run specific tests in the CLI, you can use the `-s <glob-file-pattern>` option.
 * For the basics of writing Cypress tests, see [Writing your first test](https://docs.cypress.io/guides/getting-started/writing-your-first-test#Step-2-Query-for-an-element). Primarily you'll use `cy.get()` to find elements via CSS selectors, `cy.contains()` to find elements via text contents, `cy.click()` and `cy.type()` for input, and `cy.should()` for assertions.
 * Add custom commands under `./cypress/support/commands.js`, and access them via `cy.commandName()`.
 * Seed data for tests is stored under `./cypress/fixtures`, and can be accessed using `cy.fixture('<filepath>')`. See [here](https://docs.cypress.io/api/commands/fixture) for more.
