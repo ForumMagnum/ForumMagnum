@@ -3,6 +3,7 @@ import Users from '../../lib/collections/users/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
+import SimpleSchema from 'simpl-schema';
 
 augmentFieldsDict(Users, {
   htmlBio: {
@@ -65,6 +66,10 @@ addGraphQLResolvers({
       // Check for email uniqueness
       if (email && await Users.findOne({email})) {
         throw new Error('Email already taken')
+      }
+      // Check for valid email
+      if (email && !SimpleSchema.RegEx.Email.test(email)) {
+        throw new Error('Invalid email')
       }
       const updatedUser = (await updateMutator({
         collection: Users,
