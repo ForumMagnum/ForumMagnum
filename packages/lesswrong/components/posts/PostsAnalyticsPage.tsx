@@ -104,8 +104,8 @@ const PostsAnalyticsPage = ({ classes }) => {
   }
   if (
     !userOwns(currentUser, post) &&
-    !currentUser?.isAdmin &&
-    !currentUser?.groups?.includes('sunshineRegiment')
+    !currentUser.isAdmin &&
+    !currentUser.groups?.includes('sunshineRegiment')
   ) {
     if (serverRequestStatus) serverRequestStatus.status = 403
     return <SingleColumnSection>

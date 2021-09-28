@@ -1,6 +1,5 @@
-import { isDevelopment, isAnyTest, onStartup } from '../lib/executionEnvironment';
+import { isDevelopment, onStartup } from '../lib/executionEnvironment';
 import { randomId } from '../lib/random';
-import { Pool } from 'pg';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 

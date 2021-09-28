@@ -1,4 +1,4 @@
-import { isDevelopment, isAnyTest, onStartup } from "../../lib/executionEnvironment";
+import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import { IClient } from "pg-promise/typescript/pg-subset";
 import { DatabaseServerSetting } from "../databaseSettings";
