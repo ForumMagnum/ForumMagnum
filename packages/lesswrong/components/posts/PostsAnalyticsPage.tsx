@@ -131,7 +131,7 @@ const PostsAnalyticsPage = ({ classes }) => {
         <PostsAnalyticsInner post={post} />
       </NoSsr>
         <Typography variant="body1" className={classes.viewingNotice} component='div'>
-        <p>This features is new. <Link to='/contact-us'>Let us know what you think.</Link></p>
+        <p>This features is new. <Link to='/contact'>Let us know what you think.</Link></p>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>
     </SingleColumnSection>
