@@ -15,6 +15,14 @@ import NoSsr from '@material-ui/core/NoSsr';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: theme.spacing.unit * 2,
+    },
+  },
+  title: {
+    marginBottom: theme.spacing.unit * 3,
+  },
   viewingNotice: {
     marginTop: theme.spacing.unit * 4,
     '& a': {
@@ -82,6 +90,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   } = Components
 
   if (!query.postId) {
+    if (serverRequestStatus) serverRequestStatus.status = 400
     return <SingleColumnSection>
       Bad URL: Must specify a post ID
     </SingleColumnSection>
@@ -111,8 +120,10 @@ const PostsAnalyticsPage = ({ classes }) => {
   // want 30 seconds before TTFB
   return <>
     <HeadTags title={title} />
-    <SingleColumnSection>
-      <Typography variant='body1' className={classes.gutterBottom}>{title}</Typography>
+    <SingleColumnSection className={classes.root}>
+      <Typography variant='display1' className={classes.title}>
+        {title}
+      </Typography>
       <NoSsr>
         <PostsAnalyticsInner post={post} />
       </NoSsr>
