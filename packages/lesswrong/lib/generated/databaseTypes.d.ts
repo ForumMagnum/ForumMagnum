@@ -78,7 +78,6 @@ interface DbComment extends DbObject {
   postId: string
   tagId: string
   userId: string
-  isDeleted: boolean
   userIP: string
   userAgent: string
   referrer: string

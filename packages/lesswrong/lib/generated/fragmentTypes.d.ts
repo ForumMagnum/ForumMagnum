@@ -149,7 +149,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly userId: string,
-  readonly isDeleted: boolean,
   readonly userIP: string,
   readonly userAgent: string,
   readonly referrer: string,
