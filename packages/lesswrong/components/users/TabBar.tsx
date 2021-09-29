@@ -101,7 +101,7 @@ const TabBar = ({currentTab, setCurrentTab, smallScreenHeading, tabs, children, 
       }
     }
     
-  }, [smallScreenMode, hash, currentTab, setCurrentTab, hashIsValidTab]);
+  }, [smallScreenMode, hash, currentTab, setCurrentTab, hashIsValidTab, history, location, tabs]);
   
   const tabsMenuItems = tabs.map(tab => <MenuItem
     key={tab.name}

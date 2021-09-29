@@ -127,19 +127,28 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const autosaveInterval = 3000; //milliseconds
 const checkImgErrsInterval = 500; //milliseconds
 const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
-const editorTypeToDisplay = {
+
+type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
+
+const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},
   markdown: {name: 'Markdown'},
   draftJS: {name: 'Draft-JS'},
 }
-const nonAdminEditors = ['ckEditorMarkup', 'markdown', 'draftJS']
-const adminEditors = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
-export const getUserDefaultEditor = (user: UsersCurrent|null) => {
+const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown', 'draftJS']
+const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
+
+export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
   if (user?.reenableDraftJs) return "draftJS"
   return "ckEditorMarkup"
+}
+
+export interface EditorContents {
+  type: EditorTypeString,
+  value: any,
 }
 
 interface EditorProps {
@@ -147,10 +156,10 @@ interface EditorProps {
   currentUser: UsersCurrent|null,
   formType: "edit"|"new",
   documentId?: string,
-  initialEditorType: string,
-  initialFieldValue: any,
+  initialEditorType: EditorTypeString,
   isCollaborative: boolean,
-  value: any,
+  value: EditorContents,
+  setValue: (value: EditorContents)=>void,
   placeholder?: string,
   commentStyles?: boolean,
   answerStyles?: boolean,
@@ -164,94 +173,66 @@ interface EditorProps {
 }
 
 interface EditorComponentState {
-  editorOverride: any,
   updateType: string,
   commitMessage: string,
   ckEditorReference: any,
   loading: boolean,
-  draftJSValue: any,
-  ckEditorValue: any,
-  markdownValue: any,
-  htmlValue: any,
   markdownImgErrs: boolean
 }
 
-export class Editor extends Component<EditorProps,EditorComponentState> {
-  hasUnsavedData: boolean
-  throttledSaveBackup: any
-  throttledSetCkEditor: any
-  debouncedCheckMarkdownImgErrs: any
-  unloadEventListener: any
-
-  constructor(props: EditorProps) {
-    super(props)
-    
-    const editorType = this.getCurrentEditorType()
-    this.state = {
-      editorOverride: null,
-      updateType: 'minor',
-      commitMessage: "",
-      ckEditorReference: null,
-      loading: true,
-      ...this.getEditorStatesFromType(editorType),
-      markdownImgErrs: false
-    }
-    this.hasUnsavedData = false;
-    this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
-    this.throttledSetCkEditor = _.throttle(this.setCkEditor, autosaveInterval);
-    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
-
-  }
-
-  async componentDidMount() {
-    if (isClient && window) {
-      this.unloadEventListener = (ev) => {
-        if (this.hasUnsavedData) {
-          ev.preventDefault();
-          ev.returnValue = 'Are you sure you want to close?';
-          return ev.returnValue
-        }
-      }
-      window.addEventListener("beforeunload", this.unloadEventListener );
-    }
-
-    if (isClient) {
-      this.restoreFromLocalStorage();
-      this.setState({loading: false})
-    }
-  }
-
-  getEditorStatesFromType = (editorType: string, contents?: any) => {
-    const { value, initialFieldValue } = this.props
-    const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
-
-    // if contents are manually specified, use those:
-    const newValue = contents || value
-
-    // Initialize the editor to whatever the canonicalContent is
-    if (newValue?.originalContents?.data
-        && !editorOverride
-        && editorType === newValue.originalContents.type)
-    {
-      return {
-        draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(newValue.originalContents.data) : null,
-        markdownValue: editorType === "markdown"       ? newValue.originalContents.data : null,
-        htmlValue:     editorType === "html"           ? newValue.originalContents.data : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? newValue.originalContents.data : null
-      }
-    }
-
-    // Otherwise, just set it to the value of the document
-    const { draftJS, html, markdown, ckEditorMarkup } = initialFieldValue;
+export const getBlankEditorContents = (editorType: EditorTypeString): EditorContents => {
+  if (editorType === "draftJS") {
     return {
-      draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(draftJS) : null,
-      markdownValue: editorType === "markdown"       ? markdown       : null,
-      htmlValue:     editorType === "html"           ? html           : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? ckEditorMarkup : null
+      type: editorType,
+      value: EditorState.createEmpty(),
+    }
+  } else {
+    return {
+      type: editorType,
+      value: "",
     }
   }
+}
 
-  getEditorStatesFromLocalStorage = (editorType: string): any => {
+const isBlank = (editorContents: EditorContents): boolean => {
+  if (!editorContents.value)
+    return true;
+  
+  if (editorContents.type === "draftJS") {
+    const draftJScontent = editorContents.value.getCurrentContent()
+    return !draftJScontent.hasText();
+  } else {
+    return editorContents.value.trim() === "";
+  }
+}
+
+export const getInitialEditorContents = (value, document, fieldName, currentUser: UsersCurrent|null): EditorContents => {
+  const initialEditorType = (
+    value?.originalContents?.type
+    || document?.[fieldName]?.originalContents?.type
+    || getUserDefaultEditor(currentUser)
+  );
+  const initialValue = value?.originalContents || document?.[fieldName]?.originalContents;
+  if (!initialValue)
+    return getBlankEditorContents(initialEditorType);
+  
+  if (initialEditorType === "draftJS") {
+    return {
+      type: "draftJS",
+      value: EditorState.createWithContent(convertFromRaw(initialValue.data)),
+    };
+  } else {
+    return {
+      type: initialEditorType,
+      value: initialValue.data,
+    };
+  }
+}
+
+export const getContentsFromLocalStorage = (editorType: string): EditorContents|null => {
+  return null;
+  // TODO
+  /*
     const savedState = this.getLocalStorageHandlers(editorType).get();
     if (!savedState) return null;
 
@@ -281,87 +262,96 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         ckEditorValue: editorType === "ckEditorMarkup" ? savedState : null
       }
     }
+  */
+}
+
+const convertEditorType = (value: EditorContents, type: EditorTypeString): EditorContents => {
+  // TODO
+  return getBlankEditorContents(type);
+}
+
+const editorContentsToJSON = (contents: EditorContents): any => {
+  if (contents.type === "draftJS") {
+    return {
+      type: "draftJS",
+      value: convertToRaw(contents.value.getCurrentContent()),
+    };
+  } else {
+    return contents;
+  }
+}
+
+export class Editor extends Component<EditorProps,EditorComponentState> {
+  hasUnsavedData: boolean
+  throttledSaveBackup: any
+  throttledSetCkEditor: any
+  debouncedCheckMarkdownImgErrs: any
+  unloadEventListener: any
+
+  constructor(props: EditorProps) {
+    super(props)
+    
+    const editorType = this.getCurrentEditorType()
+    this.state = {
+      updateType: 'minor',
+      commitMessage: "",
+      ckEditorReference: null,
+      loading: true,
+      markdownImgErrs: false
+    }
+    
+    this.hasUnsavedData = false;
+    this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
+    this.throttledSetCkEditor = _.throttle((value) => this.setContents("ckEditorMarkup", value), autosaveInterval);
+    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
+  }
+
+  async componentDidMount() {
+    if (isClient && window) {
+      this.unloadEventListener = (ev) => {
+        if (this.hasUnsavedData) {
+          ev.preventDefault();
+          ev.returnValue = 'Are you sure you want to close?';
+          return ev.returnValue
+        }
+      }
+      window.addEventListener("beforeunload", this.unloadEventListener );
+    }
+
+    if (isClient) {
+      this.restoreFromLocalStorage();
+      this.setState({loading: false})
+    }
   }
 
   restoreFromLocalStorage = () => {
-    const savedState = this.getEditorStatesFromLocalStorage(this.getCurrentEditorType());
-    if (savedState) {
-      this.setState(savedState);
+    const savedContents = getContentsFromLocalStorage(this.getCurrentEditorType());
+    if (savedContents) {
+      this.props.setValue(savedContents);
     }
   }
   
-  isEmpty = (): boolean => {
-    switch(this.getCurrentEditorType()) {
-      case "draftJS": {
-        const draftJSValue = this.state.draftJSValue;
-        if (!draftJSValue) return true;
-        const draftJScontent = draftJSValue.getCurrentContent()
-        return !draftJScontent.hasText();
-      }
-      case "markdown": {
-        const markdownValue = this.state.markdownValue;
-        if (!markdownValue) return true;
-        return markdownValue.trim() === "";
-      }
-      case "html": {
-        const htmlValue = this.state.htmlValue;
-        if (!htmlValue) return true;
-        return htmlValue.trim() === "";
-      }
-      case "ckEditorMarkup": {
-        const ckEditorValue = this.state.ckEditorValue;
-        if (!ckEditorValue) return true;
-        return ckEditorValue.trim() === "";
-      }
-      default:
-        throw new Error("Invalid editor type");
-    }
-  }
-
-
   getLocalStorageHandlers = (editorType?: string) => {
     return this.props.getLocalStorageHandlers(editorType || this.getCurrentEditorType());
-  }
-  
-  initializeDraftJS = (draftJS) => {
-    // Initialize from the database state
-    if (draftJS) {
-      try {
-        return EditorState.createWithContent(convertFromRaw(draftJS));
-      } catch(e) {
-        // eslint-disable-next-line no-console
-        console.error("Invalid document content", draftJS);
-      }
-    }
-
-    // And lastly, if the field is empty, create an empty draftJS object
-    return EditorState.createEmpty();
   }
 
   submitData = (submission) => {
     let data: any = null
-    const { draftJSValue, markdownValue, htmlValue, updateType, commitMessage, ckEditorReference } = this.state
+    const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
-    switch(type) {
+    switch(this.props.value.type) {
       case "draftJS":
-        const draftJS = draftJSValue.getCurrentContent()
+        const draftJS = this.props.value.value.getCurrentContent()
         data = draftJS.hasText() ? convertToRaw(draftJS) : null
         break
       case "markdown":
-        data = markdownValue
-        break
       case "html":
-        data = htmlValue
+        data = this.props.value.value;
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
         data = ckEditorReference.getData()
         break
-      default:
-        // eslint-disable-next-line no-console
-        console.error(`Unrecognized editor type: ${type}`);
-        data = "";
-        break;
     }
     return data ? {
       originalContents: {type, data},
@@ -372,13 +362,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   resetEditor = () => {
     // On Form submit, create a new empty editable
     this.getLocalStorageHandlers().reset();
-    this.setState({
-      draftJSValue: EditorState.createEmpty(),
-      htmlValue: null,
-      markdownValue: null,
-      editorOverride: null,
-      ckEditorValue: null
-    });
   }
 
   componentWillUnmount() {
@@ -388,63 +371,47 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
 
-  setEditorType = (editorType) => {
-    if (!editorType) throw new Error("Missing argument to setEditorType: editorType");
-    const targetEditorType = editorType;
-    this.setState({
-      editorOverride: targetEditorType,
-      ...this.getEditorStatesFromType(targetEditorType)
-    })
-
-    this.restoreFromLocalStorage();
+  setEditorType = (editorType: EditorTypeString) => {
+    if (!editorType)
+      throw new Error("Missing argument to setEditorType: editorType");
+    this.props.setValue(convertEditorType(this.props.value, editorType));
   }
-
-  setDraftJS = (value) => { // Takes in an editorstate
-    const { draftJSValue } = this.state
-    const currentContent = draftJSValue.getCurrentContent()
-    const newContent = value.getCurrentContent()
-    this.setState({draftJSValue: value})
-
-    if (currentContent !== newContent) {
-      this.afterChange();
+  
+  setContents = (editorType: EditorTypeString, value) => {
+    switch (editorType) {
+      case "html": {
+        if (this.props.value.value === value)
+          return;
+        this.props.setValue({type: editorType, value});
+        break;
+      }
+      case "markdown": {
+        if (this.props.value.value === value)
+          return;
+        this.props.setValue({type: editorType, value});
+        this.debouncedCheckMarkdownImgErrs()
+        break;
+      }
+      case "draftJS": {
+        this.props.setValue({type: "draftJS", value});
+        break;
+      }
+      case "ckEditorMarkup": {
+        this.props.setValue({type: "ckEditorMarkup", value})
+        break;
+      }
     }
-  }
-
-  setHtml = (value) => {
-    if (this.state.htmlValue !== value) {
-      this.setState({htmlValue: value});
-      this.afterChange();
-    }
-  }
-
-  setMarkdown = (value) => {
-    if (this.state.markdownValue !== value) {
-      this.setState({markdownValue: value})
-      this.debouncedCheckMarkdownImgErrs()
-      this.afterChange();
-    }
-  }
-
-  setCkEditor = (editor) => {
-    const newContent = editor.getData()
-    if (this.state.ckEditorValue !== newContent) {
-      this.setState({ckEditorValue: newContent})
-      this.afterChange();
-    }
-  }
-
-
-  afterChange = () => {
+    
     this.hasUnsavedData = true;
     this.throttledSaveBackup();
   }
 
   saveBackup = () => {
-    if (this.isEmpty()) {
+    if (isBlank(this.props.value)) {
       this.getLocalStorageHandlers().reset();
       this.hasUnsavedData = false;
     } else {
-      const serialized = this.editorContentsToJson();
+      const serialized = editorContentsToJSON(this.props.value);
       const success = this.getLocalStorageHandlers().set(serialized);
   
       if (success) {
@@ -452,24 +419,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       }
     }
   }
-
-  // Take the editor contents (whichever editor you're using), and return
-  // something JSON (ie, a JSON object or a string) which represents the
-  // content and can be saved to localStorage.
-  editorContentsToJson = () => {
-    switch(this.getCurrentEditorType()) {
-      case "draftJS":
-        const draftJScontent = this.state.draftJSValue.getCurrentContent()
-        return convertToRaw(draftJScontent);
-      case "markdown":
-        return this.state.markdownValue;
-      case "html":
-        return this.state.htmlValue;
-      case "ckEditorMarkup":
-        return this.state.ckEditorValue;
-    }
-  }
-  
 
   renderEditorWarning = () => {
     const { currentUser, initialEditorType, _classes: classes } = this.props
@@ -492,14 +441,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
 
-  getCurrentEditorType = () => {
-    const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
-
-    // If there is an override, return that
-    if (editorOverride)
-      return editorOverride;
-
-    return this.props.initialEditorType;
+  getCurrentEditorType = (): EditorTypeString => {
+    return this.props.value.type;
   }
 
 
@@ -553,7 +496,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         <Select
           className={classes.select}
           value={this.getCurrentEditorType()}
-          onChange={(e) => this.setEditorType(e.target.value)}
+          onChange={(e) => this.setEditorType(e.target.value as EditorTypeString)}
           disableUnderline
           >
             {editors.map((editorType, i) =>
@@ -573,16 +516,16 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     return classes.postBodyStyles
   }
 
-  renderEditorComponent = (currentEditorType) => {
-    switch (currentEditorType) {
+  renderEditorComponent = (contents: EditorContents) => {
+    switch (contents.type) {
       case "ckEditorMarkup":
-        return this.renderCkEditor()
+        return this.renderCkEditor(contents)
       case "draftJS":
-        return this.renderDraftJSEditor()
+        return this.renderDraftJSEditor(contents)
       case "markdown":
-        return this.renderPlaintextEditor(currentEditorType)
+        return this.renderPlaintextEditor(contents)
       case "html":
-        return this.renderPlaintextEditor(currentEditorType)
+        return this.renderPlaintextEditor(contents)
     }
   }
 
@@ -600,8 +543,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     return this.props.isCollaborative;
   }
 
-  renderCkEditor = () => {
-    const { ckEditorValue, ckEditorReference } = this.state
+  renderCkEditor = (contents: EditorContents) => {
+    const { ckEditorReference } = this.state
+    const ckEditorValue = contents.value;
     const { documentId, currentUser, commentEditor, formType } = this.props
     const { Loading } = Components
     const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
@@ -614,7 +558,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         documentId: documentId,
         formType: formType,
         userId: currentUser?._id,
-        onChange: (event, editor) => this.throttledSetCkEditor(editor),
+        onChange: (event, editor) => this.throttledSetCkEditor(editor.getData()),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
@@ -626,69 +570,67 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       const collaboration = this.isDocumentCollaborative()
 
       return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
-          { this.renderPlaceholder(!value, collaboration)}
-          { collaboration ?
-            <Components.CKPostEditor key="ck-collaborate" { ...editorProps } collaboration />
-            :
-            <CKEditor key="ck-default" { ...editorProps } />}
-        </div>
+        { this.renderPlaceholder(!value, collaboration)}
+        { collaboration
+          ? <Components.CKPostEditor key="ck-collaborate" { ...editorProps } collaboration />
+          : <CKEditor key="ck-default" { ...editorProps } />}
+      </div>
     }
   }
 
   checkMarkdownImgErrs = () => {
-    const { markdownValue } = this.state
-    // match markdown image tags of the form
-    // ![](http://example.com/example.jpg)
-    // ![Alt text](http://example.com/example.jpg)
-    const httpImageRE = /!\[[^\]]*?\]\(http:/g
-    this.setState({
-      markdownImgErrs: httpImageRE.test(markdownValue)
-    })
+    if (this.props.value.type === "markdown") {
+      const markdownValue = this.props.value.value;
+      // match markdown image tags of the form
+      // ![](http://example.com/example.jpg)
+      // ![Alt text](http://example.com/example.jpg)
+      const httpImageRE = /!\[[^\]]*?\]\(http:/g
+      this.setState({
+        markdownImgErrs: httpImageRE.test(markdownValue)
+      })
+    }
   }
 
-  renderPlaintextEditor = (editorType) => {
-    const { markdownValue, htmlValue, markdownImgErrs } = this.state
+  renderPlaintextEditor = (contents: EditorContents) => {
+    const { markdownImgErrs } = this.state
     const { _classes: classes, commentStyles, questionStyles } = this.props
-    const value = (editorType === "html" ? htmlValue : markdownValue) || ""
+    const value = contents.value || "";
     return <div>
-        { this.renderPlaceholder(!value, false) }
-        <Input
-          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles})}
-          value={value}
-          onChange={(ev) => {
-            if (editorType === "html")
-              this.setHtml(ev.target.value);
-            else
-              this.setMarkdown(ev.target.value);
-          }}
-          multiline={true}
-          rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
-          rowsMax={99999}
-          fullWidth={true}
-          disableUnderline={true}
-        />
-      {markdownImgErrs && editorType === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
-          Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
-          connection. You should update all links to images so that they are served over a{' '}
-          secure HTTPS connection (i.e. the links should start with <em>https://</em>).
-        </Components.Typography>}
-      </div>
+      { this.renderPlaceholder(!value, false) }
+      <Input
+        className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles})}
+        value={value}
+        onChange={(ev) => {
+          this.setContents(contents.type, ev.target.value);
+        }}
+        multiline={true}
+        rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
+        rowsMax={99999}
+        fullWidth={true}
+        disableUnderline={true}
+      />
+    {markdownImgErrs && contents.type === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
+        Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
+        connection. You should update all links to images so that they are served over a{' '}
+        secure HTTPS connection (i.e. the links should start with <em>https://</em>).
+      </Components.Typography>}
+    </div>
   }
 
-  renderDraftJSEditor = () => {
-    const { draftJSValue } = this.state
+  renderDraftJSEditor = (contents: EditorContents) => {
+    const draftJSValue = contents.value;
     const { questionStyles, commentEditor, _classes: classes } = this.props
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
 
     return <div>
-        { this.renderPlaceholder(showPlaceholder, false) }
-        {draftJSValue && <EditorForm
-          editorState={draftJSValue}
-          onChange={this.setDraftJS}
-          commentEditor={commentEditor||false}
-          className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: questionStyles})}
-        />}
-      </div>
+      { this.renderPlaceholder(showPlaceholder, false) }
+      {draftJSValue && <EditorForm
+        editorState={draftJSValue}
+        onChange={(value) => this.setContents("draftJS", value)}
+        commentEditor={commentEditor||false}
+        className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: questionStyles})}
+      />}
+    </div>
   }
 
   getMaxHeightClass = () => {
@@ -709,20 +651,19 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
 
   render() {
-    const { editorOverride, loading } = this.state
+    const { loading } = this.state
     const { currentUser, initialEditorType, formType, _classes: classes } = this.props
     const { Loading } = Components
     const currentEditorType = this.getCurrentEditorType()
 
     const editorWarning =
-      !editorOverride
-      && formType !== "new"
+      formType !== "new"
       && initialEditorType !== getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
     return <div>
       { editorWarning }
       <div className={classNames(classes.editor, this.getBodyStyles())}>
-        { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
+        { loading ? <Loading/> : this.renderEditorComponent(this.props.value) }
         { this.renderUpdateTypeSelect() }
         { this.renderEditorTypeSelect() }
       </div>

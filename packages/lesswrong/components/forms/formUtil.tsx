@@ -71,7 +71,15 @@ export function useFormComponentContext<FieldType,FormFragment>(form: LWForm<For
   setBouncyValue: (newValue: FieldType)=>void,
   flushDebounced: ()=>void,
   collectionName: CollectionNameString,
+  canRead: boolean,
+  canEdit: boolean,
 } {
+  const document = form.currentValue || {};
+  const currentUser = useCurrentUser();
+  const collection = getCollection(form.collectionName);
+  const field = collection._schemaFields[fieldName as string];
+  const canRead = userCanReadField(currentUser, field, document);
+  const canEdit = userCanUpdateField(currentUser, field, document)
   
   return {
     value: form.currentValue![fieldName] as unknown as FieldType,
@@ -89,6 +97,7 @@ export function useFormComponentContext<FieldType,FormFragment>(form: LWForm<For
       form.applyDebouncedChangesRaw(form);
     },
     collectionName: form.collectionName,
+    canRead, canEdit,
   };
 }
 

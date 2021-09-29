@@ -1,10 +1,10 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from '../async/localStorageHandlers'
 import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, getUserDefaultEditor, styles } from './Editor';
+import { Editor, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, styles } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 
@@ -34,6 +34,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     );
   }, [collectionName, document, name, fieldName]);
   
+  const [contents,setContents] = useState(() => getInitialEditorContents(
+    value, document, fieldName, currentUser
+  ));
+  const [initialEditorType] = useState(contents.type);
+  
   useEffect(() => {
     if (editorRef.current) {
       const cleanupSubmitForm = context.addToSubmitForm((submission) => {
@@ -46,8 +51,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
           return submission;
       });
       const cleanupSuccessForm = context.addToSuccessForm((result) => {
-        if (editorRef.current)
+        if (editorRef.current) {
           editorRef.current?.resetEditor();
+          setContents(getBlankEditorContents(initialEditorType));
+        }
         return result;
       });
       return () => {
@@ -56,23 +63,17 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       };
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, fieldName]);
+  }, [!!editorRef.current, fieldName, initialEditorType]);
   
   const isCollaborative = userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers && (fieldName === "contents")
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || formType==="edit");
-  const initialEditorType = (
-    value?.originalContents?.type
-    || document?.[fieldName]?.originalContents?.type
-    || getUserDefaultEditor(currentUser)
-  );
-  const initialFieldValue = document[fieldName] || {};
-  
-  if (!document) return null;
   
   const actualPlaceholder = (editorHintText || hintText || placeholder || label);
+  
+  if (!document) return null;
 
   return <Components.Editor
     ref={editorRef}
@@ -81,9 +82,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     formType={formType}
     documentId={document?._id}
     initialEditorType={initialEditorType}
-    initialFieldValue={initialFieldValue}
     isCollaborative={isCollaborative}
-    value={value}
+    value={contents}
+    setValue={setContents}
     placeholder={actualPlaceholder}
     commentStyles={commentStyles}
     answerStyles={document?.answer}

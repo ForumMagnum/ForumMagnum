@@ -3,7 +3,7 @@ import { Components, registerComponent, useStyles } from '../../lib/vulcan-lib/c
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from '../async/localStorageHandlers'
 import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
-import { Editor, getUserDefaultEditor, styles } from '../editor/Editor';
+import { Editor, getUserDefaultEditor, getBlankEditorContents, styles } from '../editor/Editor';
 import { useCurrentUser } from '../common/withUser';
 
 const formEditorStyles = (theme: ThemeType): JssStyles => ({
@@ -29,7 +29,9 @@ export function FormEditor<T, FN extends keyof T>({form, fieldName, placeholder}
     return getLSHandlers(getLocalStorageId, document, fieldName,
       getLSKeyPrefix(editorType)
     );
-  }, [collectionName, document, fieldName]);
+  }, [collectionName, fieldName]);
+  
+  const contents = getBlankEditorContents("ckEditorMarkup") //TODO
   
   return <div className={classes.formField}>
     <Components.Editor
@@ -38,9 +40,9 @@ export function FormEditor<T, FN extends keyof T>({form, fieldName, placeholder}
       formType="new"
       documentId={undefined /*TODO*/}
       initialEditorType={initialEditorType}
-      initialFieldValue={initialValue}
       isCollaborative={false}
-      value={null /*TODO*/}
+      value={contents}
+      setValue={()=>{}}
       placeholder={placeholder}
       commentStyles={false}
       answerStyles={false}

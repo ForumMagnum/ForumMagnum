@@ -6,6 +6,7 @@ import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
+import { defineQuery } from '../utils/serverGraphqlUtil';
 import htmlToText from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
 import * as _ from 'underscore';
@@ -139,3 +140,29 @@ augmentFieldsDict(Revisions, {
     }
   },
 })
+
+defineQuery({
+  name: "convertDocument",
+  resultType: "JSON",
+  argTypes: "(document: JSON, targetFormat: String)"
+  fn: (root: void, {document, format}: {document: any, targetFormat: string}, context: ResolverContext) => {
+    switch (targetFormat) {
+      case "html":
+        // TODO
+        break;
+      case "draftJS":
+        return {
+          type: "draftJS",
+          value: dataToDraftJS(document.value, document.type)
+        };
+      case "ckEditorMarkup":
+        // TODO
+        break;
+      case "markdown":
+        return {
+          type: "markdown",
+          value: dataToMarkdown(document.value, document.type),
+        };
+    }
+  },
+});
