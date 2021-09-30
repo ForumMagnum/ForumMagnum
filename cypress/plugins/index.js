@@ -52,11 +52,8 @@ module.exports = (on, config) => {
           lastSubthreadActivity: now,
         }));
       const client = new MongoClient(process.env.TESTING_DB_URL);
-      await client.connect(async (err, client) => {
-        if(err) {
-          console.error(err);
-          return;
-        }
+      try{
+        await client.connect();
         const isProd = (await client.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
         if(isProd) {
           throw new Error('Cannot run tests on production DB.');
@@ -66,17 +63,18 @@ module.exports = (on, config) => {
         await db.collection('posts').insertMany(postsWithDates);
         await db.collection('comments').insertMany(commentsWithDates);
         await db.collection('users').insertMany(seedUsers);
+      } catch(err) {
+        console.error(err);
+        return undefined; //  Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
+      } finally {
         await client.close();
-      });
+      }
       return null;
     },
     async associateLoginToken({user, loginToken}) {
       const client = new MongoClient(process.env.TESTING_DB_URL);
-      await client.connect(async (err, client) => {
-        if(err) {
-          console.error(err);
-          return;
-        }
+      try{
+        await client.connect();
         const db = await client.db();
         await db.collection('users').updateOne({username: user.username}, {
           $addToSet: {
@@ -86,8 +84,12 @@ module.exports = (on, config) => {
             },
           },
         });
-        await client.close()
-      });
+      } catch(err) {
+        console.error(err);
+        return undefined; // Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
+      } finally {
+        await client.close();
+      }
       return null;
     },
   });
