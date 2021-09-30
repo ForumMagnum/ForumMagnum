@@ -23,6 +23,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
+  importComponent("FeaturedResourceBanner", () => require('../components/ea-forum/FeaturedResourceBanner'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
