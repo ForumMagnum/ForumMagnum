@@ -9,6 +9,6 @@ describe('Basic Login and Signup', function() {
   it('Can successfully login with token', function() {
     cy.loginAs(this.testUser);
     cy.visit('/');
-    cy.contains(this.testUser.displayName).should('be.visible');
+    cy.contains(this.testUser.displayName).should('not.be.visible');
   });
 })
