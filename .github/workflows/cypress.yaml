@@ -21,6 +21,6 @@ jobs:
     - name: Cypress run
       uses: cypress-io/github-action@v2
       env:
-        TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }}
+        CYPRESS_TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }} # https://docs.cypress.io/guides/guides/environment-variables#Option-3-CYPRESS_
       with:
           start: yarn ea-start-testing-db
