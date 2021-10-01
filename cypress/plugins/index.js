@@ -51,7 +51,7 @@ module.exports = (on, config) => {
           postedAt: now,
           lastSubthreadActivity: now,
         }));
-      const client = new MongoClient(process.env.TESTING_DB_URL);
+      const client = new MongoClient(config.env.TESTING_DB_URL);
       try{
         await client.connect();
         const isProd = (await client.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
@@ -72,7 +72,7 @@ module.exports = (on, config) => {
       return null;
     },
     async associateLoginToken({user, loginToken}) {
-      const client = new MongoClient(process.env.TESTING_DB_URL);
+      const client = new MongoClient(config.env.TESTING_DB_URL);
       try{
         await client.connect();
         const db = await client.db();
