@@ -1,18 +1,18 @@
+import NoSsr from '@material-ui/core/NoSsr'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableRow from '@material-ui/core/TableRow'
+import classNames from 'classnames'
 import React from 'react'
-import { Components, registerComponent } from '../../lib/vulcan-lib'
-import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
 import { useSingle } from '../../lib/crud/withSingle'
-import { useCurrentUser } from '../common/withUser'
-import { userOwns } from '../../lib/vulcan-users'
-import { usePostAnalytics } from './usePostAnalytics'
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import { Link } from '../../lib/reactRouterWrapper'
 import { forumTypeSetting } from '../../lib/instanceSettings'
-import NoSsr from '@material-ui/core/NoSsr';
-import classNames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper'
+import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
+import { Components, registerComponent } from '../../lib/vulcan-lib'
+import { userOwns } from '../../lib/vulcan-users'
+import { useCurrentUser } from '../common/withUser'
+import { usePostAnalytics } from './usePostAnalytics'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -78,7 +78,8 @@ declare global {
 
 const PostsAnalyticsPage = ({ classes }) => {
   const { query } = useLocation()
-  const { document: post } = useSingle({
+  // Cannot destructure and retain return type typing due to TS version
+  const postReturn = useSingle({
     documentId: query.postId,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
@@ -89,12 +90,22 @@ const PostsAnalyticsPage = ({ classes }) => {
     SingleColumnSection, WrappedLoginForm, PostsAnalyticsInner, HeadTags, Typography
   } = Components
 
+
   if (!query.postId) {
     if (serverRequestStatus) serverRequestStatus.status = 400
     return <SingleColumnSection>
       Bad URL: Must specify a post ID
     </SingleColumnSection>
   }
+
+  if (postReturn.loading) {
+    return null
+  }
+
+  if (postReturn.error) {
+    throw postReturn.error;
+  }
+
   if (!currentUser) {
     if (serverRequestStatus) serverRequestStatus.status = 401
     return <SingleColumnSection>
@@ -102,8 +113,10 @@ const PostsAnalyticsPage = ({ classes }) => {
       <WrappedLoginForm />
     </SingleColumnSection>
   }
+
+
   if (
-    !userOwns(currentUser, post) &&
+    !userOwns(currentUser, postReturn.document) &&
     !currentUser?.isAdmin &&
     !currentUser?.groups?.includes('sunshineRegiment')
   ) {
@@ -112,10 +125,11 @@ const PostsAnalyticsPage = ({ classes }) => {
       You don't have permission to view this page.
     </SingleColumnSection>
   }
-  
+
+  const post = postReturn.document
   const isEAForum = forumTypeSetting.get() === 'EAForum'
   const title = `Analytics for "${post.title}"`
-  
+
   // Analytics query can still be very expensive despire indexes, and we don't
   // want 30 seconds before TTFB
   return <>
@@ -128,7 +142,7 @@ const PostsAnalyticsPage = ({ classes }) => {
         <PostsAnalyticsInner post={post} />
       </NoSsr>
         <Typography variant="body1" className={classes.viewingNotice} component='div'>
-        <p>This feature is new. <Link to='/contact-us'>Let us know what you think.</Link></p>
+        <p>This feature is new. <Link to='/contact'>Let us know what you think.</Link></p>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>
     </SingleColumnSection>

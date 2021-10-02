@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dividerMargins: {
@@ -49,6 +49,8 @@ const CommentPermalink = ({ documentId, post, classes }: {
   const { Loading, Divider, CommentWithReplies, HeadTags } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
+
+  if (loading || !comment) {return null}
 
   if (!documentId) return null
 
