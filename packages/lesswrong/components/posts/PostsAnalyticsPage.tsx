@@ -15,6 +15,14 @@ import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: theme.spacing.unit * 2,
+    },
+  },
+  title: {
+    marginBottom: theme.spacing.unit * 3,
+  },
   viewingNotice: {
     marginTop: theme.spacing.unit * 4,
     '& a': {
@@ -84,6 +92,7 @@ const PostsAnalyticsPage = ({ classes }) => {
 
 
   if (!query.postId) {
+    if (serverRequestStatus) serverRequestStatus.status = 400
     return <SingleColumnSection>
       Bad URL: Must specify a post ID
     </SingleColumnSection>
@@ -125,13 +134,15 @@ const PostsAnalyticsPage = ({ classes }) => {
   // want 30 seconds before TTFB
   return <>
     <HeadTags title={title} />
-    <SingleColumnSection>
-      <Typography variant='body1' className={classes.gutterBottom}>{title}</Typography>
+    <SingleColumnSection className={classes.root}>
+      <Typography variant='display1' className={classes.title}>
+        {title}
+      </Typography>
       <NoSsr>
         <PostsAnalyticsInner post={post} />
       </NoSsr>
         <Typography variant="body1" className={classes.viewingNotice} component='div'>
-        <p>This features is new. <Link to='/contact'>Let us know what you think.</Link></p>
+        <p>This feature is new. <Link to='/contact'>Let us know what you think.</Link></p>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>
     </SingleColumnSection>

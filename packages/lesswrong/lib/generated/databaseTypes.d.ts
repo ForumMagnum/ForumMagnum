@@ -175,6 +175,18 @@ interface DbEmailTokens extends DbObject {
   params: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface FeaturedResourcesCollection extends CollectionBase<DbFeaturedResource, "FeaturedResources"> {
+}
+
+interface DbFeaturedResource extends DbObject {
+  __collectionName?: "FeaturedResources"
+  title: string
+  body: string
+  ctaText: string
+  ctaUrl: string
+  expiresAt: Date
+}
+
 interface GardenCodesCollection extends CollectionBase<DbGardenCode, "GardenCodes"> {
 }
 
@@ -289,6 +301,7 @@ interface DbPetrovDayLaunch extends DbObject {
   createdAt: Date
   launchCode: string
   hashedLaunchCode: string
+  userId: string
 }
 
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
@@ -762,6 +775,7 @@ interface CollectionsByName {
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   EmailTokens: EmailTokensCollection
+  FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
@@ -796,6 +810,7 @@ interface ObjectsByCollectionName {
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   EmailTokens: DbEmailTokens
+  FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData

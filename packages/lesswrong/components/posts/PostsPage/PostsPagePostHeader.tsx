@@ -6,7 +6,6 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import EditIcon from '@material-ui/icons/Edit'
 
 const SECONDARY_SPACING = 20
 
