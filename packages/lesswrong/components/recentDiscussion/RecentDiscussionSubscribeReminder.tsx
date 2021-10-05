@@ -107,6 +107,8 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   
   useEffect(() => {
     if (adminBranch === -1 && currentUser?.isAdmin) {
+      // EA Forum only has 4 branches, LW has 5. Fortunately LW's extra branch
+      // is the last one, so we can exclude it easily.
       setAdminBranch(randInt(isEAForum ? 4 : 5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
@@ -212,7 +214,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       "You're subscribed to the EA Forum Digest!" :
       "You are subscribed to the best posts of LessWrong!"
     return <AnalyticsWrapper branch="already-subscribed">
-      You are subscribed to the best posts of LessWrong!
       <div className={classes.message}>
         <CheckRounded className={classes.checkIcon} />
         {confirmText}
