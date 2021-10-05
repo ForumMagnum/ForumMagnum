@@ -34,6 +34,7 @@ import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
 
 import './server/scripts/oneOffBanSpammers'
+import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
 import './server/scripts/legacyKarma_aggregate2';
 import './server/scripts/removeObsoleteIndexes';
