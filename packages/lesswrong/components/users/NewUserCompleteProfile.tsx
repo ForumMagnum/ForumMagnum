@@ -1,6 +1,6 @@
 import { gql, useMutation } from "@apollo/client";
 import { Button, Checkbox, FormControlLabel, TextField, Typography } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
@@ -39,14 +39,14 @@ function prefillUsername(maybeUsername: string | undefined | null): string {
 }
 
 const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes }) => {
-  // TODO: Prefill with existing username if it's not an email / new_user_N
   const currentUser = useCurrentUser()
   const [username, setUsername] = useState(prefillUsername(currentUser?.displayName))
+  const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
-    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!) {
-      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest) {
+    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String) {
+      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email) {
         username
         slug
         displayName
@@ -75,10 +75,17 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
   
   async function handleSave() {
     try {
-      if (validationError)return
+      if (validationError) return
       
       // TODO: loading spinner while running
-      await updateUser({variables: {username, subscribeToDigest}})
+      await updateUser({variables: {
+        username,
+        subscribeToDigest,
+        // We do this fancy spread so we avoid setting the email to an empty
+        // string in the likely event that someone already had an email and
+        // wasn't shown the set email field
+        ...(!currentUser?.email && {email: emailInput.current?.value})
+      }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {
         setValidationError('Username already taken')
@@ -90,7 +97,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
   }
   
   return <SingleColumnSection>
-      <div className={classes.root}>
+    <div className={classes.root}>
       <Typography variant='display3' gutterBottom className={classes.title}>
         Thanks for registering for {siteNameWithArticleSetting.get()}
       </Typography>
@@ -116,6 +123,23 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
           onBlur={(_event) => validateUsername(username)}
         />
       </div>
+      
+      {/* Facebook user with no email fix (very small % of users) */}
+      {!currentUser?.email && <div className={classes.section}>
+        <Typography variant='display1' gutterBottom>Please enter your email</Typography>
+        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+          {/* I'd rather be honest than concise here. */}
+          To get here without an email you must have logged in with Facebook
+          and not given Facebook your email. We need your email to notify you of
+          direct messages, and having a tiny percentage of users without an
+          email makes the site harder to maintain.
+        </Typography>
+        <TextField
+          label='Email'
+          inputRef={emailInput}
+          // onChange={(event) => setNewEmail(event.target.value)}
+        />
+      </div>}
       
       {forumTypeSetting.get() === 'EAForum' && <div className={classes.section}>
         <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
