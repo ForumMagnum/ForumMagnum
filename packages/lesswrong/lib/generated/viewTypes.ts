@@ -7,6 +7,7 @@ type ConversationsViewName = "userConversations"|"userUntitledConversations";
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
 type EmailTokensViewName = never
+type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers";
 type LegacyDataViewName = never
@@ -40,6 +41,7 @@ interface ViewTermsByCollectionName {
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
   EmailTokens: ViewTermsBase
+  FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase
@@ -65,4 +67,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Chapters"|"Comments"|"Conversations"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Chapters"|"Comments"|"Conversations"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"Notifications"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"

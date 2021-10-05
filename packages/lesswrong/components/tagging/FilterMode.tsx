@@ -100,6 +100,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     fragmentName: "TagPreviewFragment",
   })
 
+  if (!tag) {return null;}
+
   const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     {label}
     <span className={classes.filterScore}>

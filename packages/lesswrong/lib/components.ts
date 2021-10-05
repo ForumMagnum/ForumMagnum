@@ -23,6 +23,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
+  importComponent("FeaturedResourceBanner", () => require('../components/ea-forum/FeaturedResourceBanner'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -208,6 +209,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
+importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
 importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor'));
 
 

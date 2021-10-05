@@ -34,6 +34,7 @@ import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
 
 import './server/scripts/oneOffBanSpammers'
+import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
 import './server/scripts/legacyKarma_aggregate2';
 import './server/scripts/removeObsoleteIndexes';
@@ -119,6 +120,7 @@ import './server/resolvers/recentDiscussionFeed';
 import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
+import './server/resolvers/analyticsResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
