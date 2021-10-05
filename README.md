@@ -139,3 +139,13 @@ used.
 ### Where to branch off of
 
 Branch off of `ea-master` and submit to `ea-master`. After review and merging, submit to `LessWrong:master`.
+
+### \[CEA-Specific] Local Dev Database
+
+The local development database is actually hosted on MongoDB cloud like staging
+and production. There's no reason to host your own database. It's also shared
+with other developers, which means if someone adds a feature which requires
+manual database work, there's no need for you to also do that manual work.
+
+The test user admin credentials are in 1password. You're also welcome to create
+your own admin user.
