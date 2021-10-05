@@ -39,7 +39,7 @@ const InboxNavigation = ({terms, currentUser}: {
         <SectionTitle title="Your Conversations"/>
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} currentUser={currentUser} />) :
-          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{forumTypeSetting.get() === "EAForum" && " Go and be free."}</Typography>
+          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{forumTypeSetting.get() !== "EAForum" && " Go and be free."}</Typography>
         }
         <SectionFooter>
           <SectionFooterCheckbox
@@ -59,4 +59,3 @@ declare global {
     InboxNavigation: typeof InboxNavigationComponent
   }
 }
-
