@@ -1,6 +1,10 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib';
-import { Button, Card, createStyles, Divider, Tooltip, Typography } from '@material-ui/core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import Divider from '@material-ui/core/Divider';
+import Tooltip from '@material-ui/core/Tooltip';
+import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCookies } from 'react-cookie';
@@ -67,6 +71,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
     fragmentName: 'FeaturedResourcesFragment',
     enableTotal: false,
   });
+  const { Typography } = Components
 
   if(loading || !results.length) {
     return null;
