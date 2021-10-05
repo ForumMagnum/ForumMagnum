@@ -64,7 +64,7 @@ addGraphQLResolvers({
         throw new Error('You already have an email address')
       }
       // Check for email uniqueness
-      if (email && await Users.findOne({email})) {
+      if (email && await Users.findOne({$or: [{email}, {['emails.address']: email}]})) {
         throw new Error('Email already taken')
       }
       // Check for valid email

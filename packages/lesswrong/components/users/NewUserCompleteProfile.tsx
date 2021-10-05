@@ -1,6 +1,6 @@
 import { gql, useMutation } from "@apollo/client";
 import { Button, Checkbox, FormControlLabel, TextField, Typography } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
@@ -41,7 +41,7 @@ function prefillUsername(maybeUsername: string | undefined | null): string {
 const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes }) => {
   const currentUser = useCurrentUser()
   const [username, setUsername] = useState(prefillUsername(currentUser?.displayName))
-  const [newEmail, setNewEmail] = useState('')
+  const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
@@ -83,8 +83,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
         subscribeToDigest,
         // We do this fancy spread so we avoid setting the email to an empty
         // string in the likely event that someone already had an email and
-        // wasn't show the set email field
-        ...(newEmail && {email: newEmail})
+        // wasn't shown the set email field
+        ...(!currentUser?.email && {email: emailInput.current?.value})
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {
@@ -97,7 +97,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
   }
   
   return <SingleColumnSection>
-      <div className={classes.root}>
+    <div className={classes.root}>
       <Typography variant='display3' gutterBottom className={classes.title}>
         Thanks for registering for {siteNameWithArticleSetting.get()}
       </Typography>
@@ -136,7 +136,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
         </Typography>
         <TextField
           label='Email'
-          onChange={(event) => setNewEmail(event.target.value)}
+          inputRef={emailInput}
+          // onChange={(event) => setNewEmail(event.target.value)}
         />
       </div>}
       
