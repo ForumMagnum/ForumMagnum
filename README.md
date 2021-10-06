@@ -133,6 +133,7 @@ used.
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
 * (Note: currently aspirational): If you fix a bug, **write a test for it**.
+* If you're trying to debug an email problem, you might want to know about `forcePendingEvents`.
 
 ## Testing
 
