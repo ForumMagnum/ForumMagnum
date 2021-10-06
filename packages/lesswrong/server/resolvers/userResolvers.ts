@@ -79,7 +79,7 @@ addGraphQLResolvers({
           username,
           displayName: username,
           slug: await Utils.getUnusedSlugByCollectionName("Users", slugify(username)),
-          email,
+          ...(email ? {email} : {}),
           subscribedToDigest: subscribeToDigest
         },
         // We've already done necessary gating
