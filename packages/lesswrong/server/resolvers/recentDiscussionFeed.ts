@@ -32,7 +32,7 @@ defineFeedResolver<Date>({
           selector: {
             baseScore: {$gt:0},
             hideFrontpageComments: false,
-            $or: [{isEvent: false}, {commentCount: {$nin:[0,null]}}],
+            $or: [{isEvent: false}, {onlineEvent: true}, {commentCount: {$nin:[0,null]}}],
             hiddenRelatedQuestion: undefined,
             shortform: undefined,
             groupId: undefined,
