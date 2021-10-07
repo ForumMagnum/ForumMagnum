@@ -6,6 +6,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
+import { useCurrentUser } from '../../common/withUser';
 
 const SECONDARY_SPACING = 20
 
@@ -120,6 +121,7 @@ const PostsPagePostHeader = ({post, classes}: {
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
+  const currentUser = useCurrentUser();
   
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
@@ -162,7 +164,9 @@ const PostsPagePostHeader = ({post, classes}: {
     </div>
     
     {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore />
+      <FooterTagList post={post}
+        hideScore={currentUser ? !currentUser.showTagRelevanceOnPostPages : true}
+      />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
