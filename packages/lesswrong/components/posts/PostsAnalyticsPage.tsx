@@ -13,6 +13,14 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
+import { Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
+import  theme  from '../../themes/forumTheme'
+
+const fakeData = [
+  { x: 1, y: 10 },
+  { x: 2, y: 20 },
+  { x: 3, y: 10 },
+]
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -53,19 +61,34 @@ const PostsAnalyticsInner = ({ classes, post }) => {
   if (error) {
     throw error
   }
+  
+  console.log('🚀 ~ file: PostsAnalyticsPage.tsx ~ line 52 ~ PostsAnalyticsInner ~ postAnalytics', postAnalytics)
+  
+  return <LineChart data={postAnalytics?.uniqueClientViewsSeries} width={500} height={500}>
+    <XAxis dataKey="date" />
+    <YAxis dataKey="uniqueClientViews" />
+    <Tooltip />
+    <Legend />
+    <Line
+      type="monotone"
+      dataKey="uniqueClientViews"
+      stroke={theme.palette.primary.main}
+      activeDot={{ r: 8 }}
+    />
+  </LineChart>
 
-  return (<Table>
-    <TableBody>
-      <TableRow>
-        <TableCell>Views by unique devices</TableCell>
-        <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
-        <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>)
+  // return (<Table>
+  //   <TableBody>
+  //     <TableRow>
+  //       <TableCell>Views by unique devices</TableCell>
+  //       <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
+  //     </TableRow>
+  //     <TableRow>
+  //       <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
+  //       <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
+  //     </TableRow>
+  //   </TableBody>
+  // </Table>)
 }
 
 const PostsAnalyticsInnerComponent = registerComponent('PostsAnalyticsInner', PostsAnalyticsInner, {styles})

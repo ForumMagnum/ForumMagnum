@@ -32,7 +32,7 @@ function makePgAnalyticsQuery(query: string, resultColumn: string) {
 
 type QueryFunc = (post: DbPost) => Promise<Partial<PostAnalyticsResult>>;
 
-const queries: Record<keyof PostAnalyticsResult, QueryFunc> = {
+const queries: Partial<Record<keyof PostAnalyticsResult, QueryFunc>> = {
   uniqueClientViews: makePgAnalyticsQuery(
     `
       SELECT COUNT(DISTINCT client_id) AS unique_client_views
@@ -88,6 +88,47 @@ addGraphQLResolvers({
       for (const [key, queryFunc] of Object.entries(queries)) {
         postAnalytics[key] = await queryFunc(post);
       }
+      
+      // TODO; refactor
+      const postgres = getAnalyticsConnection();
+      if (!postgres) throw new Error("Unable to connect to analytics database - no database configured");
+      
+      // a masterpiece
+      const query = `
+        WITH unique_client_views AS (
+          SELECT
+            COUNT(DISTINCT client_id) AS unique_client_views,
+            timestamp::DATE AS date
+          FROM page_view
+          WHERE post_id = $1
+          GROUP BY timestamp::DATE
+        ),
+        min_date AS (
+          SELECT MIN(date) AS min_date
+          FROM unique_client_views
+          WHERE unique_client_views.unique_client_views > 1
+        ),
+        eligible_dates AS (
+          SELECT (generate_series(min_date, NOW()::DATE, '1 day'::INTERVAL))::DATE AS date FROM min_date
+        )
+        SELECT
+          coalesce(unique_client_views.unique_client_views, 0) AS unique_client_views,
+          eligible_dates.date
+        FROM unique_client_views
+        RIGHT JOIN eligible_dates ON eligible_dates.date = unique_client_views.date
+        ORDER BY date;
+      `;
+      
+      const uniqueClientViewsSeries = await postgres.query(query, [post._id]);
+      
+      if (!uniqueClientViewsSeries.length) {
+        throw new Error(`No data found for post ${post.title}`);
+      }
+      
+      postAnalytics["uniqueClientViewsSeries"] = uniqueClientViewsSeries.map((row: any) => ({
+        uniqueClientViews: row.unique_client_views,
+        date: row.date,
+      }))
 
       // There's no good way to tell TS that because we've iterated over all the
       // keys, the partial is no longer partial
@@ -97,9 +138,15 @@ addGraphQLResolvers({
 });
 
 addGraphQLSchema(`
+  type UniqueClientViewsSeries {
+    uniqueClientViews: Int
+    date: Date
+  }
+
   type PostAnalyticsResult {
     uniqueClientViews: Int
     uniqueClientViews10Sec: Int
+    uniqueClientViewsSeries: [UniqueClientViewsSeries]
   }
 `);
 
