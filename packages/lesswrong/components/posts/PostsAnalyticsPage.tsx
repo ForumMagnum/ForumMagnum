@@ -13,14 +13,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
-import { Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
+import { Label, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import  theme  from '../../themes/forumTheme'
-
-const fakeData = [
-  { x: 1, y: 10 },
-  { x: 2, y: 20 },
-  { x: 3, y: 10 },
-]
+import moment from 'moment'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -45,6 +40,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   calculating: {
     marginLeft: theme.spacing.unit * 2,
   },
+  graphContainer: {
+    marginTop: 50,
+    '& .xAxis': {
+      marginTop: 100
+    }
+  }
 })
 
 const PostsAnalyticsInner = ({ classes, post }) => {
@@ -62,33 +63,46 @@ const PostsAnalyticsInner = ({ classes, post }) => {
     throw error
   }
   
-  console.log('🚀 ~ file: PostsAnalyticsPage.tsx ~ line 52 ~ PostsAnalyticsInner ~ postAnalytics', postAnalytics)
+  const uniqueClientViewsSeries = postAnalytics?.uniqueClientViewsSeries.map(({ date, uniqueClientViews }) => ({
+    // Can we terribly hack this?
+    date: moment(date).format('MMM-DD'),
+    uniqueClientViews
+  }))
   
-  return <LineChart data={postAnalytics?.uniqueClientViewsSeries} width={500} height={500}>
-    <XAxis dataKey="date" />
-    <YAxis dataKey="uniqueClientViews" />
-    <Tooltip />
-    <Legend />
-    <Line
-      type="monotone"
-      dataKey="uniqueClientViews"
-      stroke={theme.palette.primary.main}
-      activeDot={{ r: 8 }}
-    />
-  </LineChart>
+  return <>
+    <Typography variant="display2" className={classes.title}>Cumulative Data</Typography>
+    <Table>
+      <TableBody>
+        <TableRow>
+          <TableCell>Views by unique devices</TableCell>
+          <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
+          <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+    <Typography variant="display2" className={classes.title}>Daily Data</Typography>
+    <ResponsiveContainer width="100%" height={300} className={classes.graphContainer}>
+      <LineChart data={uniqueClientViewsSeries} height={300} margin={{right: 30}}>
+        <XAxis dataKey="date" angle={-30} offset={20}>
+          <Label value="Date" offset={30}/>
+        </XAxis>
+        <YAxis dataKey="uniqueClientViews" />
+        <Tooltip />
+        <Legend />
+        <Line
+          type="monotone"
+          dataKey="uniqueClientViews"
+          stroke={theme.palette.primary.main}
+          dot={false}
+          activeDot={{ r: 8 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </>
 
-  // return (<Table>
-  //   <TableBody>
-  //     <TableRow>
-  //       <TableCell>Views by unique devices</TableCell>
-  //       <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
-  //     </TableRow>
-  //     <TableRow>
-  //       <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
-  //       <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
-  //     </TableRow>
-  //   </TableBody>
-  // </Table>)
 }
 
 const PostsAnalyticsInnerComponent = registerComponent('PostsAnalyticsInner', PostsAnalyticsInner, {styles})
@@ -158,7 +172,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   return <>
     <HeadTags title={title} />
     <SingleColumnSection className={classes.root}>
-      <Typography variant='display1' className={classes.title}>
+      <Typography variant='display2' className={classes.title}>
         {title}
       </Typography>
       <NoSsr>

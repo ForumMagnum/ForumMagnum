@@ -86,6 +86,7 @@ addGraphQLResolvers({
       // and couldn't get it to work the way I wanted
       const postAnalytics: Partial<PostAnalyticsResult> = {};
       for (const [key, queryFunc] of Object.entries(queries)) {
+        if (!queryFunc) continue;
         postAnalytics[key] = await queryFunc(post);
       }
       
