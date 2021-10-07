@@ -3,6 +3,7 @@ import { useQuery, gql } from '@apollo/client'
 export type PostAnalyticsResult = {
   uniqueClientViews: number
   uniqueClientViews10Sec: number
+  uniqueClientViewsSeries: {date: Date, uniqueClientViews: number}[]
 }
 
 type PostAnalyticsQueryResult = {
@@ -15,11 +16,15 @@ export const usePostAnalytics = (postId: string) => {
       PostAnalytics(postId: $postId) {
         uniqueClientViews
         uniqueClientViews10Sec
+        uniqueClientViewsSeries {
+          date
+          uniqueClientViews
+        }
       }
     }
   `
   
-  const { data, loading, error } = useQuery<PostAnalyticsQueryResult>(postAnalyticsQuery, {variables: {postId}, ssr: true})
+  const { data, loading, error } = useQuery<PostAnalyticsQueryResult>(postAnalyticsQuery, {variables: {postId}})
   
   return {
     postAnalytics: data?.PostAnalytics,
