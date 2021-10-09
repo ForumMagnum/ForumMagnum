@@ -44,7 +44,14 @@ const PostBodyPrefix = ({post, query, classes}: {
 
     <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />
-    { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
+    
+    {post.shortform && post.draft && <div className={classes.contentNotice}>
+      This is a special post that holds your short-form writing. Because it's
+      marked as a draft, your short-form posts will not be displayed. To un-draft
+      it, pick Edit from the menu above, then click Publish.
+    </div>}
+    
+    {post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       Because this is your first post, this post is awaiting moderator approval.
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
