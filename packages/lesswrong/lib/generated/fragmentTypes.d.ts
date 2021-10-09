@@ -473,6 +473,8 @@ interface PostSequenceNavigation { // fragment on Posts
 interface PostSequenceNavigation_sequence { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
+  readonly draft: boolean,
+  readonly userId: string,
 }
 
 interface PostSequenceNavigation_prevPost { // fragment on Posts
