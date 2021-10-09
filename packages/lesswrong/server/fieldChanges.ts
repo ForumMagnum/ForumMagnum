@@ -20,10 +20,10 @@ export const logFieldChanges = async <T extends DbObject>({currentUser, collecti
     //  * The logChanges option is present on the field, and false
     //  * The logChanges option is undefined on the field, and is false on the collection
     if (before===after) continue;
-    if (schema[key].denormalized) continue;
-    if (schema[key].logChanges != undefined && !schema[key].logChanges)
+    if (schema[key]?.denormalized) continue;
+    if (schema[key]?.logChanges != undefined && !schema[key]?.logChanges)
       continue;
-    if (!schema[key].logChanges && !collection.options.logChanges)
+    if (!schema[key]?.logChanges && !collection.options.logChanges)
       continue;
     
     // As a special case, don't log changes from null to undefined (or vise versa).
