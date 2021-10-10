@@ -494,16 +494,9 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
 
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
-  if (!comment.postId) {
-    throw new Error("Comment has no postId");
-  }
-
-  const post = await Posts.findOne(comment.postId);
-  if (!post) {
-    throw new Error("Comment has no post");
-  }
+  const post = comment.postId ? await Posts.findOne(comment.postId) : null;
   
-  if (post.isEvent) {
+  if (post?.isEvent) {
     await notifyRsvps(comment, post);
   }
 
