@@ -10,6 +10,7 @@ declare global {
 ensureIndex(Votes, {cancelled:1, userId:1, documentId:1});
 ensureIndex(Votes, {cancelled:1, documentId:1});
 ensureIndex(Votes, {cancelled:1, userId:1, votedAt:-1});
+ensureIndex(Votes, {cancelled:1, collectionName:1, userId:1, authorId:1});
 
 // Used by getKarmaChanges
 ensureIndex(Votes, {authorId:1, votedAt:1, userId:1, afPower:1});

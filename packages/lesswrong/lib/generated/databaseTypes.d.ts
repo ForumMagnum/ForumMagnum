@@ -624,6 +624,7 @@ interface DbUser extends DbObject {
   hideElicitPredictions: boolean
   hideAFNonMemberInitialWarning: boolean
   showTagRelevanceOnPostPages: boolean
+  sentNotificationAboutTagRelevanceOnPostPages: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/

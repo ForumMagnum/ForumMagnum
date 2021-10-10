@@ -229,6 +229,8 @@ const getLink = async (notificationType: string, documentType: string|null, docu
   switch(notificationType) {
     case "emailVerificationRequired":
       return "/resendVerificationEmail";
+    case "youAreATagRelevanceVoter":
+      return "/account";
     default:
       // Fall through to based on document-type
       break;

@@ -265,6 +265,15 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
     label: "Show tag relevance scores on post pages",
+  },
+  sentNotificationAboutTagRelevanceOnPostPages: {
+    type: Boolean,
+    optional: true, hidden: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.siteCustomizations,
+    label: "Show tag relevance scores on post pages",
     ...schemaDefaultValue(false),
   },
 
