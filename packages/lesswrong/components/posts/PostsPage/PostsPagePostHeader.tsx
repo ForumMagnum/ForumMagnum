@@ -141,6 +141,7 @@ const PostsPagePostHeader = ({post, classes}: {
               </a>
             </LWTooltip>
           }
+          {/* NB: Currently display:none'd */}
           {!!wordCount && !post.isEvent && <LWTooltip title={`${wordCount} words`}>
             <span className={classes.wordCount}>{Math.floor(wordCount/200) || 1 } min read</span>
           </LWTooltip>}

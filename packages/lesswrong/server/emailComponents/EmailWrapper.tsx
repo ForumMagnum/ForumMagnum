@@ -14,9 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-const EmailWrapper = ({user, unsubscribeAllLink, children, classes}: {
-  user: DbUser,
-  unsubscribeAllLink: string,
+const EmailWrapper = ({unsubscribeAllLink, children, classes}: {
+  unsubscribeAllLink: string | null,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
@@ -79,9 +78,11 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}: {
                     </tr>
                     <tr><td className="container-padding">
                       <br/>
-                      <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
-                      (from all emails from {siteNameWithArticle})
-                      or <a href={accountLink}>Change your notifications settings</a>
+                      {unsubscribeAllLink && <>
+                        <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
+                        (from all emails from {siteNameWithArticle})
+                        or <a href={accountLink}>Change your notifications settings</a>
+                      </>}
                       <br/>
                     </td></tr>
                   </tbody>

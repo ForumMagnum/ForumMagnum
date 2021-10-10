@@ -201,6 +201,16 @@ Comments.addView("recentComments", (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
 
+Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      af: false,
+      suggestForAlignmentUserIds: terms.userId,
+      deletedPublic: false},
+    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+  };
+});
+
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
   const eighteenHoursAgo = moment().subtract(36, 'hours').toDate();
   return {

@@ -77,6 +77,7 @@ const SunshineReportedItem = ({report, updateReport}: {
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
+                tag: comment.tag || undefined,
                 showPostTitle: true,
               }}
               comment={comment}

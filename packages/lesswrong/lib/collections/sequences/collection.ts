@@ -32,7 +32,8 @@ export const Sequences: ExtendedSequencesCollection = createCollection({
   typeName: 'Sequence',
   schema,
   resolvers: getDefaultResolvers('Sequences'),
-  mutations: getDefaultMutations('Sequences', options)
+  mutations: getDefaultMutations('Sequences', options),
+  logChanges: true,
 })
 
 makeEditable({

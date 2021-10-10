@@ -18,6 +18,7 @@ const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "W
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 const eaHandbookPostIdSetting = new PublicInstanceSetting<string | null>('eaHandbookPostId', null, "optional")
@@ -188,7 +189,8 @@ addRoute(
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
     title: "Private Conversation",
-    background: "white"
+    background: "white",
+    initialScroll: "bottom",
   },
 
   {
@@ -202,6 +204,12 @@ addRoute(
     name: 'editPost',
     path: '/editPost',
     componentName: 'PostsEditPage',
+    background: "white"
+  },
+  {
+    name: 'postAnalytics',
+    path: '/postAnalytics',
+    componentName: 'PostsAnalyticsPage',
     background: "white"
   },
   {
@@ -663,13 +671,22 @@ switch (forumTypeSetting.get()) {
       {
         name:'alignment.home',
         path:'/',
-        componentName: 'AlignmentForumHome'
+        componentName: 'AlignmentForumHome',
+        sunshineSidebar: true //TODO: remove this in production?
       },
       {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get()
+      },
+      {
+        name: 'faq',
+        path: '/faq',
+        componentName: 'PostsSingleRoute',
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'Meta',
@@ -763,8 +780,8 @@ switch (forumTypeSetting.get()) {
         name: 'faq',
         path: '/faq',
         componentName: 'PostsSingleRoute',
-        _id:"2rWKkWuPrgTMpLRbp",
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
         background: postBackground
       },
       {
@@ -791,7 +808,7 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database"
+      title: "COVID-19 Link Database",
     }
   )
 }

@@ -1,4 +1,3 @@
-import { Typography } from '@material-ui/core';
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -18,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BannedNotice = ({classes}: {
   classes: ClassesType
 }) => {
-  const {SingleColumnSection, } = Components;
+  const {SingleColumnSection, Typography } = Components;
   
   return <SingleColumnSection>
     <div className={classes.root}>
@@ -29,7 +28,7 @@ const BannedNotice = ({classes}: {
       </Typography>
 
       <Typography variant='body2'>
-        If you believe this is a mistake, please <Link to='/contact-us'>contact us.</Link>
+        If you believe this is a mistake, please <Link to='/contact'>contact us.</Link>
       </Typography>
     </div>
   </SingleColumnSection>

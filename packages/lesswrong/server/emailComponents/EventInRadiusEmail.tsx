@@ -17,6 +17,7 @@ const EventInRadiusEmail = ({openingSentence, postId}: {
     fragmentName: "PostsRevision",
   });
   if (loading) return null;
+  if (!post) {return null;}
   
   const link = postGetPageUrl(post, true);
   

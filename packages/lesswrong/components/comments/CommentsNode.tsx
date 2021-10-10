@@ -200,7 +200,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
       </div>}
 
       {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-        <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+        <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
           <Components.CommentsNode
@@ -218,7 +218,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 
       {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">
-          <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+          <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
           <RepliesToCommentList
             parentCommentId={comment._id}
             post={post as PostsBase}

@@ -4,6 +4,9 @@ import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useCurrentUser } from "../common/withUser";
+import { useDialog } from "../common/withDialog";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -76,6 +79,8 @@ const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
 }) => {
   const [selection, setSelection] = useState("answer");
   const [formFocus, setFormFocus] = useState(false);
+  const currentUser = useCurrentUser()
+  const { openDialog } = useDialog()
   const { NewAnswerForm, CommentsNewForm, NewRelatedQuestionForm } = Components
 
   const toggleFormFocus = () => {
@@ -96,7 +101,7 @@ const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
     }
   }
 
-  return <div className={classes.root}>
+  return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog)}>
     <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
     <div className={classes.form}>
       <div className={classes.chooseResponseType}>

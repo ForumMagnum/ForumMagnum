@@ -35,6 +35,8 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   if (loading)
     return <Loading/>
   
+  if (!revision) {return null;}
+  
   return <div className={classes.root}>
     <div><TagRevisionItemShortMetadata tag={tag} revision={revision}/></div>
     

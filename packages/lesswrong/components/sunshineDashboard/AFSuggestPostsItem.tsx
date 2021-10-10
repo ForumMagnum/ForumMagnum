@@ -11,11 +11,39 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
+import {commentBodyStyles} from "../../themes/stylePiping";
+import {DatabasePublicSetting} from "../../lib/publicSettings";
+
+export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
+
+export const afSubmissionHeader = (theme) => ({
+  ...commentBodyStyles(theme),
+  marginBottom: 24,
+  display: "flex",
+  flex: "flex-start",
+  alignContent: "center",
+  justifyContent: "space-between"
+})
+
+export const afSubmissionHeaderText = (theme) => ({
+  ...commentBodyStyles(theme),
+  fontStyle: 'italic',
+})
+
+const styles = (theme: ThemeType): JssStyles => ({
+  afSubmissionHeader: {
+    ...afSubmissionHeader(theme)
+  },
+  afSubmissionHeaderText: {
+    ...afSubmissionHeaderText(theme)
+  }
+})
+
 
 interface ExternalProps {
   post: SuggestAlignmentPost,
 }
-interface AFSuggestPostsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
+interface AFSuggestPostsItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithStylesProps {
   updatePost: WithUpdateFunction<PostsCollection>,
 }
 
@@ -44,15 +72,22 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
   }
 
   render () {
-    const { post, currentUser, hover, anchorEl, updatePost } = this.props
+    const { classes, post, currentUser, hover, anchorEl, updatePost } = this.props
     
     if (!currentUser) return null;
 
     const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+    const userHasSelfSuggested = post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
 
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+          { userHasSelfSuggested && <div className={classes.afSubmissionHeader}>
+            <span className={classes.afSubmissionHeaderText}>
+                AF Submission
+            </span>
+            <Components.SunshineSendMessageWithDefaults user={post.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
+          </div>}
           <Components.Typography variant="title">
             <Link to={postGetPageUrl(post)}>
               { post.title }
@@ -104,6 +139,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
 }
 
 const AFSuggestPostsItemComponent = registerComponent<ExternalProps>('AFSuggestPostsItem', AFSuggestPostsItem, {
+  styles,
   hocs: [
     withUpdate({
       collectionName: "Posts",
@@ -120,4 +156,3 @@ declare global {
     AFSuggestPostsItem: typeof AFSuggestPostsItemComponent
   }
 }
-
