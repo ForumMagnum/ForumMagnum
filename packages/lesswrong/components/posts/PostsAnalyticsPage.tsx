@@ -41,10 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit * 2,
   },
   graphContainer: {
-    marginTop: 50,
-    '& .xAxis': {
-      marginTop: 100
-    }
+    marginTop: 30,
   }
 })
 
@@ -62,7 +59,7 @@ const PostsAnalyticsInner = ({ classes, post }) => {
   if (error) {
     throw error
   }
-  
+
   const uniqueClientViewsSeries = postAnalytics?.uniqueClientViewsSeries.map(({ date, uniqueClientViews }) => ({
     // Can we terribly hack this?
     date: moment(date).format('MMM-DD'),
@@ -86,9 +83,7 @@ const PostsAnalyticsInner = ({ classes, post }) => {
     <Typography variant="display2" className={classes.title}>Daily Data</Typography>
     <ResponsiveContainer width="100%" height={300} className={classes.graphContainer}>
       <LineChart data={uniqueClientViewsSeries} height={300} margin={{right: 30}}>
-        <XAxis dataKey="date" angle={-30} offset={20}>
-          <Label value="Date" offset={30}/>
-        </XAxis>
+        <XAxis dataKey="date" interval={70} />
         <YAxis dataKey="uniqueClientViews" />
         <Tooltip />
         <Legend />
