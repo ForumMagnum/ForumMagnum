@@ -38,7 +38,8 @@
     "ea-mongo-prod": "mongo $(< ../ForumCredentials/prod-db-conn.txt)",
     "ea-load-dev-db": "mongo $(< ../ForumCredentials/dev-db-conn.txt) ../ForumCredentials/loadDevDbSettings.js",
     "ea-load-staging-db": "mongo $(< ../ForumCredentials/staging-db-conn.txt) ../ForumCredentials/loadStagingDbSettings.js",
-    "ea-load-prod-db": "mongo $(< ../ForumCredentials/prod-db-conn.txt) ../ForumCredentials/loadProdDbSettings.js"
+    "ea-load-prod-db": "mongo $(< ../ForumCredentials/prod-db-conn.txt) ../ForumCredentials/loadProdDbSettings.js",
+    "ea-load-testing-db": "mongo $(< ../ForumCredentials/testing-db-conn.txt) ../ForumCredentials/loadTestingDbSettings.js"
   },
   "dependencies": {
     "@apollo/client": "^3.2.0",
