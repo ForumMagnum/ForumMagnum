@@ -1,0 +1,19 @@
+{
+    "_id" : "test-seeded-message",
+    "conversationId" : "test-seeded-conversation",
+    "contents" : {
+        "originalContents" : {
+            "type" : "ckEditorMarkup",
+            "data" : "<p>Test seeded message</p>"
+        },
+        "updateType" : "initial",
+        "commitMessage" : "",
+        "html" : "<p>Test seeded message</p>",
+        "version" : "1.0.0",
+        "userId" : "test-other-user",
+        "wordCount" : 3
+    },
+    "userId" : "test-other-user",
+    "noEmail" : false,
+    "schemaVersion" : 1
+}  

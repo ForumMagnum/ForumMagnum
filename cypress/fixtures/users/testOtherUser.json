@@ -1,0 +1,9 @@
+{
+    "_id": "test-other-user",
+    "username": "test-other-user",
+    "slug": "test-other-user",
+    "displayName": "Test Other User",
+    "email": "test-other-user@testingaltrusim.org",
+    "isAdmin": false,
+    "reviewedByUserId": "test-admin"
+}

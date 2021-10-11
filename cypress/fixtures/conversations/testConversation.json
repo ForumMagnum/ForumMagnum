@@ -1,0 +1,10 @@
+{
+    "_id" : "test-seeded-conversation",
+    "participantIds" : [ 
+        "test-other-user", 
+        "test-user"
+    ],
+    "schemaVersion" : 1,
+    "messageCount" : 1,
+    "archivedByIds" : []
+}

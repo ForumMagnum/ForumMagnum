@@ -6,6 +6,8 @@ const { createHash } = require('crypto');
 const seedPosts = require('../fixtures/posts/index.js');
 const seedComments = require('../fixtures/comments/index.js');
 const seedUsers = require('../fixtures/users/index.js');
+const seedConversations = require('../fixtures/conversations/index.js');
+const seedMessages = require('../fixtures/messages/index.js');
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -50,6 +52,19 @@ module.exports = (on, config) => {
           postedAt: now,
           lastSubthreadActivity: now,
         }));
+      const messagesWithDates = seedMessages
+        .map(message => ({...message, 
+          createdAt: now,
+          contents: {
+            ...message.contents,
+            editedAt: now
+          },
+        }));
+      const conversationsWithDates = seedConversations
+        .map(conversation => ({...conversation, 
+          createdAt: now,
+          latestActivity: now,
+        }));
       const client = new MongoClient(config.env.TESTING_DB_URL);
       try{
         await client.connect();
@@ -67,6 +82,8 @@ module.exports = (on, config) => {
         await db.collection('posts').insertMany(postsWithDates);
         await db.collection('comments').insertMany(commentsWithDates);
         await db.collection('users').insertMany(seedUsers);
+        await db.collection('conversations').insertMany(conversationsWithDates);
+        await db.collection('messages').insertMany(messagesWithDates);
       } catch(err) {
         /* eslint-disable no-console */
         console.error(err);
