@@ -98,7 +98,7 @@ module.exports = (on, config) => {
       try{
         await client.connect();
         const db = await client.db();
-        await db.collection('users').updateOne({username: user.username}, {
+        await db.collection('users').updateOne({_id: user._id}, {
           $addToSet: {
             "services.resume.loginTokens": {
               when: new Date(),
