@@ -1,4 +1,5 @@
 const testUser = require('./testUser.json');
+const testOtherUser = require('./testOtherUser.json');
 const testAdmin = require('./testAdmin.json');
 
 /*
@@ -8,5 +9,6 @@ can't create a new one without waiting about ten seconds.
 */
 module.exports = [
   testUser,
+  testOtherUser,
   testAdmin,
 ];
