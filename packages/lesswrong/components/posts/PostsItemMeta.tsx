@@ -21,6 +21,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: theme.spacing.unit,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle
+  },
+  calendarIcon: {
+    marginRight: theme.spacing.unit
   }
 })
 
@@ -36,10 +39,10 @@ const PostsItemMeta = ({post, read, classes}: {
 }) => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip } = Components;
+  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarIcon } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
-      {!post.shortform && <span className={classes.info}>
+      {!post.shortform && !post.isEvent && <span className={classes.info}>
         <LWTooltip title={<div>
           This post has { baseScore || 0 } karma<br/>
           ({ post.voteCount} votes)
@@ -51,6 +54,11 @@ const PostsItemMeta = ({post, read, classes}: {
       </span>}
 
       { post.isEvent && <span className={classes.info}>
+        {post.startTime && post.endTime && (
+          <span className={classes.calendarIcon}>
+            <AddToCalendarIcon post={post} />
+          </span>
+        )}
         {post.startTime
           ? <LWTooltip title={<Components.EventTime post={post} />}>
               <DateWithoutTime date={post.startTime} />

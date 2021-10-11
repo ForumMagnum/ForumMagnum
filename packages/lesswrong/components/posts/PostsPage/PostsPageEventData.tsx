@@ -6,6 +6,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop:theme.spacing.unit*3,
     ...theme.typography.postStyle,
     color: 'rgba(0,0,0,0.5)',
+  },
+  calendarIcon: {
+    marginTop: theme.spacing.unit*2
   }
 })
 
@@ -18,6 +21,9 @@ const PostsPageEventData = ({classes, post}: {
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>
       { location && <div className={classes.eventLocation}> {location} </div> }
       { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
+      <div className={classes.calendarIcon}>
+        <Components.AddToCalendarIcon post={post} label="Add to Calendar" hideTooltip={true} />
+      </div>
   </Components.Typography>
 }
 
