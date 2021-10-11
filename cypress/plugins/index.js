@@ -2,7 +2,6 @@
 
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
-const process = require('process');;
 
 const seedPosts = require('../fixtures/posts/index.js');
 const seedComments = require('../fixtures/comments/index.js');
@@ -58,12 +57,18 @@ module.exports = (on, config) => {
         if(isProd) {
           throw new Error('Cannot run tests on production DB.');
         }
-        await client.db().dropDatabase();
+
         const db = await client.db();
+
+        const databaseMetadata = await db.collection('databasemetadata').find({}).toArray();
+
+        await db.dropDatabase();
+        await db.collection('databasemetadata').insertMany(databaseMetadata);
         await db.collection('posts').insertMany(postsWithDates);
         await db.collection('comments').insertMany(commentsWithDates);
         await db.collection('users').insertMany(seedUsers);
       } catch(err) {
+        /* eslint-disable no-console */
         console.error(err);
         return undefined; //  Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
       } finally {
@@ -85,6 +90,7 @@ module.exports = (on, config) => {
           },
         });
       } catch(err) {
+        /* eslint-disable no-console */
         console.error(err);
         return undefined; // Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
       } finally {
