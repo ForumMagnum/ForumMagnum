@@ -7,13 +7,14 @@ import { commentBodyStyles, postBodyStyles } from '../../../themes/stylePiping';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { responseToText } from './RSVPForm';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
     ...postBodyStyles(theme)
   },
   rsvpItem: {
-    width: "25%",
+    width:  forumTypeSetting.get() === "EAForum" ? "33%" : "25%",
     display: "inline-block",
     paddingTop: 4,
     paddingBottom: 4,

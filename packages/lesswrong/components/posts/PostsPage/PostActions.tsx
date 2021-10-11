@@ -19,6 +19,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { useDialog } from '../../common/withDialog';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -293,20 +294,23 @@ const PostActions = ({post, closeMenu, classes}: {
             }
           </span>
         }
-        <SuggestAlignment post={post}/>
-        { userCanMakeAlignmentPost(currentUser, post) &&
-          !post.af && <div onClick={handleMoveToAlignmentForum }>
-            <MenuItem>
-              Ω Move to Alignment
-            </MenuItem>
-          </div>}
-        { userCanMakeAlignmentPost(currentUser, post) && post.af &&
-          <div onClick={handleRemoveFromAlignmentForum}>
-            <MenuItem>
-              Ω Remove Alignment
-            </MenuItem>
-          </div>
-        }
+        {forumTypeSetting.get() !== "EAForum" && <>
+          <SuggestAlignment post={post}/>
+          { userCanMakeAlignmentPost(currentUser, post) && !post.af && 
+            <div onClick={handleMoveToAlignmentForum }>
+              <MenuItem>
+                Ω Move to Alignment
+              </MenuItem>
+            </div>
+          }
+          { userCanMakeAlignmentPost(currentUser, post) && post.af &&
+            <div onClick={handleRemoveFromAlignmentForum}>
+              <MenuItem>
+                Ω Remove Alignment
+              </MenuItem>
+            </div>
+          }
+        </>}
       </div>
   )
 }
