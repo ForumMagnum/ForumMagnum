@@ -18,11 +18,7 @@ const StickiedPosts = ({
   const { SingleColumnSection, PostsList2, SectionTitle, Typography } = Components;
 
   return <SingleColumnSection className={classes.section}>
-    <SectionTitle title={
-      <Typography variant='display1' className={classes.title}>
-          Pinned Posts
-      </Typography>}>
-    </SectionTitle>
+    <SectionTitle title="Pinned Posts" className={classes.title} />
     <PostsList2
       terms={{view:"stickied", limit:100}}
       showNoResults={false}
