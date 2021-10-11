@@ -1,5 +1,4 @@
-const freshTestUser = require('./freshTestUser.json');
-const testUserWithContent = require('./testUserWithContent.json');
+const testUser = require('./testUser.json');
 const testAdmin = require('./testAdmin.json');
 
 /*
@@ -8,7 +7,6 @@ With the database having just been seeded, a user with e.g. existing posts
 can't create a new one without waiting about ten seconds.
 */
 module.exports = [
-  freshTestUser,
-  testUserWithContent,
+  testUser,
   testAdmin,
 ];
