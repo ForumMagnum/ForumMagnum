@@ -308,6 +308,8 @@ registerFragment(`
     sequence(sequenceId: $sequenceId) {
       _id
       title
+      draft
+      userId
     }
     prevPost(sequenceId: $sequenceId) {
       _id

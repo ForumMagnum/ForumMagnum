@@ -21,7 +21,7 @@ defineFeedResolver<Date>({
     const {af} = args;
     const {currentUser} = context;
     
-    const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications; //TODO: Check some more fields
+    const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
     
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
