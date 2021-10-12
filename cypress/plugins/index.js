@@ -75,19 +75,19 @@ module.exports = (on, config) => {
 
         const db = await client.db();
 
-        const databaseMetadata = await db.collection('databasemetadata').find({}).toArray();
+        await Promise.all((await db.collections()).map(collection => {
+          if(collection.collectionName  !== "databasemetadata") {
+            return db.collection(collection.collectionName).drop();
+          }
+        }));
 
-        await db.dropDatabase();
-        await db.collection('databasemetadata').insertMany(databaseMetadata);
-        await db.collection('posts').insertMany(postsWithDates);
-        await db.collection('comments').insertMany(commentsWithDates);
-        await db.collection('users').insertMany(seedUsers);
-        await db.collection('conversations').insertMany(conversationsWithDates);
-        await db.collection('messages').insertMany(messagesWithDates);
-      } catch(err) {
-        /* eslint-disable no-console */
-        console.error(err);
-        return undefined; //  Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
+        await Promise.all([
+          db.collection('comments').insertMany(commentsWithDates),
+          db.collection('users').insertMany(seedUsers),
+          db.collection('conversations').insertMany(conversationsWithDates),
+          db.collection('posts').insertMany(postsWithDates),
+          db.collection('messages').insertMany(messagesWithDates),
+        ]);
       } finally {
         await client.close();
       }
@@ -106,10 +106,6 @@ module.exports = (on, config) => {
             },
           },
         });
-      } catch(err) {
-        /* eslint-disable no-console */
-        console.error(err);
-        return undefined; // Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
       } finally {
         await client.close();
       }
