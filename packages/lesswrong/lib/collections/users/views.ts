@@ -44,6 +44,8 @@ ensureIndex(Users, {createdAt:-1,_id:-1});
 // Case-insensitive email index
 ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }})
 
+ensureIndex(Users, {email: 1})
+
 const termsToMongoSort = (terms: UsersViewTerms) => {
   if (!terms.sort)
     return undefined;
