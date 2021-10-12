@@ -373,3 +373,11 @@ export const NewRSVPNotification = serverRegisterNotificationType({
     </div>
   },
 });
+
+export const YouAreATagRelevanceVoterNotification = serverRegisterNotificationType({
+  name: "youAreATagRelevanceVoter",
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    return "LessWrong notification";
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null
+});

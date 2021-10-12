@@ -255,6 +255,27 @@ addFieldsDict(Users, {
     hidden: forumTypeSetting.get() !== 'AlignmentForum',
     label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
   },
+  
+  showTagRelevanceOnPostPages: {
+    order: 95,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.siteCustomizations,
+    label: "Show tag relevance scores on post pages",
+  },
+  sentNotificationAboutTagRelevanceOnPostPages: {
+    type: Boolean,
+    optional: true, hidden: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.siteCustomizations,
+    label: "Show tag relevance scores on post pages",
+    ...schemaDefaultValue(false),
+  },
 
   hideNavigationSidebar: {
     type: Boolean,

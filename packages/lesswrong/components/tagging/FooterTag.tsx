@@ -57,11 +57,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   core: {
     backgroundColor: "white",
     border: "solid 1px rgba(0,0,0,.12)",
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    
+    "& $score": {
+      color: 'rgba(0,0,0,0.45)',
+    },
   },
   score:  {
-    paddingLeft: 5,
-    color: 'rgba(0,0,0,0.7)',
+    paddingRight: 5,
+    color: 'rgba(0,0,0,0.6)',
+    fontSize: 10,
   },
   name: {
     display: 'inline-block',
@@ -93,8 +98,8 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
     <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core, [classes.smallText]: smallText})}>
       <Link to={`/tag/${tag.slug}`}>
-        <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
+        <span className={classes.name}>{tag.name}</span>
       </Link>
       {tagRel && <PopperCard open={hover} anchorEl={anchorEl} modifiers={{flip:{enabled:false}}}>
         <div className={classes.hovercard}>

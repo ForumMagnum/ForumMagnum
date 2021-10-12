@@ -331,3 +331,15 @@ export const NewRSVPNotification = registerNotificationType({
     return <EventIcon style={iconStyles} />
   }
 })
+
+export const YouAreATagRelevanceVoterNotification = registerNotificationType({
+  name: "youAreATagRelevanceVoter",
+  userSettingField: null,
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    return 'Thank you for voting on tag relevance!';
+  },
+  getIcon() {
+    return <AllIcon style={iconStyles} />
+  },
+});
+

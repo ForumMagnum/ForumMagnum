@@ -1,5 +1,7 @@
 import Users from '../../lib/collections/users/collection';
+import { Votes } from '../../lib/collections/votes/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { createNotification } from '../notificationCallbacks';
 
 /**
  * @summary Update the karma of the item's owner
@@ -47,3 +49,43 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
     void Users.update({_id:voter._id}, {$set:{needsReview: true}})
   }
 });
+
+// When a user has voted on tag relevance >15 times, send them a notification
+// thanking them for being a tag gnome, and suggesting a config change to make
+// tag relevance scores visible in more places.
+voteCallbacks.castVoteAsync.add(function checkTagRelevanceVoterNotification({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+  // Run this async block in the background, without awaiting it
+  void (async () => {
+    if (!user.sentNotificationAboutTagRelevanceOnPostPages && vote.collectionName === "TagRels") {
+      let tagVoteCount = await Votes.find({
+        // Non-cancelled votes by this user, on tag-relations
+        cancelled: false,
+        collectionName: "TagRels",
+        userId: vote.userId,
+        // Only on tags applied by others, not tag applications
+        authorId: {$ne: vote.userId},
+      }).count();
+      
+      console.log(`User has voted on ${tagVoteCount} tagRels`);
+      if (tagVoteCount >= 15) {
+        await Users.update(
+          {_id: user._id},
+          {$set: {sentNotificationAboutTagRelevanceOnPostPages: true}}
+        );
+        
+        await sendTagRelevanceVoterNotification(user);
+      }
+    }
+  })();
+});
+
+async function sendTagRelevanceVoterNotification(user: DbUser) {
+  console.log("Sending tag-gnome voter notification");
+  await createNotification({
+    userId: user._id,
+    notificationType: "youAreATagRelevanceVoter",
+    documentType: null,
+    documentId: null,
+    noEmail: true,
+  });
+}
