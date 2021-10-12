@@ -290,6 +290,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly localStartTime: Date,
   readonly localEndTime: Date,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly contactInfo: string,
   readonly isEvent: boolean,
@@ -1081,6 +1083,8 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly location: string,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
@@ -1098,6 +1102,8 @@ interface localGroupsBase { // fragment on Localgroups
   readonly types: Array<string>,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
