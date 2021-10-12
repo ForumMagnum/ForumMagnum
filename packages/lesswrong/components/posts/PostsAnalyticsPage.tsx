@@ -13,7 +13,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
-import { Label, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import  theme  from '../../themes/forumTheme'
 import moment from 'moment'
 
@@ -42,10 +42,41 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   graphContainer: {
     marginTop: 30,
+  },
+  notEnoughDataMessage: {
+    color: theme.palette.grey[500],
   }
 })
 
-const PostsAnalyticsInner = ({ classes, post }) => {
+function PostAnalyticsGraphs (
+  { classes, uniqueClientViewsSeries }: { classes: ClassesType, uniqueClientViewsSeries: { date: string, uniqueClientViews: number }[] | undefined }
+) {
+  const { Typography } = Components
+  if (!uniqueClientViewsSeries?.length || uniqueClientViewsSeries.length === 1) {
+    return (<Typography variant="body1" className={classes.notEnoughDataMessage}>
+      <em>Not enough data for a graph, check back tomorrow.</em>
+    </Typography>
+    )
+  }
+  return <ResponsiveContainer width="100%" height={300} className={classes.graphContainer}>
+  <LineChart data={uniqueClientViewsSeries} height={300} margin={{right: 30}}>
+    <XAxis dataKey="date" interval={Math.floor(uniqueClientViewsSeries.length/5)} />
+    <YAxis dataKey="uniqueClientViews" />
+    <Tooltip />
+    <Legend />
+    <Line
+      type="monotone"
+      dataKey="uniqueClientViews"
+      name="Views by unique devices"
+      stroke={theme.palette.primary.main}
+      dot={false}
+      activeDot={{ r: 8 }}
+    />
+  </LineChart>
+</ResponsiveContainer>
+}
+
+const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: PostsPage }) => {
   const { postAnalytics, loading, error } = usePostAnalytics(post._id)
   const { Loading, Typography } = Components
   if (loading) {
@@ -61,7 +92,6 @@ const PostsAnalyticsInner = ({ classes, post }) => {
   }
 
   const uniqueClientViewsSeries = postAnalytics?.uniqueClientViewsSeries.map(({ date, uniqueClientViews }) => ({
-    // Can we terribly hack this?
     date: moment(date).format('MMM-DD'),
     uniqueClientViews
   }))
@@ -81,21 +111,7 @@ const PostsAnalyticsInner = ({ classes, post }) => {
       </TableBody>
     </Table>
     <Typography variant="display2" className={classes.title}>Daily Data</Typography>
-    <ResponsiveContainer width="100%" height={300} className={classes.graphContainer}>
-      <LineChart data={uniqueClientViewsSeries} height={300} margin={{right: 30}}>
-        <XAxis dataKey="date" interval={70} />
-        <YAxis dataKey="uniqueClientViews" />
-        <Tooltip />
-        <Legend />
-        <Line
-          type="monotone"
-          dataKey="uniqueClientViews"
-          stroke={theme.palette.primary.main}
-          dot={false}
-          activeDot={{ r: 8 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
+    <PostAnalyticsGraphs classes={classes} uniqueClientViewsSeries={uniqueClientViewsSeries} />
   </>
 
 }
