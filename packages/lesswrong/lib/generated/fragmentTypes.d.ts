@@ -290,6 +290,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly localStartTime: Date,
   readonly localEndTime: Date,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly contactInfo: string,
   readonly isEvent: boolean,
@@ -1070,6 +1072,8 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly location: string,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
@@ -1087,6 +1091,8 @@ interface localGroupsBase { // fragment on Localgroups
   readonly types: Array<string>,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
@@ -1221,17 +1227,6 @@ interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRel
   readonly tag: TagPreviewFragment|null,
   readonly post: TagRelCreationFragment_post|null,
   readonly currentUserVote: string,
-}
-
-interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
-  readonly tagRel: WithVoteTagRel|null,
-}
-
-interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
-  readonly tag: TagPreviewFragment|null,
-  readonly post: TagRelCreationFragment_post|null,
-  readonly currentUserVotes: Array<VoteFragment>,
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
@@ -1660,6 +1655,14 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly userId: string,
 }
 
+interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
+}
+
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly _id: string,
   readonly title: string,
@@ -1824,6 +1827,7 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
+  FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
@@ -1959,6 +1963,7 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
+  FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"

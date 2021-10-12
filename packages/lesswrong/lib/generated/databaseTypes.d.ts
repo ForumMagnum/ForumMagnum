@@ -247,6 +247,8 @@ interface DbLocalgroup extends DbObject {
   location: string
   contactInfo: string
   facebookLink: string
+  facebookPageLink: string
+  meetupLink: string
   website: string
   inactive: boolean
   contents: EditableFieldContents
@@ -408,6 +410,8 @@ interface DbPost extends DbObject {
   location: string
   contactInfo: string
   facebookLink: string
+  facebookPageLink: string
+  meetupLink: string
   website: string
   types: Array<string>
   metaSticky: boolean
