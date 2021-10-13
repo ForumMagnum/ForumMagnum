@@ -100,12 +100,16 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
     <Typography variant="display2" className={classes.title}>Cumulative Data</Typography>
     <Table>
       <TableBody>
+      <TableRow>
+          <TableCell>All views</TableCell>
+          <TableCell>{postAnalytics?.allViews}</TableCell>
+        </TableRow>
         <TableRow>
           <TableCell>Views by unique devices</TableCell>
           <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
         </TableRow>
         <TableRow>
-          <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
+          <TableCell>Views by unique devices, on page for > 10 sec</TableCell>
           <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
         </TableRow>
       </TableBody>
@@ -186,10 +190,16 @@ const PostsAnalyticsPage = ({ classes }) => {
       <Typography variant='display2' className={classes.title}>
         {title}
       </Typography>
+      {moment(post.createdAt) < moment('2021-06-14') && <Typography variant='body1' gutterBottom>
+        <em>
+          Note: For figures that rely on unique client, we were mistakenly not
+          collecting that data from Jan 11th - Jun 14th of 2021.
+        </em>
+      </Typography>}
       <NoSsr>
         <PostsAnalyticsInner post={post} />
       </NoSsr>
-        <Typography variant="body1" className={classes.viewingNotice} component='div'>
+      <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p>This feature is new. <Link to='/contact'>Let us know what you think.</Link></p>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>
