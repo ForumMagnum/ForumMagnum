@@ -33,7 +33,7 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
     <AddToCalendar
       event={{
         name: post.title,
-        details: post.contents?.plaintextDescription ? post.contents?.plaintextDescription : post.facebookLink,
+        details: post.contents?.plaintextDescription || post.facebookLink,
         location: post.location,
         startsAt: moment(post.startTime).format(),
         endsAt: moment(post.endTime).format()
