@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
-  post: PostsBase,
+  post: PostsList,
   label?: string,
   hideTooltip?: boolean,
   classes: ClassesType,
@@ -33,7 +33,7 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
     <AddToCalendar
       event={{
         name: post.title,
-        details: post.facebookLink,
+        details: post.contents?.plaintextDescription ? post.contents?.plaintextDescription : post.facebookLink,
         location: post.location,
         startsAt: moment(post.startTime).format(),
         endsAt: moment(post.endTime).format()

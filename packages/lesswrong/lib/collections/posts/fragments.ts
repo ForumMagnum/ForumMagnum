@@ -163,6 +163,7 @@ registerFragment(`
       htmlHighlight
       wordCount
       version
+      plaintextDescription
     }
   }
 `);

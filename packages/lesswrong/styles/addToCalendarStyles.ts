@@ -12,7 +12,7 @@
  .chq-atc--button {
    background: transparent;
    box-sizing: border-box;
-   color: #212121;
+   color: inherit;
    cursor: pointer;
    display: inline;
    font-family: inherit;
@@ -28,6 +28,7 @@
 
  .chq-atc--button svg {
    vertical-align: text-bottom;
+   fill: currentColor;
  }
 
  .chq-atc--dropdown {
