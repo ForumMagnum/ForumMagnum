@@ -545,6 +545,7 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
+  readonly plaintextDescription: string,
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users

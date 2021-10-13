@@ -402,6 +402,7 @@ registerFragment(`
       htmlHighlight
       wordCount
       version
+      plaintextDescription
     }
     
     user {
