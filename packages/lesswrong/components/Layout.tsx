@@ -174,19 +174,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     })
   }
 
-  getUniqueClientId = () => {
-    const { currentUser, cookies } = this.props
-
-    if (currentUser) return currentUser._id
-
-    const cookieId = cookies.get('clientId')
-    if (cookieId) return cookieId
-
-    const newId = randomId()
-    cookies.set('clientId', newId)
-    return newId
-  }
-
   componentDidMount() {
     const { cookies } = this.props;
     const newTimezone = moment.tz.guess();

@@ -57,6 +57,14 @@ type QueryFunc = (post: DbPost) => Promise<Partial<PostAnalyticsResult>>;
 const queries: QueryFunc[] = [
   makePgAnalyticsQueryScalar({
     query: `
+      SELECT COUNT(*) AS all_views
+      FROM page_view
+      WHERE post_id = $1
+    `,
+    resultColumns: ["all_views"]
+  }),
+  makePgAnalyticsQueryScalar({
+    query: `
       SELECT COUNT(DISTINCT client_id) AS unique_client_views
       FROM page_view
       WHERE post_id = $1
@@ -155,6 +163,7 @@ addGraphQLSchema(`
   }
 
   type PostAnalyticsResult {
+    allViews: Int
     uniqueClientViews: Int
     uniqueClientViews10Sec: Int
     uniqueClientViewsSeries: [UniqueClientViewsSeries]

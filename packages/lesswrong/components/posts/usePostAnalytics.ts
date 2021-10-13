@@ -1,6 +1,7 @@
 import { useQuery, gql } from '@apollo/client'
 
 export type PostAnalyticsResult = {
+  allViews: number
   uniqueClientViews: number
   uniqueClientViews10Sec: number
   uniqueClientViewsSeries: {date: Date, uniqueClientViews: number}[]
@@ -14,6 +15,7 @@ export const usePostAnalytics = (postId: string) => {
   const postAnalyticsQuery = gql`
     query PostAnalyticsQuery($postId: String!) {
       PostAnalytics(postId: $postId) {
+        allViews
         uniqueClientViews
         uniqueClientViews10Sec
         uniqueClientViewsSeries {
