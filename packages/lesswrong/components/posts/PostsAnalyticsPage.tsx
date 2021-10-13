@@ -109,7 +109,7 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
           <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
         </TableRow>
         <TableRow>
-          <TableCell>Views by unique devices, on page for > 10 sec</TableCell>
+          <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
           <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
         </TableRow>
       </TableBody>
