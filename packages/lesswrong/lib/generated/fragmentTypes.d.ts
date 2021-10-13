@@ -149,7 +149,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly userId: string,
-  readonly isDeleted: boolean,
   readonly userIP: string,
   readonly userAgent: string,
   readonly referrer: string,
@@ -240,6 +239,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly ckEditorMarkup: string,
   readonly wordCount: number,
   readonly htmlHighlight: string,
+  readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -474,6 +474,8 @@ interface PostSequenceNavigation { // fragment on Posts
 interface PostSequenceNavigation_sequence { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
+  readonly draft: boolean,
+  readonly userId: string,
 }
 
 interface PostSequenceNavigation_prevPost { // fragment on Posts
@@ -566,6 +568,15 @@ interface WithVotePost { // fragment on Posts
   readonly score: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
+}
+
+interface HighlightWithHash { // fragment on Posts
+  readonly _id: string,
+  readonly contents: HighlightWithHash_contents|null,
+}
+
+interface HighlightWithHash_contents { // fragment on Revisions
+  readonly htmlHighlightStartingAtHash: string,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1714,6 +1725,7 @@ interface FragmentTypes {
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
+  HighlightWithHash: HighlightWithHash
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -1848,6 +1860,7 @@ interface CollectionNamesByFragmentName {
   UsersBannedFromPostsModerationLog: "Posts"
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
+  HighlightWithHash: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"

@@ -3,6 +3,7 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -70,10 +71,17 @@ const BottomNavigation = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType,
 }) => {
-  const { nextPost, prevPost } = post;
+  const { nextPost, prevPost, sequence } = post;
+  const currentUser = useCurrentUser();
   
   if (!nextPost && !prevPost)
     return null;
+  
+  if (!post?.sequence)
+    return null;
+  if (post.sequence.draft && (!currentUser || currentUser._id!=post.sequence.userId) && !currentUser?.isAdmin) {
+    return null;
+  }
   
   return <div className={classes.root}>
     {prevPost &&
