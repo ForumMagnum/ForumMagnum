@@ -816,13 +816,12 @@ ensureIndex(Posts,
 );
 
 Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
   let query = {
     selector: {
       onlineEvent: true,
       isEvent: true,
       groupId: null,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
     },
     options: {
       sort: {
@@ -840,7 +839,6 @@ ensureIndex(Posts,
 );
 
 Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   let query: any = {
     selector: {
@@ -848,18 +846,20 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
       groupId: null,
       isEvent: true,
       onlineEvent: onlineEvent,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
       mongoLocation: {
         $near: {
           $geometry: {
                type: "Point" ,
                coordinates: [ terms.lng, terms.lat ]
           },
+          $maxDistance: 80000 // only show in-person events within 50 miles
         },
       }
     },
     options: {
       sort: {
+        startTime: 1, // show events in chronological order
         createdAt: null,
         _id: null
       }
@@ -878,7 +878,6 @@ ensureIndex(Posts,
 );
 
 Posts.addView("events", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   return {
@@ -888,7 +887,7 @@ Posts.addView("events", (terms: PostsViewTerms) => {
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
-      $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
+      $or: [{startTime: {$exists: false}}, {startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
     },
     options: {
       sort: {
