@@ -445,6 +445,16 @@ interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly html: string,
 }
 
+interface PostsPlaintextDescription { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsPlaintextDescription_contents|null,
+}
+
+interface PostsPlaintextDescription_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly plaintextDescription: string,
+}
+
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
@@ -1228,17 +1238,6 @@ interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
   readonly tagRel: WithVoteTagRel|null,
 }
 
-interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
-  readonly tag: TagPreviewFragment|null,
-  readonly post: TagRelCreationFragment_post|null,
-  readonly currentUserVotes: Array<VoteFragment>,
-}
-
-interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{}]}*/,
-  readonly tagRel: WithVoteTagRel|null,
-}
-
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVote: string,
@@ -1660,6 +1659,14 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly userId: string,
 }
 
+interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
+}
+
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly _id: string,
   readonly title: string,
@@ -1721,6 +1728,7 @@ interface FragmentTypes {
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
   PostsExpandedHighlight: PostsExpandedHighlight
+  PostsPlaintextDescription: PostsPlaintextDescription
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
@@ -1824,6 +1832,7 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
+  FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
@@ -1856,6 +1865,7 @@ interface CollectionNamesByFragmentName {
   PostsListTag: "Posts"
   PostsDetails: "Posts"
   PostsExpandedHighlight: "Posts"
+  PostsPlaintextDescription: "Posts"
   PostsRevision: "Posts"
   PostsRevisionEdit: "Posts"
   PostsWithNavigationAndRevision: "Posts"
@@ -1959,6 +1969,7 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
+  FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"

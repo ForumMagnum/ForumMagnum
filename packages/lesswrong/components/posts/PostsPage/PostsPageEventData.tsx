@@ -6,7 +6,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop:theme.spacing.unit*3,
     ...theme.typography.postStyle,
     color: 'rgba(0,0,0,0.5)',
-  }
+  },
 })
 
 const PostsPageEventData = ({classes, post}: {

@@ -200,6 +200,7 @@ importComponent("PostsItemNewCommentsWrapper", () => require('../components/post
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
 importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
+importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCalendar/AddToCalendarIcon'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
