@@ -163,7 +163,6 @@ registerFragment(`
       htmlHighlight
       wordCount
       version
-      plaintextDescription
     }
   }
 `);
@@ -248,6 +247,16 @@ registerFragment(`
     contents {
       _id
       html
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsPlaintextDescription on Post {
+    _id
+    contents {
+      _id
+      plaintextDescription
     }
   }
 `);
@@ -402,7 +411,6 @@ registerFragment(`
       htmlHighlight
       wordCount
       version
-      plaintextDescription
     }
     
     user {

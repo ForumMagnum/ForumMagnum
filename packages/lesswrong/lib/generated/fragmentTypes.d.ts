@@ -372,7 +372,6 @@ interface PostsList_contents { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
-  readonly plaintextDescription: string,
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
@@ -444,6 +443,16 @@ interface PostsExpandedHighlight { // fragment on Posts
 interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface PostsPlaintextDescription { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsPlaintextDescription_contents|null,
+}
+
+interface PostsPlaintextDescription_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly plaintextDescription: string,
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -545,7 +554,6 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
-  readonly plaintextDescription: string,
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
@@ -1720,6 +1728,7 @@ interface FragmentTypes {
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
   PostsExpandedHighlight: PostsExpandedHighlight
+  PostsPlaintextDescription: PostsPlaintextDescription
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
@@ -1856,6 +1865,7 @@ interface CollectionNamesByFragmentName {
   PostsListTag: "Posts"
   PostsDetails: "Posts"
   PostsExpandedHighlight: "Posts"
+  PostsPlaintextDescription: "Posts"
   PostsRevision: "Posts"
   PostsRevisionEdit: "Posts"
   PostsWithNavigationAndRevision: "Posts"
