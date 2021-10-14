@@ -25,27 +25,29 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
   hideTooltip?: boolean,
   classes: ClassesType,
 }) => {
-  // need both a start and end time to add an event to a calendar
-  if (!post.startTime || !post.endTime) {
-    return null;
-  }
+  // need both a start and end time to add an event to a calendar -
+  // if either are missing, we just return null
+  const missingStartOrEndTime = !post.startTime || !post.endTime;
   
   // we use the Facebook link as the default event details text
   let eventDetails = post.facebookLink;
   // we try to use plaintextDescription instead if possible
   // (only PostsList should be missing the plaintextDescription, so we pull that in)
-  if (post.contents && !('plaintextDescription' in post.contents)) {
-    const { document: data } = useSingle({
-      collectionName: "Posts",
-      fragmentName: 'PostsPlaintextDescription',
-      documentId: post._id,
-    });
-    
-    if (data) {
-      eventDetails = data.contents?.plaintextDescription || eventDetails;
-    }
-  } else {
-    eventDetails = post.contents?.plaintextDescription || eventDetails;
+  const { document: data } = useSingle({
+    collectionName: "Posts",
+    fragmentName: 'PostsPlaintextDescription',
+    documentId: post._id,
+    skip: missingStartOrEndTime || !post.contents || ('plaintextDescription' in post.contents)
+  });
+  
+  if (missingStartOrEndTime) {
+    return null;
+  }
+  
+  if (data) {
+    eventDetails = data.contents?.plaintextDescription || eventDetails;
+  } else if (post.contents && 'plaintextDescription' in post.contents) {
+    eventDetails = post.contents.plaintextDescription || eventDetails;
   }
   
   const calendarIconNode = (
