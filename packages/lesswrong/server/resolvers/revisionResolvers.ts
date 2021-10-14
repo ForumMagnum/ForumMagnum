@@ -1,7 +1,7 @@
 import Revisions from '../../lib/collections/revisions/collection'
 import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
-import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
+import { markdownToHtmlNoLaTeX, dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
@@ -144,11 +144,14 @@ augmentFieldsDict(Revisions, {
 defineQuery({
   name: "convertDocument",
   resultType: "JSON",
-  argTypes: "(document: JSON, targetFormat: String)"
-  fn: (root: void, {document, format}: {document: any, targetFormat: string}, context: ResolverContext) => {
+  argTypes: "(document: JSON, targetFormat: String)",
+  fn: async (root: void, {document, targetFormat}: {document: any, targetFormat: string}, context: ResolverContext) => {
     switch (targetFormat) {
       case "html":
-        // TODO
+        return {
+          type: "html",
+          value: await dataToHTML(document.value, document.type),
+        };
         break;
       case "draftJS":
         return {
@@ -156,7 +159,10 @@ defineQuery({
           value: dataToDraftJS(document.value, document.type)
         };
       case "ckEditorMarkup":
-        // TODO
+        return {
+          type: "ckEditorMarkup",
+          value: await dataToCkEditor(document.value, document.type),
+        };
         break;
       case "markdown":
         return {

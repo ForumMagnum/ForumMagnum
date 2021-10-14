@@ -137,8 +137,8 @@ const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:strin
   draftJS: {name: 'Draft-JS'},
 }
 
-const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown', 'draftJS']
-const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
+export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown', 'draftJS']
+export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
@@ -229,42 +229,6 @@ export const getInitialEditorContents = (value, document, fieldName, currentUser
   }
 }
 
-export const getContentsFromLocalStorage = (editorType: string): EditorContents|null => {
-  return null;
-  // TODO
-  /*
-    const savedState = this.getLocalStorageHandlers(editorType).get();
-    if (!savedState) return null;
-
-    if (editorType === "draftJS") {
-      try {
-        // eslint-disable-next-line no-console
-        console.log("Restoring saved document state: ", savedState);
-        const contentState = convertFromRaw(savedState)
-        if (contentState.hasText()) {
-          return {
-            draftJSValue: EditorState.createWithContent(contentState)
-          };
-        } else {
-          // eslint-disable-next-line no-console
-          console.log("Not restoring empty document state: ", contentState)
-        }
-      } catch(e) {
-        // eslint-disable-next-line no-console
-        console.error(e)
-      }
-      return null;
-    } else {
-      return {
-        draftJSValue:  editorType === "draftJS"        ? savedState : null,
-        markdownValue: editorType === "markdown"       ? savedState : null,
-        htmlValue:     editorType === "html"           ? savedState : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? savedState : null
-      }
-    }
-  */
-}
-
 const convertEditorType = (value: EditorContents, type: EditorTypeString): EditorContents => {
   // TODO
   return getBlankEditorContents(type);
@@ -319,15 +283,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
 
     if (isClient) {
-      this.restoreFromLocalStorage();
       this.setState({loading: false})
-    }
-  }
-
-  restoreFromLocalStorage = () => {
-    const savedContents = getContentsFromLocalStorage(this.getCurrentEditorType());
-    if (savedContents) {
-      this.props.setValue(savedContents);
     }
   }
   

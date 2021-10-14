@@ -4,7 +4,7 @@ import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable'
 import { getLSHandlers, getLSKeyPrefix } from '../async/localStorageHandlers'
 import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, styles } from './Editor';
+import { Editor, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, styles } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 
@@ -33,6 +33,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       getLSKeyPrefix(editorType)
     );
   }, [collectionName, document, name, fieldName]);
+  
+  const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
+    // TODO
+  }, []);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
@@ -75,26 +79,32 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   if (!document) return null;
 
-  return <Components.Editor
-    ref={editorRef}
-    _classes={classes}
-    currentUser={currentUser}
-    formType={formType}
-    documentId={document?._id}
-    initialEditorType={initialEditorType}
-    isCollaborative={isCollaborative}
-    value={contents}
-    setValue={setContents}
-    placeholder={actualPlaceholder}
-    commentStyles={commentStyles}
-    answerStyles={document?.answer}
-    questionStyles={document?.question}
-    commentEditor={commentEditor}
-    hideControls={hideControls}
-    maxHeight={maxHeight}
-    hasCommitMessages={hasCommitMessages}
-    getLocalStorageHandlers={getLocalStorageHandlers}
-  />
+  return <div>
+    <Components.LocalStorageCheck
+      getLocalStorageHandlers={getLocalStorageHandlers}
+      onRestore={onRestoreLocalStorage}
+    />
+    <Components.Editor
+      ref={editorRef}
+      _classes={classes}
+      currentUser={currentUser}
+      formType={formType}
+      documentId={document?._id}
+      initialEditorType={initialEditorType}
+      isCollaborative={isCollaborative}
+      value={contents}
+      setValue={setContents}
+      placeholder={actualPlaceholder}
+      commentStyles={commentStyles}
+      answerStyles={document?.answer}
+      questionStyles={document?.question}
+      commentEditor={commentEditor}
+      hideControls={hideControls}
+      maxHeight={maxHeight}
+      hasCommitMessages={hasCommitMessages}
+      getLocalStorageHandlers={getLocalStorageHandlers}
+    />
+  </div>
 }
 
 export const EditorFormComponentComponent = registerComponent('EditorFormComponent', EditorFormComponent, {

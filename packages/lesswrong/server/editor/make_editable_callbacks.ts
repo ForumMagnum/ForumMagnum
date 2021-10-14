@@ -236,7 +236,7 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
   return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
 }
 
-async function dataToHTML(data, type, sanitizeData = false) {
+export async function dataToHTML(data, type, sanitizeData = false) {
   switch (type) {
     case "html":
       return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
@@ -273,6 +273,20 @@ export function dataToMarkdown(data, type) {
       }
       return ""
     }
+    default: throw new Error(`Unrecognized format: ${type}`);
+  }
+}
+
+export async function dataToCkEditor(data, type) {
+  switch (type) {
+    case "html":
+      return sanitize(data);
+    case "ckEditorMarkup":
+      return data;
+    case "draftJS":
+      return await draftJSToHtmlWithLatex(data);
+    case "markdown":
+      return await markdownToHtml(data)
     default: throw new Error(`Unrecognized format: ${type}`);
   }
 }

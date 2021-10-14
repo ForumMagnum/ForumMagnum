@@ -38,6 +38,7 @@ importComponent("CKCommentEditor", () => require('../components/editor/CKComment
 importComponent("CKPostEditor", () => require('../components/editor/CKPostEditor'));
 importComponent("Editor", () => require('../components/editor/Editor'));
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent'));
+importComponent("LocalStorageCheck", () => require('../components/editor/LocalStorageCheck'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
 

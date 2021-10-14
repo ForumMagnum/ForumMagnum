@@ -967,7 +967,7 @@ Posts.addView("postsWithBannedUsers", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ bannedUserIds:1 }),
+  augmentForDefaultView({ bannedUserIds:1, createdAt: 1 }),
   { name: "posts.postsWithBannedUsers" }
 );
 
