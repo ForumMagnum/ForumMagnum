@@ -35,8 +35,8 @@ Setting Up and Importing a Local Copy of the Dev DB
     --dry-run option.
 
     cd LessWrong2
-    scripts/mongoTOPostgres/run --dry-run --mongo-dump-directory lwDbExport --postgres-connection-string <postgres-connection-string>
-    scripts/mongoTOPostgres/run --mongo-dump-directory lwDbExport --postgres-connection-string <postgres-connection-string>
+    scripts/mongoToPostgres/run --dry-run --mongo-dump-directory lwDbExport --postgres-connection-string <postgres-connection-string>
+    scripts/mongoToPostgres/run --mongo-dump-directory lwDbExport --postgres-connection-string <postgres-connection-string>
 
 5. Run the development server
     Note that this will connect to *both* postgres and mongodb. The mongodb
@@ -45,4 +45,3 @@ Setting Up and Importing a Local Copy of the Dev DB
 
     export PG_URL="postgres://user:password@localhost/db"
     yarn run start-dev-db
-
