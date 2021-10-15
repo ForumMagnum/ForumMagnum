@@ -5,12 +5,12 @@ module.exports = {
     contents : {
         originalContents : {
             type : "ckEditorMarkup",
-            data : "<p>Test seeded message</p>"
+            data : "Test seeded message"
         },
         editedAt: new Date(),
         updateType : "initial",
         commitMessage : "",
-        html : "<p>Test seeded message</p>",
+        html : "Test seeded message",
         version : "1.0.0",
         userId : "test-other-user",
         wordCount : 3
