@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-function PostAnalyticsGraphs (
+function PostsAnalyticsGraphs (
   { classes, uniqueClientViewsSeries }: { classes: ClassesType, uniqueClientViewsSeries: { date: string, uniqueClientViews: number }[] | undefined }
 ) {
   const { Typography } = Components
@@ -115,17 +115,9 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
       </TableBody>
     </Table>
     <Typography variant="display2" className={classes.title}>Daily Data</Typography>
-    <PostAnalyticsGraphs classes={classes} uniqueClientViewsSeries={uniqueClientViewsSeries} />
+    <PostsAnalyticsGraphs classes={classes} uniqueClientViewsSeries={uniqueClientViewsSeries} />
   </>
 
-}
-
-const PostsAnalyticsInnerComponent = registerComponent('PostsAnalyticsInner', PostsAnalyticsInner, {styles})
-
-declare global {
-  interface ComponentTypes {
-    PostsAnalyticsInner: typeof PostsAnalyticsInnerComponent
-  }
 }
 
 const PostsAnalyticsPage = ({ classes }) => {
@@ -139,7 +131,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   const currentUser = useCurrentUser()
   const serverRequestStatus = useServerRequestStatus()
   const {
-    SingleColumnSection, WrappedLoginForm, PostsAnalyticsInner, HeadTags, Typography
+    SingleColumnSection, WrappedLoginForm, HeadTags, Typography
   } = Components
 
 
@@ -192,12 +184,12 @@ const PostsAnalyticsPage = ({ classes }) => {
       </Typography>
       {moment(post.createdAt) < moment('2021-06-14') && <Typography variant='body1' gutterBottom>
         <em>
-          Note: For figures that rely on unique client, we were mistakenly not
-          collecting that data from Jan 11th - Jun 14th of 2021.
+          Note: For figures that rely on detecting unique clients, we were
+          mistakenly not collecting that data from Jan 11th - Jun 14th of 2021.
         </em>
       </Typography>}
       <NoSsr>
-        <PostsAnalyticsInner post={post} />
+        <PostsAnalyticsInner post={post} classes={classes} />
       </NoSsr>
       <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p>This feature is new. <Link to='/contact'>Let us know what you think.</Link></p>
