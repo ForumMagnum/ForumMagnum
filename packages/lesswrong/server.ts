@@ -119,6 +119,7 @@ import './server/resolvers/recentDiscussionFeed';
 import './server/resolvers/elicitPredictions';
 import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
+import './server/resolvers/analyticsResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

@@ -3,17 +3,20 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
-    margin: "0 !important",
+    marginTop: 0,
+    marginLeft: 0,
+    marginBottom: forumTypeSetting.get() === 'EAForum' ? theme.spacing.unit : 0,
     color: theme.palette.text.primary,
     [theme.breakpoints.down('sm')]: {
       fontSize: '2.5rem',
-    }
+    },
   },
   draft: {
     color: theme.palette.grey[500]

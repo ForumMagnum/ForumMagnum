@@ -146,6 +146,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariablesValues?: any,
   skip?: boolean,
 }): {
+  // Document should be optional
   document: FragmentTypes[FragmentTypeName],
   loading: boolean,
   error?: any,
