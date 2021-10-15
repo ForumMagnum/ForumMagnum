@@ -15,14 +15,14 @@ module.exports = {
     contents: {
         originalContents: {
             type: "ckEditorMarkup",
-            data: "Test seeded post body"
+            data: "Test seeded post body",
         },
         updateType: "initial",
         commitMessage: "",
         html: "Test seeded post body",
         version: "1.0.0",
         userId: "test-user",
-        wordCount: 2,
+        wordCount: 4,
     },
     userId: "test-user",
     slug: "test-seeded-post",
@@ -57,7 +57,6 @@ module.exports = {
     afSticky: false,
     referrer: "http://localhost:3000/newPost",
     userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36",
-    contents_latest: "pgBY7XoRRpuzoTopT",
     pingbacks: {},
     voteCount: 1,
     socialPreviewImageAutoUrl: "",
