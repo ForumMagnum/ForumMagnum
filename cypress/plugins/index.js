@@ -3,11 +3,11 @@
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
 
-const seedPosts = require('../fixtures/posts/index.js');
-const seedComments = require('../fixtures/comments/index.js');
-const seedUsers = require('../fixtures/users/index.js');
-const seedConversations = require('../fixtures/conversations/index.js');
-const seedMessages = require('../fixtures/messages/index.js');
+const seedPosts = require('../fixtures/posts');
+const seedComments = require('../fixtures/comments');
+const seedUsers = require('../fixtures/users');
+const seedConversations = require('../fixtures/conversations');
+const seedMessages = require('../fixtures/messages');
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -38,33 +38,6 @@ function hashLoginToken(loginToken) {
 module.exports = (on, config) => {
   on('task', {
     async dropAndSeedDatabase() {
-      const now = new Date();
-      const postsWithDates = seedPosts
-        .map(post => ({...post, 
-          createdAt: now,
-          postedAt: now,
-          modifiedAt: now,
-          frontpageDate: now,
-        }));
-      const commentsWithDates = seedComments
-        .map(post => ({...post, 
-          createdAt: now,
-          postedAt: now,
-          lastSubthreadActivity: now,
-        }));
-      const messagesWithDates = seedMessages
-        .map(message => ({...message, 
-          createdAt: now,
-          contents: {
-            ...message.contents,
-            editedAt: now
-          },
-        }));
-      const conversationsWithDates = seedConversations
-        .map(conversation => ({...conversation, 
-          createdAt: now,
-          latestActivity: now,
-        }));
       const client = new MongoClient(config.env.TESTING_DB_URL);
       try{
         await client.connect();
@@ -82,11 +55,11 @@ module.exports = (on, config) => {
         }));
 
         await Promise.all([
-          db.collection('comments').insertMany(commentsWithDates),
+          db.collection('comments').insertMany(seedComments),
           db.collection('users').insertMany(seedUsers),
-          db.collection('conversations').insertMany(conversationsWithDates),
-          db.collection('posts').insertMany(postsWithDates),
-          db.collection('messages').insertMany(messagesWithDates),
+          db.collection('conversations').insertMany(seedConversations),
+          db.collection('posts').insertMany(seedPosts),
+          db.collection('messages').insertMany(seedMessages),
         ]);
       } finally {
         await client.close();

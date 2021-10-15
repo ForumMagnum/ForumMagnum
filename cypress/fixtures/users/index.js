@@ -1,7 +1,7 @@
-const testUser = require('./testUser.json');
-const testOtherUser = require('./testOtherUser.json');
-const testAdmin = require('./testAdmin.json');
-const testUserUnsetUsername = require('./testUserUnsetUsername.json');
+const testUser = require('./testUser');
+const testOtherUser = require('./testOtherUser');
+const testAdmin = require('./testAdmin');
+const testUserUnsetUsername = require('./testUserUnsetUsername');
 
 module.exports = [
   testUser,
