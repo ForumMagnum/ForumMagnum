@@ -13,6 +13,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
+import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import  theme  from '../../themes/forumTheme'
+import moment from 'moment'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,9 +40,43 @@ const styles = (theme: ThemeType): JssStyles => ({
   calculating: {
     marginLeft: theme.spacing.unit * 2,
   },
+  graphContainer: {
+    marginTop: 30,
+  },
+  notEnoughDataMessage: {
+    color: theme.palette.grey[500],
+  }
 })
 
-const PostsAnalyticsInner = ({ classes, post }) => {
+function PostsAnalyticsGraphs (
+  { classes, uniqueClientViewsSeries }: { classes: ClassesType, uniqueClientViewsSeries: { date: string, uniqueClientViews: number }[] | undefined }
+) {
+  const { Typography } = Components
+  if (!uniqueClientViewsSeries?.length || uniqueClientViewsSeries.length === 1) {
+    return (<Typography variant="body1" className={classes.notEnoughDataMessage}>
+      <em>Not enough data for a graph, check back tomorrow.</em>
+    </Typography>
+    )
+  }
+  return <ResponsiveContainer width="100%" height={300} className={classes.graphContainer}>
+  <LineChart data={uniqueClientViewsSeries} height={300} margin={{right: 30}}>
+    <XAxis dataKey="date" interval={Math.floor(uniqueClientViewsSeries.length/5)} />
+    <YAxis dataKey="uniqueClientViews" />
+    <Tooltip />
+    <Legend />
+    <Line
+      type="monotone"
+      dataKey="uniqueClientViews"
+      name="Views by unique devices"
+      stroke={theme.palette.primary.main}
+      dot={false}
+      activeDot={{ r: 8 }}
+    />
+  </LineChart>
+</ResponsiveContainer>
+}
+
+const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: PostsPage }) => {
   const { postAnalytics, loading, error } = usePostAnalytics(post._id)
   const { Loading, Typography } = Components
   if (loading) {
@@ -54,26 +91,33 @@ const PostsAnalyticsInner = ({ classes, post }) => {
     throw error
   }
 
-  return (<Table>
-    <TableBody>
+  const uniqueClientViewsSeries = postAnalytics?.uniqueClientViewsSeries.map(({ date, uniqueClientViews }) => ({
+    date: moment(date).format('MMM-DD'),
+    uniqueClientViews
+  }))
+  
+  return <>
+    <Typography variant="display2" className={classes.title}>Cumulative Data</Typography>
+    <Table>
+      <TableBody>
       <TableRow>
-        <TableCell>Views by unique devices</TableCell>
-        <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
-        <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>)
-}
+          <TableCell>All views</TableCell>
+          <TableCell>{postAnalytics?.allViews}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>Views by unique devices</TableCell>
+          <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
+          <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+    <Typography variant="display2" className={classes.title}>Daily Data</Typography>
+    <PostsAnalyticsGraphs classes={classes} uniqueClientViewsSeries={uniqueClientViewsSeries} />
+  </>
 
-const PostsAnalyticsInnerComponent = registerComponent('PostsAnalyticsInner', PostsAnalyticsInner, {styles})
-
-declare global {
-  interface ComponentTypes {
-    PostsAnalyticsInner: typeof PostsAnalyticsInnerComponent
-  }
 }
 
 const PostsAnalyticsPage = ({ classes }) => {
@@ -87,7 +131,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   const currentUser = useCurrentUser()
   const serverRequestStatus = useServerRequestStatus()
   const {
-    SingleColumnSection, WrappedLoginForm, PostsAnalyticsInner, HeadTags, Typography
+    SingleColumnSection, WrappedLoginForm, HeadTags, Typography
   } = Components
 
 
@@ -135,13 +179,19 @@ const PostsAnalyticsPage = ({ classes }) => {
   return <>
     <HeadTags title={title} />
     <SingleColumnSection className={classes.root}>
-      <Typography variant='display1' className={classes.title}>
+      <Typography variant='display2' className={classes.title}>
         {title}
       </Typography>
+      {moment(post.createdAt) < moment('2021-06-14') && <Typography variant='body1' gutterBottom>
+        <em>
+          Note: For figures that rely on detecting unique clients, we were
+          mistakenly not collecting that data from Jan 11th - Jun 14th of 2021.
+        </em>
+      </Typography>}
       <NoSsr>
-        <PostsAnalyticsInner post={post} />
+        <PostsAnalyticsInner post={post} classes={classes} />
       </NoSsr>
-        <Typography variant="body1" className={classes.viewingNotice} component='div'>
+      <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p>This feature is new. <Link to='/contact'>Let us know what you think.</Link></p>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>
