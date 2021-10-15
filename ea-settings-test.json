@@ -1,16 +1,16 @@
 {
   "public": {
-    "forumType": "LessWrong",
+    "forumType": "EAForum",
     "hasEvents": true,
-    "title": "LessWrong Test",
+    "title": "EA Forum Test",
     "tagline": "Effective Altruism research, discussion and community updates",
     "faviconUrl": "https://www.effectivealtruism.org/favicon-16x16.png",
     "forumSettings": {
-      "tabTitle": "LessWrong Test",
-      "headerTitle": "LessWrong Test",
-      "shortForumTitle": "LessWrong"
+      "tabTitle": "EA Forum Test",
+      "headerTitle": "EA Forum Test",
+      "shortForumTitle": "EA Forum"
     },
-    "siteNameWithArticle": "LessWrong",
+    "siteNameWithArticle": "the EA Forum",
     "siteUrl": "http://localhost:3000",
     
     "debug": false,
