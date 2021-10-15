@@ -1,4 +1,4 @@
-const testConversation = require('./testConversation.json');
+const testConversation = require('./testConversation');
 
 module.exports = [
   testConversation,
