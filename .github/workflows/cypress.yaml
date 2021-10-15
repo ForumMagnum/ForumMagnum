@@ -26,6 +26,10 @@ jobs:
           start: yarn ea-start-testing-db
           command: yarn ea-cypress-run
 
+    - run: ls -a
+    - run: ls ./cypress
+    - run: ls cypress
+      
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
