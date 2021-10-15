@@ -1,4 +1,4 @@
-const testMessage = require('./testMessage.json');
+const testMessage = require('./testMessage');
 
 module.exports = [
   testMessage,
