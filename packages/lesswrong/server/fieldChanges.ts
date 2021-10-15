@@ -32,8 +32,9 @@ export const logFieldChanges = async <T extends DbObject>({currentUser, collecti
     if (before===undefined && after===null) continue;
     if (after===undefined && before===null) continue;
     
-    loggedChangesBefore[key] = before;
-    loggedChangesAfter[key] = after;
+    const sanitizedKey = sanitizeKey(key);
+    loggedChangesBefore[sanitizedKey] = before;
+    loggedChangesAfter[sanitizedKey] = after;
   }
   
   if (Object.keys(loggedChangesAfter).length > 0) {
@@ -53,4 +54,8 @@ export const logFieldChanges = async <T extends DbObject>({currentUser, collecti
       validate: false,
     })
   }
+}
+
+function sanitizeKey(key: string): string {
+  return key.replace(/\./g, "_");
 }
