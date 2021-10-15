@@ -125,7 +125,8 @@ const schema: SchemaType<DbLocalgroup> = {
     label: "Facebook Group",
     control: "MuiTextField",
     optional: true,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/groups/...'
   },
   
   facebookPageLink: {
@@ -136,7 +137,8 @@ const schema: SchemaType<DbLocalgroup> = {
     label: "Facebook Page",
     control: "MuiTextField",
     optional: true,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/...'
   },
   
   meetupLink: {
@@ -147,7 +149,8 @@ const schema: SchemaType<DbLocalgroup> = {
     label: "Meetup.com Group",
     control: "MuiTextField",
     optional: true,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
   },
 
   website: {
@@ -157,7 +160,8 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     control: "MuiTextField",
     optional: true,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   inactive: {
