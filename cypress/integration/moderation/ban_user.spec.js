@@ -9,6 +9,11 @@ describe('Moderators', function() {
   });
 
   it('can ban users and remove their content from public view', function() {
+    // the not-yet-banned user should see a logged in view of the forum
+    cy.loginAs(this.testUser);
+    cy.visit('/');
+    cy.contains(this.testUser.displayName).should('be.visible');
+
     cy.loginAs(this.testAdmin);
     cy.visit('/');
     cy.contains(this.bannedUserPost.title).should('be.visible');
