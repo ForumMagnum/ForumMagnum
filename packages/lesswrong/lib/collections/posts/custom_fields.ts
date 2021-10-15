@@ -785,7 +785,8 @@ addFieldsDict(Posts, {
     control: "MuiTextField",
     optional: true,
     group: formGroups.event,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/groups/...'
   },
   
   facebookPageLink: {
@@ -798,7 +799,8 @@ addFieldsDict(Posts, {
     control: "MuiTextField",
     optional: true,
     group: formGroups.event,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/...'
   },
   
   meetupLink: {
@@ -811,7 +813,8 @@ addFieldsDict(Posts, {
     control: "MuiTextField",
     optional: true,
     group: formGroups.event,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
   },
 
   website: {
@@ -823,7 +826,8 @@ addFieldsDict(Posts, {
     control: "MuiTextField",
     optional: true,
     group: formGroups.event,
-    regEx: SimpleSchema.RegEx.Url
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   types: {
