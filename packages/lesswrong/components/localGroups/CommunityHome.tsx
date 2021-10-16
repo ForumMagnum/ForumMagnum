@@ -71,10 +71,15 @@ const CommunityHome = ({classes}: {
     const filters = query?.filters || [];
     const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography, SectionButton } = Components
 
-    const eventsListTerms = {
+    const eventsListTerms = currentUserLocation.known ? {
       view: 'nearbyEvents',
       lat: currentUserLocation.lat,
       lng: currentUserLocation.lng,
+      limit: 5,
+      filters: filters,
+      onlineEvent: false
+    } : {
+      view: 'events',
       limit: 5,
       filters: filters,
       onlineEvent: false
