@@ -1,4 +1,4 @@
-const testComment = require('./testComment.json');
+const testComment = require('./testComment');
 
 module.exports = [
   testComment,

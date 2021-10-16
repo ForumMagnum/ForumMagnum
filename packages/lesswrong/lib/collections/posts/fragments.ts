@@ -251,6 +251,16 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment PostsPlaintextDescription on Post {
+    _id
+    contents {
+      _id
+      plaintextDescription
+    }
+  }
+`);
+
 // Same as PostsPage, with added just optional arguments to the content field
 // and a list of revisions
 registerFragment(`

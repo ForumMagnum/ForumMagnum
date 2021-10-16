@@ -1,9 +1,0 @@
-{
-    "_id": "fresh-test-user",
-    "username": "fresh-test-user",
-    "slug": "fresh-test-user",
-    "displayName": "Fresh Test User",
-    "email": "fresh-test-user@testingaltrusim.org",
-    "isAdmin": false,
-    "reviewedByUserId": "test-admin"
-}
