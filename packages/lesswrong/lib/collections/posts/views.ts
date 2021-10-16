@@ -821,7 +821,7 @@ Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
       onlineEvent: true,
       isEvent: true,
       groupId: null,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
+      $or: [{startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
     },
     options: {
       sort: {
@@ -846,7 +846,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
       groupId: null,
       isEvent: true,
       onlineEvent: onlineEvent,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
+      $or: [{startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
       mongoLocation: {
         $near: {
           $geometry: {
@@ -887,12 +887,11 @@ Posts.addView("events", (terms: PostsViewTerms) => {
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
+      $or: [{startTime: {$gt: new Date()}}, {endTime: {$gt: new Date()}}],
     },
     options: {
       sort: {
-        baseScore: -1,
-        startTime: -1,
+        startTime: 1
       }
     }
   }
