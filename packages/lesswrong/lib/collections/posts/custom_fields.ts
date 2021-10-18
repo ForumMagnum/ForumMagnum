@@ -1,6 +1,7 @@
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import * as _ from 'underscore';
+import SimpleSchema from 'simpl-schema';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { forumTypeSetting } from '../../instanceSettings';
@@ -770,7 +771,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Contact Info",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
   },
@@ -781,10 +782,40 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    label: "Facebook Event",
-    control: "MuiInput",
+    label: "Facebook Group Event",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/groups/...'
+  },
+  
+  facebookPageLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    label: "Facebook Page Event",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/...'
+  },
+  
+  meetupLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    label: "Meetup.com Event",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
   },
 
   website: {
@@ -793,9 +824,11 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   types: {

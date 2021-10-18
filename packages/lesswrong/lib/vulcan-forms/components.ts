@@ -11,5 +11,5 @@ importComponent("FormNestedHead", () => require('../../components/vulcan-forms/F
 importComponent(["FormNestedObjectLayout", "FormNestedObject"], () => require('../../components/vulcan-forms/FormNestedObject'));
 importComponent(["FormNestedItemLayout", "FormNestedItem"], () => require('../../components/vulcan-forms/FormNestedItem'));
 importComponent(["FormGroupHeader", "FormGroupLayout", "FormGroup", "IconRight", "IconDown"], () => require('../../components/vulcan-forms/FormGroup'));
-importComponent("SmartForm", () => require('../../components/vulcan-forms/FormWrapper'));
+importComponent("FormWrapper", () => require('../../components/vulcan-forms/FormWrapper'));
 importComponent("Form", () => require('../../components/vulcan-forms/Form'));

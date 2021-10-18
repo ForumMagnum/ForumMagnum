@@ -16,6 +16,8 @@ registerFragment(`
     types
     contactInfo
     facebookLink
+    facebookPageLink
+    meetupLink
     website
     inactive
   }
