@@ -71,10 +71,15 @@ const CommunityHome = ({classes}: {
     const filters = query?.filters || [];
     const { SingleColumnSection, SectionTitle, PostsList2, GroupFormLink, SectionFooter, Typography, SectionButton } = Components
 
-    const eventsListTerms = {
+    const eventsListTerms = currentUserLocation.known ? {
       view: 'nearbyEvents',
       lat: currentUserLocation.lat,
       lng: currentUserLocation.lng,
+      limit: 5,
+      filters: filters,
+      onlineEvent: false
+    } : {
+      view: 'events',
       limit: 5,
       filters: filters,
       onlineEvent: false
@@ -137,7 +142,7 @@ const CommunityHome = ({classes}: {
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="In-Person Events">
+              <SectionTitle title="Nearby In-Person Events">
                 {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
                   <LibraryAddIcon /> Create New Event
                 </SectionButton></Link>}
@@ -145,7 +150,7 @@ const CommunityHome = ({classes}: {
               <AnalyticsContext listContext={"communityEvents"}>
                 {!currentUserLocation.known && !currentUserLocation.loading && 
                   <Typography variant="body2" className={classes.enableLocationPermissions}>
-                    Enable location permissions to sort this list by distance to you.
+                    Enable location permissions to see events near you.
                   </Typography>
                 }
                 {!currentUserLocation.loading && <PostsList2 terms={eventsListTerms}>
