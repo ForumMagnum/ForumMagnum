@@ -17,6 +17,13 @@ import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } f
 import  theme  from '../../themes/forumTheme'
 import moment from 'moment'
 
+const isEAForum = forumTypeSetting.get()
+
+// lw-look-here
+const missingClientRangeText = isEAForum ? "Jan 11th - Jun 14th of 2021" : "late 2020 - early 2021"
+const missingClientLastDay = isEAForum ? "2021-06-14" : "2021-05-01"
+const dataCollectionFirstDay = isEAForum ? "Feb 19th, 2020" : "around the start of 2020"
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     [theme.breakpoints.down('sm')]: {
@@ -158,7 +165,6 @@ const PostsAnalyticsPage = ({ classes }) => {
     </SingleColumnSection>
   }
 
-
   if (
     !userOwns(currentUser, postReturn.document) &&
     !currentUser.isAdmin &&
@@ -182,15 +188,15 @@ const PostsAnalyticsPage = ({ classes }) => {
       <Typography variant='display2' className={classes.title}>
         {title}
       </Typography>
-      {moment(post.postedAt) < moment('2021-06-14') && <Typography variant='body1' gutterBottom>
+      {moment(post.postedAt) < moment(missingClientLastDay) && <Typography variant='body1' gutterBottom>
         <em>
           Note: For figures that rely on detecting unique clients, we were
-          mistakenly not collecting that data from Jan 11th - Jun 14th of 2021.
+          mistakenly not collecting that data from {missingClientRangeText}.
         </em>
       </Typography>}
       {moment(post.postedAt) < moment('2020-02-19') && <Typography variant='body1' gutterBottom>
         <em>
-          Note 2: Data collection began on Feb 19th, 2020.
+          Note 2: Data collection began on {dataCollectionFirstDay}.
         </em>
       </Typography>}
       <NoSsr>
