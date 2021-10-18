@@ -31,7 +31,7 @@ const UsersSearchHit = ({hit, clickAction, classes}: {
         {user.displayName}
       </Components.MetaInfo>
       <Components.MetaInfo>
-        {user.karma} points
+        {user.karma||0} points
       </Components.MetaInfo>
     </Link>
   </div>
