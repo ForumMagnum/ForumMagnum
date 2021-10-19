@@ -188,6 +188,11 @@ const PostsAnalyticsPage = ({ classes }) => {
           mistakenly not collecting that data from Jan 11th - Jun 14th of 2021.
         </em>
       </Typography>}
+      {moment(post.createdAt) < moment('2020-02-19') && <Typography variant='body1' gutterBottom>
+        <em>
+          Note 2: Data collection began on Feb 19th, 2020.
+        </em>
+      </Typography>}
       <NoSsr>
         <PostsAnalyticsInner post={post} classes={classes} />
       </NoSsr>
