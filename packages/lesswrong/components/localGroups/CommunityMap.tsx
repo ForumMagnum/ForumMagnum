@@ -105,7 +105,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
       longitude: center.lng,
       zoom: zoom
     })
-  }, [center])
+  }, [center, zoom])
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,
