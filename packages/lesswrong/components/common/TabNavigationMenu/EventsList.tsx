@@ -1,27 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import * as _ from 'underscore';
 import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { userGetLocation } from '../../../lib/collections/users/helpers';
 
 const EventsList = ({currentUser, onClick}) => {
+  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, null));
+  
+  useEffect(() => {
+    userGetLocation(currentUser, (newLocation) => {
+      if (!_.isEqual(currentUserLocation, newLocation)) {
+        setCurrentUserLocation(newLocation);
+      }
+    });
+  }, [currentUserLocation, currentUser]);
+  
   const { TabNavigationEventsList } = Components
 
-  const lat = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[1]
-  const lng = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[0]
   let eventsListTerms: PostsViewTerms = {
     view: 'events',
     onlineEvent: false,
     limit: 3,
   }
-  if (lat && lng) {
+  if (currentUserLocation.known) {
     eventsListTerms = {
-      onlineEvent: false,
       view: 'nearbyEvents',
-      lat: lat,
-      lng: lng,
+      lat: currentUserLocation.lat,
+      lng: currentUserLocation.lng,
+      onlineEvent: false,
       limit: 1,
     }
   }
@@ -32,7 +38,7 @@ const EventsList = ({currentUser, onClick}) => {
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
       <TabNavigationEventsList onClick={onClick} terms={onlineTerms} />
-      <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
+      {!currentUserLocation.loading && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
     </AnalyticsContext>
   </span>
 }
