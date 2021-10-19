@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
@@ -63,7 +63,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, showHideMap = false, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, showUsers, showHideMap = false, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms: PostsViewTerms,
   initialOpenWindows: Array<any>,
@@ -95,9 +95,17 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   const [ viewport, setViewport ] = useState({
     latitude: center.lat,
     longitude: center.lng,
-    zoom: 2
+    zoom: zoom
   })
   
+  // when getting the location from the browser, we want to re-center the map
+  useEffect(() => {
+    setViewport({
+      latitude: center.lat,
+      longitude: center.lng,
+      zoom: zoom
+    })
+  }, [center])
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,

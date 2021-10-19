@@ -11,7 +11,7 @@ import VisibilityIcon from '@material-ui/icons/VisibilityOff';
 import EmailIcon from '@material-ui/icons/Email';
 import AddIcon from '@material-ui/icons/Add';
 import RoomIcon from '@material-ui/icons/Room';
-import HomeIcon from '@material-ui/icons/Home';
+import MUIGroup from '@material-ui/icons/Group';
 import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser';
@@ -248,7 +248,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     const { classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals, history } = this.props;
   
     const isEAForum = forumTypeSetting.get() === 'EAForum';
-    const GroupIcon = () => isEAForum ? <HomeIcon className={classes.eaButtonIcon}/> : <GroupIconSVG className={classes.buttonIcon}/>;
+    const GroupIcon = () => isEAForum ? <MUIGroup className={classes.eaButtonIcon}/> : <GroupIconSVG className={classes.buttonIcon}/>;
     const EventIcon = () => isEAForum ? <RoomIcon  className={classes.eaButtonIcon}/> : <ArrowSVG className={classes.buttonIcon}/>;
 
     const isAdmin = userIsAdmin(currentUser);
