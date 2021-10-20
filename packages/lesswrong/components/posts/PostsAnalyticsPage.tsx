@@ -182,13 +182,13 @@ const PostsAnalyticsPage = ({ classes }) => {
       <Typography variant='display2' className={classes.title}>
         {title}
       </Typography>
-      {moment(post.createdAt) < moment('2021-06-14') && <Typography variant='body1' gutterBottom>
+      {moment(post.postedAt) < moment('2021-06-14') && <Typography variant='body1' gutterBottom>
         <em>
           Note: For figures that rely on detecting unique clients, we were
           mistakenly not collecting that data from Jan 11th - Jun 14th of 2021.
         </em>
       </Typography>}
-      {moment(post.createdAt) < moment('2020-02-19') && <Typography variant='body1' gutterBottom>
+      {moment(post.postedAt) < moment('2020-02-19') && <Typography variant='body1' gutterBottom>
         <em>
           Note 2: Data collection began on Feb 19th, 2020.
         </em>
