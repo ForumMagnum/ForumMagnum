@@ -55,7 +55,8 @@ async function checkAndSendUpcomingEventEmails() {
 if (!testServerSetting.get()) {
   addCronJob({
     name: "Send upcoming-event reminders",
-    cronStyleSchedule: '* * * * * 0',
+    // every minute
+    cronStyleSchedule: '* * * * *',
     job() {
       void checkAndSendUpcomingEventEmails();
     }

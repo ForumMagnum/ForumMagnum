@@ -81,6 +81,7 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
     
     <hr className={classes.hr}/>
     
+    {/* TODO: not on events */}
     {!hideRecommendations && <EmailFooterRecommendations />}
     
     <hr className={classes.hr}/>

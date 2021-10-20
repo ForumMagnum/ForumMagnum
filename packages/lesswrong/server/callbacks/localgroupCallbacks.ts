@@ -2,6 +2,7 @@ import { createMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { getCollectionHooks } from '../mutationCallbacks';
 
+// TODO: defenestrate this function
 getCollectionHooks("Localgroups").createAfter.add(function GroupsNewDefaultPost (group: DbLocalgroup, {currentUser}: {currentUser: DbUser|null}) {
   const newFields = {
     title: `Welcome to ${group.name} [Edit With Your Details]`,
