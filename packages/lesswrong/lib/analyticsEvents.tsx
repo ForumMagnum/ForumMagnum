@@ -10,6 +10,7 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import * as _ from 'underscore';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
+const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -347,6 +348,15 @@ function flushClientEvents() {
   })));
   pendingAnalyticsEvents = [];
 }
-const throttledFlushClientEvents = _.throttle(flushClientEvents, 1000);
+
+let lastFlushedAt: Date|null = null;
+function throttledFlushClientEvents() {
+  const flushInterval: number = flushIntervalSetting.get();
+  const now = new Date();
+  if(!lastFlushedAt || now.getTime()-lastFlushedAt.getTime() > flushInterval) {
+    lastFlushedAt = now;
+    flushClientEvents();
+  }
+}
 
 export const userIdentifiedCallback = new CallbackChainHook<UsersCurrent|DbUser,[]>("events.identify");
