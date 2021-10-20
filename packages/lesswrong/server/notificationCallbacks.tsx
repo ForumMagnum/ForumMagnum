@@ -32,6 +32,7 @@ import React from 'react';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -364,6 +365,9 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
 
 async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
+  if (forumTypeSetting.get() === 'EAForum') {
+    return usersMatchingFilter
+  }
 
   let usersToEmail = usersMatchingFilter.filter(u => {
     if (u.email && u.emails && u.emails.length) {

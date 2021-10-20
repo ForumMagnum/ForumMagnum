@@ -5,7 +5,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
-import { forumTypeSetting, ForumTypeString } from '../../../lib/instanceSettings';
+import { forumTypeSetting, ForumTypeString, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -147,11 +147,10 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
       Icon: SubjectIcon
     },
     tags: {
-      //ea-forum-lookhere
       tooltipTitle: 'Tag/Wiki Edits and Discussion',
       tooltipBody: <div>
-        Tag and wiki pages, which organize LessWrong posts and concepts in a more
-        durable format.
+        Tag and wiki pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
+        a more durable format.
       </div>,
       Icon: TagIcon,
       linkTarget: '/tags/all',
@@ -179,7 +178,6 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
           <li>Personal ramblings</li>
         </ul>
       </React.Fragment>,
-      // ea-forum-loohere see above
       linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
       Icon: PersonIcon
     },
