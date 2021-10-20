@@ -175,7 +175,8 @@ export default class FootNoteEditing extends Plugin {
                 name: 'section',
                 classes: 'footnote'
             },            
-            model: ( viewElement, modelWriter ) => {
+            model: ( viewElement, conversionApi ) => {
+				const modelWriter = conversionApi.writer;
                 const FootNote = modelWriter.createElement( 'footNote' );
                 return FootNote;
             }
@@ -194,7 +195,8 @@ export default class FootNoteEditing extends Plugin {
         // (model → editing view)
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'footNote',
-            view: ( modelElement, viewWriter ) => {
+            view: ( modelElement, conversionApi ) => {
+				const viewWriter = conversionApi.writer;
                 const section = viewWriter.createContainerElement( 'section', { class: 'footnote' } );
                 
                 return toWidget( section, viewWriter, { label: 'footnote widget' } );
@@ -219,13 +221,15 @@ export default class FootNoteEditing extends Plugin {
 
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'footNoteTitle',
-            view: ( modelElement, viewWriter ) => {
-                const widgetElement = createTitleView( modelElement, viewWriter );
+            view: ( modelElement, conversionApi ) => {
+				const viewWriter = conversionApi.writer;
+                const widgetElement = createTitleView( modelElement, conversionApi );
                 return toWidget( widgetElement, viewWriter );
             }
         } );
 
-        function createTitleView( modelElement, viewWriter ) {
+        function createTitleView( modelElement, conversionApi ) {
+			const viewWriter = conversionApi.writer;
             const titleView = viewWriter.createContainerElement( 'h3', {
                 class: 'footnote-title',
                 style: "display: inline;"
@@ -240,7 +244,8 @@ export default class FootNoteEditing extends Plugin {
         /***********************************Footnote List Conversion************************************/
         
         conversion.for( 'upcast' ).elementToElement( {
-            model: ( viewElement, modelWriter ) => {
+            model: ( viewElement, conversionApi ) => {
+				const modelWriter = conversionApi.writer;
                 return modelWriter.createElement( 'footNoteList' );
             },
             view: {
@@ -259,7 +264,8 @@ export default class FootNoteEditing extends Plugin {
 
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'footNoteList',
-            view: ( modelElement, viewWriter ) => {
+            view: ( modelElement, conversionApi ) => {
+				const viewWriter = conversionApi.writer;
                 // Note: You use a more specialized createEditableElement() method here.
                 const section = viewWriter.createEditableElement( 'section', { class: 'footnote-list' } );
 
@@ -274,7 +280,8 @@ export default class FootNoteEditing extends Plugin {
                 name: 'span',
                 classes: 'footnote-item'
             },
-            model: ( viewElement, modelWriter ) => {
+            model: ( viewElement, conversionApi ) => {
+				const modelWriter = conversionApi.writer;
                 // Extract the "name" from "{name}".
                 const id = viewElement.getChild( 0 ).data.slice( 0, -2 );
 
@@ -289,15 +296,16 @@ export default class FootNoteEditing extends Plugin {
         
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'footNoteItem',
-            view: ( modelElement, viewWriter ) => {
+            view: ( modelElement, conversionApi ) => {
+				const viewWriter = conversionApi.writer;
                 // Note: You use a more specialized createEditableElement() method here.
-                const section = createItemView( modelElement, viewWriter );
+                const section = createItemView( modelElement, conversionApi );
                 return toWidget( section, viewWriter );
             }
         } );
         
-        function createItemView( modelElement, viewWriter ) {
-
+        function createItemView( modelElement, conversionApi ) {
+			const viewWriter = conversionApi.writer;
             const id = modelElement.getAttribute( 'id' );
             const itemView = viewWriter.createContainerElement( 'span', {
                 class: 'footnote-item'
@@ -316,7 +324,8 @@ export default class FootNoteEditing extends Plugin {
                 name: 'span',
                 classes: [ 'noteholder' ]
             },
-            model: ( viewElement, modelWriter ) => {
+            model: ( viewElement, conversionApi ) => {
+				const modelWriter = conversionApi.writer;
                 // Extract the "id" from "[id]".
                 const id = viewElement.getChild( 0 ).getChild( 0 ).data.slice( 1, -1 );
 
@@ -326,8 +335,9 @@ export default class FootNoteEditing extends Plugin {
 
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'noteHolder',
-            view: ( modelElement, viewWriter ) => {
-                const widgetElement = createPlaceholderView( modelElement, viewWriter );
+            view: ( modelElement, conversionApi ) => {
+				const viewWriter = conversionApi.writer;
+                const widgetElement = createPlaceholderView( modelElement, conversionApi );
 
                 // Enable widget handling on a placeholder element inside the editing view.
                 return toWidget( widgetElement, viewWriter );
@@ -340,7 +350,8 @@ export default class FootNoteEditing extends Plugin {
         } );
 
         // Helper method for both downcast converters.
-        function createPlaceholderView( modelElement, viewWriter ) {
+        function createPlaceholderView( modelElement, conversionApi ) {
+			const viewWriter = conversionApi.writer;
             const id = modelElement.getAttribute( 'id' );
 
             const placeholderView = viewWriter.createContainerElement( 'span', {
