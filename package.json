@@ -251,8 +251,8 @@
     "underscore": "^1.12.1",
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
-    "uuid": "^7.0.0",
     "url": "^0.11.0",
+    "uuid": "^7.0.0",
     "ws": "^7.4.6"
   },
   "devDependencies": {
