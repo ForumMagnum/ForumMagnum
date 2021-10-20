@@ -5,7 +5,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
-import _ from 'underscore';
+import sample from 'lodash/sample';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -72,7 +72,8 @@ const FeaturedResourceBanner = ({terms, classes} : {
     return null;
   }
 
-  const resource = _.sample(results) as FeaturedResourcesFragment;
+  // Already checked for length, sample will not return undefined
+  const resource = sample(results)!
 
   if(cookies[HIDE_FEATURED_RESOURCE_COOKIE]) {
     return null;

@@ -13,6 +13,6 @@ FeaturedResources.addView("activeResources", function (terms: FeaturedResourcesV
     },
     options: {
       limit: 5,
-    }
+    },
   }
 });
