@@ -313,7 +313,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
               </Tooltip>
             </span>
           </div>
-          {!isEAForum && <div
+          <div
             className={classes.filterSection}
           >
             <span className={classes.desktopFilter}>
@@ -334,7 +334,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
                 />
               </Tooltip>
             </span>
-          </div>}
+          </div>
         </div>
         <Divider className={classNames(classes.divider, classes.bottomDivider)} />
         <div

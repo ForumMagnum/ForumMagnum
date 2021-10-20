@@ -6,8 +6,8 @@ import { onStartup } from './executionEnvironment';
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
-export const communityPath = isEAForum ? '/groupsAndEvents' : '/community';
-const communitySectionName = isEAForum ? 'Groups/Events' : 'Community';
+export const communityPath = '/community';
+const communitySectionName = isEAForum ? 'Community and Events' : 'Community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };

@@ -251,9 +251,9 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     //   tooltip: "TODO: Aaron's cool",
     //   subItem: true,
     }, {
-      id: 'groupsAndEvents',
-      title: 'Groups and Events',
-      mobileTitle: 'Groups/Events',
+      id: 'events',
+      title: 'Community and Events',
+      mobileTitle: 'Community',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups and events in your area',
