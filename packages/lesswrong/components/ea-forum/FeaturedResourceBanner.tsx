@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -59,12 +59,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }));
 
-const FeaturedResourceBanner = ({terms, classes} : {
+const FeaturedResourceBanner = ({ terms, classes }: {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
   const HIDE_FEATURED_RESOURCE_COOKIE = 'hide_featured_resource';
   const [cookies, setCookie] = useCookies([HIDE_FEATURED_RESOURCE_COOKIE])
+  const [resource, setResource] = useState<FeaturedResourcesFragment | undefined>(undefined)
   const { results, loading } = useMulti({
     terms,
     collectionName: 'FeaturedResources',
@@ -73,33 +74,38 @@ const FeaturedResourceBanner = ({terms, classes} : {
   });
   const { Typography } = Components
 
-  if(loading || !results.length) {
-    return null;
-  }
+  useEffect(() => {
+    if (loading || !results.length) {
+      return;
+    }
 
-  // Already checked for length, sample will not return undefined
-  const resource = sample(results)!
+    setResource(sample(results));
+  }, [results, loading]);
 
-  if(cookies[HIDE_FEATURED_RESOURCE_COOKIE]) {
+  if (cookies[HIDE_FEATURED_RESOURCE_COOKIE]) {
     return null;
   }
 
   const hideBanner = () => setCookie(
-    HIDE_FEATURED_RESOURCE_COOKIE, 
+    HIDE_FEATURED_RESOURCE_COOKIE,
     "true", {
     expires: moment().add(30, 'days').toDate(),
   });
 
+  if (!resource) {
+    return null;
+  }
+
   return <Card className={classes.card}>
     <Tooltip title="Hide this for the next month">
       <Button className={classes.closeButton} onClick={hideBanner}>
-          <CloseIcon className={classes.closeIcon}/>
-      </Button>    
+        <CloseIcon className={classes.closeIcon} />
+      </Button>
     </Tooltip>
     <Typography variant="title" className={classes.title}>
       {resource.title}
     </Typography>
-    <Divider className={classes.divider}/>
+    <Divider className={classes.divider} />
     <Typography variant="body2" className={classes.body}>
       {resource.body}
     </Typography>
@@ -112,7 +118,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
 }
 
 const FeaturedResourceBannerComponent = registerComponent(
-  'FeaturedResourceBanner', FeaturedResourceBanner, {styles}
+  'FeaturedResourceBanner', FeaturedResourceBanner, { styles }
 )
 
 declare global {
