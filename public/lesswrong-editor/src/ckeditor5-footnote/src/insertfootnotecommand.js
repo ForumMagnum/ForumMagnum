@@ -2,7 +2,6 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 
 export default class InsertFootNoteCommand extends Command {
     execute( { value } ) {
-		debugger;
         const doc = this.editor.model.document;
         if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name !== 'footNote') {
             this.editor.model.change( writer => {
@@ -42,12 +41,10 @@ export default class InsertFootNoteCommand extends Command {
 
 function createFootNote( writer ) {
     const footNote = writer.createElement( 'footNote' );
-    const footNoteTitle = writer.createElement( 'footNoteTitle' );
     const footNoteList = writer.createElement( 'footNoteList' );
     const footNoteItem = writer.createElement( 'footNoteItem', { id: 1 } );
     const p = writer.createElement( 'paragraph');
 
-    writer.append( footNoteTitle, footNote );
     writer.append( footNoteList, footNote );
     writer.append( footNoteItem, p ) ;
     writer.append( p, footNoteList );

@@ -128,17 +128,14 @@ export default class FootNoteEditing extends Plugin {
         schema.register( 'footNote', {
             isObject: true,
             allowWhere: '$block',
+			allowAttributes: ['id', 'class'],
         } );
-
-        schema.register( 'footNoteTitle', {
-            allowIn: 'footNote',
-            allowContentOf: '$text',
-        });
 
         schema.register( 'footNoteList', {
             allowIn: 'footNote',
             allowContentOf: '$root',
             isInline: true,
+			allowAttributes: ['id', 'class'],
         });
 
         schema.register( 'footNoteItem', {
@@ -146,7 +143,7 @@ export default class FootNoteEditing extends Plugin {
             allowWhere: '$text',
             isInline: true,
             isObject: true,
-            allowAttributes: [ 'id' ]
+			allowAttributes: ['id', 'class'],
         });
         
         schema.addChildCheck( ( context, childDefinition ) => {
@@ -203,44 +200,6 @@ export default class FootNoteEditing extends Plugin {
             }
         } );
 
-        /***********************************Footnote Title Conversion************************************/
-
-        conversion.for( 'upcast' ).elementToElement( {
-            model: 'footNoteTitle',
-            view: {
-                name: 'h3',
-                classes: 'footnote-title',
-                style: "display: inline;"
-            }
-        } );
-
-        conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'footNoteTitle',
-            view: createTitleView
-        } );
-
-        conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'footNoteTitle',
-            view: ( modelElement, conversionApi ) => {
-				const viewWriter = conversionApi.writer;
-                const widgetElement = createTitleView( modelElement, conversionApi );
-                return toWidget( widgetElement, viewWriter );
-            }
-        } );
-
-        function createTitleView( modelElement, conversionApi ) {
-			const viewWriter = conversionApi.writer;
-            const titleView = viewWriter.createContainerElement( 'h3', {
-                class: 'footnote-title',
-                style: "display: inline;"
-            } );
-
-            const innerText = viewWriter.createText( 'Footnotes:' );
-            viewWriter.insert( viewWriter.createPositionAt( titleView, 0 ), innerText );
-
-            return titleView;
-        }
-
         /***********************************Footnote List Conversion************************************/
         
         conversion.for( 'upcast' ).elementToElement( {
@@ -250,7 +209,7 @@ export default class FootNoteEditing extends Plugin {
             },
             view: {
                 name: 'section',
-                classes: 'footnote-list'
+                classes: 'footnotes',
             }
         } );
 
@@ -258,7 +217,7 @@ export default class FootNoteEditing extends Plugin {
             model: 'footNoteList',
             view: {
                 name: 'section',
-                classes: 'footnote-list'
+                classes: 'footnotes',
             }
         } );
 
@@ -267,7 +226,7 @@ export default class FootNoteEditing extends Plugin {
             view: ( modelElement, conversionApi ) => {
 				const viewWriter = conversionApi.writer;
                 // Note: You use a more specialized createEditableElement() method here.
-                const section = viewWriter.createEditableElement( 'section', { class: 'footnote-list' } );
+                const section = viewWriter.createEditableElement( 'section', { class: 'footnotes' } );
 
                 return toWidgetEditable( section, viewWriter );
             }
@@ -308,7 +267,8 @@ export default class FootNoteEditing extends Plugin {
 			const viewWriter = conversionApi.writer;
             const id = modelElement.getAttribute( 'id' );
             const itemView = viewWriter.createContainerElement( 'span', {
-                class: 'footnote-item'
+                class: 'footnote-item',
+				id: `fn${id}`,
             } );
 
             const innerText = viewWriter.createText( id + '. ' );
@@ -354,15 +314,15 @@ export default class FootNoteEditing extends Plugin {
 			const viewWriter = conversionApi.writer;
             const id = modelElement.getAttribute( 'id' );
 
-            const placeholderView = viewWriter.createContainerElement( 'span', {
+            const placeholderView = viewWriter.createContainerElement( 'sup', {
                 class: 'noteholder'
             } );
 
             // Insert the placeholder name (as a text).
-            const innerText = viewWriter.createText( '[' + id + ']' );
-            const sup = viewWriter.createContainerElement( 'sup' );
-            viewWriter.insert( viewWriter.createPositionAt( sup, 0 ), innerText );
-            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), sup );
+            const innerText = viewWriter.createText(id.toString());
+            const link = viewWriter.createContainerElement('a', {href: `#fn${id}`, class: 'noteholder'});
+            viewWriter.insert( viewWriter.createPositionAt( link, 0 ), innerText );
+            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), link );
 
             return placeholderView;
         }
@@ -406,7 +366,7 @@ export function modelViewChangeHolder( evt, data, conversionApi ) {
 
     viewWriter.remove(itemView.getChild( 0 ).getChild( 0 ));
 
-    const innerText = viewWriter.createText( '[' + data.attributeNewValue + ']' );
+    const innerText = viewWriter.createText( data.attributeNewValue.toString() );
     viewWriter.insert( viewWriter.createPositionAt( itemView.getChild( 0 ), 0 ), innerText );
 
 }
