@@ -1,6 +1,7 @@
 import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
 import { onStartup, isAnyTest } from '../lib/executionEnvironment';
+import { DatabaseServerSetting } from './databaseSettings';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
@@ -54,3 +55,20 @@ export const addSentryMiddlewares = (addConnectHandler: (handler: any)=>void) =>
   addConnectHandler(Sentry.Handlers.errorHandler());
 }
 
+const gigabytes = 1024*1024*1024;
+const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consoleLogMemoryUsage", 1.5*gigabytes);
+const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentryErrorMemoryUsage", 2.1*gigabytes);
+const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 2000);
+
+onStartup(() => {
+  setInterval(() => {
+    const memoryUsage = process.memoryUsage()?.heapTotal;
+    if (memoryUsage > consoleLogMemoryUsageThreshold.get()) {
+      // eslint-disable-next-line no-console
+      console.log(`Memory usage is high: ${memoryUsage} bytes (warning threshold: ${consoleLogMemoryUsageThreshold.get()})`);
+    }
+    if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
+      Sentry.captureException(new Error("Memory usage is high"));
+    }
+  }, memoryUsageCheckInterval.get());
+});
