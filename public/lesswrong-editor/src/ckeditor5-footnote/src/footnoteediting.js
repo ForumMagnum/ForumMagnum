@@ -1,4 +1,9 @@
 /* eslint-disable no-tabs */
+/**
+ * CKEditor dataview nodes can be converted to a output view or an editor view via downcasting
+ *  * Upcasting is converting to the platonic ckeditor version.
+ *  * Downcasting is converting to the output version.
+ */
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import { toWidget, toWidgetEditable, viewToModelPositionOutsideModelElement } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
@@ -128,14 +133,14 @@ export default class FootNoteEditing extends Plugin {
         schema.register( 'footNote', {
             isObject: true,
             allowWhere: '$block',
-			allowAttributes: ['id', 'class'],
+            allowAttributes: ['id', 'class'],
         } );
 
         schema.register( 'footNoteList', {
             allowIn: 'footNote',
             allowContentOf: '$root',
             isInline: true,
-			allowAttributes: ['id', 'class'],
+            allowAttributes: ['id', 'class'],
         });
 
         schema.register( 'footNoteItem', {
@@ -143,7 +148,7 @@ export default class FootNoteEditing extends Plugin {
             allowWhere: '$text',
             isInline: true,
             isObject: true,
-			allowAttributes: ['id', 'class'],
+            allowAttributes: ['id', 'class'],
         });
         
         schema.addChildCheck( ( context, childDefinition ) => {
@@ -171,9 +176,9 @@ export default class FootNoteEditing extends Plugin {
             view: {
                 name: 'section',
                 classes: 'footnote'
-            },            
+            },
             model: ( viewElement, conversionApi ) => {
-				const modelWriter = conversionApi.writer;
+                const modelWriter = conversionApi.writer;
                 const FootNote = modelWriter.createElement( 'footNote' );
                 return FootNote;
             }
@@ -193,7 +198,7 @@ export default class FootNoteEditing extends Plugin {
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'footNote',
             view: ( modelElement, conversionApi ) => {
-				const viewWriter = conversionApi.writer;
+                const viewWriter = conversionApi.writer;
                 const section = viewWriter.createContainerElement( 'section', { class: 'footnote' } );
                 
                 return toWidget( section, viewWriter, { label: 'footnote widget' } );
@@ -204,7 +209,7 @@ export default class FootNoteEditing extends Plugin {
         
         conversion.for( 'upcast' ).elementToElement( {
             model: ( viewElement, conversionApi ) => {
-				const modelWriter = conversionApi.writer;
+                const modelWriter = conversionApi.writer;
                 return modelWriter.createElement( 'footNoteList' );
             },
             view: {
@@ -224,7 +229,7 @@ export default class FootNoteEditing extends Plugin {
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'footNoteList',
             view: ( modelElement, conversionApi ) => {
-				const viewWriter = conversionApi.writer;
+                const viewWriter = conversionApi.writer;
                 // Note: You use a more specialized createEditableElement() method here.
                 const section = viewWriter.createEditableElement( 'section', { class: 'footnotes' } );
 
@@ -235,13 +240,16 @@ export default class FootNoteEditing extends Plugin {
         /***********************************Footnote Item Conversion************************************/
 
         conversion.for( 'upcast' ).elementToElement( {
+            // How to we find the items to upcast here? The view specifies that
             view: {
                 name: 'span',
                 classes: 'footnote-item'
             },
             model: ( viewElement, conversionApi ) => {
-				const modelWriter = conversionApi.writer;
+                const modelWriter = conversionApi.writer;
                 // Extract the "name" from "{name}".
+                // removing '. ' to get the id number
+                // TODO: this is the biggest hack I ever have seen, we should fix
                 const id = viewElement.getChild( 0 ).data.slice( 0, -2 );
 
                 return modelWriter.createElement( 'footNoteItem', { id } );
@@ -256,7 +264,7 @@ export default class FootNoteEditing extends Plugin {
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'footNoteItem',
             view: ( modelElement, conversionApi ) => {
-				const viewWriter = conversionApi.writer;
+                const viewWriter = conversionApi.writer;
                 // Note: You use a more specialized createEditableElement() method here.
                 const section = createItemView( modelElement, conversionApi );
                 return toWidget( section, viewWriter );
@@ -264,11 +272,11 @@ export default class FootNoteEditing extends Plugin {
         } );
         
         function createItemView( modelElement, conversionApi ) {
-			const viewWriter = conversionApi.writer;
+            const viewWriter = conversionApi.writer;
             const id = modelElement.getAttribute( 'id' );
             const itemView = viewWriter.createContainerElement( 'span', {
                 class: 'footnote-item',
-				id: `fn${id}`,
+                id: `fn${id}`,
             } );
 
             const innerText = viewWriter.createText( id + '. ' );
@@ -281,11 +289,12 @@ export default class FootNoteEditing extends Plugin {
 
         conversion.for( 'upcast' ).elementToElement( {
             view: {
+                // TODO make it a sup or add span below
                 name: 'span',
                 classes: [ 'noteholder' ]
             },
             model: ( viewElement, conversionApi ) => {
-				const modelWriter = conversionApi.writer;
+                const modelWriter = conversionApi.writer;
                 // Extract the "id" from "[id]".
                 const id = viewElement.getChild( 0 ).getChild( 0 ).data.slice( 1, -1 );
 
@@ -296,7 +305,7 @@ export default class FootNoteEditing extends Plugin {
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'noteHolder',
             view: ( modelElement, conversionApi ) => {
-				const viewWriter = conversionApi.writer;
+                const viewWriter = conversionApi.writer;
                 const widgetElement = createPlaceholderView( modelElement, conversionApi );
 
                 // Enable widget handling on a placeholder element inside the editing view.
@@ -311,7 +320,7 @@ export default class FootNoteEditing extends Plugin {
 
         // Helper method for both downcast converters.
         function createPlaceholderView( modelElement, conversionApi ) {
-			const viewWriter = conversionApi.writer;
+            const viewWriter = conversionApi.writer;
             const id = modelElement.getAttribute( 'id' );
 
             const placeholderView = viewWriter.createContainerElement( 'sup', {
@@ -319,7 +328,7 @@ export default class FootNoteEditing extends Plugin {
             } );
 
             // Insert the placeholder name (as a text).
-            const innerText = viewWriter.createText(id.toString());
+            const innerText = `[${viewWriter.createText(id.toString())}]`;
             const link = viewWriter.createContainerElement('a', {href: `#fn${id}`, class: 'noteholder'});
             viewWriter.insert( viewWriter.createPositionAt( link, 0 ), innerText );
             viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), link );

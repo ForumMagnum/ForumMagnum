@@ -58,22 +58,23 @@ function getDropdownItemsDefinitions( doc ) {
     }
     itemDefinitions.add( defaultDef );
 
+    // Does the document already have footnotes?
     if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name === 'footNote') {
-            const footNote = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
-            for (var i = 0; i < footNote.maxOffset - 1; i ++) {
-                const definition = {
-                    type: 'button',
-                    model: new Model( {
-                        commandParam: i + 1,
-                        label: 'Insert footnote ' + (i + 1),
-                        withText: true
-                    } )
-                };
+        const footNote = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
+        for (var i = 0; i < footNote.maxOffset; i ++) {
+            const definition = {
+                type: 'button',
+                model: new Model( {
+                    commandParam: i + 1,
+                    label: 'Insert footnote ' + (i + 1),
+                    withText: true
+                } )
+            };
 
-                // Add the item definition to the collection.
-                itemDefinitions.add( definition );
-            }
+            // Add the item definition to the collection.
+            itemDefinitions.add( definition );
         }
+    }
 
     return itemDefinitions;
 }

@@ -1,14 +1,15 @@
+// TODO: Credit author
 import Command from '@ckeditor/ckeditor5-core/src/command';
 
 export default class InsertFootNoteCommand extends Command {
+    // Value is the footnote number (1 indexed)
     execute( { value } ) {
         const doc = this.editor.model.document;
         if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name !== 'footNote') {
             this.editor.model.change( writer => {
                 this.editor.model.insertContent( createFootNote( writer ), writer.createPositionAt( doc.getRoot(), doc.getRoot().maxOffset ));
             } );
-        }
-        else {
+        } else {
             if ( value !== 0 ) {
                 this.editor.model.change( writer => {
                     const noteholder = writer.createElement( 'noteHolder', { id: value } );
@@ -27,7 +28,7 @@ export default class InsertFootNoteCommand extends Command {
 
                     this.editor.model.insertContent( footNoteList, writer.createPositionAt( footNote, footNote.maxOffset ));
                 } );
-            }            
+            }
         }
     }
 
