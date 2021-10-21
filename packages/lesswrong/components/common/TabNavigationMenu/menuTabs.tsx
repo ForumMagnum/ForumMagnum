@@ -260,6 +260,9 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true
     }, {
+      id: 'eventsList',
+      customComponentName: "EventsList",
+    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,

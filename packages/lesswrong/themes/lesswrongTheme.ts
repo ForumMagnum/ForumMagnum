@@ -45,7 +45,10 @@ const palette = {
   },
   background: {
     default: '#f8f8f8'
-  }
+  },
+  event: '#2b6a99',
+  group: '#588f27',
+  individual: '#3f51b5',
 }
 
 const theme = createLWTheme({

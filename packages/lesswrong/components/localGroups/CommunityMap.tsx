@@ -172,7 +172,7 @@ const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
   icon: {
     height: 20,
     width: 20,
-    fill: '#3f51b5',
+    fill: theme.palette.individual,
     opacity: 0.8
   }
 })

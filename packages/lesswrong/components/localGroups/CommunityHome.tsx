@@ -102,7 +102,7 @@ const CommunityHome = ({classes}: {
     const WelcomeText = () => (isEAForum ?
     <Typography variant="body2" className={classes.welcomeText}>
       <p>
-        On the map above you can find upcoming events (blue pin icons) and local groups (green people icons),
+        On the map above you can find upcoming events (blue pin icons) and local groups (green star icons),
         and other users who have added themselves to the map (purple person icons).
       </p>
       <p>
