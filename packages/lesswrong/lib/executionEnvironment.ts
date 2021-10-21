@@ -44,22 +44,6 @@ export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
   }
 }
 
-// Like setTimeout, but with fiber handling
-export const runAfterDelay = setTimeout;
-// Like clearTimeout, but with fiber handling
-export const clearRunAfterDelay = clearTimeout;
-
-// Like setTimeout with 0 timeout, possibly different priority, and fiber handling
-export const deferWithoutDelay = (fn) => setTimeout(fn, 0);
-
-export const runAtInterval = setInterval;
-
-export const wrapAsync = (fn)=>fn
-
-export const throwMeteorError = (messageId: string, message: string, messageOptions?: any) => {
-  throw new Error(`${messageId}: message`);
-}
-
 export const addGlobalForShell = (name: string, value: any) => {
   // TODO
 }
