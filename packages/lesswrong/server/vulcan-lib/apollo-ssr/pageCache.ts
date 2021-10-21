@@ -95,9 +95,9 @@ export const cachedPageRender = async (req: Request, abTestGroups, renderFn: (re
   if (cacheKey in inProgressRenders) {
     for (let inProgressRender of inProgressRenders[cacheKey]) {
       if (objIsSubset(abTestGroups, inProgressRender.abTestGroups)) {
-        const result = await inProgressRender.renderPromise;
         //eslint-disable-next-line no-console
-        console.log("Merged request into in-progress render");
+        console.log(`Merging request for ${path} into in-progress render`);
+        const result = await inProgressRender.renderPromise;
         return {
           ...result,
           cached: true,
