@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { GroupIconSVG } from './Icons'
 import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
-import MUIGroup from '@material-ui/icons/Group';
+import StarIcon from '@material-ui/icons/Star';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -37,7 +37,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   const htmlBody = {__html: html};
 
   const GroupIcon = () =>  forumTypeSetting.get() === 'EAForum' ? 
-    <MUIGroup className={classes.eaIcon}/> : <GroupIconSVG className={classes.icon}/>;
+    <StarIcon className={classes.eaIcon}/> : <GroupIconSVG className={classes.icon}/>;
 
   return <React.Fragment>
     <Marker
