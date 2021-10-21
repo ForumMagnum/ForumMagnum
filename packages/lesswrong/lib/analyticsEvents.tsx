@@ -342,11 +342,12 @@ function flushClientEvents() {
   if (!pendingAnalyticsEvents.length)
     return;
 
-  AnalyticsUtil.clientWriteEvents(pendingAnalyticsEvents.map(event => ({
+  const eventsToWrite = pendingAnalyticsEvents;
+  pendingAnalyticsEvents = [];
+  AnalyticsUtil.clientWriteEvents(eventsToWrite.map(event => ({
     ...(isClient ? AnalyticsUtil.clientContextVars : null),
     ...event
   })));
-  pendingAnalyticsEvents = [];
 }
 
 let lastFlushedAt: Date|null = null;
