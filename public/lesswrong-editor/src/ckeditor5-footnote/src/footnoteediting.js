@@ -41,25 +41,16 @@ export default class FootNoteEditing extends Plugin {
             const doc = editor.model.document;
             const deleteEle = doc.selection.getSelectedElement();
             const positionParent = doc.selection.getLastPosition().parent;
-            console.log(deleteEle);
 
             if (deleteEle !== null && deleteEle.name === "footNoteSection") {
-                console.log(1)
-                removeHoder(editor, 0);
+                removeHolder(editor, 0);
             }
 
-            if (positionParent.name === "$root") {
-                return
-            }
-
-            
             if (positionParent.parent.name !== "footNoteList") {
-                return
+                return;
             }
 
             if (positionParent.maxOffset > 1 && doc.selection.anchor.offset <= 1) {
-                console.log(evt);
-                console.log(data);
                 data.preventDefault();
                 evt.stop();
             }
@@ -73,7 +64,7 @@ export default class FootNoteEditing extends Plugin {
                             writer.setAttribute( 'id', i - 1, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
                         } );
                     }
-                removeHoder(editor, index);
+                removeHolder(editor, index);
                 editor.model.change( writer => {
                     if (index === 1) {
                         if (footNoteSection.childCount === 2) {
@@ -107,7 +98,7 @@ export default class FootNoteEditing extends Plugin {
             const changes = editor.model.document.differ.getChanges();
             changes.forEach( function(item, index) {
                 if (item.type === 'remove' && item.name === 'footNoteSection') {
-                    removeHoder(editor, 0);
+                    removeHolder(editor, 0);
                 }
 
                 if (item.type === 'remove' && item.name === 'footNoteList') {
@@ -119,7 +110,7 @@ export default class FootNoteEditing extends Plugin {
                             writer.setAttribute( 'id', i, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
                         } );
                     }
-                    removeHoder(editor, index);
+                    removeHolder(editor, index);
                     
                 }
             } );
@@ -380,7 +371,7 @@ export function modelViewChangeHolder( evt, data, conversionApi ) {
 
 }
 
-function removeHoder(editor, index) {
+function removeHolder(editor, index) {
     const removeList = [];
     const range = editor.model.createRangeIn( editor.model.document.getRoot() );
     for ( const value of range.getWalker( { ignoreElementEnd: true } ) ) {
