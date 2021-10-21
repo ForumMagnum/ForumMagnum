@@ -175,16 +175,14 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
         { currentAction === "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
         { currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span> }
       </div>
-      {/* <div className={classes.oAuthComment}>...or continue with</div>
-      <div className={classes.oAuthBlock}>
-        <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
-        <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
-        <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
-        {/* Temporarily here for EA Forum testing */}
-        {/* <a className={classes.oAuthLink} href="/auth/auth0">AUTH 0</a> */}
-      {/* </div> */}
-      {/* <a href="/auth/facebook"><FacebookIcon /></a>
-      <a href="/auth/github"><GithubIcon /></a> */}
+      {forumTypeSetting.get() !== 'EAForum' && <>
+        <div className={classes.oAuthComment}>...or continue with</div>
+        <div className={classes.oAuthBlock}>
+          <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
+          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
+          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+        </div>
+      </>}
       {error && <div className={classes.error}>{error.message}</div>}
     </form>
   </React.Fragment>;

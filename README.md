@@ -1,10 +1,14 @@
-# Welcome to the code behind the EA Forum
+# Forum Magnum
 
-The EA Forum is a synced fork of [LessWrong](https://github.com/LessWrong2/Lesswrong2).
+Forum Magnum is the codebase powering [LessWrong](https://lesswrong.com) and the
+[Effective Altruism Forum](https://forum.effectivealtruism.org).
+
+The team behind LessWrong created this casebase in 2017 as a rewrite of the
+original version of LessWrong, which was a difficult-to-maintain fork of reddit.
 
 ## Technologies
 
-The EA Forum is built on top of a number major open-source libraries.
+Forum Magnum is built on top of a number major open-source libraries.
 
 1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
 
@@ -41,17 +45,19 @@ git clone git@github.com:centre-for-effective-altruism/EAForum.git
 Install dependencies:
 
 ```
-cd EAForum
+cd ForumMagnum
 yarn install
 ```
 
 Start the development server:
 
 ```
-yarn ea-start
+yarn [start|ea-start]
 ```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
+
+It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA, this doesn't apply to you, your database is shared with other developers.]
 
 ## Documentation
 

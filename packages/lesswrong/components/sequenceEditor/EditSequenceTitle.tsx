@@ -6,11 +6,11 @@ import { sequencesImageScrim } from '../sequences/SequencesPage'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: 90, // TODO: get from global
+    marginTop: 65,
     backgroundColor: "rgba(0,0,0,0.25)",
     height: 380,
     [theme.breakpoints.down('sm')]: {
-      marginTop: 79,
+      marginTop: 40,
     }
   },
   wrapper: {
