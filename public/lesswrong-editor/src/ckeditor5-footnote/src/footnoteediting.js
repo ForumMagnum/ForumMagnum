@@ -280,8 +280,7 @@ export default class FootNoteEditing extends Plugin {
 
         conversion.for( 'upcast' ).elementToElement( {
             view: {
-                // TODO make it a sup or add span below
-                name: 'sup',
+                name: 'span',
                 classes: [ 'noteholder' ]
             },
             model: ( viewElement, conversionApi ) => {
@@ -314,15 +313,17 @@ export default class FootNoteEditing extends Plugin {
             const viewWriter = conversionApi.writer;
             const id = modelElement.getAttribute( 'id' );
 
-            const placeholderView = viewWriter.createContainerElement( 'sup', {
+            const placeholderView = viewWriter.createContainerElement( 'span', {
                 class: 'noteholder'
             } );
 
             // Insert the placeholder name (as a text).
             const innerText = viewWriter.createText(`[${id}]`);
-            const link = viewWriter.createContainerElement('a', {href: `#fn${id}`, class: 'noteholder'});
+            const link = viewWriter.createContainerElement('a', {href: `#fn${id}`});
+            const superscript = viewWriter.createContainerElement('sup');
             viewWriter.insert( viewWriter.createPositionAt( link, 0 ), innerText );
-            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), link );
+            viewWriter.insert( viewWriter.createPositionAt( superscript, 0 ), link );
+            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), superscript);
 
             return placeholderView;
         }
