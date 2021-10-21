@@ -132,6 +132,10 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
           </TableCell>
         </TableRow>
         <TableRow>
+          <TableCell>{'Views by unique devices > 5 minutes'}</TableCell>
+          <TableCell>{postAnalytics?.uniqueClientViews5Min}</TableCell>
+        </TableRow>
+        <TableRow>
           <TableCell><LWTooltip title='Note: includes time spent reading and writing comments'>
             Median reading time
           </LWTooltip></TableCell>

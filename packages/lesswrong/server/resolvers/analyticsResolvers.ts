@@ -76,8 +76,9 @@ const queries: QueryFunc[] = [
   makePgAnalyticsQueryScalar({
     query: `
       SELECT
-        count(*) AS unique_client_views_10_sec,
-        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY total_reading_time) AS median_reading_time
+        COUNT(*) AS unique_client_views_10_sec,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY total_reading_time) AS median_reading_time,
+        COUNT(*) FILTER (WHERE total_reading_time > 5*60) AS unique_client_views_5_min
       FROM (
         SELECT
           client_id,
@@ -88,7 +89,11 @@ const queries: QueryFunc[] = [
         GROUP BY client_id
       ) a
     `,
-    resultColumns: ["unique_client_views_10_sec", "median_reading_time"]
+    resultColumns: [
+      "unique_client_views_10_sec",
+      "median_reading_time",
+      "unique_client_views_5_min"
+    ]
   }),
   makePgAnalyticsQuerySeries({
     // a masterpiece
@@ -167,6 +172,7 @@ addGraphQLSchema(`
     uniqueClientViews: Int
     uniqueClientViews10Sec: Int
     medianReadingTime: Int
+    uniqueClientViews5Min: Int
     uniqueClientViewsSeries: [UniqueClientViewsSeries]
   }
 `);
