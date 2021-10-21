@@ -1,4 +1,4 @@
-.footnote {
+.footnote-section {
     padding: 10px;
     margin: 1em 0;
 
@@ -33,3 +33,9 @@
 .footnote-title::selection {
     display: none;
 }
+
+/* Added styles LW/EA Forum styles*/
+.ck .ck-widget.footnote-section .ck-widget__type-around__button_after {
+	display:none;
+}
+

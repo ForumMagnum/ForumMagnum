@@ -43,7 +43,7 @@ export default class FootNoteEditing extends Plugin {
             const positionParent = doc.selection.getLastPosition().parent;
             console.log(deleteEle);
 
-            if (deleteEle !== null && deleteEle.name === "footNote") {
+            if (deleteEle !== null && deleteEle.name === "footNoteSection") {
                 console.log(1)
                 removeHoder(editor, 0);
             }
@@ -67,25 +67,25 @@ export default class FootNoteEditing extends Plugin {
             if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || (positionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0)) {
                 const footNoteList = positionParent.parent;
                 const index = footNoteList.index;
-                const footNote = footNoteList.parent;
-                for (var i = index + 1; i < footNote.maxOffset; i ++) {
+                const footNoteSection = footNoteList.parent;
+                for (var i = index + 1; i < footNoteSection.maxOffset; i ++) {
                         editor.model.change( writer => {
-                            writer.setAttribute( 'id', i - 1, footNote.getChild( i ).getChild( 0 ).getChild( 0 ) );
+                            writer.setAttribute( 'id', i - 1, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
                         } );
                     }
                 removeHoder(editor, index);
                 editor.model.change( writer => {
                     if (index === 1) {
-                        if (footNote.childCount === 2) {
-                            if (footNote.previousSibling === null) {
+                        if (footNoteSection.childCount === 2) {
+                            if (footNoteSection.previousSibling === null) {
                                 const p = writer.createElement( 'paragraph' );
                                 this.editor.model.insertContent( p, writer.createPositionAt( doc.getRoot(), 0 ));
                                 writer.setSelection( p, 'end' );
                                 }
                             else {
-                                writer.setSelection( footNote.previousSibling, 'end'  );
+                                writer.setSelection( footNoteSection.previousSibling, 'end'  );
                             }
-                            writer.remove(footNote);
+                            writer.remove(footNoteSection);
                         }
                         else {
                             writer.setSelection( footNoteList.nextSibling, 'end' );
@@ -106,17 +106,17 @@ export default class FootNoteEditing extends Plugin {
             const editor = this.editor;
             const changes = editor.model.document.differ.getChanges();
             changes.forEach( function(item, index) {
-                if (item.type === 'remove' && item.name === 'footNote') {
+                if (item.type === 'remove' && item.name === 'footNoteSection') {
                     removeHoder(editor, 0);
                 }
 
                 if (item.type === 'remove' && item.name === 'footNoteList') {
-                    const footNote = item.position.parent;
+                    const footNoteSection = item.position.parent;
                     const index = (changes[0].type === 'insert' && changes[0].name === 'footNoteItem') ? 
                                     1 : item.position.path[1];
-                    for (var i = index; i < footNote.maxOffset; i ++) {
+                    for (var i = index; i < footNoteSection.maxOffset; i ++) {
                         editor.model.change( writer => {
-                            writer.setAttribute( 'id', i, footNote.getChild( i ).getChild( 0 ).getChild( 0 ) );
+                            writer.setAttribute( 'id', i, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
                         } );
                     }
                     removeHoder(editor, index);
@@ -130,14 +130,14 @@ export default class FootNoteEditing extends Plugin {
         const schema = this.editor.model.schema;
 
         /***********************************Footnote Section Schema***************************************/
-        schema.register( 'footNote', {
+        schema.register( 'footNoteSection', {
             isObject: true,
             allowWhere: '$block',
             allowAttributes: ['id', 'class'],
         } );
 
         schema.register( 'footNoteList', {
-            allowIn: 'footNote',
+            allowIn: 'footNoteSection',
             allowContentOf: '$root',
             isInline: true,
             allowAttributes: ['id', 'class'],
@@ -152,7 +152,7 @@ export default class FootNoteEditing extends Plugin {
         });
         
         schema.addChildCheck( ( context, childDefinition ) => {
-            if ( context.endsWith( 'footNoteList' ) && childDefinition.name === 'footNote' ) {
+            if ( context.endsWith( 'footNoteList' ) && childDefinition.name === 'footNoteSection' ) {
                 return false;
             }
         } );
@@ -175,11 +175,11 @@ export default class FootNoteEditing extends Plugin {
         conversion.for( 'upcast' ).elementToElement( {
             view: {
                 name: 'section',
-                classes: 'footnote'
+                classes: 'footnote-section'
             },
             model: ( viewElement, conversionApi ) => {
                 const modelWriter = conversionApi.writer;
-                const FootNote = modelWriter.createElement( 'footNote' );
+                const FootNote = modelWriter.createElement( 'footNoteSection' );
                 return FootNote;
             }
             
@@ -187,19 +187,19 @@ export default class FootNoteEditing extends Plugin {
 
         // (model → data view)
         conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'footNote',
+            model: 'footNoteSection',
             view: {
                 name: 'section',
-                classes: 'footnote'
+                classes: 'footnote-section'
             }
         } );
 
         // (model → editing view)
         conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'footNote',
+            model: 'footNoteSection',
             view: ( modelElement, conversionApi ) => {
                 const viewWriter = conversionApi.writer;
-                const section = viewWriter.createContainerElement( 'section', { class: 'footnote' } );
+                const section = viewWriter.createContainerElement( 'section', { class: 'footnote-section' } );
                 
                 return toWidget( section, viewWriter, { label: 'footnote widget' } );
             }

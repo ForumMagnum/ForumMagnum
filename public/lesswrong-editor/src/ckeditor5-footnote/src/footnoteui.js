@@ -59,9 +59,9 @@ function getDropdownItemsDefinitions( doc ) {
     itemDefinitions.add( defaultDef );
 
     // Does the document already have footnotes?
-    if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name === 'footNote') {
-        const footNote = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
-        for (var i = 0; i < footNote.maxOffset; i ++) {
+    if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name === 'footNoteSection') {
+        const footNoteSection = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
+        for (var i = 0; i < footNoteSection.maxOffset; i ++) {
             const definition = {
                 type: 'button',
                 model: new Model( {

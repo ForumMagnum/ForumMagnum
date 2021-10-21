@@ -5,7 +5,7 @@ export default class InsertFootNoteCommand extends Command {
     // Value is the footnote number (1 indexed)
     execute( { value } ) {
         const doc = this.editor.model.document;
-        if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name !== 'footNote') {
+        if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name !== 'footNoteSection') {
             this.editor.model.change( writer => {
                 this.editor.model.insertContent( createFootNote( writer ), writer.createPositionAt( doc.getRoot(), doc.getRoot().maxOffset ));
             } );
@@ -19,14 +19,14 @@ export default class InsertFootNoteCommand extends Command {
             }
             else {
                 this.editor.model.change( writer => {
-                    const footNote = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
+                    const footNoteSection = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
                     const footNoteList = writer.createElement( 'footNoteList' );
-                    const footNoteItem = writer.createElement( 'footNoteItem', { id: footNote.maxOffset } );
+                    const footNoteItem = writer.createElement( 'footNoteItem', { id: footNoteSection.maxOffset + 1 } );
                     const p = writer.createElement( 'paragraph' );
                     writer.append( footNoteItem, p );
                     writer.append( p, footNoteList ) ;
 
-                    this.editor.model.insertContent( footNoteList, writer.createPositionAt( footNote, footNote.maxOffset ));
+                    this.editor.model.insertContent( footNoteList, writer.createPositionAt( footNoteSection, footNoteSection.maxOffset ));
                 } );
             }
         }
@@ -35,18 +35,18 @@ export default class InsertFootNoteCommand extends Command {
     refresh() {
         const model = this.editor.model;
         const selection = model.document.selection;
-        const allowedIn = model.schema.findAllowedParent( selection.getLastPosition(), 'footNote' );
+        const allowedIn = model.schema.findAllowedParent( selection.getLastPosition(), 'footNoteSection' );
         this.isEnabled = allowedIn !== null;
     }
 }
 
 function createFootNote( writer ) {
-    const footNote = writer.createElement( 'footNote' );
+    const footNoteSection = writer.createElement( 'footNoteSection' );
     const footNoteList = writer.createElement( 'footNoteList' );
     const footNoteItem = writer.createElement( 'footNoteItem', { id: 1 } );
     const p = writer.createElement( 'paragraph');
 
-    writer.append( footNoteList, footNote );
+    writer.append( footNoteList, footNoteSection );
     writer.append( footNoteItem, p ) ;
     writer.append( p, footNoteList );
 
@@ -54,5 +54,5 @@ function createFootNote( writer ) {
     // See https://github.com/ckeditor/ckeditor5/issues/1464.
     //writer.appendElement( 'paragraph', footNoteList );
 
-    return footNote;
+    return footNoteSection;
 }
