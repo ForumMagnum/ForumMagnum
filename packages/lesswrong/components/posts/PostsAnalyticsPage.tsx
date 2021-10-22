@@ -17,6 +17,20 @@ import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } f
 import  theme  from '../../themes/forumTheme'
 import moment from 'moment'
 
+function caclulateBounceRate(totalViews?: number, viewsAfter10sec?: number) {
+  if (!totalViews || viewsAfter10sec === undefined || viewsAfter10sec === null) return null
+  return `${Math.round((1 - (viewsAfter10sec / totalViews)) * 100)} %`
+}
+
+function readableReadingTime (seconds?: number) {
+  if (!seconds) return null
+  const minutes = Math.floor(seconds / 60)
+  const secondsRemainder = seconds % 60
+  const secondsPart = `${secondsRemainder} s`
+  if (minutes > 0) return `${minutes} m ${secondsRemainder ? secondsPart : ''}`
+  return secondsPart
+}
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     [theme.breakpoints.down('sm')]: {
@@ -38,7 +52,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: '0.35em',
   },
   calculating: {
+    marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
   },
   graphContainer: {
     marginTop: 30,
@@ -78,7 +94,8 @@ function PostsAnalyticsGraphs (
 
 const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: PostsPage }) => {
   const { postAnalytics, loading, error } = usePostAnalytics(post._id)
-  const { Loading, Typography } = Components
+  const { Loading, Typography, LWTooltip } = Components
+  
   if (loading) {
     return <>
       <Typography variant="body1" className={classNames(classes.gutterBottom, classes.calculating)}>
@@ -109,8 +126,22 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
           <TableCell>{postAnalytics?.uniqueClientViews}</TableCell>
         </TableRow>
         <TableRow>
-          <TableCell>{'Views by unique devices, on page for > 10 sec'}</TableCell>
-          <TableCell>{postAnalytics?.uniqueClientViews10Sec}</TableCell>
+          <TableCell><LWTooltip title='Percent of (unique) views that left before 10 seconds'>
+            Bounce Rate
+          </LWTooltip></TableCell>
+          <TableCell>
+            {caclulateBounceRate(postAnalytics?.uniqueClientViews, postAnalytics?.uniqueClientViews10Sec)}
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>{'Views by unique devices > 5 minutes'}</TableCell>
+          <TableCell>{postAnalytics?.uniqueClientViews5Min}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><LWTooltip title='Note: includes time spent reading and writing comments, does not include bounces'>
+            Median reading time
+          </LWTooltip></TableCell>
+          <TableCell>{readableReadingTime(postAnalytics?.medianReadingTime)}</TableCell>
         </TableRow>
       </TableBody>
     </Table>
