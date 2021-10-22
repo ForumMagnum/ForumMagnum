@@ -217,7 +217,8 @@ const postEditorConfig = {
 		'|',
 		'trackChanges',
 		'comment',
-		'math'
+		'math',
+		'footnote',
 	],
 	image: {
 		toolbar: [

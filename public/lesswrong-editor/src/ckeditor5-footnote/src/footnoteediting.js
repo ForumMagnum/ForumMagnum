@@ -50,18 +50,20 @@ export default class FootNoteEditing extends Plugin {
                 return;
             }
 
+			// don't allow deleting a nonempty footnote without deleting text
             if (positionParent.maxOffset > 1 && doc.selection.anchor.offset <= 1) {
                 data.preventDefault();
                 evt.stop();
             }
 
-            if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || (positionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0)) {
+            if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || 
+				(positionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0)) {
                 const footNoteList = positionParent.parent;
                 const index = footNoteList.index;
                 const footNoteSection = footNoteList.parent;
                 for (var i = index + 1; i < footNoteSection.maxOffset; i ++) {
                         editor.model.change( writer => {
-                            writer.setAttribute( 'id', i - 1, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
+                            writer.setAttribute( 'id', i, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
                         } );
                     }
                 removeHolder(editor, index);
@@ -86,6 +88,9 @@ export default class FootNoteEditing extends Plugin {
                         writer.setSelection( footNoteList.previousSibling, 'end' );
                     }
                     writer.remove(footNoteList);
+					if(footNoteSection.maxOffset === 0) {
+						writer.remove(footNoteSection);
+					}
                 } );
                 data.preventDefault();
                 evt.stop();
@@ -153,7 +158,7 @@ export default class FootNoteEditing extends Plugin {
             allowWhere: '$text',
             isInline: true,
             isObject: true,
-            allowAttributes: [ 'id' ]
+            allowAttributes: [ 'id', 'class' ],
         } );
     }
 
@@ -234,7 +239,7 @@ export default class FootNoteEditing extends Plugin {
             // How to we find the items to upcast here? The view specifies that
             view: {
                 name: 'span',
-                classes: 'footnote-item'
+                classes: 'footnote-item',
             },
             model: ( viewElement, conversionApi ) => {
                 const modelWriter = conversionApi.writer;
@@ -268,6 +273,7 @@ export default class FootNoteEditing extends Plugin {
             const itemView = viewWriter.createContainerElement( 'span', {
                 class: 'footnote-item',
                 id: `fn${id}`,
+				'data-footnote-id': id,
             } );
 
             const innerText = viewWriter.createText( id + '. ' );
