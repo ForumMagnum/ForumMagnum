@@ -2,6 +2,7 @@ import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
 import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
+import { checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
@@ -66,6 +67,7 @@ onStartup(() => {
     if (memoryUsage > consoleLogMemoryUsageThreshold.get()) {
       // eslint-disable-next-line no-console
       console.log(`Memory usage is high: ${memoryUsage} bytes (warning threshold: ${consoleLogMemoryUsageThreshold.get()})`);
+      checkForMemoryLeaks();
     }
     if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
       Sentry.captureException(new Error("Memory usage is high"));
