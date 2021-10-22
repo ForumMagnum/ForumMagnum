@@ -5,8 +5,13 @@ export default class InsertFootNoteCommand extends Command {
     // Value is the footnote number (1 indexed)
     execute( { value } ) {
         this.editor.model.change( writer => {
-			const id = value === 0 ? 1 : value;
 			const doc = this.editor.model.document;
+            if (doc.getRoot().getChild(doc.getRoot().maxOffset - 1).name !== 'footNoteSection') {
+                const footNoteSection = writer.createElement( 'footNoteSection' );
+                this.editor.model.insertContent( footNoteSection, writer.createPositionAt( doc.getRoot(), doc.getRoot().maxOffset ));
+            }
+			const footNoteSection = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
+			const id = value === 0 ? footNoteSection.maxOffset + 1 : value;
 			doc.selection.isBackward ?
 				writer.setSelection(doc.selection.anchor) : 
 				writer.setSelection(doc.selection.focus);
@@ -19,12 +24,6 @@ export default class InsertFootNoteCommand extends Command {
 				return;
 			}
 			
-            const lastChild = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
-            if (lastChild.name !== 'footNoteSection') {
-                const footNoteSection = writer.createElement( 'footNoteSection' );
-                this.editor.model.insertContent( footNoteSection, writer.createPositionAt( doc.getRoot(), doc.getRoot().maxOffset ));
-            }
-			const footNoteSection = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
 			const footNoteList = writer.createElement( 'footNoteList' );
 			const footNoteItem = writer.createElement( 'footNoteItem', { id: footNoteSection.maxOffset + 1 } );
 			const p = writer.createElement( 'paragraph' );
