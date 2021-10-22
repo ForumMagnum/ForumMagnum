@@ -5,12 +5,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
 
-  const lat = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[1]
-  const lng = currentUser &&
-    currentUser.mongoLocation &&
-    currentUser.mongoLocation.coordinates[0]
+  const lat = currentUser?.mongoLocation?.coordinates[1]
+  const lng = currentUser?.mongoLocation?.coordinates[0]
 
   let eventsListTerms: PostsViewTerms = {
     view: 'events',
