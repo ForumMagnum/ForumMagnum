@@ -18,7 +18,7 @@ import  theme  from '../../themes/forumTheme'
 import moment from 'moment'
 
 function caclulateBounceRate(totalViews?: number, viewsAfter10sec?: number) {
-  if (!totalViews || !viewsAfter10sec) return null
+  if (!totalViews || viewsAfter10sec === undefined || viewsAfter10sec === null) return null
   return `${Math.round((1 - (viewsAfter10sec / totalViews)) * 100)} %`
 }
 
@@ -52,7 +52,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: '0.35em',
   },
   calculating: {
+    marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
   },
   graphContainer: {
     marginTop: 30,
@@ -136,7 +138,7 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
           <TableCell>{postAnalytics?.uniqueClientViews5Min}</TableCell>
         </TableRow>
         <TableRow>
-          <TableCell><LWTooltip title='Note: includes time spent reading and writing comments'>
+          <TableCell><LWTooltip title='Note: includes time spent reading and writing comments, does not include bounces'>
             Median reading time
           </LWTooltip></TableCell>
           <TableCell>{readableReadingTime(postAnalytics?.medianReadingTime)}</TableCell>
