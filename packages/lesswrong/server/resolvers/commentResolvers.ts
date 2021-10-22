@@ -12,11 +12,11 @@ const specificResolvers = {
       const {currentUser} = context;
       const comment = await context.Comments.findOne(commentId)
       if (!comment) throw new Error("Invalid commentId");
-      const post = comment.postId && await context.Posts.findOne(comment.postId)
-      if (!post) throw new Error("Cannot find post");
+      const post = comment.postId ? await context.Posts.findOne(comment.postId) : null;
+      const tag = comment.tagId ? await context.Tags.findOne(comment.tagId) : null;
       
-      if (currentUser && userCanModerateComment(currentUser, post, comment)) {
-
+      if (currentUser && userCanModerateComment(currentUser, post, tag, comment))
+      {
         let set: Record<string,any> = {deleted: deleted}
         if (deleted) {
           set.deletedPublic = deletedPublic;
