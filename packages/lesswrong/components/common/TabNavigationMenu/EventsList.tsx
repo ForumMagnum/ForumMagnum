@@ -11,7 +11,7 @@ const EventsList = ({currentUser, onClick}) => {
   let eventsListTerms: PostsViewTerms = {
     view: 'events',
     onlineEvent: false,
-    limit: 3,
+    limit: 1,
   }
   if (lat && lng) {
     eventsListTerms = {
@@ -24,7 +24,7 @@ const EventsList = ({currentUser, onClick}) => {
   }
   const onlineTerms: PostsViewTerms = {
     view: 'onlineEvents',
-    limit: 4
+    limit: 3
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
