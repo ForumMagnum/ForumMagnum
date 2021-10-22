@@ -6,6 +6,10 @@ export default class InsertFootNoteCommand extends Command {
     execute( { value } ) {
         this.editor.model.change( writer => {
 			const id = value === 0 ? 1 : value;
+			const doc = this.editor.model.document;
+			doc.selection.isBackward ?
+				writer.setSelection(doc.selection.anchor) : 
+				writer.setSelection(doc.selection.focus);
             const noteholder = writer.createElement( 'noteHolder', { id } );
             this.editor.model.insertContent( noteholder );
 
@@ -15,7 +19,6 @@ export default class InsertFootNoteCommand extends Command {
 				return;
 			}
 			
-			const doc = this.editor.model.document;
             const lastChild = doc.getRoot().getChild(doc.getRoot().maxOffset - 1);
             if (lastChild.name !== 'footNoteSection') {
                 const footNoteSection = writer.createElement( 'footNoteSection' );
