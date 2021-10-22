@@ -4,6 +4,8 @@ export type PostAnalyticsResult = {
   allViews: number
   uniqueClientViews: number
   uniqueClientViews10Sec: number
+  uniqueClientViews5Min: number
+  medianReadingTime: number
   uniqueClientViewsSeries: {date: Date, uniqueClientViews: number}[]
 }
 
@@ -18,6 +20,8 @@ export const usePostAnalytics = (postId: string) => {
         allViews
         uniqueClientViews
         uniqueClientViews10Sec
+        medianReadingTime
+        uniqueClientViews5Min
         uniqueClientViewsSeries {
           date
           uniqueClientViews

@@ -76,19 +76,24 @@ const queries: QueryFunc[] = [
   makePgAnalyticsQueryScalar({
     query: `
       SELECT
-        count(*) as unique_client_views_10_sec,
-        avg(max_reading_time) as median_reading_time
+        COUNT(*) AS unique_client_views_10_sec,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY total_reading_time) AS median_reading_time,
+        COUNT(*) FILTER (WHERE total_reading_time > 5*60) AS unique_client_views_5_min
       FROM (
         SELECT
           client_id,
-          max(seconds) as max_reading_time
+          sum(increment) AS total_reading_time
         FROM event_timer_event
         WHERE post_id = $1
           AND client_id IS NOT NULL
         GROUP BY client_id
       ) a
     `,
-    resultColumns: ["unique_client_views_10_sec"]
+    resultColumns: [
+      "unique_client_views_10_sec",
+      "median_reading_time",
+      "unique_client_views_5_min"
+    ]
   }),
   makePgAnalyticsQuerySeries({
     // a masterpiece
@@ -166,6 +171,8 @@ addGraphQLSchema(`
     allViews: Int
     uniqueClientViews: Int
     uniqueClientViews10Sec: Int
+    medianReadingTime: Int
+    uniqueClientViews5Min: Int
     uniqueClientViewsSeries: [UniqueClientViewsSeries]
   }
 `);
