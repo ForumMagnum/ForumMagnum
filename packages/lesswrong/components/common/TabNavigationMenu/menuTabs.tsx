@@ -253,7 +253,7 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     }, {
       id: 'events',
       title: 'Community and Events',
-      mobileTitle: 'Community',
+      mobileTitle: 'Events',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups and events in your area',

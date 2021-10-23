@@ -99,6 +99,7 @@ const CommunityHome = ({classes}: {
       view: 'events',
       filters: filters,
     }
+    const title = forumTypeSetting.get() === 'EAForum' ? 'Community and Events' : 'Welcome to the Community Section';
     const WelcomeText = () => (isEAForum ?
     <Typography variant="body2" className={classes.welcomeText}>
       <p>
@@ -123,7 +124,7 @@ const CommunityHome = ({classes}: {
             mapOptions={currentUserLocation.known && {center: currentUserLocation, zoom: 5}}
           />
             <SingleColumnSection>
-              <SectionTitle title="Welcome to the Community Section" />
+              <SectionTitle title={title} />
               <WelcomeText />
               <SectionFooter>
                 <a onClick={openSetPersonalLocationForm}>
