@@ -1,3 +1,4 @@
+// @ts-check
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import pilcrowIcon from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
 import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
@@ -36,7 +37,7 @@ export default class FootNoteUI extends Plugin {
             } );
             // Execute the command when the dropdown item is clicked (executed).
             this.listenTo( dropdownView, 'execute', evt => {
-                editor.execute( 'InsertFootnote', { value: evt.source.commandParam } );
+                editor.execute( 'InsertFootnote', { footnoteId: evt.source.commandParam } );
                 editor.editing.view.focus();
             } );
 

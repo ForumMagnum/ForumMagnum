@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+	"strictNullChecks": true,
+    "target": "ES6"
+  },
+  "include": [
+    "**/*"
+  ],
+  "exclude": [
+  ],
+  "typeAcquisition": {
+    "enable": true
+  },
+}

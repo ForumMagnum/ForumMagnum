@@ -1,4 +1,4 @@
-/* eslint-disable no-tabs */
+// @ts-check
 /**
  * CKEditor dataview nodes can be converted to a output view or an editor view via downcasting
  *  * Upcasting is converting to the platonic ckeditor version.
