@@ -65,6 +65,7 @@ async function handleAnalyticsEventWriteRequest(events, clientTime) {
   return true;
 }
 
+let inFlightRequestCounter = {inFlightRequests: 0};
 // See: https://stackoverflow.com/questions/37300997/multi-row-insert-with-pg-promise
 const analyticsColumnSet = new pgPromiseLib.helpers.ColumnSet(['environment', 'event_type', 'timestamp', 'event'], {table: 'raw'});
 
@@ -85,7 +86,19 @@ async function writeEventsToAnalyticsDB(events: {type, timestamp, props}[]) {
       }));
       const query = pgPromiseLib.helpers.insert(valuesToInsert, analyticsColumnSet);
     
-      await connection.none(query);
+      if (inFlightRequestCounter.inFlightRequests > 500) {
+        // eslint-disable-next-line no-console
+        console.error(`Warning: ${inFlightRequestCounter.inFlightRequests} in-flight postgres queries. Dropping.`);
+        return;
+      }
+      
+      
+      inFlightRequestCounter.inFlightRequests++;
+      try {
+        await connection.none(query);
+      } finally {
+        inFlightRequestCounter.inFlightRequests--;
+      }
     } catch (err){
       //eslint-disable-next-line no-console
       console.error("Error sending events to analytics DB:");
