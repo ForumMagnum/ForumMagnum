@@ -22,7 +22,7 @@ const TabNavigationMenuFooter = ({classes}) => {
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
           {menuTabs[forumTypeSetting.get()].map(tab => {
-            if (!tab.showOnMobileStandalone) {
+            if (!('showOnMobileStandalone' in tab) || !tab.showOnMobileStandalone) {
               return
             }
             // NB: No support for custom components or dividers on footer

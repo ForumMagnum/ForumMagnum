@@ -41,7 +41,34 @@ import { communityPath } from '../../../lib/routes';
 //   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
-type MenuTab = any;
+
+type MenuTabDivider = {
+  id: string
+  divider: true
+  showOnCompressed?: boolean
+}
+
+type MenuTabCustomComponent = {
+  id: string
+  customComponentName: string
+}
+
+export type MenuTabRegular = {
+  id: string
+  title: string
+  mobileTitle?: string
+  link: string
+  icon?: React.ReactNode
+  iconComponent?: any // I tried
+  compressedIconComponent?: any
+  tooltip?: React.ReactNode
+  showOnMobileStandalone?: boolean
+  showOnCompressed?: boolean
+  subItem?: boolean
+}
+
+type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
+
 export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
   LessWrong: [
     {
