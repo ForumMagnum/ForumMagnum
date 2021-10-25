@@ -1,5 +1,7 @@
 import { mongoFind } from '../../mongoQueries';
 import { getSiteUrl } from '../../vulcan-lib/utils';
+import { Posts } from '../posts/collection';
+import { accessFilterMultiple } from '../../utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
 
@@ -11,17 +13,23 @@ export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
   return `${prefix}/s/${sequence._id}`;
 };
 
-export const sequenceGetAllPostIDs = async (sequenceId: string): Promise<Array<string>> => {
+export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
   const chapters = await mongoFind("Chapters", {sequenceId: sequenceId}, {sort: {number: 1}});
   let allPostIds = _.flatten(_.pluck(chapters, 'postIds'))
+  
+  // Filter out nulls
   const validPostIds = _.filter(allPostIds, postId=>!!postId);
-  return validPostIds;
+  
+  // Filter by user access
+  const posts = await context.loaders.Posts.loadMany(validPostIds);
+  const accessiblePosts = await accessFilterMultiple(context.currentUser, Posts, posts, context);
+  return accessiblePosts.map(post => post._id);
 }
 
-export const sequenceGetAllPosts = async (sequenceId: string): Promise<Array<DbPost>> => {
+export const sequenceGetAllPosts = async (sequenceId: string, context: ResolverContext): Promise<Array<DbPost>> => {
   // Get the set of post IDs in the sequence (by joining against the Chapters
   // table), sorted in reading order
-  const allPostIds = await sequenceGetAllPostIDs(sequenceId);
+  const allPostIds = await sequenceGetAllPostIDs(sequenceId, context);
   
   // Retrieve those posts
   const posts = await mongoFind("Posts", {_id:{$in:allPostIds}});
@@ -35,8 +43,8 @@ export const sequenceGetAllPosts = async (sequenceId: string): Promise<Array<DbP
 // next post in the sequence, or null if it was the last post. Does not handle
 // cross-sequence boundaries. If the given post ID is not in the sequence,
 // returns null.
-export const sequenceGetNextPostID = async function(sequenceId: string, postId: string): Promise<string|null> {
-  const postIDs = await sequenceGetAllPostIDs(sequenceId);
+export const sequenceGetNextPostID = async function(sequenceId: string, postId: string, context: ResolverContext): Promise<string|null> {
+  const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
   const postIndex = _.indexOf(postIDs, postId);
   
   if (postIndex < 0) {
@@ -55,8 +63,8 @@ export const sequenceGetNextPostID = async function(sequenceId: string, postId: 
 // previous post in the sequence, or null if it was the first post. Does not
 // handle cross-sequence boundaries. If the given post ID is not in the
 // sequence, returns null.
-export const sequenceGetPrevPostID = async function(sequenceId: string, postId: string): Promise<string|null> {
-  const postIDs = await sequenceGetAllPostIDs(sequenceId);
+export const sequenceGetPrevPostID = async function(sequenceId: string, postId: string, context: ResolverContext): Promise<string|null> {
+  const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
   const postIndex = _.indexOf(postIDs, postId);
   
   if (postIndex < 0) {
@@ -71,8 +79,8 @@ export const sequenceGetPrevPostID = async function(sequenceId: string, postId: 
   }
 }
 
-export const sequenceContainsPost = async function(sequenceId: string, postId: string): Promise<boolean> {
-  const postIDs = await sequenceGetAllPostIDs(sequenceId);
+export const sequenceContainsPost = async function(sequenceId: string, postId: string, context: ResolverContext): Promise<boolean> {
+  const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
   const postIndex = _.indexOf(postIDs, postId);
   return postIndex >= 0;
 }

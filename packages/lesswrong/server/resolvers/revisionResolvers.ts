@@ -3,11 +3,14 @@ import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
+import { htmlStartingAtHash } from '../extractHighlights';
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
@@ -100,6 +103,26 @@ augmentFieldsDict(Revisions, {
     resolveAs: {
       type: 'String',
       resolver: ({html}) => highlightFromHTML(html)
+    }
+  },
+  htmlHighlightStartingAtHash: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      arguments: 'hash: String',
+      resolver: async (revision: DbRevision, args: {hash: string}, context: ResolverContext): Promise<string> => {
+        const {hash} = args;
+        const rawHtml = revision?.html;
+        
+        // Process the HTML through the table of contents generator (which has
+        // the byproduct of marking section headers with anchors)
+        const toc = extractTableOfContents(rawHtml);
+        const html = toc?.html || rawHtml;
+        
+        const startingFromHash = htmlStartingAtHash(html, hash);
+        const highlight = highlightFromHTML(startingFromHash);
+        return highlight;
+      },
     }
   },
   plaintextDescription: {

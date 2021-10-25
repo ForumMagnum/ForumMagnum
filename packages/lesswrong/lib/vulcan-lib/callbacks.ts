@@ -1,4 +1,4 @@
-import { isServer, runAfterDelay, deferWithoutDelay } from '../executionEnvironment';
+import { isServer } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { isPromise } from './utils';
@@ -273,7 +273,7 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
     let pendingDeferredCallbackStart = markCallbackStarted(hook);
 
     // use defer to avoid holding up client
-    deferWithoutDelay(function () {
+    setTimeout(function () {
       // run all post submit server callbacks on post object successively
       callbacks.forEach(function (this: any, callback) {
         logger(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
@@ -303,7 +303,7 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
       });
       
       markCallbackFinished(pendingDeferredCallbackStart);
-    });
+    }, 0);
 
   }
 };
@@ -332,7 +332,7 @@ export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
       if (callbacksArePending() || isAnyQueryPending()) {
-        runAfterDelay(finishOrWait, 20);
+        setTimeout(finishOrWait, 20);
       } else {
         resolve();
       }

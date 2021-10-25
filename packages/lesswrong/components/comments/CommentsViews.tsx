@@ -36,7 +36,7 @@ const CommentsViews = ({post, classes}: {
   const [anchorEl,setAnchorEl] = useState<any>(null);
   const currentUser = useCurrentUser();
   const { history } = useNavigation();
-  const { location } = useLocation();
+  const location = useLocation();
   const { query } = location;
 
   const handleClick = (event: React.MouseEvent) => {
@@ -55,44 +55,37 @@ const CommentsViews = ({post, classes}: {
     setAnchorEl(null);
   }
 
-  const render = () => {
-    const commentsTopView: CommentsViewName = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
-    let views: Array<CommentsViewName> = [commentsTopView, "postCommentsNew", "postCommentsOld"]
-    const adminViews: Array<CommentsViewName> = ["postCommentsDeleted"]
-    const afViews: Array<CommentsViewName> = ["postLWComments"]
-    const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
+  const commentsTopView: CommentsViewName = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
+  let views: Array<CommentsViewName> = [commentsTopView, "postCommentsNew", "postCommentsOld"]
+  const adminViews: Array<CommentsViewName> = ["postCommentsDeleted"]
+  const afViews: Array<CommentsViewName> = ["postLWComments"]
+  const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
 
-    if (userCanDo(currentUser, "comments.softRemove.all")) {
-      views = views.concat(adminViews);
-    }
+  if (userCanDo(currentUser, "comments.softRemove.all")) {
+    views = views.concat(adminViews);
+  }
 
-    const af = forumTypeSetting.get() === 'AlignmentForum'
-    if (af) {
-      views = views.concat(afViews);
-    }
+  const af = forumTypeSetting.get() === 'AlignmentForum'
+  if (af) {
+    views = views.concat(afViews);
+  }
 
-    return (
-      <div className={classes.root}>
-        <a className={classes.link} onClick={handleClick}>
-          {viewNames[currentView]}
-        </a>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          {views.map((view: string) => {
-            return(
-              <MenuItem
-                key={view}
-                onClick={() => handleViewClick(view)}
-              >
-                {viewNames[view]}
-              </MenuItem>)})}
-        </Menu>
-      </div>
-  )}
-  return render();
+  return <div className={classes.root}>
+    <a className={classes.link} onClick={handleClick}>
+      {viewNames[currentView]}
+    </a>
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleClose}
+    >
+      {views.map((view: string) => {
+        return <MenuItem key={view} onClick={() => handleViewClick(view)} >
+          {viewNames[view]}
+        </MenuItem>
+      })}
+    </Menu>
+  </div>
 };
 
 const CommentsViewsComponent = registerComponent('CommentsViews', CommentsViews, {styles});

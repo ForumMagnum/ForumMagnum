@@ -78,7 +78,6 @@ interface DbComment extends DbObject {
   postId: string
   tagId: string
   userId: string
-  isDeleted: boolean
   userIP: string
   userAgent: string
   referrer: string
@@ -688,6 +687,7 @@ interface DbUser extends DbObject {
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean
   hideSubscribePoke: boolean
+  hideMeetupsPoke: boolean
   frontpagePostCount: number
   sequenceCount: number
   sequenceDraftCount: number

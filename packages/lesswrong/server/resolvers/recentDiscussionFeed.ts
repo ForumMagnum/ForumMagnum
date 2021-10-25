@@ -19,6 +19,9 @@ defineFeedResolver<Date>({
   }) => {
     type SortKeyType = Date;
     const {af} = args;
+    const {currentUser} = context;
+    
+    const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
     
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
@@ -68,6 +71,16 @@ defineFeedResolver<Date>({
           index: 6,
           result: {},
         }),
+        
+        // Suggestion to subscribe to meetups
+        ...(shouldSuggestMeetupSubscription ?
+          [fixedIndexSubquery({
+            type: "meetupsPoke",
+            index: 8,
+            result: {},
+          })]
+          : []
+        ),
       ],
     });
   }

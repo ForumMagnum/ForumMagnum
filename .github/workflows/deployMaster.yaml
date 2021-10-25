@@ -4,14 +4,14 @@
 name: Deploy Master
 on:
   push:
-    branches: [ ea-master ]
+    branches: [ lw-deploy ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
     strategy:
       matrix: 
         node-version: [15.x]
-        environment: [EAForum-Production]
+        environment: [Lesswrongexpress-env, LessWrongProd, AlignmentForumProd]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2

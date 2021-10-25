@@ -320,6 +320,8 @@ registerFragment(`
     sequence(sequenceId: $sequenceId) {
       _id
       title
+      draft
+      userId
     }
     prevPost(sequenceId: $sequenceId) {
       _id
@@ -442,3 +444,13 @@ registerFragment(`
     voteCount
   }
 `);
+
+registerFragment(`
+  fragment HighlightWithHash on Post {
+    _id
+    contents {
+      htmlHighlightStartingAtHash(hash: $hash)
+    }
+  }
+`);
+

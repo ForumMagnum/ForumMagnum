@@ -97,6 +97,11 @@ const schema: SchemaType<DbRevision> = {
     viewableBy: ['guests'],
     // resolveAs defined in resolvers.js
   },
+  htmlHighlightStartingAtHash: {
+    type: String, 
+    viewableBy: ['guests'],
+    // resolveAs defined in resolvers.js
+  },
   plaintextDescription: {
     type: String, 
     viewableBy: ['guests'],

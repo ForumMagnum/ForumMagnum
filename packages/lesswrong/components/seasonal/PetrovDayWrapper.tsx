@@ -34,14 +34,16 @@ const PetrovDayWrapper = () => {
     ssr: true
   });
   
-  //eslint-disable-next-line no-console
+  // eslint-disable-next-line no-console
   console.log({internal: internalData?.PetrovDayCheckIfIncoming, external: externalData?.PetrovDayCheckIfIncoming})
   
   const foreignLaunchedAt = externalData?.PetrovDayCheckIfIncoming?.createdAt
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeTillForeignMissileArrival(-(moment(new Date()).diff(moment(foreignLaunchedAt).add(1, 'hour'),'seconds')))
+      if (foreignLaunchedAt) {
+        setTimeTillForeignMissileArrival(-(moment(new Date()).diff(moment(foreignLaunchedAt).add(1, 'hour'),'seconds')))
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, [foreignLaunchedAt]);
@@ -65,4 +67,3 @@ declare global {
     PetrovDayWrapper: typeof PetrovDayWrapperComponent
   }
 }
-

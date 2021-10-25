@@ -55,6 +55,7 @@ const TagHistoryPage = ({classes}: {
               revision={revision}
               headingStyle={"abridged"}
               documentId={tag._id}
+              showDiscussionLink={false}
             />
           </div>,
         },
