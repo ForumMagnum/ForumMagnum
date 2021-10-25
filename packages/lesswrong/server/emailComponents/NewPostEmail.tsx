@@ -79,10 +79,12 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
     
     <a href={postGetPageUrl(document, true)}>Discuss</a>
     
-    <hr className={classes.hr}/>
-    
-    {/* TODO: not on events */}
-    {!hideRecommendations && <EmailFooterRecommendations />}
+    {!hideRecommendations && (
+      <>
+        <hr className={classes.hr}/>
+        <EmailFooterRecommendations />
+      </>
+    )}
     
     <hr className={classes.hr}/>
     

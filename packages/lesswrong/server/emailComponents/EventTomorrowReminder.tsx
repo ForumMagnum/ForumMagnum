@@ -5,14 +5,13 @@ import type { RSVPType } from '../../lib/collections/posts/schema';
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const EventTomorrowReminder = ({postId, rsvp, classes}: {
+const EventTomorrowReminder = ({postId, rsvp}: {
   postId: string,
   rsvp: RSVPType,
-  classes: ClassesType,
 }) => {
   return <Components.NewPostEmail
     documentId={postId}
-    hideRecommendations
+    hideRecommendations={true}
     reason={`you RSVPed ${rsvp.response} to this event`}
   />
 }
