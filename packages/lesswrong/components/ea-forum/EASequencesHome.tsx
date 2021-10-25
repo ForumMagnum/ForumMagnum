@@ -6,7 +6,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing.unit*4,
     ...postBodyStyles(theme),
   },
 })
@@ -21,7 +21,6 @@ const EASequencesHome = ({classes}) => {
       <SectionTitle  title="Sequences" >
         <SequencesNewButton />
       </SectionTitle>
-      {/* TODO; more gutter */}
       <Typography variant='body1' className={classes.description} gutterBottom>
         Sequences are collections of posts on a common theme, or that build on each other. They
         help authors to develop ideas in ways that would be difficult in a single post. You can also
