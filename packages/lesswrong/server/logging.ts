@@ -7,6 +7,8 @@ import { checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../lib/instanceSettings';
+import * as _ from 'underscore';
+import fs from 'fs';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,
@@ -49,6 +51,8 @@ onStartup(() => {
       console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
     }
   }
+  
+  checkForCoreDumps();
 });
 
 export const addSentryMiddlewares = (addConnectHandler: (handler: any)=>void) => {
@@ -74,3 +78,16 @@ onStartup(() => {
     }
   }, memoryUsageCheckInterval.get());
 });
+
+function checkForCoreDumps() {
+  const files = fs.readdirSync(".");
+  const coreFiles = _.filter(files, filename => filename.startsWith("core."));
+  if (coreFiles.length > 0) {
+    Sentry.captureException(new Error("Server restarted after core dump"));
+    for (let coreFile of coreFiles) {
+      //eslint-disable-next-line no-console
+      console.log("Removing core file: "+coreFile);
+      fs.unlinkSync(coreFile);
+    }
+  }
+}
