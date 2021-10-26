@@ -83,7 +83,7 @@ export const getErrors = error => {
     const graphQLError = error.graphQLErrors[0]
     const data = (graphQLError?.extensions?.exception?.data) || graphQLError?.data
 
-    let baseErrorMessages = parseErrorMessage(graphQLError.message)
+    let baseErrorMessages = parseErrorMessage(graphQLError?.message)
     if (data && !isEmpty(data)) {
       if (data.errors) {
         // 2. There are multiple errors on the data.errors object
