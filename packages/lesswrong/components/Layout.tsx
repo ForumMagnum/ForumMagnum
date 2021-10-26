@@ -230,7 +230,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const afterTime = petrovAfterTime.get()
 
     const renderPetrovDay = 
-      currentRoute?.name == "home"
+      currentRoute?.name === "home"
       && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
       
