@@ -1,11 +1,11 @@
-import React from 'react';
-import { useDialog } from '../common/withDialog';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema'
-import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper';
-import HistoryIcon from '@material-ui/icons/History';
+import { MenuItem, Popover, Typography } from '@material-ui/core';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import HistoryIcon from '@material-ui/icons/History';
+import React, { useState } from 'react';
+import { Link } from '../../lib/reactRouterWrapper';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -46,12 +46,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginLeft: "auto"
   },
-  subscribeToWrapper: {
-    display: "flex !important",
-  },
-  subscribeTo: {
-    marginRight: 16
-  },
   callToAction: {
     display: "flex",
     alignItems: "center",
@@ -74,6 +68,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
   setEditing: (editing: boolean)=>void,
   classes: ClassesType
 }) => {
+  const [editMenuOpen, setEditMenuOpen] = useState<boolean>(true);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   const { LWTooltip, SubscribeTo, TagDiscussionButton } = Components;
@@ -81,36 +76,38 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
   const numFlags = tag.tagFlagsIds?.length
   
   return <div className={classes.buttonsRow}>
-    {!editing && <a className={classes.button} onClick={(ev) => {
-      if (currentUser) {
-        setEditing(true)
-      } else {
-        openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
-        });
-        ev.preventDefault();
-      }
-    } }>
-      <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
-    </a>} 
-    {<Link className={classes.button} to={`/tag/${tag.slug}/history`}>
-      <HistoryIcon /><span className={classes.buttonLabel}>History</span>
-    </Link>}
-    {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-      <SubscribeTo
-        document={tag}
-        className={classes.subscribeTo}
-        showIcon
-        hideLabelOnMobile
-        subscribeMessage="Subscribe"
-        unsubscribeMessage="Unsubscribe"
-        subscriptionType={subscriptionTypes.newTagPosts}
-      />
-    </LWTooltip>}
-    <div className={classes.button}>
-      <TagDiscussionButton tag={tag} hideLabelOnMobile />
-    </div>
+
+    <Popover open={editMenuOpen}>
+      <Typography variant="body2">
+
+      </Typography>
+      <MenuItem>
+        {!editing && <a className={classes.button} onClick={(ev) => {
+        if (currentUser) {
+          setEditing(true)
+        } else {
+          openDialog({
+            componentName: "LoginPopup",
+            componentProps: {}
+          });
+          ev.preventDefault();
+        }
+      } }>
+        <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
+      </a>} 
+      </MenuItem>
+      <MenuItem>
+        <Link className={classes.button} to={`/tag/${tag.slug}/history`}>
+          <HistoryIcon /><span className={classes.buttonLabel}>History</span>
+        </Link>
+      </MenuItem>
+      <MenuItem>
+        <div className={classes.button}>
+          <TagDiscussionButton tag={tag} hideLabelOnMobile />
+        </div>
+      </MenuItem>
+    </Popover>
+    
     <div className={classes.callToAction}>
       <LWTooltip
         title={ tag.tagFlagsIds?.length > 0 ? 

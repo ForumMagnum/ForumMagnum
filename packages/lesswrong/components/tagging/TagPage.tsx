@@ -1,18 +1,19 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
-import { useTagBySlug } from './useTag';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser';
-import { tagBodyStyles } from '../../themes/stylePiping'
+import { useApolloClient } from "@apollo/client";
+import classNames from 'classnames';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { truncate } from '../../lib/editor/ellipsize';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
-import { EditTagForm } from './EditTagPage';
+import { truncate } from '../../lib/editor/ellipsize';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { tagBodyStyles } from '../../themes/stylePiping';
+import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
-import classNames from 'classnames';
-import { useApolloClient } from "@apollo/client";
+import { EditTagForm } from './EditTagPage';
+import { useTagBySlug } from './useTag';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -77,6 +78,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     marginBottom: 8,
   },
+  subscribeToWrapper: {
+    ...theme.typography.body2,
+    ...theme.typography.uiStyle,
+  },
+  subscribeTo: {
+  },
 });
 
 export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
@@ -92,7 +99,7 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
+  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList, LWTooltip, SubscribeTo } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -234,11 +241,22 @@ const TagPage = ({classes}: {
                 Next Tag ({nextTag.name})
             </Link></span>}
           </span>}
+          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
         </div>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
+        {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+          <SubscribeTo
+            document={tag}
+            className={classes.subscribeTo}
+            showIcon
+            hideLabelOnMobile
+            subscribeMessage="Subscribe"
+            unsubscribeMessage="Unsubscribe"
+            subscriptionType={subscriptionTypes.newTagPosts}
+          />
+        </LWTooltip>}
       </div>}
     >
       <div className={classNames(classes.wikiSection,classes.centralColumn)}>
