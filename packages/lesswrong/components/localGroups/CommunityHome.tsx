@@ -172,7 +172,7 @@ const CommunityHome = ({classes}: {
             {!isEAForum && <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
-                {isEAForum && <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />}
+                <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
               </AnalyticsContext>
             </SingleColumnSection>}
         </AnalyticsContext>

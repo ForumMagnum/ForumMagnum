@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import LinkIcon from '@material-ui/icons/Link';
 import SvgIcon from '@material-ui/core/SvgIcon';
-import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -169,4 +168,3 @@ declare global {
     GroupLinks: typeof GroupLinksComponent
   }
 }
-
