@@ -14,21 +14,21 @@ registerMigration({
         collectionName: {$ne: "Tags"},
       },
       fn: async (bucketSelector) => {
-        await Revisions.update(bucketSelector, {$set: {draft: true}})
+        await Revisions.update(bucketSelector, {$set: {draft: true}}, {multi:true})
       }
     })
     await forEachBucketRangeInCollection({
       collection: Revisions,
       filter: { collectionName: "Tags", },
       fn: async (bucketSelector) => {
-        await Revisions.update(bucketSelector, {$set: {draft: false}})
+        await Revisions.update(bucketSelector, {$set: {draft: false}}, {multi:true})
       }
     })
     await forEachBucketRangeInCollection({
       collection: Revisions,
       filter: { version: {$gte: "1"} },
       fn: async (bucketSelector) => {
-        await Revisions.update(bucketSelector, {$set: {draft: false}})
+        await Revisions.update(bucketSelector, {$set: {draft: false}}, {multi:true})
       }
     })
   },

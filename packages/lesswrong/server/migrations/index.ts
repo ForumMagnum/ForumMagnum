@@ -3,11 +3,8 @@
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
 
-// to run a migration, enter in terminal:
-// meteor shell
-// 
-// and then run:
-// Vulcan.migrations.migrationName()
+// To run a migration, start a server and enter in a terminal:
+//   scripts/serverShellCommand.sh Globals.migrations.migrationName()
 
 import './2019-01-04-voteSchema';
 import './2019-01-21-denormalizeVoteCount';
