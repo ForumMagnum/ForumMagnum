@@ -1,21 +1,18 @@
 // @ts-check
 // TODO: Credit author
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import Element from '@ckeditor/ckeditor5-engine/src/model/element';
+import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import Writer from '@ckeditor/ckeditor5-engine/src/model/writer';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
-import { QueryMixin as queryMixin } from './utils';
+import { QueryMixin } from './utils';
 
-/**
- * @mixes QueryMixin
- */
-export default class InsertFootNoteCommand extends queryMixin(Command) {
+export default class InsertFootNoteCommand extends QueryMixin(Command) {
 	/**
 	 *
-	 * @param {{footnoteId: number}} args - A footnoteId of 0 indicates creation of a new footnote.
+	 * @param {{footnoteId: number}} props - A footnoteId of 0 indicates creation of a new footnote.
 	 */
     execute( { footnoteId } ) {
-        this.editor.model.change( writer => {
+        this.editor.model.change(writer => {
 			const doc = this.editor.model.document;
 			const root = doc.getRoot();
 			if (!root) {
@@ -26,7 +23,7 @@ export default class InsertFootNoteCommand extends queryMixin(Command) {
 			doc.selection.isBackward ?
 				writer.setSelection(doc.selection.anchor) : 
 				writer.setSelection(doc.selection.focus);
-            const noteholder = writer.createElement( 'noteHolder', { id } );
+            const noteholder = writer.createElement( 'noteHolder', { 'data-footnote-id': id } );
             this.editor.model.insertContent( noteholder );
 
             // if referencing an existing footnote
@@ -36,7 +33,11 @@ export default class InsertFootNoteCommand extends queryMixin(Command) {
 			}
 			
 			const footNoteList = writer.createElement( 'footNoteList' );
-			const footNoteItem = writer.createElement( 'footNoteItem', { id: footNoteSection.maxOffset + 1 } );
+			const footNoteItem = writer.createElement(
+				'footNoteItem',
+				//fn{id} is the format used by our existing markdown footnotes
+				{ 'data-footnote-id': id, id: `fn${id}` },
+			);
 			const p = writer.createElement( 'paragraph' );
 			writer.append( footNoteItem, p );
 			writer.append( p, footNoteList ) ;
@@ -52,23 +53,23 @@ export default class InsertFootNoteCommand extends queryMixin(Command) {
 
     refresh() {
         const model = this.editor.model;
-        const selection = model.document.selection;
-        const allowedIn = model.schema.findAllowedParent( selection.getLastPosition(), 'footNoteSection' );
+        const lastPosition = model.document.selection.getLastPosition();
+        const allowedIn = lastPosition && model.schema.findAllowedParent(lastPosition, 'footNoteSection' );
         this.isEnabled = allowedIn !== null;
     }
 
 	/**
-	 * 
 	 * @param {Writer} writer 
 	 * @param {RootElement} root 
 	 * @returns 
 	 */
 	_getFootNoteSection(writer, root) {
 		const lastChild = root.getChild(root.maxOffset - 1);
-		if(lastChild instanceof Element && lastChild.name === 'footNoteSection') {
+
+		if(lastChild && lastChild instanceof ModelElement && lastChild.name === 'footNoteSection') {
 			return lastChild;
 		}
-		const footNoteSection = this.queryDescendantFirst(root, element => element.name === 'footNoteSection');
+		const footNoteSection = this.queryDescendantFirst({root, predicate: (/** @type {ModelElement}*/ element) =>  element.name === 'footNoteSection'});
 		if(footNoteSection && footNoteSection.startOffset !== root.maxOffset - 1) {
 			writer.move(this.editor.model.createRangeOn(footNoteSection), root, 'end');
 			return footNoteSection;

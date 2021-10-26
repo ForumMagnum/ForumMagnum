@@ -10,11 +10,24 @@ import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import InsertFootNoteCommand from './insertfootnotecommand';
 import '../theme/placeholder.css';
 import '../theme/footnote.css';
+import Editor from '@ckeditor/ckeditor5-core/src/editor/editor';
+import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
+import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
+import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
+import { QueryMixin } from './utils';
 
-export default class FootNoteEditing extends Plugin {
+export default class FootNoteEditing extends QueryMixin(Plugin) {
     static get requires() {
         return [ Widget ];
     }
+
+	get root() {
+		const root = this.editor.model.document.getRoot();
+		if(!root) {
+			throw new Error('Document has no root element.')
+		}
+		return root;
+	}
 
     init() {
         this._defineSchema();
@@ -26,10 +39,12 @@ export default class FootNoteEditing extends Plugin {
 
         this.editor.editing.mapper.on(
             'viewToModelPosition',
+			// @ts-ignore -- the type signature of `on` here seem to be just wrong, given how it's used in the source code. 
             viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'noteholder' ) )
         );
         this.editor.editing.mapper.on(
             'viewToModelPosition',
+			// @ts-ignore
             viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'footnote-item' ) )
         );
     }
@@ -37,16 +52,23 @@ export default class FootNoteEditing extends Plugin {
     _deleteModify() {
         const viewDocument = this.editor.editing.view.document;
         const editor = this.editor;
-        this.listenTo( viewDocument, 'delete', ( evt, data ) => {
+        this.listenTo( viewDocument, 'delete', (evt, data) => {
             const doc = editor.model.document;
             const deleteEle = doc.selection.getSelectedElement();
-            const positionParent = doc.selection.getLastPosition().parent;
-
+            const lastPosition = doc.selection.getLastPosition();
+            if(!doc.selection.anchor || 
+				!doc.selection.focus || 
+				!lastPosition) {
+                throw new Error('Selection must have at least one range to perform delete operation.');
+            }
+            const positionParent = lastPosition.parent;
+		
+			// delete all noteholder references if footnotes section gets deleted
             if (deleteEle !== null && deleteEle.name === "footNoteSection") {
-                removeHolder(editor, 0);
+                this.removeHolder(editor, 0);
             }
 
-            if (positionParent.parent.name !== "footNoteList") {
+            if (!positionParent || !(positionParent.parent instanceof ModelElement) || positionParent.parent.name !== "footNoteList") {
                 return;
             }
 
@@ -61,18 +83,32 @@ export default class FootNoteEditing extends Plugin {
                 const footNoteList = positionParent.parent;
                 const index = footNoteList.index;
                 const footNoteSection = footNoteList.parent;
-                for (var i = index + 1; i < footNoteSection.maxOffset; i ++) {
-                        editor.model.change( writer => {
-                            writer.setAttribute( 'id', i, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
-                        } );
-                    }
-                removeHolder(editor, index);
-                editor.model.change( writer => {
+				if (
+					index === null || 
+					!footNoteSection || 
+					!(footNoteSection instanceof ModelElement)) 
+				throw new Error("footNoteList has an invalid parent section.")
+
+				const subsequentFootNotes = [...doc.model.createRangeIn(footNoteSection).getItems()].slice(index+1);
+                for (const [i, child] of subsequentFootNotes.entries()) {
+					if(!(child instanceof ModelElement)) {
+						continue;
+					}
+					editor.model.change(writer => {
+						const footNoteItem = this.queryDescendantFirst({root: child, predicate: (/** @type {ModelElement} */ element) => element.name === 'footNoteItem'});
+						if(!footNoteItem) {
+							return;
+						}
+						writer.setAttribute( 'id', i, footNoteItem);
+					} );
+				}
+                this.removeHolder(editor, index);
+                editor.model.change(writer => {
                     if (index === 1) {
                         if (footNoteSection.childCount === 2) {
                             if (footNoteSection.previousSibling === null) {
                                 const p = writer.createElement( 'paragraph' );
-                                this.editor.model.insertContent( p, writer.createPositionAt( doc.getRoot(), 0 ));
+                                this.editor.model.insertContent( p, writer.createPositionAt( this.root, 0 ));
                                 writer.setSelection( p, 'end' );
                                 }
                             else {
@@ -136,7 +172,7 @@ export default class FootNoteEditing extends Plugin {
             allowIn: 'footNoteSection',
             allowContentOf: '$root',
             isInline: true,
-            allowAttributes: ['id', 'class'],
+            allowAttributes: ['id', 'data-footnote-id', 'class'],
         });
 
         schema.register( 'footNoteItem', {
@@ -144,13 +180,11 @@ export default class FootNoteEditing extends Plugin {
             allowWhere: '$text',
             isInline: true,
             isObject: true,
-            allowAttributes: ['id', 'class'],
+            allowAttributes: ['id', 'data-footnote-id', 'class'],
         });
         
         schema.addChildCheck( ( context, childDefinition ) => {
-            if ( context.endsWith( 'footNoteList' ) && childDefinition.name === 'footNoteSection' ) {
-                return false;
-            }
+            return !context.endsWith('footNoteList') || childDefinition.name !== 'footNoteSection';
         } );
 
         /***********************************Footnote Inline Schema***************************************/
@@ -158,7 +192,7 @@ export default class FootNoteEditing extends Plugin {
             allowWhere: '$text',
             isInline: true,
             isObject: true,
-            allowAttributes: [ 'id', 'class' ],
+            allowAttributes: [ 'id', 'data-footnote-id', 'class' ],
         } );
     }
 
@@ -243,12 +277,12 @@ export default class FootNoteEditing extends Plugin {
             },
             model: ( viewElement, conversionApi ) => {
                 const modelWriter = conversionApi.writer;
-                // Extract the "name" from "{name}".
-                // removing '. ' to get the id number
-                // TODO: this is the biggest hack I ever have seen, we should fix
-                const id = viewElement.getChild( 0 ).data.slice( 0, -2 );
+                const id = viewElement.getAttribute('data-footnote-id');
+				if(!id) {
+					return null;
+				}
 
-                return modelWriter.createElement( 'footNoteItem', { id } );
+                return modelWriter.createElement( 'footNoteItem', { 'data-footnote-id': id } );
             }
         } );
 
@@ -261,15 +295,26 @@ export default class FootNoteEditing extends Plugin {
             model: 'footNoteItem',
             view: ( modelElement, conversionApi ) => {
                 const viewWriter = conversionApi.writer;
-                // Note: You use a more specialized createEditableElement() method here.
+				// @ts-ignore -- The type declaration for DowncastHelpers#elementToElement is incorrect. It expects
+				// a view Element where it should expect a model Element.
                 const section = createItemView( modelElement, conversionApi );
                 return toWidget( section, viewWriter );
             }
         } );
         
+		/**
+		 * 
+		 * @param {Element} modelElement 
+		 * @param {DowncastConversionApi} conversionApi 
+		 * @returns {ContainerElement}
+		 */
         function createItemView( modelElement, conversionApi ) {
             const viewWriter = conversionApi.writer;
-            const id = modelElement.getAttribute( 'id' );
+            const id = modelElement.getAttribute( 'data-footnote-id' );
+			if(!id) {
+				throw new Error('Note Holder has no provided Id.')
+			}
+
             const itemView = viewWriter.createContainerElement( 'span', {
                 class: 'footnote-item',
                 id: `fn${id}`,
@@ -291,10 +336,12 @@ export default class FootNoteEditing extends Plugin {
             },
             model: ( viewElement, conversionApi ) => {
                 const modelWriter = conversionApi.writer;
-                // Extract the "id" from "[id]".
-                const id = viewElement.getChild( 0 ).getChild( 0 ).data.slice( 1, -1 );
+				const id = viewElement.getAttribute('data-footnote-id');
+				if(id === undefined) {
+					throw new Error('Note Holder has no provided Id.')
+				}
 
-                return modelWriter.createElement( 'noteHolder', { id } );
+                return modelWriter.createElement( 'noteHolder', { 'data-footnote-id': id } );
             }
         } );
 
@@ -302,7 +349,8 @@ export default class FootNoteEditing extends Plugin {
             model: 'noteHolder',
             view: ( modelElement, conversionApi ) => {
                 const viewWriter = conversionApi.writer;
-                const widgetElement = createPlaceholderView( modelElement, conversionApi );
+				// @ts-ignore
+                const widgetElement = createPlaceholderView(modelElement, conversionApi);
 
                 // Enable widget handling on a placeholder element inside the editing view.
                 return toWidget( widgetElement, viewWriter );
@@ -314,13 +362,21 @@ export default class FootNoteEditing extends Plugin {
             view: createPlaceholderView
         } );
 
-        // Helper method for both downcast converters.
+		/**
+		 * @param {Element} modelElement 
+		 * @param {DowncastConversionApi} conversionApi 
+		 * @returns {ContainerElement}
+		 */
         function createPlaceholderView( modelElement, conversionApi ) {
             const viewWriter = conversionApi.writer;
-            const id = modelElement.getAttribute( 'id' );
+            const id = modelElement.getAttribute('data-footnote-id');
+			if(id === null) {
+				throw new Error('Note Holder has no provided Id.')
+			}
 
             const placeholderView = viewWriter.createContainerElement( 'span', {
-                class: 'noteholder'
+                class: 'noteholder',
+				'data-footnote-id': id,
             } );
 
             // Insert the placeholder name (as a text).
@@ -335,67 +391,105 @@ export default class FootNoteEditing extends Plugin {
         }
 
         conversion.for( 'editingDowncast' )
-        .add( dispatcher => {
-            dispatcher.on( 'attribute:id:footNoteItem', modelViewChangeItem, { priority: 'high' } );
-            dispatcher.on( 'attribute:id:noteHolder', modelViewChangeHolder, { priority: 'high' } );
+        .add(dispatcher => {
+            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this.modelViewChangeItem, { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:noteHolder', this.modelViewChangeHolder, { priority: 'high' } );
         } );
     }
-}
 
-export function modelViewChangeItem( evt, data, conversionApi ) {
-    if ( !conversionApi.consumable.consume( data.item, 'attribute:id:footNoteItem' ) ) {
-        return;
-    }
-    if (data.attributeOldValue === null) {
-        return;
-    }
+	/**
+	 * @typedef {Object} Data
+	 * @property {*} item
+	 * @property {string} attributeOldValue
+	 * @property {string} attributeNewValue
+	 */
 
-    const itemView = conversionApi.mapper.toViewElement( data.item );
-    const viewWriter = conversionApi.writer;
+	/**
+	 * @param {*} _ 
+	 * @param {Data} data 
+	 * @param {DowncastConversionApi} conversionApi 
+	 * @returns 
+	 */
+	modelViewChangeItem( _, data, conversionApi ) {
+		if (!(data.item instanceof ModelElement) || !conversionApi.consumable.consume(data.item, 'attribute:data-footnote-id:footNoteItem')) {
+			return;
+		}
+		
+		const itemView = conversionApi.mapper.toViewElement( data.item );
+		
+		if (data.attributeOldValue === null || !itemView) {
+			return;
+		}
+		// @ts-ignore
+		const textNode = this.queryDescendantFirst({root: itemView, mode: 'view', type: 'text'});
 
-    viewWriter.remove(itemView.getChild( 0 ));
+		const viewWriter = conversionApi.writer;
+		viewWriter.remove(itemView.getChild( 0 ));
 
-    const innerText = viewWriter.createText( data.attributeNewValue + '. ' );
-    viewWriter.insert( viewWriter.createPositionAt( itemView, 0 ), innerText );
+		const innerText = viewWriter.createText( data.attributeNewValue + '. ' );
+		viewWriter.insert( viewWriter.createPositionAt( itemView, 0 ), innerText );
 
-}
+	}
 
-export function modelViewChangeHolder( evt, data, conversionApi ) {
-    if ( !conversionApi.consumable.consume( data.item, 'attribute:id:noteHolder' ) ) {
-        return;
-    }
-    if (data.attributeOldValue === null) {
-        return;
-    }
+	/**
+	 * @param {*} _ 
+	 * @param {Data} data 
+	 * @param {DowncastConversionApi} conversionApi 
+	 * @returns 
+	 */
+	modelViewChangeHolder( _, data, conversionApi ) {
+		if (!(data.item instanceof ModelElement) || !conversionApi.consumable.consume(data.item, 'attribute:data-footnote-id:noteHolder')) {
+			return;
+		}
 
-    const itemView = conversionApi.mapper.toViewElement( data.item );
-    const viewWriter = conversionApi.writer;
+		const noteHolderView = conversionApi.mapper.toViewElement( data.item );
+		
+		if (data.attributeOldValue === null || !noteHolderView) {
+			return;
+		}
 
-    viewWriter.remove(itemView.getChild( 0 ).getChild( 0 ));
+		const viewWriter = conversionApi.writer;
 
-    const innerText = viewWriter.createText( data.attributeNewValue.toString() );
-    viewWriter.insert( viewWriter.createPositionAt( itemView.getChild( 0 ), 0 ), innerText );
+		//@ts-ignore
+		const textNode = this.queryDescendantFirst({root: noteHolderView, type: 'text'});
 
-}
+		if(textNode){
+			// @ts-ignore
+			viewWriter.remove(textNode);
+		}
 
-function removeHolder(editor, index) {
-    const removeList = [];
-    const range = editor.model.createRangeIn( editor.model.document.getRoot() );
-    for ( const value of range.getWalker( { ignoreElementEnd: true } ) ) {
-        if (value.item.name === 'noteHolder') {
-            if (parseInt(value.item.getAttribute('id')) === index || index === 0) {
-                removeList.push(value.item);
-            }
-            else if (parseInt(value.item.getAttribute('id')) > index) {
-                editor.model.change( writer => {
-                    writer.setAttribute( 'id', parseInt(value.item.getAttribute('id')) - 1, value.item );
-                } );
-            }
-        }
-    }
-    for (const item of removeList) {
-        editor.model.change( writer => {
-            writer.remove( item );
-        } );
-    }
+		const innerText = viewWriter.createText( data.attributeNewValue.toString() );
+		viewWriter.insert( viewWriter.createPositionAt( noteHolderView.getChild( 0 ), 0 ), innerText );
+
+	}
+
+	/**
+	 * 
+	 * @param {Editor} editor 
+	 * @param {number} index 
+	 */
+	removeHolder(editor, index) {
+		const removeList = [];
+		const root = editor.model.document.getRoot(); 
+		if(!root) throw new Error('Document has no root element.');
+		const range = editor.model.createRangeIn(root);
+		for (const item of range.getItems()) {
+			if (item && (item instanceof ModelElement) && item.name === 'noteHolder') {
+				const idAsInt = parseInt(item.getAttribute('id') ? '-1' : '');
+				if (idAsInt === index || index === 0) {
+					removeList.push(item);
+				}
+				else if (idAsInt > index) {
+					editor.model.change( writer => {
+						writer.setAttribute( 'id', idAsInt, item );
+					});
+				}
+			}
+		}
+		for (const item of removeList) {
+			editor.model.change( writer => {
+				writer.remove( item );
+			} );
+		}
+	}
 }

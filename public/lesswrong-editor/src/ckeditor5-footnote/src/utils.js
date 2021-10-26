@@ -1,39 +1,34 @@
 // @ts-check
-import Element from '@ckeditor/ckeditor5-engine/src/model/element';
-import { Editor } from '@ckeditor/ckeditor5-core';
+import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
+import ModelText from '@ckeditor/ckeditor5-engine/src/model/text';
+import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
+import ViewText from '@ckeditor/ckeditor5-engine/src/view/text';
 
-/** 
- * @callback QueryPredicate
- * @param {Element} element
- * @returns {boolean}
- */
-
-/**
- * @template T
- * @typedef {new (...args: any[]) => T} Constructor<T>
- */
-
-/**
- * @template {Constructor<{editor: Editor}>} BaseClassType
- * @param {BaseClassType} BaseClass
- * @mixin
- */
 export const QueryMixin = BaseClass => class extends BaseClass {
 	/**
 	 * Returns a list of all descendants of the root for which the provided 
-	 * predicate returns true.
-	 * 
-	 * @param {Element} root 
-	 * @param {QueryPredicate} predicate 
-	 * @returns {Element[]}
+	 * predicate returns true. 
 	 */
-	queryDescendantsAll (root, predicate) {
-		const range = this.editor.model.createRangeIn(root);
+	queryDescendantsAll ({ root, predicate=_ => true, type='element' }) {
 		const output = [];
 
+		const [mode, range] = root instanceof ViewElement ?
+			['view', this.editor.editing.view.createRangeIn(root)]:
+			['model', this.editor.model.createRangeIn(root)];
+
+		const types = {
+			'model': {
+				'element': ModelElement,
+				'text': ModelText,
+			},
+			'view': {
+				'element': ViewElement,
+				'text': ViewText,
+			}
+		}
+
 		for(const item of range.getItems()) {
-			// filter out Text and TextProxy items
-			if (!(item instanceof Element)) {
+			if (!item || !(item instanceof types[mode][type])) {
 				continue;
 			}
 
@@ -48,17 +43,26 @@ export const QueryMixin = BaseClass => class extends BaseClass {
 	/**
 	 * Returns the first descendant of the root for which the provided predicate
 	 * returns true, or null if no such descendant is found.
-	 * 
-	 * @param {Element} root 
-	 * @param {QueryPredicate} predicate 
-	 * @returns {(Element|null)}
 	 */
-	queryDescendantFirst (root, predicate) {
-		const range = this.editor.model.createRangeIn(root);
+	queryDescendantFirst ({ root, predicate=_ => true, type='element' }) {
+		const [mode, range] = root instanceof ViewElement ?
+			['view', this.editor.editing.view.createRangeIn(root)]:
+			['model', this.editor.model.createRangeIn(root)];
+
+		const types = {
+			'model': {
+				'element': ModelElement,
+				'text': ModelText,
+			},
+			'view': {
+				'element': ViewElement,
+				'text': ViewText,
+			}
+		}
 
 		for(const item of range.getItems()) {
-			// filter out Text and TextProxy items
-			if (!(item instanceof Element)) {
+			if (!(item instanceof types[mode][type])) {
+
 				continue;
 			}
 			if (predicate(item)) {
@@ -68,28 +72,4 @@ export const QueryMixin = BaseClass => class extends BaseClass {
 
 		return null;
 	}
-
-	/**
-	 * Returns the first descendant of the root for which the provided predicate
-	 * returns true, or null if no such descendant is found.
-	 * 
-	 * @param {Element} root 
-	 * @param {QueryPredicate} predicate 
-	 * @returns {boolean}
-	 */
-	queryHasDescendant (root, predicate) {
-		const range = this.editor.model.createRangeIn(root);
-
-		for(const item of range.getItems()) {
-			// filter out Text and TextProxy items
-			if (!(item instanceof Element)) {
-				continue;
-			}
-			if (predicate(item)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-};
+}
