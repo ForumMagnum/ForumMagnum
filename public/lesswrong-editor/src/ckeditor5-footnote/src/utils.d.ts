@@ -27,14 +27,14 @@ type Types = {
 	},
 }
 
-type QueryDescendantsAll<M extends Mode, I extends ItemType> = ({root, predicate, type=ItemType.ELEMENT}: {
-	root: Types[M]['element'],
+type QueryDescendantsAll<M extends Mode, I extends ItemType> = ({rootElement, predicate, type=ItemType.ELEMENT}: {
+	rootElement: Types[M]['element'],
 	predicate: (item: Types[M][I]) => boolean,
 	type?: I,
 }) => Types[M][I][];
 
-type QueryDescendantFirst<M extends Mode, I extends ItemType> = ({root, predicate, type=ItemType.ELEMENT}: {
-	root: Types[M]['element'],
+type QueryDescendantFirst<M extends Mode, I extends ItemType> = ({rootElement, predicate, type=ItemType.ELEMENT}: {
+	rootElement: Types[M]['element'],
 	predicate: (item: Types[M][I]) => boolean,
 	type?: I,
 }) => Types[M][I]|null;

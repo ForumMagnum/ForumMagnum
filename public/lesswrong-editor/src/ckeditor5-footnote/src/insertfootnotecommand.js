@@ -14,11 +14,11 @@ export default class InsertFootNoteCommand extends QueryMixin(Command) {
     execute( { footnoteId } ) {
         this.editor.model.change(writer => {
 			const doc = this.editor.model.document;
-			const root = doc.getRoot();
-			if (!root) {
+			const rootElement = doc.getRoot();
+			if (!rootElement) {
 				return;
 			}
-            const footNoteSection = this._getFootNoteSection(writer, root);
+            const footNoteSection = this._getFootNoteSection(writer, rootElement);
 			const id = footnoteId === 0 ? footNoteSection.maxOffset + 1 : footnoteId;
 			doc.selection.isBackward ?
 				writer.setSelection(doc.selection.anchor) : 
@@ -60,22 +60,16 @@ export default class InsertFootNoteCommand extends QueryMixin(Command) {
 
 	/**
 	 * @param {Writer} writer 
-	 * @param {RootElement} root 
+	 * @param {RootElement} rootElement 
 	 * @returns 
 	 */
-	_getFootNoteSection(writer, root) {
-		const lastChild = root.getChild(root.maxOffset - 1);
-
-		if(lastChild && lastChild instanceof ModelElement && lastChild.name === 'footNoteSection') {
-			return lastChild;
-		}
-		const footNoteSection = this.queryDescendantFirst({root, predicate: (/** @type {ModelElement}*/ element) =>  element.name === 'footNoteSection'});
-		if(footNoteSection && footNoteSection.startOffset !== root.maxOffset - 1) {
-			writer.move(this.editor.model.createRangeOn(footNoteSection), root, 'end');
+	_getFootNoteSection(writer, rootElement) {
+		const footNoteSection = this.queryDescendantFirst({rootElement, predicate: (/** @type {ModelElement}*/ element) =>  element.name === 'footNoteSection'});
+		if(footNoteSection) {
 			return footNoteSection;
 		}
 		const newFootNoteSection = writer.createElement( 'footNoteSection' );
-		this.editor.model.insertContent( newFootNoteSection, writer.createPositionAt( root, root.maxOffset ));
+		this.editor.model.insertContent( newFootNoteSection, writer.createPositionAt( rootElement, rootElement.maxOffset ));
 		return newFootNoteSection;
 	}
 }

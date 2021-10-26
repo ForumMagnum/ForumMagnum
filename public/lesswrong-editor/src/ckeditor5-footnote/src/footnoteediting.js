@@ -21,12 +21,12 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
         return [ Widget ];
     }
 
-	get root() {
-		const root = this.editor.model.document.getRoot();
-		if(!root) {
-			throw new Error('Document has no root element.')
+	get rootElement() {
+		const rootElement = this.editor.model.document.getRoot();
+		if(!rootElement) {
+			throw new Error('Document has no rootElement element.')
 		}
-		return root;
+		return rootElement;
 	}
 
     init() {
@@ -78,6 +78,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
                 evt.stop();
             }
 
+			// If we're at the start of the document
             if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || 
 				(positionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0)) {
                 const footNoteList = positionParent.parent;
@@ -99,7 +100,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 						if(!footNoteItem) {
 							return;
 						}
-						writer.setAttribute( 'id', i, footNoteItem);
+						writer.setAttribute( 'data-footnote-id', i+1, footNoteItem);
 					} );
 				}
                 this.removeHolder(editor, index);
@@ -108,7 +109,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
                         if (footNoteSection.childCount === 2) {
                             if (footNoteSection.previousSibling === null) {
                                 const p = writer.createElement( 'paragraph' );
-                                this.editor.model.insertContent( p, writer.createPositionAt( this.root, 0 ));
+                                this.editor.model.insertContent( p, writer.createPositionAt( this.rootElement, 0 ));
                                 writer.setSelection( p, 'end' );
                                 }
                             else {
@@ -220,7 +221,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             model: 'footNoteSection',
             view: {
                 name: 'section',
-                classes: 'footnote-section'
+				classes: ['footnote-section', 'footnotes'],
             }
         } );
 
@@ -244,7 +245,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             },
             view: {
                 name: 'section',
-                classes: 'footnotes',
+                classes: 'footnote-list',
             }
         } );
 
@@ -252,7 +253,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             model: 'footNoteList',
             view: {
                 name: 'section',
-                classes: 'footnotes',
+                classes: 'footnote-list',
             }
         } );
 
@@ -261,7 +262,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             view: ( modelElement, conversionApi ) => {
                 const viewWriter = conversionApi.writer;
                 // Note: You use a more specialized createEditableElement() method here.
-                const section = viewWriter.createEditableElement( 'section', { class: 'footnotes' } );
+                const section = viewWriter.createEditableElement( 'section', { class: 'footnote-list' } );
 
                 return toWidgetEditable( section, viewWriter );
             }
@@ -347,14 +348,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'noteHolder',
-            view: ( modelElement, conversionApi ) => {
-                const viewWriter = conversionApi.writer;
-				// @ts-ignore
-                const widgetElement = createPlaceholderView(modelElement, conversionApi);
-
-                // Enable widget handling on a placeholder element inside the editing view.
-                return toWidget( widgetElement, viewWriter );
-            }
+            view: createPlaceholderView,
         } );
 
         conversion.for( 'dataDowncast' ).elementToElement( {
@@ -420,14 +414,16 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		if (data.attributeOldValue === null || !itemView) {
 			return;
 		}
-		// @ts-ignore
-		const textNode = this.queryDescendantFirst({root: itemView, mode: 'view', type: 'text'});
+		const textNode = this.queryDescendantFirst({root: itemView, type: 'text'});
 
 		const viewWriter = conversionApi.writer;
-		viewWriter.remove(itemView.getChild( 0 ));
+		const parent = textNode.parent; 
+		if(textNode) {
+			viewWriter.remove(textNode);
+		}
 
 		const innerText = viewWriter.createText( data.attributeNewValue + '. ' );
-		viewWriter.insert( viewWriter.createPositionAt( itemView, 0 ), innerText );
+		viewWriter.insert( viewWriter.createPositionAt( parent, 0 ), innerText );
 
 	}
 
@@ -453,13 +449,14 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		//@ts-ignore
 		const textNode = this.queryDescendantFirst({root: noteHolderView, type: 'text'});
 
-		if(textNode){
-			// @ts-ignore
-			viewWriter.remove(textNode);
+		if(!textNode){
+			viewWriter.remove(noteHolderView);
 		}
 
-		const innerText = viewWriter.createText( data.attributeNewValue.toString() );
-		viewWriter.insert( viewWriter.createPositionAt( noteHolderView.getChild( 0 ), 0 ), innerText );
+		viewWriter.remove(textNode);
+		const parent = textNode.parent;
+		const innerText = viewWriter.createText( `[${data.attributeNewValue.toString()}]`);
+		viewWriter.insert( viewWriter.createPositionAt( parent, 0 ), innerText );
 
 	}
 
@@ -470,9 +467,8 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 	 */
 	removeHolder(editor, index) {
 		const removeList = [];
-		const root = editor.model.document.getRoot(); 
-		if(!root) throw new Error('Document has no root element.');
-		const range = editor.model.createRangeIn(root);
+		if(!this.rootElement) throw new Error('Document has no root element.');
+		const range = editor.model.createRangeIn(this.rootElement);
 		for (const item of range.getItems()) {
 			if (item && (item instanceof ModelElement) && item.name === 'noteHolder') {
 				const idAsInt = parseInt(item.getAttribute('id') ? '-1' : '');

@@ -61,27 +61,30 @@ export default class FootNoteUI extends QueryMixin(Plugin) {
 		itemDefinitions.add( defaultDef );
 
 		// Does the document already have footnotes?
-		const root = this.editor.model.document.getRoot();
-		if(!root) {
+		const rootElement = this.editor.model.document.getRoot();
+		if(!rootElement) {
 			throw new Error('Document has no root element.')
 		}
-		const lastChild = root.getChild(root.maxOffset - 1)
 
-		if (lastChild && lastChild instanceof ModelElement && lastChild.name === 'footNoteSection') {
-			const footNoteSection = lastChild;
-			for (var i = 0; i < footNoteSection.maxOffset; i ++) {
+		const footNoteSection = this.queryDescendantFirst({rootElement, predicate: (e) => e.name === 'footNoteSection'});
+
+		if (footNoteSection) {
+			const footNoteItems = this.queryDescendantsAll({rootElement, predicate: e => e.name === 'footNoteItem'});
+			footNoteItems.forEach((footNote) => {
+				// @ts-ignore
+				const id = footNote.getAttribute('data-footnote-id');
 				const definition = {
 					type: 'button',
 					model: new Model( {
-						commandParam: i + 1,
-						label: 'Insert footnote ' + (i + 1),
+						commandParam: id,
+						label: `Insert footnote ${id}`,
 						withText: true
 					} )
 				};
 
 				// Add the item definition to the collection.
 				itemDefinitions.add( definition );
-			}
+			});
 		}
 
 		return itemDefinitions;

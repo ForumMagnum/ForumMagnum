@@ -9,12 +9,12 @@ export const QueryMixin = BaseClass => class extends BaseClass {
 	 * Returns a list of all descendants of the root for which the provided 
 	 * predicate returns true. 
 	 */
-	queryDescendantsAll ({ root, predicate=_ => true, type='element' }) {
+	queryDescendantsAll ({ rootElement, predicate=_ => true, type='element' }) {
 		const output = [];
 
-		const [mode, range] = root instanceof ViewElement ?
-			['view', this.editor.editing.view.createRangeIn(root)]:
-			['model', this.editor.model.createRangeIn(root)];
+		const [mode, range] = rootElement instanceof ViewElement ?
+			['view', this.editor.editing.view.createRangeIn(rootElement)]:
+			['model', this.editor.model.createRangeIn(rootElement)];
 
 		const types = {
 			'model': {
@@ -44,10 +44,10 @@ export const QueryMixin = BaseClass => class extends BaseClass {
 	 * Returns the first descendant of the root for which the provided predicate
 	 * returns true, or null if no such descendant is found.
 	 */
-	queryDescendantFirst ({ root, predicate=_ => true, type='element' }) {
-		const [mode, range] = root instanceof ViewElement ?
-			['view', this.editor.editing.view.createRangeIn(root)]:
-			['model', this.editor.model.createRangeIn(root)];
+	queryDescendantFirst ({ rootElement, predicate=_ => true, type='element' }) {
+		const [mode, range] = rootElement instanceof ViewElement ?
+			['view', this.editor.editing.view.createRangeIn(rootElement)]:
+			['model', this.editor.model.createRangeIn(rootElement)];
 
 		const types = {
 			'model': {
