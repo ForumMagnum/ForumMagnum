@@ -301,8 +301,6 @@ class SmartForm extends Component<any,any> {
     // sort by order
     groups = _.sortBy(groups, 'order');
 
-    // console.log(groups);
-
     return groups;
   };
 

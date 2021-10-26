@@ -32,6 +32,7 @@ import React from 'react';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -59,12 +60,16 @@ async function getSubscribedUsers({
   documentId, collectionName, type,
   potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
 }: {
-  documentId: string,
+  documentId: string|null,
   collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
   userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
 }) {
+  if (!documentId) {
+    return [];
+  }
+  
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
   const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
   
@@ -363,8 +368,26 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
 });
 
 async function findUsersToEmail(filter: MongoSelector<DbUser>) {
-  const filterWithEmail = {email: {$exists: true}, ...filter};
-  return await Users.find(filterWithEmail).fetch();
+  let usersMatchingFilter = await Users.find(filter).fetch();
+  if (forumTypeSetting.get() === 'EAForum') {
+    return usersMatchingFilter
+  }
+
+  let usersToEmail = usersMatchingFilter.filter(u => {
+    if (u.email && u.emails && u.emails.length) {
+      let primaryAddress = u.email;
+
+      for(let i=0; i<u.emails.length; i++)
+      {
+        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+          return true;
+      }
+      return false;
+    } else {
+      return false;
+    }
+  });
+  return usersToEmail
 }
 
 const curationEmailDelay = new EventDebouncer<string,null>({
@@ -479,16 +502,9 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
 
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
-  if (!comment.postId) {
-    throw new Error("Comment has no postId");
-  }
-
-  const post = await Posts.findOne(comment.postId);
-  if (!post) {
-    throw new Error("Comment has no post");
-  }
+  const post = comment.postId ? await Posts.findOne(comment.postId) : null;
   
-  if (post.isEvent) {
+  if (post?.isEvent) {
     await notifyRsvps(comment, post);
   }
 

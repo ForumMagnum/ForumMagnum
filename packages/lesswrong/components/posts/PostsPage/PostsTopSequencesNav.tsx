@@ -6,6 +6,7 @@ import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { useCurrentUser } from '../../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,6 +30,7 @@ const PostsTopSequencesNav = ({post, classes}: {
   classes: ClassesType,
 }) => {
   const { history } = useNavigation();
+  const currentUser = useCurrentUser();
 
   const handleKey = useCallback((ev) => {
     // Only if Shift and no other modifiers
@@ -54,6 +56,10 @@ const PostsTopSequencesNav = ({post, classes}: {
   if (!post?.sequence)
     return null;
 
+  if (post.sequence.draft && (!currentUser || currentUser._id!=post.sequence.userId) && !currentUser?.isAdmin) {
+    return null;
+  }
+  
   return (
     <div className={classes.root}>
       <Components.SequencesNavigationLink
@@ -61,6 +67,7 @@ const PostsTopSequencesNav = ({post, classes}: {
         direction="left" />
 
       <div className={classes.title}>
+        {post.sequence.draft && "[Draft] "}
         <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
       </div>
 

@@ -148,6 +148,7 @@ importComponent("UsersSingle", () => require('../components/users/UsersSingle'))
 importComponent("UsersEmailVerification", () => require('../components/users/UsersEmailVerification'));
 importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));
 importComponent("ViewSubscriptionsPage", () => require('../components/users/ViewSubscriptionsPage'));
+importComponent("EmailConfirmationRequiredCheckbox", () => require('../components/users/EmailConfirmationRequiredCheckbox'));
 importComponent("LoginPage", () => require('../components/users/LoginPage'));
 importComponent("LoginPopupButton", () => require('../components/users/LoginPopupButton'));
 importComponent("LoginPopup", () => require('../components/users/LoginPopup'));
@@ -212,6 +213,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
+importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
 importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor'));
 
 
@@ -324,6 +326,7 @@ importComponent("RecentDiscussionThread", () => require('../components/recentDis
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
 importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
 importComponent("RecentDiscussionSubscribeReminder", () => require('../components/recentDiscussion/RecentDiscussionSubscribeReminder'));
+importComponent("RecentDiscussionMeetupsPoke", () => require('../components/recentDiscussion/RecentDiscussionMeetupsPoke'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));

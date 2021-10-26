@@ -122,7 +122,7 @@ const CommunityHome = ({classes}: {
                   {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
                 </a>}
                 <a onClick={openEventNotificationsForm}>
-                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
+                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`}
                 </a>
               </SectionFooter>
             </SingleColumnSection>
@@ -165,12 +165,12 @@ const CommunityHome = ({classes}: {
                   </Components.LocalGroupsList>
               }
             </SingleColumnSection>
-            <SingleColumnSection>
+            {!isEAForum && <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
-                {isEAForum && <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />}
+                <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
               </AnalyticsContext>
-            </SingleColumnSection>
+            </SingleColumnSection>}
         </AnalyticsContext>
       </React.Fragment>
     )

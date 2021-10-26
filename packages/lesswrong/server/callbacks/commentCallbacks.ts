@@ -445,4 +445,3 @@ getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
   await newDocumentMaybeTriggerReview(document);
   return document;
 })
-

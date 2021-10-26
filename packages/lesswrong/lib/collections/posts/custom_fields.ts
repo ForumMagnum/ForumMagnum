@@ -17,7 +17,15 @@ import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
-const frontpageDefault = isEAForum ? () => new Date() : undefined
+function eaFrontpageDate (document: Partial<DbPost>) {
+  if (document.isEvent || !document.submitToFrontpage) {
+    return undefined
+  }
+  return new Date()
+}
+const frontpageDefault = isEAForum ?
+  eaFrontpageDate :
+  undefined
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
@@ -353,7 +361,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const nextPostID = await sequenceGetNextPostID(sequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(sequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
           const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
@@ -362,7 +370,7 @@ addFieldsDict(Posts, {
         }
       }
       if(post.canonicalSequenceId) {
-        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id);
+        const nextPostID = await sequenceGetNextPostID(post.canonicalSequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
           const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
@@ -393,7 +401,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
-        const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
           const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
@@ -403,7 +411,7 @@ addFieldsDict(Posts, {
         }
       }
       if(post.canonicalSequenceId) {
-        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id);
+        const prevPostID = await sequenceGetPrevPostID(post.canonicalSequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
           const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
@@ -438,7 +446,7 @@ addFieldsDict(Posts, {
       const { sequenceId } = args;
       const { currentUser } = context;
       let sequence: DbSequence|null = null;
-      if (sequenceId && await sequenceContainsPost(sequenceId, post._id)) {
+      if (sequenceId && await sequenceContainsPost(sequenceId, post._id, context)) {
         sequence = await context.loaders.Sequences.load(sequenceId);
       } else if (post.canonicalSequenceId) {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);

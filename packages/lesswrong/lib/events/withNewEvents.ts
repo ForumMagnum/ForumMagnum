@@ -1,6 +1,6 @@
 import { useCreate } from '../crud/withCreate';
 import { useState, useEffect, useCallback } from 'react';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
 

@@ -1,12 +1,14 @@
 import { Sequences } from '../../lib/collections/sequences/collection';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
 import { Posts } from '../../lib/collections/posts/collection'
+import { createAdminContext } from '../vulcan-lib/query';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
 async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
-  const posts = await sequenceGetAllPosts(chapter.sequenceId)
+  const context = await createAdminContext();
+  const posts = await sequenceGetAllPosts(chapter.sequenceId, context)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
   const postsWithCanonicalSequenceId = await Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()

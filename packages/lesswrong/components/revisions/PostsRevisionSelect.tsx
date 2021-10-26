@@ -39,9 +39,11 @@ const PostsRevisionSelect = ({ classes }: {
     if (!post) return;
     history.push(`/compare/post/${post._id}/${post.slug}?before=${before.version}&after=${after.version}`);
   }, [post, history]);
+
+  if (!post) {return null;}
   
   return <SingleColumnSection>
-    <h1>{post && post.title}</h1>
+    <h1>{post.title}</h1>
     
     {(loadingPost || loadingRevisions) && <Loading/>}
     

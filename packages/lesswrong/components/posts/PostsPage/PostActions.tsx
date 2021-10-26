@@ -14,11 +14,13 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import GraphIcon from '@material-ui/icons/ShowChart'
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { useDialog } from '../../common/withDialog';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -181,6 +183,16 @@ const PostActions = ({post, closeMenu, classes}: {
             Edit
           </MenuItem>
         </Link>}
+        { forumTypeSetting.get() === 'EAForum' && postCanEdit(currentUser, post) && <Link
+          to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
+        >
+          <MenuItem>
+            <ListItemIcon>
+              <GraphIcon />
+            </ListItemIcon>
+            Analytics
+          </MenuItem>
+        </Link>}
         { userCanCollaborate(currentUser, post) &&
           <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
@@ -293,20 +305,23 @@ const PostActions = ({post, closeMenu, classes}: {
             }
           </span>
         }
-        <SuggestAlignment post={post}/>
-        { userCanMakeAlignmentPost(currentUser, post) &&
-          !post.af && <div onClick={handleMoveToAlignmentForum }>
-            <MenuItem>
-              Ω Move to Alignment
-            </MenuItem>
-          </div>}
-        { userCanMakeAlignmentPost(currentUser, post) && post.af &&
-          <div onClick={handleRemoveFromAlignmentForum}>
-            <MenuItem>
-              Ω Remove Alignment
-            </MenuItem>
-          </div>
-        }
+        {forumTypeSetting.get() !== "EAForum" && <>
+          <SuggestAlignment post={post}/>
+          { userCanMakeAlignmentPost(currentUser, post) && !post.af && 
+            <div onClick={handleMoveToAlignmentForum }>
+              <MenuItem>
+                Ω Move to Alignment
+              </MenuItem>
+            </div>
+          }
+          { userCanMakeAlignmentPost(currentUser, post) && post.af &&
+            <div onClick={handleRemoveFromAlignmentForum}>
+              <MenuItem>
+                Ω Remove Alignment
+              </MenuItem>
+            </div>
+          }
+        </>}
       </div>
   )
 }

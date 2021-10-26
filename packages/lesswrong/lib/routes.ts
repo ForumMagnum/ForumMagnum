@@ -206,6 +206,12 @@ addRoute(
     background: "white"
   },
   {
+    name: 'postAnalytics',
+    path: '/postAnalytics',
+    componentName: 'PostsAnalyticsPage',
+    background: "white"
+  },
+  {
     name: 'collaboratePost',
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',

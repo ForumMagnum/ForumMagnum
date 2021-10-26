@@ -44,7 +44,7 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
 
 
 getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
-  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser?.isAdmin) {
+  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
 });
@@ -232,6 +232,12 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   }
 }
 
+/**
+ * Add user IP address to IP ban list for a day and remove their login tokens
+ *
+ * NB: We haven't tested the IP ban list in like 3 years and it should not be
+ * assumed to work.
+ */
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
   // IP ban
   const query = `

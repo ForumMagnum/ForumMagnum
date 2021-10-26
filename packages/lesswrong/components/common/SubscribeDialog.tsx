@@ -21,6 +21,7 @@ import Select from '@material-ui/core/Select';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   thresholdSelector: {
@@ -140,7 +141,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    if (!userEmailAddressIsVerified(currentUser)) {
+    if (forumTypeSetting.get() !== 'EAForum' && !userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
@@ -272,9 +273,14 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
           { method === "email" && [
             viewSelector,
             !!currentUser ? (
-              !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
-                Sorry, there's currently no email feed for {viewNames[view]}.
-              </DialogContentText>
+              [
+                !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
+                  Sorry, there's currently no email feed for {viewNames[view]}.
+                </DialogContentText>,
+                subscribedByEmail && !userEmailAddressIsVerified(currentUser) && forumTypeSetting.get() !== 'EAForum' && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+                  We need to confirm your email address. We sent a link to {currentUser.email}; click the link to activate your subscription.
+                </DialogContentText>
+              ]
             ) : (
               <DialogContentText key="dialogPleaseLogIn" className={classes.errorMsg}>
                 You need to <a className={classes.link} href="/login">log in</a> to subscribe via Email

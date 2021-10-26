@@ -8,17 +8,17 @@ import { Collections } from '../lib/collections/collections/collection';
 import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
-import { getCollectionHooks } from './mutationCallbacks';
+import { getCollectionHooks, CreateCallbackProperties } from './mutationCallbacks';
 
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
 // that they read it in the context of, determine whether this means they have
 // a partially-read sequence, and update their user object to reflect this
 // status.
-const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string) => {
+const updateSequenceReadStatusForPostRead = async (userId: string, postId: string, sequenceId: string, context: ResolverContext) => {
   const user = await getUser(userId);
   if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
-  const postIDs = await sequenceGetAllPostIDs(sequenceId);
+  const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);
   const anyUnread = _.some(postIDs, (postID: string) => !postReadStatuses[postID]);
   const sequence = await Sequences.findOne({_id: sequenceId});
@@ -46,7 +46,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
     };
     
     // Generate a new partiallyReadSequences list by filtering out any previous
-    // entry for this sequence or for the collection that contains it, and
+    // entry for this sequence or for the collection that cotntains it, and
     // adding a new entry for this sequence to the end.
     const newPartiallyReadSequences = [...partiallyReadMinusThis, sequenceReadStatus];
     await setUserPartiallyReadSequences(userId, newPartiallyReadSequences);
@@ -58,7 +58,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   // the whole collection. If they've read everything in the collection, or
   // it isn't part of a collection, they're done.
   if (collection) {
-    const collectionPostIDs = await collectionGetAllPostIDs(collection._id);
+    const collectionPostIDs = await collectionGetAllPostIDs(collection._id, context);
     const collectionPostReadStatuses = await postsToReadStatuses(user, collectionPostIDs);
     const collectionAnyUnread = _.some(collectionPostIDs, (postID: string) => !collectionPostReadStatuses[postID]);
     
@@ -113,7 +113,8 @@ const userHasPartiallyReadSequence = (user: DbUser, sequenceId: string): boolean
   return _.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId);
 }
 
-getCollectionHooks("LWEvents").newAsync.add(async function EventUpdatePartialReadStatusCallback(event: DbLWEvent) {
+getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartialReadStatusCallback(props: CreateCallbackProperties<DbLWEvent>) {
+  const {document: event, context} = props;
   if (event.name === 'post-view' && event.properties.sequenceId) {
     const user = await Users.findOne({_id: event.userId});
     if (!user) return;
@@ -124,7 +125,7 @@ getCollectionHooks("LWEvents").newAsync.add(async function EventUpdatePartialRea
     // the sequence.
     if (userHasPartiallyReadSequence(user, sequenceId)) {
       // Deliberately lacks an await - this runs concurrently in the background
-      await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId);
+      await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId, context);
     }
   }
 });
@@ -184,7 +185,7 @@ addGraphQLResolvers({
         return null;
       }
       
-      await updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId);
+      await updateSequenceReadStatusForPostRead(currentUser._id, postId, sequenceId, context);
       
       return true;
     }

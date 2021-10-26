@@ -1,15 +1,15 @@
+import { gql, useQuery } from '@apollo/client';
+import Card from '@material-ui/core/Card';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
-import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
+import { looksLikeDbIdString } from '../../lib/routeUtil';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { commentBodyStyles, metaculusBackground, postHighlightStyles } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
-import { useQuery, gql } from '@apollo/client';
-import Card from '@material-ui/core/Card';
-import { looksLikeDbIdString } from '../../lib/routeUtil';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import { postHighlightStyles, metaculusBackground, commentBodyStyles } from '../../themes/stylePiping';
+import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -26,6 +26,8 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
 
     documentId: postID,
   });
+
+  if (!post) return null;
 
   return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
@@ -45,6 +47,7 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
   });
+  if (!post) {return null;}
 
   return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
@@ -112,6 +115,8 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
 
     documentId: postId,
   });
+
+  if (!post) {return null;}
 
   return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
 }
@@ -192,6 +197,8 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
 }) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
+  
+  const hash = (href.indexOf("#")>=0) ? (href.split("#")[1]) : null;
 
   if (!post) {
     return <span {...eventHandlers}>
@@ -211,7 +218,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
           }
         }}
       >
-        <PostsPreviewTooltip post={post} />
+        <PostsPreviewTooltip post={post} hash={hash} />
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} smooth/>
     </span>

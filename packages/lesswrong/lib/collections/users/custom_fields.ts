@@ -679,6 +679,7 @@ addFieldsDict(Users, {
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
+    hidden: forumTypeSetting.get() === 'EAForum',
     ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationEventInRadius: {
@@ -733,7 +734,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.emails,
-    control: 'checkbox',
+    control: 'EmailConfirmationRequiredCheckbox',
     label: "Email me new posts in Curated",
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -763,6 +764,16 @@ addFieldsDict(Users, {
   },
 
   hideSubscribePoke: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
+  
+  hideMeetupsPoke: {
     type: Boolean,
     optional: true,
     hidden: true,

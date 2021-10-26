@@ -24,8 +24,8 @@ import { globalStyles } from '../lib/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
+const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1641231428737)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -201,7 +201,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -244,11 +244,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
     const renderPetrovDay = 
       currentRoute?.name == "home"
-      && forumTypeSetting.get() === "LessWrong"
+      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
-      
+    
+    // console.log({renderPetrovDay, routeName: currentRoute?.name == 'home', correctTime: beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime, beforeTime, afterTime, currentTime: currentTime.valueOf(), afterTimeDirect: petrovAfterTime.get()})
 
-      return (
+    return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>

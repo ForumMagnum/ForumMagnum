@@ -180,7 +180,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['admins'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
     control: 'select',
     onInsert: (document, currentUser) => {
       if (!document.status) {

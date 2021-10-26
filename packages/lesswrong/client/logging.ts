@@ -19,6 +19,15 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
       new SentryIntegrations.Dedupe(),
       new SentryIntegrations.ExtraErrorData(),
     ],
+    beforeSend: (event, hint) => {
+      // Suppress an uninformative error from ReCaptcha
+      // See: https://github.com/getsentry/sentry-javascript/issues/2514
+      if (hint?.originalException === "Timeout") {
+        return null;
+      }
+      
+      return event;
+    }
   });
 } else {
   // eslint-disable-next-line no-console

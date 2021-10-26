@@ -1,7 +1,9 @@
 import * as _ from 'underscore';
-import { Posts } from '../lib/collections/posts';
+import { Posts } from '../lib/collections/posts/collection';
+import { Sequences } from '../lib/collections/sequences/collection';
+import { Collections } from '../lib/collections/collections/collection';
 import { ensureIndex } from '../lib/collectionUtils';
-import { accessFilterMultiple } from '../lib/utils/schemaUtils';
+import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
 import { WeightedList } from './weightedList';
@@ -275,14 +277,17 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
   const results = await Promise.all(_.map(sequences,
     async (partiallyReadSequence: any) => {
       const { sequenceId, collectionId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
+      
+      const [sequence, collection, nextPost] = await Promise.all([
+        sequenceId ? context.loaders.Sequences.load(sequenceId) : null,
+        collectionId ? context.loaders.Collections.load(collectionId) : null,
+        context.loaders.Posts.load(nextPostId),
+      ]);
+      
       return {
-        sequence: sequenceId
-          ? await context.loaders.Sequences.load(sequenceId)
-          : null,
-        collection: collectionId
-          ? await context.loaders.Collections.load(collectionId)
-          : null,
-        nextPost: await context.loaders.Posts.load(nextPostId),
+        sequence: await accessFilterSingle(currentUser, Sequences, sequence, context),
+        collection: await accessFilterSingle(currentUser, Collections, collection, context),
+        nextPost: await accessFilterSingle(currentUser, Posts, nextPost, context),
         numRead: numRead,
         numTotal: numTotal,
         lastReadTime: lastReadTime,

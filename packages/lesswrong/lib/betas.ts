@@ -22,7 +22,7 @@ const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-d
 
 export const userCanEditTagPortal = adminOnly;
 export const userHasCkEditor = shippedFeature;
-export const userHasCkCollaboration = adminOnly;
+export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;

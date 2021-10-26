@@ -149,7 +149,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly postId: string,
   readonly tagId: string,
   readonly userId: string,
-  readonly isDeleted: boolean,
   readonly userIP: string,
   readonly userAgent: string,
   readonly referrer: string,
@@ -233,6 +232,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly version: string,
   readonly commitMessage: string,
   readonly userId: string,
+  readonly draft: boolean,
   readonly originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly html: string,
   readonly markdown: string,
@@ -240,6 +240,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly ckEditorMarkup: string,
   readonly wordCount: number,
   readonly htmlHighlight: string,
+  readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -474,6 +475,8 @@ interface PostSequenceNavigation { // fragment on Posts
 interface PostSequenceNavigation_sequence { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
+  readonly draft: boolean,
+  readonly userId: string,
 }
 
 interface PostSequenceNavigation_prevPost { // fragment on Posts
@@ -566,6 +569,15 @@ interface WithVotePost { // fragment on Posts
   readonly score: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
+}
+
+interface HighlightWithHash { // fragment on Posts
+  readonly _id: string,
+  readonly contents: HighlightWithHash_contents|null,
+}
+
+interface HighlightWithHash_contents { // fragment on Revisions
+  readonly htmlHighlightStartingAtHash: string,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1482,6 +1494,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
   readonly whenConfirmationEmailSent: Date,
   readonly hideSubscribePoke: boolean,
+  readonly hideMeetupsPoke: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
@@ -1640,12 +1653,14 @@ interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
   readonly hashedLaunchCode: string,
+  readonly userId: string,
 }
 
 interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly _id: string,
   readonly createdAt: Date,
   readonly launchCode: string,
+  readonly userId: string,
 }
 
 interface TagRelVotes { // fragment on Votes
@@ -1712,6 +1727,7 @@ interface FragmentTypes {
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
+  HighlightWithHash: HighlightWithHash
   CommentsList: CommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
@@ -1846,6 +1862,7 @@ interface CollectionNamesByFragmentName {
   UsersBannedFromPostsModerationLog: "Posts"
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
+  HighlightWithHash: "Posts"
   CommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
