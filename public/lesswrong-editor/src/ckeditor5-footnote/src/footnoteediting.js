@@ -184,8 +184,12 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             allowAttributes: ['id', 'data-footnote-id', 'class'],
         });
         
-        schema.addChildCheck( ( context, childDefinition ) => {
-            return !context.endsWith('footNoteList') || childDefinition.name !== 'footNoteSection';
+		// @ts-ignore -- returning true here prevents future listeners from firing.
+		// This matches the canonical use in the docs--the type signature is just wrong.
+		schema.addChildCheck( ( context, childDefinition ) => {
+            if (context.endsWith('footNoteList') && childDefinition.name === 'footNoteSection') {
+				return false;
+			}
         } );
 
         /***********************************Footnote Inline Schema***************************************/
