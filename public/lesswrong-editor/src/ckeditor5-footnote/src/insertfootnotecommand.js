@@ -25,10 +25,9 @@ export default class InsertFootNoteCommand extends QueryMixin(Command) {
 				writer.setSelection(doc.selection.focus);
             const noteholder = writer.createElement( 'noteHolder', { 'data-footnote-id': id } );
             this.editor.model.insertContent( noteholder );
-
+			writer.setSelection( noteholder, 'after' );
             // if referencing an existing footnote
             if ( footnoteId !== 0 ) {
-                writer.setSelection( noteholder, 'after' );
 				return;
 			}
 			
@@ -47,7 +46,6 @@ export default class InsertFootNoteCommand extends QueryMixin(Command) {
 			//writer.appendElement( 'paragraph', footNoteList );
 
 			this.editor.model.insertContent( footNoteList, writer.createPositionAt( footNoteSection, footNoteSection.maxOffset ));
-			writer.setSelection( p, 'end' );
         });
     }
 

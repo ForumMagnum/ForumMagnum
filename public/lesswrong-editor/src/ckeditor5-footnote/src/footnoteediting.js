@@ -12,13 +12,17 @@ import '../theme/placeholder.css';
 import '../theme/footnote.css';
 import Editor from '@ckeditor/ckeditor5-core/src/editor/editor';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
+import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
+import DocumentFragment from '@ckeditor/ckeditor5-engine/src/model/documentfragment';
 import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
 import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
 import { QueryMixin } from './utils';
+import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
+import inlineAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/inlineautoformatediting';
 
 export default class FootNoteEditing extends QueryMixin(Plugin) {
     static get requires() {
-        return [ Widget ];
+        return [ Widget, Autoformat ];
     }
 
 	get rootElement() {
@@ -34,7 +38,9 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
         this._defineConverters();
 
         this.editor.commands.add( 'InsertFootnote', new InsertFootNoteCommand( this.editor ) );
-        
+
+		this._addAutoformatting();
+
         this._deleteModify();
 
         this.editor.editing.mapper.on(
@@ -318,6 +324,58 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this.modelViewChangeItem.bind(this), { priority: 'high' } );
             dispatcher.on( 'attribute:data-footnote-id:noteHolder', this.modelViewChangeHolder.bind(this), { priority: 'high' } );
         } );
+	}
+	
+	_addAutoformatting() {
+		if(this.editor.plugins.has('Autoformat')) {
+			const autoformatPluginInstance = this.editor.plugins.get('Autoformat');
+			inlineAutoformatEditing(this.editor, autoformatPluginInstance, 
+				(text) => {
+					const results = text.match(/\[\^([0-9]+)\]/);
+					if(results && results.length === 2) {
+						const removeStart = text.indexOf(results[0])
+						const removeEnd = removeStart + results[0].length;
+						const formatStart = removeStart + 2;
+						const formatEnd = formatStart + results[1].length;
+						return {
+							remove: [[removeStart, removeEnd]],
+							format: [[formatStart, formatEnd]],
+						}
+					}
+					return {
+						remove: [],
+						format: [],
+					}
+				}
+				, (writer, ranges) => {
+				const command = this.editor.commands.get('InsertFootnote');
+				if(!command || !command.isEnabled) {
+					return;
+				}
+				// @ts-ignore 
+				const textProxy = [...ranges[0].getItems()][0];
+				const footnoteId = parseInt(textProxy.data.match(/[0-9]+/)[0]);
+				// @ts-ignore
+				const footNoteSection = this.queryDescendantFirst({rootElement: this.rootElement, predicate: (e) => e.name === 'footNoteSection'});
+				if(!footNoteSection) {
+					if(footnoteId !== 1) {
+						return false;
+					}
+					this.editor.execute('InsertFootnote', { footnoteId: 0 });
+					return;
+				}
+				const footnoteCount = this.queryDescendantsAll({rootElement: footNoteSection, predicate: (e) => e.name === 'footNoteItem'}).length;
+				if(footnoteId === footnoteCount + 1) {
+					this.editor.execute('InsertFootnote', { footnoteId: 0 });
+					return;
+				}
+				else if(footnoteId >= 1 && footnoteId <= footnoteCount) {
+					this.editor.execute('InsertFootnote', { footnoteId: footnoteId })
+					return;
+				}
+				return false;
+			});
+		}
 	}
 
 	/**
