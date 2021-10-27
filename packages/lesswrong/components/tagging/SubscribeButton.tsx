@@ -1,4 +1,3 @@
-// TODO; rename this file
 import React from 'react';
 import { Components, registerComponent, getCollectionName } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -8,6 +7,7 @@ import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 import { useCurrentUser } from '../common/withUser';
+import Button from '@material-ui/core/Button';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -27,14 +27,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SubscribeTo = ({
+const SubscribeButton = ({
   document,
   subscriptionType: overrideSubscriptionType,
   subscribeMessage, unsubscribeMessage,
   className="",
   classes,
-  showIcon,
-  hideLabelOnMobile = false
 }: {
   document: any,
   subscriptionType?: string,
@@ -42,8 +40,6 @@ const SubscribeTo = ({
   unsubscribeMessage?: string,
   className?: string,
   classes: ClassesType,
-  showIcon?: boolean,
-  hideLabelOnMobile?: boolean
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -75,6 +71,20 @@ const SubscribeTo = ({
   });
   
   const isSubscribed = () => {
+    return true
+  }
+  const onSubscribe = async (e) => {
+    try {
+      e.preventDefault();
+
+      // success message will be for example posts.subscribed
+      flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});
+    } catch(error) {
+      flash({messageString: error.message});
+    }
+  }
+  
+  const notificationsEnabled = () => {
     // Get the last element of the results array, which will be the most recent subscription
     if (results && results.length > 0) {
       // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
@@ -90,51 +100,30 @@ const SubscribeTo = ({
       subscriptionType, collectionName, document
     });
   }
-  const onSubscribe = async (e) => {
-    try {
-      e.preventDefault();
-      const subscriptionState = isSubscribed() ? 'suppressed' : 'subscribed'
-      captureEvent("subscribeClicked", {state: subscriptionState})
-      
-      const newSubscription = {
-        state: subscriptionState,
-        documentId: document._id,
-        collectionName,
-        type: subscriptionType,
-      }
-      await createSubscription({data: newSubscription})
+  
+  const showIcon = isSubscribed() || notificationsEnabled();
 
-      // success message will be for example posts.subscribed
-      flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});
-    } catch(error) {
-      flash({messageString: error.message});
-    }
-  }
-
-  // can't subscribe to yourself
-  if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
-    return null;
-  }
-
-  return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
+  return <div className={classNames(className, classes.root)}>
+    <Button variant="outlined" onClick={onSubscribe}>
+      <span className={classes.subscribeText}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
+    </Button>
     {showIcon && <ListItemIcon>
       {loading
         ? <Components.Loading/>
-        : (isSubscribed()
+        : (notificationsEnabled()
           ? <NotificationsIcon />
           : <NotificationsNoneIcon />
         )
       }
     </ListItemIcon>}
-    <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
-  </a>
+  </div>
 }
 
-const SubscribeToComponent = registerComponent('SubscribeTo', SubscribeTo, {styles});
+const SubscribeButtonComponent = registerComponent('SubscribeButton', SubscribeButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    SubscribeTo: typeof SubscribeToComponent
+    SubscribeButton: typeof SubscribeButtonComponent
   }
 }
 

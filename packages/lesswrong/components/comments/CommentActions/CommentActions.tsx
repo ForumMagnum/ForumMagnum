@@ -29,22 +29,22 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       <MenuItem>
         <SubscribeTo document={post} showIcon
           subscriptionType={subscriptionTypes.newShortform}
-          subscribeMessage={`Subscribe to ${post.title}`}
-          unsubscribeMessage={`Unsubscribe from ${post.title}`}
+          subscribeMessage={`Notify me of additions to ${post.title}`}
+          unsubscribeMessage={`Stop notifying me of additions to ${post.title}`}
         />
       </MenuItem>
     }
     <MenuItem>
       <SubscribeTo document={comment} showIcon
-        subscribeMessage="Subscribe to comment replies"
-        unsubscribeMessage="Unsubscribe from comment replies"
+        subscribeMessage="Notify me of comment replies"
+        unsubscribeMessage="Stop notifying me of comment replies"
       />
     </MenuItem>
     {comment.user?._id && (comment.user._id !== currentUser._id) &&
       <MenuItem>
         <SubscribeTo document={comment.user} showIcon
-          subscribeMessage={"Subscribe to posts by "+userGetDisplayName(comment.user)}
-          unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(comment.user)}
+          subscribeMessage={"Notify me of new posts by "+userGetDisplayName(comment.user)}
+          unsubscribeMessage={"Stop notifying me of new posts by "+userGetDisplayName(comment.user)}
         />
       </MenuItem>
     }

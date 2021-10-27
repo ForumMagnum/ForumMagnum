@@ -38,6 +38,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 12,
   },
+  titleRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    [theme.breakpoints.down('sm')]: {
+      display: "block"
+    }
+  },
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
@@ -99,7 +106,9 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList, LWTooltip, SubscribeTo } = Components;
+  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect,
+    HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn,
+    TableOfContents, TableOfContentsRow, TagContributorsList, LWTooltip, SubscribeButton } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -240,24 +249,21 @@ const TagPage = ({classes}: {
               Next Tag ({nextTag.name})
           </Link></span>}
         </span>}
-        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-          {/* TODO; test this */}
+        <div className={classes.titleRow}>
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
-          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
-        </div>
-        {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-          <SubscribeTo
+          {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+          <SubscribeButton
             document={tag}
             className={classes.subscribeTo}
-            showIcon
-            hideLabelOnMobile
             subscribeMessage="Subscribe"
             unsubscribeMessage="Unsubscribe"
             subscriptionType={subscriptionTypes.newTagPosts}
           />
         </LWTooltip>}
+        </div>
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
       </div>}
     >
       <div className={classNames(classes.wikiSection,classes.centralColumn)}>

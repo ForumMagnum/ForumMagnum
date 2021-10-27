@@ -2,6 +2,7 @@
 import MenuItem from '@material-ui/core/MenuItem';
 import Popover from '@material-ui/core/Popover';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import EditIcon from '@material-ui/icons/Edit';
 import HistoryIcon from '@material-ui/icons/History';
 import classNames from 'classnames';
 import React, { useState } from 'react';
@@ -12,15 +13,15 @@ import { useCurrentUser } from '../common/withUser';
 import { useTagBySlug } from './useTag';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  smallPencilIcon: {
+    fontSize: 18
+  },
   helpImproveButton: {
     ...theme.typography.body2,
     color: theme.palette.grey[700],
     marginTop: 4,
     display: "flex",
     fontStyle: 'italic',
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
   },
   button: {
     display: "flex",
@@ -29,11 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editMenuItem: {
     marginTop: 4,
-  },
-  buttonLabel: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
   },
   disabledButton: {
     '&&': {
@@ -68,6 +64,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 16,
     marginRight: 16,
     marginBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
 });
 
@@ -120,19 +119,18 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
       }}
     >
       {!editing && <MenuItem onClick={handleClickEdit} className={classes.editMenuItem}>
-        {/* TODO; extract onclick handler */}
         <span className={classNames(classes.button, classes.editButton)}>
-          <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
+          <EditOutlinedIcon /> Edit
         </span>
       </MenuItem>}
       <MenuItem>
         <Link className={classes.button} to={`/tag/${tag.slug}/history`}>
-          <HistoryIcon /><span className={classes.buttonLabel}>History</span>
+          <HistoryIcon /> History
         </Link>
       </MenuItem>
       <MenuItem>
         <div className={classes.button}>
-          <TagDiscussionButton tag={tag} hideLabelOnMobile />
+          <TagDiscussionButton tag={tag} />
         </div>
       </MenuItem>
       <ContentItemBody
@@ -154,7 +152,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
       }
       >
       <a className={classes.helpImproveButton} onClick={handleClick}>
-        Help improve this page{' '}
+        <EditIcon className={classes.smallPencilIcon}/> Help improve this page{' '}
         <span className={classes.callToActionFlagCount}>
           {!!numFlags&&`(${numFlags} flags)`}
         </span>
