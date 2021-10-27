@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   meta: {
@@ -27,6 +27,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   });
 
   if (loading) return <Loading/>
+  if (!tagRel) {return null;}
 
   return <div className={classes.root}>
     <div className={classes.meta}>New post tagged <em>{tagRel.tag?.name}</em>:</div>

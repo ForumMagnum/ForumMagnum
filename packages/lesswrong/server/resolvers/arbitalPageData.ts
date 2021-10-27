@@ -30,7 +30,12 @@ const arbitalPageResolvers = {
     async ArbitalPageData(root: void, { pageAlias }: { pageAlias:string }, context: ResolverContext) {
       const rawRoomData:any = await getArbitalPageData(pageAlias)
       if (!rawRoomData) return null
-      const processedData = JSON.parse(rawRoomData)
+      let processedData;
+      try {
+        processedData = JSON.parse(rawRoomData)
+      } catch(e) {
+        throw new Error(`Received invalid JSON for Arbital hover preview for page "${pageAlias}"`);
+      }
       if (!processedData?.pages) return null;
       const page:any = Object.values(processedData.pages).find((page:any) => page?.alias === pageAlias)
       if (!page) return null
@@ -42,8 +47,13 @@ const arbitalPageResolvers = {
         }
         return `[${cg2}](https://arbital.com/p/${linkedPageAlias})`
       })
-      const htmlNoLaTeX = mdi.render(fixedMarkdown)
-      const htmlWithLaTeX = await mjPagePromise(htmlNoLaTeX, trimLatexAndAddCSS)
+      let htmlWithLaTeX: string;
+      try {
+        const htmlNoLaTeX = mdi.render(fixedMarkdown)
+        htmlWithLaTeX = await mjPagePromise(htmlNoLaTeX, trimLatexAndAddCSS)
+      } catch(e) {
+        throw new Error(`Error during Arbital hover-preview markdown/LaTeX conversion for "${pageAlias}"`);
+      }
       return {
         html: htmlWithLaTeX,
         title: page.title

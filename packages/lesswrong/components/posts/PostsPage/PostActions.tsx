@@ -14,6 +14,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import GraphIcon from '@material-ui/icons/ShowChart'
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
@@ -180,6 +181,16 @@ const PostActions = ({post, closeMenu, classes}: {
               <EditIcon />
             </ListItemIcon>
             Edit
+          </MenuItem>
+        </Link>}
+        { forumTypeSetting.get() === 'EAForum' && postCanEdit(currentUser, post) && <Link
+          to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
+        >
+          <MenuItem>
+            <ListItemIcon>
+              <GraphIcon />
+            </ListItemIcon>
+            Analytics
           </MenuItem>
         </Link>}
         { userCanCollaborate(currentUser, post) &&

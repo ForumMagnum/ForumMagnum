@@ -1,4 +1,5 @@
 import React from 'react'
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -9,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorName: {
     fontWeight: 600,
+    marginLeft: forumTypeSetting.get() === 'EAForum' ? 1 : 0,
   },
 })
 

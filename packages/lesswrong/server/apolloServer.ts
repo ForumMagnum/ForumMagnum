@@ -87,6 +87,7 @@ export function startWebserver() {
     }))
   }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
+  app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
   app.use(pickerMiddleware);
 
   addStripeMiddleware(addMiddleware);
@@ -203,8 +204,9 @@ export function startWebserver() {
   // Start Server
   const port = process.env.PORT || 3000
   const env = process.env.NODE_ENV || 'production'
-  app.listen({ port }, () => {
+  const server = app.listen({ port }, () => {
     // eslint-disable-next-line no-console
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
+  server.keepAliveTimeout = 120000;
 }

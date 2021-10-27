@@ -1,12 +1,11 @@
-import { isDevelopment, isAnyTest, onStartup } from '../lib/executionEnvironment';
+import { isDevelopment, onStartup } from '../lib/executionEnvironment';
 import { randomId } from '../lib/random';
-import { Pool } from 'pg';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
-import { DatabaseServerSetting } from './databaseSettings';
+import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
+import { pgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
 
-const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null)
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
@@ -17,89 +16,109 @@ const isValidEventAge = (age) => age>=0 && age<=60*60*1000;
 addGraphQLResolvers({
   Mutation: {
     analyticsEvent(root, { events, now: clientTime }, context: ResolverContext) {
-      // Adjust timestamps to account for server-client clock skew
-      // The mutation comes with a timestamp on each event from the client
-      // clock, and a timestamp representing when events were flushed, also
-      // from the client clock. We use these to translate from absolute time to
-      // relative time (ie, age), and apply that age as an offset relative to
-      // the server clock.
-      // If an event age is <0 or >1h, ignore its timestamp entirely, assume
-      // that means that timestamp is broken (eg, the clock was reset while
-      // events were being captured); in that case, use the time it reached the
-      // server instead.
-      const serverTime = new Date();
-      
-      for (let event of events) {
-        const eventTime = new Date(event.timestamp);
-        const age = clientTime.valueOf() - eventTime.valueOf();
-        const adjustedTimestamp = isValidEventAge(age) ? new Date(serverTime.valueOf()-age.valueOf()) : serverTime;
-        
-        let eventCopy = {...event, timestamp: adjustedTimestamp};
-        writeEventToAnalyticsDB(eventCopy);
-      }
-      return true;
+      void handleAnalyticsEventWriteRequest(events, clientTime);
     },
   }
 });
 addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
 
-let analyticsConnectionPool:Pool|null = null;
-
-let missingConnectionStringWarned = false;
-
-// Return the Analytics database connection pool, if configured. If no
-// analytics DB is specified in the server config, returns null instead. The
-// first time this is called, it will block briefly.
-const getAnalyticsConnection = (): Pool|null => {
-  // We make sure that the settingsCache is initialized before we access the connection strings
-  const connectionString = connectionStringSetting.get()
+addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
+  if (req.method !== "POST") {
+    res.statusCode = 405; // Method not allowed
+    res.end("analyticsEvent endpoint should receive POST");
+    return;
+  }
   
-  if (isAnyTest) {
-    return null;
+  const body = (req as any).body; //Type system doesn't know body-parser middleware has filled this in
+  
+  if (!body?.events || !body?.now) {
+    res.statusCode = 405; // Method not allowed
+    res.end('analyticsEvent endpoint should be JSON with fields "events" and "now"');
+    return;
   }
-  if (!connectionString) {
-    if (!missingConnectionStringWarned) {
-      missingConnectionStringWarned = true;
-      //eslint-disable-next-line no-console
-      console.log("Analytics logging disabled: analytics.connectionString is not configured");
-    }
-    return null;
-  }
-  if (!analyticsConnectionPool)
-    analyticsConnectionPool = new Pool({ connectionString });
-  return analyticsConnectionPool;
+  
+  void handleAnalyticsEventWriteRequest(body.events, body.now);
+  res.writeHead(200, {
+    "Content-Type": "text/plain;charset=UTF-8"
+  });
+  res.end("ok");
+});
+
+async function handleAnalyticsEventWriteRequest(events, clientTime) {
+  // Adjust timestamps to account for server-client clock skew
+  // The mutation comes with a timestamp on each event from the client
+  // clock, and a timestamp representing when events were flushed, also
+  // from the client clock. We use these to translate from absolute time to
+  // relative time (ie, age), and apply that age as an offset relative to
+  // the server clock.
+  // If an event age is <0 or >1h, ignore its timestamp entirely, assume
+  // that means that timestamp is broken (eg, the clock was reset while
+  // events were being captured); in that case, use the time it reached the
+  // server instead.
+  const serverTime = new Date();
+  
+  let augmentedEvents = events.map(event => {
+    const eventTime = new Date(event.timestamp);
+    const age = clientTime.valueOf() - eventTime.valueOf();
+    const adjustedTimestamp = isValidEventAge(age) ? new Date(serverTime.valueOf()-age.valueOf()) : serverTime;
+    
+    return {...event, timestamp: adjustedTimestamp};
+  });
+  await writeEventsToAnalyticsDB(augmentedEvents);
+  return true;
 }
+
+let inFlightRequestCounter = {inFlightRequests: 0};
+// See: https://stackoverflow.com/questions/37300997/multi-row-insert-with-pg-promise
+const analyticsColumnSet = new pgPromiseLib.helpers.ColumnSet(['environment', 'event_type', 'timestamp', 'event'], {table: 'raw'});
 
 // If you want to capture an event, this is not the function you're looking for;
 // use captureEvent.
 // Writes an event to the analytics database.
-// TODO: Defer/batch so that this doesn't affect SSR speed?
-function writeEventToAnalyticsDB({type, timestamp, props}) {
-  const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
-  const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
-  const queryValues = [environmentDescription, type, timestamp, props];
-  
+async function writeEventsToAnalyticsDB(events: {type, timestamp, props}[]) {
   const connection = getAnalyticsConnection();
+  
   if (connection) {
-    connection.query(queryStr, queryValues, (err, res) => {
-      if (err) {
-        //eslint-disable-next-line no-console
-        console.error("Error sending events to analytics DB:");
-        //eslint-disable-next-line no-console
-        console.error(err);
+    try {
+      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
+      const valuesToInsert = events.map(ev => ({
+        environment: environmentDescription,
+        event_type: ev.type,
+        timestamp: ev.timestamp,
+        event: ev.props,
+      }));
+      const query = pgPromiseLib.helpers.insert(valuesToInsert, analyticsColumnSet);
+    
+      if (inFlightRequestCounter.inFlightRequests > 500) {
+        // eslint-disable-next-line no-console
+        console.error(`Warning: ${inFlightRequestCounter.inFlightRequests} in-flight postgres queries. Dropping.`);
+        return;
       }
-    })
+      
+      
+      inFlightRequestCounter.inFlightRequests++;
+      try {
+        await connection.none(query);
+      } finally {
+        inFlightRequestCounter.inFlightRequests--;
+      }
+    } catch (err){
+      //eslint-disable-next-line no-console
+      console.error("Error sending events to analytics DB:");
+      //eslint-disable-next-line no-console
+      console.error(err);
+    }
   }
 }
 
 function serverWriteEvent({type, timestamp, props}) {
-  writeEventToAnalyticsDB({
+  void writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
       ...props,
       serverId: serverId,
     }
-  });
+  }]);
 }
 
 onStartup(() => {

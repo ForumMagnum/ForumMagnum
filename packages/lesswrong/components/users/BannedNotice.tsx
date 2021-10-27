@@ -28,7 +28,7 @@ const BannedNotice = ({classes}: {
       </Typography>
 
       <Typography variant='body2'>
-        If you believe this is a mistake, please <Link to='/contact-us'>contact us.</Link>
+        If you believe this is a mistake, please <Link to='/contact'>contact us.</Link>
       </Typography>
     </div>
   </SingleColumnSection>

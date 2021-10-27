@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { isServer, isAnyTest, runAfterDelay } from './executionEnvironment';
+import { isServer, isAnyTest } from './executionEnvironment';
 import * as _ from 'underscore';
 import { addFieldsDict } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
@@ -120,7 +120,7 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
     if (isAnyTest) {
       await buildIndex();
     } else {
-      runAfterDelay(buildIndex, 15000);
+      setTimeout(buildIndex, 15000);
     }
   }
 }

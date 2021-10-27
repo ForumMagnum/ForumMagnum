@@ -23,7 +23,10 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
+
+const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
 type RenderTimings = {
   totalTime: number
@@ -194,8 +197,14 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   };
   
   // eslint-disable-next-line no-console
-  if (timings.totalTime > 3000) {
-    captureException(new Error("SSR time above 3 seconds"));
+  const slowSSRWarnThreshold = slowSSRWarnThresholdSetting.get();
+  if (timings.totalTime > slowSSRWarnThreshold) {
+    captureException(new Error(`SSR time above ${slowSSRWarnThreshold}ms`), {
+      extra: {
+        url: getPathFromReq(req),
+        ssrTime: timings.totalTime,
+      }
+    });
   }
   
   return {
