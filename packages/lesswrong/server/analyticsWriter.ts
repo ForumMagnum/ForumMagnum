@@ -38,7 +38,10 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
   }
   
   void handleAnalyticsEventWriteRequest(body.events, body.now);
-  res.end("");
+  res.writeHead(200, {
+    "Content-Type": "text/plain;charset=UTF-8"
+  });
+  res.end("ok");
 });
 
 async function handleAnalyticsEventWriteRequest(events, clientTime) {
