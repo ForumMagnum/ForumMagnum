@@ -134,29 +134,6 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
                 
             }
         } , { priority: 'high' });
-        /*
-        this.editor.model.on( 'deleteContent', () => {
-            const editor = this.editor;
-            const changes = editor.model.document.differ.getChanges();
-            changes.forEach( function(item, index) {
-                if (item.type === 'remove' && item.name === 'footNoteSection') {
-                    removeHolder(editor, 0);
-                }
-
-                if (item.type === 'remove' && item.name === 'footNoteList') {
-                    const footNoteSection = item.position.parent;
-                    const index = (changes[0].type === 'insert' && changes[0].name === 'footNoteItem') ? 
-                                    1 : item.position.path[1];
-                    for (var i = index; i < footNoteSection.maxOffset; i ++) {
-                        editor.model.change( writer => {
-                            writer.setAttribute( 'id', i, footNoteSection.getChild( i ).getChild( 0 ).getChild( 0 ) );
-                        } );
-                    }
-                    removeHolder(editor, index);
-                    
-                }
-            } );
-        });*/
     }
 
     _defineSchema() {
@@ -293,7 +270,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'footNoteItem',
-            view: createItemView
+            view: this.createItemView
         } );
         
         conversion.for( 'editingDowncast' ).elementToElement( {
@@ -302,35 +279,10 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
                 const viewWriter = conversionApi.writer;
 				// @ts-ignore -- The type declaration for DowncastHelpers#elementToElement is incorrect. It expects
 				// a view Element where it should expect a model Element.
-                const section = createItemView( modelElement, conversionApi );
+                const section = this.createItemView( modelElement, conversionApi );
                 return toWidget( section, viewWriter );
             }
         } );
-        
-		/**
-		 * 
-		 * @param {Element} modelElement 
-		 * @param {DowncastConversionApi} conversionApi 
-		 * @returns {ContainerElement}
-		 */
-        function createItemView( modelElement, conversionApi ) {
-            const viewWriter = conversionApi.writer;
-            const id = modelElement.getAttribute( 'data-footnote-id' );
-			if(!id) {
-				throw new Error('Note Holder has no provided Id.')
-			}
-
-            const itemView = viewWriter.createContainerElement( 'span', {
-                class: 'footnote-item',
-                id: `fn${id}`,
-				'data-footnote-id': id,
-            } );
-
-            const innerText = viewWriter.createText( id + '. ' );
-            viewWriter.insert( viewWriter.createPositionAt( itemView, 0 ), innerText );
-
-            return itemView;
-        }
 
         /***********************************Footnote Inline Conversion************************************/
 
@@ -352,48 +304,74 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'noteHolder',
-            view: createPlaceholderView,
+            view: this.createPlaceholderView,
         } );
 
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'noteHolder',
-            view: createPlaceholderView
+            view: this.createPlaceholderView
         } );
 
-		/**
-		 * @param {Element} modelElement 
-		 * @param {DowncastConversionApi} conversionApi 
-		 * @returns {ContainerElement}
-		 */
-        function createPlaceholderView( modelElement, conversionApi ) {
-            const viewWriter = conversionApi.writer;
-            const id = modelElement.getAttribute('data-footnote-id');
-			if(id === null) {
-				throw new Error('Note Holder has no provided Id.')
-			}
-
-            const placeholderView = viewWriter.createContainerElement( 'span', {
-                class: 'noteholder',
-				'data-footnote-id': id,
-            } );
-
-            // Insert the placeholder name (as a text).
-            const innerText = viewWriter.createText(`[${id}]`);
-            const link = viewWriter.createContainerElement('a', {href: `#fn${id}`});
-            const superscript = viewWriter.createContainerElement('sup');
-            viewWriter.insert( viewWriter.createPositionAt( link, 0 ), innerText );
-            viewWriter.insert( viewWriter.createPositionAt( superscript, 0 ), link );
-            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), superscript);
-
-            return placeholderView;
-        }
 
         conversion.for( 'editingDowncast' )
         .add(dispatcher => {
-            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this.modelViewChangeItem, { priority: 'high' } );
-            dispatcher.on( 'attribute:data-footnote-id:noteHolder', this.modelViewChangeHolder, { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this.modelViewChangeItem.bind(this), { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:noteHolder', this.modelViewChangeHolder.bind(this), { priority: 'high' } );
         } );
-    }
+	}
+
+	/**
+	 * @param {Element} modelElement 
+	 * @param {DowncastConversionApi} conversionApi 
+	 * @returns {ContainerElement}
+	 */
+	createPlaceholderView( modelElement, conversionApi ) {
+		const viewWriter = conversionApi.writer;
+		const id = modelElement.getAttribute('data-footnote-id');
+		if(id === null) {
+			throw new Error('Note Holder has no provided Id.')
+		}
+
+		const placeholderView = viewWriter.createContainerElement( 'span', {
+			class: 'noteholder',
+			'data-footnote-id': id,
+		} );
+
+		// Insert the placeholder name (as a text).
+		const innerText = viewWriter.createText(`[${id}]`);
+		const link = viewWriter.createContainerElement('a', {href: `#fn${id}`});
+		const superscript = viewWriter.createContainerElement('sup');
+		viewWriter.insert( viewWriter.createPositionAt( link, 0 ), innerText );
+		viewWriter.insert( viewWriter.createPositionAt( superscript, 0 ), link );
+		viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), superscript);
+
+		return placeholderView;
+	}
+
+	/**
+	 * 
+	 * @param {Element} modelElement 
+	 * @param {DowncastConversionApi} conversionApi 
+	 * @returns {ContainerElement}
+	 */
+	createItemView( modelElement, conversionApi ) {
+		const viewWriter = conversionApi.writer;
+		const id = modelElement.getAttribute( 'data-footnote-id' );
+		if(!id) {
+			throw new Error('Note Holder has no provided Id.')
+		}
+
+		const itemView = viewWriter.createContainerElement( 'span', {
+			class: 'footnote-item',
+			id: `fn${id}`,
+			'data-footnote-id': id,
+		} );
+
+		const innerText = viewWriter.createText( id + '. ' );
+		viewWriter.insert( viewWriter.createPositionAt( itemView, 0 ), innerText );
+
+		return itemView;
+	}
 
 	/**
 	 * @typedef {Object} Data
@@ -418,13 +396,18 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		if (data.attributeOldValue === null || !itemView) {
 			return;
 		}
-		const textNode = this.queryDescendantFirst({root: itemView, type: 'text'});
+		const textNode = this.queryDescendantFirst({rootElement: itemView, type: 'text'});
 
 		const viewWriter = conversionApi.writer;
-		const parent = textNode.parent; 
-		if(textNode) {
-			viewWriter.remove(textNode);
+
+		if(!textNode){
+			viewWriter.remove(itemView);
+			return;
 		}
+
+		const parent = textNode.parent; 
+		viewWriter.remove(textNode);
+		
 
 		const innerText = viewWriter.createText( data.attributeNewValue + '. ' );
 		viewWriter.insert( viewWriter.createPositionAt( parent, 0 ), innerText );
@@ -451,10 +434,11 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		const viewWriter = conversionApi.writer;
 
 		//@ts-ignore
-		const textNode = this.queryDescendantFirst({root: noteHolderView, type: 'text'});
+		const textNode = this.queryDescendantFirst({rootElement: noteHolderView, type: 'text'});
 
 		if(!textNode){
 			viewWriter.remove(noteHolderView);
+			return
 		}
 
 		viewWriter.remove(textNode);
