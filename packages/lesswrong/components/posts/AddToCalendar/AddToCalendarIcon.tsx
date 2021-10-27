@@ -1,6 +1,7 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import moment from '../../../lib/moment-timezone';
+import { useTracking } from "../../../lib/analyticsEvents";
 import Add from '@material-ui/icons/Add';
 import AddToCalendar from '@culturehq/add-to-calendar';
 import { useSingle } from '../../../lib/crud/withSingle';
@@ -25,6 +26,8 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
   hideTooltip?: boolean,
   classes: ClassesType,
 }) => {
+  const { captureEvent } = useTracking();
+  
   // need both a start and end time to add an event to a calendar -
   // if either are missing, we just return null
   const missingStartOrEndTime = !post.startTime || !post.endTime;
@@ -51,21 +54,23 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
   }
   
   const calendarIconNode = (
-    <AddToCalendar
-      event={{
-        name: post.title,
-        details: eventDetails,
-        location: post.location,
-        startsAt: moment(post.startTime).format(),
-        endsAt: moment(post.endTime).format()
-      }}>
-      <Add className={classes.plusIcon} />
-      {label && (
-        <span className={classes.label}>
-          {label}
-        </span>
-      )}
-    </AddToCalendar>
+    <div onClick={() => captureEvent('addToCalendarClicked')}>
+      <AddToCalendar
+        event={{
+          name: post.title,
+          details: eventDetails,
+          location: post.location,
+          startsAt: moment(post.startTime).format(),
+          endsAt: moment(post.endTime).format()
+        }}>
+          <Add className={classes.plusIcon} />
+          {label && (
+            <span className={classes.label}>
+              {label}
+            </span>
+          )}
+      </AddToCalendar>
+    </div>
   );
   
   if (hideTooltip) {
