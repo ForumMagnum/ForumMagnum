@@ -227,24 +227,25 @@ const TagPage = ({classes}: {
           : null
       }
       header={<div className={classNames(classes.header,classes.centralColumn)}>
-        <div>
-          {query.flagId && <span>
-            <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-              <TagFlagItem 
-                itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-                documentId={query.flagId}
-              />
-            </Link>
-            {nextTag && <span onClick={() => setEditing(true)}><Link
-              className={classes.nextLink}
-              to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
-                Next Tag ({nextTag.name})
-            </Link></span>}
-          </span>}
-          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
+        {query.flagId && <span>
+          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+            <TagFlagItem 
+              itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+              documentId={query.flagId}
+            />
+          </Link>
+          {nextTag && <span onClick={() => setEditing(true)}><Link
+            className={classes.nextLink}
+            to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+              Next Tag ({nextTag.name})
+          </Link></span>}
+        </span>}
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          {/* TODO; test this */}
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
+          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
         </div>
         {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
           <SubscribeTo
