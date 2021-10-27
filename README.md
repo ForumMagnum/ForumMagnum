@@ -3,7 +3,7 @@
 Forum Magnum is the codebase powering [LessWrong](https://lesswrong.com) and the
 [Effective Altruism Forum](https://forum.effectivealtruism.org).
 
-The team behind LessWrong created this casebase in 2017 as a rewrite of the
+The team behind LessWrong created this codebase in 2017 as a rewrite of the
 original version of LessWrong, which was a difficult-to-maintain fork of reddit.
 
 ## Technologies
@@ -154,11 +154,12 @@ We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cy
 * Seed data for tests is stored under `./cypress/fixtures`, and can be accessed using `cy.fixture('<filepath>')`. See [here](https://docs.cypress.io/api/commands/fixture) for more.
 * To execute code in a node context, you can create a [task](https://docs.cypress.io/api/commands/task#Syntax) under `./cypress/plugins/index.js`. Tasks are executed using `cy.task('<task-name>', args)`.
 
-## EA Forum-Specific
-
 ### Where to branch off of
 
-Branch off of `ea-master` and submit to `ea-master`. After review and merging, submit to `LessWrong:master`.
+Branch off of `master` and submit to `master`. Deploys occur when `master` is
+merged into `ea-deploy` and `lw-deploy`.
+
+## EA Forum-Specific
 
 ### \[CEA-Specific] Local Dev Database
 

@@ -1,6 +1,6 @@
 import { registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
-import { mergeSingleUser, DuplicateUser, RunnableMergeAction, MergeAction } from '../scripts/fixDuplicateEmail'
+import { mergeSingleUser, DuplicateUser, MergeAction } from '../scripts/fixDuplicateEmail'
 import { Vulcan } from '../../lib/vulcan-lib';
 import '../scripts/mergeAccounts';
 

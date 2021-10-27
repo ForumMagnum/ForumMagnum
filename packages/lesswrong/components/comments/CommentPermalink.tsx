@@ -54,8 +54,6 @@ const CommentPermalink = ({ documentId, post, classes }: {
 
   if (!comment) {return null}
 
-  if (loading || !comment) {return null}
-
   if (!documentId) return null
 
   const ogUrl = postGetPageUrl(post, true) // open graph

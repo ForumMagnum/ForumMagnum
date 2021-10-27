@@ -1,10 +1,11 @@
-# TODO; rename
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
 name: Deploy LW-Devel
 on:
   push:
+    # lw-look-here: You can leave it as-is for now, but you should decide what
+    # you want to do here at some point
     branches: [ expressNotMeteor, tryDeploying, deployLessestWrong, devel ]
 jobs:
   deploy: 
