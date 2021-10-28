@@ -18,7 +18,7 @@ export default class InsertFootnoteCommand extends QueryMixin(Command) {
 			if (!rootElement) {
 				return;
 			}
-            const footnoteSection = this._getFootnoteSection(writer, rootElement);
+            const footnoteSection = this.#getFootnoteSection(writer, rootElement);
 			const id = footnoteId === 0 ? footnoteSection.maxOffset + 1 : footnoteId;
 			doc.selection.isBackward ?
 				writer.setSelection(doc.selection.anchor) : 
@@ -61,7 +61,7 @@ export default class InsertFootnoteCommand extends QueryMixin(Command) {
 	 * @param {RootElement} rootElement 
 	 * @returns 
 	 */
-	_getFootnoteSection(writer, rootElement) {
+	#getFootnoteSection(writer, rootElement) {
 		const footnoteSection = this.queryDescendantFirst({rootElement, predicate: (/** @type {ModelElement}*/ element) =>  element.name === 'footnoteSection'});
 		if(footnoteSection) {
 			return footnoteSection;
