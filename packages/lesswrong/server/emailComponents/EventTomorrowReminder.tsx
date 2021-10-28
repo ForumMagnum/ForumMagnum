@@ -1,15 +1,13 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import type { RSVPType } from '../../lib/collections/posts/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const EventTomorrowReminder = ({postId, rsvp, classes}: {
+const EventTomorrowReminder = ({postId, rsvp}: {
   postId: string,
   rsvp: RSVPType,
-  classes: ClassesType,
 }) => {
   return <Components.NewPostEmail
     documentId={postId}

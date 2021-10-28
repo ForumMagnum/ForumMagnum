@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from '../../lib/moment-timezone';
 
 const eventTimeFormat = "Do MMMM YYYY h:mm A"
+const eventTimeUTCFormat = "Do MMMM YYYY h:mm A [UTC]ZZ"
 
 const EmailPostDate = ({post}: {
   post: PostsBase
@@ -11,7 +12,11 @@ const EmailPostDate = ({post}: {
   
   if (post.isEvent) {
     if (post.startTime) {
-      return <span>Starts at {moment(post.localStartTime).utc().format(eventTimeFormat)}</span>
+      return post.localStartTime ? (
+        <span>Starts at {moment(post.localStartTime).utc().format(eventTimeFormat)}</span>
+      ) : (
+        <span>Starts at {moment(post.startTime).format(eventTimeUTCFormat)}</span>
+      )
     } else {
       return <span>TBD</span>;
     }
