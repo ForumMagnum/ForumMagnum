@@ -26,7 +26,7 @@ async function checkAndSendUpcomingEventEmails() {
     authorIsUnreviewed: false,
     hiddenRelatedQuestion: false,
     startTime: {$gte: new Date(), $lt: in24hours},
-    $or: [{nextDayReminderSent: false}, {nextDayReminderSent: {$exists: false}}],
+    nextDayReminderSent: {$ne: true},
   }).fetch();
   
   for (let upcomingEvent of upcomingEvents) {
