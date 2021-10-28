@@ -1,10 +1,10 @@
 // @ts-check
-import FootNoteEditing from './footnoteediting';
-import FootNoteUI from './footnoteui';
+import FootnoteEditing from './footnoteediting';
+import FootnoteUI from './footnoteui';
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 
-export default class FootNote extends Plugin {
+export default class Footnote extends Plugin {
     static get requires() {
-        return [ FootNoteEditing, FootNoteUI ];
+        return [ FootnoteEditing, FootnoteUI ];
     }
 }

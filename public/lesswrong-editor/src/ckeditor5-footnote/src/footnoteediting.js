@@ -7,10 +7,9 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import { toWidget, toWidgetEditable, viewToModelPositionOutsideModelElement } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
-import InsertFootNoteCommand from './insertfootnotecommand';
+import InsertFootnoteCommand from './insertfootnotecommand';
 import '../theme/placeholder.css';
 import '../theme/footnote.css';
-import Editor from '@ckeditor/ckeditor5-core/src/editor/editor';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
 import DocumentFragment from '@ckeditor/ckeditor5-engine/src/model/documentfragment';
@@ -20,7 +19,7 @@ import { QueryMixin } from './utils';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import inlineAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/inlineautoformatediting';
 
-export default class FootNoteEditing extends QueryMixin(Plugin) {
+export default class FootnoteEditing extends QueryMixin(Plugin) {
     static get requires() {
         return [ Widget, Autoformat ];
     }
@@ -37,7 +36,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
         this._defineSchema();
         this._defineConverters();
 
-        this.editor.commands.add( 'InsertFootnote', new InsertFootNoteCommand( this.editor ) );
+        this.editor.commands.add( 'InsertFootnote', new InsertFootnoteCommand( this.editor ) );
 
 		this._addAutoformatting();
 
@@ -53,6 +52,21 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 			// @ts-ignore
             viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'footnote-item' ) )
         );
+		// @ts-ignore
+		this.editor.editing.view.on( 'selectionChange', (_, {oldSelection, newSelection, domSelection}) => {
+			if(!(
+				newSelection.positionParent && 
+				newSelection.positionParent.parent && 
+				newSelection.positionParent.parent instanceof ViewElement &&
+				newSelection.positionParent.parent.name === 'footnoteList')) {
+				return
+			}
+			if(newSelection.anchor && newSelection.anchor.offset === 0) {
+				this.editor.model.change(writer => {
+					writer.setSelection(oldSelection);
+				})
+			}
+		} );
     }
 
     _deleteModify() {
@@ -70,11 +84,11 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             const positionParent = lastPosition.parent;
 		
 			// delete all noteholder references if footnotes section gets deleted
-            if (deleteEle !== null && deleteEle.name === "footNoteSection") {
+            if (deleteEle !== null && deleteEle.name === "footnoteSection") {
                 this._removeHolder(0);
             }
 
-            if (!positionParent || positionParent.parent instanceof DocumentFragment || !positionParent.parent || positionParent.parent.name !== "footNoteList") {
+            if (!positionParent || positionParent.parent instanceof DocumentFragment || !positionParent.parent || positionParent.parent.name !== "footnoteList") {
                 return;
             }
 
@@ -95,37 +109,37 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 			}
 
             if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || entireParagraphSelected) {
-                const footNoteList = positionParent.parent;
-                const index = footNoteList.index;
-                const footNoteSection = footNoteList.parent;
+                const footnoteList = positionParent.parent;
+                const index = footnoteList.index;
+                const footnoteSection = footnoteList.parent;
 				if (
 					index === null || 
-					!footNoteSection || 
-					!(footNoteSection instanceof ModelElement)) 
-				throw new Error("footNoteList has an invalid parent section.")
+					!footnoteSection || 
+					!(footnoteSection instanceof ModelElement)) 
+				throw new Error("footnoteList has an invalid parent section.")
 
 				this._removeHolder(index+1);
                 editor.model.change(writer => {
-                    writer.remove(footNoteList);
-					if(footNoteSection.maxOffset === 0) {
-						writer.remove(footNoteSection);
+                    writer.remove(footnoteList);
+					if(footnoteSection.maxOffset === 0) {
+						writer.remove(footnoteSection);
 					}
                 } );
-				const subsequentFootNotes = [...footNoteSection.getChildren()].slice(index);
-                for (const [i, child] of subsequentFootNotes.entries()) {
+				const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
+                for (const [i, child] of subsequentFootnotes.entries()) {
 					if(!(child instanceof ModelElement)) {
 						continue;
 					}
 					editor.model.enqueueChange(writer => {
-						const footNoteItem = this.queryDescendantFirst(
+						const footnoteItem = this.queryDescendantFirst(
 							{
 								rootElement: child, 
-								predicate: (/** @type {ModelElement} */ element) => element.name === 'footNoteItem'
+								predicate: (/** @type {ModelElement} */ element) => element.name === 'footnoteItem'
 							});
-						if(!footNoteItem) {
+						if(!footnoteItem) {
 							return;
 						}
-						writer.setAttribute( 'data-footnote-id', index+i+1, footNoteItem);
+						writer.setAttribute( 'data-footnote-id', index+i+1, footnoteItem);
 					} );
 				}
                 data.preventDefault();
@@ -139,21 +153,21 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
         const schema = this.editor.model.schema;
 
         /***********************************Footnote Section Schema***************************************/
-        schema.register( 'footNoteSection', {
+        schema.register( 'footnoteSection', {
             isObject: true,
             allowWhere: '$block',
             allowAttributes: ['id', 'class'],
         } );
 
-        schema.register( 'footNoteList', {
-            allowIn: 'footNoteSection',
+        schema.register( 'footnoteList', {
+            allowIn: 'footnoteSection',
             allowContentOf: '$root',
             isInline: true,
             allowAttributes: ['id', 'data-footnote-id', 'class'],
         });
 
-        schema.register( 'footNoteItem', {
-            allowIn: 'footNoteList',
+        schema.register( 'footnoteItem', {
+            allowIn: 'footnoteList',
             allowWhere: '$text',
             isInline: true,
             isObject: true,
@@ -163,7 +177,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		// @ts-ignore -- returning true here prevents future listeners from firing.
 		// This matches the canonical use in the docs--the type signature is just wrong.
 		schema.addChildCheck( ( context, childDefinition ) => {
-            if (context.endsWith('footNoteList') && childDefinition.name === 'footNoteSection') {
+            if (context.endsWith('footnoteList') && childDefinition.name === 'footnoteSection') {
 				return false;
 			}
         } );
@@ -190,15 +204,15 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
             },
             model: ( viewElement, conversionApi ) => {
                 const modelWriter = conversionApi.writer;
-                const FootNote = modelWriter.createElement( 'footNoteSection' );
-                return FootNote;
+                const Footnote = modelWriter.createElement( 'footnoteSection' );
+                return Footnote;
             }
             
         } );
 
         // (model → data view)
         conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'footNoteSection',
+            model: 'footnoteSection',
             view: {
                 name: 'section',
 				classes: ['footnote-section', 'footnotes'],
@@ -207,7 +221,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 
         // (model → editing view)
         conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'footNoteSection',
+            model: 'footnoteSection',
             view: ( modelElement, conversionApi ) => {
                 const viewWriter = conversionApi.writer;
                 const section = viewWriter.createContainerElement( 'section', { class: 'footnote-section' } );
@@ -221,7 +235,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
         conversion.for( 'upcast' ).elementToElement( {
             model: ( viewElement, conversionApi ) => {
                 const modelWriter = conversionApi.writer;
-                return modelWriter.createElement( 'footNoteList' );
+                return modelWriter.createElement( 'footnoteList' );
             },
             view: {
                 name: 'section',
@@ -230,7 +244,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
         } );
 
         conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'footNoteList',
+            model: 'footnoteList',
             view: {
                 name: 'section',
                 classes: 'footnote-list',
@@ -238,7 +252,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
         } );
 
         conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'footNoteList',
+            model: 'footnoteList',
             view: ( modelElement, conversionApi ) => {
                 const viewWriter = conversionApi.writer;
                 // Note: You use a more specialized createEditableElement() method here.
@@ -263,17 +277,17 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 					return null;
 				}
 
-                return modelWriter.createElement( 'footNoteItem', { 'data-footnote-id': id } );
+                return modelWriter.createElement( 'footnoteItem', { 'data-footnote-id': id } );
             }
         } );
 
         conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'footNoteItem',
+            model: 'footnoteItem',
             view: this.createItemView
         } );
         
         conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'footNoteItem',
+            model: 'footnoteItem',
             view: ( modelElement, conversionApi ) => {
                 const viewWriter = conversionApi.writer;
 				// @ts-ignore -- The type declaration for DowncastHelpers#elementToElement is incorrect. It expects
@@ -319,8 +333,8 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 
         conversion.for( 'editingDowncast' )
         .add(dispatcher => {
-            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this._updateReferences.bind(this), { priority: 'high' } );
-            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this._modelViewChangeItem.bind(this), { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:footnoteItem', this._updateReferences.bind(this), { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:footnoteItem', this._modelViewChangeItem.bind(this), { priority: 'high' } );
             dispatcher.on( 'attribute:data-footnote-id:noteHolder', this._modelViewChangeHolder.bind(this), { priority: 'high' } );
         } );
 	}
@@ -355,15 +369,15 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 				const textProxy = [...ranges[0].getItems()][0];
 				const footnoteId = parseInt(textProxy.data.match(/[0-9]+/)[0]);
 				// @ts-ignore
-				const footNoteSection = this.queryDescendantFirst({rootElement: this.rootElement, predicate: (e) => e.name === 'footNoteSection'});
-				if(!footNoteSection) {
+				const footnoteSection = this.queryDescendantFirst({rootElement: this.rootElement, predicate: (e) => e.name === 'footnoteSection'});
+				if(!footnoteSection) {
 					if(footnoteId !== 1) {
 						return false;
 					}
 					this.editor.execute('InsertFootnote', { footnoteId: 0 });
 					return;
 				}
-				const footnoteCount = this.queryDescendantsAll({rootElement: footNoteSection, predicate: (e) => e.name === 'footNoteItem'}).length;
+				const footnoteCount = this.queryDescendantsAll({rootElement: footnoteSection, predicate: (e) => e.name === 'footnoteItem'}).length;
 				if(footnoteId === footnoteCount + 1) {
 					this.editor.execute('InsertFootnote', { footnoteId: 0 });
 					return;
@@ -445,7 +459,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 	 */
 	_updateReferences(_, data, conversionApi) {
 		const { item, attributeOldValue, attributeNewValue } = data;
-		if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, 'attribute:data-footnote-id:footNoteItem')) {
+		if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, 'attribute:data-footnote-id:footnoteItem')) {
 			return;
 		}
 
@@ -473,8 +487,8 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 	 */
 	_modelViewChangeItem(_, data, conversionApi) {
 		const { item, attributeOldValue, attributeNewValue } = data;
-		conversionApi.consumable.add(item, 'attribute:data-footnote-id:footNoteItem');
-		if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, 'attribute:data-footnote-id:footNoteItem')) {
+		conversionApi.consumable.add(item, 'attribute:data-footnote-id:footnoteItem');
+		if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, 'attribute:data-footnote-id:footnoteItem')) {
 			return;
 		}
 		

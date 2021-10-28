@@ -7,7 +7,7 @@ import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { QueryMixin } from './utils';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 
-export default class FootNoteUI extends QueryMixin(Plugin) {
+export default class FootnoteUI extends QueryMixin(Plugin) {
     init() {
         const editor = this.editor;
         const t = editor.t;
@@ -66,13 +66,13 @@ export default class FootNoteUI extends QueryMixin(Plugin) {
 			throw new Error('Document has no root element.')
 		}
 
-		const footNoteSection = this.queryDescendantFirst({rootElement, predicate: (e) => e.name === 'footNoteSection'});
+		const footnoteSection = this.queryDescendantFirst({rootElement, predicate: (e) => e.name === 'footnoteSection'});
 
-		if (footNoteSection) {
-			const footNoteItems = this.queryDescendantsAll({rootElement, predicate: e => e.name === 'footNoteItem'});
-			footNoteItems.forEach((footNote) => {
+		if (footnoteSection) {
+			const footnoteItems = this.queryDescendantsAll({rootElement, predicate: e => e.name === 'footnoteItem'});
+			footnoteItems.forEach((footnote) => {
 				// @ts-ignore
-				const id = footNote.getAttribute('data-footnote-id');
+				const id = footnote.getAttribute('data-footnote-id');
 				const definition = {
 					type: 'button',
 					model: new Model( {
