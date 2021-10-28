@@ -68,7 +68,7 @@ const PostsItemMeta = ({post, read, classes}: {
             </LWTooltip>}
       </span>}
 
-      { post.isEvent && <span className={classes.info}>
+      { post.isEvent && !post.onlineEvent && <span className={classes.info}>
         <Components.EventVicinity post={post} />
       </span>}
 
