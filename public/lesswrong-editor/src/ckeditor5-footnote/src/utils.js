@@ -1,8 +1,10 @@
 // @ts-check
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ModelText from '@ckeditor/ckeditor5-engine/src/model/text';
+import ModelTextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
 import ViewText from '@ckeditor/ckeditor5-engine/src/view/text';
+import ViewTextProxy from '@ckeditor/ckeditor5-engine/src/view/textproxy';
 
 export const QueryMixin = BaseClass => class extends BaseClass {
 	/**
@@ -18,17 +20,18 @@ export const QueryMixin = BaseClass => class extends BaseClass {
 
 		const types = {
 			'model': {
-				'element': ModelElement,
-				'text': ModelText,
+				'element': [ModelElement],
+				'text': [ModelText, ModelTextProxy],
 			},
 			'view': {
-				'element': ViewElement,
-				'text': ViewText,
+				'element': [ViewElement],
+				'text': [ViewText, ViewTextProxy],
 			}
 		}
 
+		const validTypes = types[mode][type];
 		for(const item of range.getItems()) {
-			if (!item || !(item instanceof types[mode][type])) {
+			if (!item || !validTypes.some(type => item instanceof type)) {
 				continue;
 			}
 
@@ -51,17 +54,18 @@ export const QueryMixin = BaseClass => class extends BaseClass {
 
 		const types = {
 			'model': {
-				'element': ModelElement,
-				'text': ModelText,
+				'element': [ModelElement],
+				'text': [ModelText, ModelTextProxy],
 			},
 			'view': {
-				'element': ViewElement,
-				'text': ViewText,
+				'element': [ViewElement],
+				'text': [ViewText, ViewTextProxy],
 			}
 		}
 
+		const validTypes = types[mode][type];
 		for(const item of range.getItems()) {
-			if (!(item instanceof types[mode][type])) {
+			if (!item || !validTypes.some(type => item instanceof type)) {
 
 				continue;
 			}

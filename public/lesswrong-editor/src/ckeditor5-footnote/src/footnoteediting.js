@@ -71,10 +71,10 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		
 			// delete all noteholder references if footnotes section gets deleted
             if (deleteEle !== null && deleteEle.name === "footNoteSection") {
-                this.removeHolder(editor, 0);
+                this._removeHolder(0);
             }
 
-            if (!positionParent || !(positionParent.parent instanceof ModelElement) || positionParent.parent.name !== "footNoteList") {
+            if (!positionParent || positionParent.parent instanceof DocumentFragment || !positionParent.parent || positionParent.parent.name !== "footNoteList") {
                 return;
             }
 
@@ -84,9 +84,17 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
                 evt.stop();
             }
 
-			// If we're at the start of the document
-            if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || 
-				(positionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0)) {
+			const entireParagraphSelected = (positionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0) ||
+				(positionParent.maxOffset === doc.selection.focus.offset && doc.selection.anchor.offset === 0);
+
+			if(entireParagraphSelected && positionParent.index) {
+				editor.model.change(writer => {
+					writer.remove(positionParent);
+				});
+				return;
+			}
+
+            if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || entireParagraphSelected) {
                 const footNoteList = positionParent.parent;
                 const index = footNoteList.index;
                 const footNoteSection = footNoteList.parent;
@@ -96,45 +104,30 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 					!(footNoteSection instanceof ModelElement)) 
 				throw new Error("footNoteList has an invalid parent section.")
 
-				const subsequentFootNotes = [...doc.model.createRangeIn(footNoteSection).getItems()].slice(index+1);
-                for (const [i, child] of subsequentFootNotes.entries()) {
-					if(!(child instanceof ModelElement)) {
-						continue;
-					}
-					editor.model.change(writer => {
-						const footNoteItem = this.queryDescendantFirst({root: child, predicate: (/** @type {ModelElement} */ element) => element.name === 'footNoteItem'});
-						if(!footNoteItem) {
-							return;
-						}
-						writer.setAttribute( 'data-footnote-id', i+1, footNoteItem);
-					} );
-				}
-                this.removeHolder(editor, index);
+				this._removeHolder(index+1);
                 editor.model.change(writer => {
-                    if (index === 1) {
-                        if (footNoteSection.childCount === 2) {
-                            if (footNoteSection.previousSibling === null) {
-                                const p = writer.createElement( 'paragraph' );
-                                this.editor.model.insertContent( p, writer.createPositionAt( this.rootElement, 0 ));
-                                writer.setSelection( p, 'end' );
-                                }
-                            else {
-                                writer.setSelection( footNoteSection.previousSibling, 'end'  );
-                            }
-                            writer.remove(footNoteSection);
-                        }
-                        else {
-                            writer.setSelection( footNoteList.nextSibling, 'end' );
-                        }
-                    }
-                    else {
-                        writer.setSelection( footNoteList.previousSibling, 'end' );
-                    }
                     writer.remove(footNoteList);
 					if(footNoteSection.maxOffset === 0) {
 						writer.remove(footNoteSection);
 					}
                 } );
+				const subsequentFootNotes = [...footNoteSection.getChildren()].slice(index);
+                for (const [i, child] of subsequentFootNotes.entries()) {
+					if(!(child instanceof ModelElement)) {
+						continue;
+					}
+					editor.model.enqueueChange(writer => {
+						const footNoteItem = this.queryDescendantFirst(
+							{
+								rootElement: child, 
+								predicate: (/** @type {ModelElement} */ element) => element.name === 'footNoteItem'
+							});
+						if(!footNoteItem) {
+							return;
+						}
+						writer.setAttribute( 'data-footnote-id', index+i+1, footNoteItem);
+					} );
+				}
                 data.preventDefault();
                 evt.stop();
                 
@@ -285,8 +278,8 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
                 const viewWriter = conversionApi.writer;
 				// @ts-ignore -- The type declaration for DowncastHelpers#elementToElement is incorrect. It expects
 				// a view Element where it should expect a model Element.
-                const section = this.createItemView( modelElement, conversionApi );
-                return toWidget( section, viewWriter );
+                const itemView = this.createItemView( modelElement, conversionApi );
+                return toWidget( itemView, viewWriter );
             }
         } );
 
@@ -301,7 +294,7 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
                 const modelWriter = conversionApi.writer;
 				const id = viewElement.getAttribute('data-footnote-id');
 				if(id === undefined) {
-					throw new Error('Note Holder has no provided Id.')
+					return null;
 				}
 
                 return modelWriter.createElement( 'noteHolder', { 'data-footnote-id': id } );
@@ -315,14 +308,20 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'noteHolder',
-            view: this.createPlaceholderView
+            view: (modelElement, conversionApi) => {
+				const viewWriter = conversionApi.writer;
+				// @ts-ignore
+				const placeholderView = this.createPlaceholderView( modelElement, conversionApi);
+				toWidget(placeholderView, viewWriter);
+			},
         } );
 
 
         conversion.for( 'editingDowncast' )
         .add(dispatcher => {
-            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this.modelViewChangeItem.bind(this), { priority: 'high' } );
-            dispatcher.on( 'attribute:data-footnote-id:noteHolder', this.modelViewChangeHolder.bind(this), { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this._updateReferences.bind(this), { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:footNoteItem', this._modelViewChangeItem.bind(this), { priority: 'high' } );
+            dispatcher.on( 'attribute:data-footnote-id:noteHolder', this._modelViewChangeHolder.bind(this), { priority: 'high' } );
         } );
 	}
 	
@@ -439,19 +438,49 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 	 */
 
 	/**
+	 * @param {*} _
+	 * @param {Data} data 
+	 * @param {DowncastConversionApi} conversionApi 
+	 * @returns 
+	 */
+	_updateReferences(_, data, conversionApi) {
+		const { item, attributeOldValue, attributeNewValue } = data;
+		if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, 'attribute:data-footnote-id:footNoteItem')) {
+			return;
+		}
+
+		if (attributeOldValue === null || attributeNewValue === null || !item) {
+			return;
+		}
+
+		const noteHolders = this.queryDescendantsAll({
+			rootElement: this.rootElement,
+			predicate: e => e.name === 'noteHolder' && e.getAttribute('data-footnote-id') === attributeOldValue
+		});
+		noteHolders.forEach(noteHolder => {
+			const noteHolderView = conversionApi.mapper.toViewElement(noteHolder);
+			this.editor.model.enqueueChange(writer => {
+				writer.setAttribute('data-footnote-id', data.attributeNewValue, noteHolder);
+			});
+		});
+	}
+
+	/**
 	 * @param {*} _ 
 	 * @param {Data} data 
 	 * @param {DowncastConversionApi} conversionApi 
 	 * @returns 
 	 */
-	modelViewChangeItem( _, data, conversionApi ) {
-		if (!(data.item instanceof ModelElement) || !conversionApi.consumable.consume(data.item, 'attribute:data-footnote-id:footNoteItem')) {
+	_modelViewChangeItem(_, data, conversionApi) {
+		const { item, attributeOldValue, attributeNewValue } = data;
+		conversionApi.consumable.add(item, 'attribute:data-footnote-id:footNoteItem');
+		if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, 'attribute:data-footnote-id:footNoteItem')) {
 			return;
 		}
 		
-		const itemView = conversionApi.mapper.toViewElement( data.item );
+		const itemView = conversionApi.mapper.toViewElement(item);
 		
-		if (data.attributeOldValue === null || !itemView) {
+		if (attributeOldValue === null || !itemView) {
 			return;
 		}
 		const textNode = this.queryDescendantFirst({rootElement: itemView, type: 'text'});
@@ -459,7 +488,6 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		const viewWriter = conversionApi.writer;
 
 		if(!textNode){
-			viewWriter.remove(itemView);
 			return;
 		}
 
@@ -467,9 +495,11 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 		viewWriter.remove(textNode);
 		
 
-		const innerText = viewWriter.createText( data.attributeNewValue + '. ' );
-		viewWriter.insert( viewWriter.createPositionAt( parent, 0 ), innerText );
-
+		const innerText = viewWriter.createText(attributeNewValue + '. ');
+		viewWriter.insert(viewWriter.createPositionAt( parent, 0 ), innerText);
+		const newHref = `fn${attributeNewValue}`;
+		viewWriter.setAttribute('id', newHref, itemView);
+		viewWriter.setAttribute('data-attribute-id', attributeNewValue.toString(), itemView);
 	}
 
 	/**
@@ -478,14 +508,15 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 	 * @param {DowncastConversionApi} conversionApi 
 	 * @returns 
 	 */
-	modelViewChangeHolder( _, data, conversionApi ) {
-		if (!(data.item instanceof ModelElement) || !conversionApi.consumable.consume(data.item, 'attribute:data-footnote-id:noteHolder')) {
+	_modelViewChangeHolder( _, data, conversionApi ) {
+		const { item, attributeOldValue, attributeNewValue } = data;
+		if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, 'attribute:data-footnote-id:noteHolder')) {
 			return;
 		}
 
-		const noteHolderView = conversionApi.mapper.toViewElement( data.item );
+		const noteHolderView = conversionApi.mapper.toViewElement(item);
 		
-		if (data.attributeOldValue === null || !noteHolderView) {
+		if (attributeOldValue === null || !noteHolderView) {
 			return;
 		}
 
@@ -493,43 +524,41 @@ export default class FootNoteEditing extends QueryMixin(Plugin) {
 
 		//@ts-ignore
 		const textNode = this.queryDescendantFirst({rootElement: noteHolderView, type: 'text'});
+		//@ts-ignore
+		const anchor = this.queryDescendantFirst({rootElement: noteHolderView, predicate: e => e.name === 'a'});
 
-		if(!textNode){
+		if(!textNode || !anchor){
 			viewWriter.remove(noteHolderView);
-			return
+			return;
 		}
 
 		viewWriter.remove(textNode);
-		const parent = textNode.parent;
-		const innerText = viewWriter.createText( `[${data.attributeNewValue.toString()}]`);
-		viewWriter.insert( viewWriter.createPositionAt( parent, 0 ), innerText );
+		const innerText = viewWriter.createText( `[${attributeNewValue.toString()}]`);
+		viewWriter.insert( viewWriter.createPositionAt( anchor, 0 ), innerText );
 
+		viewWriter.setAttribute('href', `fn${attributeNewValue}`, anchor);
 	}
 
 	/**
-	 * 
-	 * @param {Editor} editor 
-	 * @param {number} index 
+	 * Deletes all references to the footnote with the given id. If an id of 0 is provided,
+	 * all references are deleted.
+	 * @param {number} footnoteId
 	 */
-	removeHolder(editor, index) {
+	_removeHolder(footnoteId) {
 		const removeList = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
-		const range = editor.model.createRangeIn(this.rootElement);
-		for (const item of range.getItems()) {
-			if (item && (item instanceof ModelElement) && item.name === 'noteHolder') {
-				const idAsInt = parseInt(item.getAttribute('id') ? '-1' : '');
-				if (idAsInt === index || index === 0) {
-					removeList.push(item);
-				}
-				else if (idAsInt > index) {
-					editor.model.change( writer => {
-						writer.setAttribute( 'id', idAsInt, item );
-					});
-				}
+		const noteHolders = this.queryDescendantsAll({
+			rootElement: this.rootElement,
+			predicate: e => e.name === 'noteHolder'
+		});
+		noteHolders.forEach((noteHolder) => {
+			const idAsInt = parseInt(noteHolder.getAttribute('data-footnote-id') ? noteHolder.getAttribute('data-footnote-id') : '-1');
+			if (idAsInt === footnoteId || footnoteId === 0) {
+				removeList.push(noteHolder);
 			}
-		}
+		});
 		for (const item of removeList) {
-			editor.model.change( writer => {
+			this.editor.model.change( writer => {
 				writer.remove( item );
 			} );
 		}
