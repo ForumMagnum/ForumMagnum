@@ -15,7 +15,7 @@ const EmailPostDate = ({post}: {
       return post.localStartTime ? (
         <span>Starts at {moment(post.localStartTime).utc().format(eventTimeFormat)}</span>
       ) : (
-        <span>Starts at {moment(post.startTime).format(eventTimeTzFormat)}</span>
+        <span>Starts at {moment(post.startTime).format(eventTimeUTCFormat)}</span>
       )
     } else {
       return <span>TBD</span>;
