@@ -4,7 +4,6 @@ import Popover from '@material-ui/core/Popover';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import EditIcon from '@material-ui/icons/Edit';
 import HistoryIcon from '@material-ui/icons/History';
-import classNames from 'classnames';
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
@@ -26,17 +25,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     display: "flex",
     alignItems: "center",
-    marginRight: 16
+    marginRight: 16,
+    ...theme.typography.body2,
+    color: theme.palette.grey[700],
+  },
+  buttonIcon: {
+    fontSize: 22,
+    marginRight: 4,
   },
   editMenuItem: {
     marginTop: 4,
-  },
-  disabledButton: {
-    '&&': {
-      color: theme.palette.grey[500],
-      cursor: "default",
-      marginBottom: 12
-    }
   },
   ctaPositioning: {
     display: "flex",
@@ -57,9 +55,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
     marginRight: 0
   },
+  tagFlags: {
+    marginLeft: 16,
+    marginTop: 16,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 16,
+      marginBottom: 24,
+    },
+  },
   beginnersGuide: {
     ...theme.typography.body2,
-    width: 600,
+    width: 500,
     marginTop: 16,
     marginLeft: 16,
     marginRight: 16,
@@ -70,9 +76,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
+const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   tag: TagPageWithRevisionFragment|TagPageFragment,
   editing: boolean,
+  className?: string,
   setEditing: (editing: boolean)=>void,
   classes: ClassesType
 }) => {
@@ -82,7 +89,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
   // TODO; we can avoid a database round trip on every tag page load by
   // conditionally fetching this
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
-  const { LWTooltip, TagDiscussionButton, ContentItemBody, Typography } = Components;
+  const { TagDiscussionButton, ContentItemBody, Typography, TagFlagItem } = Components;
   
   const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
     setAnchorEl(event.currentTarget);
@@ -108,7 +115,8 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
   
   const numFlags = tag.tagFlagsIds?.length
   
-  return <div>
+  return <div className={className}>
+    {/* TODO; use LWPopper? */}
     <Popover
       open={!!anchorEl}
       anchorEl={anchorEl}
@@ -119,20 +127,32 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
       }}
     >
       {!editing && <MenuItem onClick={handleClickEdit} className={classes.editMenuItem}>
-        <span className={classNames(classes.button, classes.editButton)}>
-          <EditOutlinedIcon /> Edit
+        <span className={classes.button}>
+          <EditOutlinedIcon className={classes.buttonIcon} /> Edit
         </span>
       </MenuItem>}
-      <MenuItem>
-        <Link className={classes.button} to={`/tag/${tag.slug}/history`}>
-          <HistoryIcon /> History
-        </Link>
-      </MenuItem>
+      <Link className={classes.button} to={`/tag/${tag.slug}/history`}>
+        <MenuItem>
+          <HistoryIcon className={classes.buttonIcon} /> History
+        </MenuItem>
+      </Link>
       <MenuItem>
         <div className={classes.button}>
           <TagDiscussionButton tag={tag} />
         </div>
       </MenuItem>
+      {/* TODO; divider (MUIDivider?) */}
+      {tag.tagFlags.length > 0 && <div className={classes.tagFlags}>
+        <Typography variant="body2" gutterBottom>
+          <em>This article has the following flags:</em>
+        </Typography>
+        {tag.tagFlags.map(flag => <TagFlagItem
+          key={flag._id}
+          documentId={flag._id}
+          style={"grey"}
+          showNumber={false}
+        />)}
+      </div>}
       <ContentItemBody
         className={classes.beginnersGuide}
         dangerouslySetInnerHTML={{__html: beginnersGuideContentTag?.description?.html || ""}}
@@ -140,24 +160,12 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
       />
     </Popover>
     
-    <LWTooltip
-      // TODO; move this to the popover
-      title={ tag.tagFlagsIds?.length > 0 ? 
-        <div>
-          {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
-        </div> :
-        <span>
-          This tag does not currently have any improvement flags set.
-        </span>
-      }
-      >
-      <a className={classes.helpImproveButton} onClick={handleClick}>
-        <EditIcon className={classes.smallPencilIcon}/> Help improve this page{' '}
-        <span className={classes.callToActionFlagCount}>
-          {!!numFlags&&`(${numFlags} flags)`}
-        </span>
-      </a>
-    </LWTooltip>
+    <a className={classes.helpImproveButton} onClick={handleClick}>
+      <EditIcon className={classes.smallPencilIcon}/> Help improve this page{' '}
+      <span className={classes.callToActionFlagCount}>
+        {!!numFlags&&`(${numFlags} flag${numFlags > 1 ? 's' : ''})`}
+      </span>
+    </a>
   </div>
 }
 

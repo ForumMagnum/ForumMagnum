@@ -18,13 +18,14 @@ import * as _ from 'underscore';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
-    alignItems: "center"
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down('sm')]: { //optimized for tag page
-      display: "none"
+    alignItems: "center",
+    [theme.breakpoints.up('sm')]: {
+      marginTop: 8,
     }
-  }
+  },
+  notificationsIcon: {
+    marginLeft: 12,
+  },
 })
 
 const SubscribeButton = ({
@@ -107,7 +108,7 @@ const SubscribeButton = ({
     <Button variant="outlined" onClick={onSubscribe}>
       <span className={classes.subscribeText}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
     </Button>
-    {showIcon && <ListItemIcon>
+    {showIcon && <ListItemIcon className={classes.notificationsIcon}>
       {loading
         ? <Components.Loading/>
         : (notificationsEnabled()
@@ -126,6 +127,3 @@ declare global {
     SubscribeButton: typeof SubscribeButtonComponent
   }
 }
-
-
-

@@ -39,10 +39,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 12,
   },
   titleRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
+    [theme.breakpoints.up('sm')]: {
+      display: 'flex',
+      justifyContent: 'space-between',
     }
   },
   title: {
@@ -51,6 +50,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0,
     fontWeight: 600,
     fontVariant: "small-caps"
+  },
+  subscribeTo: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 8,
+    },
+  },
+  editMenu: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 16,
+      marginBottom: 8,
+    },
   },
   wikiSection: {
     paddingTop: 5,
@@ -84,12 +94,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginTop: 8,
     marginBottom: 8,
-  },
-  subscribeToWrapper: {
-    ...theme.typography.body2,
-    ...theme.typography.uiStyle,
-  },
-  subscribeTo: {
   },
 });
 
@@ -253,17 +257,19 @@ const TagPage = ({classes}: {
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
-          {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
-          <SubscribeButton
-            document={tag}
-            className={classes.subscribeTo}
-            subscribeMessage="Subscribe"
-            unsubscribeMessage="Unsubscribe"
-            subscriptionType={subscriptionTypes.newTagPosts}
-          />
-        </LWTooltip>}
+          {!tag.wikiOnly && !editing && <LWTooltip
+            title="See more posts with this tag on the homepage"
+          >
+            <SubscribeButton
+              document={tag}
+              className={classes.subscribeTo}
+              subscribeMessage="Subscribe"
+              unsubscribeMessage="Unsubscribe"
+              subscriptionType={subscriptionTypes.newTagPosts}
+            />
+          </LWTooltip>}
         </div>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classes.editMenu} />
       </div>}
     >
       <div className={classNames(classes.wikiSection,classes.centralColumn)}>
