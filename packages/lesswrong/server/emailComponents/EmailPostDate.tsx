@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from '../../lib/moment-timezone';
 
 const eventTimeFormat = "Do MMMM YYYY h:mm A"
-const eventTimeTzFormat = "Do MMMM YYYY h:mm A [UTC]ZZ"
+const eventTimeUTCFormat = "Do MMMM YYYY h:mm A [UTC]ZZ"
 
 const EmailPostDate = ({post}: {
   post: PostsBase
