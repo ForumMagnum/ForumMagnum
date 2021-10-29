@@ -5,75 +5,221 @@ import ModelTextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
 import ViewText from '@ckeditor/ckeditor5-engine/src/view/text';
 import ViewTextProxy from '@ckeditor/ckeditor5-engine/src/view/textproxy';
+import { Editor } from '@ckeditor/ckeditor5-core';
 
-export const QueryMixin = BaseClass => class extends BaseClass {
-	/**
-	 * Returns a list of all descendants of the root for which the provided 
-	 * predicate returns true. 
-	 */
-	queryDescendantsAll ({ rootElement, predicate=_ => true, type='element' }) {
-		const output = [];
+// There's ample DRY violation in this file; type checking
+// polymorphism without full typescript is just incredibly finicky.
+// I suspect there's a more elegant solution for this, 
+// but I tried a lot of things and none of them worked.
 
-		const [mode, range] = rootElement instanceof ViewElement ?
-			['view', this.editor.editing.view.createRangeIn(rootElement)]:
-			['model', this.editor.model.createRangeIn(rootElement)];
+/**
+ * Returns an array of all descendant elements of
+ * the root for which the provided predicate returns true.
+ * @param {Editor} editor
+ * @param {ModelElement} rootElement  
+ * @param {(item: ModelElement) => boolean} predicate
+ * @returns {ModelElement[]} */
+ export const modelQueryElementsAll = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.model.createRangeIn(rootElement);
+	const output = [];
 
-		const types = {
-			'model': {
-				'element': [ModelElement],
-				'text': [ModelText, ModelTextProxy],
-			},
-			'view': {
-				'element': [ViewElement],
-				'text': [ViewText, ViewTextProxy],
-			}
+	for(const item of range.getItems()) {
+		if (!(item instanceof ModelElement)) {
+			continue;
 		}
 
-		const validTypes = types[mode][type];
-		for(const item of range.getItems()) {
-			if (!item || !validTypes.some(type => item instanceof type)) {
-				continue;
-			}
-
-			if (predicate(item)) {
-				output.push(item);
-			}
+		if (predicate(item)) {
+			output.push(item);
 		}
-
-		return output;
 	}
+	return output;
+} 
 
-	/**
-	 * Returns the first descendant of the root for which the provided predicate
-	 * returns true, or null if no such descendant is found.
-	 */
-	queryDescendantFirst ({ rootElement, predicate=_ => true, type='element' }) {
-		const [mode, range] = rootElement instanceof ViewElement ?
-			['view', this.editor.editing.view.createRangeIn(rootElement)]:
-			['model', this.editor.model.createRangeIn(rootElement)];
+/**
+ * Returns an array of all descendant text nodes and text proxies of
+ * the root for which the provided predicate returns true.
+ * @param {Editor} editor
+ * @param {ModelElement} rootElement  
+ * @param {(item: ModelText|ModelTextProxy) => boolean} predicate
+ * @returns {(ModelText|ModelTextProxy)[]} */
+ export const modelQueryTextAll = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.model.createRangeIn(rootElement);
+	const output = [];
 
-		const types = {
-			'model': {
-				'element': [ModelElement],
-				'text': [ModelText, ModelTextProxy],
-			},
-			'view': {
-				'element': [ViewElement],
-				'text': [ViewText, ViewTextProxy],
-			}
+	for(const item of range.getItems()) {
+		if (!(item instanceof ModelText || item instanceof ModelTextProxy)) {
+			continue;
 		}
 
-		const validTypes = types[mode][type];
-		for(const item of range.getItems()) {
-			if (!item || !validTypes.some(type => item instanceof type)) {
-
-				continue;
-			}
-			if (predicate(item)) {
-				return item;
-			}
+		if (predicate(item)) {
+			output.push(item);
 		}
-
-		return null;
 	}
-}
+	return output;
+} 
+
+/**
+ * Returns an array of all descendant elements of
+ * the root for which the provided predicate returns true.
+ * @param {Editor} editor
+ * @param {ViewElement} rootElement  
+ * @param {(item: ViewElement) => boolean} predicate
+ * @returns {ViewElement[]} */
+ export const viewQueryElementsAll = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.editing.view.createRangeIn(rootElement);
+	const output = [];
+
+	for(const item of range.getItems()) {
+		if (!(item instanceof ViewElement)) {
+			continue;
+		}
+
+		if (predicate(item)) {
+			output.push(item);
+		}
+	}
+	return output;
+} 
+
+/**
+ * Returns an array of all descendant text nodes and text proxies of
+ * the root for which the provided predicate returns true.
+ * @param {Editor} editor
+ * @param {ViewElement} rootElement  
+ * @param {(item: ViewText|ViewTextProxy) => boolean} predicate
+ * @returns {(ViewText|ViewTextProxy)[]} */
+ export const viewQueryTextAll = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.editing.view.createRangeIn(rootElement);
+	const output = [];
+
+	for(const item of range.getItems()) {
+		if (!(item instanceof ViewText || item instanceof ViewTextProxy)) {
+			continue;
+		}
+
+		if (predicate(item)) {
+			output.push(item);
+		}
+	}
+	return output;
+} 
+
+/**
+ * Returns the first descendant element of the root for which the provided
+ * predicate returns true, or null if no such element is found.
+ * @param {Editor} editor
+ * @param {ModelElement} rootElement  
+ * @param {(item: ModelElement) => boolean} predicate
+ * @returns {ModelElement|null} */
+export const modelQueryElement = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.model.createRangeIn(rootElement);
+
+	for(const item of range.getItems()) {
+		if (!(item instanceof ModelElement)) {
+			continue;
+		}
+
+		if (predicate(item)) {
+			return item;
+		}
+	}
+	return null;
+} 
+
+/**
+ * Returns the first descendant text node or text proxy of the root for which the provided
+ * predicate returns true, or null if no such element is found.
+ * @param {Editor} editor
+ * @param {ModelElement} rootElement  
+ * @param {(item: ModelText|ModelTextProxy) => boolean} predicate
+ * @returns {ModelText|ModelTextProxy|null} */
+export const modelQueryText = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.model.createRangeIn(rootElement);
+
+	for(const item of range.getItems()) {
+		if (!(item instanceof ModelText || item instanceof ModelTextProxy)) {
+			continue;
+		}
+
+		if (predicate(item)) {
+			return item;
+		}
+	}
+	return null;
+} 
+
+/**
+ * Returns the first descendant element of the root for which the provided
+ * predicate returns true, or null if no such element is found.
+ * @param {Editor} editor
+ * @param {ViewElement} rootElement  
+ * @param {(item: ViewElement) => boolean} predicate
+ * @returns {ViewElement|null} */
+ export const viewQueryElement = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.editing.view.createRangeIn(rootElement);
+
+	for(const item of range.getItems()) {
+		if (!(item instanceof ViewElement)) {
+			continue;
+		}
+
+		if (predicate(item)) {
+			return item;
+		}
+	}
+	return null;
+} 
+
+/**
+ * Returns the first descendant text node or text proxy of the root for which the provided
+ * predicate returns true, or null if no such element is found.
+ * @param {Editor} editor
+ * @param {ViewElement} rootElement  
+ * @param {(item: ViewText|ViewTextProxy) => boolean} predicate
+ * @returns {ViewText|ViewTextProxy|null} */
+ export const viewQueryText = (
+	editor, 
+	rootElement,
+	predicate=(_) => true,
+) => {
+	const range = editor.editing.view.createRangeIn(rootElement);
+
+	for(const item of range.getItems()) {
+		if (!(item instanceof ViewText || item instanceof ViewTextProxy)) {
+			continue;
+		}
+
+		if (predicate(item)) {
+			return item;
+		}
+	}
+	return null;
+} 

@@ -4,10 +4,9 @@ import pilcrowIcon from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
 import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
-import { QueryMixin } from './utils';
-import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
+import { modelQueryElement, modelQueryElementsAll } from './utils';
 
-export default class FootnoteUI extends QueryMixin(Plugin) {
+export default class FootnoteUI extends Plugin {
     init() {
         const editor = this.editor;
         const t = editor.t;
@@ -66,12 +65,11 @@ export default class FootnoteUI extends QueryMixin(Plugin) {
 			throw new Error('Document has no root element.')
 		}
 
-		const footnoteSection = this.queryDescendantFirst({rootElement, predicate: (e) => e.name === 'footnoteSection'});
+		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.name === 'footnoteSection');
 
 		if (footnoteSection) {
-			const footnoteItems = this.queryDescendantsAll({rootElement, predicate: e => e.name === 'footnoteItem'});
+			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === 'footnoteItem');
 			footnoteItems.forEach((footnote) => {
-				// @ts-ignore
 				const id = footnote.getAttribute('data-footnote-id');
 				const definition = {
 					type: 'button',
