@@ -6,6 +6,8 @@ import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
+import TextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
+import Node from '@ckeditor/ckeditor5-engine/src/model/node';
 import { modelQueryElementsAll, viewQueryElement, viewQueryText } from '../utils';
 
 /**
@@ -225,7 +227,7 @@ const createItemView = (modelElement, conversionApi) => {
 
 /**
  * @typedef {Object} Data
- * @property {*} item
+ * @property {Node | TextProxy} item
  * @property {string} attributeOldValue
  * @property {string} attributeNewValue
  */
