@@ -101,7 +101,6 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
-  if (!tag) {return null;}
 
   const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     {label}
