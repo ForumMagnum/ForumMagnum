@@ -142,7 +142,7 @@ export const defineConverters = (editor, rootElement) => {
 		view: (viewElement, conversionApi) => {
 			const viewWriter = conversionApi.writer;
 			const placeholderView = createPlaceholderView(viewElement, conversionApi);
-			toWidget(placeholderView, viewWriter);
+			return toWidget(placeholderView, viewWriter);
 		},
 	});
 
