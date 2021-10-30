@@ -1,4 +1,3 @@
-// @ts-check
 import { Editor } from '@ckeditor/ckeditor5-core';
 import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
 import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
@@ -140,17 +139,16 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('editingDowncast').elementToElement({
 		model: 'noteHolder',
-		view: createPlaceholderView,
+		view: (viewElement, conversionApi) => {
+			const viewWriter = conversionApi.writer;
+			const placeholderView = createPlaceholderView(viewElement, conversionApi);
+			toWidget(placeholderView, viewWriter);
+		},
 	});
 
 	conversion.for('dataDowncast').elementToElement({
 		model: 'noteHolder',
-		view: (modelElement, conversionApi) => {
-			const viewWriter = conversionApi.writer;
-			// @ts-ignore
-			const placeholderView = createPlaceholderView(modelElement, conversionApi);
-			toWidget(placeholderView, viewWriter);
-		},
+		view: createPlaceholderView,
 	});
 
 	conversion.for('editingDowncast')
@@ -173,14 +171,14 @@ export const defineConverters = (editor, rootElement) => {
 }
 
 /**
- * @param {Element} modelElement
+ * @param {ViewElement} viewElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
  */
-const createPlaceholderView = (modelElement, conversionApi) => {
+const createPlaceholderView = (viewElement, conversionApi) => {
 	const viewWriter = conversionApi.writer;
-	const id = modelElement.getAttribute('data-footnote-id');
-	if(id === null) {
+	const id = viewElement.getAttribute('data-footnote-id');
+	if(id === undefined) {
 		throw new Error('Note Holder has no provided Id.')
 	}
 
