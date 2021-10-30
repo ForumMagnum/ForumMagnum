@@ -202,6 +202,7 @@ importComponent("PostsCompareRevisions", () => require('../components/posts/Post
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
+importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));

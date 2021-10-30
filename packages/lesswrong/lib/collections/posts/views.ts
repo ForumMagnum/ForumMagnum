@@ -42,6 +42,7 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     timeField?: keyof DbPost,
+    postIds?: Array<string>
   }
 }
 
@@ -1218,3 +1219,23 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
     },
   }
 ));
+
+
+Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      _id: {$in: terms.postIds},
+      userId: {$ne: terms.userId},
+      isEvent: false
+    },
+    options: {
+      sort: {
+        baseScore: -1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ postIds:1 }),
+  { name: "posts.nominatablePostsByVote", }
+);

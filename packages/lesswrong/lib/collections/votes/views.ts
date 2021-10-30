@@ -1,9 +1,15 @@
 import { Votes } from './collection';
 import { ensureIndex } from '../../collectionUtils';
+import moment from 'moment';
 
 declare global {
   interface VotesViewTerms extends ViewTermsBase {
-    view?: VotesViewName
+    view?: VotesViewName,
+    userId?: string,
+    voteType?: string,
+    collectionName?: string,
+    after?: string,
+    before?: string
   }
 }
 
@@ -29,3 +35,20 @@ Votes.addView("tagVotes", function () {
   }
 })
 ensureIndex(Votes, {collectionName: 1, votedAt: 1})
+
+Votes.addView("userPostVotes", function ({userId, voteType, collectionName, after, before}) {
+  return {
+    selector: {
+      collectionName: collectionName,
+      userId: userId,
+      voteType: voteType,
+      cancelled: false,
+      $and: [{votedAt: {$gte: moment(after).toDate()}}, {votedAt: {$lt: moment(before).toDate()}}],
+    },
+    options: {
+      sort: {
+        votedAt: -1
+      }
+    }
+  }
+})

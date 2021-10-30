@@ -1676,6 +1676,18 @@ interface TagVotingActivity extends TagRelVotes { // fragment on Votes
   readonly tagRel: TagRelFragment|null,
 }
 
+interface UserVotes { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string,
+  readonly voteType: string,
+  readonly power: number,
+  readonly cancelled: boolean,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly isUnvote: boolean,
+  readonly collectionName: string,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -1819,6 +1831,7 @@ interface FragmentTypes {
   PetrovDayLaunch: PetrovDayLaunch
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
+  UserVotes: UserVotes
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -1954,6 +1967,7 @@ interface CollectionNamesByFragmentName {
   PetrovDayLaunch: "PetrovDayLaunchs"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
+  UserVotes: "Votes"
   SuggestAlignmentComment: "Comments"
 }
 

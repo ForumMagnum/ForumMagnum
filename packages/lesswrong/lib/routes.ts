@@ -361,7 +361,13 @@ addRoute(
     componentName: 'SearchPage',
     title: 'Search',
     background: "white"
-  }
+  },
+  {
+    name: 'votes',
+    path: '/votes',
+    componentName: 'PostsByVote',
+    title: "Votes List"
+  },
 );
 
 onStartup(() => {
