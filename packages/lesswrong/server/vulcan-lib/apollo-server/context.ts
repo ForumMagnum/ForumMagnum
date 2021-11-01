@@ -59,14 +59,6 @@ const setupAuthToken = async (user: DbUser|null): Promise<{
   currentUser: DbUser|null,
 }> => {
   if (user) {
-    configureScope(scope => {
-      scope.setUser({
-        id: user._id,
-        email: user.email,
-        username: user.username
-      });
-    });
-    
     // identify user to any server-side analytics providers
     await userIdentifiedCallback.runCallbacks({
       iterator: user,
@@ -103,6 +95,14 @@ export const generateDataLoaders = (): {
 };
 
 
+export function requestIsFromGreaterWrong(req?: Request): boolean {
+  if (!req) return false;
+  const userAgent = req.headers?.["user-agent"];
+  if (!userAgent) return false;
+  if (typeof userAgent !== "string") return false;
+  return userAgent.startsWith("Dexador");
+}
+
 export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
   let context: ResolverContext = {
     ...getCollectionsByName(),
@@ -111,13 +111,35 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     res,
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
+    isGreaterWrong: requestIsFromGreaterWrong(req),
     ...await setupAuthToken(user),
   };
 
-  if (user)
+  if (user) {
     context.loaders.Users.prime(user._id, user);
+  }
 
   return context;
+}
+
+export function configureSentryScope(context: ResolverContext) {
+  const user = context.currentUser;
+  
+  if (user) {
+    configureScope(scope => {
+      scope.setUser({
+        id: user._id,
+        email: user.email,
+        username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username,
+      });
+    });
+  } else if (context.isGreaterWrong) {
+    configureScope(scope => {
+      scope.setUser({
+        username: context.isGreaterWrong ? `Logged out (via GreaterWrong)` : "Logged out",
+      });
+    });
+  }
 }
 
 export const getCollectionsByName = (): CollectionsByName => {
@@ -132,9 +154,3 @@ export const getUserFromReq = async (req) => {
   return req.user
   // return getUser(getAuthToken(req));
 }
-
-// Returns a function called on every request to compute context
-export const computeContextFromReq = async (req: Request, res: Response): Promise<ResolverContext> => {
-  const user = await getUserFromReq(req);
-  return computeContextFromUser(user, req, res);
-};

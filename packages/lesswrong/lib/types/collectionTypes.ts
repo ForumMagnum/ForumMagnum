@@ -161,6 +161,7 @@ interface ResolverContext extends CollectionsByName {
   userId: string|null,
   currentUser: DbUser|null,
   locale: string,
+  isGreaterWrong: boolean,
   loaders: {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }

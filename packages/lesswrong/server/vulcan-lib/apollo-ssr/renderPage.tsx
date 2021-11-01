@@ -7,7 +7,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
@@ -133,6 +133,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   clientId: string,
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
+  configureSentryScope(requestContext);
+  
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);

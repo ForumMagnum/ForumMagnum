@@ -11,7 +11,7 @@ import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -150,7 +150,12 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: ({ req, res }) => computeContextFromReq(req, res),
+    context: async ({ req, res }) => {
+      const user = await getUserFromReq(req);
+      const context = await computeContextFromUser(user, req, res);
+      configureSentryScope(context);
+      return context;
+    },
     extensions: [() => new ApolloServerLogging()]
   });
 
