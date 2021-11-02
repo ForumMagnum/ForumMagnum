@@ -17,7 +17,7 @@ const PostsPageEventData = ({classes, post}: {
   
   const locationNode = onlineEvent ? (
     <div className={classes.eventLocation}>Online Event</div>
-  ) : location && <div className={classes.eventLocation}> {location} </div>;
+  ) : (location && <div className={classes.eventLocation}> {location} </div>);
   
   return <Components.Typography variant="body2" className={classes.metadata}>
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>
