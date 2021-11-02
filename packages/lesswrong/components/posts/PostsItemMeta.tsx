@@ -54,7 +54,7 @@ const PostsItemMeta = ({post, read, classes}: {
       </span>}
 
       { post.isEvent && <span className={classes.info}>
-        {post.startTime && post.endTime && (
+        {post.startTime && (
           <span className={classes.calendarIcon}>
             <AddToCalendarIcon post={post} />
           </span>
@@ -103,4 +103,3 @@ declare global {
     PostsItemMeta: typeof PostsItemMetaComponent
   }
 }
-

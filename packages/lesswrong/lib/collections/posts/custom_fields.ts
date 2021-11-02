@@ -708,7 +708,6 @@ addFieldsDict(Posts, {
     label: "End Time",
     group: formGroups.event,
     optional: true,
-    tooltip: 'Highly recommended (required for adding to calendars)'
   },
 
   localEndTime: {

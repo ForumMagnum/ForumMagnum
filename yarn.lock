@@ -6055,17 +6055,12 @@ draft-convert@^2.1.2:
     immutable "~3.7.4"
     invariant "^2.2.1"
 
-draft-js-alignment-plugin@2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/draft-js-alignment-plugin/-/draft-js-alignment-plugin-2.0.3.tgz#31cce4dbf4303f7af5f770e79980dc767bb847f7"
-  integrity sha512-cXp3RF9IpYX95SN323e8pJcO/ghMDDJVJ9qrkV6BZGsC6UfWcFRbSpctct41iyNVwRQRMJhFyLSNn3tu6fiHuw==
+draft-js-alignment-plugin@2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/draft-js-alignment-plugin/-/draft-js-alignment-plugin-2.0.6.tgz#92c53e3bf4d714d9c6add347f29d7212d262e4e3"
+  integrity sha512-sHHrQFrqBa2l17UBMOlshGXdMuQhCne3vmLjGhRfcIGxNZNtaR15BTBd63k5V4s09RSSRR/AL3ldJK8t1cKqjA==
   dependencies:
-    decorate-component-with-props "^1.0.2"
     draft-js-buttons "^2.0.1"
-    find-with-regex "^1.1.2"
-    immutable "~3.7.4"
-    prop-types "^15.5.8"
-    union-class-names "^1.0.0"
 
 draft-js-anchor-plugin@^2.0.2:
   version "2.0.3"
