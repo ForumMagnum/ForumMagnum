@@ -19,7 +19,7 @@ jobs:
         python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - run: pip3 install --upgrade pip awsebcli
     - name: Run Deploy
-      run: scripts/deploy.sh EAForum {{ matrix.environment }}
+      run: scripts/deploy.sh EAForum ${{ matrix.environment }}
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.CEA_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.CEA_AWS_SECRET_ACCESS_KEY }}
