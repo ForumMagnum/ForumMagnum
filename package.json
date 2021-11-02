@@ -26,6 +26,7 @@
     "reinstall-ckeditor-after-git-checkout": "yarn add ./public/lesswrong-editor",
     "reinstall-ckeditor": "yarn add ./public/lesswrong-editor",
     "production": "scripts/runProduction.sh",
+    "deploy": "scripts/deploy.sh",
     "ea-start": "./build.js -run -watch --settings ../ForumCredentials/settings-dev.json --mongoUrlFile ../ForumCredentials/dev-db-conn.txt",
     "ea-start-staging-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --settings ../ForumCredentials/settings-local-dev-staging-db.json",
     "ea-start-prod-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/prod-db-conn.txt --settings ../ForumCredentials/settings-local-dev-prod-db.json",
