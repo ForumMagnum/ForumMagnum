@@ -554,6 +554,16 @@ if (hasEventsSetting.get()) {
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
   );
+
+  if(isEAForum) {
+    addRoute(
+      {
+        name: "communityRedirect",
+        path:'/groupsAndEvents',
+        redirect: () => '/community'
+      }
+    );
+  }
 }
 
 addRoute(
