@@ -12,6 +12,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import AddIcon from '@material-ui/icons/Add';
 import RoomIcon from '@material-ui/icons/Room';
 import StarIcon from '@material-ui/icons/Star';
+import PersonPinIcon from '@material-ui/icons/PersonPin';
 import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser';
@@ -168,7 +169,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   mobileFilterActive: {
-    fill: 'rgba(0,0,0,0.3)'
+    opacity: 0.3
   },
   bottomDivider: {
     [theme.breakpoints.down('sm')]: {
@@ -249,7 +250,8 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
   
     const isEAForum = forumTypeSetting.get() === 'EAForum';
     const GroupIcon = () => isEAForum ? <StarIcon className={classes.eaButtonIcon}/> : <GroupIconSVG className={classes.buttonIcon}/>;
-    const EventIcon = () => isEAForum ? <RoomIcon  className={classes.eaButtonIcon}/> : <ArrowSVG className={classes.buttonIcon}/>;
+    const EventIcon = () => isEAForum ? <RoomIcon className={classes.eaButtonIcon}/> : <ArrowSVG className={classes.buttonIcon}/>;
+    const PersonIcon = () => isEAForum ? <PersonPinIcon className={classes.eaButtonIcon}/> : <PersonSVG className={classes.buttonIcon}/>;
 
     const isAdmin = userIsAdmin(currentUser);
 
@@ -313,14 +315,14 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
               </Tooltip>
             </span>
           </div>
-          {!isEAForum && <div
+          <div
             className={classes.filterSection}
           >
             <span className={classes.desktopFilter}>
-              <PersonSVG className={classes.buttonIcon} /> 
+              <PersonIcon />
             </span>
             <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showIndividuals})} onClick={toggleIndividuals}>
-              <PersonSVG className={classes.buttonIcon} /> 
+              <PersonIcon />
             </span>
             <span className={classes.buttonText}> Individuals </span>
             <span className={classes.actionContainer}>
@@ -334,7 +336,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
                 />
               </Tooltip>
             </span>
-          </div>}
+          </div>
         </div>
         <Divider className={classNames(classes.divider, classes.bottomDivider)} />
         <div

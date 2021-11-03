@@ -12,6 +12,7 @@ SyncedCron.options = {
 export function addCronJob(options: {
   name: string,
   interval?: string,
+  // uses later.js parser, no seconds allowed though
   cronStyleSchedule?: string,
   job: ()=>void,
 })
@@ -25,8 +26,9 @@ export function addCronJob(options: {
           schedule: (parser: any) => {
             if (options.interval)
               return parser.text(options.interval);
-            else if (options.cronStyleSchedule)
+            else if (options.cronStyleSchedule) {
               return parser.cron(options.cronStyleSchedule);
+            }
             else
               throw new Error("addCronJob needs a schedule specified");
           },

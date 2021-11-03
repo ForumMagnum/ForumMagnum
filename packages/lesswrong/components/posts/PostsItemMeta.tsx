@@ -68,7 +68,7 @@ const PostsItemMeta = ({post, read, classes}: {
             </LWTooltip>}
       </span>}
 
-      { post.isEvent && <span className={classes.info}>
+      { post.isEvent && !post.onlineEvent && <span className={classes.info}>
         <Components.EventVicinity post={post} />
       </span>}
 
@@ -84,11 +84,11 @@ const PostsItemMeta = ({post, read, classes}: {
         </LWTooltip>
       </span>}
 
-      <span className={classes.info}>
+      {!post.isEvent && <span className={classes.info}>
         <AnalyticsContext pageElementContext="tagsList">
           <FooterTagList post={post} hideScore hideAddTag smallText/>
         </AnalyticsContext>
-      </span>
+      </span>}
 
       {post.postedAt && !post.isEvent && <span className={classes.info}>
         <FormatDate date={post.postedAt}/>

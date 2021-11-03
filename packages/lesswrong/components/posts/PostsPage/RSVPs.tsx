@@ -11,7 +11,8 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
-    ...postBodyStyles(theme)
+    ...postBodyStyles(theme),
+    marginBottom: 12
   },
   rsvpItem: {
     width:  forumTypeSetting.get() === "EAForum" ? "33%" : "25%",

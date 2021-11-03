@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
-    marginTop:theme.spacing.unit*3,
+    marginTop:theme.spacing.unit*2,
     ...theme.typography.postStyle,
     color: 'rgba(0,0,0,0.5)',
   },
