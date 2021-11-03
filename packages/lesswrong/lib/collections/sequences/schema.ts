@@ -22,6 +22,7 @@ const schema: SchemaType<DbSequence> = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'text',
+    tooltip: 'The user id of the author',
   },
 
   title: {

@@ -308,6 +308,7 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
+    tooltip: 'Paste the user id of the author here',
     
     group: formGroups.adminOptions,
   },
