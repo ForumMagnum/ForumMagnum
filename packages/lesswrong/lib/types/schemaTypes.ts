@@ -58,8 +58,19 @@ interface CollectionFieldSpecification<T extends DbObject> {
   order?: number,
   label?: string,
   tooltip?: string,
-  // TODO; change type
-  control?: string,
+  // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
+  control?: 'text' |
+    'number' |
+    'url' |
+    'email' |
+    'textarea' |
+    'checkbox' |
+    'checkboxgroup' |
+    'radiogroup' |
+    'select' |
+    'datetime' |
+    'date' |
+    keyof ComponentTypes,
   placeholder?: string,
   hidden?: boolean|((formProps: any)=>boolean),
   group?: FormGroup,

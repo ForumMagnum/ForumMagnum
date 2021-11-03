@@ -21,7 +21,6 @@ const schema: SchemaType<DbSequence> = {
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
-    // hidden:  true,
     control: 'text',
   },
 
