@@ -8,7 +8,8 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 const options: MutationOptions<DbSequence> = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
     if (!user || !document) return false;
-    return userOwns(user, document) ? userCanDo(user, 'sequences.new.own') : userCanDo(user, `sequences.new.all`)
+    // TODO; doc
+    return (userOwns(user, document) || !document.userId) ? userCanDo(user, 'sequences.new.own') : userCanDo(user, `sequences.new.all`)
   },
 
   editCheck: (user: DbUser|null, document: DbSequence|null) => {

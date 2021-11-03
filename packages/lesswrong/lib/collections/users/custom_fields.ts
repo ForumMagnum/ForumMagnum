@@ -92,9 +92,9 @@ const notificationTypeSettingsField = (overrideSettings?: any) => ({
   optional: true,
   group: formGroups.notifications,
   control: "NotificationTypeSettings",
-  canRead: [userOwns, 'admins'],
-  canUpdate: [userOwns, 'admins'],
-  canCreate: ['members', 'admins'],
+  canRead: [userOwns, 'admins'] as FieldPermissions,
+  canUpdate: [userOwns, 'admins'] as FieldPermissions,
+  canCreate: ['members', 'admins'] as FieldCreatePermissions,
   ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
