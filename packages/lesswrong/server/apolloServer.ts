@@ -11,7 +11,7 @@ import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -35,6 +35,10 @@ import expressSession from 'express-session';
 import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
+import { DatabaseServerSetting } from './databaseSettings';
+
+const logGraphqlQueriesSetting = new DatabaseServerSetting<boolean>("logGraphqlQueries", false);
+const logGraphqlMutationsSetting = new DatabaseServerSetting<boolean>("logGraphqlMutations", false);
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -61,6 +65,34 @@ const getClientBundle = () => {
   }
   
   return clientBundle;
+}
+
+class ApolloServerLogging {
+  requestDidStart(args: any) {
+    const {queryString, operationName, variables, context} = args;
+    const userId = context?.userId;
+    
+    if (logGraphqlQueriesSetting.get() && queryString.startsWith("query")) {
+      const view = variables?.input?.terms?.view;
+      if (view) {
+        // eslint-disable-next-line no-console
+        console.log(`query: ${operationName} with view: ${variables?.input?.terms?.view} by ${userId}`);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(`query: ${operationName} by ${userId}`);
+      }
+    }
+    if (logGraphqlMutationsSetting.get() && queryString.startsWith("mutation")) {
+      const editedFields = variables?.data;
+      if (editedFields) {
+        // eslint-disable-next-line no-console
+        console.log(`mutation: ${operationName} editing ${JSON.stringify(Object.keys(editedFields))} by ${userId}`);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(`mutation: ${operationName} by ${userId}`);
+      }
+    }
+  }
 }
 
 export function startWebserver() {
@@ -118,7 +150,13 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: ({ req, res }) => computeContextFromReq(req, res),
+    context: async ({ req, res }) => {
+      const user = await getUserFromReq(req);
+      const context = await computeContextFromUser(user, req, res);
+      configureSentryScope(context);
+      return context;
+    },
+    extensions: [() => new ApolloServerLogging()]
   });
 
   app.use('/graphql', bodyParser.json({ limit: '50mb' }));
@@ -204,8 +242,9 @@ export function startWebserver() {
   // Start Server
   const port = process.env.PORT || 3000
   const env = process.env.NODE_ENV || 'production'
-  app.listen({ port }, () => {
+  const server = app.listen({ port }, () => {
     // eslint-disable-next-line no-console
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
+  server.keepAliveTimeout = 120000;
 }

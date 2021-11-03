@@ -7,9 +7,10 @@ import { useModerateComment } from './withModerateComment'
 import { useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 
-const DeleteCommentMenuItem = ({comment, post}: {
+const DeleteCommentMenuItem = ({comment, post, tag}: {
   comment: CommentsList,
-  post: PostsBase,
+  post?: PostsBase,
+  tag?: TagBasicInfo,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -34,24 +35,21 @@ const DeleteCommentMenuItem = ({comment, post}: {
     }).then(() => flash({messageString: "Successfully restored comment", type: "success"})).catch(/* error */);
   }
 
-  const render = () => {
-    if (userCanModerateComment(currentUser, post, comment)) {
-      if (!comment.deleted) {
-        return (
-          <MenuItem onClick={ showDeleteDialog}>
-            Delete
-          </MenuItem>
-        )
-      } else {
-        return <MenuItem onClick={ handleUndoDelete }>
-          Undo Delete
-        </MenuItem>
-      }
-    } else {
-      return null
-    }
+  if (!userCanModerateComment(currentUser, post||null, tag||null, comment)) {
+    return null;
   }
-  return render();
+  
+  if (!comment.deleted) {
+    return (
+      <MenuItem onClick={ showDeleteDialog}>
+        Delete
+      </MenuItem>
+    )
+  } else {
+    return <MenuItem onClick={ handleUndoDelete }>
+      Undo Delete
+    </MenuItem>
+  }
 }
 
 const DeleteCommentMenuItemComponent = registerComponent('DeleteCommentMenuItem', DeleteCommentMenuItem);

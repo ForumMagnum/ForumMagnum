@@ -170,6 +170,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           className={classes.menu}
           comment={comment}
           post={post}
+          tag={tag}
           showEdit={setShowEdit}
         />
       </AnalyticsContext>

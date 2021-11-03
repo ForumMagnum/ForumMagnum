@@ -95,11 +95,25 @@ export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: Posts
   )
 }
 
-export const userCanModerateComment = (user: UsersProfile|DbUser|null, post: PostsBase|DbPost|null , comment: CommentsList|DbComment) => {
-  if (!user || !post || !comment) return false
-  if (userCanModeratePost(user, post)) return true 
-  if (userOwns(user, comment) && !comment.directChildrenCount) return true 
-  return false
+export const userCanModerateComment = (user: UsersProfile|DbUser|null, post: PostsBase|DbPost|null , tag: TagBasicInfo|DbTag|null, comment: CommentsList|DbComment) => {
+  if (!user || !comment) {
+    return false;
+  }
+  if (post) {
+    if (userCanModeratePost(user, post)) return true 
+    if (userOwns(user, comment) && !comment.directChildrenCount) return true 
+    return false
+  } else if (tag) {
+    if (userIsMemberOf(user, "sunshineRegiment")) {
+      return true;
+    } else if (userOwns(user, comment) && !comment.directChildrenCount) {
+      return true 
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
 }
 
 export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null): boolean => {
