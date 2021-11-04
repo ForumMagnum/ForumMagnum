@@ -166,7 +166,7 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, NominatePostMenuItem } = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -204,14 +204,14 @@ const PostActions = ({post, closeMenu, classes}: {
           </Link>
         }
         {currentUser && post.group && <MenuItem>
-          <SubscribeTo document={post.group} showIcon
+          <NotifyMeButton document={post.group} showIcon
             subscribeMessage={"Subscribe to "+post.group.name}
             unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
         </MenuItem>}
 
         {currentUser && post.shortform && (post.userId !== currentUser._id) &&
           <MenuItem>
-            <SubscribeTo document={post} showIcon
+            <NotifyMeButton document={post} showIcon
               subscriptionType={subscriptionTypes.newShortform}
               subscribeMessage={`Subscribe to ${post.title}`}
               unsubscribeMessage={`Unsubscribe from ${post.title}`}
@@ -220,13 +220,13 @@ const PostActions = ({post, closeMenu, classes}: {
         }
 
         {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
-          <SubscribeTo document={postAuthor} showIcon
+          <NotifyMeButton document={postAuthor} showIcon
             subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
             unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}/>
         </MenuItem>}
 
         {currentUser && <MenuItem>
-          <SubscribeTo document={post} showIcon
+          <NotifyMeButton document={post} showIcon
             subscribeMessage="Subscribe to comments"
             unsubscribeMessage="Unsubscribe from comments"/>
         </MenuItem>}

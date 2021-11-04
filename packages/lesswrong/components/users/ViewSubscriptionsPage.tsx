@@ -81,7 +81,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   renderDocument: (document: any)=>ReactNode,
   classes: ClassesType,
 }) => {
-  const { Loading, SubscribeTo } = Components;
+  const { Loading, NotifyMeButton } = Components;
   const { document, loading } = useSingle({
     documentId: subscription.documentId,
     collectionName, fragmentName,
@@ -94,7 +94,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
     <div className={classes.subscribedItemDescription}>
     {renderDocument(document)}
     </div>
-    <SubscribeTo
+    <NotifyMeButton
       document={document}
       subscriptionType={subscription.type}
       subscribeMessage="Resubscribe"

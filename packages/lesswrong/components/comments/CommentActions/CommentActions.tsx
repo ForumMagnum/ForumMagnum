@@ -13,7 +13,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: ()=>void,
 }) => {
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment } = Components
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment } = Components
   
   const { document: postDetails } = useSingle({
     skip: !post,
@@ -27,7 +27,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
     {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
       <MenuItem>
-        <SubscribeTo document={post} showIcon
+        <NotifyMeButton document={post} showIcon
           subscriptionType={subscriptionTypes.newShortform}
           subscribeMessage={`Notify me of additions to ${post.title}`}
           unsubscribeMessage={`Stop notifying me of additions to ${post.title}`}
@@ -35,14 +35,14 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       </MenuItem>
     }
     <MenuItem>
-      <SubscribeTo document={comment} showIcon
+      <NotifyMeButton document={comment} showIcon
         subscribeMessage="Notify me of comment replies"
         unsubscribeMessage="Stop notifying me of comment replies"
       />
     </MenuItem>
     {comment.user?._id && (comment.user._id !== currentUser._id) &&
       <MenuItem>
-        <SubscribeTo document={comment.user} showIcon
+        <NotifyMeButton document={comment.user} showIcon
           subscribeMessage={"Notify me of new posts by "+userGetDisplayName(comment.user)}
           unsubscribeMessage={"Stop notifying me of new posts by "+userGetDisplayName(comment.user)}
         />
@@ -69,4 +69,3 @@ declare global {
     CommentActions: typeof CommentActionsComponent,
   }
 }
-

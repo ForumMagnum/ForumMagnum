@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SubscribeTo = ({
+const NotifyMeButton = ({
   document,
   subscriptionType: overrideSubscriptionType,
   subscribeMessage, unsubscribeMessage,
@@ -130,13 +130,10 @@ const SubscribeTo = ({
   </a>
 }
 
-const SubscribeToComponent = registerComponent('SubscribeTo', SubscribeTo, {styles});
+const SubscribeToComponent = registerComponent('NotifyMeButton', NotifyMeButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    SubscribeTo: typeof SubscribeToComponent
+    NotifyMeButton: typeof SubscribeToComponent
   }
 }
-
-
-

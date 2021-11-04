@@ -51,7 +51,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     fontVariant: "small-caps"
   },
-  subscribeTo: {
+  NotifyMeButton: {
     [theme.breakpoints.down('xs')]: {
       marginTop: 8,
     },
@@ -260,7 +260,7 @@ const TagPage = ({classes}: {
           {!tag.wikiOnly && !editing &&
             <SubscribeButton
               document={tag}
-              className={classes.subscribeTo}
+              className={classes.NotifyMeButton}
               subscribeMessage="Subscribe"
               unsubscribeMessage="Unsubscribe"
               subscriptionType={subscriptionTypes.newTagPosts}

@@ -184,7 +184,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -263,7 +263,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton>}
-              { currentUser && currentUser._id !== user._id && <SubscribeTo
+              { currentUser && currentUser._id !== user._id && <NotifyMeButton
                 document={user}
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"

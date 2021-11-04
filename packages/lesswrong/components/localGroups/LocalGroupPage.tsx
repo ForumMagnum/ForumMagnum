@@ -60,7 +60,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 }) => {
   const currentUser = useCurrentUser();
   const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
+    SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
 
   const { document: group, loading } = useSingle({
     collectionName: "Localgroups",
@@ -88,7 +88,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>
-            <SubscribeTo
+            <NotifyMeButton
               showIcon
               document={group}
               subscribeMessage="Subscribe to group"
@@ -134,4 +134,3 @@ declare global {
     LocalGroupPage: typeof LocalGroupPageComponent
   }
 }
-
