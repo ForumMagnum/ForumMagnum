@@ -131,9 +131,11 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
           <EditOutlinedIcon className={classes.buttonIcon} /> Edit
         </span>
       </MenuItem>}
-      <Link className={classes.button} to={`/tag/${tag.slug}/history`}>
+      <Link to={`/tag/${tag.slug}/history`}>
         <MenuItem>
-          <HistoryIcon className={classes.buttonIcon} /> History
+          <span className={classes.button}>
+            <HistoryIcon className={classes.buttonIcon} /> History
+          </span>
         </MenuItem>
       </Link>
       <MenuItem>
