@@ -71,12 +71,15 @@ const SubscribeButton = ({
     enableTotal: false,
   });
   
+  const { LWTooltip, Loading } = Components
+  
   const isSubscribed = () => {
     return true
   }
   const onSubscribe = async (e) => {
     try {
       e.preventDefault();
+      captureEvent() // TODO;
 
       // success message will be for example posts.subscribed
       flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});
@@ -105,18 +108,28 @@ const SubscribeButton = ({
   const showIcon = isSubscribed() || notificationsEnabled();
 
   return <div className={classNames(className, classes.root)}>
-    <Button variant="outlined" onClick={onSubscribe}>
-      <span className={classes.subscribeText}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
-    </Button>
-    {showIcon && <ListItemIcon className={classes.notificationsIcon}>
-      {loading
-        ? <Components.Loading/>
-        : (notificationsEnabled()
-          ? <NotificationsIcon />
-          : <NotificationsNoneIcon />
-        )
-      }
-    </ListItemIcon>}
+    <LWTooltip title={isSubscribed() ?
+      "Remove homepage boost for posts with this tag" :
+      "See more posts with this tag on the homepage"
+    }>
+      <Button variant="outlined" onClick={onSubscribe}>
+        <span className={classes.subscribeText}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
+      </Button>
+    </LWTooltip>
+    {showIcon && <LWTooltip title={notificationsEnabled() ?
+      "Turn off notifications for posts added to this tag" :
+      "Turn on notifications for posts added to this tag"
+    }>
+      <ListItemIcon className={classes.notificationsIcon}>
+        {loading
+          ? <Loading/>
+          : (notificationsEnabled()
+            ? <NotificationsIcon />
+            : <NotificationsNoneIcon />
+          )
+        }
+      </ListItemIcon>
+    </LWTooltip>}
   </div>
 }
 

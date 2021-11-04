@@ -257,9 +257,7 @@ const TagPage = ({classes}: {
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
-          {!tag.wikiOnly && !editing && <LWTooltip
-            title="See more posts with this tag on the homepage"
-          >
+          {!tag.wikiOnly && !editing &&
             <SubscribeButton
               document={tag}
               className={classes.subscribeTo}
@@ -267,7 +265,7 @@ const TagPage = ({classes}: {
               unsubscribeMessage="Unsubscribe"
               subscriptionType={subscriptionTypes.newTagPosts}
             />
-          </LWTooltip>}
+          }
         </div>
         <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classes.editMenu} />
       </div>}
