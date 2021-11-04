@@ -48,6 +48,8 @@ const SubscribeButton = ({
     collection: Subscriptions,
     fragmentName: 'SubscriptionState',
   });
+  // TODO;
+  const [fakeSubscribed, setFakeSubscribed] = React.useState(false);
   
   const collectionName = getCollectionName(document.__typename);
   const documentType = collectionName.toLowerCase();
@@ -74,12 +76,13 @@ const SubscribeButton = ({
   const { LWTooltip, Loading } = Components
   
   const isSubscribed = () => {
-    return true
+    return fakeSubscribed
   }
   const onSubscribe = async (e) => {
     try {
       e.preventDefault();
       captureEvent() // TODO;
+      setFakeSubscribed(!isSubscribed())
 
       // success message will be for example posts.subscribed
       flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});

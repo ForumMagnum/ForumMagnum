@@ -10,6 +10,7 @@ import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
+import { userHasNewTagSubscriptions } from '../../lib/betas';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -182,9 +183,11 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     }
 
     {<LWTooltip title="Add Tag Filter">
+        {/* TODO; extract to function */}
         <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
           if (!_.some(filterSettingsWithSuggestedTags.tags, t=>t.tagId===tagId)) {
-            const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
+            const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
+            const newFilter: FilterTag = {tagId, tagName, filterMode: defaultFilterMode}
             changeFilterSettings({
               personalBlog: filterSettingsWithSuggestedTags.personalBlog,
               tags: [...filterSettingsWithSuggestedTags.tags, newFilter]
