@@ -145,7 +145,9 @@ import './collections/comments'
 
 import './collections/petrovDayLaunchs'
 
-
+import './collections/featuredResources/collection'
+import './collections/featuredResources/views'
+import './collections/featuredResources/fragments'
 
 // Votes
 import './collections/votes';
