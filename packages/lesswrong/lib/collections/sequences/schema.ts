@@ -19,9 +19,10 @@ const schema: SchemaType<DbSequence> = {
     }),
     optional: true,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['admin'],
-    hidden:  true,
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    control: 'text',
+    tooltip: 'The user id of the author',
   },
 
   title: {

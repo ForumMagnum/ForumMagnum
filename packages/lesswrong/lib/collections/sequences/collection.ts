@@ -8,7 +8,11 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 const options: MutationOptions<DbSequence> = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
     if (!user || !document) return false;
-    return userOwns(user, document) ? userCanDo(user, 'sequences.new.own') : userCanDo(user, `sequences.new.all`)
+    // Either the document is unowned (and will be filled in with the userId
+    // later), or the user owns the document, or the user is an admin
+    return (!document.userId || userOwns(user, document)) ?
+      userCanDo(user, 'sequences.new.own') :
+      userCanDo(user, `sequences.new.all`)
   },
 
   editCheck: (user: DbUser|null, document: DbSequence|null) => {
