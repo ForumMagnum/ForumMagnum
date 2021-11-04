@@ -300,7 +300,6 @@ importComponent("EditCommentMenuItem", () => require('../components/comments/Com
 importComponent("ReportCommentMenuItem", () => require('../components/comments/CommentActions/ReportCommentMenuItem'));
 importComponent("MoveToAlignmentMenuItem", () => require('../components/comments/CommentActions/MoveToAlignmentMenuItem'));
 importComponent("SuggestAlignmentMenuItem", () => require('../components/comments/CommentActions/SuggestAlignmentMenuItem'));
-importComponent("SubscribeToCommentMenuItem", () => require('../components/comments/CommentActions/SubscribeToCommentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
 importComponent("CommentActions", () => require('../components/comments/CommentActions/CommentActions'));

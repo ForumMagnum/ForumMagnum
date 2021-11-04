@@ -12,6 +12,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
+import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -30,6 +31,7 @@ const SubscribeTo = ({
   document,
   subscriptionType: overrideSubscriptionType,
   subscribeMessage, unsubscribeMessage,
+  asMenuItem = false,
   className="",
   classes,
   showIcon,
@@ -38,6 +40,7 @@ const SubscribeTo = ({
   document: any,
   subscriptionType?: string,
   subscribeMessage?: string,
+  asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
   classes: ClassesType,
@@ -114,19 +117,34 @@ const SubscribeTo = ({
   if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
     return null;
   }
+  
+  const icon = showIcon && <ListItemIcon>
+    {loading
+      ? <Components.Loading/>
+      : (isSubscribed()
+        ? <NotificationsIcon />
+        : <NotificationsNoneIcon />
+      )
+    }
+  </ListItemIcon>
+  
+  const message = <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>
+    { isSubscribed() ? unsubscribeMessage : subscribeMessage}
+  </span>
 
-  return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
-    {showIcon && <ListItemIcon>
-      {loading
-        ? <Components.Loading/>
-        : (isSubscribed()
-          ? <NotificationsIcon />
-          : <NotificationsNoneIcon />
-        )
-      }
-    </ListItemIcon>}
-    <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
-  </a>
+  if (asMenuItem) {
+    return <MenuItem onClick={onSubscribe}>
+      <a className={classNames(className, classes.root)}>
+        {icon}
+        {message}
+      </a>
+    </MenuItem>
+  } else {
+    return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
+      {icon}
+      {message}
+    </a>
+  }
 }
 
 const SubscribeToComponent = registerComponent('SubscribeTo', SubscribeTo, {styles});
