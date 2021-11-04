@@ -10,6 +10,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useTagBySlug } from './useTag';
+import { userHasNewTagSubscriptions } from '../../lib/betas';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   smallPencilIcon: {
@@ -28,9 +31,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16,
     ...theme.typography.body2,
     color: theme.palette.grey[700],
+    "& svg": {
+      fontSize: 22,
+      marginRight: 6,
+    }
   },
   buttonIcon: {
-    fontSize: 22,
     marginRight: 4,
   },
   editMenuItem: {
@@ -74,6 +80,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
+  subscribeToWrapper: {
+    display: 'inline-block',
+    width: '100%',
+  }
 });
 
 const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
@@ -89,7 +99,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   // TODO; we can avoid a database round trip on every tag page load by
   // conditionally fetching this
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
-  const { TagDiscussionButton, ContentItemBody, Typography, TagFlagItem } = Components;
+  const { TagDiscussionButton, ContentItemBody, LWTooltip, NotifyMeButton, Typography, TagFlagItem } = Components;
   
   const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
     setAnchorEl(event.currentTarget);
@@ -137,6 +147,24 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
           </span>
         </MenuItem>
       </Link>
+      {
+        !userHasNewTagSubscriptions(currentUser) && 
+        !tag.wikiOnly && 
+        !editing && 
+        <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+          <MenuItem>
+            <NotifyMeButton
+              document={tag}
+              className={classNames(classes.subscribeTo, classes.button)}
+              showIcon
+              hideLabelOnMobile
+              subscribeMessage="Notify me of new posts"
+              unsubscribeMessage="Stop notifying me of new posts"
+              subscriptionType={subscriptionTypes.newTagPosts}
+            />
+          </MenuItem>
+        </LWTooltip>
+      }
       <MenuItem>
         <div className={classes.button}>
           <TagDiscussionButton tag={tag} />
