@@ -116,7 +116,6 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   const numFlags = tag.tagFlagsIds?.length
   
   return <div className={className}>
-    {/* TODO; use LWPopper? */}
     <Popover
       open={!!anchorEl}
       anchorEl={anchorEl}
@@ -143,7 +142,6 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
           <TagDiscussionButton tag={tag} />
         </div>
       </MenuItem>
-      {/* TODO; divider (MUIDivider?) */}
       {tag.tagFlags.length > 0 && <div className={classes.tagFlags}>
         <Typography variant="body2" gutterBottom>
           <em>This article has the following flags:</em>

@@ -15,6 +15,10 @@ import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
+// Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
+// component still talks about 'subscriptions', but we're moving to calling them
+// 'notifications enabled'
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",

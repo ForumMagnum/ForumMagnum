@@ -2,6 +2,7 @@ import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -257,7 +258,7 @@ const TagPage = ({classes}: {
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
-          {!tag.wikiOnly && !editing &&
+          {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
             <SubscribeButton
               document={tag}
               className={classes.NotifyMeButton}
