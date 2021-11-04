@@ -75,7 +75,7 @@ const BigCollectionsCard = ({ collection, url, classes }: {
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
       <div className={classes.media}>
-        <Components.CloudinaryImage publicId={collection.imageId} />
+        <Components.CloudinaryImage publicId={collection.imageId} width={326} height={280} />
       </div>
       <div className={classes.content} style={cardContentStyle}>
         <Typography variant="title" className={classes.title}>

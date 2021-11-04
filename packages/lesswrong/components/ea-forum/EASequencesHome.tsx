@@ -12,8 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const EASequencesHome = ({classes}) => {
-
   const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, CoreReading } = Components
+  
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>
       <SectionTitle title="Core Reading" />
