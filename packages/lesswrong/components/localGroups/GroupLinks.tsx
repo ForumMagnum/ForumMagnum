@@ -76,7 +76,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: "inline-block",
     color: "rgba(0, 0, 0, 0.7)",
     paddingTop: "0px",
-    transform: "translateY(1px)",
+    transform: "translateY(2px)",
   },
 
   linkIcon: {
@@ -136,7 +136,7 @@ const GroupLinks = ({ document, classes }: {
               <FacebookIcon className={classes.facebookGroupIcon}/>
             </a>
           </Tooltip>}
-        {document.facebookPageLink
+        {'facebookPageLink' in document && document.facebookPageLink
         && <Tooltip
           title={`Link to Facebook ${isEvent ? 'Event' : 'Page'}`}
           placement="top-end"

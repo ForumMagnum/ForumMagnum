@@ -60,7 +60,6 @@ registerFragment(`
     localStartTime
     localEndTime
     facebookLink
-    facebookPageLink
     meetupLink
     website
     contactInfo
