@@ -136,29 +136,31 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(-25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-25})} onClick={ev => onChangeMode(-25)}>
-                -25
+              <span className={classNames(classes.filterButton, {[classes.selected]: [-25, "Reduced"].includes(mode)})} onClick={ev => onChangeMode(-25)}>
+                {userHasNewTagSubscriptions(currentUser) ? "Reduced" : "-25"}
               </span>
             </LWTooltip>
-            <LWTooltip title={filterModeToTooltip(-10)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
-                -10
-              </span>
-            </LWTooltip>
-            {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
-              title={filterModeToTooltip("Default")}
-            >
+            {!userHasNewTagSubscriptions(currentUser) && <>
+              <LWTooltip title={filterModeToTooltip(-10)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
+                  -10
+                </span>
+              </LWTooltip>
+              <LWTooltip
+                title={filterModeToTooltip("Default")}
+              >
               <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => onChangeMode(0)}>
                 +0
               </span>
-            </LWTooltip>}
-            <LWTooltip title={filterModeToTooltip(10)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
-                +10
-              </span>
-            </LWTooltip>
+              </LWTooltip>
+              <LWTooltip title={filterModeToTooltip(10)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
+                  +10
+                </span>
+              </LWTooltip>
+            </>}
             <LWTooltip title={filterModeToTooltip(25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===25})} onClick={ev => onChangeMode(25)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => onChangeMode(25)}>
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
               </span>
             </LWTooltip>

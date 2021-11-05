@@ -9,7 +9,7 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hidden"|"Default"|"Required"|number
+export type FilterMode = "Hidden"|"Default"|"Required"|"Subscribed"|"Reduced"|number
 
 export const getDefaultFilterSettings = (): FilterSettings => ({
   personalBlog: "Hidden",
