@@ -39,19 +39,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
+const SmallSideVote = ({ document, hideKarma=false, noReacts=false, classes, collection }: {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
   hideKarma?: boolean,
+  noReacts?: boolean,
   classes: ClassesType,
   collection: any
 }) => {
   const currentUser = useCurrentUser();
   const voteProps = useVote(document, collection.options.collectionName);
-  const {eventHandlers, hover} = useHover();
+  const {eventHandlers, hover, anchorEl} = useHover();
   
   if (!document) return null;
 
-  const { VoteButton } = Components
+  const { VoteButton, VoteReactsForm, VoteReactsDisplay, LWPopper } = Components
 
   const voteCount = voteProps.voteCount;
   const karma = voteProps.baseScore;
@@ -81,45 +82,16 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
 
   return (
     <span className={classes.vote} {...eventHandlers}>
-      {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
-        <>
-          <Tooltip
-            title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-            placement="bottom"
-            >
-            <span>
-              <VoteButton
-                orientation="left"
-                color="error"
-                voteType="Downvote"
-                {...voteProps}
-              />
-            </span>
-          </Tooltip>
-          {hideKarma ?
-            <Tooltip title={'The author of this post has disabled karma visibility'}>
-              <span>{' '}</span>
-            </Tooltip> :
-            <Tooltip title={`This ${documentTypeName} has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
-              <span className={classes.voteScore}>
-                {karma}
-              </span>
-            </Tooltip>
-          }
-          <Tooltip
-            title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
-            placement="bottom">
-            <span>
-              <VoteButton
-                orientation="right"
-                color="secondary"
-                voteType="Upvote"
-                {...voteProps}
-              />
-            </span>
-          </Tooltip>
-        </>
-      }
+      {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) && <>
+        <LWPopper open={hover} anchorEl={anchorEl} clickable={true} placement="bottom-start">
+          <VoteReactsForm document={document} voteProps={voteProps} collection={collection}/>
+        </LWPopper>
+        <VoteButton orientation="left" color="error" voteType="Downvote" {...voteProps} />
+        {hideKarma ? <span>{' '}</span> : <span className={classes.voteScore}>{karma}</span>}
+        <VoteButton orientation="right" color="secondary" voteType="Upvote" {...voteProps} />
+        
+        {!noReacts && <VoteReactsDisplay document={document}/>}
+      </>}
       {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
         <Tooltip placement="bottom" title={
           <div>
@@ -141,7 +113,8 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
           </span>
         </Tooltip>
       }
-    </span>)
+    </span>
+  )
 }
 
 const SmallSideVoteComponent = registerComponent('SmallSideVote', SmallSideVote, {styles});
