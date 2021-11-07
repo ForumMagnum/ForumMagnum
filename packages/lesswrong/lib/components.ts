@@ -38,9 +38,12 @@ importComponent("CKCommentEditor", () => require('../components/editor/CKComment
 importComponent("CKPostEditor", () => require('../components/editor/CKPostEditor'));
 importComponent("Editor", () => require('../components/editor/Editor'));
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent'));
+importComponent("LastEditedInWarning", () => require('../components/editor/LastEditedInWarning'));
 importComponent("LocalStorageCheck", () => require('../components/editor/LocalStorageCheck'));
+importComponent("EditorTypeSelect", () => require('../components/editor/EditorTypeSelect'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
+importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -55,6 +58,7 @@ importComponent("SubscribeTo", () => require('../components/notifications/Subscr
 importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings'));
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview'));
+importComponent("CommentOnYourDraftNotificationHover", () => require('../components/notifications/CommentOnYourDraftNotificationHover'));
 
 importComponent("Layout", () => require('../components/Layout.tsx'));
 
@@ -135,6 +139,8 @@ importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPos
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
+importComponent("NewUsersEditForm", () => require('../components/users/NewUsersEditForm'));
+importComponent("OldUsersEditForm", () => require('../components/users/OldUsersEditForm'));
 importComponent("TabBar", () => require('../components/users/TabBar'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));
@@ -508,7 +514,7 @@ importComponent("FormLocation", () => require('../components/forms/FormLocation'
 importComponent("FormTextbox", () => require('../components/forms/FormTextbox'));
 importComponent("FormNotificationTypeSettings", () => require('../components/forms/FormNotificationTypeSettings'));
 importComponent("FormMultilineText", () => require('../components/forms/FormMultilineText'));
-importComponent("FormUsersList", () => require('../components/forms/FormUsersList'));
+importComponent(["EditableUsersList", "FormUsersList"], () => require('../components/forms/FormUsersList'));
 importComponent("FormUserPermissionGroupMemberships", () => require('../components/forms/FormUserPermissionGroupMemberships'));
 importComponent("FormKarmaChangeNotifierSettings", () => require('../components/forms/FormKarmaChangeNotifierSettings'));
 

@@ -26,6 +26,7 @@ export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
+export const userHasRedesignedSettingsPage = disabled;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

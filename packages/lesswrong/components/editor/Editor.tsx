@@ -6,7 +6,7 @@ import withUser from '../common/withUser';
 import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import EditorForm from '../async/EditorForm'
+import DraftJSEditor from './DraftJSEditor';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
@@ -81,9 +81,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxHeight: "calc(100vh - 450px)",
     overflowY: "scroll"
   },
-  clickHereColor: {
-    color: theme.palette.primary.main
-  },
   select: {
     marginRight: theme.spacing.unit*1.5
   },
@@ -119,18 +116,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: `${theme.spacing.unit * 3}px 0`,
     color: theme.palette.error.main,
   },
-  lastEditedWarning: {
-    color: theme.palette.error.main,
-  },
 })
 
 const autosaveInterval = 3000; //milliseconds
 const checkImgErrsInterval = 500; //milliseconds
 const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
 
-type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
+export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
 
-const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:string}> = {
+export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},
   markdown: {name: 'Markdown'},
@@ -146,7 +140,22 @@ export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString 
   return "ckEditorMarkup"
 }
 
+// Contents of an editor, with `value` in the native format of the editor
+// (whichever editor that is). For DraftJS in particular, this means `value` is
+// a DraftJS EditorState object.
 export interface EditorContents {
+  type: EditorTypeString,
+  value: any,
+}
+
+export interface EditorChangeEvent {
+  contents: EditorContents,
+  autosave: boolean,
+}
+
+
+// Contents of an editor, with `value` in a JSON-serializable format.
+export interface SerializedEditorContents {
   type: EditorTypeString,
   value: any,
 }
@@ -159,7 +168,7 @@ interface EditorProps {
   initialEditorType: EditorTypeString,
   isCollaborative: boolean,
   value: EditorContents,
-  setValue: (value: EditorContents)=>void,
+  onChange: (change: EditorChangeEvent)=>void,
   placeholder?: string,
   commentStyles?: boolean,
   answerStyles?: boolean,
@@ -168,7 +177,6 @@ interface EditorProps {
   hideControls?: boolean,
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
-  getLocalStorageHandlers: (editorType?: string) => any,
   _classes: ClassesType,
 }
 
@@ -194,7 +202,7 @@ export const getBlankEditorContents = (editorType: EditorTypeString): EditorCont
   }
 }
 
-const isBlank = (editorContents: EditorContents): boolean => {
+export const isBlank = (editorContents: EditorContents): boolean => {
   if (!editorContents.value)
     return true;
   
@@ -207,34 +215,21 @@ const isBlank = (editorContents: EditorContents): boolean => {
 }
 
 export const getInitialEditorContents = (value, document, fieldName, currentUser: UsersCurrent|null): EditorContents => {
-  const initialEditorType = (
-    value?.originalContents?.type
-    || document?.[fieldName]?.originalContents?.type
-    || getUserDefaultEditor(currentUser)
-  );
   const initialValue = value?.originalContents || document?.[fieldName]?.originalContents;
-  if (!initialValue)
-    return getBlankEditorContents(initialEditorType);
-  
-  if (initialEditorType === "draftJS") {
-    return {
-      type: "draftJS",
-      value: EditorState.createWithContent(convertFromRaw(initialValue.data)),
-    };
-  } else {
-    return {
-      type: initialEditorType,
+  if (initialValue) {
+    const result = deserializeEditorContents({
+      type: initialValue.type,
       value: initialValue.data,
-    };
+    });
+    if (result) {
+      return result;
+    }
   }
+  
+  return getBlankEditorContents(getUserDefaultEditor(currentUser));
 }
 
-const convertEditorType = (value: EditorContents, type: EditorTypeString): EditorContents => {
-  // TODO
-  return getBlankEditorContents(type);
-}
-
-const editorContentsToJSON = (contents: EditorContents): any => {
+export const serializeEditorContents = (contents: EditorContents): SerializedEditorContents => {
   if (contents.type === "draftJS") {
     return {
       type: "draftJS",
@@ -245,12 +240,22 @@ const editorContentsToJSON = (contents: EditorContents): any => {
   }
 }
 
+export const deserializeEditorContents = (contents: SerializedEditorContents): EditorContents|null => {
+  if (!contents?.type) {
+    return null;
+  } else if (contents.type === "draftJS") {
+    return {
+      type: "draftJS",
+      value: EditorState.createWithContent(convertFromRaw(contents.value)),
+    };
+  } else {
+    return contents;
+  }
+}
+
 export class Editor extends Component<EditorProps,EditorComponentState> {
-  hasUnsavedData: boolean
-  throttledSaveBackup: any
   throttledSetCkEditor: any
   debouncedCheckMarkdownImgErrs: any
-  unloadEventListener: any
 
   constructor(props: EditorProps) {
     super(props)
@@ -264,31 +269,14 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       markdownImgErrs: false
     }
     
-    this.hasUnsavedData = false;
-    this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
     this.throttledSetCkEditor = _.throttle((value) => this.setContents("ckEditorMarkup", value), autosaveInterval);
     this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
   }
 
   async componentDidMount() {
-    if (isClient && window) {
-      this.unloadEventListener = (ev) => {
-        if (this.hasUnsavedData) {
-          ev.preventDefault();
-          ev.returnValue = 'Are you sure you want to close?';
-          return ev.returnValue
-        }
-      }
-      window.addEventListener("beforeunload", this.unloadEventListener );
-    }
-
     if (isClient) {
       this.setState({loading: false})
     }
-  }
-  
-  getLocalStorageHandlers = (editorType?: string) => {
-    return this.props.getLocalStorageHandlers(editorType || this.getCurrentEditorType());
   }
 
   submitData = (submission) => {
@@ -314,86 +302,43 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       commitMessage, updateType,
     } : undefined
   }
-
-  resetEditor = () => {
-    // On Form submit, create a new empty editable
-    this.getLocalStorageHandlers().reset();
-  }
-
-  componentWillUnmount() {
-    if (this.unloadEventListener) {
-      window.removeEventListener("beforeunload", this.unloadEventListener);
-    }
-  }
-
-
-  setEditorType = (editorType: EditorTypeString) => {
-    if (!editorType)
-      throw new Error("Missing argument to setEditorType: editorType");
-    this.props.setValue(convertEditorType(this.props.value, editorType));
-  }
   
   setContents = (editorType: EditorTypeString, value) => {
     switch (editorType) {
       case "html": {
         if (this.props.value.value === value)
           return;
-        this.props.setValue({type: editorType, value});
+        this.props.onChange({
+          contents: {type: editorType, value},
+          autosave: true,
+        });
         break;
       }
       case "markdown": {
         if (this.props.value.value === value)
           return;
-        this.props.setValue({type: editorType, value});
+        this.props.onChange({
+          contents: {type: editorType, value},
+          autosave: true,
+        });
         this.debouncedCheckMarkdownImgErrs()
         break;
       }
       case "draftJS": {
-        this.props.setValue({type: "draftJS", value});
+        this.props.onChange({
+          contents: {type: editorType, value},
+          autosave: true,
+        });
         break;
       }
       case "ckEditorMarkup": {
-        this.props.setValue({type: "ckEditorMarkup", value})
+        this.props.onChange({
+          contents: {type: editorType, value},
+          autosave: true,
+        })
         break;
       }
     }
-    
-    this.hasUnsavedData = true;
-    this.throttledSaveBackup();
-  }
-
-  saveBackup = () => {
-    if (isBlank(this.props.value)) {
-      this.getLocalStorageHandlers().reset();
-      this.hasUnsavedData = false;
-    } else {
-      const serialized = editorContentsToJSON(this.props.value);
-      const success = this.getLocalStorageHandlers().set(serialized);
-  
-      if (success) {
-        this.hasUnsavedData = false;
-      }
-    }
-  }
-
-  renderEditorWarning = () => {
-    const { currentUser, initialEditorType, _classes: classes } = this.props
-    const type = initialEditorType;
-    const defaultType = getUserDefaultEditor(currentUser)
-    return <div>
-      <Components.Typography variant="body2" className={classes.lastEditedWarning}>
-        This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
-        {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
-        <a
-          className={classes.clickHereColor}
-          onClick={() => this.setEditorType(defaultType)}
-        >
-          Click here
-        </a>
-        {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
-      </Components.Typography>
-      <br/>
-    </div>
   }
 
 
@@ -402,17 +347,15 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
 
-  handleUpdateTypeSelect = (e) => {
-    this.setState({ updateType: e.target.value })
-  }
-
   renderUpdateTypeSelect = () => {
     const { currentUser, formType, _classes: classes, hideControls } = this.props
     if (hideControls) return null
     if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
     return <Select
       value={this.state.updateType}
-      onChange={this.handleUpdateTypeSelect}
+      onChange={(e) => {
+        this.setState({ updateType: e.target.value })
+      }}
       className={classes.select}
       disableUnderline
     >
@@ -440,37 +383,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     </div>
   }
 
-  renderEditorTypeSelect = () => {
-    const { currentUser, _classes: classes, hideControls } = this.props
-    const { LWTooltip } = Components
-
-    if (hideControls) return null
-    if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
-    const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
-    return (
-      <LWTooltip title="Warning! Changing format will erase your content" placement="left">
-        <Select
-          className={classes.select}
-          value={this.getCurrentEditorType()}
-          onChange={(e) => this.setEditorType(e.target.value as EditorTypeString)}
-          disableUnderline
-          >
-            {editors.map((editorType, i) =>
-              <MenuItem value={editorType} key={i}>
-                {editorTypeToDisplay[editorType].name} {editorTypeToDisplay[editorType].postfix}
-              </MenuItem>
-            )}
-          </Select>
-      </LWTooltip>
-    )
-  }
-
-  getBodyStyles = () => {
-    const { _classes: classes, commentStyles, answerStyles } = this.props
-    if (commentStyles && answerStyles) return classes.answerStyles
-    if (commentStyles) return classes.commentBodyStyles
-    return classes.postBodyStyles
-  }
 
   renderEditorComponent = (contents: EditorContents) => {
     switch (contents.type) {
@@ -498,6 +410,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   isDocumentCollaborative = () => {
     return this.props.isCollaborative;
   }
+  
 
   renderCkEditor = (contents: EditorContents) => {
     const { ckEditorReference } = this.state
@@ -525,7 +438,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
       const collaboration = this.isDocumentCollaborative()
 
-      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
+      return <div className={this.getHeightClass()}>
         { this.renderPlaceholder(!value, collaboration)}
         { collaboration
           ? <Components.CKPostEditor key="ck-collaborate" { ...editorProps } collaboration />
@@ -580,31 +493,41 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
     return <div>
       { this.renderPlaceholder(showPlaceholder, false) }
-      {draftJSValue && <EditorForm
+      {draftJSValue && <DraftJSEditor
         editorState={draftJSValue}
         onChange={(value) => this.setContents("draftJS", value)}
         commentEditor={commentEditor||false}
-        className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: questionStyles})}
+        className={classNames(
+          this.getBodyStyles(),
+          this.getHeightClass(),
+          {[classes.questionWidth]: questionStyles}
+        )}
       />}
     </div>
   }
+  
 
-  getMaxHeightClass = () => {
-    const { _classes: classes, maxHeight } = this.props
-    return maxHeight ? classes.maxHeight : null
+  getBodyStyles = () => {
+    const { _classes: classes, commentStyles, answerStyles } = this.props
+    if (commentStyles && answerStyles) return classes.answerStyles
+    if (commentStyles) return classes.commentBodyStyles
+    return classes.postBodyStyles
   }
 
   getHeightClass = () => {
-    const { _classes: classes, commentStyles, questionStyles } = this.props
-    if (commentStyles) {
-      return classes.commentEditorHeight
-    } else if (questionStyles) {
-      return classes.questionEditorHeight;
-    } else {
-      return classes.postEditorHeight
-    }
+    const { _classes: classes, commentStyles, questionStyles, maxHeight } = this.props
+    
+    return classNames({
+      [classes.commentEditorHeight]: commentStyles,
+      [classes.questionEditorHeight]: questionStyles && !commentStyles,
+      [classes.postEditorHeight]: !commentStyles && !questionStyles,
+      [classes.maxHeight]: maxHeight,
+    });
   }
 
+  focusOnEditor = () => {
+    // TODO
+  }
 
   render() {
     const { loading } = this.state
@@ -612,16 +535,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const { Loading } = Components
     const currentEditorType = this.getCurrentEditorType()
 
-    const editorWarning =
-      formType !== "new"
-      && initialEditorType !== getUserDefaultEditor(currentUser)
-      && this.renderEditorWarning()
     return <div>
-      { editorWarning }
       <div className={classNames(classes.editor, this.getBodyStyles())}>
         { loading ? <Loading/> : this.renderEditorComponent(this.props.value) }
         { this.renderUpdateTypeSelect() }
-        { this.renderEditorTypeSelect() }
       </div>
       { this.renderCommitMessageInput() }
     </div>

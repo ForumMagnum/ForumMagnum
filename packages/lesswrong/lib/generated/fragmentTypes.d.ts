@@ -266,6 +266,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly shareWithUsers: Array<string>,
+  readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
@@ -510,12 +511,20 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly contents: RevisionDisplay|null,
 }
 
-interface PostsEdit extends PostsPage { // fragment on Posts
+interface PostsEdit extends PostsDetails { // fragment on Posts
+  readonly version: string,
   readonly coauthorUserIds: Array<string>,
   readonly moderationGuidelines: RevisionEdit|null,
-  readonly contents: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
+}
+
+interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
+  readonly contents: RevisionEdit|null,
+}
+
+interface PostsEditMutationFragment extends PostsEdit { // fragment on Posts
+  readonly contents: RevisionEdit|null,
 }
 
 interface PostsRevisionsList { // fragment on Posts
@@ -750,6 +759,7 @@ interface NotificationsDefaultFragment { // fragment on Notifications
   readonly createdAt: Date,
   readonly documentId: string,
   readonly documentType: string,
+  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly link: string,
   readonly title: string,
   readonly message: string,
@@ -771,6 +781,7 @@ interface NotificationsList { // fragment on Notifications
   readonly message: string,
   readonly type: string,
   readonly viewed: boolean,
+  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface ConversationsDefaultFragment { // fragment on Conversations
@@ -1580,8 +1591,8 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 }
 
 interface UsersEdit extends UsersProfile { // fragment on Users
-  readonly moderationGuidelines: RevisionEdit|null,
   readonly beta: boolean,
+  readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
   readonly hideElicitPredictions: boolean,
   readonly hideAFNonMemberInitialWarning: boolean,
@@ -1630,6 +1641,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly notificationAlignmentSubmissionApproved: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly notificationEventInRadius: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly notificationRSVPs: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
+  readonly notificationCommentsOnDraft: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
@@ -1722,6 +1734,8 @@ interface FragmentTypes {
   PostSequenceNavigation: PostSequenceNavigation
   PostsPage: PostsPage
   PostsEdit: PostsEdit
+  PostsEditQueryFragment: PostsEditQueryFragment
+  PostsEditMutationFragment: PostsEditMutationFragment
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
@@ -1857,6 +1871,8 @@ interface CollectionNamesByFragmentName {
   PostSequenceNavigation: "Posts"
   PostsPage: "Posts"
   PostsEdit: "Posts"
+  PostsEditQueryFragment: "Posts"
+  PostsEditMutationFragment: "Posts"
   PostsRevisionsList: "Posts"
   PostsRecentDiscussion: "Posts"
   UsersBannedFromPostsModerationLog: "Posts"

@@ -12,7 +12,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
-import { postCanEditHideCommentKarma } from './helpers';
+import { postCanEditHideCommentKarma, isSharedWithUser } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 
@@ -840,6 +840,18 @@ addFieldsDict(Posts, {
     }
   },
 
+  sharingSettings: {
+    type: Object,
+    order: 16,
+    viewableBy: [userOwns, isSharedWithUser, 'admins'],
+    editableBy: [userOwns, 'admins'],
+    optional: true,
+    control: "PostSharingSettings",
+    label: "Sharing Settings",
+    group: formGroups.options,
+    blackbox: true,
+  },
+  
   shareWithUsers: {
     type: Array,
     order: 15,
@@ -847,6 +859,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
+    hidden: true,
     control: "UsersListEditor",
     label: "Share draft with users",
     group: formGroups.options

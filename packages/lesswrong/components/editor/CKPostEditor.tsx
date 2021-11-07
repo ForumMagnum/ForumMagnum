@@ -3,7 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings';
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
+
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
@@ -25,21 +27,27 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const refreshDisplayMode = ( editor, sidebarElement ) => {
   if (!sidebarElement) return null
-  const annotations = editor.plugins.get( 'Annotations' );
-
+  const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
+  
   if ( window.innerWidth < 1000 ) {
     sidebarElement.classList.remove( 'narrow' );
     sidebarElement.classList.add( 'hidden' );
-    annotations.switchTo( 'inline' );
+    
+    annotationsUIs.deactivateAll();
+    annotationsUIs.activate('inline');
   }
   else if ( window.innerWidth < 1400 ) {
     sidebarElement.classList.remove( 'hidden' );
     sidebarElement.classList.add( 'narrow' );
-    annotations.switchTo( 'narrowSidebar' );
+    
+    annotationsUIs.deactivateAll();
+    annotationsUIs.activate('narrowSidebar');
   }
   else {
     sidebarElement.classList.remove( 'hidden', 'narrow' );
-    annotations.switchTo( 'wideSidebar' );
+    
+    annotationsUIs.deactivateAll();
+    annotationsUIs.activate('wideSidebar');
   }
 }
 
@@ -66,18 +74,19 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
   const sidebarRef = useRef(null)
   const presenceListRef = useRef(null)
 
-  const ckEditorCloudConfigured = !!ckEditorWebsocketUrlSetting.get()
+  const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
+  const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
 
   return <div>
     <div ref={presenceListRef} />
     
-    {/* Because of a bug in CKEditor, we call preventDefault on all click events coming out of the sidebar. See: https://github.com/ckeditor/ckeditor5/issues/1992 */}
-    <div ref={sidebarRef} className={classes.sidebar} onClick={(e) => e.preventDefault()}/>
+    <div ref={sidebarRef} className={classes.sidebar}/>
 
     {layoutReady && <CKEditor
       onChange={onChange}
       editor={ collaboration ? PostEditorCollaboration : PostEditor }
+      data={data}
       onInit={ editor => {
           if (collaboration) {
             // Uncomment this line and the import above to activate the CKEDItor debugger
@@ -98,8 +107,8 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
         },
         cloudServices: ckEditorCloudConfigured ? {
           tokenUrl: generateTokenRequest(documentId, userId, formType),
-          uploadUrl: ckEditorUploadUrlSetting.get(),
-          webSocketUrl: ckEditorWebsocketUrlSetting.get(),
+          uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+          webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType)
         } : undefined,
         collaboration: ckEditorCloudConfigured ? {

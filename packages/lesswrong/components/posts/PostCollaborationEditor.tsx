@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
+import NoSSR from 'react-no-ssr';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -41,15 +42,17 @@ const PostCollaborationEditor = ({ classes }: {
     documentId: postId,
   });
   return <SingleColumnSection>
-      <div className={classes.title}>{post?.title}</div>
-      <div className={classes.editor}>
-        <Components.CKPostEditor 
+    <div className={classes.title}>{post?.title}</div>
+    <div className={classes.editor}>
+      <NoSSR>
+        <Components.CKPostEditor
           documentId={postId}
           formType="edit"
           userId={currentUser?._id}
           collaboration
         />
-      </div>
+      </NoSSR>
+    </div>
   </SingleColumnSection>
 };
 

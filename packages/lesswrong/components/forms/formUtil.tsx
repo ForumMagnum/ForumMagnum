@@ -110,12 +110,19 @@ export function useAutosavingEditForm<N extends FragmentName>({documentId, colle
   type T = FragmentTypes[N];
   const {document, loading} = useSingle({ collectionName, fragmentName, documentId });
   const {mutate, loading: loadingUpdate} = useUpdate({ collectionName, fragmentName });
-  const [currentValue, setCurrentValue] = useState(document);
+  
+  // editedValue: the current contents of the form if the form
+  // contents have been edited at least once; otherwise null,
+  // in which case the current value passes through to the result
+  // of `useSingle`.
+  const [editedValue, setEditedValue] = useState<T|null>(null);
+  const currentValue = editedValue||document as T;
   
   return useForm<N>({
-    loading, currentValue, collectionName, fragmentName,
+    loading, currentValue,
+    collectionName, fragmentName,
     updateCurrentValue: async (change: Partial<T>) => {
-       setCurrentValue({...currentValue, ...change});
+       setEditedValue({...currentValue, ...change});
        await mutate({
          selector: {_id: documentId},
          data: change,

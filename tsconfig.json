@@ -16,7 +16,8 @@
     "skipLibCheck": true
   },
   "include": [
-    "packages/lesswrong"
+    "packages/lesswrong",
+    "public/lesswrong-editor/src/editorConfigs.js"
   ],
   "exclude": [
     "node_modules",

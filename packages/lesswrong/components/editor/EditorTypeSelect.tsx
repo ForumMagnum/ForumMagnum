@@ -1,0 +1,58 @@
+import React from 'react'
+import { EditorContents, EditorTypeString, EditorChangeEvent, serializeEditorContents, deserializeEditorContents, nonAdminEditors, adminEditors, editorTypeToDisplay } from './Editor';
+import { registerComponent, Components } from '../../lib/vulcan-lib/components';
+import { useCurrentUser } from '../common/withUser';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import { useConvertDocument } from './useConvertDocument';
+
+const styles = (theme: ThemeType) => ({
+  select: {
+  },
+});
+
+const EditorTypeSelect = ({value, setValue, classes}: {
+  value: EditorContents,
+  setValue: (change: EditorChangeEvent)=>void,
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
+  const { Loading } = Components;
+  const {convertDocument, loading, error} = useConvertDocument({
+    onCompleted: (result: EditorContents) => {
+      setValue({
+        contents: result,
+        autosave: false,
+      });
+    }
+  });
+  
+  if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
+  const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
+  
+  return <>
+    {loading && <Loading/>}
+    <Select
+      className={classes.select} disableUnderline
+      value={value.type}
+      onChange={(e) => {
+        const targetFormat = e.target.value as EditorTypeString;
+        convertDocument(value, targetFormat);
+      }}
+    >
+      {editors.map((editorType, i) =>
+        <MenuItem value={editorType} key={i}>
+          {editorTypeToDisplay[editorType].name} {editorTypeToDisplay[editorType].postfix}
+        </MenuItem>
+      )}
+    </Select>
+  </>
+}
+
+const EditorTypeSelectComponent = registerComponent("EditorTypeSelect", EditorTypeSelect, {styles});
+
+declare global {
+  interface ComponentTypes {
+    EditorTypeSelect: typeof EditorTypeSelectComponent
+  }
+}

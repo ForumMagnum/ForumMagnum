@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { EditorContents, nonAdminEditors, adminEditors } from './Editor';
+import { SerializedEditorContents, EditorChangeEvent, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    ...theme.typography.commentStyle,
+    color: "rgba(0,0,0,.87)",
+    paddingBottom: 12,
+  },
+  restoreLink: {
+    color: theme.palette.lwTertiary.main,
   },
 });
 
 type RestorableState = {
-  savedDocument: EditorContents,
+  savedDocument: SerializedEditorContents,
 }
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
@@ -17,7 +24,7 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
     const savedState = getLocalStorageHandlers(editorType).get();
     if (savedState) {
       return {
-        savedDocument: savedState // TODO: conversion
+        savedDocument: savedState,
       }
     }
   }
@@ -64,21 +71,29 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
 }) => {
   const [localStorageChecked, setLocalStorageChecked] = useState(false);
   const [restorableState, setRestorableState] = useState<RestorableState|null>(null);
+  const currentUser = useCurrentUser();
   
   useEffect(() => {
     if (!localStorageChecked) {
       setLocalStorageChecked(true);
-      setRestorableState(getRestorableState(getLocalStorageHandlers));
+      setRestorableState(getRestorableState(currentUser, getLocalStorageHandlers));
     }
-  }, [localStorageChecked, getLocalStorageHandlers]);
+  }, [localStorageChecked, getLocalStorageHandlers, currentUser]);
   
   if (!restorableState)
     return null;
   
   return <div className={classes.root}>
-    You have an autosaved version of this document. <a onClick={() => {
+    You have an autosaved version of this document.{" "}
+    <a className={classes.restoreLink} onClick={() => {
       setRestorableState(null);
-      onRestore(restorableState.savedDocument);
+      const restored = deserializeEditorContents(restorableState.savedDocument);
+      if (restored) {
+        onRestore(restored);
+      } else {
+        // eslint-disable-next-line no-console
+        console.error("Error restoring from localStorage");
+      }
     }}>Restore</a>
   </div>
 }

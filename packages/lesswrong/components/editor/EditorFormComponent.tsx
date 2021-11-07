@@ -1,12 +1,15 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
-import { getLSHandlers, getLSKeyPrefix } from '../async/localStorageHandlers'
+import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, styles } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
+import * as _ from 'underscore';
+
+const autosaveInterval = 3000; //milliseconds
 
 export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
   form: any,
@@ -26,22 +29,73 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const { editorHintText, maxHeight } = (formProps || {});
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
+  const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   
-  const getLocalStorageHandlers = useCallback((editorType: string) => {
+  const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
   }, [collectionName, document, name, fieldName]);
   
-  const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
-    // TODO
-  }, []);
-  
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
   ));
   const [initialEditorType] = useState(contents.type);
+  
+  const defaultEditorType = getUserDefaultEditor(currentUser);
+  const currentEditorType = contents?.type || defaultEditorType;
+  const showEditorWarning = formType !== "new" && initialEditorType !== defaultEditorType && currentEditorType !== defaultEditorType;
+  
+  const saveBackup = useCallback((newContents: EditorContents) => {
+    if (isBlank(newContents)) {
+      getLocalStorageHandlers(currentEditorType).reset();
+      hasUnsavedDataRef.current.hasUnsavedData = false;
+    } else {
+      const serialized = serializeEditorContents(newContents);
+      const success = getLocalStorageHandlers(newContents.type).set(serialized);
+  
+      if (success) {
+        hasUnsavedDataRef.current.hasUnsavedData = false;
+      }
+    }
+  }, [getLocalStorageHandlers, contents, currentEditorType]);
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSaveBackup = useCallback(
+    _.throttle(saveBackup, autosaveInterval, {leading: false}),
+    [saveBackup, autosaveInterval]
+  );
+  
+  const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
+    const {contents,autosave} = change;
+    setContents(contents);
+    hasUnsavedDataRef.current.hasUnsavedData = true;
+    if (autosave) {
+      throttledSaveBackup(contents);
+    }
+  }, [throttledSaveBackup]);
+  
+  useEffect(() => {
+    const unloadEventListener = (ev) => {
+      if (hasUnsavedDataRef?.current?.hasUnsavedData) {
+        ev.preventDefault();
+        ev.returnValue = 'Are you sure you want to close?';
+        return ev.returnValue
+      }
+    };
+    
+    window.addEventListener("beforeunload", unloadEventListener);
+    return () => {
+      window.removeEventListener("beforeunload", unloadEventListener);
+    };
+  }, []);
+  
+  const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
+    wrappedSetContents({contents: newState, autosave: false});
+    if (editorRef.current)
+      editorRef.current.focusOnEditor();
+  }, [editorRef, wrappedSetContents]);
   
   useEffect(() => {
     if (editorRef.current) {
@@ -56,8 +110,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       });
       const cleanupSuccessForm = context.addToSuccessForm((result) => {
         if (editorRef.current) {
-          editorRef.current?.resetEditor();
-          setContents(getBlankEditorContents(initialEditorType));
+          getLocalStorageHandlers(currentEditorType).reset();
+          wrappedSetContents({
+            contents: getBlankEditorContents(initialEditorType),
+            autosave: false,
+          });
         }
         return result;
       });
@@ -69,7 +126,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType]);
   
-  const isCollaborative = userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers && (fieldName === "contents")
+  const isCollaborative = document?._id && document?.shareWithUsers && (fieldName === "contents")
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
@@ -80,6 +137,14 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   if (!document) return null;
 
   return <div>
+    {showEditorWarning &&
+      <Components.LastEditedInWarning
+        initialType={initialEditorType}
+        currentType={contents.type}
+        defaultType={defaultEditorType}
+        value={contents} setValue={wrappedSetContents}
+      />
+    }
     <Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
@@ -93,7 +158,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       initialEditorType={initialEditorType}
       isCollaborative={isCollaborative}
       value={contents}
-      setValue={setContents}
+      onChange={wrappedSetContents}
       placeholder={actualPlaceholder}
       commentStyles={commentStyles}
       answerStyles={document?.answer}
@@ -102,8 +167,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hideControls={hideControls}
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages}
-      getLocalStorageHandlers={getLocalStorageHandlers}
     />
+    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents}/>}
   </div>
 }
 

@@ -5,9 +5,8 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
+import * as _ from 'underscore';
 
-
-// EXAMPLE-FORUM Helpers
 
 //////////////////
 // Link Helpers //
@@ -179,4 +178,16 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
 //  3) The post doesn't have any comments yet
 export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
+}
+
+
+export const isSharedWithUser = (user: UsersMinimumInfo|DbUser|null, document: DbPost) => {
+  if (!user) {
+    return false;
+  }
+  if (!document.shareWithUsers) {
+    return false;
+  }
+  
+  return _.any(document.shareWithUsers, userId=>userId===user._id);
 }

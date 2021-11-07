@@ -53,8 +53,8 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
         <WrappedSmartForm
           collection={Posts}
           documentId={documentId}
-          queryFragment={getFragment('PostsEdit')}
-          mutationFragment={getFragment('PostsEdit')}
+          queryFragment={getFragment('PostsEditQueryFragment')}
+          mutationFragment={getFragment('PostsEditMutationFragment')}
           successCallback={post => {
             const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
             if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
@@ -79,6 +79,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           extraVariables={{
             version: 'String'
           }}
+          version="draft"
           repeatErrors
         />
       </NoSsr>

@@ -692,6 +692,10 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationCommentsOnDraft: {
+    label: "Comments on unpublished draft posts I've shared",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {

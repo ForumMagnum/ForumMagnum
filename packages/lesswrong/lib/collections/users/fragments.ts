@@ -319,6 +319,7 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationCommentsOnDraft
 
     hideFrontpageMap
     hideTaggingProgressBar

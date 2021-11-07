@@ -349,7 +349,7 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-async function buildRevision({ originalContents, currentUser }) {
+export async function buildRevision({ originalContents, currentUser }) {
   const { data, type } = originalContents;
   const html = await dataToHTML(data, type, !currentUser.isAdmin)
   const wordCount = await dataToWordCount(data, type)
