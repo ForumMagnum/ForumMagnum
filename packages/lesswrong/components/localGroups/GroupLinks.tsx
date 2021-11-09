@@ -34,6 +34,10 @@ export const MeetupIcon = (props: any) => <SvgIcon viewBox="15 15 70 70" {...pro
 </SvgIcon>
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  root: {
+    display: 'inline-block'
+  },
+
   groupTypes: {
     marginLeft: 12,
     display: 'inline-block',
@@ -51,7 +55,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   groupLinks: {
     display: 'inline-flex',
     alignItems: 'baseline',
-    marginLeft: '6px'
+    marginLeft: 6
   },
   
   groupLink: {
@@ -59,7 +63,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   
   websiteLink: {
-    marginLeft: theme.spacing.unit - 3
+    marginLeft: theme.spacing.unit - 2
   },
   
   facebookGroupIcon: {
