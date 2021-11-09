@@ -163,6 +163,11 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       </div>,
       subItem: true
     }, {
+      id: 'contact',
+      title: 'Contact Us',
+      link: '/contact',
+      subItem: true,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',

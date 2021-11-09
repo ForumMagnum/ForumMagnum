@@ -115,7 +115,7 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
-importComponent("FeaturedResourceBanner", () => require('../components/common/FeaturedResourceBanner'))
+importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
@@ -303,7 +303,6 @@ importComponent("EditCommentMenuItem", () => require('../components/comments/Com
 importComponent("ReportCommentMenuItem", () => require('../components/comments/CommentActions/ReportCommentMenuItem'));
 importComponent("MoveToAlignmentMenuItem", () => require('../components/comments/CommentActions/MoveToAlignmentMenuItem'));
 importComponent("SuggestAlignmentMenuItem", () => require('../components/comments/CommentActions/SuggestAlignmentMenuItem'));
-importComponent("SubscribeToCommentMenuItem", () => require('../components/comments/CommentActions/SubscribeToCommentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
 importComponent("CommentActions", () => require('../components/comments/CommentActions/CommentActions'));
