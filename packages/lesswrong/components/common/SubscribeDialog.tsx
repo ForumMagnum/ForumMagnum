@@ -14,14 +14,16 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+
+const isEAForum = forumTypeSetting.get() === "EAForum";
 
 const styles = (theme: ThemeType): JssStyles => ({
   thresholdSelector: {
@@ -141,7 +143,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    if (forumTypeSetting.get() !== 'EAForum' && !userEmailAddressIsVerified(currentUser)) {
+    if (isEAForum && !userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
@@ -210,10 +212,11 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         disabled={method === "email" && !currentUser}
         inputProps={{ id: "subscribe-dialog-view" }}
       >
-        <MenuItem value="curated">Curated</MenuItem>
+        {/* TODO: Forum digest */}
+        {!isEAForum && <MenuItem value="curated">Curated</MenuItem>}
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
         <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
-        <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem>
+        {!isEAForum && <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem>}
       </Select>
     </FormControl>
 
@@ -223,7 +226,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         open={open}
         onClose={onClose}
       >
-        <Tabs
+        {!isEAForum && <Tabs
           value={method}
           indicatorColor="primary"
           textColor="primary"
@@ -233,7 +236,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         >
           <Tab label="RSS" key="tabRSS" value="rss" />
           <Tab label="Email" key="tabEmail" value="email" />
-        </Tabs>
+        </Tabs>}
 
         <DialogContent className={classes.content}>
           { method === "rss" && <React.Fragment>
@@ -277,7 +280,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 !this.emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
                   Sorry, there's currently no email feed for {viewNames[view]}.
                 </DialogContentText>,
-                subscribedByEmail && !userEmailAddressIsVerified(currentUser) && forumTypeSetting.get() !== 'EAForum' && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+                subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
                   We need to confirm your email address. We sent a link to {currentUser.email}; click the link to activate your subscription.
                 </DialogContentText>
               ]

@@ -60,6 +60,8 @@ registerFragment(`
     localStartTime
     localEndTime
     facebookLink
+    facebookPageLink
+    meetupLink
     website
     contactInfo
     isEvent
@@ -247,6 +249,16 @@ registerFragment(`
     contents {
       _id
       html
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsPlaintextDescription on Post {
+    _id
+    contents {
+      _id
+      plaintextDescription
     }
   }
 `);

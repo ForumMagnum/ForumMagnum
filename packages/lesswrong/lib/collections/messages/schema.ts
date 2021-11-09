@@ -13,6 +13,7 @@ const schema: SchemaType<DbMessage> = {
     viewableBy: ['members'],
     insertableBy: ['admins'],
     optional: true,
+    hidden: true,
   },
   createdAt: {
     optional: true,

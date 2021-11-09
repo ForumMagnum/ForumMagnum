@@ -38,7 +38,7 @@ const PostsPageTitle = ({classes, post}: {
     <div>
       {post.question && !parentPost && <Typography variant="title">
         <Link to="/questions" className={classes.question}>
-          [ Question ] 
+          [ Question ]
         </Link>
       </Typography>}
       {post.question && parentPost && <Typography variant="title">

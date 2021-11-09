@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "16px",
     fontFamily: "Roboto, sans-serif",
   },
-  
+
   selected: {
     color: "white",
     textTransform: "none",
@@ -24,12 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: "rgba(100,169,105, 0.5)",
     },
   },
-  
+
   notSelected: {
     textTransform: "none",
     color: "rgba(0,0,0,0.6)",
     backgroundColor: "rgba(0,0,0, 0)",
-    
+
     "&:hover": {
       backgroundColor: "rgba(0,0,0, 0.1)",
     },

@@ -13,20 +13,27 @@ import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
+let adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
+  {
+    username: "AdminTeam",
+    email: "forum@effectivealtruism.org"
+  } :
+  {
+    username: "LessWrong",
+    email: "lesswrong@lesswrong.com"
+  }
+
 const getLessWrongAccount = async () => {
-  let account = await Users.findOne({username: "LessWrong"});
+  let account = await Users.findOne({username: adminTeamUserData.username});
   if (!account) {
-    const userData = {
-      username: "LessWrong",
-      email: "lesswrong@lesswrong.com",
-    }
     const newAccount = await createMutator({
       collection: Users,
-      document: userData,
+      document: adminTeamUserData,
       validate: false,
     })
     return newAccount.data
@@ -234,8 +241,8 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
   return comment;
 });
 
-export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser) {
-  if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents && comment.contents.html) {
+export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser | undefined) {
+  if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents?.html) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId

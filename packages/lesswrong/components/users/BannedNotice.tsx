@@ -27,6 +27,10 @@ const BannedNotice = ({classes}: {
         comment.
       </Typography>
 
+      {/*
+        lw-look-here y'all should get a contact page at /contact or change
+        this link to be dynamic based on the forumType
+      */}
       <Typography variant='body2'>
         If you believe this is a mistake, please <Link to='/contact'>contact us.</Link>
       </Typography>

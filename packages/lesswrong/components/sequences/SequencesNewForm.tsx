@@ -5,6 +5,7 @@ import { useNavigation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 // Also used by SequencesEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -90,7 +91,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: 45,
+          top: forumTypeSetting.get() === 'EAForum' ? 84 : 45,
           left: 7,
           textAlign: "left",
         }
@@ -165,4 +166,3 @@ declare global {
     SequencesNewForm: typeof SequencesNewFormComponent
   }
 }
-

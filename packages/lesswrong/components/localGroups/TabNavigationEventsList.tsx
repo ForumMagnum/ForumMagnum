@@ -122,9 +122,9 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
         const tooltip = <div>
             <div className={classes.tooltipTitle}>{event.title}</div>
             <div className={classes.tooltipLogisticsTitle}>
-             {event.onlineEvent ? "Onlne Event" : "Location"}
+              {event.onlineEvent ? "Online Event" : "Location"}
             </div>
-            <div>{event.location}</div>
+            {!event.onlineEvent && <div>{event.location}</div>}
             <div className={classes.tooltipLogisticsTitle}>Time</div>
             <div>
               {event.startTime

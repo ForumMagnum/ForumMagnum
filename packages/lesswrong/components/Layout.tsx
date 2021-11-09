@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -174,19 +173,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     })
   }
 
-  getUniqueClientId = () => {
-    const { currentUser, cookies } = this.props
-
-    if (currentUser) return currentUser._id
-
-    const cookieId = cookies.get('clientId')
-    if (cookieId) return cookieId
-
-    const newId = randomId()
-    cookies.set('clientId', newId)
-    return newId
-  }
-
   componentDidMount() {
     const { cookies } = this.props;
     const newTimezone = moment.tz.guess();
@@ -243,12 +229,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const afterTime = petrovAfterTime.get()
 
     const renderPetrovDay = 
-      currentRoute?.name == "home"
+      currentRoute?.name === "home"
       && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
-    
-    // console.log({renderPetrovDay, routeName: currentRoute?.name == 'home', correctTime: beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime, beforeTime, afterTime, currentTime: currentTime.valueOf(), afterTimeDirect: petrovAfterTime.get()})
-
+      
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>

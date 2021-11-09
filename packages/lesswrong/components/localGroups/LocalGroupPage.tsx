@@ -15,7 +15,8 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
   groupInfo: {
-    ...sectionFooterLeftStyles
+    ...sectionFooterLeftStyles,
+    alignItems: 'baseline'
   },
   groupName: {
     ...theme.typography.headerStyle,

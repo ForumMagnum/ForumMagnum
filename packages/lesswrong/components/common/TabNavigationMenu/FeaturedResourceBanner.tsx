@@ -37,6 +37,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: '#616161',
     paddingBottom: '1em',
     fontFamily: theme.typography.fontFamily,
+    textAlign: 'center',
   },
   divider: {
     width: '50%',

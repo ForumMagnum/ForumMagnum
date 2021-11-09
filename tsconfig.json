@@ -16,7 +16,8 @@
     "skipLibCheck": true
   },
   "include": [
-    "packages/lesswrong"
+    "packages/lesswrong",
+    "cypress"
   ],
   "exclude": [
     "node_modules",

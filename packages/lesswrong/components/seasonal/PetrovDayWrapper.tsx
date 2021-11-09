@@ -67,4 +67,3 @@ declare global {
     PetrovDayWrapper: typeof PetrovDayWrapperComponent
   }
 }
-

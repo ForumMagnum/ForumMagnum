@@ -157,7 +157,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
-
     // subscribe to different emails based on forum type
     const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = forumTypeSetting.get() === 'EAForum' ?
       {subscribedToDigest: true} : {emailSubscribedToCurated: true};

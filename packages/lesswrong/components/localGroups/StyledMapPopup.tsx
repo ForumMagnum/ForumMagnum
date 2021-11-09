@@ -33,6 +33,7 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
   markerPageLink: {
     fontWeight: 400,
     color: "rgba(0,0,0,0.4)",
+    flex: 'none'
   },
   linksWrapper: {
     display: 'flex',

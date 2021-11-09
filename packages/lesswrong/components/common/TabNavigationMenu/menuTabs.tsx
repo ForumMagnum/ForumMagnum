@@ -253,12 +253,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'tags',
-      title: 'Tags',
-      mobileTitle: 'Tags',
+      id: 'wiki',
+      title: 'Wiki',
+      mobileTitle: 'Wiki',
       link: '/tags/all',
       iconComponent: LocalOffer,
-      tooltip: 'See posts tagged by their subject matter',
+      tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -283,14 +283,17 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     //   tooltip: "TODO: Aaron's cool",
     //   subItem: true,
     }, {
-      id: 'groupsAndEvents',
-      title: 'Groups and Events',
-      mobileTitle: 'Groups/Events',
+      id: 'events',
+      title: 'Community and Events',
+      mobileTitle: 'Events',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups and events in your area',
       showOnMobileStandalone: true,
       showOnCompressed: true
+    }, {
+      id: 'eventsList',
+      customComponentName: "EventsList",
     }, {
       id: 'divider',
       divider: true,

@@ -85,7 +85,7 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {forumTypeSetting.get() !== "EAForum" && currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
+        {(forumTypeSetting.get() === "EAForum" || currentUser.karma >= 100) && document.draft!==false && <Button type="submit"//treat as draft when draft is null
                 className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
                 onClick={() => {
                   captureEvent("feedbackRequestButtonClicked")

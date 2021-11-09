@@ -291,6 +291,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly localStartTime: Date,
   readonly localEndTime: Date,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly contactInfo: string,
   readonly isEvent: boolean,
@@ -444,6 +446,16 @@ interface PostsExpandedHighlight { // fragment on Posts
 interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface PostsPlaintextDescription { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsPlaintextDescription_contents|null,
+}
+
+interface PostsPlaintextDescription_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly plaintextDescription: string,
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -1082,6 +1094,8 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly location: string,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
@@ -1099,6 +1113,8 @@ interface localGroupsBase { // fragment on Localgroups
   readonly types: Array<string>,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
@@ -1662,6 +1678,14 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly userId: string,
 }
 
+interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
+}
+
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly _id: string,
   readonly title: string,
@@ -1723,6 +1747,7 @@ interface FragmentTypes {
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
   PostsExpandedHighlight: PostsExpandedHighlight
+  PostsPlaintextDescription: PostsPlaintextDescription
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
@@ -1827,6 +1852,7 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
+  FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
@@ -1859,6 +1885,7 @@ interface CollectionNamesByFragmentName {
   PostsListTag: "Posts"
   PostsDetails: "Posts"
   PostsExpandedHighlight: "Posts"
+  PostsPlaintextDescription: "Posts"
   PostsRevision: "Posts"
   PostsRevisionEdit: "Posts"
   PostsWithNavigationAndRevision: "Posts"
@@ -1963,6 +1990,7 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
+  FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
@@ -1970,4 +1998,3 @@ interface CollectionNamesByFragmentName {
 }
 
 type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
-
