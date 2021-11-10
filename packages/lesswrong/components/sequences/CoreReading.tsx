@@ -54,7 +54,7 @@ const coreReadingCollections: Array<CoreReadingCollection> = isEAForum ?
       title: "Most Important Century",
       id: "most-important",
       userId: "9Fg4woeMPHoGa6kDA",
-      summary: `Holdon Karnofsky argues that there's a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
+      summary: `Holden Karnofsky argues that there is a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
       imageId: "jacob-mejicanos-P6s8EbcSgmA-unsplash.jpg",
       color: "#d96704",
       big: false,
