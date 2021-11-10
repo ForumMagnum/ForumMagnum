@@ -5,6 +5,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 
 // just the "f", used for the FB Group link
@@ -33,6 +34,10 @@ export const MeetupIcon = (props: any) => <SvgIcon viewBox="15 15 70 70" {...pro
 </SvgIcon>
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  root: {
+    display: 'inline-block'
+  },
+
   groupTypes: {
     marginLeft: 12,
     display: 'inline-block',
@@ -50,7 +55,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   groupLinks: {
     display: 'inline-flex',
     alignItems: 'baseline',
-    marginLeft: '6px'
+    marginLeft: 6
   },
   
   groupLink: {
@@ -58,7 +63,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   
   websiteLink: {
-    marginLeft: theme.spacing.unit - 3
+    marginLeft: theme.spacing.unit - 2
   },
   
   facebookGroupIcon: {
@@ -75,7 +80,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: "inline-block",
     color: "rgba(0, 0, 0, 0.7)",
     paddingTop: "0px",
-    transform: "translateY(1px)",
+    transform: "translateY(2px)",
   },
 
   linkIcon: {
@@ -83,6 +88,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: "17px",
     paddingTop: "0px",
     transform: "translateY(3px) rotate(-45deg)",
+    color: "rgba(0, 0, 0, 0.7)",
   },
 
   iconButton: {
@@ -90,6 +96,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: '18px',
     height: '18px',
     verticalAlign: "baseline",
+  },
+  
+  noMargin: {
+    margin: 0,
+    '& :first-child': {
+      marginLeft: 0
+    }
   }
 }));
 
@@ -100,8 +113,9 @@ const tooltips: Partial<Record<string,string>> = {
   'MIRIx': "This is a MIRIx group"
 }
 
-const GroupLinks = ({ document, classes }: {
+const GroupLinks = ({ document, noMargin, classes }: {
   document: localGroupsBase|PostsBase,
+  noMargin?: Boolean,
   classes: ClassesType,
 }) => {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -110,7 +124,7 @@ const GroupLinks = ({ document, classes }: {
   
   return(
     <div className={classes.root}>
-      {!isEAForum && <div className={classes.groupTypes}>
+      {!isEAForum && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
         {document.types && document.types.map(type => {
           return (
             <Tooltip
@@ -125,7 +139,7 @@ const GroupLinks = ({ document, classes }: {
           )
         })}
       </div>}
-      <div className={classes.groupLinks}>
+      <div className={(noMargin && (isEAForum || !document.types.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
         {document.facebookLink
           && <Tooltip
             title={`Link to Facebook ${isEvent ? 'Event' : 'Group'}`}
@@ -135,7 +149,7 @@ const GroupLinks = ({ document, classes }: {
               <FacebookIcon className={classes.facebookGroupIcon}/>
             </a>
           </Tooltip>}
-        {document.facebookPageLink
+        {'facebookPageLink' in document && document.facebookPageLink
         && <Tooltip
           title={`Link to Facebook ${isEvent ? 'Event' : 'Page'}`}
           placement="top-end"

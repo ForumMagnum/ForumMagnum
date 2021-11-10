@@ -409,7 +409,6 @@ interface DbPost extends DbObject {
   location: string
   contactInfo: string
   facebookLink: string
-  facebookPageLink: string
   meetupLink: string
   website: string
   types: Array<string>
