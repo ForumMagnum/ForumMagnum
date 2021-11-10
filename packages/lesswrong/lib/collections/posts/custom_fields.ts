@@ -781,26 +781,12 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    label: "Facebook Group Event",
+    label: "Facebook Event",
     control: "MuiTextField",
     optional: true,
     group: formGroups.event,
     regEx: SimpleSchema.RegEx.Url,
-    tooltip: 'https://www.facebook.com/groups/...'
-  },
-  
-  facebookPageLink: {
-    type: String,
-    hidden: (props) => !props.eventForm,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    label: "Facebook Page Event",
-    control: "MuiTextField",
-    optional: true,
-    group: formGroups.event,
-    regEx: SimpleSchema.RegEx.Url,
-    tooltip: 'https://www.facebook.com/...'
+    tooltip: 'https://www.facebook.com/events/...'
   },
   
   meetupLink: {

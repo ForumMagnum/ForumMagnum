@@ -3,10 +3,10 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
-    marginTop:theme.spacing.unit*2,
+    marginTop: theme.spacing.unit*2,
     ...theme.typography.postStyle,
     color: 'rgba(0,0,0,0.5)',
-  },
+  }
 })
 
 const PostsPageEventData = ({classes, post}: {
