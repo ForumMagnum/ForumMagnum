@@ -753,14 +753,14 @@ switch (forumTypeSetting.get()) {
         redirect: () => `/tag/community`,
       },
       {
-        name: 'eaSequencesHome',
+        name: 'eaSequencesRedirect',
         path: '/sequences',
-        componentName: 'EASequencesHome'
+        redirect: () => '/library'
       },
       {
-        name: 'eaSequencesRedirect',
+        name: 'eaLibrary',
         path: '/library',
-        redirect: () => '/sequences'
+        componentName: 'EASequencesHome'
       },
       {
         name: "TagsAll",
