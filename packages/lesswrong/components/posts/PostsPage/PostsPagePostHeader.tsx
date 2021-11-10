@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   groupLinks: {
     display: 'inline-block',
-    marginRight: 14
+    marginRight: 20
   },
   commentsLink: {
     marginRight: SECONDARY_SPACING,
@@ -153,7 +153,7 @@ const PostsPagePostHeader = ({post, classes}: {
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </span>}
           {post.isEvent && <div className={classes.groupLinks}>
-            <Components.GroupLinks document={post} />
+            <Components.GroupLinks document={post} noMargin={true} />
           </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
           <div className={classes.commentsLink}>
