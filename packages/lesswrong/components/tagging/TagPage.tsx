@@ -268,7 +268,7 @@ const TagPage = ({classes}: {
             />
           }
         </div>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classes.editMenu} />
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} /* className={classes.editMenu} */ />
       </div>}
     >
       <div className={classNames(classes.wikiSection,classes.centralColumn)}>

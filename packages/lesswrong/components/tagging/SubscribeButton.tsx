@@ -124,6 +124,7 @@ const SubscribeButton = ({
       "Turn on notifications for posts added to this tag"
     }>
       <ListItemIcon className={classes.notificationsIcon}>
+        {/* TODO; make icon clickable */}
         {loading
           ? <Loading/>
           : (notificationsEnabled()
