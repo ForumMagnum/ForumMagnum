@@ -36,7 +36,7 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     _id: comment._id,
     userId: comment.userId,
     baseScore: comment.baseScore,
-    isDeleted: comment.isDeleted,
+    isDeleted: comment.deleted,
     retracted: comment.retracted,
     deleted: comment.deleted,
     spam: comment.spam,

@@ -107,8 +107,9 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
         >
           <Paper>
             <div onClick={(ev) => {
-              afNonMemberDisplayInitialPopup(currentUser, openDialog)
-              ev.preventDefault()
+              if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
+                ev.preventDefault()
+              }
             }}>
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 New Question

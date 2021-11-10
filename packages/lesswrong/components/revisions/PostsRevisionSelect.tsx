@@ -43,7 +43,7 @@ const PostsRevisionSelect = ({ classes }: {
   if (!post) {return null;}
   
   return <SingleColumnSection>
-    <h1>{post && post.title}</h1>
+    <h1>{post.title}</h1>
     
     {(loadingPost || loadingRevisions) && <Loading/>}
     

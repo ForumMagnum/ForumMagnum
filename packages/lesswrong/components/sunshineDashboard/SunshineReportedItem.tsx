@@ -6,6 +6,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { useCurrentUser } from '../common/withUser'
 import DoneIcon from '@material-ui/icons/Done';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const SunshineReportedItem = ({report, updateReport}: {
   report: any,
@@ -97,7 +98,7 @@ const SunshineReportedItem = ({report, updateReport}: {
           <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
             <DoneIcon/>
           </SidebarAction>
-          <SidebarAction title="Spam (delete immediately)" onClick={handleDelete} warningHighlight>
+          <SidebarAction title={`Spam${forumTypeSetting.get() === 'EAForum' ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
             <DeleteIcon/>
           </SidebarAction>
         </SidebarActionMenu>

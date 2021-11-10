@@ -28,10 +28,6 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
 }) => {
   const { captureEvent } = useTracking();
   
-  // need both a start and end time to add an event to a calendar -
-  // if either are missing, we just return null
-  const missingStartOrEndTime = !post.startTime || !post.endTime;
-  
   // we use the Facebook link as the default event details text
   let eventDetails = post.facebookLink;
   // we try to use plaintextDescription instead if possible
@@ -40,10 +36,10 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsPlaintextDescription',
     documentId: post._id,
-    skip: missingStartOrEndTime || !post.contents || ('plaintextDescription' in post.contents)
+    skip: !post.startTime || !post.contents || ('plaintextDescription' in post.contents)
   });
   
-  if (missingStartOrEndTime) {
+  if (!post.startTime) {
     return null;
   }
   
@@ -53,6 +49,8 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
     eventDetails = post.contents.plaintextDescription || eventDetails;
   }
   
+  const endTime = post.endTime ? moment(post.endTime) : moment(post.startTime).add(1, 'hour')
+  
   const calendarIconNode = (
     <div onClick={() => captureEvent('addToCalendarClicked')}>
       <AddToCalendar
@@ -61,7 +59,7 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
           details: eventDetails,
           location: post.location,
           startsAt: moment(post.startTime).format(),
-          endsAt: moment(post.endTime).format()
+          endsAt: endTime.format()
         }}>
           <Add className={classes.plusIcon} />
           {label && (

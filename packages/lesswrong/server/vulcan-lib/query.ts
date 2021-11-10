@@ -47,6 +47,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     currentUser: null,
     headers: null,
     locale: localeSetting.get(),
+    isGreaterWrong: false,
     ...getCollectionsByName(),
     ...generateDataLoaders(),
     ...options,

@@ -111,8 +111,12 @@ const SequencesPage = ({ documentId, classes }: {
     ContentItemBody, Typography, SectionButton,
   } = Components
   
-  if (document && document.isDeleted) return <h3>This sequence has been deleted</h3>
-  if (loading || !document) return <Loading />
+  if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
+  if (loading) return <Loading />
+  
+  if (!document) {
+    return <Components.Error404/>
+  }
   if (edit) return (
     <SequencesEditForm
       documentId={documentId}

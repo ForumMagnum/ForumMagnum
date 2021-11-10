@@ -111,6 +111,7 @@ registerFragment(`
     emails
     whenConfirmationEmailSent
     hideSubscribePoke
+    hideMeetupsPoke
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments

@@ -1,26 +1,26 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Deploy Master
+name: Deploy Staging
 on:
   push:
-    branches: [ ea-master ]
+    branches: [ ea-staging, ea-deploy, master, megamerge ]
 jobs:
-  deploy: 
+  deploy:
     runs-on: ubuntu-latest
     strategy:
-      matrix: 
+      matrix:
         node-version: [15.x]
-        environment: [EAForum-Production]
+        environment: [EAForum-Staging-2]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
         python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - run: pip3 install --upgrade pip awsebcli
-    - name: Run EB Deploy
-      run: eb deploy --timeout 20 ${{ matrix.environment }}
-      env: 
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Run Deploy
+      run: scripts/deploy.sh EAForum ${{ matrix.environment }}
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.CEA_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.CEA_AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: "us-east-1"

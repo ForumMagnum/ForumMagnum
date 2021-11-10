@@ -152,6 +152,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
           // TODO: Can the query have an ordering that matches the column ordering?
           query={{ [type]: name }}
           merge
+          rel="nofollow"
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
@@ -233,6 +234,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             onClick={() => setSetting('showLowKarma', !currentShowLowKarma)}
             query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
             merge
+            rel="nofollow"
           >
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 

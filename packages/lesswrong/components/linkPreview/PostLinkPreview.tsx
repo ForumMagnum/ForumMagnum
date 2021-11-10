@@ -197,6 +197,8 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
 }) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
+  
+  const hash = (href.indexOf("#")>=0) ? (href.split("#")[1]) : null;
 
   if (!post) {
     return <span {...eventHandlers}>
@@ -216,7 +218,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
           }
         }}
       >
-        <PostsPreviewTooltip post={post} />
+        <PostsPreviewTooltip post={post} hash={hash} />
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} smooth/>
     </span>

@@ -33,7 +33,7 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
       view: "walledGardenInvitees",
       limit: 500
     },
-    fragmentName: "UsersCurrent",
+    fragmentName: "UsersMinimumInfo",
     collectionName: "Users",
     enableTotal: true,
   })

@@ -170,6 +170,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           className={classes.menu}
           comment={comment}
           post={post}
+          tag={tag}
           showEdit={setShowEdit}
         />
       </AnalyticsContext>
@@ -269,7 +270,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         )}
 
         {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.post.title}</Link>
+            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+              {comment.post.draft && "[Draft] "}
+              {comment.post.title}
+            </Link>
           </LWTooltip>}
         {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 

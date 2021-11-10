@@ -126,7 +126,7 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
 
     return (
       <div className={classes.root}>
-        <QueryLink merge query={{
+        <QueryLink merge rel="nofollow" query={{
           after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
           before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
           limit: 100

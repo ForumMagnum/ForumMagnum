@@ -15,7 +15,7 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2, SectionTitle, Typography } = Components;
+  const { SingleColumnSection, PostsList2, SectionTitle } = Components;
 
   return <SingleColumnSection className={classes.section}>
     <SectionTitle title="Pinned Posts" className={classes.title} />

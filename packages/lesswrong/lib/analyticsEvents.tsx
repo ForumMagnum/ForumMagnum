@@ -11,6 +11,7 @@ import * as _ from 'underscore';
 import moment from 'moment';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
+const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -74,6 +75,13 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
         AnalyticsUtil.serverWriteEvent(event);
       } else {
         AnalyticsUtil.serverPendingEvents.push(event);
+        if (AnalyticsUtil.serverPendingEvents.length > 1000) {
+          // This is only supposed to be a temporary thing during startup until a
+          // postgres connection is established, so report an error if there's a
+          // ton of stuff in this array
+          // eslint-disable-next-line no-console
+          console.log(`Possible memory leak: AnalyticsUtil.serverPendingEvents.length=${AnalyticsUtil.serverPendingEvents.length}`);
+        }
       }
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
@@ -323,7 +331,7 @@ function browserConsoleLogAnalyticsEvent(event: any, rateLimitExceeded: boolean)
   }
   // Timestamp recorded on the server will differ. Obviously in part because of
   // the latency of the network, but also because we have a queue that we only
-  // flush max once/second.
+  // flush max once/second. And something something skew.
   c.log('[[time of day]]', moment().format('HH:mm:ss.SSS'));
   c.groupEnd();
 }
@@ -349,12 +357,22 @@ function flushClientEvents() {
   if (!pendingAnalyticsEvents.length)
     return;
 
-  AnalyticsUtil.clientWriteEvents(pendingAnalyticsEvents.map(event => ({
+  const eventsToWrite = pendingAnalyticsEvents;
+  pendingAnalyticsEvents = [];
+  AnalyticsUtil.clientWriteEvents(eventsToWrite.map(event => ({
     ...(isClient ? AnalyticsUtil.clientContextVars : null),
     ...event
   })));
-  pendingAnalyticsEvents = [];
 }
-const throttledFlushClientEvents = _.throttle(flushClientEvents, 1000);
+
+let lastFlushedAt: Date|null = null;
+function throttledFlushClientEvents() {
+  const flushInterval: number = flushIntervalSetting.get();
+  const now = new Date();
+  if(!lastFlushedAt || now.getTime()-lastFlushedAt.getTime() > flushInterval) {
+    lastFlushedAt = now;
+    flushClientEvents();
+  }
+}
 
 export const userIdentifiedCallback = new CallbackChainHook<UsersCurrent|DbUser,[]>("events.identify");

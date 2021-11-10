@@ -7,6 +7,7 @@ import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
+import { useSingle } from '../../lib/crud/withSingle';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -139,20 +140,31 @@ const getPostCategory = (post: PostsBase) => {
     return null;
 }
 
-const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
+const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   postsList?: boolean,
+  hash?: string|null,
   post: PostsList|SunshinePostsList|null,
   classes: ClassesType,
   comment?: any,
 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate, Loading } = Components
   const [expanded, setExpanded] = useState(false)
 
-  if (!post) return null
+  const {document: postWithHighlight, loading} = useSingle({
+    collectionName: "Posts",
+    fragmentName: "HighlightWithHash",
+    documentId: post?._id,
+    skip: !post || !hash,
+    fetchPolicy: "cache-first",
+    extraVariables: { hash: "String" },
+    extraVariablesValues: {hash}
+  });
 
+  if (!post) return null
+  
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = post.customHighlight?.html || htmlHighlight
+  const highlight = postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
 
   const renderWordCount = !comment && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
@@ -212,16 +224,18 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
                 forceNotSingleLine
               />
             </div>
-          : <div onClick={() => setExpanded(true)}>
-              <ContentItemBody
-                className={classes.highlight}
-                dangerouslySetInnerHTML={{__html: truncatedHighlight }}
-                description={`post ${post._id}`}
-              />
-              {expanded && <Link to={postGetPageUrl(post)}><div className={classes.continue} >
-                (Continue Reading)
-              </div></Link>}
-            </div>
+          : loading
+            ? <Loading/>
+            : <div onClick={() => setExpanded(true)}>
+                <ContentItemBody
+                  className={classes.highlight}
+                  dangerouslySetInnerHTML={{__html: truncatedHighlight }}
+                  description={`post ${post._id}`}
+                />
+                {expanded && <Link to={postGetPageUrl(post)}><div className={classes.continue} >
+                  (Continue Reading)
+                </div></Link>}
+              </div>
         }
     </Card>
   </AnalyticsContext>

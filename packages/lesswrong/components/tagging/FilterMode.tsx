@@ -98,9 +98,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     documentId: tagId,
     collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
+    skip: !tagId
   })
 
-  if (!tag) {return null;}
 
   const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     {label}
@@ -112,7 +112,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
   return <span {...eventHandlers}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
-      {(tag && !isMobile()) ? <Link to={`tag/${tag.slug}`}>
+      {(!isMobile()) ? <Link to={`tag/${tag?.slug}`}>
         {tagLabel}
       </Link>
       : tagLabel
@@ -183,7 +183,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </div>}
         </div>
-        <TagPreview tag={tag} showCount={false} postCount={3}/>
+        {tag && <TagPreview tag={tag} showCount={false} postCount={3}/>}
       </PopperCard>
     </AnalyticsContext>
   </span>

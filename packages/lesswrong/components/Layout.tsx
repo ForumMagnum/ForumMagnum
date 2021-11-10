@@ -6,7 +6,6 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -230,12 +229,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const afterTime = petrovAfterTime.get()
 
     const renderPetrovDay = 
-      currentRoute?.name == "home"
+      currentRoute?.name === "home"
       && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
       
-    const userIsBanned = currentUser?.banned && new Date(currentUser?.banned) > currentTime;
-
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -286,7 +283,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
               />
-              {/*{renderPetrovDay && <PetrovDayWrapper/>}*/}
+              {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>
                   <NavigationStandalone sidebarHidden={hideNavigationSidebar}/>
@@ -300,8 +297,8 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {currentUser?.usernameUnset
-                        ? <NewUserCompleteProfile />
-                        : children
+                      ? <NewUserCompleteProfile />
+                      : children
                     }
                   </ErrorBoundary>
                   <Footer />

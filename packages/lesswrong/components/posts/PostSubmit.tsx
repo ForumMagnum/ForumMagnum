@@ -95,7 +95,7 @@ const PostSubmit = ({
                     (window as any).Intercom(
                       'trackEvent',
                       'requested-feedback',
-                      {title: document.title, _id: document._id, url: getSiteUrl() + "/posts/" + document._id}
+                      {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
                     )
                   }
                 }}

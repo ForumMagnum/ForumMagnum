@@ -44,7 +44,7 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
 
 
 getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
-  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser?.isAdmin) {
+  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
 });

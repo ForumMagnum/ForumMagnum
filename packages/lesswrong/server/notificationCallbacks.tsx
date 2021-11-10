@@ -62,12 +62,16 @@ export async function getSubscribedUsers({
   documentId, collectionName, type,
   potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
 }: {
-  documentId: string,
+  documentId: string|null,
   collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
   userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
 }) {
+  if (!documentId) {
+    return [];
+  }
+  
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
   const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
   
@@ -501,16 +505,9 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
 
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
-  if (!comment.postId) {
-    throw new Error("Comment has no postId");
-  }
-
-  const post = await Posts.findOne(comment.postId);
-  if (!post) {
-    throw new Error("Comment has no post");
-  }
+  const post = comment.postId ? await Posts.findOne(comment.postId) : null;
   
-  if (post.isEvent) {
+  if (post?.isEvent) {
     await notifyRsvps(comment, post);
   }
 

@@ -23,7 +23,6 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
-  importComponent("FeaturedResourceBanner", () => require('../components/ea-forum/FeaturedResourceBanner'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -116,6 +115,7 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
+importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
@@ -303,7 +303,6 @@ importComponent("EditCommentMenuItem", () => require('../components/comments/Com
 importComponent("ReportCommentMenuItem", () => require('../components/comments/CommentActions/ReportCommentMenuItem'));
 importComponent("MoveToAlignmentMenuItem", () => require('../components/comments/CommentActions/MoveToAlignmentMenuItem'));
 importComponent("SuggestAlignmentMenuItem", () => require('../components/comments/CommentActions/SuggestAlignmentMenuItem'));
-importComponent("SubscribeToCommentMenuItem", () => require('../components/comments/CommentActions/SubscribeToCommentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
 importComponent("CommentActions", () => require('../components/comments/CommentActions/CommentActions'));
@@ -323,6 +322,7 @@ importComponent("RecentDiscussionThread", () => require('../components/recentDis
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
 importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
 importComponent("RecentDiscussionSubscribeReminder", () => require('../components/recentDiscussion/RecentDiscussionSubscribeReminder'));
+importComponent("RecentDiscussionMeetupsPoke", () => require('../components/recentDiscussion/RecentDiscussionMeetupsPoke'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
