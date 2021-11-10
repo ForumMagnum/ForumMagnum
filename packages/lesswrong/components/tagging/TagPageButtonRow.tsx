@@ -6,6 +6,9 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import HistoryIcon from '@material-ui/icons/History';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import { userHasNewTagSubscriptions } from '../../lib/betas';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -68,36 +71,59 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
+const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   tag: TagPageWithRevisionFragment|TagPageFragment,
   editing: boolean,
   setEditing: (editing: boolean)=>void,
+  className?: string,
   classes: ClassesType
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   const { LWTooltip, NotifyMeButton, TagDiscussionButton } = Components;
   
+  // TODO; we can avoid a database round trip on every tag page load by
+  // conditionally fetching this
+  // const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
+  // <ContentItemBody
+  //       className={classes.beginnersGuide}
+  //       dangerouslySetInnerHTML={{__html: beginnersGuideContentTag?.description?.html || ""}}
+  //       description={`tag ${tag?.name}`}
+  //     />
+  
   const numFlags = tag.tagFlagsIds?.length
   
-  return <div className={classes.buttonsRow}>
-    {!editing && <a className={classes.button} onClick={(ev) => {
-      if (currentUser) {
-        setEditing(true)
-      } else {
-        openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
-        });
-        ev.preventDefault();
+  return <div className={classNames(classes.buttonsRow, className)}>
+    {!editing && <LWTooltip
+      title={ tag.tagFlagsIds?.length > 0 ? 
+        <div>
+          {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
+        </div> :
+        <span>
+          This tag does not currently have any improvement flags set.
+        </span>
       }
-    } }>
-      <EditOutlinedIcon /><span className={classes.buttonLabel}>Edit</span>
-    </a>} 
+    >
+      <a className={classes.button} onClick={(ev) => {
+        if (currentUser) {
+          setEditing(true)
+        } else {
+          openDialog({
+            componentName: "LoginPopup",
+            componentProps: {}
+          });
+          ev.preventDefault();
+        }
+      } }>
+        <EditOutlinedIcon /><span className={classes.buttonLabel}>
+          Edit {!!numFlags && `(${numFlags} flag${numFlags === 1 ? '' : 's'})`}
+        </span>
+      </a>
+    </LWTooltip>} 
     {<Link className={classes.button} to={`/tag/${tag.slug}/history`}>
       <HistoryIcon /><span className={classes.buttonLabel}>History</span>
     </Link>}
-    {!tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
+    {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>
       <NotifyMeButton
         document={tag}
         className={classes.subscribeTo}
@@ -111,31 +137,9 @@ const TagPageButtonRow = ({tag, editing, setEditing, classes}: {
     <div className={classes.button}>
       <TagDiscussionButton tag={tag} hideLabelOnMobile />
     </div>
-    <div className={classes.callToAction}>
-      <LWTooltip
-        title={ tag.tagFlagsIds?.length > 0 ? 
-          <div>
-            {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
-          </div> :
-          <span>
-            This tag does not currently have any improvement flags set.
-          </span>
-        }
-        >
-        <a onClick={(ev) => {
-          if (currentUser) setEditing(true);
-          openDialog({
-            componentName: currentUser ? "TagCTAPopup" : "LoginPopup",
-            componentProps: {}
-          })
-          ev.preventDefault();
-        }}>
-          <span className={classes.callToAction}> Help improve this page{/*
-          */}<span className={classes.callToActionFlagCount}>{!!numFlags&&`(${numFlags} flags)`}</span>
-          </span>
-        </a> 
-      </LWTooltip>
-    </div>
+    <LWTooltip title="hello world">
+      <HelpOutlineIcon />
+    </LWTooltip>
   </div>
 }
 

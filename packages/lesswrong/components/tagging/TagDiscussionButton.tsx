@@ -13,7 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     display: "flex",
     alignItems: "center",
-    marginRight: 8,
     marginLeft: "auto"
   },
   discussionButtonIcon: {
