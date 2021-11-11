@@ -1,4 +1,3 @@
-// TODO; rename this file
 import React from 'react';
 import { Components, registerComponent, getCollectionName } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
@@ -13,6 +12,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
+import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
@@ -35,6 +35,7 @@ const NotifyMeButton = ({
   document,
   subscriptionType: overrideSubscriptionType,
   subscribeMessage, unsubscribeMessage,
+  asMenuItem = false,
   className="",
   classes,
   showIcon,
@@ -43,6 +44,7 @@ const NotifyMeButton = ({
   document: any,
   subscriptionType?: string,
   subscribeMessage?: string,
+  asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
   classes: ClassesType,
@@ -119,19 +121,34 @@ const NotifyMeButton = ({
   if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
     return null;
   }
+  
+  const icon = showIcon && <ListItemIcon>
+    {loading
+      ? <Components.Loading/>
+      : (isSubscribed()
+        ? <NotificationsIcon />
+        : <NotificationsNoneIcon />
+      )
+    }
+  </ListItemIcon>
+  
+  const message = <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>
+    { isSubscribed() ? unsubscribeMessage : subscribeMessage}
+  </span>
 
-  return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
-    {showIcon && <ListItemIcon>
-      {loading
-        ? <Components.Loading/>
-        : (isSubscribed()
-          ? <NotificationsIcon />
-          : <NotificationsNoneIcon />
-        )
-      }
-    </ListItemIcon>}
-    <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
-  </a>
+  if (asMenuItem) {
+    return <MenuItem onClick={onSubscribe}>
+      <a className={classNames(className, classes.root)}>
+        {icon}
+        {message}
+      </a>
+    </MenuItem>
+  } else {
+    return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
+      {icon}
+      {message}
+    </a>
+  }
 }
 
 const SubscribeToComponent = registerComponent('NotifyMeButton', NotifyMeButton, {styles});

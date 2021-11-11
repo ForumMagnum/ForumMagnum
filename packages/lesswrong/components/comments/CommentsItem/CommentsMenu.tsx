@@ -42,8 +42,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
           setEverOpened(true);
         }}
       >
-        {icon ? icon : <MoreVertIcon
-          className={classes.icon}/>}
+        {icon ? icon : <MoreVertIcon className={classes.icon}/>}
       </span>
       <Menu
         onClick={event => {

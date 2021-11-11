@@ -289,7 +289,7 @@ if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
     // Once per minute, on the minute
-    cronStyleSchedule: '* * * * * *',
+    cronStyleSchedule: '* * * * *',
     job() {
       void dispatchPendingEvents();
     }

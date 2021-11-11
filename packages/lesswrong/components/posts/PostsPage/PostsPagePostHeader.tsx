@@ -165,7 +165,7 @@ const PostsPagePostHeader = ({post, classes}: {
       </div>}
     </div>
     
-    {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
+    {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}

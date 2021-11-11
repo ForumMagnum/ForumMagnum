@@ -1,6 +1,7 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import moment from '../../../lib/moment-timezone';
+import { useTracking } from "../../../lib/analyticsEvents";
 import Add from '@material-ui/icons/Add';
 import AddToCalendar from '@culturehq/add-to-calendar';
 import { useSingle } from '../../../lib/crud/withSingle';
@@ -25,9 +26,7 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
   hideTooltip?: boolean,
   classes: ClassesType,
 }) => {
-  // need both a start and end time to add an event to a calendar -
-  // if either are missing, we just return null
-  const missingStartOrEndTime = !post.startTime || !post.endTime;
+  const { captureEvent } = useTracking();
   
   // we use the Facebook link as the default event details text
   let eventDetails = post.facebookLink;
@@ -37,10 +36,10 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsPlaintextDescription',
     documentId: post._id,
-    skip: missingStartOrEndTime || !post.contents || ('plaintextDescription' in post.contents)
+    skip: !post.startTime || !post.contents || ('plaintextDescription' in post.contents)
   });
   
-  if (missingStartOrEndTime) {
+  if (!post.startTime) {
     return null;
   }
   
@@ -50,22 +49,26 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
     eventDetails = post.contents.plaintextDescription || eventDetails;
   }
   
+  const endTime = post.endTime ? moment(post.endTime) : moment(post.startTime).add(1, 'hour')
+  
   const calendarIconNode = (
-    <AddToCalendar
-      event={{
-        name: post.title,
-        details: eventDetails,
-        location: post.location,
-        startsAt: moment(post.startTime).format(),
-        endsAt: moment(post.endTime).format()
-      }}>
-      <Add className={classes.plusIcon} />
-      {label && (
-        <span className={classes.label}>
-          {label}
-        </span>
-      )}
-    </AddToCalendar>
+    <div onClick={() => captureEvent('addToCalendarClicked')}>
+      <AddToCalendar
+        event={{
+          name: post.title,
+          details: eventDetails,
+          location: post.location,
+          startsAt: moment(post.startTime).format(),
+          endsAt: endTime.format()
+        }}>
+          <Add className={classes.plusIcon} />
+          {label && (
+            <span className={classes.label}>
+              {label}
+            </span>
+          )}
+      </AddToCalendar>
+    </div>
   );
   
   if (hideTooltip) {

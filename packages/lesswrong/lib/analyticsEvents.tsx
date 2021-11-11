@@ -331,7 +331,7 @@ function browserConsoleLogAnalyticsEvent(event: any, rateLimitExceeded: boolean)
   }
   // Timestamp recorded on the server will differ. Obviously in part because of
   // the latency of the network, but also because we have a queue that we only
-  // flush max once/second.
+  // flush max once/second. And something something skew.
   c.log('[[time of day]]', moment().format('HH:mm:ss.SSS'));
   c.groupEnd();
 }

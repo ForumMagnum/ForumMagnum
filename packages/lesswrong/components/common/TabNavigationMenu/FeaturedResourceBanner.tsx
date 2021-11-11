@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
-import { useMulti } from '../../lib/crud/withMulti';
+import { useMulti } from '../../../lib/crud/withMulti';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
+import {AnalyticsContext} from "../../../lib/analyticsEvents";
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -36,6 +37,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: '#616161',
     paddingBottom: '1em',
     fontFamily: theme.typography.fontFamily,
+    textAlign: 'center',
   },
   divider: {
     width: '50%',
@@ -97,23 +99,25 @@ const FeaturedResourceBanner = ({ terms, classes }: {
   }
 
   return <Card className={classes.card}>
-    <Tooltip title="Hide this for the next month">
-      <Button className={classes.closeButton} onClick={hideBanner}>
-        <CloseIcon className={classes.closeIcon} />
-      </Button>
-    </Tooltip>
-    <Typography variant="title" className={classes.title}>
-      {resource.title}
-    </Typography>
-    <Divider className={classes.divider} />
-    <Typography variant="body2" className={classes.body}>
-      {resource.body}
-    </Typography>
-    {resource.ctaUrl && resource.ctaText && <a href={resource.ctaUrl}>
-      <Button color="primary" className={classes.ctaButton}>
-        {resource.ctaText}
-      </Button>
-    </a>}
+    <AnalyticsContext pageSectionContext="featuredResourceBanner">
+      <Tooltip title="Hide this for the next month">
+        <Button className={classes.closeButton} onClick={hideBanner}>
+          <CloseIcon className={classes.closeIcon} />
+        </Button>
+      </Tooltip>
+      <Typography variant="title" className={classes.title}>
+        {resource.title}
+      </Typography>
+      <Divider className={classes.divider} />
+      <Typography variant="body2" className={classes.body}>
+        {resource.body}
+      </Typography>
+      {resource.ctaUrl && resource.ctaText && <a href={resource.ctaUrl} target="_blank" rel="noopener noreferrer">
+        <Button color="primary" className={classes.ctaButton}>
+          {resource.ctaText}
+        </Button>
+      </a>}
+    </AnalyticsContext>
   </Card>
 }
 

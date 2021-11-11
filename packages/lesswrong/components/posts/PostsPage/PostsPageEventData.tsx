@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
-    marginTop:theme.spacing.unit*3,
+    marginTop:theme.spacing.unit*2,
     ...theme.typography.postStyle,
     color: 'rgba(0,0,0,0.5)',
   },
@@ -17,7 +17,7 @@ const PostsPageEventData = ({classes, post}: {
   
   const locationNode = onlineEvent ? (
     <div className={classes.eventLocation}>Online Event</div>
-  ) : location && <div className={classes.eventLocation}> {location} </div>;
+  ) : (location && <div className={classes.eventLocation}> {location} </div>);
   
   return <Components.Typography variant="body2" className={classes.metadata}>
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>

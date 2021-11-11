@@ -163,6 +163,11 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       </div>,
       subItem: true
     }, {
+      id: 'contact',
+      title: 'Contact Us',
+      link: '/contact',
+      subItem: true,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -278,9 +283,9 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     //   tooltip: "TODO: Aaron's cool",
     //   subItem: true,
     }, {
-      id: 'groupsAndEvents',
-      title: 'Groups and Events',
-      mobileTitle: 'Groups/Events',
+      id: 'events',
+      title: 'Community and Events',
+      mobileTitle: 'Events',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups and events in your area',

@@ -474,7 +474,7 @@ const PostsItem2 = ({
                 
                 }
 
-                { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
+                { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 

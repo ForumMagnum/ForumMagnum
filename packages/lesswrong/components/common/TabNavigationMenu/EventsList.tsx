@@ -1,6 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
@@ -11,7 +14,7 @@ const EventsList = ({currentUser, onClick}) => {
   let eventsListTerms: PostsViewTerms = {
     view: 'events',
     onlineEvent: false,
-    limit: 1,
+    limit: isEAForum ? 1 : 3,
   }
   if (lat && lng) {
     eventsListTerms = {
@@ -24,7 +27,7 @@ const EventsList = ({currentUser, onClick}) => {
   }
   const onlineTerms: PostsViewTerms = {
     view: 'onlineEvents',
-    limit: 3
+    limit: isEAForum ? 3 : 4,
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">

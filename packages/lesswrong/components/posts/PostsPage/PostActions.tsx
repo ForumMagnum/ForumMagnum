@@ -172,6 +172,17 @@ const PostActions = ({post, closeMenu, classes}: {
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
 
+  // WARNING: Clickable items in this menu must be full-width, and
+  // ideally should use the <MenuItem> component. In particular,
+  // do NOT wrap a <MenuItem> around something that has its own
+  // onClick handler; the onClick handler should either be on the
+  // MenuItem, or on something outside of it. Putting an onClick
+  // on an element inside of a MenuItem can create a dead-space
+  // click area to the right of the item which looks like you've
+  // selected the thing, and closes the menu, but doesn't do the
+  // thing.
+  
+  
   return (
       <div className={classes.actions}>
         {/* <NominatePostMenuItem post={post} closeMenu={closeMenu} /> */}
@@ -203,33 +214,34 @@ const PostActions = ({post, closeMenu, classes}: {
             </MenuItem>
           </Link>
         }
-        {currentUser && post.group && <MenuItem>
-          <NotifyMeButton document={post.group} showIcon
+        {currentUser && post.group &&
+          <NotifyMeButton asMenuItem
+            document={post.group} showIcon
             subscribeMessage={"Subscribe to "+post.group.name}
-            unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
-        </MenuItem>}
-
-        {currentUser && post.shortform && (post.userId !== currentUser._id) &&
-          <MenuItem>
-            <NotifyMeButton document={post} showIcon
-              subscriptionType={subscriptionTypes.newShortform}
-              subscribeMessage={`Subscribe to ${post.title}`}
-              unsubscribeMessage={`Unsubscribe from ${post.title}`}
-            />
-          </MenuItem>
+            unsubscribeMessage={"Unsubscribe from "+post.group.name}
+          />
         }
 
-        {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
-          <NotifyMeButton document={postAuthor} showIcon
-            subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
-            unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}/>
-        </MenuItem>}
+        {currentUser && post.shortform && (post.userId !== currentUser._id) &&
+          <NotifyMeButton asMenuItem document={post} showIcon
+            subscriptionType={subscriptionTypes.newShortform}
+            subscribeMessage={`Subscribe to ${post.title}`}
+            unsubscribeMessage={`Unsubscribe from ${post.title}`}
+          />
+        }
 
-        {currentUser && <MenuItem>
-          <NotifyMeButton document={post} showIcon
-            subscribeMessage="Subscribe to comments"
-            unsubscribeMessage="Unsubscribe from comments"/>
-        </MenuItem>}
+        {currentUser && postAuthor && postAuthor._id !== currentUser._id &&
+          <NotifyMeButton asMenuItem document={postAuthor} showIcon
+            subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
+            unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}
+          />
+        }
+
+        {currentUser && <NotifyMeButton asMenuItem
+          document={post} showIcon
+          subscribeMessage="Subscribe to comments"
+          unsubscribeMessage="Unsubscribe from comments"
+        />}
 
         <BookmarkButton post={post} menuItem/>
 

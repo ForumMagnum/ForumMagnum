@@ -4,7 +4,8 @@ branch-defaults:
   ea-dev:
     environment: EAForum-Staging-2
 global:
-  application_name: ForumMagnum
+  # Use deploy.sh to change this to the correct application name
+  application_name: APPLICATION_NAME
   branch: null
   default_platform: Docker
   default_region: us-east-1

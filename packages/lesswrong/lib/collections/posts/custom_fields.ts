@@ -40,8 +40,8 @@ addFieldsDict(Posts, {
     hidden: false,
     defaultValue: false,
     viewableBy: ['guests'],
-    editableBy: ['admin'],
-    insertableBy: ['admin'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
     control: "checkbox",
     order: 12,
     group: formGroups.adminOptions,
@@ -582,7 +582,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
     insertableBy: [userCanModeratePost],
-    editableBy: ['sunshines', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
@@ -708,7 +708,6 @@ addFieldsDict(Posts, {
     label: "End Time",
     group: formGroups.event,
     optional: true,
-    tooltip: 'Highly recommended (required for adding to calendars)'
   },
 
   localEndTime: {

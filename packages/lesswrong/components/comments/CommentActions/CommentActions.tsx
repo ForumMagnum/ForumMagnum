@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Divider from '@material-ui/core/Divider';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
-import MenuItem from '@material-ui/core/MenuItem';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
@@ -23,30 +22,34 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     fragmentName: "PostsDetails",
   });
   
+  // WARNING: Clickable items in this menu must be full-width, and
+  // ideally should use the <MenuItem> component. In particular,
+  // do NOT wrap a <MenuItem> around something that has its own
+  // onClick handler; the onClick handler should either be on the
+  // MenuItem, or on something outside of it. Putting an onClick
+  // on an element inside of a MenuItem can create a dead-space
+  // click area to the right of the item which looks like you've
+  // selected the thing, and closes the menu, but doesn't do the
+  // thing.
+  
   return <>
     <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
     {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
-      <MenuItem>
-        <NotifyMeButton document={post} showIcon
-          subscriptionType={subscriptionTypes.newShortform}
-          subscribeMessage={`Notify me of additions to ${post.title}`}
-          unsubscribeMessage={`Stop notifying me of additions to ${post.title}`}
-        />
-      </MenuItem>
-    }
-    <MenuItem>
-      <NotifyMeButton document={comment} showIcon
-        subscribeMessage="Notify me of comment replies"
-        unsubscribeMessage="Stop notifying me of comment replies"
+      <NotifyMeButton asMenuItem document={post} showIcon
+        subscriptionType={subscriptionTypes.newShortform}
+        subscribeMessage={`Subscribe to ${post.title}`}
+        unsubscribeMessage={`Unsubscribe from ${post.title}`}
       />
-    </MenuItem>
+    }
+    <NotifyMeButton asMenuItem document={comment} showIcon
+      subscribeMessage="Subscribe to comment replies"
+      unsubscribeMessage="Unsubscribe from comment replies"
+    />
     {comment.user?._id && (comment.user._id !== currentUser._id) &&
-      <MenuItem>
-        <NotifyMeButton document={comment.user} showIcon
-          subscribeMessage={"Notify me of new posts by "+userGetDisplayName(comment.user)}
-          unsubscribeMessage={"Stop notifying me of new posts by "+userGetDisplayName(comment.user)}
-        />
-      </MenuItem>
+      <NotifyMeButton asMenuItem document={comment.user} showIcon
+        subscribeMessage={"Subscribe to posts by "+userGetDisplayName(comment.user)}
+        unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(comment.user)}
+      />
     }
     {post && <ReportCommentMenuItem comment={comment}/>}
     {postDetails && <MoveToAlignmentMenuItem comment={comment} post={postDetails}/>}
