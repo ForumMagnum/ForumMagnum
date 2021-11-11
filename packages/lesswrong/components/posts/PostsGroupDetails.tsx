@@ -2,6 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
+import classNames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -13,15 +14,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: 'rgba(0,0,0,0.5)',
     marginTop: -10,
   },
+  sansSerif: {
+    fontSize: 16,
+    fontFamily: theme.typography.fontFamily
+  },
   root: {
     marginBottom: 10, 
     marginTop: 10
   }
 })
 
-const PostsGroupDetails = ({ documentId, post, classes }: {
+const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,
   post: PostsBase,
+  inRecentDiscussion?: Boolean,
   classes: ClassesType,
 }) => {
   const { document } = useSingle({
@@ -30,8 +36,8 @@ const PostsGroupDetails = ({ documentId, post, classes }: {
     fragmentName: 'localGroupsHomeFragment',
   });
   if (document) {
-    return <div className={classes.root}>
-      <div className={classes.title}>
+    return <div className={inRecentDiscussion ? {} : classes.root}>
+      <div className={inRecentDiscussion ? classNames(classes.title, classes.sansSerif) : classes.title}>
         {post?.group && <Link to={'/groups/' + post.group._id }>{ document.name }</Link>}
       </div>
     </div>

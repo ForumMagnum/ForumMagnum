@@ -36,7 +36,7 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaSequencesHome'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaLibrary'],
 }
 
 const styles = (theme: ThemeType): JssStyles => ({

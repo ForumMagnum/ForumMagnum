@@ -241,6 +241,7 @@ interface DbLocalgroup extends DbObject {
   organizerIds: Array<string>
   lastActivity: Date
   types: Array<string>
+  isOnline: boolean
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   location: string
@@ -409,7 +410,6 @@ interface DbPost extends DbObject {
   location: string
   contactInfo: string
   facebookLink: string
-  facebookPageLink: string
   meetupLink: string
   website: string
   types: Array<string>

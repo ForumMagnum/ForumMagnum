@@ -77,16 +77,15 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
   const isEAForum = forumTypeSetting.get() === 'EAForum';
 
-  const { googleLocation: { geometry: { location } }} = group;
   return (
     <div className={classes.root}>
-      <CommunityMapWrapper
+      {group.googleLocation && <CommunityMapWrapper
         terms={{view: "events", groupId: groupId}}
         groupQueryTerms={{view: "single", groupId: groupId}}
-        mapOptions={{zoom:11, center: location, initialOpenWindows:[groupId]}}
-      />
+        mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+      />}
       <SingleColumnSection>
-        <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
+        <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin={group.isOnline}>
           {currentUser && <SectionButton>
             <SubscribeTo
               showIcon
@@ -100,7 +99,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           <div className={classes.groupSubtitle}>
             <SectionFooter>
               <span className={classes.groupInfo}>
-                <div className={classes.groupLocation}>{group.location}</div>
+                <div className={classes.groupLocation}>{group.isOnline ? 'Online Group' : group.location}</div>
                 <div className={classes.groupLinks}><GroupLinks document={group} /></div>
               </span>
               {Posts.options.mutations.new.check(currentUser) &&

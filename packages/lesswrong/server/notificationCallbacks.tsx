@@ -660,7 +660,7 @@ getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifi
   if (
     (
       (!newPost.draft && oldPost.draft) || 
-      (newPost.mongoLocation && !newPost.mongoLocation) || 
+      (newPost.mongoLocation !== oldPost.mongoLocation) ||
       (newPost.startTime !== oldPost.startTime) || 
       (newPost.endTime !== oldPost.endTime) || 
       (newPost.contents?.html !== oldPost.contents?.html) ||

@@ -21,7 +21,7 @@ const schema: SchemaType<DbLocalgroup> = {
     order:10,
     insertableBy: ['members'],
     control: "MuiTextField",
-    label: "Local Group Name"
+    label: "Group Name"
   },
 
   organizerIds: {
@@ -75,11 +75,22 @@ const schema: SchemaType<DbLocalgroup> = {
     type: String,
     optional: true,
   },
+  
+  isOnline: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "This is an online group",
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
 
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],
     hidden: true,
+    optional: true,
     blackbox: true,
     ...denormalizedField({
       needsUpdate: data => ('googleLocation' in data),
@@ -97,6 +108,8 @@ const schema: SchemaType<DbLocalgroup> = {
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
+    hidden: data => data.document.isOnline,
+    optional: true,
   },
 
   location: {
@@ -105,6 +118,7 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     insertableBy: ['members'],
     hidden: true,
+    optional: true,
   },
 
   contactInfo: {

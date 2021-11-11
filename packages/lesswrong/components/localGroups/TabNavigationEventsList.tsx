@@ -35,6 +35,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   yesterday: {
     color: "unset"
   },
+  tooltipGroup: {
+    ...theme.typography.tinyText
+  },
   tooltipTitle: {
     fontWeight: 600,
   },
@@ -120,6 +123,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
         const highlight = truncate(htmlHighlight, HIGHLIGHT_LENGTH)
 
         const tooltip = <div>
+            {event.group && <div className={classes.tooltipGroup}>{event.group.name}</div>}
             <div className={classes.tooltipTitle}>{event.title}</div>
             <div className={classes.tooltipLogisticsTitle}>
               {event.onlineEvent ? "Online Event" : "Location"}
