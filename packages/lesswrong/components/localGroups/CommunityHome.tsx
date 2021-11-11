@@ -171,7 +171,7 @@ const CommunityHome = ({classes}: {
             
             <SingleColumnSection>
               <SectionTitle title="Online Groups">
-                {canCreateEvents && <GroupFormLink />}
+                {canCreateEvents && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
                 <Components.LocalGroupsList terms={onlineGroupsListTerms}/>
