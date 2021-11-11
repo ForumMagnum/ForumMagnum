@@ -7,6 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useTracking } from '../../lib/analyticsEvents';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
@@ -60,7 +61,23 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }));
 
-const FeaturedResourceBanner = ({ terms, classes }: {
+const LinkButton = ({ resource, classes }: {
+  classes: ClassesType,
+  resource: FeaturedResourcesFragment,
+}) => {
+  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: resource.ctaUrl}});
+  const handleClick = (e) => {
+    captureEvent(undefined, {buttonPressed: e.button});
+  };
+
+  return <a href={resource.ctaUrl}>
+    <Button color="primary" className={classes.ctaButton} onClick={handleClick}>
+      {resource.ctaText}
+    </Button>
+  </a>;
+};
+
+const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
@@ -110,11 +127,7 @@ const FeaturedResourceBanner = ({ terms, classes }: {
     <Typography variant="body2" className={classes.body}>
       {resource.body}
     </Typography>
-    {resource.ctaUrl && resource.ctaText && <a href={resource.ctaUrl}>
-      <Button color="primary" className={classes.ctaButton}>
-        {resource.ctaText}
-      </Button>
-    </a>}
+    {resource.ctaUrl && resource.ctaText && <LinkButton resource={resource} classes={classes} />}
   </Card>
 }
 
