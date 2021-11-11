@@ -80,6 +80,7 @@ import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
+import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';

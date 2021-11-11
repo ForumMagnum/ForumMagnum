@@ -10,6 +10,7 @@ registerFragment(`
     }
     lastActivity
     name
+    isOnline
     location
     googleLocation
     mongoLocation
@@ -41,3 +42,10 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment localGroupsIsOnline on Localgroup {
+    _id
+    name
+    isOnline
+  }
+`);

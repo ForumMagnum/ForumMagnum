@@ -88,6 +88,11 @@ const CommunityHome = ({classes}: {
       view: 'onlineEvents',
       limit: 10
     }
+    const onlineGroupsListTerms: LocalgroupsViewTerms = {
+      view: 'online',
+      limit: 10,
+      filters: filters
+    }
     const groupsListTerms: LocalgroupsViewTerms = {
       view: 'nearby',
       lat: currentUserLocation.lat,
@@ -161,6 +166,15 @@ const CommunityHome = ({classes}: {
                   <Link to="/pastEvents">View Past Events</Link>
                   <Link to="/upcomingEvents">View Upcoming Events</Link>
                 </PostsList2>}
+              </AnalyticsContext>
+            </SingleColumnSection>
+            
+            <SingleColumnSection>
+              <SectionTitle title="Online Groups">
+                {canCreateEvents && <GroupFormLink isOnline={true} />}
+              </SectionTitle>
+              <AnalyticsContext listContext={"communityGroups"}>
+                <Components.LocalGroupsList terms={onlineGroupsListTerms}/>
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>

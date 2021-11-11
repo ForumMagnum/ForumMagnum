@@ -16,14 +16,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*3,
     paddingBottom: 8
   },
+  noTopMargin: {
+    marginTop: 0
+  },
   title: {
     ...sectionTitleStyle(theme)
-  },
-  rightMargin: {
-    marginRight: theme.spacing.unit*1.5
-  },
-  noTitle: {
-    marginLeft: 0,
   },
   children: {
     ...theme.typography.commentStyle,
@@ -34,16 +31,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SectionTitle = ({children, classes, className, title }: {
+const SectionTitle = ({children, classes, className, title, noTopMargin }: {
   children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
-  title: React.ReactNode
+  title: React.ReactNode,
+  noTopMargin?: Boolean
 }) => {
 
   
   return (
-    <div className={classes.root}>
+    <div className={noTopMargin ? classNames(classes.root, classes.noTopMargin) : classes.root}>
       <Components.Typography variant='display1' className={classNames(classes.title, className)}>
         {title}
       </Components.Typography>
