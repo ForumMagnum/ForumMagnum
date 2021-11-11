@@ -32,8 +32,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   const [expandAllThreads,setExpandAllThreads] = useState(false);
   
   useGlobalKeydown((event) => {
-    const F_Key = 70
-    if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
+    if ((event.metaKey || event.ctrlKey) && event.key == 'f') {
       setExpandAllThreads(true);
     }
   });
