@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
@@ -114,21 +114,23 @@ const FeaturedResourceBanner = ({terms, classes} : {
     return null;
   }
 
-  return <Card className={classes.card}>
-    <Tooltip title="Hide this for the next month">
-      <Button className={classes.closeButton} onClick={hideBanner}>
-        <CloseIcon className={classes.closeIcon} />
-      </Button>
-    </Tooltip>
-    <Typography variant="title" className={classes.title}>
-      {resource.title}
-    </Typography>
-    <Divider className={classes.divider} />
-    <Typography variant="body2" className={classes.body}>
-      {resource.body}
-    </Typography>
-    {resource.ctaUrl && resource.ctaText && <LinkButton resource={resource} classes={classes} />}
-  </Card>
+  return <AnalyticsContext pageElementContext="featuredResourceLink" resourceName={resource.title} resourceUrl={resource.ctaUrl} >
+      <Card className={classes.card}>
+      <Tooltip title="Hide this for the next month">
+        <Button className={classes.closeButton} onClick={hideBanner}>
+          <CloseIcon className={classes.closeIcon} />
+        </Button>
+      </Tooltip>
+      <Typography variant="title" className={classes.title}>
+        {resource.title}
+      </Typography>
+      <Divider className={classes.divider} />
+      <Typography variant="body2" className={classes.body}>
+        {resource.body}
+      </Typography>
+      {resource.ctaUrl && resource.ctaText && <LinkButton resource={resource} classes={classes} />}
+    </Card>
+  </AnalyticsContext>
 }
 
 const FeaturedResourceBannerComponent = registerComponent(
