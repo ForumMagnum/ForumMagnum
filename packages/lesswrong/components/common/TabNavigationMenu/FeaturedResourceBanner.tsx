@@ -70,7 +70,7 @@ const LinkButton = ({ resource, classes }: {
     captureEvent(undefined, {buttonPressed: e.button});
   };
 
-  return <a href={resource.ctaUrl}>
+  return <a href={resource.ctaUrl} target="_blank" rel="noopener noreferrer">
     <Button color="primary" className={classes.ctaButton} onClick={handleClick}>
       {resource.ctaText}
     </Button>
