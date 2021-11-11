@@ -32,6 +32,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1.4rem',
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
+  groupLinks: {
+    display: 'inline-block',
+    marginRight: 20
+  },
   commentsLink: {
     marginRight: SECONDARY_SPACING,
     color: theme.palette.grey[600],
@@ -148,7 +152,9 @@ const PostsPagePostHeader = ({post, classes}: {
           {!post.isEvent && <span className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </span>}
-          {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+          {post.isEvent && <div className={classes.groupLinks}>
+            <Components.GroupLinks document={post} noMargin={true} />
+          </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
           <div className={classes.commentsLink}>
             <AddToCalendarIcon post={post} label="Add to Calendar" hideTooltip={true} />
