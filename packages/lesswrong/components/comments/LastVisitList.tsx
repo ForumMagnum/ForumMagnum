@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import * as _ from 'underscore';
 
 const VISITS_TO_SHOW = 4
-const MINIMUM_TIME_BETWEEN = 120000; //in milliseconds
+const MINIMUM_TIME_BETWEEN = 60 * 1000 * 5; //in milliseconds
 
 const LastVisitList = ({ postId, currentUser, clickCallback }: {
   postId: string,
@@ -15,7 +15,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   const { results, loading } = useMulti({
     terms: {
       view: "postVisits",
-      limit: 20,
+      limit: 100,
       postId: postId,
       userId: currentUser._id
     },
@@ -44,11 +44,12 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
       filteredVisits.push(visit);
     }
   }
+  let [drop, ...filteredVisitsWithoutNow] = filteredVisits
   
-  if (filteredVisits.length>VISITS_TO_SHOW)
-    filteredVisits = _.take(filteredVisits, VISITS_TO_SHOW);
+  if (filteredVisitsWithoutNow.length>VISITS_TO_SHOW)
+    filteredVisitsWithoutNow = _.take(filteredVisitsWithoutNow, VISITS_TO_SHOW);
   
-  return <>{filteredVisits.map((visit) =>
+  return <>{filteredVisitsWithoutNow.map((visit) =>
     <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt)}>Visit at:&nbsp;<Components.CalendarDate date={visit.createdAt}/> </MenuItem>
   )}</>
 }
