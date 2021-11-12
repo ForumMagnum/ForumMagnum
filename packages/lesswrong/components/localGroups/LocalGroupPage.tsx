@@ -13,7 +13,11 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
-  root: {},
+  root: {
+    [theme.breakpoints.down('md')]: {
+      marginTop: 20
+    }
+  },
   groupInfo: {
     ...sectionFooterLeftStyles,
     alignItems: 'baseline'
