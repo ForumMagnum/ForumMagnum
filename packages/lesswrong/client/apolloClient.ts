@@ -21,20 +21,33 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
 export const createApolloClient = () => {
   const cache = new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          post(_, { args, toReference }) {
+            console.log(args);
+            return toReference({
+              __typename: "Post",
+              _id: (args as any).input.selector.documentId,
+              __ref: `Post:${(args as any).input.selector.documentId}`
+            });
+          },
+        },
+      },
+    },
     possibleTypes: {
-      ...apolloCacheVoteablePossibleTypes()
-    }
-  })
-    .restore((window as any).__APOLLO_STATE__); //ssr
-  
+      ...apolloCacheVoteablePossibleTypes(),
+    },
+  }).restore((window as any).__APOLLO_STATE__); //ssr
+
   const httpLink = new BatchHttpLink({
-    uri: '/graphql',
-    credentials: 'same-origin',
+    uri: "/graphql",
+    credentials: "same-origin",
     batchMax: 50,
   });
-  
+
   return new ApolloClient({
     link: ApolloLink.from([errorLink, httpLink]),
-    cache
+    cache,
   });
-};
+};;

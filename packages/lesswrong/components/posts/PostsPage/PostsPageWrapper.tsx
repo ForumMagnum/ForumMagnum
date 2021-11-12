@@ -29,6 +29,8 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     documentId
   })
 
+  console.log(post, loading, error);
+  
   const { Error404, Loading, PostsPage } = Components;
   if (error && !isMissingDocumentError(error)) {
     throw new Error(error.message);
