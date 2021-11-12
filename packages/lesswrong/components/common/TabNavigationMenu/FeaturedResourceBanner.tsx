@@ -10,7 +10,7 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
-import {AnalyticsContext} from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -61,7 +61,23 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }));
 
-const FeaturedResourceBanner = ({ terms, classes }: {
+const LinkButton = ({ resource, classes }: {
+  classes: ClassesType,
+  resource: FeaturedResourcesFragment,
+}) => {
+  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: resource.ctaUrl}});
+  const handleClick = (e) => {
+    captureEvent(undefined, {buttonPressed: e.button});
+  };
+
+  return <a href={resource.ctaUrl} target="_blank" rel="noopener noreferrer">
+    <Button color="primary" className={classes.ctaButton} onClick={handleClick}>
+      {resource.ctaText}
+    </Button>
+  </a>;
+};
+
+const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
@@ -98,8 +114,8 @@ const FeaturedResourceBanner = ({ terms, classes }: {
     return null;
   }
 
-  return <Card className={classes.card}>
-    <AnalyticsContext pageSectionContext="featuredResourceBanner">
+  return <AnalyticsContext pageElementContext="featuredResourceLink" resourceName={resource.title} resourceUrl={resource.ctaUrl} >
+      <Card className={classes.card}>
       <Tooltip title="Hide this for the next month">
         <Button className={classes.closeButton} onClick={hideBanner}>
           <CloseIcon className={classes.closeIcon} />
@@ -112,13 +128,9 @@ const FeaturedResourceBanner = ({ terms, classes }: {
       <Typography variant="body2" className={classes.body}>
         {resource.body}
       </Typography>
-      {resource.ctaUrl && resource.ctaText && <a href={resource.ctaUrl} target="_blank" rel="noopener noreferrer">
-        <Button color="primary" className={classes.ctaButton}>
-          {resource.ctaText}
-        </Button>
-      </a>}
-    </AnalyticsContext>
-  </Card>
+      {resource.ctaUrl && resource.ctaText && <LinkButton resource={resource} classes={classes} />}
+    </Card>
+  </AnalyticsContext>
 }
 
 const FeaturedResourceBannerComponent = registerComponent(
