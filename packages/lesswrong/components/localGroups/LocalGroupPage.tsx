@@ -14,6 +14,15 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
+  imageContainer: {
+    height: 200,
+    marginTop: -50,
+    marginBottom: 30
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100%'
+  },
   groupInfo: {
     ...sectionFooterLeftStyles,
     alignItems: 'baseline'
@@ -60,7 +69,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 }) => {
   const currentUser = useCurrentUser();
   const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
+    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404, CloudinaryImage2 } = Components
 
   const { document: group, loading } = useSingle({
     collectionName: "Localgroups",
@@ -79,11 +88,17 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   return (
     <div className={classes.root}>
-      {group.googleLocation && <CommunityMapWrapper
+      {group.googleLocation ? <CommunityMapWrapper
         terms={{view: "events", groupId: groupId}}
         groupQueryTerms={{view: "single", groupId: groupId}}
         mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
-      />}
+      /> : <div className={classes.imageContainer}>
+        <CloudinaryImage2
+          publicId={group.bannerImageId || "Banner/qnjqqba8qclypnkvdkqn"}
+          objectFit="cover"
+          className={classes.bannerImage}
+        />
+      </div>}
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin={group.isOnline}>
           {currentUser && <SectionButton>

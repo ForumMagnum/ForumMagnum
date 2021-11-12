@@ -186,7 +186,18 @@ const schema: SchemaType<DbLocalgroup> = {
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
-  }
+  },
+  
+  //Cloudinary image id for the banner image (high resolution)
+  bannerImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    label: "Banner Image",
+    control: "ImageUpload",
+  },
 };
 
 export default schema;

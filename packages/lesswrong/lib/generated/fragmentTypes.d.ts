@@ -1098,6 +1098,7 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
+  readonly bannerImageId: string,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -1118,6 +1119,7 @@ interface localGroupsBase { // fragment on Localgroups
   readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
+  readonly bannerImageId: string,
 }
 
 interface localGroupsHomeFragment extends localGroupsBase { // fragment on Localgroups
@@ -2007,3 +2009,4 @@ interface CollectionNamesByFragmentName {
 }
 
 type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+
