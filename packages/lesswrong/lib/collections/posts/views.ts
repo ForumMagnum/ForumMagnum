@@ -1221,11 +1221,11 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
 ));
 
 
-Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms) => {
+Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: ResolverContext) => {
   return {
     selector: {
       _id: {$in: terms.postIds},
-      userId: {$ne: terms.userId},
+      userId: {$ne: context.currentUser?._id,},
       isEvent: false
     },
     options: {
@@ -1235,7 +1235,3 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms) => {
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ postIds:1 }),
-  { name: "posts.nominatablePostsByVote", }
-);

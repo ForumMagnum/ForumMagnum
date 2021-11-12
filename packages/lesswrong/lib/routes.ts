@@ -365,7 +365,7 @@ addRoute(
   {
     name: 'votes',
     path: '/votes',
-    componentName: 'PostsByVote',
+    componentName: 'UserSuggestNominations',
     title: "Votes List"
   },
 );
