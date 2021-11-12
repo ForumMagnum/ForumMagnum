@@ -27,6 +27,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[700]
     }
   },
+  buttonTooltip: {
+    display: "flex",
+    alignItems: "center",
+  },
   button: {
     display: "flex",
     alignItems: "center",
@@ -83,7 +87,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   const { LWTooltip, NotifyMeButton, TagDiscussionButton } = Components;
   
   // TODO; we can avoid a database round trip on every tag page load by
-  // conditionally fetching this
+  // lazily fetching this
   // const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
   // <ContentItemBody
   //       className={classes.beginnersGuide}
@@ -95,6 +99,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   
   return <div className={classNames(classes.buttonsRow, className)}>
     {!editing && <LWTooltip
+      className={classes.buttonTooltip}
       title={ tag.tagFlagsIds?.length > 0 ? 
         <div>
           {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
@@ -119,7 +124,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
           Edit {!!numFlags && `(${numFlags} flag${numFlags === 1 ? '' : 's'})`}
         </span>
       </a>
-    </LWTooltip>} 
+    </LWTooltip>}
     {<Link className={classes.button} to={`/tag/${tag.slug}/history`}>
       <HistoryIcon /><span className={classes.buttonLabel}>History</span>
     </Link>}
