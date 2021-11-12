@@ -9,7 +9,7 @@ import { Editor } from '@ckeditor/ckeditor5-core';
 
 // There's ample DRY violation in this file; type checking
 // polymorphism without full typescript is just incredibly finicky.
-// I suspect there's a more elegant solution for this, 
+// I (Jonathan) suspect there's a more elegant solution for this, 
 // but I tried a lot of things and none of them worked.
 
 /**
