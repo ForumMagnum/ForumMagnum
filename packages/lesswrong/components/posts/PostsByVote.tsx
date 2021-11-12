@@ -25,7 +25,7 @@ const PostsByVote = ({postIds}:{postIds: Array<string>}) => {
 
 
     return <ErrorBoundary><div>
-          {posts?.map(post=> <PostsItem2 post={post} />)}
+          {posts?.map(post=> <PostsItem2 key={post._id} post={post} />)}
       </div></ErrorBoundary>
 }
 
