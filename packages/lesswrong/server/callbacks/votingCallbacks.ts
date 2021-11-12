@@ -1,5 +1,9 @@
+import moment from 'moment';
+import Notifications from '../../lib/collections/notifications/collection';
 import Users from '../../lib/collections/users/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { userSmallVotePower } from '../../lib/voting/voteTypes';
+import { createNotification } from '../notificationCallbacks';
 
 /**
  * @summary Update the karma of the item's owner
@@ -9,12 +13,26 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
  * @param {string} operation - The operation being performed
  */
 const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
-voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
+    const oldKarma = (await Users.findOne({_id: newDocument.userId}))?.karma!;
     void Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
+    const newKarma = oldKarma + vote.power;
+    userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma);
   }
 });
+
+async function userKarmaChangedFrom(userId: string, oldKarma: number, newKarma: number) {
+  if (userSmallVotePower(oldKarma, 1) < userSmallVotePower(newKarma, 1)) {
+    // TODO: check if there's already a notification
+    const yesterday = moment().subtract(1, 'days').toDate();
+    const existingNotificationCount = await Notifications.find({userId, type: 'karmaPowersGained', createdAt: {$gt: yesterday}}).count();
+    if (existingNotificationCount === 0) {
+      await createNotification({userId, notificationType: 'karmaPowersGained', documentType: null, documentId: null})
+    }
+  }
+};
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author

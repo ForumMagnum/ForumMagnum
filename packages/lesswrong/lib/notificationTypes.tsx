@@ -331,3 +331,14 @@ export const NewRSVPNotification = registerNotificationType({
     return <EventIcon style={iconStyles} />
   }
 })
+
+export const KarmaPowersGainedNotification = registerNotificationType({
+  name: "karmaPowersGained",
+  userSettingField: "notificationKarmaPowersGained",
+  async getMessage() {
+    return "Your votes are stronger because your karma has gone up!"
+  },
+  getIcon() {
+    return <AllIcon style={iconStyles} />
+  }
+})

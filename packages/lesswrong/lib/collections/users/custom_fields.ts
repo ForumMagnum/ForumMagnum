@@ -685,6 +685,11 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationKarmaPowersGained: {
+    label: "Karma powers gained",
+    hidden: true,
+    ...notificationTypeSettingsField({ channel: "onsite" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
