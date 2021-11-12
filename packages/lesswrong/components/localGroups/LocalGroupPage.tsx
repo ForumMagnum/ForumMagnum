@@ -14,6 +14,11 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
+  bannerImage: {
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50
+    }
+  },
   groupInfo: {
     ...sectionFooterLeftStyles,
     alignItems: 'baseline'
@@ -79,13 +84,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   return (
     <div className={classes.root}>
-      {group.googleLocation && <CommunityMapWrapper
+      {group.googleLocation ? <CommunityMapWrapper
         terms={{view: "events", groupId: groupId}}
         groupQueryTerms={{view: "single", groupId: groupId}}
         mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
-      />}
+      /> : <div className={classes.bannerImage}></div>}
       <SingleColumnSection>
-        <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin={group.isOnline}>
+        <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>
             <SubscribeTo
               showIcon

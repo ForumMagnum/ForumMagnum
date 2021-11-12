@@ -73,10 +73,10 @@ Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
   };
 });
 
-Localgroups.addView("online", function (terms: LocalgroupsViewTerms) {
+Localgroups.addView("online", function () {
   return {
     selector: {isOnline: true},
-    options: {sort: {createdAt: -1}}
+    options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { isOnline: 1 });
+ensureIndex(Localgroups, { isOnline: 1, name: 1 });
