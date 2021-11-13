@@ -24,7 +24,8 @@ export const defineSchema = schema => {
 	});
 
 	// @ts-ignore -- returning true here prevents future listeners from firing.
-	// This matches the canonical use in the docs--the type signature is just wrong.
+	// (as does return false, it just also prevents the child add operation from happening.)
+	// The below pattern matches the canonical use in the docs--the type signature is just wrong.
 	schema.addChildCheck((context, childDefinition) => {
 		if (context.endsWith('footnoteList') && childDefinition.name === 'footnoteSection') {
 			return false;

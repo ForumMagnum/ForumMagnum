@@ -1,3 +1,4 @@
+// @ts-check
 import { Editor } from '@ckeditor/ckeditor5-core';
 import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
 import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
@@ -12,7 +13,7 @@ import { modelQueryElementsAll, viewQueryElement, viewQueryText } from '../utils
 /**
  * @param {Editor} editor
  * @param {RootElement} rootElement
- * @returns void
+ * @returns {void}
  * */
 export const defineConverters = (editor, rootElement) => {
 	const conversion = editor.conversion;
@@ -87,7 +88,6 @@ export const defineConverters = (editor, rootElement) => {
 	/***********************************Footnote Item Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
-		// How to we find the items to upcast here? The view specifies that
 		view: {
 			name: 'span',
 			classes: 'footnote-item',
@@ -152,21 +152,21 @@ export const defineConverters = (editor, rootElement) => {
 	});
 
 	conversion.for('editingDowncast')
-	.add(dispatcher => {
-		dispatcher.on(
-			'attribute:data-footnote-id:footnoteItem',
-			(_, data, conversionApi) => updateReferences(data, conversionApi, editor, rootElement),
-			{ priority: 'high' });
-		dispatcher.on(
-			'attribute:data-footnote-id:footnoteItem', 
-			(_, data, conversionApi) => modelViewChangeItem(data, conversionApi, editor), 
-			{ priority: 'high' });
-		dispatcher.on(
-			'attribute:data-footnote-id:noteHolder', 
-			(_, data, conversionApi) => modelViewChangeHolder(data, conversionApi, editor), 
-			{ priority: 'high' }
-		);
-	});
+		.add(dispatcher => {
+			dispatcher.on(
+				'attribute:data-footnote-id:footnoteItem',
+				(_, data, conversionApi) => updateReferences(data, conversionApi, editor, rootElement),
+				{ priority: 'high' });
+			dispatcher.on(
+				'attribute:data-footnote-id:footnoteItem', 
+				(_, data, conversionApi) => modelViewChangeItem(data, conversionApi, editor), 
+				{ priority: 'high' });
+			dispatcher.on(
+				'attribute:data-footnote-id:noteHolder', 
+				(_, data, conversionApi) => modelViewChangeHolder(data, conversionApi, editor), 
+				{ priority: 'high' }
+			);
+		});
 
 }
 
