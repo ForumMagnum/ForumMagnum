@@ -34,6 +34,9 @@ adminsGroup.can(adminActions);
 // LessWrong Permissions
 
 Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null): Promise<boolean> => {
+  if (post.onlyVisibleToLoggedIn && !currentUser) {
+    return false;
+  }
   if (userCanDo(currentUser, 'posts.view.all')) {
     return true
   } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post)) {
