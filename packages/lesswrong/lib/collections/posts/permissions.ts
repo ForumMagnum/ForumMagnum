@@ -33,8 +33,10 @@ adminsGroup.can(adminActions);
 
 // LessWrong Permissions
 
-Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null): Promise<boolean> => {
+Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null, outReasonDenied: {reason?: string}): Promise<boolean> => {
   if (post.onlyVisibleToLoggedIn && !currentUser) {
+    if (outReasonDenied)
+      outReasonDenied.reason = "This post is only visible to logged-in users.";
     return false;
   }
   if (userCanDo(currentUser, 'posts.view.all')) {
