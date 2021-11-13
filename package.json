@@ -26,7 +26,7 @@
     "reinstall-ckeditor-after-git-checkout": "yarn add ./public/lesswrong-editor",
     "reinstall-ckeditor": "yarn add ./public/lesswrong-editor",
     "production": "scripts/runProduction.sh",
-    "ea-start": "./build.js -run --watch --settings ../ForumCredentials/settings-dev.json --mongoUrlFile ../ForumCredentials/dev-db-conn.txt",
+    "ea-start": "./build.js -run -watch --settings ../ForumCredentials/settings-dev.json --mongoUrlFile ../ForumCredentials/dev-db-conn.txt",
     "ea-start-staging-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/staging-db-conn.txt --settings ../ForumCredentials/settings-local-dev-staging-db.json",
     "ea-start-prod-db": "./build.js -run --watch --mongoUrlFile ../ForumCredentials/prod-db-conn.txt --settings ../ForumCredentials/settings-local-dev-prod-db.json",
     "ea-start-testing-db": "./build.js -run --mongoUrl ${TESTING_DB_URL:=$(cat ../ForumCredentials/testing-db-conn.txt)} --settings ./settings-test.json",
