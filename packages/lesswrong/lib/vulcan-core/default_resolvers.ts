@@ -125,16 +125,20 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // if collection has a checkAccess function defined, use it to perform a check on the current document
         // (will throw an error if check doesn't pass)
         if (collection.checkAccess) {
-          await Utils.performCheck(
-            collection.checkAccess,
-            currentUser,
-            doc,
-            
-            context,
-            documentId,
-            `${typeName}.read.single`,
-            collectionName
-          );
+          const reasonDenied = {reason:undefined};
+          const canAccess = await collection.checkAccess(currentUser, doc, context, reasonDenied)
+          if (!canAccess) {
+            if (reasonDenied.reason) {
+              Utils.throwError({
+                id: reasonDenied.reason,
+              });
+            } else {
+              Utils.throwError({
+                id: 'app.operation_not_allowed',
+                data: {documentId, operationName: `${typeName}.read.single`}
+              });
+            }
+          }
         }
 
         const restrictedDoc = restrictViewableFields(currentUser, collection, doc);
