@@ -90,7 +90,7 @@ const CommunityHome = ({classes}: {
     }
     const onlineGroupsListTerms: LocalgroupsViewTerms = {
       view: 'online',
-      limit: 10,
+      limit: 5,
       filters: filters
     }
     const groupsListTerms: LocalgroupsViewTerms = {

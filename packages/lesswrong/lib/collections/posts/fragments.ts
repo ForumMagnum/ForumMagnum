@@ -86,6 +86,7 @@ registerFragment(`
     moderationStyle
     submitToFrontpage
     shortform
+    onlyVisibleToLoggedIn
 
     nominationCount2018
     reviewCount2018

@@ -710,6 +710,28 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     ...schemaDefaultValue(false),
   },
+  
+  onlyVisibleToLoggedIn: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from users who are not logged in",
+    ...schemaDefaultValue(false),
+  },
+  
+  onlyVisibleToEstablishedAccounts: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from logged out users and newly created accounts",
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

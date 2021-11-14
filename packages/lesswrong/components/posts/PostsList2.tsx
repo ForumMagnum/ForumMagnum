@@ -59,6 +59,7 @@ const PostsList2 = ({
   topLoading = false,
   showLoading = true,
   showLoadMore = true,
+  alwaysShowLoadMore = false,
   showNoResults = true,
   hideLastUnread = false,
   showPostedAt = true,
@@ -82,6 +83,7 @@ const PostsList2 = ({
   topLoading?: boolean,
   showLoading?: boolean,
   showLoadMore?: boolean,
+  alwaysShowLoadMore?: boolean,
   showNoResults?: boolean,
   hideLastUnread?: boolean,
   showPostedAt?: boolean,
@@ -115,6 +117,7 @@ const PostsList2 = ({
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     itemsPerPage: itemsPerPage,
+    alwaysShowLoadMore,
     ...tagVariables
   });
 
@@ -153,7 +156,7 @@ const PostsList2 = ({
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results?.length && (results.length >= limit))
+  const maybeMorePosts = !!(results?.length && (results.length >= limit)) || alwaysShowLoadMore;
 
   let orderedResults = results
   if (defaultToShowUnreadComments) {
