@@ -1,12 +1,12 @@
 echo "Running Production Site"
 
 # lw-look here: you must define GITHUB_CREDENTIALS_REPO_USER in your AWS EBS config
-git clone https://$GITHUB_CREDENTIALS_REPO_USER:$GITHUB_CREDENTIALS_REPO_PAT@github.com/$GITHUB_CREDENTIALS_REPO_NAME.git Credentials
+git clone https://Discordius:$GITHUB_CREDENTIALS_REPO_PAT@github.com/$GITHUB_CREDENTIALS_REPO_NAME.git Credentials
 
 # Decrypt credentials if encrypted
-if [ -n $TRANSCRYPT_SECRET ]; then
+if [ -n "$TRANSCRYPT_SECRET" ]; then
     cd Credentials
-    transcrypt -c aes-256-cbc -p $TRANSCRYPT_SECRET -y
+    transcrypt -c aes-256-cbc -p "$TRANSCRYPT_SECRET" -y
     cd ..
 fi
 
