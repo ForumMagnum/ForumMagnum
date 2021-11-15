@@ -52,9 +52,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     fontVariant: "small-caps"
   },
-  NotifyMeButton: {
+  notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
-      marginTop: 8,
+      marginTop: 6,
+    },
+  },
+  nonMobileButtonRow: {
+    [theme.breakpoints.down('xs')]: {
+      // Ensure this takes priority over the properties in TagPageButtonRow
+      display: 'none !important',
+    },
+  },
+  mobileButtonRow: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'none !important',
     },
   },
   editMenu: {
@@ -113,7 +124,7 @@ const TagPage = ({classes}: {
 }) => {
   const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect,
     HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn,
-    TableOfContents, TableOfContentsRow, TagContributorsList, LWTooltip, SubscribeButton } = Components;
+    TableOfContents, TableOfContentsRow, TagContributorsList, SubscribeButton } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -258,17 +269,18 @@ const TagPage = ({classes}: {
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
+          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
           {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
             <SubscribeButton
               document={tag}
-              className={classes.NotifyMeButton}
+              className={classes.notifyMeButton}
               subscribeMessage="Subscribe"
               unsubscribeMessage="Unsubscribe"
               subscriptionType={subscriptionTypes.newTagPosts}
             />
           }
         </div>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classes.editMenu} />
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
       </div>}
     >
       <div className={classNames(classes.wikiSection,classes.centralColumn)}>

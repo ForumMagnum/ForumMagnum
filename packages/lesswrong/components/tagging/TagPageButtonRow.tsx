@@ -9,6 +9,7 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
+import { useTagBySlug } from './useTag';
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -19,10 +20,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 8,
+    },
     '& svg': {
       height: 20,
       width: 20,
       marginRight: 4,
+      marginBottom: 1, // JP it's fine, stop adjusting single pixels
       cursor: "pointer",
       color: theme.palette.grey[700]
     }
@@ -48,31 +53,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 12
     }
   },
-  ctaPositioning: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto"
-  },
   subscribeToWrapper: {
     display: "flex !important",
   },
   subscribeTo: {
     marginRight: 16
   },
-  callToAction: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "auto",
-    fontStyle: 'italic',
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
-  callToActionFlagCount: {
-    position: "relative",
-    marginLeft: 4,
-    marginRight: 0
-  }
 });
 
 const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
@@ -84,16 +70,8 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton } = Components;
-  
-  // TODO; we can avoid a database round trip on every tag page load by
-  // lazily fetching this
-  // const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
-  // <ContentItemBody
-  //       className={classes.beginnersGuide}
-  //       dangerouslySetInnerHTML={{__html: beginnersGuideContentTag?.description?.html || ""}}
-  //       description={`tag ${tag?.name}`}
-  //     />
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
+  const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
   
   const numFlags = tag.tagFlagsIds?.length
   
@@ -142,7 +120,14 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
     <div className={classes.button}>
       <TagDiscussionButton tag={tag} hideLabelOnMobile />
     </div>
-    <LWTooltip title="hello world">
+    <LWTooltip
+      className={classes.button}
+      title={<ContentItemBody
+        className={classes.beginnersGuide}
+        dangerouslySetInnerHTML={{__html: beginnersGuideContentTag?.description?.html || ""}}
+        description={`tag ${tag?.name}`}
+      />}
+    >
       <HelpOutlineIcon />
     </LWTooltip>
   </div>

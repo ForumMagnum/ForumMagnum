@@ -211,6 +211,7 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
 function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): string {
   if (typeof mode === "number") {
     if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
+    if (mode === -25 && userHasNewTagSubscriptions(currentUser)) return "Reduced"
     if (mode > 0) return `+${mode}`
     if (mode === 0) return ""
     return `${mode}`
