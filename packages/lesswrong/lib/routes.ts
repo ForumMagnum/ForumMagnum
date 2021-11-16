@@ -363,10 +363,10 @@ addRoute(
     background: "white"
   },
   {
-    name: 'votes',
-    path: '/votes',
+    name: 'votesByYear',
+    path: '/votesByYear/:year',
     componentName: 'UserSuggestNominations',
-    title: "Votes List"
+    title: "Your Past Votes"
   },
 );
 

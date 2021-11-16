@@ -1,23 +1,24 @@
 import React from 'react';
+import { useLocation } from '../../lib/routeUtil';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-
-export const REVIEW_YEAR = 2020
 
 const UserSuggestNominations = () => {
     const { SectionTitle, SingleColumnSection, ErrorBoundary, PostsByVoteWrapper } = Components
     const currentUser = useCurrentUser()
 
+    const { params } = useLocation();
+    const year = parseInt(params?.year);
     if (!currentUser) return null
 
     return <ErrorBoundary>
         <SingleColumnSection>
-          <SectionTitle title={`Your Strong Upvotes from ${REVIEW_YEAR}`}/>
-          <PostsByVoteWrapper voteType="bigUpvote" currentUser={currentUser}/>
+          <SectionTitle title={`Your Strong Upvotes from ${year}`}/>
+          <PostsByVoteWrapper voteType="bigUpvote" year={year}/>
         </SingleColumnSection>
         <SingleColumnSection>
-          <SectionTitle title={`Your Upvotes from ${REVIEW_YEAR}`}/>
-          <PostsByVoteWrapper voteType="smallUpvote" currentUser={currentUser}/>
+          <SectionTitle title={`Your Upvotes from ${year}`}/>
+          <PostsByVoteWrapper voteType="smallUpvote" year={year}/>
         </SingleColumnSection>
       </ErrorBoundary>
 }

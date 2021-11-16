@@ -1,13 +1,12 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { REVIEW_YEAR } from './UserSuggestNominations';
 
-const PostsByVote = ({postIds}:{postIds: Array<string>}) => {
+const PostsByVote = ({postIds, year}:{postIds: Array<string>, year: number}) => {
     const { PostsItem2, ErrorBoundary } = Components
 
-    const before = `${REVIEW_YEAR + 1}-01-01`
-    const after = `${REVIEW_YEAR}-01-01`
+    const before = `${year + 1}-01-01`
+    const after = `${year}-01-01`
 
     const { results: posts } = useMulti({
       terms: {
