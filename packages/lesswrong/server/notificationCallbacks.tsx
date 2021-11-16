@@ -60,12 +60,16 @@ async function getSubscribedUsers({
   documentId, collectionName, type,
   potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
 }: {
-  documentId: string,
+  documentId: string|null,
   collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
   userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
 }) {
+  if (!documentId) {
+    return [];
+  }
+  
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
   const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
   

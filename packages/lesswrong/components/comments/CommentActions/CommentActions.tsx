@@ -6,10 +6,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
-const CommentActions = ({currentUser, comment, post, showEdit}: {
+const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
   comment: CommentsList,
   post?: PostsMinimumInfo,
+  tag?: TagBasicInfo,
   showEdit: ()=>void,
 }) => {
   const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment } = Components
@@ -52,7 +53,7 @@ const CommentActions = ({currentUser, comment, post, showEdit}: {
     {postDetails && <SuggestAlignmentMenuItem comment={comment} post={postDetails}/>}
     {postDetails && userCanModeratePost(currentUser, postDetails) && postDetails.user && <Divider />}
     {postDetails && <MoveToAnswersMenuItem comment={comment} post={postDetails}/>}
-    {postDetails && <DeleteCommentMenuItem comment={comment} post={postDetails}/>}
+    {(postDetails||tag) && <DeleteCommentMenuItem comment={comment} post={postDetails} tag={tag}/>}
     <RetractCommentMenuItem comment={comment}/>
     {postDetails && <BanUserFromPostMenuItem comment={comment} post={postDetails}/>}
     {postDetails && <BanUserFromAllPostsMenuItem comment={comment} post={postDetails}/>}

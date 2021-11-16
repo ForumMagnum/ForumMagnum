@@ -326,6 +326,13 @@ export async function getNextVersion(documentId: string, updateType = 'minor', f
   }
 }
 
+function versionIsDraft(semver: string, collectionName: CollectionNameString) {
+  if (collectionName === "Tags")
+    return false;
+  const { major, minor, patch } = extractVersionsFromSemver(semver)
+  return major===0;
+}
+
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
 async function buildRevision({ originalContents, currentUser }) {
@@ -392,6 +399,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         fieldName,
         collectionName,
         version,
+        draft: versionIsDraft(version, collectionName),
         updateType: 'initial',
         commitMessage,
         changeMetrics,
@@ -451,6 +459,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           fieldName,
           collectionName,
           version,
+          draft: versionIsDraft(version, collectionName),
           updateType,
           commitMessage,
           changeMetrics,

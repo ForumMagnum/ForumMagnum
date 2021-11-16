@@ -15,7 +15,7 @@ export const AnalyticsClient = () => {
   // from other requests that we want its error handling to be different, and
   // potentially want it to be a special case at the load balancer.
   const flushEvents = useCallback(async (events) => {
-    await fetch("analyticsEvent", {
+    await fetch("/analyticsEvent", {
       method: "POST",
       body: JSON.stringify({
         events, now: new Date(),

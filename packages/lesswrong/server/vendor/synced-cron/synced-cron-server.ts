@@ -1,6 +1,6 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { isAnyTest, onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
+import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
 import { MongoCollection } from '../../../lib/mongoCollection';
 
 // A package for running jobs synchronized across multiple processes
@@ -336,10 +336,10 @@ SyncedCron._laterSetTimeout = function(fn: any, sched: any) {
     }
 
     if(diff < 2147483647) {
-      t = runAfterDelay(function() { fn(intendedAt); }, diff);
+      t = setTimeout(function() { fn(intendedAt); }, diff);
     }
     else {
-      t = runAfterDelay(scheduleTimeout, 2147483647);
+      t = setTimeout(scheduleTimeout, 2147483647);
     }
   }
 
@@ -349,7 +349,7 @@ SyncedCron._laterSetTimeout = function(fn: any, sched: any) {
     * Clears the timeout.
     */
     clear: function() {
-      clearRunAfterDelay(t);
+      clearTimeout(t);
     }
 
   };

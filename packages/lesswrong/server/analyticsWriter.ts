@@ -4,8 +4,7 @@ import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
-import { getAnalyticsConnection } from './analytics/postgresConnection'
-import { queryResult } from 'pg-promise';
+import { pgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -39,7 +38,10 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
   }
   
   void handleAnalyticsEventWriteRequest(body.events, body.now);
-  res.end("");
+  res.writeHead(200, {
+    "Content-Type": "text/plain;charset=UTF-8"
+  });
+  res.end("ok");
 });
 
 async function handleAnalyticsEventWriteRequest(events, clientTime) {
@@ -55,31 +57,51 @@ async function handleAnalyticsEventWriteRequest(events, clientTime) {
   // server instead.
   const serverTime = new Date();
   
-  for (let event of events) {
+  let augmentedEvents = events.map(event => {
     const eventTime = new Date(event.timestamp);
     const age = clientTime.valueOf() - eventTime.valueOf();
     const adjustedTimestamp = isValidEventAge(age) ? new Date(serverTime.valueOf()-age.valueOf()) : serverTime;
     
-    let eventCopy = {...event, timestamp: adjustedTimestamp};
-    await writeEventToAnalyticsDB(eventCopy);
-  }
+    return {...event, timestamp: adjustedTimestamp};
+  });
+  await writeEventsToAnalyticsDB(augmentedEvents);
   return true;
 }
 
+let inFlightRequestCounter = {inFlightRequests: 0};
+// See: https://stackoverflow.com/questions/37300997/multi-row-insert-with-pg-promise
+const analyticsColumnSet = new pgPromiseLib.helpers.ColumnSet(['environment', 'event_type', 'timestamp', 'event'], {table: 'raw'});
 
 // If you want to capture an event, this is not the function you're looking for;
 // use captureEvent.
 // Writes an event to the analytics database.
-// TODO: Defer/batch so that this doesn't affect SSR speed?
-async function writeEventToAnalyticsDB({type, timestamp, props}) {
-  const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
-  const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
-  const queryValues = [environmentDescription, type, timestamp, props];
-  
+async function writeEventsToAnalyticsDB(events: {type, timestamp, props}[]) {
   const connection = getAnalyticsConnection();
+  
   if (connection) {
     try {
-      await connection.query(queryStr, queryValues, queryResult.none)
+      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
+      const valuesToInsert = events.map(ev => ({
+        environment: environmentDescription,
+        event_type: ev.type,
+        timestamp: ev.timestamp,
+        event: ev.props,
+      }));
+      const query = pgPromiseLib.helpers.insert(valuesToInsert, analyticsColumnSet);
+    
+      if (inFlightRequestCounter.inFlightRequests > 500) {
+        // eslint-disable-next-line no-console
+        console.error(`Warning: ${inFlightRequestCounter.inFlightRequests} in-flight postgres queries. Dropping.`);
+        return;
+      }
+      
+      
+      inFlightRequestCounter.inFlightRequests++;
+      try {
+        await connection.none(query);
+      } finally {
+        inFlightRequestCounter.inFlightRequests--;
+      }
     } catch (err){
       //eslint-disable-next-line no-console
       console.error("Error sending events to analytics DB:");
@@ -90,13 +112,13 @@ async function writeEventToAnalyticsDB({type, timestamp, props}) {
 }
 
 function serverWriteEvent({type, timestamp, props}) {
-  void writeEventToAnalyticsDB({
+  void writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
       ...props,
       serverId: serverId,
     }
-  });
+  }]);
 }
 
 onStartup(() => {

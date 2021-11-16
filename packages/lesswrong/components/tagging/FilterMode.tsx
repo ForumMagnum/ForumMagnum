@@ -98,9 +98,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     documentId: tagId,
     collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
+    skip: !tagId
   })
 
-  if (!tag) {return null;}
 
   const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     {label}
@@ -111,8 +111,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
   return <span {...eventHandlers}>
-    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag._id} tagName={tag.name}>
-      {(!isMobile()) ? <Link to={`tag/${tag.slug}`}>
+    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
+      {(!isMobile()) ? <Link to={`tag/${tag?.slug}`}>
         {tagLabel}
       </Link>
       : tagLabel
@@ -172,7 +172,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 
               onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
             />
-            {canRemove && !tag.suggestedAsFilter &&
+            {canRemove && !tag?.suggestedAsFilter &&
               <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
                 <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
                   <a>Remove</a>
@@ -183,7 +183,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             {description}
           </div>}
         </div>
-        <TagPreview tag={tag} showCount={false} postCount={3}/>
+        {tag && <TagPreview tag={tag} showCount={false} postCount={3}/>}
       </PopperCard>
     </AnalyticsContext>
   </span>
