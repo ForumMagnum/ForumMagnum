@@ -284,7 +284,7 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
     }, {
       id: 'most-important-century',
       title: 'Most Important Century',
-      link: '/posts/TwQzyP3QgttmuTHym/all-possible-views-about-humanity-s-future-are-wild',
+      link: '/s/isENJuPdB3fhjWYHd',
       tooltip: `Holden Karnofsky argues that there's a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
       subItem: true,
     }, {
