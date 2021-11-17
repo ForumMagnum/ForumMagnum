@@ -66,17 +66,19 @@ const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentr
 const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 2000);
 
 onStartup(() => {
-  setInterval(() => {
-    const memoryUsage = process.memoryUsage()?.heapTotal;
-    if (memoryUsage > consoleLogMemoryUsageThreshold.get()) {
-      // eslint-disable-next-line no-console
-      console.log(`Memory usage is high: ${memoryUsage} bytes (warning threshold: ${consoleLogMemoryUsageThreshold.get()})`);
-      checkForMemoryLeaks();
-    }
-    if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
-      Sentry.captureException(new Error("Memory usage is high"));
-    }
-  }, memoryUsageCheckInterval.get());
+  if (!isAnyTest) {
+    setInterval(() => {
+      const memoryUsage = process.memoryUsage()?.heapTotal;
+      if (memoryUsage > consoleLogMemoryUsageThreshold.get()) {
+        // eslint-disable-next-line no-console
+        console.log(`Memory usage is high: ${memoryUsage} bytes (warning threshold: ${consoleLogMemoryUsageThreshold.get()})`);
+        checkForMemoryLeaks();
+      }
+      if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
+        Sentry.captureException(new Error("Memory usage is high"));
+      }
+    }, memoryUsageCheckInterval.get());
+  }
 });
 
 function checkForCoreDumps() {
