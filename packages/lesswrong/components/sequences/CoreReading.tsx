@@ -58,7 +58,7 @@ const coreReadingCollections: Array<CoreReadingCollection> = isEAForum ?
       imageId: "jacob-mejicanos-P6s8EbcSgmA-unsplash.jpg",
       color: "#d96704",
       big: false,
-      url: '/posts/TwQzyP3QgttmuTHym/all-possible-views-about-humanity-s-future-are-wild',
+      url: '/s/isENJuPdB3fhjWYHd',
     }
   ] :
   [
@@ -70,7 +70,7 @@ const coreReadingCollections: Array<CoreReadingCollection> = isEAForum ?
       imageId: "dVXiZtw_xrmvpm.png",
       color: "#B1D4B4",
       big: true,
-      url: '"/rationality"',
+      url: '/rationality',
     },
     {
       title: "The Codex",
@@ -105,7 +105,7 @@ const CoreReading = ({minimal=false, classes}: {
     <div className={classes.razSmallVersion}>
       <Components.CollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
     </div>
-    
+
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={coreReadingCollections[1].url}/>}
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url} mergeTitle={!isEAForum} />}
   </Components.CollectionsCardContainer>
