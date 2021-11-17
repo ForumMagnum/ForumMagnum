@@ -4,7 +4,7 @@
 name: Deploy EA Staging
 on:
   push:
-    branches: [ ea-staging, ea-deploy, master, megamerge ]
+    branches: [ ea-staging, ea-deploy, master, megamerge, debug-deploy ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
