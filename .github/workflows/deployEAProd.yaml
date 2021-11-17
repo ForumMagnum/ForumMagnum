@@ -4,14 +4,14 @@
 name: Deploy EA Prod
 on:
   push:
-    branches: [ ea-deploy ]
+    branches: [ debug-deploy ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
     strategy:
       matrix: 
         node-version: [15.x]
-        environment: [EAForum-Production]
+        environment: [EAForum-Production-2]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
