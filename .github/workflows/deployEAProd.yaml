@@ -4,7 +4,7 @@
 name: Deploy EA Prod
 on:
   push:
-    branches: [ debug-deploy ]
+    branches: [ ea-deploy ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
