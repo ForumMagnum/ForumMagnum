@@ -143,6 +143,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    lastUsedTimezone
     ...SharedUserBooleans
   }
 `);

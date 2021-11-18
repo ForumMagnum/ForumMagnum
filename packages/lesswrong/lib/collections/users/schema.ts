@@ -277,7 +277,16 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
-  }
+  },
+  
+  lastUsedTimezone: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: [userOwns],
+    canUpdate: [userOwns],
+  },
 };
 
 export default schema;

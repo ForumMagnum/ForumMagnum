@@ -361,6 +361,7 @@ interface DbPost extends DbObject {
   activateRSVPs: boolean
   nextDayReminderSent: boolean
   onlyVisibleToLoggedIn: boolean
+  onlyVisibleToEstablishedAccounts: boolean
   voteCount: number
   baseScore: number
   score: number
@@ -633,6 +634,7 @@ interface DbUser extends DbObject {
   slug: string
   groups: Array<string>
   lwWikiImport: boolean
+  lastUsedTimezone: string
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string
