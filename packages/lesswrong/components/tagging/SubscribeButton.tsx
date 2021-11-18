@@ -14,6 +14,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
+import { useFilterSettings, userIsSubscribedToTag } from '../../lib/filterSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,13 +30,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SubscribeButton = ({
-  document,
-  subscriptionType: overrideSubscriptionType,
-  subscribeMessage, unsubscribeMessage,
-  className="",
+  tag,
+  subscribeMessage,
+  unsubscribeMessage,
+  className,
   classes,
 }: {
-  document: any,
+  tag: any,
   subscriptionType?: string,
   subscribeMessage?: string,
   unsubscribeMessage?: string,
@@ -44,48 +45,38 @@ const SubscribeButton = ({
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const { create: createSubscription } = useCreate({
-    collection: Subscriptions,
-    fragmentName: 'SubscriptionState',
-  });
-  // TODO;
-  const [fakeSubscribed, setFakeSubscribed] = React.useState(false);
   
-  const collectionName = getCollectionName(document.__typename);
-  const documentType = collectionName.toLowerCase();
-  const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
+  const isSubscribed = userIsSubscribedToTag(currentUser, tag)
 
-  const { captureEvent } = useTracking({eventType: "subscribeClicked", eventProps: {documentId: document._id, documentType: documentType}})
+  const { captureEvent } = useTracking({eventType: "newSubscribeClicked", eventProps: {documentId: tag._id}})
   
-  // Get existing subscription, if there is one
-  const { results, loading } = useMulti({
-    terms: {
-      view: "subscriptionState",
-      documentId: document._id,
-      userId: currentUser?._id,
-      type: subscriptionType,
-      collectionName,
-      limit: 1
-    },
+  // TODO; use NotifyMeButton
+  // // Get existing subscription, if there is one
+  // const { results, loading } = useMulti({
+  //   terms: {
+  //     view: "subscriptionState",
+  //     documentId: tag._id,
+  //     userId: currentUser?._id,
+  //     type: defaultSubscriptionTypeTable["Tags"],
+  //     collectionName: "Tags",
+  //     limit: 1
+  //   },
     
-    collectionName: "Subscriptions",
-    fragmentName: 'SubscriptionState',
-    enableTotal: false,
-  });
+  //   collectionName: "Subscriptions",
+  //   fragmentName: 'SubscriptionState',
+  //   enableTotal: false,
+  // });
   
   const { LWTooltip, Loading } = Components
   
-  const isSubscribed = () => {
-    return fakeSubscribed
-  }
   const onSubscribe = async (e) => {
     try {
       e.preventDefault();
       captureEvent() // TODO;
-      setFakeSubscribed(!isSubscribed())
+      setFakeSubscribed(!isSubscribed)
 
       // success message will be for example posts.subscribed
-      flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});
+      flash({messageString: `Successfully ${isSubscribed ? "unsubscribed" : "subscribed"}`});
     } catch(error) {
       flash({messageString: error.message});
     }
@@ -104,19 +95,19 @@ const SubscribeButton = ({
     }
     return userIsDefaultSubscribed({
       user: currentUser,
-      subscriptionType, collectionName, document
+      subscriptionType, collectionName, document: tag
     });
   }
   
-  const showIcon = isSubscribed() || notificationsEnabled();
+  const showIcon = isSubscribed || notificationsEnabled();
 
   return <div className={classNames(className, classes.root)}>
-    <LWTooltip title={isSubscribed() ?
+    <LWTooltip title={isSubscribed ?
       "Remove homepage boost for posts with this tag" :
       "See more posts with this tag on the homepage"
     }>
       <Button variant="outlined" onClick={onSubscribe}>
-        <span className={classes.subscribeText}>{ isSubscribed() ? unsubscribeMessage : subscribeMessage}</span>
+        <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
       </Button>
     </LWTooltip>
     {showIcon && <LWTooltip title={notificationsEnabled() ?
