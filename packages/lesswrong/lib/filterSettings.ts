@@ -61,6 +61,7 @@ export const useFilterSettings = () => {
   if (error) return { filterSettings, loadingSuggestedTags, error }
   if (loadingSuggestedTags) return { filterSettings, loadingSuggestedTags, error }
   
+  // TODO: something like a performance concern; Jim has `useMemo`'d this, maybe
   const filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags)
   
   // TODO; useCallbacks
@@ -92,6 +93,7 @@ export const useFilterSettings = () => {
     filterSettings,
     filterSettingsWithSuggestedTags,
     loadingSuggestedTags: false,
+    error: null,
     setFilterSettings,
     setPersonalBlogFilter,
     addTagFilter,
