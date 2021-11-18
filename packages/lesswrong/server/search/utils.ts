@@ -167,7 +167,8 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     body = dataToMarkdown(data, type)
   }
   if (body) {
-    body.split("\n\n").forEach((paragraph, paragraphCounter) => {
+    //  Limit post size to ensure we stay below Algolia search Limit
+    splitText(body, 19999).forEach((paragraph, paragraphCounter) => {
       postBatch.push(_.clone({
         ...algoliaMetaInfo,
         objectID: post._id + "_" + paragraphCounter,
@@ -182,6 +183,32 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
     }));
   }
   return postBatch;
+}
+
+
+/*
+  Splits text into an array where each element is at 
+  most maxLength characters long. It splits at the last 
+  space before maxLength.
+*/
+export function splitText(text: string, maxLength: number): Array<string> {
+  if (text.length === 0) {
+    return [];
+  }
+
+  const prefix = text.substring(0, maxLength);
+  if (prefix.length < maxLength) {
+    return [text];
+  }
+
+  var split = prefix.lastIndexOf(' ');
+  // If there is no space, or the first character 
+  // is the only space, split at maxLength
+  if (split <= 0) {
+    split = maxLength;
+  }
+  return [prefix.substring(0, split), 
+    ...splitText(text.substring(split), maxLength)];
 }
 
 Tags.toAlgolia = async (tag: DbTag): Promise<Array<AlgoliaTag>|null> => {
