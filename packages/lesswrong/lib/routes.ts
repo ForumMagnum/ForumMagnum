@@ -911,8 +911,22 @@ addRoute(
   {
     name: 'bookLanding',
     path: '/books',
-    componentName: 'BookLanding',
+    componentName: 'Book2018Landing',
     title: "A Map that Reflects the Territory",
+    background: "white"
+  },
+  {
+    name: 'book2018Landing',
+    path: '/books/2018',
+    componentName: 'Book2018Landing',
+    title: "A Map that Reflects the Territory",
+    background: "white"
+  },
+  {
+    name: 'book2019Landing',
+    path: '/books/2019',
+    componentName: 'Book2019Landing',
+    title: "Engines of Cognition",
     background: "white"
   },
 );
