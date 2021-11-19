@@ -6,6 +6,7 @@ import Text from '@ckeditor/ckeditor5-engine/src/model/text';
 import TextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
 import Range from '@ckeditor/ckeditor5-engine/src/model/range';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
+import { COMMANDS, ELEMENTS } from '../constants';
 
 
 /**
@@ -71,7 +72,7 @@ const regexMatchCallback = (text) => {
  * @returns {boolean|void} 
  */
 const formatCallback = (ranges, editor, rootElement) => {
-			const command = editor.commands.get('InsertFootnote');
+			const command = editor.commands.get(COMMANDS.insertFootnote);
 			if(!command || !command.isEnabled) {
 				return;
 			}
@@ -84,21 +85,21 @@ const formatCallback = (ranges, editor, rootElement) => {
 				return false;
 			}
 			const footnoteId = parseInt(match[0]);
-			const footnoteSection = modelQueryElement(editor, rootElement, element => element.name === 'footnoteSection');
+			const footnoteSection = modelQueryElement(editor, rootElement, element => element.name === ELEMENTS.footnoteSection);
 			if(!footnoteSection) {
 				if(footnoteId !== 1) {
 					return false;
 				}
-				editor.execute('InsertFootnote', { footnoteId: 0 });
+				editor.execute(COMMANDS.insertFootnote, { footnoteId: 0 });
 				return;
 			}
-			const footnoteCount = modelQueryElementsAll(editor, footnoteSection, element =>  element.name === 'footnoteItem').length;
+			const footnoteCount = modelQueryElementsAll(editor, footnoteSection, element =>  element.name === ELEMENTS.footnoteItem).length;
 			if(footnoteId === footnoteCount + 1) {
-				editor.execute('InsertFootnote', { footnoteId: 0 });
+				editor.execute(COMMANDS.insertFootnote, { footnoteId: 0 });
 				return;
 			}
 			else if(footnoteId >= 1 && footnoteId <= footnoteCount) {
-				editor.execute('InsertFootnote', { footnoteId: footnoteId })
+				editor.execute(COMMANDS.insertFootnote, { footnoteId: footnoteId })
 				return;
 			}
 			return false;

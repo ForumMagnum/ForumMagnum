@@ -5,6 +5,7 @@ import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dr
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { modelQueryElement, modelQueryElementsAll } from './utils';
+import { COMMANDS, DATA_FOOTNOTE_ID, ELEMENTS } from './constants';
 
 export default class FootnoteUI extends Plugin {
     init() {
@@ -16,7 +17,7 @@ export default class FootnoteUI extends Plugin {
 
             // Populate the list in the dropdown with items.
             // addListToDropdown( dropdownView, getDropdownItemsDefinitions( placeholderNames ) );
-            const command = editor.commands.get( 'InsertFootnote' );
+            const command = editor.commands.get( COMMANDS.insertFootnote );
 			if(!command) throw new Error("Command not found.");
             
             dropdownView.buttonView.set( {
@@ -38,7 +39,7 @@ export default class FootnoteUI extends Plugin {
             // Execute the command when the dropdown item is clicked (executed).
             this.listenTo( dropdownView, 'execute', evt => {
 				// @ts-ignore
-                editor.execute( 'InsertFootnote', { footnoteId: (evt.source).commandParam } );
+                editor.execute( COMMANDS.insertFootnote, { footnoteId: (evt.source).commandParam } );
                 editor.editing.view.focus();
             } );
 
@@ -65,12 +66,12 @@ export default class FootnoteUI extends Plugin {
 			throw new Error('Document has no root element.')
 		}
 
-		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.name === 'footnoteSection');
+		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteSection);
 
 		if (footnoteSection) {
-			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === 'footnoteItem');
+			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteItem);
 			footnoteItems.forEach((footnote) => {
-				const id = footnote.getAttribute('data-footnote-id');
+				const id = footnote.getAttribute(DATA_FOOTNOTE_ID);
 				const definition = {
 					type: 'button',
 					model: new Model( {

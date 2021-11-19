@@ -19,6 +19,7 @@ import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import { defineSchema } from './schema';
 import { defineConverters } from './converters';
 import { addFootnoteAutoformatting } from './autoformatting';
+import { CLASSES, COMMANDS, DATA_FOOTNOTE_ID, ELEMENTS } from '../constants';
 
 export default class FootnoteEditing extends Plugin {
     static get requires() {
@@ -37,7 +38,7 @@ export default class FootnoteEditing extends Plugin {
         defineSchema(this.editor.model.schema);
         defineConverters(this.editor, this.rootElement);
 
-        this.editor.commands.add( 'InsertFootnote', new InsertFootnoteCommand( this.editor ) );
+        this.editor.commands.add( COMMANDS.insertFootnote, new InsertFootnoteCommand( this.editor ) );
 
 		addFootnoteAutoformatting(this.editor, this.rootElement);
 
@@ -46,12 +47,12 @@ export default class FootnoteEditing extends Plugin {
         this.editor.editing.mapper.on(
             'viewToModelPosition',
 			// @ts-ignore -- the type signature of `on` here seem to be just wrong, given how it's used in the source code. 
-            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'noteholder' ) )
+            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( ELEMENTS.footnoteReference ) )
         );
         this.editor.editing.mapper.on(
             'viewToModelPosition',
 			// @ts-ignore
-            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'footnote-item' ) )
+            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( CLASSES.footnoteItem ) )
         );
 		// @ts-ignore
 		this.editor.editing.view.on( 'selectionChange', (_, {oldSelection, newSelection}) => {
@@ -59,7 +60,7 @@ export default class FootnoteEditing extends Plugin {
 				newSelection.positionParent && 
 				newSelection.positionParent.parent && 
 				newSelection.positionParent.parent instanceof ViewElement &&
-				newSelection.positionParent.parent.name === 'footnoteList')) {
+				newSelection.positionParent.parent.name === ELEMENTS.footnoteList)) {
 				return
 			}
 			if(newSelection.anchor && newSelection.anchor.offset === 0) {
@@ -84,12 +85,12 @@ export default class FootnoteEditing extends Plugin {
             }
             const positionParent = lastPosition.parent;
 		
-			// delete all noteholder references if footnotes section gets deleted
-            if (deleteEle !== null && deleteEle.name === "footnoteSection") {
+			// delete all footnoteReference references if footnotes section gets deleted
+            if (deleteEle !== null && deleteEle.name === ELEMENTS.footnoteSection) {
                 this._removeHolder(0);
             }
 
-            if (!positionParent || positionParent.parent instanceof DocumentFragment || !positionParent.parent || positionParent.parent.name !== "footnoteList") {
+            if (!positionParent || positionParent.parent instanceof DocumentFragment || !positionParent.parent || positionParent.parent.name !== ELEMENTS.footnoteList) {
                 return;
             }
 
@@ -132,11 +133,11 @@ export default class FootnoteEditing extends Plugin {
 						continue;
 					}
 					editor.model.enqueueChange(writer => {
-						const footnoteItem = modelQueryElement(this.editor, child, element =>  element.name === 'footnoteItem');
+						const footnoteItem = modelQueryElement(this.editor, child, element =>  element.name === ELEMENTS.footnoteItem);
 						if(!footnoteItem) {
 							return;
 						}
-						writer.setAttribute( 'data-footnote-id', index+i+1, footnoteItem);
+						writer.setAttribute( DATA_FOOTNOTE_ID, index+i+1, footnoteItem);
 					} );
 				}
                 data.preventDefault();
@@ -154,12 +155,12 @@ export default class FootnoteEditing extends Plugin {
 	_removeHolder(footnoteId) {
 		const removeList = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
-		const noteHolders = modelQueryElementsAll(this.editor, this.rootElement, e => e.name === 'noteHolder');
-		noteHolders.forEach((noteHolder) => {
-			const id = noteHolder.getAttribute('data-footnote-id');
+		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.name === ELEMENTS.footnoteReference);
+		footnoteReferences.forEach((footnoteReference) => {
+			const id = footnoteReference.getAttribute(DATA_FOOTNOTE_ID);
 			const idAsInt = parseInt(id ? id : '');
 			if (idAsInt === footnoteId || footnoteId === 0) {
-				removeList.push(noteHolder);
+				removeList.push(footnoteReference);
 			}
 		});
 		for (const item of removeList) {
