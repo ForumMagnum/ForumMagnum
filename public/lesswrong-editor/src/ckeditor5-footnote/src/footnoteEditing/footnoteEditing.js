@@ -22,9 +22,9 @@ import { addFootnoteAutoformatting } from './autoformatting';
 import { ATTRIBUTES, COMMANDS, ELEMENTS } from '../constants';
 
 export default class FootnoteEditing extends Plugin {
-    static get requires() {
-        return [ Widget, Autoformat ];
-    }
+	static get requires() {
+		return [ Widget, Autoformat ];
+	}
 
 	get rootElement() {
 		const rootElement = this.editor.model.document.getRoot();
@@ -34,26 +34,26 @@ export default class FootnoteEditing extends Plugin {
 		return rootElement;
 	}
 
-    init() {
-        defineSchema(this.editor.model.schema);
-        defineConverters(this.editor, this.rootElement);
+	init() {
+		defineSchema(this.editor.model.schema);
+		defineConverters(this.editor, this.rootElement);
 
-        this.editor.commands.add( COMMANDS.insertFootnote, new InsertFootnoteCommand( this.editor ) );
+		this.editor.commands.add( COMMANDS.insertFootnote, new InsertFootnoteCommand( this.editor ) );
 
 		addFootnoteAutoformatting(this.editor, this.rootElement);
 
-        this._deleteModify();
+		this._deleteModify();
 
-        this.editor.editing.mapper.on(
-            'viewToModelPosition',
+		this.editor.editing.mapper.on(
+			'viewToModelPosition',
 			// @ts-ignore -- the type signature of `on` here seem to be just wrong, given how it's used in the source code. 
-            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteReference ) )
-        );
-        this.editor.editing.mapper.on(
-            'viewToModelPosition',
+			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteReference ) )
+		);
+		this.editor.editing.mapper.on(
+			'viewToModelPosition',
 			// @ts-ignore
-            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteItem ) )
-        );
+			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteItem ) )
+		);
 		// @ts-ignore
 		this.editor.editing.view.on( 'selectionChange', (_, {oldSelection, newSelection}) => {
 			if(!(
@@ -69,36 +69,36 @@ export default class FootnoteEditing extends Plugin {
 				})
 			}
 		} );
-    }
+	}
 
-    _deleteModify() {
-        const viewDocument = this.editor.editing.view.document;
-        const editor = this.editor;
-        this.listenTo( viewDocument, 'delete', (evt, data) => {
-            const doc = editor.model.document;
-            const deleteEle = doc.selection.getSelectedElement();
-            const lastPosition = doc.selection.getLastPosition();
-            if(!doc.selection.anchor || 
+	_deleteModify() {
+		const viewDocument = this.editor.editing.view.document;
+		const editor = this.editor;
+		this.listenTo( viewDocument, 'delete', (evt, data) => {
+			const doc = editor.model.document;
+			const deleteEle = doc.selection.getSelectedElement();
+			const lastPosition = doc.selection.getLastPosition();
+			if(!doc.selection.anchor || 
 				!doc.selection.focus || 
 				!lastPosition) {
-                throw new Error('Selection must have at least one range to perform delete operation.');
-            }
-            const positionParent = lastPosition.parent;
+				throw new Error('Selection must have at least one range to perform delete operation.');
+			}
+			const positionParent = lastPosition.parent;
 		
 			// delete all footnoteReference references if footnotes section gets deleted
-            if (deleteEle !== null && deleteEle.name === ELEMENTS.footnoteSection) {
-                this._removeHolder(0);
-            }
+			if (deleteEle !== null && deleteEle.name === ELEMENTS.footnoteSection) {
+				this._removeHolder(0);
+			}
 
-            if (!positionParent || positionParent.parent instanceof DocumentFragment || !positionParent.parent || positionParent.parent.name !== ELEMENTS.footnoteList) {
-                return;
-            }
+			if (!positionParent || positionParent.parent instanceof DocumentFragment || !positionParent.parent || positionParent.parent.name !== ELEMENTS.footnoteList) {
+				return;
+			}
 
 			// don't allow deleting a nonempty footnote without deleting text
-            if (positionParent.maxOffset > 1 && doc.selection.anchor.offset <= 1) {
-                data.preventDefault();
-                evt.stop();
-            }
+			if (positionParent.maxOffset > 1 && doc.selection.anchor.offset <= 1) {
+				data.preventDefault();
+				evt.stop();
+			}
 
 			const entireParagraphSelected = (positionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0) ||
 				(positionParent.maxOffset === doc.selection.focus.offset && doc.selection.anchor.offset === 0);
@@ -110,10 +110,10 @@ export default class FootnoteEditing extends Plugin {
 				return;
 			}
 
-            if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || entireParagraphSelected) {
-                const footnoteList = positionParent.parent;
-                const index = footnoteList.index;
-                const footnoteSection = footnoteList.parent;
+			if ((doc.selection.anchor.offset === 0 && positionParent.maxOffset === 1) || entireParagraphSelected) {
+				const footnoteList = positionParent.parent;
+				const index = footnoteList.index;
+				const footnoteSection = footnoteList.parent;
 				if (
 					index === null || 
 					!footnoteSection || 
@@ -121,14 +121,14 @@ export default class FootnoteEditing extends Plugin {
 				throw new Error("footnoteList has an invalid parent section.")
 
 				this._removeHolder(index+1);
-                editor.model.change(writer => {
-                    writer.remove(footnoteList);
+				editor.model.change(writer => {
+					writer.remove(footnoteList);
 					if(footnoteSection.maxOffset === 0) {
 						writer.remove(footnoteSection);
 					}
-                } );
+				} );
 				const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
-                for (const [i, child] of subsequentFootnotes.entries()) {
+				for (const [i, child] of subsequentFootnotes.entries()) {
 					if(!(child instanceof ModelElement)) {
 						continue;
 					}
@@ -140,12 +140,12 @@ export default class FootnoteEditing extends Plugin {
 						writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, footnoteItem);
 					} );
 				}
-                data.preventDefault();
-                evt.stop();
-                
-            }
-        } , { priority: 'high' });
-    }
+				data.preventDefault();
+				evt.stop();
+				
+			}
+		} , { priority: 'high' });
+	}
 
 	/**
 	 * Deletes all references to the footnote with the given id. If an id of 0 is provided,

@@ -136,7 +136,7 @@ export const defineConverters = (editor, rootElement) => {
 			name: 'span',
 			attributes: {
 				[ATTRIBUTES.footnoteReference]: true,
-			}
+			},
 		},
 		model: (viewElement, conversionApi) => {
 			const modelWriter = conversionApi.writer;

@@ -11,23 +11,23 @@ export default class InsertFootnoteCommand extends Command {
 	 *
 	 * @param {{footnoteId: number}} props - A footnoteId of 0 indicates creation of a new footnote.
 	 */
-    execute({ footnoteId }) {
-        this.editor.model.change(writer => {
+	execute({ footnoteId }) {
+		this.editor.model.change(writer => {
 			const doc = this.editor.model.document;
 			const rootElement = doc.getRoot();
 			if (!rootElement) {
 				return;
 			}
-            const footnoteSection = this._getFootnoteSection(writer, rootElement);
+			const footnoteSection = this._getFootnoteSection(writer, rootElement);
 			const id = footnoteId === 0 ? footnoteSection.maxOffset + 1 : footnoteId;
 			doc.selection.isBackward ?
 				writer.setSelection(doc.selection.anchor) :
 				writer.setSelection(doc.selection.focus);
-            const footnoteReference = writer.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id });
-            this.editor.model.insertContent(footnoteReference);
+			const footnoteReference = writer.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id });
+			this.editor.model.insertContent(footnoteReference);
 			writer.setSelection(footnoteReference, 'after');
-            // if referencing an existing footnote
-            if (footnoteId !== 0) {
+			// if referencing an existing footnote
+			if (footnoteId !== 0) {
 				return;
 			}
 
@@ -46,15 +46,15 @@ export default class InsertFootnoteCommand extends Command {
 			//writer.appendElement('paragraph', footnoteList);
 
 			this.editor.model.insertContent(footnoteList, writer.createPositionAt(footnoteSection, footnoteSection.maxOffset));
-        });
-    }
+		});
+	}
 
-    refresh() {
-        const model = this.editor.model;
-        const lastPosition = model.document.selection.getLastPosition();
-        const allowedIn = lastPosition && model.schema.findAllowedParent(lastPosition, ELEMENTS.footnoteSection);
-        this.isEnabled = allowedIn !== null;
-    }
+	refresh() {
+		const model = this.editor.model;
+		const lastPosition = model.document.selection.getLastPosition();
+		const allowedIn = lastPosition && model.schema.findAllowedParent(lastPosition, ELEMENTS.footnoteSection);
+		this.isEnabled = allowedIn !== null;
+	}
 
 	/**
 	 * @param {Writer} writer
