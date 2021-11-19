@@ -22,7 +22,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: '675px'
     },
     [theme.breakpoints.down('xs')]: {
-      paddingBottom: 10
+      paddingBottom: 10,
+      marginBottom: 0
     }
   },
   wrapper: {
@@ -35,8 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       "title title title title title"
       "text1 text1 text1 cta cta"
       "bookStack bookStack text2 text2 text2"
-      "failureSplash failureSplash failureSplash molochNoWon molochNoWon"
-      "failureSplash failureSplash failureSplash humanPsycholinguistics humanPsycholinguistics"
+      "failure failure failure molochNoWon molochNoWon"
+      "failure failure failure psycholinguist psycholinguist"
       "header2 header2 header2 header2 header2"
       "reframing reframing reframing reframing reframing"
     `,
@@ -49,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         "text1"
         "bookStack"
         "text2"
-        "failureSplash"
+        "failure"
         "molochNoWon"
         "header2"
         "reframing"
@@ -82,9 +83,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   price: {
     fontSize: theme.typography.body1.fontSize,
     fontWeight: 600,
-  },
-  smallBody: {
-    fontSize: theme.typography.body2.fontSize,
   },
   bookTitle: {
     position: "relative",
@@ -132,14 +130,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: '650px',
     textAlign: 'right',
     paddingLeft: '100px',
-    paddingTop: '50px'
+    paddingTop: '50px',
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 400
+    }
   },
 
   mainQuote: {
     gridArea: "mainQuote",
     fontSize: "28px",
     lineHeight: "1.4em",
-    marginBottom: "15px"
+    marginBottom: "15px",
+    [theme.breakpoints.down('xs')]: {
+      fontSize: "18px"
+    }
   },
   body: {
     ...postBodyStyles(theme)
@@ -148,38 +152,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "mainQuoteAuthor",
     fontSize: "22px",
     lineHeight: "1.4em",
-    color: "grey"
+    color: "grey",
+    [theme.breakpoints.down('xs')]: {
+      fontSize: "14px"
+    }
   },
 
-  failureSplash: {
-    gridArea: "failureSplash"
+  failure: {
+    gridArea: "failure"
   },
   molochNoWon: {
     gridArea: "molochNoWon"
   },
-  humanPsycholinguistics: {
-    gridArea: "humanPsycholinguistics"
+  psycholinguist: {
+    gridArea: "psycholinguist"
   },
-
   reframing: {
     gridArea: "reframing"
   },
 
   bookStack: {
     gridArea: "bookStack"
-  },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: 45
-  },
-  column: {
-    display: "flex",
-    flexDirection: "column"
-  },
-  imageGrid: {
-    display: "grid",
-
   },
   ctaSmallText: {
     display: "flex",
@@ -210,80 +203,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: "1rem",
     marginTop: 8,
     color: theme.palette.primary.main
-  },
-  body2: {
-    ...postBodyStyles(theme),
-    [theme.breakpoints.up('sm')]: {
-      maxWidth: "calc(50% - 10px)",
-    }
-  },
-  // [theme.breakpoints.down('xs')]: {
-  //   bookContentContainer: {
-  //     display: 'none'
-  //   },
-  //   bookIntroduction: {
-  //     gridTemplateColumns: "1fr",
-  //     gridTemplateRows: "auto auto",
-  //     gridGap: "30px",
-  //     gridTemplateAreas: `
-  //       "authorList"
-  //       "info"
-  //     `
-  //   },
-  //   interludeTextContainer: {
-  //     gridTemplateAreas: `
-  //       "interludeQuote"
-  //       "interludeQuoteAuthor"
-  //       "body"
-  //     `,
-  //     gridTemplateColumns: "1fr",
-  //     marginBotton: "20px"
-  //   },
-  //   interludeBodyText: {
-  //     display: "none"
-  //   },
-  //   sampleButton: {
-  //     marginLeft: "auto",
-  //     marginRight: "auto",
-  //     width: '100%'
-  //   },
-  //   wrapper: {
-  //     padding: "0 15px",
-  //     marginBottom: "30px"
-  //   },
-  //   mainQuote: {
-  //     display: 'none'
-  //   },
-  //   mainQuoteAuthor: {
-  //     display: 'none'
-  //   },
-  //   mainQuoteContainer: {
-  //     paddingBottom: 60
-  //   },
-  //   interludeBigQuote: {
-  //     color: "#5e5e5e",
-  //     lineHeight: "1.4em"
-  //   },
-  //   mobileParagraph: {
-  //     display: "block"
-  //   },
-  //   mobileInterlude: {
-  //     display: "block"
-  //   },
-  //   desktopOnlyInterlude: {
-  //  //   visibility: "hidden",
-  //     display: "none"
-  //   },
-  //   mobileBookImages: {
-  //     display: 'block'
-  //   },
-  //   bookAnimationContainer: {
-  //     marginBottom: 0
-  //   },
-  //   mobileSampleButton: {
-  //     display: 'block'
-  //   }
-  // }
+  }
 })
 
 const HiddenQuote = ({classes}: ClassesType) => {
@@ -302,7 +222,7 @@ const HiddenQuote = ({classes}: ClassesType) => {
 const Book2019Landing = ({classes}: {
   classes: ClassesType,
 }) => {
-  const {Book2019Animation, BookCheckout, HeadTags} = Components;
+  const {Book2019Animation, HeadTags} = Components;
 
   return (
     <div>
@@ -331,7 +251,7 @@ const Book2019Landing = ({classes}: {
             </div>
             <a href="https://smile.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507?sa-no-redirect=1" className={classes.cta}>
               <div>
-                <div>Buy Now (US)</div>
+                <div>Buy Now (TODO))</div>
               </div>
             </a>
             <div className={classes.ctaSmallText}>
@@ -353,9 +273,9 @@ const Book2019Landing = ({classes}: {
             This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
             packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
         </div>
-        <img className={classes.failureSplash} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
+        <img className={classes.failure} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
         <img className={classes.molochNoWon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/moloch-hasnt-won_ndkkdu.jpg"/>
-        <img className={classes.humanPsycholinguistics} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/human-psycholinguistics_tyrpqk.jpg"/>
+        <img className={classes.psycholinguist} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/human-psycholinguistics_tyrpqk.jpg"/>
         <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/books-stack_hpbzu7.jpg" />
 
 
