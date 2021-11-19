@@ -96,8 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16
   },
   text1: {
-    gridArea: "text1",
-    paddingTop: 20
+    gridArea: "text1"
   },
   text2: {
     gridArea: "text2"
