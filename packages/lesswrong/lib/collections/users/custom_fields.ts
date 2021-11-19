@@ -91,10 +91,10 @@ const notificationTypeSettingsField = (overrideSettings?: any) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings",
-  canRead: [userOwns, 'admins'],
-  canUpdate: [userOwns, 'admins'],
-  canCreate: ['members', 'admins'],
+  control: "NotificationTypeSettings" as keyof ComponentTypes,
+  canRead: [userOwns, 'admins'] as FieldPermissions,
+  canUpdate: [userOwns, 'admins'] as FieldPermissions,
+  canCreate: ['members', 'admins'] as FieldCreatePermissions,
   ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
@@ -404,7 +404,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
-    label: "I'm happy for LW site moderators to help enforce my policy",
+    label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],

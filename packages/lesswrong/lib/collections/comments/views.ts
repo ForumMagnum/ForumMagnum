@@ -211,8 +211,11 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
   };
 });
 
+// As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
-  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+  // The forum has fewer comments, and so wants a more expansive definition of
+  // "recent"
+  const eighteenHoursAgo = moment().subtract(forumTypeSetting.get() === 'EAForum' ? 36 : 18, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -340,7 +343,7 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     } }
     : null
   );
-  
+
   return {
     selector: {
       shortform: true,

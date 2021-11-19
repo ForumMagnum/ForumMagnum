@@ -20,6 +20,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
   importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
+  importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
 }
@@ -114,6 +115,7 @@ importComponent("TabNavigationSubItem", () => require('../components/common/TabN
 importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer'));
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
+importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
 
@@ -198,6 +200,7 @@ importComponent("PostsItemNewCommentsWrapper", () => require('../components/post
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
 importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
+importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCalendar/AddToCalendarIcon'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
@@ -300,7 +303,6 @@ importComponent("EditCommentMenuItem", () => require('../components/comments/Com
 importComponent("ReportCommentMenuItem", () => require('../components/comments/CommentActions/ReportCommentMenuItem'));
 importComponent("MoveToAlignmentMenuItem", () => require('../components/comments/CommentActions/MoveToAlignmentMenuItem'));
 importComponent("SuggestAlignmentMenuItem", () => require('../components/comments/CommentActions/SuggestAlignmentMenuItem'));
-importComponent("SubscribeToCommentMenuItem", () => require('../components/comments/CommentActions/SubscribeToCommentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
 importComponent("CommentActions", () => require('../components/comments/CommentActions/CommentActions'));

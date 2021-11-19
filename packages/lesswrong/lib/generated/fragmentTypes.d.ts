@@ -16,6 +16,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly displayName: string,
   readonly email: string,
   readonly slug: string,
+  readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
 }
@@ -124,6 +125,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly rsvps: Array<any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"name":{"type":{"definitions":[{}]},"optional":false,"label":"Name"},"email":{"optional":true,"type":{"definitions":[{}]},"label":"Email"},"nonPublic":{"optional":true,"type":{"definitions":[{}]},"label":"Non public"},"response":{"type":{"definitions":[{"allowedValues":["yes","maybe","no"]}]},"optional":false,"label":"Response"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"createdAt":{"optional":true,"type":{"definitions":[{}]},"label":"Created at"}},"_depsLabels":{},"_schemaKeys":["name","email","nonPublic","response","userId","createdAt"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["name","email","nonPublic","response","userId","createdAt"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/>,
   readonly activateRSVPs: boolean,
   readonly nextDayReminderSent: boolean,
+  readonly onlyVisibleToLoggedIn: boolean,
+  readonly onlyVisibleToEstablishedAccounts: boolean,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -291,6 +294,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly localStartTime: Date,
   readonly localEndTime: Date,
   readonly facebookLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly contactInfo: string,
   readonly isEvent: boolean,
@@ -311,6 +315,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly moderationStyle: string,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
+  readonly onlyVisibleToLoggedIn: boolean,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
@@ -444,6 +449,16 @@ interface PostsExpandedHighlight { // fragment on Posts
 interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface PostsPlaintextDescription { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsPlaintextDescription_contents|null,
+}
+
+interface PostsPlaintextDescription_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly plaintextDescription: string,
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -1077,11 +1092,14 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
   readonly types: Array<string>,
+  readonly isOnline: boolean,
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly location: string,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
@@ -1093,12 +1111,15 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>,
   readonly lastActivity: Date,
   readonly name: string,
+  readonly isOnline: boolean,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly types: Array<string>,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly inactive: boolean,
 }
@@ -1109,6 +1130,12 @@ interface localGroupsHomeFragment extends localGroupsBase { // fragment on Local
 
 interface localGroupsEdit extends localGroupsBase { // fragment on Localgroups
   readonly contents: RevisionEdit|null,
+}
+
+interface localGroupsIsOnline { // fragment on Localgroups
+  readonly _id: string,
+  readonly name: string,
+  readonly isOnline: boolean,
 }
 
 interface ChaptersFragment { // fragment on Chapters
@@ -1445,6 +1472,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly petrovPressedButtonDate: Date,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
+  readonly noindex: boolean,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
@@ -1662,6 +1690,23 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly userId: string,
 }
 
+interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
+}
+
+interface FeaturedResourcesFragment { // fragment on FeaturedResources
+  readonly _id: string,
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
+}
+
 interface TagRelVotes { // fragment on Votes
   readonly _id: string,
   readonly userId: string,
@@ -1714,6 +1759,7 @@ interface FragmentTypes {
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
   PostsExpandedHighlight: PostsExpandedHighlight
+  PostsPlaintextDescription: PostsPlaintextDescription
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
@@ -1771,6 +1817,7 @@ interface FragmentTypes {
   localGroupsBase: localGroupsBase
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsEdit: localGroupsEdit
+  localGroupsIsOnline: localGroupsIsOnline
   ChaptersFragment: ChaptersFragment
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
@@ -1818,6 +1865,8 @@ interface FragmentTypes {
   UsersAdmin: UsersAdmin
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
+  FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
+  FeaturedResourcesFragment: FeaturedResourcesFragment
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -1849,6 +1898,7 @@ interface CollectionNamesByFragmentName {
   PostsListTag: "Posts"
   PostsDetails: "Posts"
   PostsExpandedHighlight: "Posts"
+  PostsPlaintextDescription: "Posts"
   PostsRevision: "Posts"
   PostsRevisionEdit: "Posts"
   PostsWithNavigationAndRevision: "Posts"
@@ -1906,6 +1956,7 @@ interface CollectionNamesByFragmentName {
   localGroupsBase: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsEdit: "Localgroups"
+  localGroupsIsOnline: "Localgroups"
   ChaptersFragment: "Chapters"
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
@@ -1953,10 +2004,12 @@ interface CollectionNamesByFragmentName {
   UsersAdmin: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
+  FeaturedResourcesDefaultFragment: "FeaturedResources"
+  FeaturedResourcesFragment: "FeaturedResources"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 

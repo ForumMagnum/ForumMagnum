@@ -1,6 +1,7 @@
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import * as _ from 'underscore';
+import SimpleSchema from 'simpl-schema';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { forumTypeSetting } from '../../instanceSettings';
@@ -39,8 +40,8 @@ addFieldsDict(Posts, {
     hidden: false,
     defaultValue: false,
     viewableBy: ['guests'],
-    editableBy: ['admin'],
-    insertableBy: ['admin'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
     control: "checkbox",
     order: 12,
     group: formGroups.adminOptions,
@@ -581,7 +582,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
     insertableBy: [userCanModeratePost],
-    editableBy: ['sunshines', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
@@ -769,7 +770,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Contact Info",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
   },
@@ -781,9 +782,25 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Facebook Event",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/events/...'
+  },
+  
+  meetupLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    label: "Meetup.com Event",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
   },
 
   website: {
@@ -792,9 +809,11 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   types: {

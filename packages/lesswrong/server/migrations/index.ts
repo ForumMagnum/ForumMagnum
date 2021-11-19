@@ -3,8 +3,10 @@
 // and are named "YYYY-MM-DD-migrationDescription.js", with the date when the
 // script was written.
 
-// To run a migration, start a server and enter in a terminal:
-//   scripts/serverShellCommand.sh Globals.migrations.migrationName()
+// to run a migration, first start a server, 
+// then execute the following in a terminal for each migration you wish to run:
+// scripts/serverShellCommand.sh Global.migrations.nameOfMigration()
+// note that if you're using Windows or WSL, you'll need to wrap the second part in quotes.
 
 import './2019-01-04-voteSchema';
 import './2019-01-21-denormalizeVoteCount';
@@ -46,15 +48,18 @@ import './2020-03-11-updateFrontpageFilterSettings'
 import './2020-03-30-fixLostUnapprovedComments'
 import './2020-04-20-adminOnlyTags'
 import './2020-04-28-tagDefaultOrder'
+import './2020-05-04-updateToCorrectTagDefault'
 import './2020-05-05-addRevisionCollectionName'
 import './2020-05-06-forceSecureImageLinks'
 import './2020-05-13-noIndexLowKarma'
 import './2020-05-19-fillDefaultNoIndex'
+import './2020-05-21-includedBackToDefault'
 import './2020-05-22-deletedNotifications'
 import './2020-06-08-clearOldPartiallyReadSequences'
 import './2020-06-14-populateTagUser'
 import './2020-06-22-directChildrenCount.ts'
 import './2020-07-23-defaultWikiGrade.ts'
+import './2020-08-09-metaToCommunity'
 import './2020-09-08-onlineEvent.ts'
 import './2020-09-03-createWikiImportUsers.ts'
 import './2020-09-03-defaultWikiOnly.ts'
@@ -70,6 +75,8 @@ import './2021-03-11-readStatusesIndex.ts'
 import './2021-04-28-populateCommentDescendentCounts';
 import './2021-05-09-selfVoteOnTagRevisions';
 import './2021-06-05-fillWikiEditCount'
+import './2021-07-22-fixDuplicateEmails'
+import './2021-08-13-postDefaultStickyPriority'
 import './2021-08-22-importACXMeetups'
 import './2021-08-23-defaultRSVPNotificationFill'
 import './2021-08-23-fillEmailsFieldForOrganizers'

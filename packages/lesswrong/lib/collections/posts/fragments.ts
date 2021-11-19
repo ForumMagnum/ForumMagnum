@@ -60,6 +60,7 @@ registerFragment(`
     localStartTime
     localEndTime
     facebookLink
+    meetupLink
     website
     contactInfo
     isEvent
@@ -85,6 +86,7 @@ registerFragment(`
     moderationStyle
     submitToFrontpage
     shortform
+    onlyVisibleToLoggedIn
 
     nominationCount2018
     reviewCount2018
@@ -247,6 +249,16 @@ registerFragment(`
     contents {
       _id
       html
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsPlaintextDescription on Post {
+    _id
+    contents {
+      _id
+      plaintextDescription
     }
   }
 `);

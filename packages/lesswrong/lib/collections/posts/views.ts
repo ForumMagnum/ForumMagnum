@@ -11,6 +11,9 @@ import { postStatuses } from './constants';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
+const isEAForum = forumTypeSetting.get() === 'EAForum'
+const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
+
 type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
 
 declare global {
@@ -816,13 +819,16 @@ ensureIndex(Posts,
 );
 
 Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
+  const timeSelector = {$or: [
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+  ]}
   let query = {
     selector: {
       onlineEvent: true,
       isEvent: true,
       groupId: null,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      ...timeSelector,
     },
     options: {
       sort: {
@@ -840,7 +846,10 @@ ensureIndex(Posts,
 );
 
 Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
+  const timeSelector = {$or: [
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+  ]}
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   let query: any = {
     selector: {
@@ -848,18 +857,20 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
       groupId: null,
       isEvent: true,
       onlineEvent: onlineEvent,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      ...timeSelector,
       mongoLocation: {
         $near: {
           $geometry: {
                type: "Point" ,
                coordinates: [ terms.lng, terms.lat ]
           },
+          $maxDistance: 240000 // only show in-person events within 150 miles
         },
       }
     },
     options: {
       sort: {
+        startTime: 1, // show events in chronological order
         createdAt: null,
         _id: null
       }
@@ -878,7 +889,10 @@ ensureIndex(Posts,
 );
 
 Posts.addView("events", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
+  const timeSelector = {$or: [
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+  ]}
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   return {
@@ -888,12 +902,11 @@ Posts.addView("events", (terms: PostsViewTerms) => {
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
-      $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
+      ...timeSelector,
     },
     options: {
       sort: {
-        baseScore: -1,
-        startTime: -1,
+        startTime: 1
       }
     }
   }

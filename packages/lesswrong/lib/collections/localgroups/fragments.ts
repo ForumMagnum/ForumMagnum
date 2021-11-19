@@ -10,12 +10,15 @@ registerFragment(`
     }
     lastActivity
     name
+    isOnline
     location
     googleLocation
     mongoLocation
     types
     contactInfo
     facebookLink
+    facebookPageLink
+    meetupLink
     website
     inactive
   }
@@ -39,3 +42,10 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment localGroupsIsOnline on Localgroup {
+    _id
+    name
+    isOnline
+  }
+`);

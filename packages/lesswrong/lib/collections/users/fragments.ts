@@ -56,6 +56,7 @@ registerFragment(`
     reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
+    noindex
   }
 `);
 

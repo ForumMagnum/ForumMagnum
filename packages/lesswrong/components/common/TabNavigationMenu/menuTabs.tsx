@@ -163,6 +163,11 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       </div>,
       subItem: true
     }, {
+      id: 'contact',
+      title: 'Contact Us',
+      link: '/contact',
+      subItem: true,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -248,44 +253,52 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'tags',
-      title: 'Tags',
-      mobileTitle: 'Tags',
+      id: 'wiki',
+      title: 'Wiki',
+      mobileTitle: 'Wiki',
       link: '/tags/all',
       iconComponent: LocalOffer,
-      tooltip: 'See posts tagged by their subject matter',
+      tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'sequences',
-      title: 'Sequences',
-      link: '/sequences',
+      id: 'library',
+      title: 'Library',
+      link: '/library',
       iconComponent: LocalLibrary,
-      tooltip: "Collections of posts building on a common theme",
+      tooltip: "Core reading, and sequences of posts building on a common theme",
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    // TODO: Once we get two sequences we want to share, add subitems
-    // }, {
-    //   id: 'fellowship-reading',
-    //   title: 'Fellowship Reading',
-    //   link: '/TODO:',
-    //   tooltip: "TODO: James is cool",
-    //   subItem: true,
-    // }, {
-    //   id: 'motivation',
-    //   title: 'Motivation',
-    //   link: '/TODO:',
-    //   tooltip: "TODO: Aaron's cool",
-    //   subItem: true,
     }, {
-      id: 'groupsAndEvents',
-      title: 'Groups and Events',
-      mobileTitle: 'Groups/Events',
+      id: 'handbook',
+      title: 'The EA Handbook',
+      link: '/handbook',
+      tooltip: "To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.",
+      subItem: true,
+    }, {
+      id: 'replacing-guilt',
+      title: 'Replacing Guilt',
+      link: '/s/a2LBRPLhvwB83DSGq',
+      tooltip: "Nate Soares writes about replacing guilt with other feelings, exercising self-compassion, and developing confidence — so that we can create a better world.",
+      subItem: true,
+    }, {
+      id: 'most-important-century',
+      title: 'Most Important Century',
+      link: '/s/isENJuPdB3fhjWYHd',
+      tooltip: `Holden Karnofsky argues that there's a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
+      subItem: true,
+    }, {
+      id: 'events',
+      title: 'Community and Events',
+      mobileTitle: 'Events',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See EA groups and events in your area',
       showOnMobileStandalone: true,
       showOnCompressed: true
+    }, {
+      id: 'eventsList',
+      customComponentName: "EventsList",
     }, {
       id: 'divider',
       divider: true,

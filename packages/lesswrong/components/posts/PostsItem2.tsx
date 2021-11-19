@@ -391,7 +391,8 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
+    AddToCalendarIcon } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -436,7 +437,7 @@ const PostsItem2 = ({
           >
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classes.karma}>
-                  <PostsItemKarma post={post} />
+                  {post.isEvent ? <AddToCalendarIcon post={post} /> : <PostsItemKarma post={post} />}
                 </PostsItem2MetaInfo>
 
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
@@ -473,7 +474,7 @@ const PostsItem2 = ({
                 
                 }
 
-                { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
+                { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 

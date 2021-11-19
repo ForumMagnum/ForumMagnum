@@ -10,6 +10,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
+import { useSingle } from '../../lib/crud/withSingle';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -100,11 +101,21 @@ const PostsNewForm = ({classes}: {
     fragmentName: 'SuggestAlignmentPost',
   })
   
+  // if we are trying to create an event in a group,
+  // we want to prefill the "onlineEvent" checkbox if the group is online
+  const { document: groupData } = useSingle({
+    collectionName: "Localgroups",
+    fragmentName: 'localGroupsIsOnline',
+    documentId: query && query.groupId,
+    skip: !query || !query.groupId
+  });
+  
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = {
     isEvent: query && !!query.eventForm,
+    onlineEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
     af: af || (query && !!query.af),
@@ -156,4 +167,3 @@ declare global {
     PostsNewForm: typeof PostsNewFormComponent
   }
 }
-

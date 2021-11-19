@@ -1,3 +1,4 @@
+import forumTheme from "../themes/forumTheme";
 
 const maxSmallish = "@media screen and (max-width: 715px)";
 const maxTiny = "@media screen and (max-width: 400px)";
@@ -14,7 +15,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   },
   body: {
     margin: 0,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: forumTheme.palette.background.default,
     
     "@media print": {
       backgroundColor: "white",

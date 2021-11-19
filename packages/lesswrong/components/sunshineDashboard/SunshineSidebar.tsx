@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -48,6 +49,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   if (!currentUser) return null
 
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
+  const underbellyName = forumTypeSetting.get() === 'EAForum' ? 'Low Priority' : 'the Underbelly'
 
   return (
     <div className={classes.root}>
@@ -93,12 +95,12 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
 
       { showSidebar && <div>
         { showUnderbelly ? <div className={classes.toggle} onClick={() => setShowUnderbelly(false)}>
-          Hide the Underbelly
+          Hide {underbellyName}
           <KeyboardArrowDownIcon/>
         </div>
         :
         <div className={classes.toggle} onClick={() => setShowUnderbelly(true)}>
-          Show the Underbelly
+          Show {underbellyName}
           <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
@@ -120,4 +122,3 @@ declare global {
     SunshineSidebar: typeof SunshineSidebarComponent
   }
 }
-

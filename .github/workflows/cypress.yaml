@@ -1,0 +1,39 @@
+name: Run Cypress Tests
+on: [push]
+jobs:
+  buildAndRunCypressTests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [15.x]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: yarn install
+      run: yarn install
+
+    - name: Cypress run
+      uses: cypress-io/github-action@v2
+      env:
+        TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }} 
+      with:
+          start: yarn ea-start-testing-db
+          command: yarn ea-cypress-run
+      
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: Upload screenshots
+        path: cypress/screenshots
+        
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: Upload videos
+        path: cypress/videos

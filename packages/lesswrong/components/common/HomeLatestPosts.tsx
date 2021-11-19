@@ -117,7 +117,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               showFinalBottomBorder={true}
             />
           </AnalyticsContext>
-          <PostsList2 terms={recentPostsTerms}>
+          <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore={true}>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
           </PostsList2>
         </AnalyticsContext>

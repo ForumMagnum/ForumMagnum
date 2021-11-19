@@ -6,8 +6,8 @@ import { onStartup } from './executionEnvironment';
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
-export const communityPath = isEAForum ? '/groupsAndEvents' : '/community';
-const communitySectionName = isEAForum ? 'Groups/Events' : 'Community';
+export const communityPath = '/community';
+const communitySectionName = isEAForum ? 'Community and Events' : 'Community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -19,8 +19,9 @@ const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "W
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
-const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
+const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
+const eaHandbookPostIdSetting = new PublicInstanceSetting<string | null>('eaHandbookPostId', null, "optional")
 
 async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
   if (!postId)
@@ -331,7 +332,7 @@ addRoute(
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
-    title: "Concepts Portal",
+    title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
   },
   {
     name: "Concepts",
@@ -553,6 +554,16 @@ if (hasEventsSetting.get()) {
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
   );
+
+  if(isEAForum) {
+    addRoute(
+      {
+        name: "communityRedirect",
+        path:'/groupsAndEvents',
+        redirect: () => '/community'
+      }
+    );
+  }
 }
 
 addRoute(
@@ -713,6 +724,14 @@ switch (forumTypeSetting.get()) {
         background: postBackground
       },
       {
+        name:'handbook',
+        path:'/handbook',
+        componentName: 'PostsSingleRoute',
+        _id: eaHandbookPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, eaHandbookPostIdSetting.get()),
+        background: postBackground
+      },
+      {
         name: 'intro',
         path: '/intro',
         componentName: 'PostsSingleRoute',
@@ -731,17 +750,17 @@ switch (forumTypeSetting.get()) {
       {
         name: 'Community',
         path: '/meta',
-        redirect: () => `/tags/community`,
-      },
-      {
-        name: 'eaSequencesHome',
-        path: '/sequences',
-        componentName: 'EASequencesHome'
+        redirect: () => `/tag/community`,
       },
       {
         name: 'eaSequencesRedirect',
+        path: '/sequences',
+        redirect: () => '/library'
+      },
+      {
+        name: 'eaLibrary',
         path: '/library',
-        redirect: () => '/sequences'
+        componentName: 'EASequencesHome'
       },
       {
         name: "TagsAll",
@@ -765,6 +784,14 @@ switch (forumTypeSetting.get()) {
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get(),
         getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+        background: postBackground
+      },
+      {
+        name: 'contact',
+        path:'/contact',
+        componentName: 'PostsSingleRoute',
+        _id: contactPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
         background: postBackground
       },
       {

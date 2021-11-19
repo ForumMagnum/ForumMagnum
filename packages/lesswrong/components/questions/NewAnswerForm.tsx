@@ -67,7 +67,7 @@ const NewAnswerForm = ({post, classes}: {
     answer: true,
     af: commentDefaultToAlignment(currentUser, post),
   }
-  const { SmartForm } = Components
+  const { FormWrapper } = Components
   
   if (currentUser && !userIsAllowedToComment(currentUser, post, post.user)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
@@ -75,7 +75,7 @@ const NewAnswerForm = ({post, classes}: {
   
   return (
     <div className={classes.answersForm}>
-      <SmartForm
+      <FormWrapper
         collection={Comments}
         formComponents={{
           FormSubmit: SubmitComponent,

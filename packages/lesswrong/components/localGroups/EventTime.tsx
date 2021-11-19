@@ -28,13 +28,11 @@ const EventTime = ({post, dense=false}: {
   // Date and time formats
   const timeFormat = 'h:mm a z'; // 11:30 am PDT
   const dateFormat = getDateFormat(dense, isThisYear);
-  const dateAndTimeFormat = dateFormat+', '+timeFormat;
-  const calendarFormat = {sameElse : dateAndTimeFormat}
 
   // Alternate formats omitting the timezone, for the start time in a
   // start-end range.
   const startTimeFormat = 'h:mm a'; // 11:30 am
-  const startCalendarFormat = {sameElse: dateFormat+', '+startTimeFormat};
+  const calendarFormat = {sameElse: dateFormat+', '+startTimeFormat};
 
   // Neither start nor end time specified
   if (!start && !end) {
@@ -47,7 +45,7 @@ const EventTime = ({post, dense=false}: {
   // less sense, but users can enter silly things.)
   else if (!start || !end) {
     const eventTime = start ? start : end;
-    return <>{eventTime!.calendar({}, calendarFormat)}</>
+    return <>{eventTime!.calendar(calendarFormat)} {eventTime!.format('z')}</>
   }
   // Both start end end time specified
   else {
@@ -63,7 +61,7 @@ const EventTime = ({post, dense=false}: {
       </div>
     } else {
       return (<span>
-        {start.calendar({}, startCalendarFormat)} to {end.calendar({}, calendarFormat)}
+        {start.calendar({}, calendarFormat)} to {end.calendar({}, calendarFormat)} {end.format('z')}
       </span>);
     }
   }

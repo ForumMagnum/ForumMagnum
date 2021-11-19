@@ -308,6 +308,7 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
+    tooltip: 'The user id of the author',
     
     group: formGroups.adminOptions,
   },
@@ -707,6 +708,28 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins'],
     optional: true,
     hidden: true,
+    ...schemaDefaultValue(false),
+  },
+  
+  onlyVisibleToLoggedIn: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from users who are not logged in",
+    ...schemaDefaultValue(false),
+  },
+  
+  onlyVisibleToEstablishedAccounts: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from logged out users and newly created accounts",
     ...schemaDefaultValue(false),
   },
 };

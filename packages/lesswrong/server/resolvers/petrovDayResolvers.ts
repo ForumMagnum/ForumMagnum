@@ -238,6 +238,7 @@ const petrovDayLaunchResolvers = {
     async PetrovDayCheckIfIncoming(root: void, {external}: {external: boolean}, context: ResolverContext) {
       if (external) {
         const externalUrl = petrovServerUrlSetting.get()
+        
         const payload = [{ 
           "operationName": "petrovDayLaunchResolvers", 
           "variables": {}, 
@@ -316,4 +317,3 @@ addGraphQLResolvers(petrovDayLaunchResolvers);
 
 addGraphQLQuery('PetrovDayCheckIfIncoming(external: Boolean): PetrovDayCheckIfIncomingData');
 addGraphQLMutation('PetrovDayLaunchMissile(launchCode: String): PetrovDayLaunchMissileData');
-
