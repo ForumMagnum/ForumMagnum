@@ -1,20 +1,20 @@
 // @ts-check
 
-import { DATA_FOOTNOTE_ID, ELEMENTS } from "../constants";
+import { ATTRIBUTES, ELEMENTS } from "../constants";
 
 export const defineSchema = schema => {
 	/***********************************Footnote Section Schema***************************************/
 	schema.register(ELEMENTS.footnoteSection, {
 		isObject: true,
 		allowWhere: '$block',
-		allowAttributes: ['id', 'class'],
+		allowAttributes: ['id', ATTRIBUTES.footnoteSection, 'class'],
 	});
 
 	schema.register(ELEMENTS.footnoteList, {
 		allowIn: ELEMENTS.footnoteSection,
 		allowContentOf: '$root',
 		isInline: true,
-		allowAttributes: ['id', DATA_FOOTNOTE_ID, 'class'],
+		allowAttributes: ['id', ATTRIBUTES.footnoteList, ATTRIBUTES.footnoteId, 'class'],
 	});
 
 	schema.register(ELEMENTS.footnoteItem, {
@@ -22,7 +22,7 @@ export const defineSchema = schema => {
 		allowWhere: '$text',
 		isInline: true,
 		isObject: true,
-		allowAttributes: ['id', DATA_FOOTNOTE_ID, 'class'],
+		allowAttributes: ['id', ATTRIBUTES.footnoteItem, ATTRIBUTES.footnoteId, 'class'],
 	});
 
 	// @ts-ignore -- returning true here prevents future listeners from firing.
@@ -39,6 +39,6 @@ export const defineSchema = schema => {
 		allowWhere: '$text',
 		isInline: true,
 		isObject: true,
-		allowAttributes: [ 'id', DATA_FOOTNOTE_ID, 'class' ],
+		allowAttributes: [ 'id', ATTRIBUTES.footnoteReference, ATTRIBUTES.footnoteId, 'class' ],
 	});
 }

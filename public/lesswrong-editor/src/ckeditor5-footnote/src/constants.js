@@ -1,14 +1,7 @@
 // @ts-check
 
-/**
- * @typedef {"footnoteReference"|"footnoteItem"|"footnoteSection"|"footnoteList"} FootnoteElement
- * @typedef {"footnote-reference"|"footnote-item"|"footnote-section"|"footnote-list"} FootnoteClass
- * @typedef {"InsertFootnote"} FootnoteCommand
-*/
+export const DATA_FOOTNOTE_ID = 'data-footnote-id';
 
-export const DATA_FOOTNOTE_ID = "data-footnote-id";
-
-/** @type {Object<String, FootnoteElement>} */
 export const ELEMENTS = {
 	footnoteReference: "footnoteReference",
 	footnoteItem: "footnoteItem",
@@ -16,7 +9,6 @@ export const ELEMENTS = {
 	footnoteList: "footnoteList",
 };
 
-/** @type {Object<String, FootnoteClass>} */
 export const CLASSES = {
 	footnoteReference: "footnote-reference",
 	footnoteItem: "footnote-item",
@@ -24,7 +16,14 @@ export const CLASSES = {
 	footnoteList: "footnote-list",
 };
 
-/** @type {Object<String, FootnoteCommand>} */
 export const COMMANDS = {
 	insertFootnote: "InsertFootnote",
 }
+
+export const ATTRIBUTES = {
+	footnoteReference: "data-footnote-reference",
+	footnoteItem: "data-footnote-item",
+	footnoteSection: "data-footnote-section",
+	footnoteList: "data-footnote-list",
+	footnoteId: "data-footnote-id"
+};

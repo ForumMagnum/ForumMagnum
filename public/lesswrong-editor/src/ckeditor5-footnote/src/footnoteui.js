@@ -5,12 +5,12 @@ import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dr
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { modelQueryElement, modelQueryElementsAll } from './utils';
-import { COMMANDS, DATA_FOOTNOTE_ID, ELEMENTS } from './constants';
+import { COMMANDS, ATTRIBUTES, ELEMENTS } from './constants';
 
 export default class FootnoteUI extends Plugin {
     init() {
         const editor = this.editor;
-        const t = editor.t;
+        const translate = editor.t;
         
         editor.ui.componentFactory.add( 'footnote', locale => {
             const dropdownView = createDropdown( locale );
@@ -21,7 +21,7 @@ export default class FootnoteUI extends Plugin {
 			if(!command) throw new Error("Command not found.");
             
             dropdownView.buttonView.set( {
-                label: t( 'Footnote' ),
+                label: translate( 'Footnote' ),
                 icon: pilcrowIcon,
                 tooltip: true
             } );
@@ -71,7 +71,7 @@ export default class FootnoteUI extends Plugin {
 		if (footnoteSection) {
 			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteItem);
 			footnoteItems.forEach((footnote) => {
-				const id = footnote.getAttribute(DATA_FOOTNOTE_ID);
+				const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
 				const definition = {
 					type: 'button',
 					model: new Model( {

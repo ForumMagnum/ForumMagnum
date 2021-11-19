@@ -19,7 +19,7 @@ import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import { defineSchema } from './schema';
 import { defineConverters } from './converters';
 import { addFootnoteAutoformatting } from './autoformatting';
-import { CLASSES, COMMANDS, DATA_FOOTNOTE_ID, ELEMENTS } from '../constants';
+import { ATTRIBUTES, COMMANDS, ELEMENTS } from '../constants';
 
 export default class FootnoteEditing extends Plugin {
     static get requires() {
@@ -47,12 +47,12 @@ export default class FootnoteEditing extends Plugin {
         this.editor.editing.mapper.on(
             'viewToModelPosition',
 			// @ts-ignore -- the type signature of `on` here seem to be just wrong, given how it's used in the source code. 
-            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( CLASSES.footnoteReference ) )
+            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteReference ) )
         );
         this.editor.editing.mapper.on(
             'viewToModelPosition',
 			// @ts-ignore
-            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( CLASSES.footnoteItem ) )
+            viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteItem ) )
         );
 		// @ts-ignore
 		this.editor.editing.view.on( 'selectionChange', (_, {oldSelection, newSelection}) => {
@@ -137,7 +137,7 @@ export default class FootnoteEditing extends Plugin {
 						if(!footnoteItem) {
 							return;
 						}
-						writer.setAttribute( DATA_FOOTNOTE_ID, index+i+1, footnoteItem);
+						writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, footnoteItem);
 					} );
 				}
                 data.preventDefault();
@@ -157,7 +157,7 @@ export default class FootnoteEditing extends Plugin {
 		if(!this.rootElement) throw new Error('Document has no root element.');
 		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.name === ELEMENTS.footnoteReference);
 		footnoteReferences.forEach((footnoteReference) => {
-			const id = footnoteReference.getAttribute(DATA_FOOTNOTE_ID);
+			const id = footnoteReference.getAttribute(ATTRIBUTES.footnoteId);
 			const idAsInt = parseInt(id ? id : '');
 			if (idAsInt === footnoteId || footnoteId === 0) {
 				removeList.push(footnoteReference);

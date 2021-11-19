@@ -4,7 +4,7 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 import Writer from '@ckeditor/ckeditor5-engine/src/model/writer';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import { modelQueryElement } from './utils';
-import { DATA_FOOTNOTE_ID, ELEMENTS } from './constants';
+import { ATTRIBUTES, ELEMENTS } from './constants';
 
 export default class InsertFootnoteCommand extends Command {
 	/**
@@ -23,7 +23,7 @@ export default class InsertFootnoteCommand extends Command {
 			doc.selection.isBackward ?
 				writer.setSelection(doc.selection.anchor) :
 				writer.setSelection(doc.selection.focus);
-            const footnoteReference = writer.createElement(ELEMENTS.footnoteReference, { [DATA_FOOTNOTE_ID]: id });
+            const footnoteReference = writer.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id });
             this.editor.model.insertContent(footnoteReference);
 			writer.setSelection(footnoteReference, 'after');
             // if referencing an existing footnote
@@ -35,7 +35,7 @@ export default class InsertFootnoteCommand extends Command {
 			const footnoteItem = writer.createElement(
 				ELEMENTS.footnoteItem,
 				//fn{id} is the format used by our existing markdown footnotes
-				{ [DATA_FOOTNOTE_ID]: id, id: `fn${id}` },
+				{ [ATTRIBUTES.footnoteId]: id, id: `fn${id}` },
 			);
 			const p = writer.createElement('paragraph');
 			writer.append(footnoteItem, p);
@@ -66,7 +66,9 @@ export default class InsertFootnoteCommand extends Command {
 		if(footnoteSection) {
 			return footnoteSection;
 		}
-		const newFootnoteSection = writer.createElement(ELEMENTS.footnoteSection);
+		const newFootnoteSection = writer.createElement(
+			ELEMENTS.footnoteSection,
+		);
 		this.editor.model.insertContent(newFootnoteSection, writer.createPositionAt(rootElement, rootElement.maxOffset));
 		return newFootnoteSection;
 	}
