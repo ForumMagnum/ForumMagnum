@@ -54,21 +54,6 @@ export default class FootnoteEditing extends Plugin {
 			// @ts-ignore
 			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteItem ) )
 		);
-		// @ts-ignore
-		this.editor.editing.view.on( 'selectionChange', (_, {oldSelection, newSelection}) => {
-			if(!(
-				newSelection.positionParent && 
-				newSelection.positionParent.parent && 
-				newSelection.positionParent.parent instanceof ViewElement &&
-				newSelection.positionParent.parent.name === ELEMENTS.footnoteList)) {
-				return
-			}
-			if(newSelection.anchor && newSelection.anchor.offset === 0) {
-				this.editor.model.change(writer => {
-					writer.setSelection(oldSelection);
-				})
-			}
-		} );
 	}
 
 	_deleteModify() {
