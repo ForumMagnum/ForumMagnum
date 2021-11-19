@@ -362,7 +362,13 @@ addRoute(
     componentName: 'SearchPage',
     title: 'Search',
     background: "white"
-  }
+  },
+  {
+    name: 'votesByYear',
+    path: '/votesByYear/:year',
+    componentName: 'UserSuggestNominations',
+    title: "Your Past Votes"
+  },
 );
 
 onStartup(() => {
