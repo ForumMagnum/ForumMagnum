@@ -1,37 +1,37 @@
 .footnote-section {
-    padding: 10px;
-    margin: 1em 0;
+	padding: 10px;
+	margin: 1em 0;
 
-    background: rgba( 0, 0, 0, 0.02 );
-    border: solid 1px hsl(0, 0%, 77%);
-    border-radius: 2px;
+	background: rgba( 0, 0, 0, 0.02 );
+	border: solid 1px hsl(0, 0%, 77%);
+	border-radius: 2px;
 }
 
 .footnote-title {
-    padding: 10px;
-    margin: 0;
-    background: rgba( 0, 0, 0, 0 );
-    margin-bottom: 10px;
+	padding: 10px;
+	margin: 0;
+	background: rgba( 0, 0, 0, 0 );
+	margin-bottom: 10px;
 }
 
 .footnote-item {
-    padding: 4px 2px;
-    outline-offset: -2px;
-    line-height: 1em;
-    margin: 0 1px;
+	padding: 4px 2px;
+	outline-offset: -2px;
+	line-height: 1em;
+	margin: 0 1px;
 }
 
 .footnote-item::selection {
-    display: none;
+	display: none;
 }
 
 .footnote-list {
-    width: 100%;
-    background: rgba( 0, 0, 0, 0 );
+	width: 100%;
+	background: rgba( 0, 0, 0, 0 );
 }
 
 .footnote-title::selection {
-    display: none;
+	display: none;
 }
 
 /* Added styles LW/EA Forum styles*/
