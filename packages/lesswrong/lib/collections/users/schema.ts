@@ -206,6 +206,19 @@ const schema: SchemaType<DbUser> = {
       }
     }
   },
+  
+  noindex: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    order: 48,
+    group: formGroups.adminOptions,
+    label: "No Index",
+    tooltip: "Hide this user's profile from search engines",
+  },
+  
   /**
     Groups
   */
