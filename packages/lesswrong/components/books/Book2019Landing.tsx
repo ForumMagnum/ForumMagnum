@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'grid',
     gridTemplateAreas: `
       "title title title title title"
-      "text1 text1 text1 cta cta"
+      "text1 text1 text1 bookCheckout bookCheckout"
       "bookStack bookStack text2 text2 text2"
       "failure failure failure molochNoWon molochNoWon"
       "failure failure failure psycholinguist psycholinguist"
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: "0 10px 0 10px",
       gridTemplateAreas: `
         "title"
-        "cta"
+        "bookCheckout"
         "text1"
         "bookStack"
         "text2"
@@ -73,7 +73,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    alignItems: "flex-start"
+    alignItems: "flex-start",
+    [theme.breakpoints.down('xs')]: {
+      position: "unset",
+      top: "unset"
+    }
   },
   header2: {
     gridArea: "header2",
@@ -106,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   bookCheckout: {
     ...theme.typography.commentStyle,
-    gridArea: "cta",
+    gridArea: "bookCheckout",
     display: "flex",
     textAlign: "center",
     alignItems: "center",
@@ -117,7 +121,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   bookCheckoutBackground: {
     background: "white",
     height: 170,
-    paddingTop: 20
+    paddingTop: 20,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%"
+    }
   },
   authorList: {
     color: "grey",
@@ -132,7 +139,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: '100px',
     paddingTop: '50px',
     [theme.breakpoints.down('xs')]: {
-      maxWidth: 400
+      display: "none"
     }
   },
 
@@ -141,9 +148,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "28px",
     lineHeight: "1.4em",
     marginBottom: "15px",
-    [theme.breakpoints.down('xs')]: {
-      fontSize: "18px"
-    }
   },
   body: {
     ...postBodyStyles(theme)
@@ -152,10 +156,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "mainQuoteAuthor",
     fontSize: "22px",
     lineHeight: "1.4em",
-    color: "grey",
-    [theme.breakpoints.down('xs')]: {
-      fontSize: "14px"
-    }
+    color: "grey"
   },
 
   failure: {
