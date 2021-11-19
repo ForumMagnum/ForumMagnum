@@ -771,8 +771,8 @@ interface DbVote extends DbObject {
   collectionName: CollectionNameString
   userId: string
   authorId: string
-  voteType: string
-  power: number
+  voteType: string | Record<string,string>
+  power: number | Record<string,number>
   afPower: number
   cancelled: boolean
   isUnvote: boolean

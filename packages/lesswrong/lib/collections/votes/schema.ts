@@ -1,6 +1,7 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, } from '../../collectionUtils';
 import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import GraphQLJSON from 'graphql-type-json';
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -52,7 +53,8 @@ const schema: SchemaType<DbVote> = {
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
   // voteType is the type of the vote that was reversed.
   voteType: {
-    type: String,
+    type: GraphQLJSON,
+    typescriptType: "string | Record<string,string>",
     canRead: ['guests'],
   },
 
@@ -62,7 +64,8 @@ const schema: SchemaType<DbVote> = {
   // made. If this is an unvote, then the opposite: negative for undoing an
   // upvote, positive for undoing a downvote.
   power: {
-    type: Number,
+    typescriptType: "number | Record<string,number>",
+    type: GraphQLJSON,
     optional: true,
     canRead: [userOwns, docIsTagRel, 'admins'],
     
