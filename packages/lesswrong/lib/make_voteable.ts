@@ -58,7 +58,33 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         }
       }
     },
-    
+    currentUserAgreementVote: {
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: 'String',
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+          const { Votes, currentUser } = context;
+          if (!currentUser) return null;
+          const votes = await getWithLoader(context, Votes,
+            `votesByUser${currentUser._id}`,
+            {
+              userId: currentUser._id,
+              cancelled: false,
+            },
+            "documentId", document._id
+          );
+        
+          if (!votes.length) return null;
+          return votes[0].voteType;
+        }
+      }
+    },
+  
+  
+  
+  
     // DEPRECATED (but preserved for backwards compatibility): Returns an array
     // of vote objects, if the user has voted (or an empty array otherwise).
     currentUserVotes: {
