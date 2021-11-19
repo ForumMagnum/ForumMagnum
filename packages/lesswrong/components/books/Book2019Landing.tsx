@@ -2,11 +2,9 @@ import React from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import {captureEvent, useTracking} from "../../lib/analyticsEvents";
-import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping';
-import { Button } from '@material-ui/core';
+import { captureEvent } from "../../lib/analyticsEvents";
+import { postBodyStyles } from '../../themes/stylePiping';
 
-const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -249,10 +247,11 @@ const Book2019Landing = ({classes}: {
             <div className={classes.price}>
               $34 for the four book set
             </div>
-            <a href="https://smile.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507?sa-no-redirect=1" className={classes.cta}>
-              <div>
-                <div>Buy Now (TODO))</div>
-              </div>
+            <a className={classes.cta} onClick={() => {
+              captureEvent("2019BookAmazonClicked")
+              window.open("https://smile.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507?sa-no-redirect=1")
+            }}>
+              Buy Now (TODO))
             </a>
             <div className={classes.ctaSmallText}>
               <div className={classes.availabilityNotice}>
