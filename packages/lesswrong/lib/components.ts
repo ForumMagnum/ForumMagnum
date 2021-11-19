@@ -587,6 +587,8 @@ importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Ale
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
 
 // Review Book related components
-importComponent("BookLanding", () => require('../components/books/BookLanding'));
+importComponent("Book2018Landing", () => require('../components/books/Book2018Landing'));
+importComponent("Book2019Landing", () => require('../components/books/Book2019Landing'));
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
+importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
