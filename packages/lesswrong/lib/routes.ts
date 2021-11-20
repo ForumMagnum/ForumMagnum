@@ -901,7 +901,7 @@ addRoute(
   },
   {
     name: 'userReviews',
-    path:'/users/:slug/reviews',
+    path:'/users/:slug/reviews', 
     redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
   },
   {
