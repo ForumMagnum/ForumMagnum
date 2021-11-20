@@ -74,56 +74,32 @@ const personalBlogpostInfo = {
 const personalBlogpostName = personalBlogpostInfo[forumTypeSetting.get()].name
 const personalBlogpostTooltip = personalBlogpostInfo[forumTypeSetting.get()].tooltip
 
-// Filter settings
-// Appears in the gear-menu by latest posts, and in other places.
-//
-// filterSettings is the current configuration; setFilterSettings applies a
-// change.
-//
-// When this is first opened, it pre-populates the set of tags with neutral
-// filters of a core set of "suggested as filter" tags.
-const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
-  filterSettings: FilterSettings
-  setFilterSettings: (newSettings: FilterSettings)=>void,
+// TODO; doc
+const TagFilterSettings = ({
+  filterSettings,
+  setPersonalBlogFilter,
+  setTagFilter,
+  removeTagFilter,
+  classes
+}: {
+  filterSettings: FilterSettings,
+  setPersonalBlogFilter: (filterMode: FilterMode) => void,
+  setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
+  removeTagFilter: (tagId: string) => void,
   classes: ClassesType,
 }) => {
   const { AddTagButton, FilterMode, Loading, LWTooltip } = Components
-  const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
-  
-  const changeFilterSettings = (newSettings: FilterSettings): void => {
-    setFilterSettings(newSettings);
-    setAddedSuggestedTags(true);
-  }
-
   const currentUser = useCurrentUser()
-
-  const { results: suggestedTags, loading: loadingSuggestedTags } = useMulti({
-    terms: {
-      view: "suggestedFilterTags",
-    },
-    collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
-    limit: 100,
-  });
-
-  const { captureEvent } = useTracking()
-
-  let filterSettingsWithSuggestedTags: FilterSettings = filterSettings;
-  if (suggestedTags && !addedSuggestedTags) {
-    filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags);
-  }
 
   const personalBlogpostCard = <Card><div className={classes.personalTooltip}>
     <p><em>Click to show personal blogposts</em></p>
     <div>{personalBlogpostTooltip}</div>
   </div></Card>
 
-  const showPersonalBlogpostsButton = (currentUser && (filterSettingsWithSuggestedTags.personalBlog === "Hidden"))
+  const showPersonalBlogpostsButton = (currentUser && (filterSettings.personalBlog === "Hidden"))
 
   return <span>
-    {loadingSuggestedTags && !filterSettingsWithSuggestedTags.tags.length && <Loading/>}
-
-    {filterSettingsWithSuggestedTags.tags.map(tagSettings =>
+    {filterSettings.tags.map(tagSettings =>
       <FilterMode
         label={tagSettings.tagName}
         key={tagSettings.tagId}
@@ -132,26 +108,10 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
           const newMode = mode === tagSettings.filterMode ? 0 : mode
-          const changedTagId = tagSettings.tagId;
-          const replacedIndex = _.findIndex(filterSettingsWithSuggestedTags.tags, t=>t.tagId===changedTagId);
-          let newTagFilters = [...filterSettingsWithSuggestedTags.tags];
-          newTagFilters[replacedIndex] = {
-            ...filterSettingsWithSuggestedTags.tags[replacedIndex],
-            filterMode: newMode
-          };
-          captureEvent('tagFilterModified', {tagId: tagSettings.tagId, tagName: tagSettings.tagName, newMode})
-
-          changeFilterSettings({
-            personalBlog: filterSettingsWithSuggestedTags.personalBlog,
-            tags: newTagFilters,
-          });
+          setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
         }}
         onRemove={() => {
-          changeFilterSettings({
-            personalBlog: filterSettingsWithSuggestedTags.personalBlog,
-            tags: _.filter(filterSettingsWithSuggestedTags.tags, t=>t.tagId !== tagSettings.tagId),
-          });
-          captureEvent("tagRemovedFromFilters", {tagId: tagSettings.tagId, tagName: tagSettings.tagName});
+          removeTagFilter(tagSettings.tagId)
         }}
       />
     )}
@@ -160,10 +120,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
 
     {showPersonalBlogpostsButton ?
       <LWTooltip title={personalBlogpostCard} tooltip={false}>
-        <div className={classes.showPersonalBlogposts} onClick={() => changeFilterSettings({
-            personalBlog: 0,
-            tags: filterSettingsWithSuggestedTags.tags,
-          })}>
+        <div className={classes.showPersonalBlogposts} onClick={() => setPersonalBlogFilter(0)}>
           Show Personal Blogposts
         </div>
       </LWTooltip>
@@ -171,28 +128,19 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       <FilterMode
         label={personalBlogpostName}
         description={personalBlogpostTooltip}
-        mode={filterSettingsWithSuggestedTags.personalBlog}
+        mode={filterSettings.personalBlog}
         canRemove={false}
         onChangeMode={(mode: FilterMode) => {
-          changeFilterSettings({
-            personalBlog: mode,
-            tags: filterSettingsWithSuggestedTags.tags,
-          });
+          setPersonalBlogFilter(mode)
         }}
       />
     }
 
     {<LWTooltip title="Add Tag Filter">
-        {/* TODO; extract to function */}
         <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
-          if (!_.some(filterSettingsWithSuggestedTags.tags, t=>t.tagId===tagId)) {
+          if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
             const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
-            const newFilter: FilterTag = {tagId, tagName, filterMode: defaultFilterMode}
-            changeFilterSettings({
-              personalBlog: filterSettingsWithSuggestedTags.personalBlog,
-              tags: [...filterSettingsWithSuggestedTags.tags, newFilter]
-            });
-            captureEvent("tagAddedToFilters", {tagId, tagName})
+            setTagFilter({tagId, tagName, filterMode: defaultFilterMode})
           }
         }}>
           <span className={classes.addButton}>+</span>

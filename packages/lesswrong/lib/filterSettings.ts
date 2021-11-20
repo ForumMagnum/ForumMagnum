@@ -3,6 +3,8 @@ import { useCurrentUser } from '../components/common/withUser';
 import { useUpdateCurrentUser } from '../components/hooks/useUpdateCurrentUser';
 import { useMulti } from './crud/withMulti';
 import { defaultVisibilityTags } from './publicSettings';
+import filter from 'lodash/filter';
+import { useTracking } from './analyticsEvents';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -24,7 +26,7 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
   const tagsIncluded: Record<string,boolean> = {};
   for (let tag of oldFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
-  const tagsNotIncluded = _.filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
+  const tagsNotIncluded = filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
 
   return {
     ...oldFilterSettings,
@@ -43,13 +45,15 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
 export const useFilterSettings = () => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
+  const { captureEvent } = useTracking()
   
   const defaultSettings = currentUser?.frontpageFilterSettings ?
     currentUser.frontpageFilterSettings :
     getDefaultFilterSettings()
-  const [filterSettings, setFilterSettingsLocally] = useState(defaultSettings)
+  console.log('🚀 ~ file: filterSettings.ts ~ line 49 ~ useFilterSettings ~ defaultSettings', defaultSettings)
+  let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
   
-  const { results: suggestedTags, loading: loadingSuggestedTags, error } = useMulti({
+  const { results: suggestedTags, loading: loadingSuggestedTags, error: errorLoadingSuggestedTags } = useMulti({
     terms: {
       view: "suggestedFilterTags",
     },
@@ -58,11 +62,10 @@ export const useFilterSettings = () => {
     limit: 100,
   })
   
-  if (error) return { filterSettings, loadingSuggestedTags, error }
-  if (loadingSuggestedTags) return { filterSettings, loadingSuggestedTags, error }
-  
-  // TODO: something like a performance concern; Jim has `useMemo`'d this, maybe
-  const filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags)
+  // TODO; something like a performance concern; Jim has `useMemo`'d this, maybe
+  if (suggestedTags) {
+    filterSettings = addSuggestedTagsToSettings(filterSettings, suggestedTags)
+  }
   
   // TODO; useCallbacks
   /** Set the whole mess */
@@ -74,39 +77,61 @@ export const useFilterSettings = () => {
   }
   
   function setPersonalBlogFilter(mode: FilterMode) {
-    setFilterSettings({})
+    setFilterSettings({
+      personalBlog: mode,
+      tags: filterSettings.tags,
+    })
   }
   
-  function addTagFilter({ tagId, tagName, filterMode }: FilterTag) {
-    setFilterSettings({})
+  /** Upsert - tagName required for insert */
+  function setTagFilter({tagId, tagName, filterMode}: {tagId: string, tagName?: string, filterMode: FilterMode}) {
+    // update
+    let existingTagFilter = filterSettings.tags.find(tag => tag.tagId === tagId)
+    if (existingTagFilter) {
+      // !mutation!
+      // (Mutation is useful here to maintain the order of the tags)
+      existingTagFilter.filterMode = filterMode
+      console.log('existingTagFilter.filterMode', existingTagFilter.filterMode) // unchanged
+      setFilterSettings({
+        personalBlog: filterSettings.personalBlog,
+        tags: filterSettings.tags,
+      })
+      captureEvent('tagFilterModified', {tagId, tagName, newMode: filterMode})
+      return
+    }
+    // insert
+    if (!tagName) {
+      throw new Error("tagName required for insert")
+    }
+    captureEvent("tagAddedToFilters", {tagId, tagName})
+    setFilterSettings({
+      personalBlog: filterSettings.personalBlog,
+      tags: [...filterSettings.tags, { tagId, tagName, filterMode }],
+    })
   }
   
   function removeTagFilter(tagId: string) {
-    setFilterSettings({})
-  }
-  
-  function setTagFilter(tagId: string, mode: FilterMode) {
-    setFilterSettings({})
+    if (suggestedTags.find(tag => tag._id === tagId)) {
+      throw new Error("Can't remove suggested tag")
+    }
+    captureEvent("tagRemovedFromFilters", {tagId});
+    const newTags = filter(filterSettings.tags, tag => tag.tagId !== tagId)
+    setFilterSettings({
+      personalBlog: filterSettings.personalBlog,
+      tags: newTags,
+    })
   }
   
   return {
     filterSettings,
-    filterSettingsWithSuggestedTags,
-    loadingSuggestedTags: false,
-    error: null,
+    loadingSuggestedTags,
+    errorLoadingSuggestedTags,
     setFilterSettings,
     setPersonalBlogFilter,
-    addTagFilter,
     removeTagFilter,
     setTagFilter,
   }
 }
-
-
-
-
-
-
 
 export const userIsSubscribedToTag = (user: UsersCurrent|null, tagId: string) => {
   if (!user) return false
@@ -117,10 +142,11 @@ export const userIsSubscribedToTag = (user: UsersCurrent|null, tagId: string) =>
 }
 
 export const useSubscribeUserToTag = () => {
-  const { addTagFilter } = useFilterSettings()
+  const { setTagFilter } = useFilterSettings()
   
   function subscribeUserToTag(tag: TagBasicInfo) {
-    addTagFilter({
+    // TODO;
+    setTagFilter({
       tagId: tag._id,
       tagName: tag.name,
       filterMode: "Subscribed",
@@ -129,32 +155,3 @@ export const useSubscribeUserToTag = () => {
   
   return subscribeUserToTag
 }
-//   const currentUser = useCurrentUser()
-//   const updateUserFilterSettings = useUpdateUserFilterSettings()
-//   const defaultSettings = currentUser?.frontpageFilterSettings ?
-//     currentUser.frontpageFilterSettings :
-//     getDefaultFilterSettings()
-//   const updateCurrentUser = useUpdateCurrentUser()
-//   if (!currentUser) return () => {}
-  
-//   let filterSettingsWithSuggestedTags: FilterSettings = filterSettings;
-//   if (suggestedTags && !addedSuggestedTags) {
-//     filterSettingsWithSuggestedTags = addSuggestedTagsToSettings(filterSettings, suggestedTags);
-//   }
-  
-//   if (!_.some(filterSettingsWithSuggestedTags.tags, t=>t.tagId===tagId)) {
-//     const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
-//     const newFilter: FilterTag = {tagId, tagName, filterMode: defaultFilterMode}
-//     changeFilterSettings({
-//       personalBlog: filterSettingsWithSuggestedTags.personalBlog,
-//       tags: [...filterSettingsWithSuggestedTags.tags, newFilter]
-//     });
-//     captureEvent("tagAddedToFilters", {tagId, tagName})
-//   }
-
-//   // setFilterSettingsLocally(newSettings)
-//   // void updateCurrentUser({
-//   //   frontpageFilterSettings: newSettings,
-//   // })
-//   updateUserFilterSettings(user, {tagId: tag._id, tagName: tag.name, filterMode: "Subscribed"})
-// }

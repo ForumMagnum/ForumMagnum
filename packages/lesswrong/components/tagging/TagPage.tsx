@@ -272,7 +272,7 @@ const TagPage = ({classes}: {
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
           {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
             <SubscribeButton
-              document={tag}
+              tag={tag}
               className={classes.notifyMeButton}
               subscribeMessage="Subscribe"
               unsubscribeMessage="Unsubscribe"

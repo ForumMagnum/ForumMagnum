@@ -41,7 +41,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
 
-  const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
+  const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
@@ -87,7 +87,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               </div>
               <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
                 <TagFilterSettings
-                  filterSettings={filterSettings} setFilterSettings={setFilterSettings}
+                  filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
                 />
               </span>
           </AnalyticsContext>

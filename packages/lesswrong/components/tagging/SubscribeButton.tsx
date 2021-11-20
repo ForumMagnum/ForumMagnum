@@ -51,6 +51,7 @@ const SubscribeButton = ({
   const { captureEvent } = useTracking({eventType: "newSubscribeClicked", eventProps: {documentId: tag._id}})
   
   // TODO; use NotifyMeButton
+  const loading = true
   // // Get existing subscription, if there is one
   // const { results, loading } = useMulti({
   //   terms: {
@@ -73,7 +74,7 @@ const SubscribeButton = ({
     try {
       e.preventDefault();
       captureEvent() // TODO;
-      setFakeSubscribed(!isSubscribed)
+      // setFakeSubscribed(!isSubscribed)
 
       // success message will be for example posts.subscribed
       flash({messageString: `Successfully ${isSubscribed ? "unsubscribed" : "subscribed"}`});
@@ -83,20 +84,21 @@ const SubscribeButton = ({
   }
   
   const notificationsEnabled = () => {
-    // Get the last element of the results array, which will be the most recent subscription
-    if (results && results.length > 0) {
-      // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
-      const currentSubscription = _.max(results, result=>new Date(result.createdAt).getTime());
+    // // Get the last element of the results array, which will be the most recent subscription
+    // if (results && results.length > 0) {
+    //   // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
+    //   const currentSubscription = _.max(results, result=>new Date(result.createdAt).getTime());
       
-      if (currentSubscription.state === "subscribed")
-        return true;
-      else if (currentSubscription.state === "suppressed")
-        return false;
-    }
-    return userIsDefaultSubscribed({
-      user: currentUser,
-      subscriptionType, collectionName, document: tag
-    });
+    //   if (currentSubscription.state === "subscribed")
+    //     return true;
+    //   else if (currentSubscription.state === "suppressed")
+    //     return false;
+    // }
+    // return userIsDefaultSubscribed({
+    //   user: currentUser,
+    //   subscriptionType, collectionName, document: tag
+    // });
+    return false
   }
   
   const showIcon = isSubscribed || notificationsEnabled();
