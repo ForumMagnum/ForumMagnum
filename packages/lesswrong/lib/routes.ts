@@ -894,10 +894,15 @@ addRoute(
     redirect: () => `/nominations/2019`,
   },
   {
-    name: 'userReviews',
-    path:'/users/:slug/reviews',
+    name: 'userReviewsByYear',
+    path:'/users/:slug/reviews/:year',
     componentName: 'UserReviews',
     title: "User Reviews",
+  },
+  {
+    name: 'userReviews',
+    path:'/users/:slug/reviews',
+    redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
   },
   {
     name: 'userReplies',
@@ -918,7 +923,7 @@ addRoute(
   },
   {
     name: 'reviews2019-old',
-    path: '/reviews/2019',
+    path: '/reviews2019',
     redirect: () => `/reviews/2019`,
   },
   {
