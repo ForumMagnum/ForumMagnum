@@ -915,8 +915,7 @@ addRoute(
   {
     name: 'reviews2018old',
     path: '/reviews2018',
-    componentName: 'Reviews2018',
-    title: "2018 Reviews",
+    redirect: () => `/reviews/2018`,
   },
   {
     name: 'reviews2018',
@@ -925,22 +924,20 @@ addRoute(
     title: "2018 Reviews",
   },
   {
+    name: 'reviews2019old',
+    path: '/reviews/2019',
+    redirect: () => `/reviews/2019`,
+  },
+  {
     name: 'reviews2019',
     path: '/reviews/2019',
     componentName: 'Reviews2019',
     title: "2019 Reviews",
   },
   {
-    name: 'reviews2020',
-    path: '/reviews/2020',
-    componentName: 'Reviews2020',
-    title: "2020 Reviews",
-  },
-  {
     name: 'reviews',
     path: '/reviews',
-    componentName: 'Reviews2020',
-    title: "2020 Reviews",
+    redirect: () => `/reviews/2019`,
   },
   {
     name: 'bookLanding',
