@@ -891,14 +891,7 @@ addRoute(
   {
     name: 'nominations',
     path: '/nominations',
-    title: "2020 Nominations",
-    redirect: () => `/nominations/2020`,
-  },
-  {
-    name: 'nominations2020',
-    path: '/nominations/2020',
-    componentName: 'Nominations2020',
-    title: "2020 Nominations",
+    redirect: () => `/nominations/2019`,
   },
   {
     name: 'userReviews',
@@ -913,7 +906,7 @@ addRoute(
     title: "User Comment Replies",
   },
   {
-    name: 'reviews2018old',
+    name: 'reviews2018-old',
     path: '/reviews2018',
     redirect: () => `/reviews/2018`,
   },
@@ -924,7 +917,7 @@ addRoute(
     title: "2018 Reviews",
   },
   {
-    name: 'reviews2019old',
+    name: 'reviews2019-old',
     path: '/reviews/2019',
     redirect: () => `/reviews/2019`,
   },
