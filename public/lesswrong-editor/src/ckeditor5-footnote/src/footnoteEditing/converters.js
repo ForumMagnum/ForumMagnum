@@ -12,7 +12,8 @@ import { modelQueryElementsAll, viewQueryElement, viewQueryText } from '../utils
 import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 
 /**
- * @param {Editor} editor
+ * Defines methods for converting between model, data view, and editing view representations of each element type.
+g * @param {Editor} editor
  * @param {RootElement} rootElement
  * @returns {void}
  * */
@@ -178,18 +179,18 @@ export const defineConverters = (editor, rootElement) => {
 				{ priority: 'high' });
 			dispatcher.on(
 				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`, 
-				(_, data, conversionApi) => modelViewChangeItem(data, conversionApi, editor), 
+				(_, data, conversionApi) => updateFootnoteItemView(data, conversionApi, editor), 
 				{ priority: 'high' });
 			dispatcher.on(
 				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteReference}`, 
-				(_, data, conversionApi) => modelViewChangeReference(data, conversionApi, editor), 
+				(_, data, conversionApi) => updateFootnoteReferenceView(data, conversionApi, editor), 
 				{ priority: 'high' }
 			);
 		});
-
 }
 
 /**
+ * Creates and returns a view element for a footnote reference.
  * @param {ModelElement} viewElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
@@ -218,7 +219,7 @@ const createFootnoteReferenceViewElement = (viewElement, conversionApi) => {
 }
 
 /**
- *
+ * Creates and returns a view element for a footnote item.
  * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
@@ -251,7 +252,9 @@ const createFootnoteItemViewElement = (modelElement, conversionApi) => {
  */
 
 /**
- * @param {Data} data
+ * Updates all references for a single footnote. This function is called when
+ * the id of an existing footnote changes.
+ * @param {Data} data provides the old and new values of the changed attribute.
  * @param {DowncastConversionApi} conversionApi
  * @param {Editor} editor
  * @param {RootElement} rootElement
@@ -285,7 +288,7 @@ const updateReferences = (data, conversionApi, editor, rootElement) => {
  * @param {Editor} editor
  * @returns
  */
-const modelViewChangeItem = (data, conversionApi, editor) => {
+const updateFootnoteItemView = (data, conversionApi, editor) => {
 	const { item, attributeOldValue, attributeNewValue } = data;
 	conversionApi.consumable.add(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`);
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
@@ -325,7 +328,7 @@ const modelViewChangeItem = (data, conversionApi, editor) => {
  * @param {Editor} editor
  * @returns
  */
-const modelViewChangeReference = (data, conversionApi, editor) => {
+const updateFootnoteReferenceView = (data, conversionApi, editor) => {
 	const { item, attributeOldValue, attributeNewValue } = data;
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteReference}`)) {
 		return;

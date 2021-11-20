@@ -115,7 +115,7 @@ export default class FootnoteEditing extends Plugin {
 			}
 
 			// if a) the footnote contains no text (other than its number) or b) the entire footnote is selected,
-			// remove the footnote and its references.
+			// remove the footnote and its references, and renumber all subsequent footnotes.
 			if (selectionParent.maxOffset === 1 || entireParagraphSelected) {
 				const footnoteList = selectionParent.parent;
 				const index = footnoteList.index;
