@@ -4,6 +4,7 @@ import { useUpdateCurrentUser } from '../components/hooks/useUpdateCurrentUser';
 import { useMulti } from './crud/withMulti';
 import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
+import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
 
 export interface FilterSettings {
@@ -88,13 +89,15 @@ export const useFilterSettings = () => {
     // update
     let existingTagFilter = filterSettings.tags.find(tag => tag.tagId === tagId)
     if (existingTagFilter) {
-      // !mutation!
-      // (Mutation is useful here to maintain the order of the tags)
-      existingTagFilter.filterMode = filterMode
-      console.log('existingTagFilter.filterMode', existingTagFilter.filterMode) // unchanged
+      const replacedIndex = findIndex(filterSettings.tags, t => t.tagId === tagId)
+      let newTagFilters = [...filterSettings.tags]
+      newTagFilters[replacedIndex] = {
+        ...filterSettings.tags[replacedIndex],
+        filterMode,
+      }
       setFilterSettings({
         personalBlog: filterSettings.personalBlog,
-        tags: filterSettings.tags,
+        tags: newTagFilters,
       })
       captureEvent('tagFilterModified', {tagId, tagName, newMode: filterMode})
       return
@@ -133,25 +136,19 @@ export const useFilterSettings = () => {
   }
 }
 
-export const userIsSubscribedToTag = (user: UsersCurrent|null, tagId: string) => {
-  if (!user) return false
-  // Currently typed as any, but will be FilterSettings
-  const filterSetting = (user.frontpageFilterSettings as FilterSettings).tags
-    .find(ft => ft.tagId === tagId)
-  return filterSetting?.filterMode === "Subscribed" || filterSetting?.filterMode === 25
-}
-
-export const useSubscribeUserToTag = () => {
-  const { setTagFilter } = useFilterSettings()
+export const useSubscribeUserToTag = (tag: TagBasicInfo) => {
+  const { filterSettings, setTagFilter } = useFilterSettings()
   
-  function subscribeUserToTag(tag: TagBasicInfo) {
-    // TODO;
+  const filterSetting = filterSettings.tags.find(ft => ft.tagId === tag._id)
+  const isSubscribed = filterSetting?.filterMode === "Subscribed" || filterSetting?.filterMode === 25
+  
+  function subscribeUserToTag(tag: TagBasicInfo, filterMode: FilterMode) {
     setTagFilter({
       tagId: tag._id,
       tagName: tag.name,
-      filterMode: "Subscribed",
+      filterMode: filterMode,
     })
   }
   
-  return subscribeUserToTag
+  return { isSubscribed, subscribeUserToTag }
 }

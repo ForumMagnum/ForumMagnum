@@ -28,28 +28,37 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
     }
-  }
+  },
+  hide: {
+    display: "none"
+  },
 })
 
 const NotifyMeButton = ({
   document,
   subscriptionType: overrideSubscriptionType,
   subscribeMessage, unsubscribeMessage,
+  tooltip,
   asMenuItem = false,
   className="",
   classes,
   showIcon,
-  hideLabelOnMobile = false
+  hideLabel = false,
+  hideLabelOnMobile = false,
+  hideIfNotificationsDisabled = false,
 }: {
   document: any,
   subscriptionType?: string,
   subscribeMessage?: string,
+  tooltip?: string,
   asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
   classes: ClassesType,
   showIcon?: boolean,
+  hideLabel?: boolean,
   hideLabelOnMobile?: boolean
+  hideIfNotificationsDisabled?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -57,6 +66,7 @@ const NotifyMeButton = ({
     collection: Subscriptions,
     fragmentName: 'SubscriptionState',
   });
+  console.log('--- NotifyMeButton()')
   
   const collectionName = getCollectionName(document.__typename);
   const documentType = collectionName.toLowerCase();
@@ -116,9 +126,12 @@ const NotifyMeButton = ({
       flash({messageString: error.message});
     }
   }
-
+  
   // can't subscribe to yourself
   if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
+    return null;
+  }
+  if (hideIfNotificationsDisabled && !isSubscribed()) {
     return null;
   }
   
@@ -132,23 +145,36 @@ const NotifyMeButton = ({
     }
   </ListItemIcon>
   
-  const message = <span className={hideLabelOnMobile ? classes.hideOnMobile: null}>
+  const message = <span
+    className={classNames({
+      [classes.hideLabelOnMobile]: hideLabelOnMobile,
+      [classes.hideLabel]: hideLabel,
+    })}
+  >
     { isSubscribed() ? unsubscribeMessage : subscribeMessage}
   </span>
-
-  if (asMenuItem) {
-    return <MenuItem onClick={onSubscribe}>
+  
+  const button = <>
+    {icon}
+    {message}
+  </>
+  
+  const maybeMenuItemButton = asMenuItem ?
+    <MenuItem onClick={onSubscribe}>
       <a className={classNames(className, classes.root)}>
-        {icon}
-        {message}
+        {button}
       </a>
-    </MenuItem>
-  } else {
-    return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
-      {icon}
-      {message}
+    </MenuItem> :
+    <a onClick={onSubscribe} className={classNames(className, classes.root)}>
+      {button}
     </a>
-  }
+  
+  const maybeToolipButton = tooltip ? <Components.LWTooltip title={tooltip}>
+      {maybeMenuItemButton}
+    </Components.LWTooltip> :
+    maybeMenuItemButton
+    
+  return maybeToolipButton
 }
 
 const SubscribeToComponent = registerComponent('NotifyMeButton', NotifyMeButton, {styles});

@@ -1,20 +1,11 @@
 import React from 'react';
 import { Components, registerComponent, getCollectionName } from '../../lib/vulcan-lib';
-import { useCreate } from '../../lib/crud/withCreate';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection'
-import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
-import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
-import { useCurrentUser } from '../common/withUser';
 import Button from '@material-ui/core/Button';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import * as _ from 'underscore';
-import { useFilterSettings, userIsSubscribedToTag } from '../../lib/filterSettings';
+import { useSubscribeUserToTag } from '../../lib/filterSettings';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 8,
     }
   },
-  notificationsIcon: {
+  notifyMeButton: {
     marginLeft: 12,
   },
 })
@@ -36,73 +27,31 @@ const SubscribeButton = ({
   className,
   classes,
 }: {
-  tag: any,
+  tag: TagBasicInfo,
   subscriptionType?: string,
   subscribeMessage?: string,
   unsubscribeMessage?: string,
   className?: string,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
+  const { isSubscribed, subscribeUserToTag } = useSubscribeUserToTag(tag)
   const { flash } = useMessages();
+  const { captureEvent } = useTracking()
+  const { LWTooltip, NotifyMeButton } = Components
   
-  const isSubscribed = userIsSubscribedToTag(currentUser, tag)
-
-  const { captureEvent } = useTracking({eventType: "newSubscribeClicked", eventProps: {documentId: tag._id}})
-  
-  // TODO; use NotifyMeButton
-  const loading = true
-  // // Get existing subscription, if there is one
-  // const { results, loading } = useMulti({
-  //   terms: {
-  //     view: "subscriptionState",
-  //     documentId: tag._id,
-  //     userId: currentUser?._id,
-  //     type: defaultSubscriptionTypeTable["Tags"],
-  //     collectionName: "Tags",
-  //     limit: 1
-  //   },
-    
-  //   collectionName: "Subscriptions",
-  //   fragmentName: 'SubscriptionState',
-  //   enableTotal: false,
-  // });
-  
-  const { LWTooltip, Loading } = Components
-  
-  const onSubscribe = async (e) => {
+  const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
       e.preventDefault();
-      captureEvent() // TODO;
-      // setFakeSubscribed(!isSubscribed)
-
-      // success message will be for example posts.subscribed
-      flash({messageString: `Successfully ${isSubscribed ? "unsubscribed" : "subscribed"}`});
+      const newMode = isSubscribed ? "Default" : "Subscribed"
+      captureEvent('newSubscribeClicked', {tagId: tag._id, newMode})
+      subscribeUserToTag(tag, newMode)
+      
+      flash({messageString: isSubscribed ? "Unsubscribed" : "Subscribed"});
     } catch(error) {
       flash({messageString: error.message});
     }
   }
   
-  const notificationsEnabled = () => {
-    // // Get the last element of the results array, which will be the most recent subscription
-    // if (results && results.length > 0) {
-    //   // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
-    //   const currentSubscription = _.max(results, result=>new Date(result.createdAt).getTime());
-      
-    //   if (currentSubscription.state === "subscribed")
-    //     return true;
-    //   else if (currentSubscription.state === "suppressed")
-    //     return false;
-    // }
-    // return userIsDefaultSubscribed({
-    //   user: currentUser,
-    //   subscriptionType, collectionName, document: tag
-    // });
-    return false
-  }
-  
-  const showIcon = isSubscribed || notificationsEnabled();
-
   return <div className={classNames(className, classes.root)}>
     <LWTooltip title={isSubscribed ?
       "Remove homepage boost for posts with this tag" :
@@ -112,21 +61,15 @@ const SubscribeButton = ({
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
       </Button>
     </LWTooltip>
-    {showIcon && <LWTooltip title={notificationsEnabled() ?
-      "Turn off notifications for posts added to this tag" :
-      "Turn on notifications for posts added to this tag"
-    }>
-      <ListItemIcon className={classes.notificationsIcon}>
-        {/* TODO; make icon clickable */}
-        {loading
-          ? <Loading/>
-          : (notificationsEnabled()
-            ? <NotificationsIcon />
-            : <NotificationsNoneIcon />
-          )
-        }
-      </ListItemIcon>
-    </LWTooltip>}
+    <NotifyMeButton
+      document={tag}
+      tooltip="Click to toggle notifications for posts with this tag"
+      showIcon
+      hideLabel
+      hideIfNotificationsDisabled={!isSubscribed}
+      subscriptionType={subscriptionTypes.newTagPosts}
+      className={classes.notifyMeButton}
+    />
   </div>
 }
 
