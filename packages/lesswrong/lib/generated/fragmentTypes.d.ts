@@ -19,6 +19,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
+  readonly lastUsedTimezone: string,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
@@ -1547,6 +1548,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
+  readonly lastUsedTimezone: string,
 }
 
 interface UserKarmaChanges { // fragment on Users
