@@ -481,6 +481,25 @@ if (forumTypeSetting.get() === 'LessWrong') {
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'bookLanding',
+      path: '/books',
+      redirect: () => `/books/2018`,
+    },
+    {
+      name: 'book2018Landing',
+      path: '/books/2018',
+      componentName: 'Book2018Landing',
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
+    },
+    {
+      name: 'book2019Landing',
+      path: '/books/2019',
+      componentName: 'Book2019Landing',
+      title: "Books: Engines of Cognition",
+      background: "white"
+    },
   );
 }
 
@@ -942,26 +961,5 @@ addRoute(
     name: 'reviews',
     path: '/reviews',
     redirect: () => `/reviews/2019`,
-  },
-  {
-    name: 'bookLanding',
-    path: '/books',
-    componentName: 'Book2018Landing',
-    title: "A Map that Reflects the Territory",
-    background: "white"
-  },
-  {
-    name: 'book2018Landing',
-    path: '/books/2018',
-    componentName: 'Book2018Landing',
-    title: "A Map that Reflects the Territory",
-    background: "white"
-  },
-  {
-    name: 'book2019Landing',
-    path: '/books/2019',
-    componentName: 'Book2019Landing',
-    title: "Engines of Cognition",
-    background: "white"
-  },
+  }
 );
