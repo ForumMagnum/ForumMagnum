@@ -112,7 +112,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
   return <span {...eventHandlers}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
-      {(!isMobile()) ? <Link to={`tag/${tag?.slug}`}>
+      {(tag && !isMobile()) ? <Link to={`tag/${tag?.slug}`}>
         {tagLabel}
       </Link>
       : tagLabel
