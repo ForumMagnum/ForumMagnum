@@ -635,6 +635,7 @@ interface DbUser extends DbObject {
   noindex: boolean
   groups: Array<string>
   lwWikiImport: boolean
+  lastUsedTimezone: string
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string
