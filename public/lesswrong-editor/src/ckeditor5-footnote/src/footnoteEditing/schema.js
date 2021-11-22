@@ -1,14 +1,27 @@
 // @ts-check
 
 import { ATTRIBUTES, ELEMENTS } from "../constants";
+import Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
 
+/**
+ * Declares the custom element types used by the footnotes plugin.
+ * See here for the meanings of each rule: https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_schema-SchemaItemDefinition.html#member-isObject
+ * @param {Schema} schema 
+ * @returns {void}
+ */
 export const defineSchema = schema => {
+	/**	
+	 * Footnote section at the footer of the document.
+	*/
 	schema.register(ELEMENTS.footnoteSection, {
 		isObject: true,
 		allowWhere: '$block',
 		allowAttributes: ['id', ATTRIBUTES.footnoteSection, 'class'],
 	});
 
+	/**
+	 * Editable footnote contents. 
+	 */
 	schema.register(ELEMENTS.footnoteList, {
 		allowIn: ELEMENTS.footnoteSection,
 		allowContentOf: '$root',
@@ -16,6 +29,10 @@ export const defineSchema = schema => {
 		allowAttributes: ['id', ATTRIBUTES.footnoteList, ATTRIBUTES.footnoteId, 'class'],
 	});
 
+	/**
+	 * The footnote label within the footnotes section. Contains only the text (e.g.) "1. ".
+	 * Not directly editable.
+	 */
 	schema.register(ELEMENTS.footnoteItem, {
 		allowIn: ELEMENTS.footnoteList,
 		allowWhere: '$text',
@@ -24,6 +41,9 @@ export const defineSchema = schema => {
 		allowAttributes: ['id', ATTRIBUTES.footnoteItem, ATTRIBUTES.footnoteId, 'class'],
 	});
 
+	/**
+	 * Inline footnote citation, placed within the main text.
+	 */
 	schema.register(ELEMENTS.footnoteReference, {
 		allowWhere: '$text',
 		isInline: true,
