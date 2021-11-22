@@ -361,6 +361,7 @@ interface DbPost extends DbObject {
   activateRSVPs: boolean
   nextDayReminderSent: boolean
   onlyVisibleToLoggedIn: boolean
+  onlyVisibleToEstablishedAccounts: boolean
   voteCount: number
   baseScore: number
   score: number
