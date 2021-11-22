@@ -25,10 +25,14 @@ jest.mock('./crud/withMulti', () => ({
       error: undefined,
     })
     .mockReturnValue({
-    results: [{_id: '1', name: 'Paperclips'}],
-    loading: false,
-    error: null,
-  })
+      // Did you know that something sets our useMulti results to be frozen? And
+      // did you know that if you don't run in strict mode, attempts to modify
+      // the results will silently fail? And did you know that we don't run in
+      // strict mode? I didn't. Now you do. You're welcome.
+      results: [Object.freeze({_id: '1', name: 'Paperclips'})],
+      loading: false,
+      error: null,
+    })
 }))
 
 describe('useFilterSettings', () => {

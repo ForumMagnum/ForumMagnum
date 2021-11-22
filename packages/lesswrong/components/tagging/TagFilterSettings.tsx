@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import type { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
-import { useMulti } from '../../lib/crud/withMulti';
-import * as _ from 'underscore';
+import type { FilterSettings, FilterMode } from '../../lib/filterSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
@@ -74,7 +71,12 @@ const personalBlogpostInfo = {
 const personalBlogpostName = personalBlogpostInfo[forumTypeSetting.get()].name
 const personalBlogpostTooltip = personalBlogpostInfo[forumTypeSetting.get()].tooltip
 
-// TODO; doc
+/**
+ * Adjust the weighting the frontpage gives to posts with the given tags
+ *
+ * See the documentation for useFilterSettings for more information about the
+ * behavior of filter settings.
+ */
 const TagFilterSettings = ({
   filterSettings,
   setPersonalBlogFilter,
@@ -147,25 +149,6 @@ const TagFilterSettings = ({
         </AddTagButton>
     </LWTooltip>}
   </span>
-}
-
-const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
-  const tagsIncluded: Record<string,boolean> = {};
-  for (let tag of oldFilterSettings.tags)
-    tagsIncluded[tag.tagId] = true;
-  const tagsNotIncluded = _.filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
-
-  return {
-    ...oldFilterSettings,
-    tags: [
-      ...oldFilterSettings.tags,
-      ...tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
-        tagId: tag._id,
-        tagName: tag.name,
-        filterMode: "Default",
-      })),
-    ],
-  };
 }
 
 const TagFilterSettingsComponent = registerComponent("TagFilterSettings", TagFilterSettings, {styles});

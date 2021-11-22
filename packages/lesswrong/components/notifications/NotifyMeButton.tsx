@@ -66,7 +66,6 @@ const NotifyMeButton = ({
     collection: Subscriptions,
     fragmentName: 'SubscriptionState',
   });
-  console.log('--- NotifyMeButton()')
   
   const collectionName = getCollectionName(document.__typename);
   const documentType = collectionName.toLowerCase();

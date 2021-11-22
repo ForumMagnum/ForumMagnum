@@ -48,7 +48,9 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
  * Notes on suggested tags: some tags in the database (none on the EA Forum,
  * some on LW), are marked as suggested. We need to query the database to figure
  * out which ones those are. We can still return the *users* filter settings, so
- * we do that while we wait for the database trip.
+ * we do that while we wait for the database trip. Adjusting any tag settings
+ * will result in the suggested tags getting save to the user object. This is
+ * expected. The UI should prevent users from removing suggested tags.
  *
  * Default filter settings are like suggested tags, but they are
  * user-modifyable, and can come with default weights. They're only set up on
@@ -123,7 +125,7 @@ export const useFilterSettings = () => {
       personalBlog: filterSettings.personalBlog,
       tags: [...filterSettings.tags, { tagId, tagName, filterMode }],
     })
-  }, [setFilterSettings, filterSettings])
+  }, [setFilterSettings, filterSettings, captureEvent])
   
   const removeTagFilter = useCallback((tagId: string) => {
     if (suggestedTags.find(tag => tag._id === tagId)) {
@@ -135,7 +137,7 @@ export const useFilterSettings = () => {
       personalBlog: filterSettings.personalBlog,
       tags: newTags,
     })
-  }, [setFilterSettings, filterSettings, suggestedTags])
+  }, [setFilterSettings, filterSettings, suggestedTags, captureEvent])
   
   return {
     filterSettings,
