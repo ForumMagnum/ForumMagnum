@@ -95,12 +95,6 @@ export default class FootnoteEditing extends Plugin {
 				return;
 			}
 
-			// don't allow deleting a nonempty footnote without deleting text
-			if (selectionParent.maxOffset > 1 && doc.selection.anchor.offset <= 1) {
-				data.preventDefault();
-				evt.stop();
-			}
-
 			const entireParagraphSelected = (selectionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0) ||
 				(selectionParent.maxOffset === doc.selection.focus.offset && doc.selection.anchor.offset === 0);
 
@@ -112,6 +106,15 @@ export default class FootnoteEditing extends Plugin {
 					writer.remove(selectionParent);
 				});
 				return;
+			}
+
+			const foontoteNonempty = selectionParent.maxOffset > 1;
+			const selectionBeginsAtFootnoteStart = doc.selection.anchor.offset <= 1;
+			const selectionEndsAtFootnoteStart = doc.selection.focus.offset == 0;
+			// don't allow deleting a nonempty footnote without deleting text
+			if (foontoteNonempty && (selectionBeginsAtFootnoteStart || selectionEndsAtFootnoteStart)) {
+				data.preventDefault();
+				evt.stop();
 			}
 
 			// if a) the footnote contains no text (other than its number) or b) the entire footnote is selected,
