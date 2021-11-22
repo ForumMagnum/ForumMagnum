@@ -1,4 +1,5 @@
-// @ts-check
+// @ts-check (uses JSDoc types for type checking)
+
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ModelText from '@ckeditor/ckeditor5-engine/src/model/text';
 import ModelTextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';

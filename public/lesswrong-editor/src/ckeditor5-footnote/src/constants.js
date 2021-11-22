@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-check (uses JSDoc types for type checking)
 
 export const DATA_FOOTNOTE_ID = 'data-footnote-id';
 

@@ -1,4 +1,5 @@
-// @ts-check
+// @ts-check (uses JSDoc types for type checking)
+
 import { Editor } from '@ckeditor/ckeditor5-core';
 import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
 import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';

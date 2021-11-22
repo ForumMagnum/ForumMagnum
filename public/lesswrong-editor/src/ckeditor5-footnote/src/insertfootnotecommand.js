@@ -1,5 +1,5 @@
-// @ts-check
-// TODO: Credit author
+// @ts-check (uses JSDoc types for type checking)
+
 import Command from '@ckeditor/ckeditor5-core/src/command';
 import Writer from '@ckeditor/ckeditor5-engine/src/model/writer';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';

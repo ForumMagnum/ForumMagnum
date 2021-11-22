@@ -1,4 +1,5 @@
-// @ts-check
+// @ts-check (uses JSDoc types for type checking)
+
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import pilcrowIcon from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
 import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';

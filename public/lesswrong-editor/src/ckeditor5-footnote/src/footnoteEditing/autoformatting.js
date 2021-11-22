@@ -1,4 +1,5 @@
-// @ts-check
+// @ts-check (uses JSDoc types for type checking)
+
 import inlineAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/inlineautoformatediting';
 import { Editor } from '@ckeditor/ckeditor5-core';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element';
@@ -7,7 +8,6 @@ import TextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
 import Range from '@ckeditor/ckeditor5-engine/src/model/range';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
 import { COMMANDS, ELEMENTS } from '../constants';
-
 
 /**
  * Adds functionality to support creating footnotes using markdown syntax, e.g. `[^1]`.
@@ -18,7 +18,7 @@ export const addFootnoteAutoformatting = (editor, rootElement) => {
 	if(editor.plugins.has('Autoformat')) {
 		const autoformatPluginInstance = editor.plugins.get('Autoformat');
 		inlineAutoformatEditing(editor, autoformatPluginInstance, 
-			regexMatchCallback, 
+			text => regexMatchCallback(editor, text), 
 			(_, /**@type Range[]*/ ranges) => formatCallback(ranges, editor, rootElement)
 			);
 	}
@@ -40,16 +40,32 @@ export const addFootnoteAutoformatting = (editor, rootElement) => {
  * 
  * If 0 or more than 1 match is found, it returns empty ranges for both format and remove. 
  * 
+ * @param {Editor} editor
  * @param {string} text 
  * @returns {{remove: number[][], format: number[][]}}
  */
-const regexMatchCallback = (text) => {
-	const results = text.match(/\[\^([0-9]+)\]/);
-	if(results && results.length === 2) {
-		const removeStart = text.indexOf(results[0])
-		const removeEnd = removeStart + results[0].length;
+const regexMatchCallback = (editor, text) => {
+	const selectionStart = editor.model.document.selection.anchor;
+
+	if(!selectionStart){
+		return {
+			remove: [],
+			format: [],
+		}
+	} 
+
+	const results = text.matchAll(/\[\^([0-9]+)\]/g);
+
+	for (const result of results || []) {
+		const removeStart = text.indexOf(result[0])
+		const removeEnd = removeStart + result[0].length;
+
+		// if the cursor isn't at the end of the range to be replaced, do nothing
+		if(removeEnd !== selectionStart.offset) {
+			continue;
+		}
 		const formatStart = removeStart + 2;
-		const formatEnd = formatStart + results[1].length;
+		const formatEnd = formatStart + result[1].length;
 		return {
 			remove: [[removeStart, removeEnd]],
 			format: [[formatStart, formatEnd]],
@@ -78,11 +94,11 @@ const formatCallback = (ranges, editor, rootElement) => {
 	if(!command || !command.isEnabled) {
 		return;
 	}
-	const textProxy = [...ranges[0].getItems()][0];
-	if(!(textProxy instanceof TextProxy || textProxy instanceof Text)) {
+	const text = [...ranges[0].getItems()][0];
+	if(!(text instanceof TextProxy || text instanceof Text)) {
 		return false;
 	}
-	const match = textProxy.data.match(/[0-9]+/);
+	const match = text.data.match(/[0-9]+/);
 	if(!match) {
 		return false;
 	}

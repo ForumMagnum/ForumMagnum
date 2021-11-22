@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-check (uses JSDoc types for type checking)
 
 import { ATTRIBUTES, ELEMENTS } from "../constants";
 import Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
