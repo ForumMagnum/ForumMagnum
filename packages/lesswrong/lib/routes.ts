@@ -886,7 +886,7 @@ addRoute(
     name: 'nominations2019',
     path: '/nominations/2019',
     componentName: 'Nominations2019',
-    title: "2018 Nominations",
+    title: "2019 Nominations",
   },
   {
     name: 'nominations',
