@@ -206,6 +206,19 @@ const schema: SchemaType<DbUser> = {
       }
     }
   },
+  
+  noindex: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    order: 48,
+    group: formGroups.adminOptions,
+    label: "No Index",
+    tooltip: "Hide this user's profile from search engines",
+  },
+  
   /**
     Groups
   */
@@ -277,7 +290,16 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
-  }
+  },
+  
+  lastUsedTimezone: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: [userOwns],
+    canUpdate: [userOwns],
+  },
 };
 
 export default schema;

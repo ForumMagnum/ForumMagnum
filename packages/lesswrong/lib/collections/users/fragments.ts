@@ -56,6 +56,7 @@ registerFragment(`
     reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
+    noindex
   }
 `);
 
@@ -143,6 +144,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    lastUsedTimezone
     ...SharedUserBooleans
   }
 `);
