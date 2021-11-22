@@ -220,6 +220,8 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): st
     case "Default": return "";
     case "Hidden": return "Hidden";
     case "Required": return "Required";
+    case "Subscribed": return "Subscribed";
+    case "Reduced": return "Reduced";
   }
 }
 

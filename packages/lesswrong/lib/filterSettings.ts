@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useCurrentUser } from '../components/common/withUser';
 import { useUpdateCurrentUser } from '../components/hooks/useUpdateCurrentUser';
 import { useMulti } from './crud/withMulti';
@@ -42,7 +42,22 @@ const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggested
   };
 }
 
-// TODO; doc
+/**
+ * Get the users frontpage tag filter settings, and methods to update them
+ *
+ * Notes on suggested tags: some tags in the database (none on the EA Forum,
+ * some on LW), are marked as suggested. We need to query the database to figure
+ * out which ones those are. We can still return the *users* filter settings, so
+ * we do that while we wait for the database trip.
+ *
+ * Default filter settings are like suggested tags, but they are
+ * user-modifyable, and can come with default weights. They're only set up on
+ * user-creation, though.
+ *
+ * A note on updates: we store a local copy of the filter settings, and
+ * optimistically update that immediately, then send an update to the server,
+ * which we don't wait for.
+ */
 export const useFilterSettings = () => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
@@ -51,7 +66,6 @@ export const useFilterSettings = () => {
   const defaultSettings = currentUser?.frontpageFilterSettings ?
     currentUser.frontpageFilterSettings :
     getDefaultFilterSettings()
-  console.log('🚀 ~ file: filterSettings.ts ~ line 49 ~ useFilterSettings ~ defaultSettings', defaultSettings)
   let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
   
   const { results: suggestedTags, loading: loadingSuggestedTags, error: errorLoadingSuggestedTags } = useMulti({
@@ -63,29 +77,27 @@ export const useFilterSettings = () => {
     limit: 100,
   })
   
-  // TODO; something like a performance concern; Jim has `useMemo`'d this, maybe
   if (suggestedTags) {
     filterSettings = addSuggestedTagsToSettings(filterSettings, suggestedTags)
   }
   
-  // TODO; useCallbacks
   /** Set the whole mess */
-  function setFilterSettings(newSettings: FilterSettings) {
+  const setFilterSettings = useCallback((newSettings: FilterSettings) => {
     setFilterSettingsLocally(newSettings)
     void updateCurrentUser({
       frontpageFilterSettings: newSettings,
     })
-  }
+  }, [updateCurrentUser])
   
-  function setPersonalBlogFilter(mode: FilterMode) {
+  const setPersonalBlogFilter = useCallback((mode: FilterMode) => {
     setFilterSettings({
       personalBlog: mode,
       tags: filterSettings.tags,
     })
-  }
+  }, [setFilterSettings, filterSettings])
   
   /** Upsert - tagName required for insert */
-  function setTagFilter({tagId, tagName, filterMode}: {tagId: string, tagName?: string, filterMode: FilterMode}) {
+  const setTagFilter = useCallback(({tagId, tagName, filterMode}: {tagId: string, tagName?: string, filterMode: FilterMode}) => {
     // update
     let existingTagFilter = filterSettings.tags.find(tag => tag.tagId === tagId)
     if (existingTagFilter) {
@@ -111,9 +123,9 @@ export const useFilterSettings = () => {
       personalBlog: filterSettings.personalBlog,
       tags: [...filterSettings.tags, { tagId, tagName, filterMode }],
     })
-  }
+  }, [setFilterSettings, filterSettings])
   
-  function removeTagFilter(tagId: string) {
+  const removeTagFilter = useCallback((tagId: string) => {
     if (suggestedTags.find(tag => tag._id === tagId)) {
       throw new Error("Can't remove suggested tag")
     }
@@ -123,7 +135,7 @@ export const useFilterSettings = () => {
       personalBlog: filterSettings.personalBlog,
       tags: newTags,
     })
-  }
+  }, [setFilterSettings, filterSettings, suggestedTags])
   
   return {
     filterSettings,
@@ -136,19 +148,23 @@ export const useFilterSettings = () => {
   }
 }
 
+/**
+ * A simple wrapper on top of useFilterSettings focused on a single tag
+ * subscription
+ */
 export const useSubscribeUserToTag = (tag: TagBasicInfo) => {
   const { filterSettings, setTagFilter } = useFilterSettings()
   
   const filterSetting = filterSettings.tags.find(ft => ft.tagId === tag._id)
   const isSubscribed = filterSetting?.filterMode === "Subscribed" || filterSetting?.filterMode === 25
   
-  function subscribeUserToTag(tag: TagBasicInfo, filterMode: FilterMode) {
+  const subscribeUserToTag = useCallback((tag: TagBasicInfo, filterMode: FilterMode) => {
     setTagFilter({
       tagId: tag._id,
       tagName: tag.name,
       filterMode: filterMode,
     })
-  }
+  }, [setTagFilter])
   
   return { isSubscribed, subscribeUserToTag }
 }
