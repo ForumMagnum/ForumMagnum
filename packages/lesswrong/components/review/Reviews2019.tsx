@@ -74,8 +74,7 @@ const Reviews2019 = ({classes}: {
         </div>
         <PostsList2 
           terms={{view:"reviews2019", sortBy: sortNominatedPosts, limit: 100}} 
-          showNominationCount
-          showReviewCount
+          showReviewVoting
           showPostedAt={false}
           topLoading
           dense

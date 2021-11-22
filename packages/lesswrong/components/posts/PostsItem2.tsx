@@ -12,6 +12,7 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { reviewVotingButtonStyles } from '../review/ReviewVotingButtons';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -262,6 +263,31 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   isRead: {
     background: "white" // this is just a placeholder, enabling easier theming.
+  },
+  reviewVoting: {
+    display: "flex",
+    position: "absolute",
+    top: 0,
+    right: -MENU_WIDTH - 6,
+    width: MENU_WIDTH,
+    height: "100%",
+    cursor: "pointer",
+    alignItems: "center",
+    justifyContent: "center",
+    '&:hover $reviewVotingPreview': {
+        display: "none"
+    },
+    '&:hover $reviewVotingFull': {
+      display: "block"
+    },
+  },
+  reviewVotingPreview: {
+    ...reviewVotingButtonStyles(theme),
+    border: "solid 1px rgba(0,0,0,.12)",
+    borderRadius: 2,
+  },
+  reviewVotingFull: {
+    display: "none"
   }
 })
 
@@ -319,6 +345,7 @@ const PostsItem2 = ({
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
+  showReviewVoting=false,
   hideAuthor=false,
   classes,
   curatedIconLeft=false
@@ -342,6 +369,7 @@ const PostsItem2 = ({
   bookmark?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
+  showReviewVoting?: boolean,
   hideAuthor?: boolean,
   classes: ClassesType,
   curatedIconLeft?: boolean
@@ -392,7 +420,7 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarIcon } = (Components as ComponentTypes)
+    AddToCalendarIcon, ReviewVotingButtons } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -536,7 +564,12 @@ const PostsItem2 = ({
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
-
+          {showReviewVoting && <div className={classes.actions}>
+              <div className={classes.reviewVoting}>
+                  <div className={classes.reviewVotingPreview}>Neutral</div>
+                  <div className={classes.reviewVotingFull}><ReviewVotingButtons postId={post._id} /></div>
+                </div>
+              </div>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}
