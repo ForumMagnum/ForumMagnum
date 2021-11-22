@@ -6,7 +6,7 @@ on:
   push:
     # lw-look-here: You can leave it as-is for now, but you should decide what
     # you want to do here at some point
-    branches: [ expressNotMeteor, tryDeploying, deployLessestWrong, devel, master ]
+    branches: [ deployLessestWrong, devel ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
