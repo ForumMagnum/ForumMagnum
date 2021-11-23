@@ -44,14 +44,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body2.fontSize,
   },
   wordCount: {
-    display: 'none',
+    display: 'inline-block',
     marginRight: SECONDARY_SPACING,
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline-block'
-    }
   },
   actions: {
     display: 'inline-block',
