@@ -72,10 +72,9 @@ export default class FootnoteEditing extends Plugin {
 		this.listenTo( viewDocument, 'delete', (evt, data) => {
 			const doc = editor.model.document;
 			const deletedElement = doc.selection.getSelectedElement();
-			const selectionEndpoint = doc.selection.getLastPosition();
-			if(!doc.selection.anchor || 
-				!doc.selection.focus || 
-				!selectionEndpoint) {
+			const selectionEndPos = doc.selection.getLastPosition();
+			const selectionStartPos = doc.selection.getFirstPosition();
+			if(!selectionEndPos || !selectionStartPos) {
 				throw new Error('Selection must have at least one range to perform delete operation.');
 			}
 
@@ -85,16 +84,16 @@ export default class FootnoteEditing extends Plugin {
 			}
 
 			const deletingFootnote = deletedElement && deletedElement.name === 'footnote'
-			
+
 			const currentFootnote = deletingFootnote ? 
 										deletedElement :
-										selectionEndpoint.findAncestor('footnote');
+										selectionEndPos.findAncestor('footnote');
 			if(!currentFootnote) {
 				return;
 			}
 			const currentParagraph = deletedElement && deletedElement.name === 'paragraph' ? 
 										deletedElement :
-										selectionEndpoint.findAncestor('paragraph');
+										selectionEndPos.findAncestor('paragraph');
 			const footnoteSection = currentFootnote.findAncestor(ELEMENTS.footnoteSection);
 			if(deletingFootnote && footnoteSection) { 
 				this._removeFootnote(editor, currentFootnote, footnoteSection);
@@ -103,10 +102,11 @@ export default class FootnoteEditing extends Plugin {
 				return;
 			}
 
+			const entireParagraphSelected = currentParagraph && selectionStartPos.isAtStart && selectionEndPos.isAtEnd;
 
 			const deletingFirstParagraphOfFootnote = 
 				(deletedElement && !deletedElement.index) ||
-				(currentParagraph && !currentParagraph.index);
+				(entireParagraphSelected && !currentParagraph.index);
 
 			// if the deleted section isn't a paragraph, or if it isn't the first paragraph
 			// of its footnote, let the standard delete operation proceed.
@@ -132,15 +132,40 @@ export default class FootnoteEditing extends Plugin {
 		const index = footnoteSection.getChildIndex(footnote);
 		this._removeReferences(index+1);
 
+		let footnoteSectionRemoved = false;
 		editor.model.enqueueChange(writer => {
 			writer.remove(footnote);
 			// if only one footnote remains, remove the footnote section
 			if(footnoteSection.maxOffset === 0) {
 				writer.remove(footnoteSection);
 				this._removeReferences(0);
+				footnoteSectionRemoved = true;
+			} else {
+				// after footnote deletion the selection winds up surrounding the previous footnote
+				// (or the following footnote if no previous footnote exists). Typing in that state
+				// immediately deletes the footnote. This deliberately sets the new selection position
+				// to avoid that.
+				const neighborFootnote = index === 0 ? 
+					footnoteSection.getChild(index) : 
+					footnoteSection.getChild(index-1);
+				if(!(neighborFootnote instanceof ModelElement)) {
+					return;
+				}
+
+				const neighborEndParagraph = modelQueryElementsAll(
+					this.editor, 
+					neighborFootnote, 
+					element =>  element.name === 'paragraph'
+				).pop();
+
+				neighborEndParagraph && writer.setSelection(neighborEndParagraph, 'end');
 			}
 		} );
+		if(footnoteSectionRemoved) {
+			return;
+		}
 
+		// renumber subsequent footnotes
 		const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
 		for (const [i, child] of subsequentFootnotes.entries()) {
 			if(!(child instanceof ModelElement)) {
