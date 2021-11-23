@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
 import DateTimePicker from 'react-datetime';
+import moment from '../../lib/moment-timezone';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
@@ -19,6 +20,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .rdtPicker': {
       bottom: 30,
     }
+  },
+  timezone: {
+    marginLeft: 4
   }
 })
 
@@ -31,7 +35,9 @@ const FormComponentDateTime = ({ path, value, name, label, classes, position }, 
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
 
   return <FormControl>
-    <InputLabel className={classes.label}>{ label }</InputLabel>
+    <InputLabel className={classes.label}>
+      { label } <span className={classes.timezone}>({moment().tz(moment.tz.guess()).zoneAbbr()})</span>
+    </InputLabel>
     <DateTimePicker
       className={classes.wrapper}
       value={date}
