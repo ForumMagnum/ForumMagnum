@@ -51,9 +51,9 @@ export const sanitize = function(s: string): string {
       'app.thoughtsaver.com'
     ],
     allowedClasses: {
-      span: [ 'footnote-reference', 'footnote-item'],
+      span: [ 'footnote-reference', 'footnote-label'],
       section: [ 'footnotes'],
-      div: [ 'spoilers', 'footnotes', 'footnote-list', 'footnote-item', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      div: [ 'spoilers', 'footnotes', 'footnote-list', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
     },
     allowedStyles: {

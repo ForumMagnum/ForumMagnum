@@ -32,14 +32,14 @@ export default class InsertFootnoteCommand extends Command {
 			}
 
 			const footnoteList = writer.createElement(ELEMENTS.footnoteList);
-			const footnoteItem = writer.createElement(
-				ELEMENTS.footnoteItem,
+			const footnoteLabel = writer.createElement(
+				ELEMENTS.footnoteLabel,
 				//fn{id} is the format used by our existing markdown footnotes
 				{ [ATTRIBUTES.footnoteId]: id, id: `fn${id}` },
 			);
 			const div = writer.createElement('footnote');
 			const p = writer.createElement('paragraph');
-			writer.append(footnoteItem, div);
+			writer.append(footnoteLabel, div);
 			writer.append(p, footnoteList);
 			writer.append(footnoteList, div)
 

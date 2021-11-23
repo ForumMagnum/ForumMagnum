@@ -58,7 +58,7 @@ export default class FootnoteEditing extends Plugin {
 		this.editor.editing.mapper.on(
 			'viewToModelPosition',
 			// @ts-ignore
-			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteItem ) )
+			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteLabel ) )
 		);
 	}
 
@@ -147,11 +147,11 @@ export default class FootnoteEditing extends Plugin {
 				continue;
 			}
 			editor.model.enqueueChange(writer => {
-				const footnoteItem = modelQueryElement(this.editor, child, element =>  element.name === ELEMENTS.footnoteItem);
-				if(!footnoteItem) {
+				const footnoteLabel = modelQueryElement(this.editor, child, element =>  element.name === ELEMENTS.footnoteLabel);
+				if(!footnoteLabel) {
 					return;
 				}
-				writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, footnoteItem);
+				writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, footnoteLabel);
 			} );
 		}
 	}

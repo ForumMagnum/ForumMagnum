@@ -110,7 +110,7 @@ export const defineConverters = (editor, rootElement) => {
 				return null;
 			}
 
-			return modelWriter.createElement(ELEMENTS.footnoteItem, { 'footnote': id });
+			return modelWriter.createElement(ELEMENTS.footnoteLabel, { 'footnote': id });
 		}
 	});
 
@@ -136,13 +136,13 @@ export const defineConverters = (editor, rootElement) => {
 		},
 	});
 
-	/***********************************Footnote Item Conversion************************************/
+	/***********************************Footnote Label Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
 		view: {
 			name: 'span',
 			attributes: {
-				[ATTRIBUTES.footnoteItem]: true,
+				[ATTRIBUTES.footnoteLabel]: true,
 			},
 		},
 		model: (viewElement, conversionApi) => {
@@ -152,18 +152,18 @@ export const defineConverters = (editor, rootElement) => {
 				return null;
 			}
 
-			return modelWriter.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id });
+			return modelWriter.createElement(ELEMENTS.footnoteLabel, { [ATTRIBUTES.footnoteId]: id });
 		}
 	});
 
 	conversion.for('dataDowncast').elementToElement({
-		model: ELEMENTS.footnoteItem,
-		view: createFootnoteItemViewElement
+		model: ELEMENTS.footnoteLabel,
+		view: createfootnoteLabelViewElement
 	});
 
 	conversion.for('editingDowncast').elementToElement({
-		model: ELEMENTS.footnoteItem,
-		view: createFootnoteItemViewElement,
+		model: ELEMENTS.footnoteLabel,
+		view: createfootnoteLabelViewElement,
 	});
 
 	/***********************************Footnote Reference Conversion************************************/
@@ -210,12 +210,12 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('editingDowncast')
 		.add(dispatcher => {
 			dispatcher.on(
-				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`,
+				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteLabel}`,
 				(_, data, conversionApi) => updateReferences(data, conversionApi, editor, rootElement),
 				{ priority: 'high' });
 			dispatcher.on(
-				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`, 
-				(_, data, conversionApi) => updateFootnoteItemView(data, conversionApi, editor), 
+				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteLabel}`, 
+				(_, data, conversionApi) => updatefootnoteLabelView(data, conversionApi, editor), 
 				{ priority: 'high' });
 			dispatcher.on(
 				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteReference}`, 
@@ -256,12 +256,12 @@ const createFootnoteReferenceViewElement = (viewElement, conversionApi) => {
 }
 
 /**
- * Creates and returns a view element for a footnote item.
+ * Creates and returns a view element for a footnote label.
  * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
  */
-const createFootnoteItemViewElement = (modelElement, conversionApi) => {
+const createfootnoteLabelViewElement = (modelElement, conversionApi) => {
 	const viewWriter = conversionApi.writer;
 	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
 	if(!id) {
@@ -269,9 +269,9 @@ const createFootnoteItemViewElement = (modelElement, conversionApi) => {
 	}
 
 	const itemView = viewWriter.createContainerElement('span', {
-		[ATTRIBUTES.footnoteItem]: '',
+		[ATTRIBUTES.footnoteLabel]: '',
 		[ATTRIBUTES.footnoteId]: id,
-		class: CLASSES.footnoteItem,
+		class: CLASSES.footnoteLabel,
 		id: `fn${id}`,
 	});
 
@@ -299,7 +299,7 @@ const createFootnoteItemViewElement = (modelElement, conversionApi) => {
  */
 const updateReferences = (data, conversionApi, editor, rootElement) => {
 	const { item, attributeOldValue, attributeNewValue } = data;
-	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
+	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteLabel}`)) {
 		return;
 	}
 
@@ -325,10 +325,10 @@ const updateReferences = (data, conversionApi, editor, rootElement) => {
  * @param {Editor} editor
  * @returns
  */
-const updateFootnoteItemView = (data, conversionApi, editor) => {
+const updatefootnoteLabelView = (data, conversionApi, editor) => {
 	const { item, attributeOldValue, attributeNewValue } = data;
-	conversionApi.consumable.add(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`);
-	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
+	conversionApi.consumable.add(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteLabel}`);
+	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteLabel}`)) {
 		return;
 	}
 

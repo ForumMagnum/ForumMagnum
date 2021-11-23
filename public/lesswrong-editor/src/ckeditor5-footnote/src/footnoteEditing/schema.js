@@ -41,13 +41,13 @@ export const defineSchema = schema => {
 	 * The footnote label within the footnotes section. Contains only the text (e.g.) "1. ".
 	 * Not directly editable.
 	 */
-	schema.register(ELEMENTS.footnoteItem, {
+	schema.register(ELEMENTS.footnoteLabel, {
 		allowIn: 'div',
 		isBlock: true,
 		isSelectable: false,
 		isObject: false,
 		isLimit: true,
-		allowAttributes: ['id', ATTRIBUTES.footnoteItem, ATTRIBUTES.footnoteId, 'class'],
+		allowAttributes: ['id', ATTRIBUTES.footnoteLabel, ATTRIBUTES.footnoteId, 'class'],
 	});
 
 	/**

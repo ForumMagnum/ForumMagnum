@@ -14,14 +14,14 @@
 	margin-bottom: 10px;
 }
 
-.footnote-item {
+.footnote-label {
 	padding: 4px 2px;
 	outline-offset: -2px;
 	line-height: 1em;
 	margin: 0 1px;
 }
 
-.footnote-item::selection {
+.footnote-label::selection {
 	display: none;
 }
 
