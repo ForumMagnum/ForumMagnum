@@ -102,7 +102,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   })
 
 
-  const tagLabel = <span className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
+  const tagLabel = <span>
     {label}
     <span className={classes.filterScore}>
       {filterModeToStr(mode)}
@@ -110,9 +110,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   </span>
 
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
-  return <span {...eventHandlers}>
+  return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
-      {(!isMobile()) ? <Link to={`tag/${tag?.slug}`}>
+      {(tag && !isMobile()) ? <Link to={`tag/${tag?.slug}`}>
         {tagLabel}
       </Link>
       : tagLabel
