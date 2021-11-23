@@ -33,10 +33,13 @@ const FormComponentDateTime = ({ path, value, name, label, classes, position }, 
   }
 
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
+  // since tz abbrev can depend on the date (i.e. EST vs EDT),
+  // we try to use the selected date to determine the tz (and default to now)
+  const tzDate = date ? moment(date) : moment();
 
   return <FormControl>
     <InputLabel className={classes.label}>
-      { label } <span className={classes.timezone}>({moment().tz(moment.tz.guess()).zoneAbbr()})</span>
+      { label } <span className={classes.timezone}>({tzDate.tz(moment.tz.guess()).zoneAbbr()})</span>
     </InputLabel>
     <DateTimePicker
       className={classes.wrapper}
