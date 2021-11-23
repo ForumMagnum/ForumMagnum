@@ -25,17 +25,17 @@
 	display: none;
 }
 
-.footnote-list {
+.footnote-contents {
 	width: 100%;
 	background: rgba( 0, 0, 0, 0 );
 }
 
-.footnote {
+.footnote-item {
 	display: flex;
 	align-items: flex-start;
 }
 
-.footnote > * {
+.footnote-item > * {
 	display: inline-block;
 }
 
@@ -47,4 +47,3 @@
 .ck .ck-widget.footnote-section .ck-widget__type-around__button_after {
 	display:none;
 }
-

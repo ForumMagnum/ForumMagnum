@@ -59,48 +59,48 @@ export const defineConverters = (editor, rootElement) => {
 		}
 	});
 
-	/***********************************Footnote List Conversion************************************/
+	/***********************************Footnote Contents Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
 		model: (_, conversionApi) => {
 			const modelWriter = conversionApi.writer;
-			return modelWriter.createElement(ELEMENTS.footnoteList);
+			return modelWriter.createElement(ELEMENTS.footnoteContents);
 		},
 		view: {
 			name: 'section',
 			attributes: {
-				[ATTRIBUTES.footnoteList]: true,
+				[ATTRIBUTES.footnoteContents]: true,
 			},
 		}
 	});
 
 	conversion.for('dataDowncast').elementToElement({
-		model: ELEMENTS.footnoteList,
+		model: ELEMENTS.footnoteContents,
 		view: {
 			name: 'section',
-			attributes: {[ATTRIBUTES.footnoteList]: ''},
-			classes: [CLASSES.footnoteList],
+			attributes: {[ATTRIBUTES.footnoteContents]: ''},
+			classes: [CLASSES.footnoteContents],
 		}
 	});
 
 	conversion.for('editingDowncast').elementToElement({
-		model: ELEMENTS.footnoteList,
+		model: ELEMENTS.footnoteContents,
 		view: (_, conversionApi) => {
 			const viewWriter = conversionApi.writer;
 			// Note: You use a more specialized createEditableElement() method here.
-			const section = viewWriter.createEditableElement('section', { [ATTRIBUTES.footnoteList] : '', class: CLASSES.footnoteList });
+			const section = viewWriter.createEditableElement('section', { [ATTRIBUTES.footnoteContents] : '', class: CLASSES.footnoteContents });
 
 			return toWidgetEditable(section, viewWriter);
 		}
 	});
 
-	/***********************************Footnote Conversion************************************/
+	/***********************************Footnote Item Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
 		view: {
 			name: 'div',
 			attributes: {
-				footnote: true,
+				[ATTRIBUTES.footnoteItem]: true,
 			},
 		},
 		model: (viewElement, conversionApi) => {
@@ -110,29 +110,29 @@ export const defineConverters = (editor, rootElement) => {
 				return null;
 			}
 
-			return modelWriter.createElement(ELEMENTS.footnoteLabel, { 'footnote': id });
+			return modelWriter.createElement(ELEMENTS.footnoteLabel, { [ATTRIBUTES.footnoteId]: id });
 		}
 	});
 
 	conversion.for('dataDowncast').elementToElement({
-		model: 'footnote',
+		model: ELEMENTS.footnoteItem,
 		view: {
 			name: 'div',
 			attributes: {
-				footnote: '',
+				[ATTRIBUTES.footnoteItem]: '',
 			},
-			classes: ['footnote'],
+			classes: [CLASSES.footnoteItem],
 		},
 	});
 
 	conversion.for('editingDowncast').elementToElement({
-		model: 'footnote',
+		model: ELEMENTS.footnoteItem,
 		view: {
 			name: 'div',
 			attributes: {
-				footnote: '',
+				[ATTRIBUTES.footnoteItem]: '',
 			},
-			classes: ['footnote'],
+			classes: [CLASSES.footnoteItem],
 		},
 	});
 

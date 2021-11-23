@@ -53,7 +53,7 @@ export const sanitize = function(s: string): string {
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label'],
       section: [ 'footnotes'],
-      div: [ 'spoilers', 'footnotes', 'footnote-list', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      div: [ 'spoilers', 'footnotes', 'footnote-contents', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
     },
     allowedStyles: {

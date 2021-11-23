@@ -12,34 +12,36 @@ import Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
 export const defineSchema = schema => {
 	/**	
 	 * Footnote section at the footer of the document.
-	*/
+	 */
 	schema.register(ELEMENTS.footnoteSection, {
 		isObject: true,
 		allowWhere: '$block',
-		allowChildren: 'footnote',
+		allowChildren: ELEMENTS.footnoteItem,
 		allowAttributes: ['id', ATTRIBUTES.footnoteSection, 'class'],
 	});
 
-	schema.register('footnote', {
+	/**
+	 * Individual footnote item within the footnote section.
+	 */
+	schema.register(ELEMENTS.footnoteItem, {
 		isBlock: true,
 		isObject: true,
 		allowContentOf: '$root',
-		allowAttributes: ['id', ATTRIBUTES.footnoteList, ATTRIBUTES.footnoteId, 'class'],
+		allowAttributes: ['id', ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId, 'class'],
 	})
 
 	/**
-	 * Editable footnote contents. 
+	 * Editable footnote item contents. 
 	 */
-	schema.register(ELEMENTS.footnoteList, {
-		allowIn: 'footnote',
+	schema.register(ELEMENTS.footnoteContents, {
+		allowIn: ELEMENTS.footnoteItem,
 		allowContentOf: '$root',
 		isBlock: true,
-		allowAttributes: ['id', ATTRIBUTES.footnoteList, ATTRIBUTES.footnoteId, 'class'],
+		allowAttributes: ['id', ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId, 'class'],
 	});
 
-	/**
-	 * The footnote label within the footnotes section. Contains only the text (e.g.) "1. ".
-	 * Not directly editable.
+	/** 
+	 * Text label for each footnote item. Contains only the text (e.g.) "1. ". 
 	 */
 	schema.register(ELEMENTS.footnoteLabel, {
 		allowIn: 'div',
@@ -61,10 +63,10 @@ export const defineSchema = schema => {
 	});
 
 	// @ts-ignore -- returning true here prevents future listeners from firing.
-	// (as does return false, it just also prevents the child add operation from happening.)
+	// (as does return false; returning false just also prevents the child add operation from happening.)
 	// The below pattern matches the canonical use in the docs--the type signature is just wrong.
 	schema.addChildCheck((context, childDefinition) => {
-		if (context.endsWith(ELEMENTS.footnoteList) && childDefinition.name === ELEMENTS.footnoteSection) {
+		if (context.endsWith(ELEMENTS.footnoteContents) && childDefinition.name === ELEMENTS.footnoteSection) {
 			return false;
 		}
 	});

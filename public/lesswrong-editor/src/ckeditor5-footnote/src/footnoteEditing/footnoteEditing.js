@@ -83,17 +83,17 @@ export default class FootnoteEditing extends Plugin {
 				this._removeReferences(0);
 			}
 
-			const deletingFootnote = deletedElement && deletedElement.name === 'footnote'
+			const deletingFootnote = deletedElement && deletedElement.name === ELEMENTS.footnoteItem
 
 			const currentFootnote = deletingFootnote ? 
-										deletedElement :
-										selectionEndPos.findAncestor('footnote');
+				deletedElement :
+				selectionEndPos.findAncestor(ELEMENTS.footnoteItem);
 			if(!currentFootnote) {
 				return;
 			}
 			const currentParagraph = deletedElement && deletedElement.name === 'paragraph' ? 
-										deletedElement :
-										selectionEndPos.findAncestor('paragraph');
+				deletedElement :
+				selectionEndPos.findAncestor('paragraph');
 			const footnoteSection = currentFootnote.findAncestor(ELEMENTS.footnoteSection);
 			if(deletingFootnote && footnoteSection) { 
 				this._removeFootnote(editor, currentFootnote, footnoteSection);

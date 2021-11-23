@@ -13,7 +13,7 @@ export default class FootnoteUI extends Plugin {
 		const editor = this.editor;
 		const translate = editor.t;
 		
-		editor.ui.componentFactory.add( 'footnote', locale => {
+		editor.ui.componentFactory.add( ELEMENTS.footnoteItem, locale => {
 			const dropdownView = createDropdown( locale );
 
 			// Populate the list in the dropdown with items.

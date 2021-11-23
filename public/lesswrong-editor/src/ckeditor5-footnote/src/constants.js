@@ -3,17 +3,19 @@
 export const DATA_FOOTNOTE_ID = 'data-footnote-id';
 
 export const ELEMENTS = {
-	footnoteReference: "footnoteReference",
 	footnoteLabel: "footnoteLabel",
+	footnoteItem: "footnoteItem",
+	footnoteReference: "footnoteReference",
 	footnoteSection: "footnoteSection",
-	footnoteList: "footnoteList",
+	footnoteContents: "footnoteContents",
 };
 
 export const CLASSES = {
-	footnoteReference: "footnote-reference",
+	footnoteContents: "footnote-contents",
+	footnoteItem: "footnote-item",
 	footnoteLabel: "footnote-label",
+	footnoteReference: "footnote-reference",
 	footnoteSection: "footnote-section",
-	footnoteList: "footnote-list",
 };
 
 export const COMMANDS = {
@@ -21,9 +23,10 @@ export const COMMANDS = {
 }
 
 export const ATTRIBUTES = {
-	footnoteReference: "data-footnote-reference",
+	footnoteContents: "data-footnote-contents",
+	footnoteId: "data-footnote-id",
+	footnoteItem: "data-footnote-item",
 	footnoteLabel: "data-footnote-label",
+	footnoteReference: "data-footnote-reference",
 	footnoteSection: "data-footnote-section",
-	footnoteList: "data-footnote-list",
-	footnoteId: "data-footnote-id"
 };
