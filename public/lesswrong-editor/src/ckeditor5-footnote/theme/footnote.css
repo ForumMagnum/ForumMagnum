@@ -30,6 +30,15 @@
 	background: rgba( 0, 0, 0, 0 );
 }
 
+.footnote {
+	display: flex;
+	align-items: flex-start;
+}
+
+.footnote > * {
+	display: inline-block;
+}
+
 .footnote-title::selection {
 	display: none;
 }

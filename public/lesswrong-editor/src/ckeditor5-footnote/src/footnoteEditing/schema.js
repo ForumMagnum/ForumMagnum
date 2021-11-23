@@ -16,16 +16,24 @@ export const defineSchema = schema => {
 	schema.register(ELEMENTS.footnoteSection, {
 		isObject: true,
 		allowWhere: '$block',
+		allowChildren: 'footnote',
 		allowAttributes: ['id', ATTRIBUTES.footnoteSection, 'class'],
 	});
+
+	schema.register('footnote', {
+		isBlock: true,
+		isObject: true,
+		allowContentOf: '$root',
+		allowAttributes: ['id', ATTRIBUTES.footnoteList, ATTRIBUTES.footnoteId, 'class'],
+	})
 
 	/**
 	 * Editable footnote contents. 
 	 */
 	schema.register(ELEMENTS.footnoteList, {
-		allowIn: ELEMENTS.footnoteSection,
+		allowIn: 'footnote',
 		allowContentOf: '$root',
-		isInline: true,
+		isBlock: true,
 		allowAttributes: ['id', ATTRIBUTES.footnoteList, ATTRIBUTES.footnoteId, 'class'],
 	});
 
@@ -34,10 +42,11 @@ export const defineSchema = schema => {
 	 * Not directly editable.
 	 */
 	schema.register(ELEMENTS.footnoteItem, {
-		allowIn: ELEMENTS.footnoteList,
-		allowWhere: '$text',
-		isInline: true,
-		isObject: true,
+		allowIn: 'div',
+		isBlock: true,
+		isSelectable: false,
+		isObject: false,
+		isLimit: true,
 		allowAttributes: ['id', ATTRIBUTES.footnoteItem, ATTRIBUTES.footnoteId, 'class'],
 	});
 

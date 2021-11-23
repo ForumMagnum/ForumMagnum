@@ -13,7 +13,7 @@ import '../../theme/placeholder.css';
 import '../../theme/footnote.css';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
-import DocumentFragment from '@ckeditor/ckeditor5-engine/src/model/documentfragment';
+import { Editor } from '@ckeditor/ckeditor5-core';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 
@@ -63,12 +63,8 @@ export default class FootnoteEditing extends Plugin {
 	}
 
 	/**
-	 * This method broadly deals with deletion of text, and updating the model
-	 * accordingly.
-	 * 1. If the footer footnotes section is deleted, all footnote references are removed.
-	 * 2. To avoid accidental deletion of content, deleting the number on a footnote while the
-	 * footnote still contains text will do nothing.
-	 * 3. 
+	 * This method broadly deals with deletion of text and elements, and updating the model
+	 * accordingly. 
 	 */
 	_handleDelete() {
 		const viewDocument = this.editor.editing.view.document;
@@ -82,81 +78,82 @@ export default class FootnoteEditing extends Plugin {
 				!selectionEndpoint) {
 				throw new Error('Selection must have at least one range to perform delete operation.');
 			}
-		
+
 			// delete all footnote references if footnote section gets deleted
-			if (deletedElement !== null && deletedElement.name === ELEMENTS.footnoteSection) {
+			if (deletedElement && deletedElement.name === ELEMENTS.footnoteSection) {
 				this._removeReferences(0);
 			}
 
-			// selectionParent is the element containing the selection's endpoint.
-			const selectionParent = selectionEndpoint.parent;
-
-			// return unless the current selection is inside a footnoteList element.
-			if (!selectionParent || selectionParent.parent instanceof DocumentFragment || !selectionParent.parent || selectionParent.parent.name !== ELEMENTS.footnoteList) {
+			const deletingFootnote = deletedElement && deletedElement.name === 'footnote'
+			
+			const currentFootnote = deletingFootnote ? 
+										deletedElement :
+										selectionEndpoint.findAncestor('footnote');
+			if(!currentFootnote) {
+				return;
+			}
+			const currentParagraph = deletedElement && deletedElement.name === 'paragraph' ? 
+										deletedElement :
+										selectionEndpoint.findAncestor('paragraph');
+			const footnoteSection = currentFootnote.findAncestor(ELEMENTS.footnoteSection);
+			if(deletingFootnote && footnoteSection) { 
+				this._removeFootnote(editor, currentFootnote, footnoteSection);
+				data.preventDefault();
+				evt.stop();
 				return;
 			}
 
-			const entireParagraphSelected = (selectionParent.maxOffset === doc.selection.anchor.offset && doc.selection.focus.offset === 0) ||
-				(selectionParent.maxOffset === doc.selection.focus.offset && doc.selection.anchor.offset === 0);
 
-			// If the entire current paragraph is selected, and it's not the
-			// first paragraph of the current footnote, simply delete the
-			// paragraph.
-			if(entireParagraphSelected && selectionParent.index) {
-				editor.model.change(writer => {
-					writer.remove(selectionParent);
-				});
+			const deletingFirstParagraphOfFootnote = 
+				(deletedElement && !deletedElement.index) ||
+				(currentParagraph && !currentParagraph.index);
+
+			// if the deleted section isn't a paragraph, or if it isn't the first paragraph
+			// of its footnote, let the standard delete operation proceed.
+			if(!deletingFirstParagraphOfFootnote || !footnoteSection){
 				return;
 			}
 
-			const foontoteNonempty = selectionParent.maxOffset > 1;
-			const selectionBeginsAtFootnoteStart = doc.selection.anchor.offset <= 1;
-			const selectionEndsAtFootnoteStart = doc.selection.focus.offset == 0;
-			// don't allow deleting a nonempty footnote without deleting text
-			if (foontoteNonempty && (selectionBeginsAtFootnoteStart || selectionEndsAtFootnoteStart)) {
-				data.preventDefault();
-				evt.stop();
-			}
+			this._removeFootnote(editor, currentFootnote, footnoteSection);
+			data.preventDefault();
+			evt.stop();
+		}, { priority: 'high' });
+	}
 
-			// if a) the footnote contains no text (other than its number) or b) the entire footnote is selected,
-			// remove the footnote and its references, and renumber all subsequent footnotes.
-			if (selectionParent.maxOffset === 1 || entireParagraphSelected) {
-				const footnoteList = selectionParent.parent;
-				const index = footnoteList.index;
-				const footnoteSection = footnoteList.parent;
-				if (
-					index === null || 
-					!footnoteSection || 
-					!(footnoteSection instanceof ModelElement)
-				) {
-					throw new Error("footnoteList has an invalid parent.")
-				}
+	/**
+	 * Removes a footnote and its references, and renumbers subsequent footnotes.
+	 * @param {Editor} editor 
+	 * @param {ModelElement} footnote 
+	 * @param {ModelElement} footnoteSection 
+	 */
+	_removeFootnote(editor, footnote, footnoteSection) {
+		// delete the current footnote and its references,
+		// and renumber subsequent footnotes.
+		const index = footnoteSection.getChildIndex(footnote);
+		this._removeReferences(index+1);
 
-				this._removeReferences(index+1);
-				editor.model.change(writer => {
-					writer.remove(footnoteList);
-					// if only one footnote remains, remove the footnote section
-					if(footnoteSection.maxOffset === 0) {
-						writer.remove(footnoteSection);
-					}
-				} );
-				const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
-				for (const [i, child] of subsequentFootnotes.entries()) {
-					if(!(child instanceof ModelElement)) {
-						continue;
-					}
-					editor.model.enqueueChange(writer => {
-						const footnoteItem = modelQueryElement(this.editor, child, element =>  element.name === ELEMENTS.footnoteItem);
-						if(!footnoteItem) {
-							return;
-						}
-						writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, footnoteItem);
-					} );
-				}
-				data.preventDefault();
-				evt.stop();
+		editor.model.enqueueChange(writer => {
+			writer.remove(footnote);
+			// if only one footnote remains, remove the footnote section
+			if(footnoteSection.maxOffset === 0) {
+				writer.remove(footnoteSection);
+				this._removeReferences(0);
 			}
-		} , { priority: 'high' });
+		} );
+
+		const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
+		for (const [i, child] of subsequentFootnotes.entries()) {
+			if(!(child instanceof ModelElement)) {
+				continue;
+			}
+			editor.model.enqueueChange(writer => {
+				const footnoteItem = modelQueryElement(this.editor, child, element =>  element.name === ELEMENTS.footnoteItem);
+				if(!footnoteItem) {
+					return;
+				}
+				writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, footnoteItem);
+			} );
+		}
 	}
 
 	/**

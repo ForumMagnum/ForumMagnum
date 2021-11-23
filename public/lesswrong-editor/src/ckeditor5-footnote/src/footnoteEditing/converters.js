@@ -14,7 +14,7 @@ import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 
 /**
  * Defines methods for converting between model, data view, and editing view representations of each element type.
-g * @param {Editor} editor
+ * @param {Editor} editor
  * @param {RootElement} rootElement
  * @returns {void}
  * */
@@ -94,13 +94,55 @@ export const defineConverters = (editor, rootElement) => {
 		}
 	});
 
+	/***********************************Footnote Conversion************************************/
+
+	conversion.for('upcast').elementToElement({
+		view: {
+			name: 'div',
+			attributes: {
+				footnote: true,
+			},
+		},
+		model: (viewElement, conversionApi) => {
+			const modelWriter = conversionApi.writer;
+			const id = viewElement.getAttribute(ATTRIBUTES.footnoteId);
+			if(!id) {
+				return null;
+			}
+
+			return modelWriter.createElement(ELEMENTS.footnoteItem, { 'footnote': id });
+		}
+	});
+
+	conversion.for('dataDowncast').elementToElement({
+		model: 'footnote',
+		view: {
+			name: 'div',
+			attributes: {
+				footnote: '',
+			},
+			classes: ['footnote'],
+		},
+	});
+
+	conversion.for('editingDowncast').elementToElement({
+		model: 'footnote',
+		view: {
+			name: 'div',
+			attributes: {
+				footnote: '',
+			},
+			classes: ['footnote'],
+		},
+	});
+
 	/***********************************Footnote Item Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
 		view: {
 			name: 'span',
 			attributes: {
-				[ATTRIBUTES.footnoteIte]: true,
+				[ATTRIBUTES.footnoteItem]: true,
 			},
 		},
 		model: (viewElement, conversionApi) => {
@@ -121,14 +163,7 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('editingDowncast').elementToElement({
 		model: ELEMENTS.footnoteItem,
-
-		view: (modelElement, conversionApi) => {
-			const viewWriter = conversionApi.writer;
-			// @ts-ignore -- The type declaration for DowncastHelpers#elementToElement is incorrect. It expects
-			// a view Element where it should expect a model Element.
-			const itemView = createFootnoteItemViewElement(modelElement, conversionApi);
-			return toWidget(itemView, viewWriter);
-		}
+		view: createFootnoteItemViewElement,
 	});
 
 	/***********************************Footnote Reference Conversion************************************/
