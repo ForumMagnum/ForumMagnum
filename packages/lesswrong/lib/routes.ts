@@ -11,8 +11,10 @@ const communitySectionName = isEAForum ? 'Community and Events' : 'Community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
+
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
+const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
@@ -428,6 +430,13 @@ if (forumTypeSetting.get() !== 'EAForum') {
 
 if (forumTypeSetting.get() === 'LessWrong') {
   addRoute(
+    {
+      name: 'Best of LessWrong',
+      path: '/bestoflesswrong',
+      componentName: 'BestOfLessWrong',
+      title: "Best of LessWrong",
+      ...bestoflwSubtitle,
+    },
     {
       name: 'HPMOR',
       path: '/hpmor',
