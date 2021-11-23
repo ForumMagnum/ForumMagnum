@@ -131,7 +131,7 @@ export const defineConverters = (editor, rootElement) => {
 		}
 	});
 
-	/***********************************Footnote Inline Conversion************************************/
+	/***********************************Footnote Reference Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
 		view: {
@@ -207,6 +207,7 @@ const createFootnoteReferenceViewElement = (viewElement, conversionApi) => {
 		class: CLASSES.footnoteReference,
 		[ATTRIBUTES.footnoteReference]: '',
 		[ATTRIBUTES.footnoteId]: id,
+		id: `fnref${id}`,
 	});
 
 	const innerText = viewWriter.createText(`[${id}]`);
