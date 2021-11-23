@@ -204,7 +204,7 @@ const createFootnoteReferenceViewElement = (viewElement, conversionApi) => {
 	}
 
 	const footnoteReferenceView = viewWriter.createContainerElement('span', {
-		class: ELEMENTS.footnoteReference,
+		class: CLASSES.footnoteReference,
 		[ATTRIBUTES.footnoteReference]: '',
 		[ATTRIBUTES.footnoteId]: id,
 	});

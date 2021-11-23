@@ -7,7 +7,7 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
 ]
 
 const allowedTableStyles = {
@@ -51,7 +51,9 @@ export const sanitize = function(s: string): string {
       'app.thoughtsaver.com'
     ],
     allowedClasses: {
-      div: [ 'spoilers', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      span: [ 'footnote-reference', 'footnote-item'],
+      section: [ 'footnotes'],
+      div: [ 'spoilers', 'footnotes', 'footnote-list', 'footnote-item', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
     },
     allowedStyles: {
