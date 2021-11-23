@@ -46,8 +46,10 @@ export const addFootnoteAutoformatting = (editor, rootElement) => {
  */
 const regexMatchCallback = (editor, text) => {
 	const selectionStart = editor.model.document.selection.anchor;
-
-	if(!selectionStart){
+	// get the text node containing the cursor's position, or the one ending at `the cursor's position
+	const surroundingText = selectionStart && (selectionStart.textNode || selectionStart.getShiftedBy(-1).textNode);
+	
+	if(!selectionStart || !surroundingText){
 		return {
 			remove: [],
 			format: [],
@@ -57,18 +59,19 @@ const regexMatchCallback = (editor, text) => {
 	const results = text.matchAll(/\[\^([0-9]+)\]/g);
 
 	for (const result of results || []) {
-		const removeStart = text.indexOf(result[0])
-		const removeEnd = removeStart + result[0].length;
+		const removeStartIndex = text.indexOf(result[0])
+		const removeEndIndex = removeStartIndex + result[0].length;
+		const textNodeOffset = selectionStart.parent.getChildStartOffset(surroundingText);
 
 		// if the cursor isn't at the end of the range to be replaced, do nothing
-		if(removeEnd !== selectionStart.offset) {
+		if(textNodeOffset === null || selectionStart.offset !== textNodeOffset + removeEndIndex) {
 			continue;
 		}
-		const formatStart = removeStart + 2;
-		const formatEnd = formatStart + result[1].length;
+		const formatStartIndex = removeStartIndex + 2;
+		const formatEndIndex = formatStartIndex + result[1].length;
 		return {
-			remove: [[removeStart, removeEnd]],
-			format: [[formatStart, formatEnd]],
+			remove: [[removeStartIndex, removeEndIndex]],
+			format: [[formatStartIndex, formatEndIndex]],
 		}
 	}
 	return {
