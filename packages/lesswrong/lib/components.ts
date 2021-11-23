@@ -205,6 +205,9 @@ importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCal
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
+importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
+importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));
+importComponent("UserSuggestNominations", () => require('../components/posts/UserSuggestNominations'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
@@ -589,6 +592,8 @@ importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Ale
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
 
 // Review Book related components
-importComponent("BookLanding", () => require('../components/books/BookLanding'));
+importComponent("Book2018Landing", () => require('../components/books/Book2018Landing'));
+importComponent("Book2019Landing", () => require('../components/books/Book2019Landing'));
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
+importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));

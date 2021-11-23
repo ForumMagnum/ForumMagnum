@@ -19,6 +19,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
+  readonly lastUsedTimezone: string,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
@@ -1547,6 +1548,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
+  readonly lastUsedTimezone: string,
 }
 
 interface UserKarmaChanges { // fragment on Users
@@ -1722,6 +1724,18 @@ interface TagVotingActivity extends TagRelVotes { // fragment on Votes
   readonly tagRel: TagRelFragment|null,
 }
 
+interface UserVotes { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string,
+  readonly voteType: string,
+  readonly power: number,
+  readonly cancelled: boolean,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly isUnvote: boolean,
+  readonly collectionName: string,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -1869,6 +1883,7 @@ interface FragmentTypes {
   FeaturedResourcesFragment: FeaturedResourcesFragment
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
+  UserVotes: UserVotes
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -2008,6 +2023,7 @@ interface CollectionNamesByFragmentName {
   FeaturedResourcesFragment: "FeaturedResources"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
+  UserVotes: "Votes"
   SuggestAlignmentComment: "Comments"
 }
 

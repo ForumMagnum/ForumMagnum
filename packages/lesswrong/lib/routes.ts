@@ -362,7 +362,13 @@ addRoute(
     componentName: 'SearchPage',
     title: 'Search',
     background: "white"
-  }
+  },
+  {
+    name: 'votesByYear',
+    path: '/votesByYear/:year',
+    componentName: 'UserSuggestNominations',
+    title: "Your Past Votes"
+  },
 );
 
 onStartup(() => {
@@ -474,6 +480,25 @@ if (forumTypeSetting.get() === 'LessWrong') {
       ...codexSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
+    },
+    {
+      name: 'bookLanding',
+      path: '/books',
+      redirect: () => `/books/2018`,
+    },
+    {
+      name: 'book2018Landing',
+      path: '/books/2018',
+      componentName: 'Book2018Landing',
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
+    },
+    {
+      name: 'book2019Landing',
+      path: '/books/2019',
+      componentName: 'Book2019Landing',
+      title: "Books: Engines of Cognition",
+      background: "white"
     },
   );
 }
@@ -886,7 +911,7 @@ addRoute(
     name: 'nominations2019',
     path: '/nominations/2019',
     componentName: 'Nominations2019',
-    title: "2018 Nominations",
+    title: "2019 Nominations",
   },
   {
     name: 'nominations',
@@ -936,12 +961,5 @@ addRoute(
     name: 'reviews',
     path: '/reviews',
     redirect: () => `/reviews/2019`,
-  },
-  {
-    name: 'bookLanding',
-    path: '/books',
-    componentName: 'BookLanding',
-    title: "A Map that Reflects the Territory",
-    background: "white"
-  },
+  }
 );
