@@ -1,5 +1,6 @@
 import Votes from './collections/votes/collection';
 import { DatabasePublicSetting } from './publicSettings';
+import { voteDimensions } from "./voting/voteTypes";
 
 const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15)
 const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10)
@@ -18,7 +19,34 @@ export const recalculateBaseScore = async (document: VoteableType) => {
       cancelled: false
     }
   ).fetch() || [];
-  return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
+  
+  const getVotePower = (vote: DbVote) => {
+    if (typeof vote.power === "number") return vote.power
+    return vote.power["Overall"]
+  }
+  
+  return votes.reduce((sum, vote) => { return getVotePower(vote) + sum}, 0)
+}
+
+export const recalculateAggregateScores = async (document: VoteableType) => {
+  const votes = await Votes.find(
+    {
+      documentId: document._id,
+      cancelled: false
+    }
+  ).fetch() || [];
+  
+  const addToAgg = (aggregator, vote: DbVote) => {
+    for (const dimension in voteDimensions) {
+      aggregator[dimension] = aggregator[dimension] + vote[dimension]
+    }
+    return aggregator
+  }
+  
+  const aggregator = voteDimensions.reduce((o, dimension) => ({...o, [dimension]: 0}), {}) 
+  console.log({aggregator})
+  
+  return votes.reduce( (agg, vote) => addToAgg(agg, vote), aggregator)
 }
 
 // NB: If you want to change this algorithm, make sure to also change the

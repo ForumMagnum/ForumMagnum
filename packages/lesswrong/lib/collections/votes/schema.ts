@@ -51,7 +51,8 @@ const schema: SchemaType<DbVote> = {
   },
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
-  // voteType is the type of the vote that was reversed.
+  // voteType is the type of the vote that was reversed. If using multi-dimensions, 
+  // voteType is an object of voteDimension: voteType pairs.bb
   voteType: {
     type: GraphQLJSON,
     typescriptType: "string | Record<string,string>",

@@ -1,3 +1,7 @@
+export type VotingSystemString = "Classic" | "TwoFactorAgree"
+
+export const voteDimensions = ["Overall", "Agreement"] as const
+export type VoteDimensionString = typeof voteDimensions[number] //"Overall" | "Agreement"
 
 interface VoteTypeOptions {
   power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),

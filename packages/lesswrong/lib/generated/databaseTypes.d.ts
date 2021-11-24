@@ -115,6 +115,7 @@ interface DbComment extends DbObject {
   voteCount: number
   baseScore: number
   score: number
+  voteAggregates: any /*{"definitions":[{}]}*/
   inactive: boolean
   af: boolean
   afBaseScore: number
@@ -365,6 +366,7 @@ interface DbPost extends DbObject {
   voteCount: number
   baseScore: number
   score: number
+  voteAggregates: any /*{"definitions":[{}]}*/
   inactive: boolean
   legacy: boolean
   legacyId: string
@@ -518,6 +520,7 @@ interface DbRevision extends DbObject {
   voteCount: number
   baseScore: number
   score: number
+  voteAggregates: any /*{"definitions":[{}]}*/
   inactive: boolean
 }
 
@@ -582,6 +585,7 @@ interface DbTagRel extends DbObject {
   voteCount: number
   baseScore: number
   score: number
+  voteAggregates: any /*{"definitions":[{}]}*/
   inactive: boolean
 }
 

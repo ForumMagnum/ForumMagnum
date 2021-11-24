@@ -10,6 +10,7 @@ import Transition from 'react-transition-group/Transition';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
+import {VoteDimensionString} from "../../lib/voting/voteTypes";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -67,17 +68,19 @@ const VoteButton = <T extends VoteableTypeClient>({
   vote, collectionName, document, voteType,
   color = "secondary",
   orientation = "up",
+  voteDimension = "Overall",
   solidArrow,
   theme,
   classes,
 }: {
-  vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
+  vote: (props: {document: T, voteType: string|null, voteDimension: VoteDimensionString, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
   collectionName: CollectionNameString,
   document: T,
   
   voteType: string,
   color: "error"|"primary"|"secondary",
   orientation: string,
+  voteDimension: VoteDimensionString
   solidArrow?: boolean
   // From withTheme. TODO: Hookify this.
   theme?: ThemeType
@@ -113,9 +116,9 @@ const VoteButton = <T extends VoteableTypeClient>({
       });
     } else {
       if (document.currentUserVote === voteType) {
-        vote({document, voteType: null, collectionName, currentUser});
+        vote({document, voteType: null, voteDimension, collectionName, currentUser});
       } else {
-        vote({document, voteType: voteType, collectionName, currentUser});
+        vote({document, voteType: voteType, voteDimension, collectionName, currentUser});
       }
       captureEvent("vote", {collectionName});
     }

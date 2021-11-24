@@ -1,7 +1,7 @@
 import { CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
-import { voteTypes, calculateVotePower } from './voteTypes';
+import {voteTypes, calculateVotePower, VoteDimensionString, voteDimensions} from './voteTypes';
 
 export interface VoteDocTuple {
   newDocument: DbVoteableType
@@ -77,20 +77,25 @@ const cancelVoteClient = ({document, collection, user}: {
 
 // Determine a user's voting power for a given operation.
 // If power is a function, call it on user
-export const getVotePower = ({ user, voteType, document }: {
+export const getVotePower = ({ user, voteType, voteDimension, document }: {
   user: DbUser|UsersCurrent,
-  voteType: string,
+  voteType: string|Record<string,string>,
+  voteDimension: VoteDimensionString,
   document: VoteableType,
 }) => {
-  const power = (voteTypes[voteType]?.power) || 1;
+  
+  const votedType = (typeof voteType === "string") ? voteType : voteType[voteDimension] 
+  
+  const power = (voteTypes[votedType]?.power) || 1;
   return typeof power === 'function' ? power(user, document) : power;
 };
 
 // Create new vote object
-export const createVote = ({ document, collectionName, voteType, user, voteId }: {
+export const createVote = ({ document, collectionName, voteType, voteDimension, user, voteId }: {
   document: VoteableType,
   collectionName: CollectionNameString,
-  voteType: string,
+  voteType: string|Record<string,string>,
+  voteDimension: VoteDimensionString,
   user: DbUser|UsersCurrent,
   voteId?: string,
 }) => {
@@ -104,8 +109,8 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
     documentId: document._id,
     collectionName,
     userId: user._id,
-    voteType: voteType,
-    power: getVotePower({user, voteType, document}),
+    voteType: {[voteDimension]: voteType},
+    power: {[voteDimension]: getVotePower({user, voteType, voteDimension, document})},
     votedAt: new Date(),
     authorId: document.userId,
     cancelled: false,
@@ -114,10 +119,11 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
 };
 
 // Optimistic response for votes
-export const setVoteClient = async ({ document, collection, voteType, user }: {
+export const setVoteClient = async ({ document, collection, voteType, voteDimension, user }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbVoteableType>
   voteType: string|null,
+  voteDimension: VoteDimensionString
   user: UsersCurrent,
 }): Promise<VoteableTypeClient> => {
   if (voteType && !voteTypes[voteType]) throw new Error("Invalid vote type");

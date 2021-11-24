@@ -81,7 +81,14 @@ addFieldsDict(Posts, {
       }
     }
   },
-
+  
+  // voteAggregates: {
+  //   type: Object,
+  //   optional: true,
+  //   // label: "Alignment Base Score",
+  //   viewableBy: ['guests'],
+  // },
+  
   suggestForAlignmentUserIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "suggestForAlignmentUserIds",

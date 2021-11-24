@@ -36,12 +36,13 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
 
   addFieldsDict(collection, {
     currentUserVote: {
-      type: String,
+      type: Object,
       optional: true,
+      blackbox: true,
       viewableBy: ['guests'],
       resolveAs: {
-        type: 'String',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+        type: 'JSON',
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<Record<string,string>|null> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return null;
           const votes = await getWithLoader(context, Votes,
@@ -54,7 +55,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           );
           
           if (!votes.length) return null;
-          return votes[0].voteType;
+          return (typeof votes[0].voteType === "string") ? {"Overall": votes[0].voteType} : votes[0].voteType
         }
       }
     },
@@ -146,6 +147,16 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         // default to 0 if empty
         return document.score || 0;
       }
+    },
+    voteAggregates: {
+      type: Object,
+      optional: true,
+      defaultValue: {Overall: 0, Agreement: 0},
+      canRead: customBaseScoreReadAccess || ['guests'],
+      // onInsert: (document: DbInsertion<T>): number => {
+      //   // default to 0 if empty
+      //   return document.baseScore || 0;
+      // }
     },
     // Whether the document is inactive. Inactive documents see their score
     // recalculated less often
