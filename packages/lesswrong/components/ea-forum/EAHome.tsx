@@ -13,31 +13,36 @@ const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBann
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated, SmallpoxBanner, StickiedPosts, EventBanner
+    RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, /* RecommendationsAndCurated, */
+    SmallpoxBanner, StickiedPosts, EventBanner, FrontpageReviewPhase,
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderEAHomeHandbook = showHandbookBannerSetting.get() && userHasEAHomeHandbook(currentUser)
   const shouldRenderSmallpox = showSmallpoxSetting.get()
+  const shouldRenderFrontpageReview = true
 
   return (
-    <React.Fragment>
+    <>
       {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>}
       
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
 
       <StickiedPosts />
+      {shouldRenderFrontpageReview && <FrontpageReviewPhase />}
       <HomeLatestPosts />
 
-      <RecommendationsAndCurated configName="frontpageEA" />
+      {/* Disable during annual review */}
+      {/* <RecommendationsAndCurated configName="frontpageEA" /> */}
+
       <RecentDiscussionFeed
         af={false}
         commentsLimit={recentDiscussionCommentsPerPost}
         maxAgeHours={18}
       />
-    </React.Fragment>
+    </>
   )
 }
 

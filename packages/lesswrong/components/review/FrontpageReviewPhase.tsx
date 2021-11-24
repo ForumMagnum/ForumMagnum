@@ -1,3 +1,4 @@
+// TODO; rename to remove "Phase"
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -6,6 +7,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { currentUserCanVote } from './ReviewVotingPage';
+import { forumTitleSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -49,14 +51,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: 'rgba(127, 175, 131, 0.5)'
+    // TODO; color
+    backgroundColor: theme.palette.primary.main,
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: 'rgba(127, 175, 131, 0.7)'
+    backgroundColor: theme.palette.lwTertiary.main,
   },
   nominationDate: {},
   actionButtonRow: {
@@ -100,7 +103,7 @@ export const reviewAlgorithm: RecommendationsAlgorithm = {
   curatedModifier: 0,
   includePersonal: true,
   includeMeta: true,
-  reviewReviews: 2019, 
+  reviewNominations: 2019,
   onlyUnread: false,
   excludeDefaultRecommendations: true
 }
@@ -110,46 +113,46 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser();
 
   const overviewToolip = <div>
-    <div>The LessWrong community is reflecting on the best posts from 2019, in three phases</div>
+    <div>The {forumTitleSetting.get()} community is reflecting on the best posts from 2020, in three phases</div>
     <ul>
       <li><em>Nomination</em> (Dec 1st – Dec 14th)</li>
       <li><em>Review</em> (Dec 15th – Jan 11th)</li>
       <li><em>Voting</em> (Jan 12th – Jan 26th</li>
-      <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2019" book.</li>
+      {/* <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2019" book.</li> */}
     </ul>
-    <div>(Currently this section shows a random sample of 2019 posts, weighted by karma)</div>
+    <div>(Currently this section shows a random sample of 2020 posts, weighted by karma)</div>
   </div>
 
   const nominationsTooltip = <div>
-    <div>Nominate posts for the 2019 Review</div>
+    <div>Nominate posts for the 2020 Review</div>
     <ul>
-      <li>Any post from 2019 can be nominated</li>
-      <li>Any user registered before 2019 can nominate posts for review</li>
+      <li>Any post from 2020 can be nominated</li>
+      <li>Any user registered before 2020 can nominate posts for review</li>
       <li>A post requires two nominations to progress to the review phase</li>
     </ul>
-    <div>If you've been actively reading LessWrong in 2019, but didn't register an account, message us on Intercom</div>
+    <div>If you've been actively reading LessWrong in 2020, but didn't register an account, message us on Intercom</div>
   </div>
 
   const reviewTooltip = <div>
-    <div>Review posts for the 2019 Review (Opens Dec 15th)</div>
+    <div>Review posts for the 2020 Review (Opens Dec 15th)</div>
     <ul>
-      <li>Write reviews of posts nominated for the 2019 Review</li>
+      <li>Write reviews of posts nominated for the 2020 Review</li>
       <li>Only posts with at least one review are eligible for the final vote</li>
     </ul>
   </div>
 
   const voteTooltip = <div>
-    <div>Vote on posts for the 2019 Review (Opens Jan 12th)</div>
+    <div>Vote on posts for the 2020 Review (Opens Jan 12th)</div>
     <ul>
-      <li>Vote on posts that were reviewed and nominated for the 2019 Review</li>
-      <li>Any user registered before 2019 can vote in the review</li>
-      <li>The end result will be compiled into a canonical sequence and best-of 2019 book</li>
+      <li>Vote on posts that were reviewed and nominated for the 2020 Review</li>
+      <li>Any user registered before 2020 can vote in the review</li>
+      <li>The end result will be compiled into a canonical sequence and best-of 2020 book</li>
     </ul>
-    <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in 2018</div>
+    <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in 2019</div>
   </div>
 
-  const nominationStartDate = new Date("2020-12-01")
-  const nominationEndDate = new Date("2020-12-15")
+  const nominationStartDate = new Date("2021-11-01")
+  const nominationEndDate = new Date("2021-12-15")
   const reviewEndDate = new Date("2021-01-12")
   const voteEndDate = new Date("2021-01-26")
   const currentDate = new Date()
@@ -166,17 +169,18 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
     return ((fractionDate.getTime() - startDate.getTime())/(endDate.getTime() - startDate.getTime())*100).toFixed(2)
   }
 
-  const all2019Url = "/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top&filter=unnominated2019"
+  const all2019Url = "/allPosts?timeframe=yearly&after=2020-01-01&before=2021-01-01&limit=100&sortedBy=top&filter=unnominated2019&includeShortform=false"
 
   return (
     <SingleColumnSection>
       <SectionTitle 
         title={<LWTooltip title={overviewToolip} placement="bottom-start">
-          <Link to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}>The 2019 Review</Link>
+          {/* TODO; */}
+          <Link to={"/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review"}>The 2020 Review</Link>
         </LWTooltip>}
       >
-        <LWTooltip title="All Posts written in 2019 are eligible to participate in the review. Click here to see all posts written in 2019.">
-          <Link to={all2019Url}><SettingsButton showIcon={false} label="See All 2019 Posts"/></Link>
+        <LWTooltip title="All Posts written in 2020 are eligible to participate in the review. Click here to see all posts written in 2020.">
+          <Link to={all2019Url}><SettingsButton showIcon={false} label="See All 2020 Posts"/></Link>
         </LWTooltip>
       </SectionTitle>
       <div className={classes.reviewTimeline}>
@@ -217,7 +221,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
           <div>Review posts with at least two nominations</div>
           </div>}>
           <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
-            Vote on 2019 Posts
+            Vote on 2020 Posts
           </Link>
         </LWTooltip>
       </div>}
@@ -243,4 +247,3 @@ declare global {
     FrontpageReviewPhase: typeof FrontpageReviewPhaseComponent
   }
 }
-

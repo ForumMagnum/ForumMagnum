@@ -1154,7 +1154,7 @@ const reviews2019Sortings : Record<ReviewSortings, MongoSort<DbPost>> = {
 Posts.addView("reviews2019", (terms: PostsViewTerms) => {
   return {
     selector: {
-      nominationCount2019: { $gte: 2 }
+      // nominationCount2019: { $gte: 2 }
     },
     options: {
       sort: { ...(terms.sortBy && reviews2019Sortings[terms.sortBy]), nominationCount2019: -1 }

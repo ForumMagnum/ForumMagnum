@@ -139,8 +139,9 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)
     const orderedDates = reverse ? dates.reverse() : dates
+    console.log('🚀 ~ file: PostsTimeframeList.tsx ~ line 143 ~ PostsTimeframeList ~ render ~ orderedDates', orderedDates)
 
-    const renderLoadMoreTimeBlocks = dates.length && dates.length > 1
+    const renderLoadMoreTimeBlocks = !!(dates.length && dates.length > 1)
     return (
       <div className={classNames({[classes.loading]: dim})}>
         {orderedDates.slice(0, displayedNumTimeBlocks).map((date, index) =>
