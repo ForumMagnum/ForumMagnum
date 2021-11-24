@@ -6,6 +6,10 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { currentUserCanVote } from './ReviewVotingPage';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
+import moment from 'moment';
+import { eligibleToNominate } from './NominatePostMenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -108,13 +112,19 @@ export const reviewAlgorithm: RecommendationsAlgorithm = {
 const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
   const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
+  
+  const nominationStartDate = moment(annualReviewStart.get())
+  const nominationEndDate = moment(annualReviewNominationPhaseEnd.get())
+  const reviewEndDate = moment(annualReviewReviewPhaseEnd.get())
+  const voteEndDate = moment(annualReviewEnd.get())
+  const currentDate = moment(new Date())
 
   const overviewToolip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2019, in three phases</div>
     <ul>
-      <li><em>Nomination</em> (Dec 1st – Dec 14th)</li>
-      <li><em>Review</em> (Dec 15th – Jan 11th)</li>
-      <li><em>Voting</em> (Jan 12th – Jan 26th</li>
+      <li><em>Nomination</em> ({nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')})</li>
+      <li><em>Review</em> ({nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')})</li>
+      <li><em>Voting</em> ({reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')})</li>
       <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2019" book.</li>
     </ul>
     <div>(Currently this section shows a random sample of 2019 posts, weighted by karma)</div>
@@ -131,7 +141,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
   </div>
 
   const reviewTooltip = <div>
-    <div>Review posts for the 2019 Review (Opens Dec 15th)</div>
+    <div>Review posts for the 2019 Review (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
     <ul>
       <li>Write reviews of posts nominated for the 2019 Review</li>
       <li>Only posts with at least one review are eligible for the final vote</li>
@@ -139,7 +149,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
   </div>
 
   const voteTooltip = <div>
-    <div>Vote on posts for the 2019 Review (Opens Jan 12th)</div>
+    <div>Vote on posts for the 2019 Review (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
     <ul>
       <li>Vote on posts that were reviewed and nominated for the 2019 Review</li>
       <li>Any user registered before 2019 can vote in the review</li>
@@ -148,12 +158,6 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
     <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in 2018</div>
   </div>
 
-  const nominationStartDate = new Date("2020-12-01")
-  const nominationEndDate = new Date("2020-12-15")
-  const reviewEndDate = new Date("2021-01-12")
-  const voteEndDate = new Date("2021-01-26")
-  const currentDate = new Date()
-
   const activeRange = currentDate < nominationEndDate ? "nominations" : (
     currentDate < reviewEndDate ? "review" : (
       currentDate < voteEndDate ? "votes" : 
@@ -161,9 +165,9 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
     )
   )
 
-  const dateFraction = (fractionDate: Date, startDate: Date, endDate: Date) => {
+  const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, endDate: moment.Moment) => {
     if (fractionDate < startDate) return 0
-    return ((fractionDate.getTime() - startDate.getTime())/(endDate.getTime() - startDate.getTime())*100).toFixed(2)
+    return ((fractionDate.unix() - startDate.unix())/(endDate.unix() - startDate.unix())*100).toFixed(2)
   }
 
   const all2019Url = "/allPosts?timeframe=yearly&after=2019-01-01&before=2020-01-01&limit=100&sortedBy=top&filter=unnominated2019"
@@ -184,7 +188,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
           <Link to={"/nominations"}>
             <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "nominations"})}>
               <div className={classNames(classes.blockText, classes.blockLabel)}>Nominations</div>
-              <div className={classes.blockText}>Dec 14</div>
+              <div className={classes.blockText}>{nominationEndDate.format('MMM Do')}</div>
               {activeRange === "nominations" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}/>}
             </LWTooltip>
           </Link>
@@ -193,7 +197,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
           <Link to={"/reviews"}>    
             <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "review"})}>
               <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
-              <div className={classes.blockText}>Jan 11</div>
+              <div className={classes.blockText}>{reviewEndDate.format('MMM Do')}</div>
               {activeRange === "review" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
             </LWTooltip>
           </Link>    
@@ -202,7 +206,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
           <Link to={"/reviewVoting"}>
             <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "votes"})}>
               <div className={classNames(classes.blockText, classes.blockLabel)}>Votes</div>
-              <div className={classes.blockText}>Jan 26</div>
+              <div className={classes.blockText}>{voteEndDate.format('MMM Do')}</div>
               {activeRange === "votes" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
             </LWTooltip>
           </Link>
@@ -221,7 +225,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
           </Link>
         </LWTooltip>
       </div>}
-        {/* {eligibleToNominate(currentUser) && 
+        {eligibleToNominate(currentUser) && 
           <LWTooltip title={<div>
               <div>View posts with at least 1 nomination</div>
               <div><em>(Posts need at least 2 nominations)</em></div>
@@ -229,9 +233,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
             <Link to={"/nominations"} className={classes.actionButton}>
               View Nominated Posts
             </Link>
-          </LWTooltip>
-          
-        </div>} */}
+          </LWTooltip>}
     </SingleColumnSection>
   )
 }
@@ -243,4 +245,3 @@ declare global {
     FrontpageReviewPhase: typeof FrontpageReviewPhaseComponent
   }
 }
-
