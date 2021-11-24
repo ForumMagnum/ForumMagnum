@@ -20,6 +20,8 @@ export function eligibleToNominate (currentUser: UsersCurrent|null) {
   return true
 }
 
+const REVIEW_YEAR = 2020
+
 const NominatePostMenuItem = ({ post, closeMenu }: {
   post: PostsBase,
   closeMenu: ()=>void,
@@ -41,8 +43,8 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
 
   if (!eligibleToNominate(currentUser)) return null
   if (post.userId === currentUser!._id) return null
-  if (new Date(post.postedAt) > new Date("2020-01-01")) return null
-  if (new Date(post.postedAt) < new Date("2019-01-01")) return null
+  if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return null
+  if (new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return null
 
   const nominated = !loading && nominations?.length;
 
