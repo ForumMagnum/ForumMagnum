@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -37,6 +37,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { history } = useNavigation();
+  const { ReviewVotingWidget } = Components
 
   const { results: nominations = [], loading } = useMulti({
     skip: !currentUser,
@@ -76,12 +77,13 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
   
   return (<React.Fragment>
       <Tooltip title={tooltip} placement="left">
-        <MenuItem onClick={handleClick}>
-          <ListItemIcon>
+        {/* <MenuItem> */}
+          <ReviewVotingWidget post={post}/>
+          {/* <ListItemIcon>
             { nominated ? <StarIcon /> : <StarBorderIcon /> }
           </ListItemIcon>
-          {nominated ? "View Nomination" : "Nominate Post"}
-        </MenuItem>
+          {nominated ? "View Nomination" : "Nominate Post"} */}
+        {/* </MenuItem> */}
       </Tooltip>
       <Divider/>
     </React.Fragment>

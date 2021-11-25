@@ -5,6 +5,7 @@ import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/cru
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
+import { REVIEW_YEAR } from './NominatePostMenuItem';
 import { ReviewVote } from './ReviewVotingPage';
 
 const styles = (theme) => ({
@@ -59,8 +60,6 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
 
   if (voteLoadingError) return <div>{voteLoadingError.message}</div>
 
-  if (votesLoading) return <Loading/>
-
   const rawVote = votes[0] 
   const vote = rawVote ? {
     _id: rawVote._id, 
@@ -71,7 +70,8 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
 
   return <ErrorBoundary>
       <div className={classes.root}>
-        <p>Should this post be considered for the {2020} Review?</p>
+        <p>{REVIEW_YEAR} Review: Was this post important?</p>
+        {/* <p>Should this post be considered for the {REVIEW_YEAR} Review?</p> */}
         <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />
       </div>
     </ErrorBoundary>

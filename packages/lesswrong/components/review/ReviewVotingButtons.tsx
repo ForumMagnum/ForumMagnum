@@ -25,8 +25,8 @@ const styles = (theme: ThemeType) => ({
 const indexToTermsLookup = {
   0: "No",
   1: "Neutral",
-  2: "Good",
-  3: "Important",
+  2: "Somewhat",
+  3: "Very",
   4: "Crucial"
 }
 
