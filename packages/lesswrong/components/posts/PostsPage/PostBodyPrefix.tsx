@@ -26,6 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "top",
     color: "rgba(0,0,0,.4)",
   },
+  reviewVoting: {
+    display: "flex",
+    justifyContent: "center",
+    padding: theme.spacing.unit*2
+  }
 });
 
 const PostBodyPrefix = ({post, query, classes}: {
@@ -35,10 +40,10 @@ const PostBodyPrefix = ({post, query, classes}: {
 }) => {
   const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget} = Components;
   const currentUser = useCurrentUser();
-  console.log(post.title, canNominate(currentUser, post))
+
   return <>
     {/* disabled except during Review */}
-    {canNominate(currentUser, post) && <div <ReviewVotingWidget post={post} />}
+    {canNominate(currentUser, post) && <div className={classes.reviewVoting}><ReviewVotingWidget post={post} /></div>}
     {/* {(post.nominationCount2019 >= 2) && <div className={classes.reviewInfo}>
       <div className={classes.reviewLabel}>
         This post has been nominated for the <HoverPreviewLink href={'/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review'} id="QFBEjjAvT6KbaA3dY" innerHTML={"2019 Review"}/>

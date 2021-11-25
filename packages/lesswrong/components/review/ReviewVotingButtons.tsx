@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { vote } from './ReviewVotingPage';
+import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 
 export const reviewVotingButtonStyles = theme => ({
@@ -35,7 +35,7 @@ const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: vote|null}) => {
+const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVote|null}) => {
   const score = voteForCurrentPost?.score
   const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
 

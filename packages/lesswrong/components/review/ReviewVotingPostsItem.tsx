@@ -59,7 +59,7 @@ const ReviewVotingPostsItem = ({classes, post}:{classes: ClassesType, post: Post
   return <div className={classes.root} onMouseLeave={() => setAnchorEl(null)} onClick={(e) => setAnchorEl(e.target)}>
         Vote
         {anchorEl && <PopperCard open={Boolean(anchorEl)} anchorEl={anchorEl} placement="right">
-          <ReviewVotingWidget />
+          {/* <ReviewVotingWidget /> */}
         </PopperCard>}
       </div>
 }
