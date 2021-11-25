@@ -321,7 +321,6 @@ const PostsItem2 = ({
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
-  showReviewVoting=false,
   hideAuthor=false,
   classes,
   curatedIconLeft=false
@@ -345,7 +344,6 @@ const PostsItem2 = ({
   bookmark?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  showReviewVoting?: boolean,
   hideAuthor?: boolean,
   classes: ClassesType,
   curatedIconLeft?: boolean
@@ -396,7 +394,7 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarIcon, ReviewVotingPostsItem } = (Components as ComponentTypes)
+    AddToCalendarIcon } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -514,13 +512,9 @@ const PostsItem2 = ({
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
-                {<div className={classes.reviewVoting}>
-                    <ReviewVotingPostsItem post={post}/>
-                  </div>}
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}
-
                 <div className={classes.mobileDismissButton}>
                   {dismissButton}
                 </div>
