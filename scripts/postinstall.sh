@@ -81,3 +81,5 @@ if [ -e /proc/sys/fs/inotify/max_user_watches ]; then
 else
   echo 'N/A'
 fi
+
+echo 'postinstall complete'

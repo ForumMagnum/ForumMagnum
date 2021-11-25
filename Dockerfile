@@ -10,7 +10,8 @@ COPY package.json package.json
 COPY yarn.lock yarn.lock
 COPY public/lesswrong-editor public/lesswrong-editor
 COPY scripts/postinstall.sh scripts/postinstall.sh
-RUN yarn
+RUN yarn --verbose
+RUN echo "post-yarn echo"
 COPY . .
 EXPOSE 8080
 CMD [ "yarn", "run", "production" ]
