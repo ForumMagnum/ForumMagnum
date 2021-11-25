@@ -1,19 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 
-export const reviewVotingButtonStyles = theme => ({
-  padding: theme.spacing.unit,
-  ...theme.typography.smallText,
-  ...theme.typography.commentStyle,
-  color: theme.palette.grey[700],
-  cursor: "pointer"
-})
-
 const styles = (theme: ThemeType) => ({
   button: {
-    ...reviewVotingButtonStyles(theme)
+    padding: theme.spacing.unit,
+    ...theme.typography.smallText,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    cursor: "pointer"
   },
   selectionHighlight: {
     backgroundColor: "rgba(0,0,0,.5)",

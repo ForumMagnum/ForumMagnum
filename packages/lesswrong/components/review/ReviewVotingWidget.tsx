@@ -10,7 +10,7 @@ import { ReviewVote } from './ReviewVotingPage';
 const styles = (theme) => ({
   root: {
     background: "white",
-    ...theme.typography.smallText,
+    ...theme.typography.body2,
     ...theme.typography.commentStyle,
     padding: 12,
     borderRadius: 2
