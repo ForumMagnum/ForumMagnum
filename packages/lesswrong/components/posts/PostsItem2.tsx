@@ -12,7 +12,6 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { reviewVotingButtonStyles } from '../review/ReviewVotingButtons';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -263,8 +262,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   isRead: {
     background: "white" // this is just a placeholder, enabling easier theming.
-  },
-  reviewVoting: {}
+  }
 })
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
