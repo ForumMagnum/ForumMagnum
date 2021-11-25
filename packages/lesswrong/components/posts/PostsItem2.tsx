@@ -514,9 +514,9 @@ const PostsItem2 = ({
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
-                {/* {<div className={classes.reviewVoting}>
+                {<div className={classes.reviewVoting}>
                     <ReviewVotingPostsItem post={post}/>
-                  </div>} */}
+                  </div>}
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}

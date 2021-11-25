@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentUser } from '../common/withUser';
+import { canNominate } from './NominatePostMenuItem';
 import { reviewVotingButtonStyles } from './ReviewVotingButtons';
+import { useMutation, gql } from '@apollo/client';
+import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
+import { getFragment } from '../../lib/vulcan-lib';
 
 const styles = (theme) => ({
   root: {
@@ -15,27 +20,46 @@ const styles = (theme) => ({
     '&:hover': {
       background: "#eee"
     }
-  },
-  reviewVotingFull: {
-    background: "white",
-    ...theme.typography.smallText,
-    ...theme.typography.commentStyle,
-    padding: 12,
-    borderRadius: 2
   }
 })
 
 const ReviewVotingPostsItem = ({classes, post}:{classes: ClassesType, post: PostsList}) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
-  const { ReviewVotingButtons, PopperCard } = Components
+  const currentUser = useCurrentUser()
+  const { ReviewVotingWidget, PopperCard } = Components
+
+  const [submitVote] = useMutation(gql`
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean, $reactions: [String]) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy, reactions: $reactions) {
+        ...reviewVoteFragment
+      }
+    }
+    ${getFragment("reviewVoteFragment")}
+  `, {
+    update: (store, mutationResult) => {
+      updateEachQueryResultOfType({
+        func: handleUpdateMutation,
+        document: mutationResult.data.submitReviewVote,
+        store, typeName: "ReviewVote",
+      });
+    }
+  });
+
+  const dispatchQualitativeVote = useCallback(async ({_id, postId, score, reactions}: {
+    _id: string|null,
+    postId: string,
+    score: number,
+    reactions: string[],
+  }) => {
+    return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
+  }, [submitVote]);
+
+  if (!canNominate(currentUser, post)) return null 
+  
   return <div className={classes.root} onMouseLeave={() => setAnchorEl(null)} onClick={(e) => setAnchorEl(e.target)}>
         Vote
         {anchorEl && <PopperCard open={Boolean(anchorEl)} anchorEl={anchorEl} placement="right">
-          <div className={classes.reviewVotingFull}>
-            <p>Should this post be considered for the {2020} Review?</p>
-            <p></p>
-            <ReviewVotingButtons postId={post._id} />
-          </div>
+          <ReviewVotingWidget />
         </PopperCard>}
       </div>
 }
