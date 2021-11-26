@@ -1248,3 +1248,21 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: Reso
     }
   }
 })
+
+// Nominations for the (≤)2020 review are determined by the number of positive votes
+Posts.addView("nominations2020", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      reviewVoteCount: { $gt: 0 }
+    },
+    options: {
+      sort: {
+        reviewVoteCount: terms.sortByMost ? -1 : 1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ reviewVoteCount: 1 }),
+  { name: "posts.reviewVoteCount", }
+);
