@@ -29,7 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   reviewVoting: {
     display: "flex",
     justifyContent: "center",
-    padding: theme.spacing.unit*2
+    padding: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*6
   }
 });
 
