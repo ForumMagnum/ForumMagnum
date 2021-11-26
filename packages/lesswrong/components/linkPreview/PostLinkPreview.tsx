@@ -584,6 +584,10 @@ const imageLinkStyles = (theme: ThemeType): JssStyles => ({
   },
   image: {
     maxWidth: 400
+  },
+  hoverCard: {
+    padding: 6,
+    paddingBottom: 3, // hack that's fixing an issue where by default the image has a few extra pixels at the bottom for some reason.
   }
 })
 
@@ -601,7 +605,7 @@ const ImagePreview = ({classes, href, innerHTML, id}: {
       <a className={classes.link} href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-        <Card>
+        <Card className={classes.hoverCard}>
           <img src={href} className={classes.image} />
         </Card>
       </LWPopper>
