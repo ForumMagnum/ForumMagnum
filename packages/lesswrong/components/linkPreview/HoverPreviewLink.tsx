@@ -90,7 +90,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
       if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
         return <Components.ArbitalPreview href={href} innerHTML={innerHTML} id={id} />
       }
-      if (onsiteUrl.endsWith('.png') || onsiteUrl.endsWith('.jpg') || onsiteUrl.endsWith('.jpeg') || onsiteUrl.endsWith('.gif')) {
+      if (onsiteUrl.endsWith('.png') || onsiteUrl.endsWith('.jpg') || onsiteUrl.endsWith('.jpeg') || onsiteUrl.endsWith('.gif')) { // TODO: make it so that images that don't end precisely in ".jpg-etc" work. i.e. some end like ".png&r=g" or something.
         return <Components.ImagePreview href={href} innerHTML={innerHTML} id={id} />
       }
       return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} rel={rel} />
