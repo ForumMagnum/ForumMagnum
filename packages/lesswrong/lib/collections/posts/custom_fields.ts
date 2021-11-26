@@ -1039,6 +1039,22 @@ addFieldsDict(Posts, {
     type: Object,
     foreignKey: 'Comments',
   },
+  
+  reviewVoteCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewVoteCount",
+      collectionName: "Posts",
+      foreignCollectionName: "ReviewVotes",
+      foreignTypeName: "reviewVote",
+      foreignFieldName: "postId",
+      filterFn: reviewVote => reviewVote.quadraticScore > 0 || reviewVote.qualitativeScore > 1
+    }),
+    canRead: ['guests'],
+  },
 });
 
 makeEditable({

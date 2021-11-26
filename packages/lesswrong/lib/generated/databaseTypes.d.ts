@@ -422,6 +422,7 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
+  reviewVoteCount: number
   contents: EditableFieldContents
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines: EditableFieldContents
