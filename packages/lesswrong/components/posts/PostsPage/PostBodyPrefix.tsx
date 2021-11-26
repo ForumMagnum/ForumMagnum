@@ -2,6 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { useCurrentUser } from '../../common/withUser';
+import { canNominate } from '../../review/NominatePostMenuItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -24,6 +26,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "top",
     color: "rgba(0,0,0,.4)",
   },
+  reviewVoting: {
+    display: "flex",
+    justifyContent: "center",
+    padding: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*6
+  }
 });
 
 const PostBodyPrefix = ({post, query, classes}: {
@@ -31,10 +39,12 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip} = Components;
-  
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget} = Components;
+  const currentUser = useCurrentUser();
+
   return <>
     {/* disabled except during Review */}
+    {canNominate(currentUser, post) && <div className={classes.reviewVoting}><ReviewVotingWidget post={post} /></div>}
     {/* {(post.nominationCount2019 >= 2) && <div className={classes.reviewInfo}>
       <div className={classes.reviewLabel}>
         This post has been nominated for the <HoverPreviewLink href={'/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review'} id="QFBEjjAvT6KbaA3dY" innerHTML={"2019 Review"}/>

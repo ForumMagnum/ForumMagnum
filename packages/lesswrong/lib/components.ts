@@ -570,6 +570,10 @@ importComponent("PostReviewsAndNominations", () => require('../components/review
 importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
 importComponent("ReviewVotingPage", () => require('../components/review/ReviewVotingPage'))
 importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
+importComponent("ReviewVotingWidget", () => require('../components/review/ReviewVotingWidget'))
+importComponent("ReviewVotingMenuItem", () => require('../components/review/ReviewVotingMenuItem'))
+
+
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
 importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))

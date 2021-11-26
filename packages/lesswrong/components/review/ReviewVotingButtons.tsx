@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { vote } from './ReviewVotingPage';
+import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
@@ -25,15 +25,16 @@ const styles = (theme: ThemeType) => ({
 const indexToTermsLookup = {
   0: "No",
   1: "Neutral",
-  2: "Good",
-  3: "Important",
+  2: "Somewhat",
+  3: "Very",
   4: "Crucial"
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: vote|null}) => {
+const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVote|null}) => {
   const score = voteForCurrentPost?.score
   const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
+
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)

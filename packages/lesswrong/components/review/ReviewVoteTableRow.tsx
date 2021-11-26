@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { vote, quadraticVote } from './ReviewVotingPage';
+import type { ReviewVote, quadraticVote } from './ReviewVotingPage';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
@@ -89,13 +89,13 @@ const styles = (theme: ThemeType) => ({
 const ReviewVoteTableRow = (
   { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, showKarmaVotes }: {
     post: PostsListWithVotes,
-    dispatch: React.Dispatch<vote>,
+    dispatch: React.Dispatch<ReviewVote>,
     dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId: string,
-    currentQualitativeVote: vote|null,
+    currentQualitativeVote: ReviewVote|null,
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {

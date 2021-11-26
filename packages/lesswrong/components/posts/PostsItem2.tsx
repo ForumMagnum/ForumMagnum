@@ -510,11 +510,9 @@ const PostsItem2 = ({
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
-
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}
-
                 <div className={classes.mobileDismissButton}>
                   {dismissButton}
                 </div>
@@ -536,7 +534,6 @@ const PostsItem2 = ({
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
-
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}

@@ -14,9 +14,19 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
+export const REVIEW_YEAR = 2020
+
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
   if (!currentUser) return false;
   if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return false
+  return true
+}
+
+export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
+  if (!eligibleToNominate(currentUser)) return false
+  if (post.userId === currentUser!._id) return false
+  if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
+  if (new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
   return true
 }
 
@@ -39,10 +49,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
     fragmentName: "CommentsList"
   });
 
-  if (!eligibleToNominate(currentUser)) return null
-  if (post.userId === currentUser!._id) return null
-  if (new Date(post.postedAt) > new Date("2020-01-01")) return null
-  if (new Date(post.postedAt) < new Date("2019-01-01")) return null
+  if (!canNominate(currentUser, post)) return null
 
   const nominated = !loading && nominations?.length;
 

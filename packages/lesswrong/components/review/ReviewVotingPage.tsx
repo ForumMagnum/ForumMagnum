@@ -209,9 +209,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export type vote = {_id: string, postId: string, score: number, type?: string, reactions: string[]}
-export type quadraticVote = vote & {type: "quadratic"}
-export type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
+export type ReviewVote = {_id: string, postId: string, score: number, type?: string, reactions: string[]}
+export type quadraticVote = ReviewVote & {type: "quadratic"}
+export type qualitativeVote = ReviewVote & {type: "qualitative", score: 0|1|2|3|4}
 
 
 const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
@@ -275,6 +275,7 @@ const ReviewVotingPage = ({classes}: {
   const [showKarmaVotes, setShowKarmaVotes] = useState<any>(null)
 
   const votes = dbVotes?.map(({_id, qualitativeScore, postId, reactions}) => ({_id, postId, score: qualitativeScore, type: "qualitative", reactions})) as qualitativeVote[]
+  
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
       if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
@@ -590,15 +591,15 @@ const sumOf1ToN = (x:number) => {
   return absX*(absX+1)/2
 }
 
-const computeTotalCost = (votes: vote[]) => {
+const computeTotalCost = (votes: ReviewVote[]) => {
   return sumBy(votes, ({score}) => sumOf1ToN(score))
 }
 
-const computeTotalVote = (votes: vote[]) => {
+const computeTotalVote = (votes: ReviewVote[]) => {
   return sumBy(votes, ({score}) => score)
 }
 
-function createPostVoteTuples<K extends HasIdType,T extends vote> (posts: K[], votes: T[]):[K, T | undefined][] {
+function createPostVoteTuples<K extends HasIdType,T extends ReviewVote> (posts: K[], votes: T[]):[K, T | undefined][] {
   return posts.map(post => {
     const voteForPost = votes.find(vote => vote.postId === post._id)
     return [post, voteForPost]
