@@ -13,7 +13,8 @@ const styles = (theme) => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     padding: 12,
-    textAlign: "center"
+    textAlign: "center",
+    color: theme.palette.grey[800]
   }
 })
 
@@ -69,7 +70,6 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
   return <ErrorBoundary>
       <div className={classes.root}>
         <p>{REVIEW_YEAR} Review: Was this post important?</p>
-        {/* <p>Should this post be considered for the {REVIEW_YEAR} Review?</p> */}
         <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />
       </div>
     </ErrorBoundary>
