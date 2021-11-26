@@ -10,7 +10,7 @@ COPY package.json package.json
 COPY yarn.lock yarn.lock
 COPY public/lesswrong-editor public/lesswrong-editor
 COPY scripts/postinstall.sh scripts/postinstall.sh
-RUN yarn --verbose
+RUN yarn && yarn cache clean
 RUN echo "post-yarn echo"
 COPY . .
 EXPOSE 8080

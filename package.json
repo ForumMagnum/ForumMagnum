@@ -2,8 +2,8 @@
   "name": "lesswrong",
   "version": "2.1.0",
   "scripts": {
-    "postinstall": "scripts/postinstall.sh",
     "checktypes": "scripts/lint_and_checktypes.sh",
+    "postinstall": "scripts/postinstall.sh",
     "lint": "scripts/lint_and_checktypes.sh",
     "tsc": "tsc --noEmit --skipLibCheck",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
