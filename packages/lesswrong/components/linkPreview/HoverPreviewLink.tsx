@@ -27,12 +27,7 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview special JS links
   if (!url || url==="#" || url==="")
     return true;
-  
-  // Don't try to preview links that go directly to images. The usual use case
-  // for such links is an image where you click for a larger version.
-  return !!(url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif'));
-
-
+  return false
 }
 
 // A link, which will have a hover preview auto-selected and attached. Used from
@@ -69,6 +64,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || isServer)) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
       const destinationUrl = parsedUrl.url;
@@ -93,6 +89,9 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
       }
       if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
         return <Components.ArbitalPreview href={href} innerHTML={innerHTML} id={id} />
+      }
+      if (onsiteUrl.endsWith('.png') || onsiteUrl.endsWith('.jpg') || onsiteUrl.endsWith('.jpeg') || onsiteUrl.endsWith('.gif')) {
+        return <Components.ImagePreview href={href} innerHTML={innerHTML} id={id} />
       }
       return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} rel={rel} />
     }

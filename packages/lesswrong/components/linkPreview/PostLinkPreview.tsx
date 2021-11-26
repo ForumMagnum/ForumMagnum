@@ -529,9 +529,6 @@ const arbitalStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-
-
-
 const ArbitalPreview = ({classes, href, innerHTML, id}: {
   classes: ClassesType,
   href: string,
@@ -581,6 +578,39 @@ const ArbitalPreviewComponent = registerComponent('ArbitalPreview', ArbitalPrevi
   styles: arbitalStyles
 })
 
+const imageLinkStyles = (theme: ThemeType): JssStyles => ({
+  link: {
+    ...linkStyle(theme)
+  },
+  image: {
+    maxWidth: 400
+  }
+})
+
+const ImagePreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  id?: string
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
+    <span {...eventHandlers}>
+      <a className={classes.link} href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
+      
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+        <Card>
+          <img src={href} className={classes.image} />
+        </Card>
+      </LWPopper>
+    </span>
+  </AnalyticsTracker>
+}
+
+const ImagePreviewComponent = registerComponent('ImagePreview', ImagePreview, {styles: imageLinkStyles})
+
 declare global {
   interface ComponentTypes {
     PostLinkPreview: typeof PostLinkPreviewComponent,
@@ -596,6 +626,7 @@ declare global {
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
+    ImagePreview: typeof ImagePreviewComponent
     DefaultPreview: typeof DefaultPreviewComponent,
   }
 }
