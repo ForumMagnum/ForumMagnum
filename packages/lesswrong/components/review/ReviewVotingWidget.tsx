@@ -10,21 +10,20 @@ import { ReviewVote } from './ReviewVotingPage';
 
 const styles = (theme) => ({
   root: {
-    background: "white",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     padding: 12,
-    borderRadius: 2
+    textAlign: "center"
   }
 })
 
 const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBase}) => {
 
-  const { ReviewVotingButtons, Loading, ErrorBoundary } = Components
+  const { ReviewVotingButtons, ErrorBoundary } = Components
 
   const currentUser = useCurrentUser()
 
-  const { results: votes, loading: votesLoading, error: voteLoadingError } = useMulti({
+  const { results: votes, error: voteLoadingError } = useMulti({
     terms: {view: "reviewVotesForPostAndUser", limit: 1, userId: currentUser?._id, postId: post._id},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
@@ -60,11 +59,10 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
 
   if (voteLoadingError) return <div>{voteLoadingError.message}</div>
 
-  const rawVote = votes[0] 
-  const vote = rawVote ? {
-    _id: rawVote._id, 
-    postId: rawVote.postId, 
-    score: rawVote.qualitativeScore, 
+  const vote = votes?.length ? {
+    _id: votes[0]._id, 
+    postId: votes[0].postId, 
+    score: votes[0].qualitativeScore, 
     type: "qualitative"
   } as ReviewVote : null
 
