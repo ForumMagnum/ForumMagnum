@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, userHasMinPostKarma } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
@@ -29,7 +29,10 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, SingleColumnSection } = Components
+  if (!userHasMinPostKarma(currentUser!)) {
+    return (<SingleColumnSection><h2>Your karma is below the threshold for editing posts.</h2></SingleColumnSection>);
+  }
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}

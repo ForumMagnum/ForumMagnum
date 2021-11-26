@@ -6,6 +6,8 @@ import { userGetDisplayName } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 
+const MINIMUM_NEW_POST_KARMA = -20
+const MINIMUM_NEW_COMMENT_KARMA = -50 // also applies to shortforms
 
 // EXAMPLE-FORUM Helpers
 
@@ -179,4 +181,12 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
 //  3) The post doesn't have any comments yet
 export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
+}
+
+export const userHasMinPostKarma = (currentUser: UsersCurrent|DbUser|null): boolean => {
+  return !!currentUser && currentUser.karma >= MINIMUM_NEW_POST_KARMA
+}
+
+export const userHasMinCommentKarma = (currentUser: UsersCurrent|DbUser|null): boolean => {
+  return !!currentUser && currentUser.karma >= MINIMUM_NEW_COMMENT_KARMA
 }

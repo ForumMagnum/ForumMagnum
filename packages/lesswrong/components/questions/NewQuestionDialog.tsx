@@ -5,7 +5,7 @@ import { useMessages } from '../common/withMessages';
 import DialogContent from '@material-ui/core/DialogContent';
 
 import { Posts } from '../../lib/collections/posts/collection'
-import { postGetPageUrl } from '../../lib/collections/posts/helpers'
+import { postGetPageUrl, userHasMinPostKarma } from '../../lib/collections/posts/helpers'
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
@@ -32,6 +32,19 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   const { openDialog } = useDialog();
   const { PostSubmit, SubmitToFrontpageCheckbox, LWDialog } = Components
   
+  if (!userHasMinPostKarma(currentUser!)) {
+    return (<LWDialog
+      open={true}
+      maxWidth={false}
+      onClose={onClose}
+      fullScreen={fullScreen}
+    >
+      <DialogContent>
+      Your karma is below the threshold for asking questions.
+      </DialogContent>
+    </LWDialog>)
+  }
+
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
