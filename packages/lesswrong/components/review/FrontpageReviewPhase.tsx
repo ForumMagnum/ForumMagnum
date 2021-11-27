@@ -140,36 +140,63 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
   const currentDate = moment(new Date())
   const activeRange = getReviewPhase()
 
-  const overviewToolip = <div>
-    <div>The {forumTitleSetting.get()} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases</div>
-    <ul>
-      <li><em>Nomination</em> ({nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')})</li>
-      <li><em>Review</em> ({nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')})</li>
-      <li><em>Voting</em> ({reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')})</li>
-      {!isEAForum && <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" book.</li>}
-    </ul>
-    <div>(Currently this section shows a random sample of {REVIEW_YEAR} posts, weighted by karma)</div>
-  </div>
+  // EA will use LW text next year, so I've kept the forumType genericization
+  const overviewToolip = isEAForum ?
+    <>
+      <div>The EA Forum is reflecting on the best EA writing, in three phases</div>
+      <ul>
+        <li><em>Nomination</em> ({nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')})</li>
+        <li><em>Review</em> ({nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')})</li>
+        <li><em>Voting</em> ({reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')})</li>
+      </ul>
+      <div>To be eligible, posts must have been posted before January 1st, 2021.</div>
+      <br/>
+      {/* TODO; this won't be true in other phases */}
+      <div>(Currently this section shows a random sample of {REVIEW_YEAR} posts, weighted by karma)</div>
+    </> :
+    <>
+      <div>The ${forumTitleSetting} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases</div>
+      <ul>
+        <li><em>Nomination</em> ({nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')})</li>
+        <li><em>Review</em> ({nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')})</li>
+        <li><em>Voting</em> ({reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')})</li>
+        {!isEAForum && <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" book.</li>}
+      </ul>
+      {/* TODO; this won't be true in other phases */}
+      <div>(Currently this section shows a random sample of {REVIEW_YEAR} posts, weighted by karma)</div>
+    </>
 
-  const nominationsTooltip = <div>
-    <div>Nominate posts for the {REVIEW_YEAR} Review</div>
-    <ul>
-      <li>Any post from {REVIEW_YEAR} can be nominated</li>
-      <li>Any user registered before {REVIEW_YEAR} can nominate posts for review</li>
-      <li>A post requires two nominations to progress to the review phase</li>
-    </ul>
-    <div>If you've been actively reading {siteNameWithArticleSetting.get()} in {REVIEW_YEAR}, but didn't register an account, message us on Intercom</div>
-  </div>
+  const nominationsTooltip = isEAForum ?
+    <>
+      <div>Nominate posts for the EA Writing Mega Review</div>
+      <ul>
+        <li>Any post from before 2021 can be nominated</li>
+        <li>Any user registered before the start of the review can nominate posts</li>
+        <li>A post requires two nominations to progress to the review phase</li>
+      </ul>
+      <div>If you've been actively reading {siteNameWithArticleSetting.get()} before now, but didn't register an account, <Link href="/contact">contact us</Link></div>
+    </> :
+    <>
+      <div>Nominate posts for the {REVIEW_YEAR} Review</div>
+      <ul>
+        <li>Any post from {REVIEW_YEAR} can be nominated</li>
+        <li>Any user registered before {REVIEW_YEAR} can nominate posts for review</li>
+        <li>A post requires two nominations to progress to the review phase</li>
+      </ul>
+      <div>If you've been actively reading {siteNameWithArticleSetting.get()} in {REVIEW_YEAR}, but didn't register an account, <Link href="/contact">contact us</Link></div>
+    </>
 
-  const reviewTooltip = <div>
+  // TODO;
+  const reviewTooltip = <>
     <div>Review posts for the {REVIEW_YEAR} Review (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
     <ul>
       <li>Write reviews of posts nominated for the {REVIEW_YEAR} Review</li>
       <li>Only posts with at least one review are eligible for the final vote</li>
     </ul>
-  </div>
+  </>
 
-  const voteTooltip = <div>
+  // TODO;
+  const voteTooltip = <>
     <div>Vote on posts for the {REVIEW_YEAR} Review (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
     <ul>
       <li>Vote on posts that were reviewed and nominated for the {REVIEW_YEAR} Review</li>
@@ -177,7 +204,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
       {!isEAForum && <li>The end result will be compiled into a canonical sequence and best-of {REVIEW_YEAR} book</li>}
     </ul>
     <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in {REVIEW_YEAR-1}</div>
-  </div>
+  </>
 
   const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, endDate: moment.Moment) => {
     if (fractionDate < startDate) return 0
@@ -248,7 +275,7 @@ const FrontpageReviewPhase = ({classes}: {classes: ClassesType}) => {
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/nominations"} className={classes.actionButtonCTA}>
-          Vote on {REVIEW_YEAR} Posts
+          Nominate {REVIEW_YEAR} Posts
         </Link>
       </div>}
       {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>

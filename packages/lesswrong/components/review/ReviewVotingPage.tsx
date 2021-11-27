@@ -16,14 +16,21 @@ import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { annualReviewStart } from '../../lib/publicSettings';
 
 export const REVIEW_YEAR = 2020
 const VOTING_VIEW = "roughVoting2020" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 const REVIEW_COMMENTS_VIEW = "reviews2020"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
-export const currentUserCanVote = (currentUser: UsersCurrent|null) =>
-  currentUser && (new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`) || currentUser.isAdmin)
+export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
+  if (!currentUser) return false
+  if (!isEAForum && new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (isEAForum && new Date(currentUser.createdAt) < new Date(annualReviewStart.get())) return false
+  return true
+}
 
 const defaultReactions = [
   "I personally benefited from this post",

@@ -14,11 +14,16 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import { REVIEW_YEAR } from './ReviewVotingPage';
+import { forumTypeSetting } from '../../lib/instanceSettings'
+import { annualReviewStart } from '../../lib/publicSettings';
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
   if (!currentUser) return false;
   if (currentUser.isAdmin) return true;
-  if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return false
+  if (!isEAForum && new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (isEAForum && new Date(currentUser.createdAt) < new Date(annualReviewStart.get())) return false
   return true
 }
 
