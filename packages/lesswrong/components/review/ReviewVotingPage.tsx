@@ -244,8 +244,6 @@ const ReviewVotingPage = ({classes}: {
     fetchPolicy: 'cache-and-network',
   })
 
-  console.log(dbVotes)
-
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
