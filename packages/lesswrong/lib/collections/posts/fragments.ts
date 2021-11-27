@@ -93,7 +93,6 @@ registerFragment(`
     nominationCount2019
     reviewCount2019
     reviewVoteCount
-    reviewVoteCount
 
     group {
       _id
