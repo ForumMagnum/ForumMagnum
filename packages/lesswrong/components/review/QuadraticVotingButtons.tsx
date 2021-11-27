@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { ReviewVote } from './ReviewVotingPage';
+import type { ReviewVote } from './ReviewVotingPage2019';
 
 const styles = (theme: ThemeType) => ({
   root: {

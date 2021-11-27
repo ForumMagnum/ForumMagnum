@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
-import { currentUserCanVote } from './ReviewVotingPage';
+import { currentUserCanVote } from './ReviewVotingPage2019';
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
