@@ -1177,14 +1177,6 @@ Posts.addView("voting2019", (terms: PostsViewTerms) => {
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
 
-Posts.addView("roughVoting2019", (terms: PostsViewTerms) => {
-  return {
-    selector: {
-      reviewVoteCount: {$gte:1}
-    }
-  }
-})
-
 Posts.addView("tagProgressUntagged", (terms: PostsViewTerms) => {
   return {
     selector: {  
