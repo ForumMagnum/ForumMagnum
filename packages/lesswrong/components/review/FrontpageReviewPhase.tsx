@@ -6,10 +6,12 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { currentUserCanVote } from './ReviewVotingPage';
-import { forumTitleSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { eligibleToNominate } from './NominatePostMenuItem';
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
@@ -53,14 +55,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: 'rgba(127, 175, 131, 0.5)'
+    backgroundColor: isEAForum ? theme.palette.primary.main : 'rgba(127, 175, 131, 0.5)'
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: 'rgba(127, 175, 131, 0.7)'
+    backgroundColor: isEAForum ? theme.palette.lwTertiary.main : 'rgba(127, 175, 131, 0.7)'
   },
   nominationDate: {},
   actionButtonRow: {
