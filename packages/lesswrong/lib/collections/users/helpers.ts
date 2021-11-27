@@ -5,6 +5,7 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
+import { minNewPostKarmaSetting, minNewCommentKarmaSetting } from '../../publicSettings';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -162,6 +163,10 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
     return false
   }
 
+  if (!userHasMinCommentKarma) {
+    return false
+  }
+
   if (!post) {
     return true
   }
@@ -190,6 +195,10 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
     return "Can't recognize user"
   }
 
+  if (!userHasMinCommentKarma) {
+    return `Due to your karma score falling below ${minNewCommentKarmaSetting.get()}, your ability to comment has been disabled.`
+  }
+
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return "This post's author has blocked you from commenting."
   }
@@ -206,6 +215,14 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
     return "Comments on this post are disabled."
   }
   return "You cannot comment at this time"
+}
+
+export const userHasMinPostKarma = (user: UsersCurrent|DbUser|null): boolean => {
+  return !!user && user.karma >= minNewPostKarmaSetting.get()
+}
+
+export const userHasMinCommentKarma = (user: UsersCurrent|DbUser|null): boolean => {
+  return !!user && user.karma >= minNewCommentKarmaSetting.get()
 }
 
 // Return true if the user's account has at least one verified email address.

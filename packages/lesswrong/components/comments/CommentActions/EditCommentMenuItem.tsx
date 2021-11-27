@@ -5,26 +5,28 @@ import { userOwns, userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import Edit from '@material-ui/icons/Edit';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { userHasMinCommentKarma } from '../../../lib/collections/users/helpers';
 
 const EditCommentMenuItem = ({ comment, showEdit }: {
   comment: CommentsList,
   showEdit: ()=>void,
 }) => {
   const currentUser = useCurrentUser();
-  if (userCanDo(currentUser, "comments.edit.all") ||
-      userOwns(currentUser, comment))
-  {
-    return (
-      <MenuItem onClick={showEdit}>
-        <ListItemIcon>
-          <Edit />
-        </ListItemIcon>
-        Edit
-      </MenuItem>
-    )
-  } else {
-    return null
+  if (!userCanDo(currentUser, "comments.edit.all") &&
+      !userOwns(currentUser, comment)) {
+    return null;
   }
+  if (!userHasMinCommentKarma(currentUser!)) {
+    return null;
+  }
+  return (
+    <MenuItem onClick={showEdit}>
+      <ListItemIcon>
+        <Edit />
+      </ListItemIcon>
+      Edit
+    </MenuItem>
+  )
 };
 
 const EditCommentMenuItemComponent = registerComponent('EditCommentMenuItem', EditCommentMenuItem, {});

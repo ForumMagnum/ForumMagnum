@@ -130,6 +130,7 @@ importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSe
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
+importComponent("KarmaThresholdNotice", () => require('../components/users/KarmaThresholdNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));

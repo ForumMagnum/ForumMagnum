@@ -1,7 +1,8 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl, userHasMinPostKarma } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { userHasMinPostKarma } from '../../lib/collections/users/helpers';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -80,6 +81,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
     "& .form-submit": {
       textAlign: "right",
+    },
+
+    '& a': {
+      color: theme.palette.primary.main,
     }
   },
   formSubmit: {
@@ -110,7 +115,7 @@ const PostsNewForm = ({classes}: {
     skip: !query || !query.groupId
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, KarmaThresholdNotice } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = {
@@ -129,7 +134,7 @@ const PostsNewForm = ({classes}: {
     return (<WrappedLoginForm />);
   }
   if (!userHasMinPostKarma(currentUser!)) {
-    return (<SingleColumnSection><h2>Your karma is below the threshold for creating posts.</h2></SingleColumnSection>);
+    return (<SingleColumnSection><KarmaThresholdNotice thresholdType="post" disabledAbility="post" /></SingleColumnSection>);
   }
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>

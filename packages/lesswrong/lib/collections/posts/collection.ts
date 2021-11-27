@@ -3,7 +3,8 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { postCanEdit, userHasMinPostKarma } from './helpers';
+import { postCanEdit } from './helpers';
+import { userHasMinPostKarma } from '../users/helpers';
 
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
@@ -17,7 +18,7 @@ const options: MutationOptions<DbPost> = {
         userCanDo(user, 'posts.alignment.suggest')) {
       return true
     }
-    return userHasMinPostKarma(user) && postCanEdit(user, document)
+    return postCanEdit(user, document)
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
