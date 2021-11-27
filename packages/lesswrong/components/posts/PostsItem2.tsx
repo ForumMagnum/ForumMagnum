@@ -501,7 +501,7 @@ const PostsItem2 = ({
                   unreadComments={hasUnreadComments()}
                   newPromotedComments={hasNewPromotedComments()}
                 />}
-                  
+
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
