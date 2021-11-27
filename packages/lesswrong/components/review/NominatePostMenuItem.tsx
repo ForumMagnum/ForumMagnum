@@ -13,8 +13,7 @@ import { useCurrentUser } from '../common/withUser';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
-
-export const REVIEW_YEAR = 2020
+import { REVIEW_YEAR } from './ReviewVotingPage';
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
   if (!currentUser) return false;
