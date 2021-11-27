@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { reviewAlgorithm } from "./FrontpageReviewPhase";
+import { getReviewAlgorithm } from "./FrontpageReviewPhase";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -65,7 +65,7 @@ const FrontpageVotingPhase = ({settings, classes}: {
         </div>
       </LWTooltip>
       <AnalyticsContext listContext={"Voting on the LW 2018 Review"} capturePostItemOnMount>
-        <RecommendationsList algorithm={reviewAlgorithm} />
+        <RecommendationsList algorithm={getReviewAlgorithm()} />
       </AnalyticsContext>
       <SectionFooter>
         <Link to={"/reviews"}>
@@ -89,4 +89,3 @@ declare global {
     FrontpageVotingPhase: typeof FrontpageVotingPhaseComponent
   }
 }
-

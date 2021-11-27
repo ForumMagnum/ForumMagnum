@@ -967,11 +967,11 @@ addRoute(
     name: 'reviews2019',
     path: '/reviews/2019',
     componentName: 'Reviews2019',
-    title: "2019 Reviews",
+    title: "2019 Reviews", // TODO; move to lw
   },
   {
     name: 'reviews',
     path: '/reviews',
-    redirect: () => `/reviews/2019`,
+    redirect: () => `/reviews/2019`, // TODO; move to REVIEW_YEAR
   }
 );

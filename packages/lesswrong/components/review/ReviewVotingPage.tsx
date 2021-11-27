@@ -23,7 +23,7 @@ const REVIEW_COMMENTS_VIEW = "reviews2020"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) =>
-  currentUser && new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`)
+  currentUser && (new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`) || currentUser.isAdmin)
 
 const defaultReactions = [
   "I personally benefited from this post",

@@ -17,6 +17,7 @@ import { REVIEW_YEAR } from './ReviewVotingPage';
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
   if (!currentUser) return false;
+  if (currentUser.isAdmin) return true;
   if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return false
   return true
 }
@@ -94,4 +95,3 @@ declare global {
     NominatePostMenuItem: typeof NominatePostMenuItemComponent
   }
 }
-
