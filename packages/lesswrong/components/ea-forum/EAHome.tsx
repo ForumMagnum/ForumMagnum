@@ -16,7 +16,7 @@ const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated,
-    SmallpoxBanner, StickiedPosts, EventBanner, FrontpageReviewPhase
+    SmallpoxBanner, StickiedPosts, EventBanner, FrontpageReviewWidget
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -33,7 +33,7 @@ const EAHome = () => {
       
       <StickiedPosts />
       
-      {reviewIsActive && <FrontpageReviewPhase />}
+      {reviewIsActive && <FrontpageReviewWidget />}
       
       <HomeLatestPosts />
       

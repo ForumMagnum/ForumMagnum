@@ -24,11 +24,12 @@ const VOTING_VIEW = "roughVoting2020" // unfortunately this can't just inhereit 
 const REVIEW_COMMENTS_VIEW = "reviews2020"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
 const isEAForum = forumTypeSetting.get() === "EAForum"
+const isLWForum = forumTypeSetting.get() === "LessWrong"
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (!isEAForum && new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
-  if (isEAForum && new Date(currentUser.createdAt) < new Date(annualReviewStart.get())) return false
+  if (isLWForum && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
   return true
 }
 
