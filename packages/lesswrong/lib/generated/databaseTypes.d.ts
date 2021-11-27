@@ -354,6 +354,7 @@ interface DbPost extends DbObject {
   nominationCount2019: number
   reviewCount2018: number
   reviewCount2019: number
+  reviewVoteCount: number
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean
@@ -422,7 +423,6 @@ interface DbPost extends DbObject {
   moderationStyle: string
   hideCommentKarma: boolean
   commentCount: number
-  reviewVoteCount: number
   contents: EditableFieldContents
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines: EditableFieldContents

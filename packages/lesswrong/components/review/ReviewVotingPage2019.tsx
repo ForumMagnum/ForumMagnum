@@ -17,14 +17,18 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
-export const REVIEW_YEAR = 2020
-const NOMINATIONS_VIEW = "nominations2020"
-const VOTING_VIEW = "roughVoting2020" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const YEAR = 2019
+const NOMINATIONS_VIEW = "nominations2019"
+const VOTING_VIEW = "voting2019" // unfortunately this can't just inhereit from YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 const REVIEW_COMMENTS_VIEW = "reviews2019"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) =>
-  currentUser && new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`)
+  currentUser && new Date(currentUser.createdAt) < new Date(`${YEAR}-01-01`)
+
+//const YEAR = 2018
+//const NOMINATIONS_VIEW = "nominations2018"
+//const REVIEWS_VIEW = "reviews2018"
 
 const defaultReactions = [
   "I personally benefited from this post",
@@ -224,7 +228,7 @@ const generatePermutation = (count: number, user: UsersCurrent|null): Array<numb
   return result;
 }
 
-const ReviewVotingPage = ({classes}: {
+const ReviewVotingPage2019 = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
@@ -239,13 +243,11 @@ const ReviewVotingPage = ({classes}: {
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: REVIEW_YEAR+""},
+    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
   })
-
-  console.log(dbVotes)
 
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -300,7 +302,7 @@ const ReviewVotingPage = ({classes}: {
   }) => {
     const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
-    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false, reactions: newReactions}})
+    return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false, reactions: newReactions}})
   }, [submitVote, dbVotes]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
@@ -314,7 +316,7 @@ const ReviewVotingPage = ({classes}: {
     const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
     await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: REVIEW_YEAR+"", reactions: newReactions, dummy: false},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions, dummy: false},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
@@ -345,7 +347,7 @@ const ReviewVotingPage = ({classes}: {
   if (!currentUserCanVote(currentUser)) {
     return (
       <div className={classes.message}>
-        Only users registered before {REVIEW_YEAR} can vote in the {REVIEW_YEAR} LessWrong Review
+        Only users registered before {YEAR} can vote in the {YEAR} LessWrong Review
       </div>
     )
   }
@@ -458,9 +460,9 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <h1 className={classes.header}>Vote on nominated and reviewed posts from {REVIEW_YEAR}</h1>
+              <h1 className={classes.header}>Vote on nominated and reviewed posts from {YEAR}</h1>
               <div className={classes.instructions}>
-                {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {REVIEW_YEAR} Review on January 12th.</p> */}
+                {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p> */}
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
                 <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
                 <ul>
@@ -468,7 +470,7 @@ const ReviewVotingPage = ({classes}: {
                   <li><b>Neutral</b> – You wouldn't personally recommend it, but seems fine if others do. <em>(If you don’t have strong opinions about a post, leaving it ‘neutral’ is fine)</em></li>
                   <li><b>Good</b> – Useful ideas that I still think about sometimes.</li>
                   <li><b>Important</b> – A key insight or excellent distillation.</li>
-                  <li><b>Crucial</b> – One of the most significant posts of {REVIEW_YEAR}, for LessWrong to discuss and build upon over the coming years.</li>
+                  <li><b>Crucial</b> – One of the most significant posts of {YEAR}, for LessWrong to discuss and build upon over the coming years.</li>
                 </ul>
                 <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details. Also note that your vote allocation is not optimal if the average of your votes is above 1 or below -1, see <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results?commentId=HL9cPrFqMexGn4jmZ">this comment</Link> for details..)</p>
                 <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review">this post</Link>.</p>
@@ -495,7 +497,7 @@ const ReviewVotingPage = ({classes}: {
                   freeEntry={true}
                 />
               </div>
-              <ReviewPostButton post={expandedPost} year={REVIEW_YEAR+""} reviewMessage={<div>
+              <ReviewPostButton post={expandedPost} year={YEAR+""} reviewMessage={<div>
                 <div className={classes.writeAReview}>
                   <div className={classes.reviewPrompt}>Write a review for "{expandedPost.title}"</div>
                   <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
@@ -503,6 +505,12 @@ const ReviewVotingPage = ({classes}: {
               </div>}/>
 
               <div className={classes.comments}>
+                <PostReviewsAndNominations
+                  title="nomination"
+                  singleLine
+                  terms={{view: NOMINATIONS_VIEW, postId: expandedPost._id}}
+                  post={expandedPost}
+                />
                 <PostReviewsAndNominations
                   title="review"
                   terms={{view: REVIEW_COMMENTS_VIEW, postId: expandedPost._id}}
@@ -600,10 +608,10 @@ function createPostVoteTuples<K extends HasIdType,T extends ReviewVote> (posts: 
   })
 }
 
-const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
+const ReviewVotingPage2019Component = registerComponent('ReviewVotingPage2019', ReviewVotingPage2019, {styles});
 
 declare global {
   interface ComponentTypes {
-    ReviewVotingPage: typeof ReviewVotingPageComponent
+    ReviewVotingPage2019: typeof ReviewVotingPage2019Component
   }
 }

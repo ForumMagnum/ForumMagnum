@@ -222,6 +222,18 @@ addRoute(
   {
     name:'reviewVoting',
     path: '/reviewVoting',
+    redirect: () => `/reviewVoting/2020`,
+  },
+  {
+    name:'reviewVoting2019',
+    path: '/reviewVoting/2019',
+    title: "Voting 2019 Review",
+    componentName: "ReviewVotingPage2019"
+  },
+  {
+    name:'reviewVoting2020',
+    path: '/reviewVoting/2020',
+    title: "Voting 2020 Review",
     componentName: "ReviewVotingPage"
   },
 

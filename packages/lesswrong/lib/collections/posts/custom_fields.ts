@@ -1039,24 +1039,6 @@ addFieldsDict(Posts, {
     type: Object,
     foreignKey: 'Comments',
   },
-  
-  reviewVoteCount: {
-    type: Number,
-    optional: true,
-    defaultValue: 0,
-    
-    ...denormalizedCountOfReferences({
-      fieldName: "reviewVoteCount",
-      collectionName: "Posts",
-      foreignCollectionName: "ReviewVotes",
-      foreignTypeName: "reviewVote",
-      foreignFieldName: "postId",
-      // Perhaps the quadratic score should have a threshold below which it is
-      // not counted?
-      filterFn: reviewVote => reviewVote.quadraticScore > 0 || reviewVote.qualitativeScore > 1
-    }),
-    canRead: ['guests'],
-  },
 });
 
 makeEditable({

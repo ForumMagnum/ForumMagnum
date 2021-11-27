@@ -574,6 +574,21 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
   },
 
+  reviewVoteCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewVoteCount",
+      collectionName: "Posts",
+      foreignCollectionName: "ReviewVotes",
+      foreignTypeName: "reviewVote",
+      foreignFieldName: "postId",
+    }),
+    canRead: ['guests'],
+  },
+
   lastCommentPromotedAt: {
     type: Date,
     optional: true,

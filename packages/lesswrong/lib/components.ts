@@ -568,6 +568,7 @@ importComponent("NominatePostDialog", () => require('../components/review/Nomina
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
 importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
 importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
+importComponent("ReviewVotingPage2019", () => require('../components/review/ReviewVotingPage2019'))
 importComponent("ReviewVotingPage", () => require('../components/review/ReviewVotingPage'))
 importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
 importComponent("ReviewVotingWidget", () => require('../components/review/ReviewVotingWidget'))

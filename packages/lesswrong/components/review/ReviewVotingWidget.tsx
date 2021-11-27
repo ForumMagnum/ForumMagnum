@@ -5,8 +5,8 @@ import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/cru
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { REVIEW_YEAR } from './NominatePostMenuItem';
-import { ReviewVote } from './ReviewVotingPage';
+import { REVIEW_YEAR } from './ReviewVotingPage';
+import { ReviewVote } from './ReviewVotingPage2019';
 
 const styles = (theme) => ({
   root: {
@@ -19,11 +19,11 @@ const styles = (theme) => ({
 
 const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBase}) => {
 
-  const { ReviewVotingButtons, ErrorBoundary } = Components
+  const { ReviewVotingButtons, ErrorBoundary, Loading } = Components
 
   const currentUser = useCurrentUser()
 
-  const { results: votes, error: voteLoadingError } = useMulti({
+  const { results: votes, loading: voteLoading, error: voteLoadingError } = useMulti({
     terms: {view: "reviewVotesForPostAndUser", limit: 1, userId: currentUser?._id, postId: post._id},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
@@ -70,7 +70,7 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
       <div className={classes.root}>
         <p>{REVIEW_YEAR} Review: Was this post important?</p>
         {/* <p>Should this post be considered for the {REVIEW_YEAR} Review?</p> */}
-        <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />
+        {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />}
       </div>
     </ErrorBoundary>
 }

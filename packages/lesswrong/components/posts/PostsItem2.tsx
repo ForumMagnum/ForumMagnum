@@ -319,6 +319,7 @@ const PostsItem2 = ({
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount=false,
   showReviewCount=false,
+  showReviewVoteCount=false,
   hideAuthor=false,
   classes,
   curatedIconLeft=false
@@ -342,6 +343,7 @@ const PostsItem2 = ({
   bookmark?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
+  showReviewVoteCount?: boolean,
   hideAuthor?: boolean,
   classes: ClassesType,
   curatedIconLeft?: boolean
@@ -502,6 +504,10 @@ const PostsItem2 = ({
                   newPromotedComments={hasNewPromotedComments()}
                 />}
 
+                {showReviewVoteCount && <PostsItem2MetaInfo className={classes.reviewCounts}>
+                  {post.reviewVoteCount || 0}
+                  </PostsItem2MetaInfo>}
+                  
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>

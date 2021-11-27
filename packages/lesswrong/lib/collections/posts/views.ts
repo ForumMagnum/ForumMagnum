@@ -1177,6 +1177,14 @@ Posts.addView("voting2019", (terms: PostsViewTerms) => {
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
 
+Posts.addView("roughVoting2019", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      reviewVoteCount: {$gte:1}
+    }
+  }
+})
+
 Posts.addView("tagProgressUntagged", (terms: PostsViewTerms) => {
   return {
     selector: {  
@@ -1250,7 +1258,7 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: Reso
 })
 
 // Nominations for the (≤)2020 review are determined by the number of positive votes
-Posts.addView("nominations2020", (terms: PostsViewTerms) => {
+Posts.addView("roughVoting2020", (terms: PostsViewTerms) => {
   return {
     selector: {
       reviewVoteCount: { $gt: 0 }
