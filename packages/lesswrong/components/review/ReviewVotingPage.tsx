@@ -18,10 +18,9 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
 export const REVIEW_YEAR = 2020
-const NOMINATIONS_VIEW = "nominations2020"
 const VOTING_VIEW = "roughVoting2020" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
-const REVIEW_COMMENTS_VIEW = "reviews2019"
-const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2019";
+const REVIEW_COMMENTS_VIEW = "reviews2020"
+const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) =>
   currentUser && new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`)

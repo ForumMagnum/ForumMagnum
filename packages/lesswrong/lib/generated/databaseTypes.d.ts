@@ -734,6 +734,7 @@ interface DbUser extends DbObject {
   beta: boolean
   reviewVotesQuadratic: boolean
   reviewVotesQuadratic2019: boolean
+  reviewVotesQuadratic2020: boolean
   petrovPressedButtonDate: Date
   petrovLaunchCodeDate: Date
   defaultToCKEditor: boolean

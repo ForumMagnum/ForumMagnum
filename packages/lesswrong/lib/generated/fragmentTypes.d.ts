@@ -1543,6 +1543,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly reviewVotesQuadratic2019: boolean,
+  readonly reviewVotesQuadratic2020: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly abTestKey: string,
