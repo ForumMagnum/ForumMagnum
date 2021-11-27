@@ -3863,9 +3863,9 @@ akismet-api@^4.2.0:
     superagent "^3.8.0"
 
 algoliasearch-helper@^3.1.0:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/algoliasearch-helper/-/algoliasearch-helper-3.3.2.tgz"
-  integrity sha512-7NCTXL256Bnh0aVBP/FNba9orkpCJVjj98lYyrvFe0hs8lvrP8sVowznqntjeF5BNYqSgI5pEmTaq3iwXSK9jg==
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/algoliasearch-helper/-/algoliasearch-helper-3.6.2.tgz#45e19b12589cfa0c611b573287f65266ea2cc14a"
+  integrity sha512-Xx0NOA6k4ySn+R2l3UMSONAaMkyfmrZ3AP1geEMo32MxDJQJesZABZYsldO9fa6FKQxH91afhi4hO1G0Zc2opg==
   dependencies:
     events "^1.1.1"
 
