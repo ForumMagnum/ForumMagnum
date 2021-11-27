@@ -553,10 +553,10 @@ importComponent("RecommendationsList", () => require('../components/recommendati
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 
-// 2018 Review Components
-importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
-importComponent("FrontpageReviewPhase", () => require('../components/review/FrontpageReviewPhase'));
-importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
+// Review Components
+// importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
+importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
+// importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("Nominations2018", () => require('../components/review/Nominations2018'));
 importComponent("Nominations2019", () => require('../components/review/Nominations2019'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018'));

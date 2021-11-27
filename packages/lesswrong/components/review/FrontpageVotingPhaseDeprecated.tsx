@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { getReviewAlgorithm } from "./FrontpageReviewPhase";
+import { getReviewAlgorithm } from "./FrontpageReviewWidget";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
