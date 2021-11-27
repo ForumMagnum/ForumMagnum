@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { REVIEW_YEAR } from './ReviewVotingPage';
-import { ReviewVote } from './ReviewVotingPage2019';
+import { ReviewVote } from './ReviewVotingPage';
 
 const styles = (theme) => ({
   root: {
