@@ -218,7 +218,9 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   }
 
   // NB: There's nothing ensuring that unnominated20NN is a valid filter
-  const allEligiblePostsUrl = `/allPosts?timeframe=yearly&after=${REVIEW_YEAR}-01-01&before=${REVIEW_YEAR+1}-01-01&limit=100&sortedBy=top&filter=unnominated${REVIEW_YEAR}`
+  const allEligiblePostsUrl = 
+    isEAForum ? `/allPosts?timeframe=yearly&after=${REVIEW_YEAR}-01-01&before=${REVIEW_YEAR+1}-01-01&limit=100&sortedBy=top&filter=unnominated` 
+    : `/allPosts?timeframe=allTime&after=2020-01-01&before=2021-01-01&limit=100&sortedBy=top&filter=unnominated`
   
   const reviewPostPath = annualReviewAnnouncementPostPathSetting.get()
   if (!reviewPostPath) {
@@ -234,13 +236,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
             The {REVIEW_YEAR} Review
           </Link>
         </LWTooltip>}
-      >
-        <LWTooltip title={`All Posts written in ${REVIEW_YEAR} are eligible to participate in the review. Click here to see all posts written in ${REVIEW_YEAR}.`}>
-          <Link to={allEligiblePostsUrl}>
-            <SettingsButton showIcon={false} label={`See All ${REVIEW_YEAR} Posts`}/>
-          </Link>
-        </LWTooltip>
-      </SectionTitle>
+      />
       <div className={classes.reviewTimeline}>
         <div className={classes.nominationBlock}>
           <Link to={"/nominations"}>
@@ -280,15 +276,25 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       </AnalyticsContext>
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-        <Link to={"/nominations"} className={classes.actionButtonCTA}>
-          Nominate {REVIEW_YEAR} Posts
+        <Link to={`/votesByYear/${REVIEW_YEAR}`} className={classes.actionButton}>
+          Your Upvotes from {REVIEW_YEAR}
+        </Link>
+        <LWTooltip title={`All Posts written in ${REVIEW_YEAR} are eligible to participate in the review. Click here to see all posts written in ${REVIEW_YEAR}.`}>
+          <Link to={allEligiblePostsUrl} className={classes.actionButton}>
+            All {REVIEW_YEAR} Posts
+          </Link>
+        </LWTooltip>
+        <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
+          Vote on nominated posts
         </Link>
       </div>}
+      
       {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviews"} className={classes.actionButtonCTA}>
           Review {REVIEW_YEAR} Posts
         </Link>
       </div>}
+
       {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
           Vote on {REVIEW_YEAR} Posts
