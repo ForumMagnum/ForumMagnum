@@ -212,49 +212,64 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
   await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents);
 }
 
+// Lock to disallow running dispatchPendingEvents multiple times at once. Since
+// it's a loop-until-everything-done that runs in a cronjob, allowing multiple
+// instances of it running concurrently would mean an unbounded number of
+// simultaneous runners, potentially causing problems.
+const dispatchPendingEventsLock = {isRunning:false};
+
 export const dispatchPendingEvents = async () => {
   const now = new Date().getTime();
   const af = forumTypeSetting.get() === 'AlignmentForum'
   let eventToHandle: any = null;
   
-  do {
-    // Finds one grouped event that is ready to go, and marks it as handled in
-    // the same operation (to prevent race conditions between multiple servers
-    // checking for events at the same time).
-    //
-    // On rawCollection so that this doesn't get routed through Minimongo, which
-    // doesn't support findOneAndUpdate.
-    const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
-      {
-        dispatched: false,
-        af: af,
-        $or: [
-          { delayTime: {$lt: now} },
-          { upperBoundTime: {$lt: now} }
-        ]
-      },
-      {
-        $set: { dispatched: true }
+  if (dispatchPendingEventsLock.isRunning) {
+    return;
+  }
+  dispatchPendingEventsLock.isRunning = true;
+  
+  try {
+    do {
+      // Finds one grouped event that is ready to go, and marks it as handled in
+      // the same operation (to prevent race conditions between multiple servers
+      // checking for events at the same time).
+      //
+      // On rawCollection so that this doesn't get routed through Minimongo, which
+      // doesn't support findOneAndUpdate.
+      const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
+        {
+          dispatched: false,
+          af: af,
+          $or: [
+            { delayTime: {$lt: now} },
+            { upperBoundTime: {$lt: now} }
+          ]
+        },
+        {
+          $set: { dispatched: true }
+        }
+      );
+      eventToHandle = queryResult.value;
+      
+      if (eventToHandle) {
+        try {
+          await dispatchEvent(eventToHandle);
+        } catch (e) {
+          await DebouncerEvents.update({
+            _id: eventToHandle._id
+          }, {
+            $set: { failed: true }
+          });
+          captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
+          captureException(e);
+        }
       }
-    );
-    eventToHandle = queryResult.value;
-    
-    if (eventToHandle) {
-      try {
-        await dispatchEvent(eventToHandle);
-      } catch (e) {
-        await DebouncerEvents.update({
-          _id: eventToHandle._id
-        }, {
-          $set: { failed: true }
-        });
-        captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
-        captureException(e);
-      }
-    }
-    
-    // Keep checking for more events to handle so long as one was handled.
-  } while (eventToHandle);
+      
+      // Keep checking for more events to handle so long as one was handled.
+    } while (eventToHandle);
+  } finally {
+    dispatchPendingEventsLock.isRunning = false;
+  }
 };
 
 // Given a Date, dispatch any pending debounced events that would fire on or

@@ -27,6 +27,7 @@ import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { CallbackHook } from '../lib/vulcan-lib/callbacks';
+import { Globals } from '../lib/vulcan-lib';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
@@ -216,18 +217,39 @@ const removeNotification = async (notificationId: string) => {
 const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: string) => {
   let post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
+  const af = forumTypeSetting.get() === 'AlignmentForum'
+  
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
-      await wrapAndSendEmail({
-        user,
-        subject: post.title,
-        body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
+      await sendPostDebouncer.recordEvent({
+        key: {userId: user._id, postId, reason},
+        data: null,
+        af,
       });
     } else {
       //eslint-disable-next-line no-console
       console.log(`Skipping user ${user.username} when emailing: ${reasonUserCantReceiveEmails(user)}`);
     }
   }
+}
+
+const sendPostDebouncer = new EventDebouncer<{userId: string, postId: string, reason: string},null>({
+  name: "sendPost",
+  defaultTiming: { type: "none" },
+  callback: async ({userId, postId, reason}) => {
+    const user = await Users.findOne(userId);
+    const post = (await Posts.findOne(postId))!;
+    await wrapAndSendEmail({
+      user,
+      subject: post.title,
+      body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
+    });
+  }
+});
+
+Globals.sendPostByEmail = async (userIds: string[], postId: string) => {
+  const users = await Users.find({_id: {$in: userIds}}).fetch();
+  await sendPostByEmail(users, postId, "Invoked from the command line");
 }
 
 const getLink = async (notificationType: string, documentType: string|null, documentId: string|null) => {
