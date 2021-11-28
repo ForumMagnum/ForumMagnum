@@ -3,9 +3,10 @@ import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
+import { REVIEW_NAME } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { REVIEW_YEAR, ReviewVote } from './ReviewVotingPage';
+import { ReviewVote } from './ReviewVotingPage';
 
 const styles = (theme) => ({
   root: {
@@ -68,7 +69,7 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
 
   return <ErrorBoundary>
       <div className={classes.root}>
-        <p>{REVIEW_YEAR} Review: Was this post important?</p>
+        <p>{REVIEW_NAME}: Was this post important?</p>
         {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />}
       </div>
     </ErrorBoundary>

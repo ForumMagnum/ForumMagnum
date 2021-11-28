@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Divider from '@material-ui/core/Divider';
 
 import { useCurrentUser } from '../common/withUser';
-import { canNominate } from './NominatePostMenuItem';
+import { canNominate } from '../../lib/reviewUtils';
 
 const ReviewVotingMenuItem = ({ post }: {
   post: PostsBase
@@ -27,4 +27,3 @@ declare global {
     ReviewVotingMenuItem: typeof ReviewVotingMenuItemComponent
   }
 }
-

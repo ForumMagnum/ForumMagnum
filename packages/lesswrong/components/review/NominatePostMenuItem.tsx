@@ -1,3 +1,4 @@
+// TODO; delete
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -13,27 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
-import { REVIEW_YEAR } from './ReviewVotingPage';
-import { forumTypeSetting } from '../../lib/instanceSettings'
-import { annualReviewStart } from '../../lib/publicSettings';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
-
-export function eligibleToNominate (currentUser: UsersCurrent|null) {
-  if (!currentUser) return false;
-  if (currentUser.isAdmin) return true;
-  if (!isEAForum && new Date(currentUser.createdAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
-  if (isEAForum && new Date(currentUser.createdAt) < new Date(annualReviewStart.get())) return false
-  return true
-}
-
-export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
-  if (!eligibleToNominate(currentUser)) return false
-  if (post.userId === currentUser!._id) return false
-  if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
-  return true
-}
+import { canNominate } from '../../lib/reviewUtils';
 
 const NominatePostMenuItem = ({ post, closeMenu }: {
   post: PostsBase,

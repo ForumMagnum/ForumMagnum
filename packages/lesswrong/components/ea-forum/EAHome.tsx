@@ -10,7 +10,6 @@ const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHome
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
-const reviewIsActive = moment(annualReviewStart.get()) < moment() && moment() < moment(annualReviewEnd.get())
 
 const EAHome = () => {
   const currentUser = useCurrentUser();
@@ -23,6 +22,7 @@ const EAHome = () => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderEAHomeHandbook = showHandbookBannerSetting.get() && userHasEAHomeHandbook(currentUser)
   const shouldRenderSmallpox = showSmallpoxSetting.get()
+  const reviewIsActive = moment(annualReviewStart.get()) < moment() && moment() < moment(annualReviewEnd.get())
 
   return (
     <React.Fragment>

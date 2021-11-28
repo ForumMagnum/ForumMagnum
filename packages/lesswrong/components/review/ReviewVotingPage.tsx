@@ -16,22 +16,11 @@ import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { annualReviewStart } from '../../lib/publicSettings';
+import { currentUserCanVote, REVIEW_YEAR } from '../../lib/reviewUtils';
 
-export const REVIEW_YEAR = 2020
 const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 const REVIEW_COMMENTS_VIEW = "reviews2020"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
-const isEAForum = forumTypeSetting.get() === "EAForum"
-const isLWForum = forumTypeSetting.get() === "LessWrong"
-
-export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
-  if (!currentUser) return false
-  if (isLWForum && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
-  if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
-  return true
-}
 
 const defaultReactions = [
   "I personally benefited from this post",
@@ -145,7 +134,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
-  hideOnMobile: {
+  hideOnDesktop: {
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
@@ -174,35 +163,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   warning: {
     color: theme.palette.error.main
   },
-  
-  // averageVoteInstructions: {
-  //   padding: 12,
-  //   ...theme.typography.body2,
-  //   ...commentBodyStyles(theme),
-  // },
-  // averageVoteRow: {
-  //   padding: 12,
-  //   display: "flex",
-  // },
-  // averageVoteLabel: {
-  //   marginTop: 8,
-  //   flexGrow: 1,
-    
-  //   fontSize: "1.3rem",
-  //   fontFamily: theme.typography.postStyle.fontFamily,
-  // },
-  // averageVote: {
-  //   ...theme.typography.body1,
-  //   ...theme.typography.commentStyle
-  // },
-  // averageVoteButton: {
-  //   ...theme.typography.body2,
-  //   ...theme.typography.commentStyle,
-  //   fontWeight: 600,
-  //   paddingLeft: 10,
-  //   paddingRight: 10,
-  //   cursor: "pointer"
-  // },
   
   voteAverage: {
     cursor: 'pointer',
@@ -361,19 +321,6 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
-  // const averageQuadraticVote = posts?.length>0 ? sumBy(quadraticVotes, v=>v.score)/posts.length : 0;
-  // const averageQuadraticVoteStr = averageQuadraticVote.toFixed(2);
-  
-  // const adjustAllQuadratic = (delta: number) => {
-  //   for (let post of posts) {
-  //     const existingVote = votes.find(vote => vote.postId === post._id);
-  //     void dispatchQuadraticVote({
-  //       _id: existingVote?._id || null,
-  //       postId: post._id,
-  //       change: delta,
-  //     });
-  //   }
-  // }
 
   const currentReactions = expandedPost ? [...(votes.find(vote => vote.postId === expandedPost._id)?.reactions || [])] : []
   
@@ -389,8 +336,9 @@ const ReviewVotingPage = ({classes}: {
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
-      <div className={classNames(classes.hideOnMobile, classes.message)}>
-        Voting is not available on small screens
+      {/* TODO; link to list of nominated posts */}
+      <div className={classNames(classes.hideOnDesktop, classes.message)}>
+        Voting is not available on small screens. You can still vote on individual posts, however.
       </div>
       <div className={classes.grid}>
         <div className={classes.leftColumn}>

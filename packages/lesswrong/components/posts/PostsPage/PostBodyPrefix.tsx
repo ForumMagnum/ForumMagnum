@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate } from '../../review/NominatePostMenuItem';
+import { canNominate, reviewIsActive } from '../../../lib/reviewUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -43,14 +43,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {/* disabled except during Review */}
-    {canNominate(currentUser, post) && <div className={classes.reviewVoting}><ReviewVotingWidget post={post} /></div>}
-    {/* {(post.nominationCount2019 >= 2) && <div className={classes.reviewInfo}>
-      <div className={classes.reviewLabel}>
-        This post has been nominated for the <HoverPreviewLink href={'/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review'} id="QFBEjjAvT6KbaA3dY" innerHTML={"2019 Review"}/>
-      </div>
-      <ReviewPostButton post={post} reviewMessage="Write a Review" year="2019"/>
-    </div>} */}
+    {reviewIsActive() && canNominate(currentUser, post) && <div className={classes.reviewVoting}><ReviewVotingWidget post={post} /></div>}
 
     <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />
