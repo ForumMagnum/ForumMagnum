@@ -2,18 +2,18 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const PostsByVote = ({postIds, year}:{postIds: Array<string>, year: number}) => {
+const PostsByVote = ({postIds, year}: {postIds: Array<string>, year: number | '≤2020'}) => {
     const { PostsItem2, ErrorBoundary } = Components
 
-    const before = `${year + 1}-01-01`
+    const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
     const after = `${year}-01-01`
 
     const { results: posts } = useMulti({
       terms: {
         view: "nominatablePostsByVote",
-        postIds: postIds,
-        before: before,
-        after: after
+        postIds,
+        before,
+        ...(year === '≤2020' ? {} : {after}),
       },
       collectionName: "Posts",
       fragmentName: "PostsList",
@@ -35,4 +35,3 @@ declare global {
     PostsByVote: typeof PostsByVoteComponent
   }
 }
-
