@@ -20,7 +20,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { annualReviewStart } from '../../lib/publicSettings';
 
 export const REVIEW_YEAR = 2020
-const VOTING_VIEW = "roughVoting2020" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
+const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 const REVIEW_COMMENTS_VIEW = "reviews2020"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -239,7 +239,12 @@ const ReviewVotingPage = ({classes}: {
   
 
   const { results: posts, loading: postsLoading } = useMulti({
-    terms: {view: VOTING_VIEW, limit: 300},
+    terms: {
+      view: VOTING_VIEW, 
+      before: `${REVIEW_YEAR+1}-01-01`, 
+      after: `${REVIEW_YEAR}-01-01`, 
+      limit: 300
+    },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
     fetchPolicy: 'cache-and-network',

@@ -45,7 +45,8 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     timeField?: keyof DbPost,
-    postIds?: Array<string>
+    postIds?: Array<string>,
+    reviewYear?: number
   }
 }
 
@@ -1252,11 +1253,11 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: Reso
   }
 })
 
-// Nominations for the (≤)2020 review are determined by the number of positive votes
-Posts.addView("roughVoting2020", (terms: PostsViewTerms) => {
+// Nominations for the (≤)2020 review are determined by the number of votes
+Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewVoteCount: { $gt: 0 }
+      reviewVoteCount: { $gt: 0 },
     },
     options: {
       sort: {

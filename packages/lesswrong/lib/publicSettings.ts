@@ -88,7 +88,7 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
-export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-12-01")
+export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-01")
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
 export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-11")
 export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-01-26")
