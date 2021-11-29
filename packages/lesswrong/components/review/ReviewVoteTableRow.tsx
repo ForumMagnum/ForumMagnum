@@ -83,7 +83,7 @@ const ReviewVoteTableRow = (
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
-    expandedPostId: string|null,
+    expandedPostId?: string|null,
     currentQualitativeVote: ReviewVote|null,
     currentQuadraticVote: quadraticVote|null,
   }

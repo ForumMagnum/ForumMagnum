@@ -40,7 +40,9 @@ const styles = (theme: ThemeType) => ({
 
 const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType, postId: string, vote: any, votes: ReviewVote[], reaction: string, freeEntry: boolean}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const currentReactions = voteForCurrentPost?.reactions || []
+  // TODO: This component is unused, except in ReviewVotingPage2019. Cast to any
+  // here is a way to make a minimally invasive fix.
+  const currentReactions = (voteForCurrentPost as any)?.reactions || []
   const [freeEntryText, setFreeEntryText] = useState("")
   const [textFieldOpen, setTextFieldOpen] = useState(false)
   const createClickHandler = (postId: string, reactions: string[], voteId: string | undefined, score: number | undefined) => {

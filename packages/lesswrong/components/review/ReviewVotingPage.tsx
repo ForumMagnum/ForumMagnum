@@ -236,7 +236,7 @@ const ReviewVotingPage = ({classes}: {
     score: number
   }) => {
     return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
-  }, [submitVote, dbVotes]);
+  }, [submitVote]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
   const dispatchQuadraticVote = async ({_id, postId, change, set}: {

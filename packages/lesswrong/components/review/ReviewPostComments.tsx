@@ -37,7 +37,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine }: {
     return null
   }
 
-  // TODO: This doesn't quite work yet. Not sure why – Ray
+  // TODO: This doesn't quite work yet. Not sure why - Ray
   const markAsRead = () => {
     recordPostView({post, extraEventProperties: {type: "markAsRead"}})
     setMarkedVisitedAt(new Date()) 

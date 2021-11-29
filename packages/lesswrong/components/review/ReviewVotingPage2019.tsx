@@ -298,7 +298,7 @@ const ReviewVotingPage2019 = ({classes}: {
     _id: string|null,
     postId: string,
     score: number,
-    reactions: string[],
+    reactions?: string[],
   }) => {
     const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
