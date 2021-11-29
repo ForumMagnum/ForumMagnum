@@ -329,7 +329,7 @@ const ReviewVotingPage2019 = ({classes}: {
     })
   }
 
-  const { PostReviewsAndNominations, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton } = Components
+  const { ReviewPostComments, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -505,13 +505,13 @@ const ReviewVotingPage2019 = ({classes}: {
               </div>}/>
 
               <div className={classes.comments}>
-                <PostReviewsAndNominations
+                <ReviewPostComments
                   title="nomination"
                   singleLine
                   terms={{view: NOMINATIONS_VIEW, postId: expandedPost._id}}
                   post={expandedPost}
                 />
-                <PostReviewsAndNominations
+                <ReviewPostComments
                   title="review"
                   terms={{view: REVIEW_COMMENTS_VIEW, postId: expandedPost._id}}
                   post={expandedPost}

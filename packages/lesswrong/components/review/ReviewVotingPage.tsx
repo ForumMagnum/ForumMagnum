@@ -19,16 +19,8 @@ import seedrandom from '../../lib/seedrandom';
 import { currentUserCanVote, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
-const REVIEW_COMMENTS_VIEW = "reviews2020"
+export const REVIEW_COMMENTS_VIEW = "reviews2020"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
-
-const defaultReactions = [
-  "I personally benefited from this post",
-  "Deserves followup work",
-  "Should be edited/improved",
-  "Important but shouldn't be in book",
-  "I spent 30+ minutes reviewing this in-depth"
-]
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -139,27 +131,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-  writeAReview: {
-    paddingTop: 12,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingBottom: 8,
-    border: "solid 1px rgba(0,0,0,.3)",
-    marginBottom: 8,
-  },
-  reviewPrompt: {
-    fontWeight: 600,
-    fontSize: "1.2rem",
-    color: "rgba(0,0,0,.87)",
-    width: "100%",
-    display: "block"
-  },
-  fakeTextfield: {
-    marginTop: 5,
-    width: "100%",
-    borderBottom: "dashed 1px rgba(0,0,0,.25)",
-    color: theme.palette.grey[400]
-  },
   warning: {
     color: theme.palette.error.main
   },
@@ -241,8 +212,8 @@ const ReviewVotingPage = ({classes}: {
 
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
-  const [expandedPost, setExpandedPost] = useState<any>(null)
-  const [showKarmaVotes, setShowKarmaVotes] = useState<any>(true)
+  const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
+  const [showKarmaVotes] = useState<any>(true)
 
   const votes = dbVotes?.map(({_id, qualitativeScore, postId, reactions}) => ({_id, postId, score: qualitativeScore, type: "qualitative", reactions})) as qualitativeVote[]
   
@@ -297,7 +268,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { PostReviewsAndNominations, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -435,42 +406,7 @@ const ReviewVotingPage = ({classes}: {
               </div>
             </div>
           </div>}
-          {expandedPost && <div className={classes.expandedInfoWrapper}>
-            <div className={classes.expandedInfo}>
-              <PostsTitle post={post}/>
-              <div className={classes.leaveReactions}>
-                {[...new Set([...defaultReactions, ...currentReactions])].map(reaction =>  <ReactionsButton 
-                  postId={expandedPost._id} 
-                  key={reaction}
-                  vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
-                  votes={votes} 
-                  reaction={reaction} 
-                  freeEntry={false}
-                />)}
-                <ReactionsButton 
-                  postId={expandedPost._id} 
-                  vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
-                  votes={votes} 
-                  reaction={"Other..."} 
-                  freeEntry={true}
-                />
-              </div>
-              <ReviewPostButton post={expandedPost} year={REVIEW_YEAR+""} reviewMessage={<div>
-                <div className={classes.writeAReview}>
-                  <div className={classes.reviewPrompt}>Write a review for "{expandedPost.title}"</div>
-                  <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
-                </div>
-              </div>}/>
-
-              <div className={classes.comments}>
-                <PostReviewsAndNominations
-                  title="review"
-                  terms={{view: REVIEW_COMMENTS_VIEW, postId: expandedPost._id}}
-                  post={expandedPost}
-                />
-              </div>
-            </div>
-          </div>}
+          <ReviewVotingExpandedPost post={expandedPost}/>
         </div>
       </div>
     </div>

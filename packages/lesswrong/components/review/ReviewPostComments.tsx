@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
+import { useRecordPostView } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -13,14 +14,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: {
+const ReviewPostComments = ({ terms, classes, title, post, singleLine }: {
   terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
   post: PostsList,
-  singleLine?: boolean,
+  singleLine?: boolean
 }) => {
-
+  const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
+  const { recordPostView } = useRecordPostView(post)
   const { loading, results, loadMoreProps } = useMulti({
     terms,
     collectionName: "Comments",
@@ -33,6 +35,12 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
 
   if (!loading && results && !results.length) {
     return null
+  }
+
+  // TODO: This doesn't quite work yet. Not sure why – Ray
+  const markAsRead = () => {
+    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    setMarkedVisitedAt(new Date()) 
   }
   
   const lastCommentId = results && results[0]?._id
@@ -49,8 +57,10 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
         {singleLine ? <CommentsList
           treeOptions={{
             lastCommentId: lastCommentId,
+            highlightDate: markedVisitedAt || post.lastVisitedAt,
             hideSingleLineMeta: true,
             enableHoverPreview: false,
+            markAsRead: markAsRead,
             post: post,
           }}
           comments={nestedComments}
@@ -66,11 +76,10 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
   );
 };
 
-const PostReviewsAndNominationsComponent = registerComponent('PostReviewsAndNominations', PostReviewsAndNominations, {styles});
+const ReviewPostCommentsComponent = registerComponent('ReviewPostComments', ReviewPostComments, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostReviewsAndNominations: typeof PostReviewsAndNominationsComponent
+    ReviewPostComments: typeof ReviewPostCommentsComponent
   }
 }
-

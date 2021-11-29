@@ -88,7 +88,7 @@ const ReviewVoteTableRow = (
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight, PostsItemComments } = Components
 
   const currentUser = useCurrentUser()
   const [showPost, setShowPost] = useState(false)
@@ -135,7 +135,6 @@ const ReviewVoteTableRow = (
                 <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
               }
           </div>}
-          <PostsItemComments post={post}/>
           {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
       </div>
