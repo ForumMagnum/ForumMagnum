@@ -235,8 +235,8 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   }
 
   const allEligiblePostsUrl = 
-    isEAForum ? `/allPosts?timeframe=yearly&before=${REVIEW_YEAR+1}-01-01&limit=100&sortedBy=top&filter=unnominated`
-    : `/allPosts?timeframe=allTime&after=2020-01-01&before=2021-01-01&limit=100&sortedBy=top&filter=unnominated`
+    isEAForum ? `/allPosts?timeframe=yearly&before=${REVIEW_YEAR+1}-01-01&limit=25&sortedBy=top&filter=unnominated&includeShortform=false`
+    : `/allPosts?timeframe=allTime&after=2020-01-01&before=2021-01-01&limit=100&sortedBy=top&filter=unnominated&includeShortform=false`
   
   const reviewPostPath = annualReviewAnnouncementPostPathSetting.get()
   if (!reviewPostPath) {
@@ -288,6 +288,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       
       {/* Post list */}
       <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
+        {/* TODO; I think we can improve this */}
         <RecommendationsList algorithm={getReviewAlgorithm()} />
       </AnalyticsContext>
       
@@ -295,9 +296,9 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
           Your Upvotes from {isEAForum && '≤'}{REVIEW_YEAR}
         </Link>
-        <LWTooltip title={`All Posts written in ${REVIEW_YEAR} are eligible to participate in the review. Click here to see all posts written in ${REVIEW_YEAR}.`}>
+        <LWTooltip title={`All Posts written ${isEAForum ? 'in or before' : 'in'} ${REVIEW_YEAR} are eligible to participate in the review. Click here to see all posts written ${isEAForum ? 'in or before' : 'in'} ${REVIEW_YEAR}.`}>
           <Link to={allEligiblePostsUrl} className={classes.actionButton}>
-            All {/* TODO: make it so isEAForum && '≤'*/}{REVIEW_YEAR} Posts
+            All {isEAForum ? 'Eligible' : REVIEW_YEAR} Posts
           </Link>
         </LWTooltip>
         <Link to={"/reviewVoting/2020"} className={classNames(classes.actionButtonCTA, classes.hideOnMobile)}>
