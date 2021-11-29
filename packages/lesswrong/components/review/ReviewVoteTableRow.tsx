@@ -72,7 +72,19 @@ const styles = (theme: ThemeType) => ({
   expandIcon: {
     color: theme.palette.grey[500],
     width: 36,
-  }
+  },
+  bigUpvote: {
+    background: theme.palette.primary.dark
+  },
+  smallUpvote: {
+    background: theme.palette.primary.light
+  },
+  bigDownvote: {
+    background: theme.palette.error.dark
+  },
+  smallDownvote: {
+    background: theme.palette.error.light
+  },
 });
 
 const ReviewVoteTableRow = (

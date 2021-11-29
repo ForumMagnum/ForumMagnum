@@ -928,7 +928,7 @@ addRoute(
   {
     name: 'nominations',
     path: '/nominations',
-    redirect: () => `/nominations/2019`,
+    redirect: () => `/reviewVoting/2020`,
   },
   {
     name: 'userReviewsByYear',

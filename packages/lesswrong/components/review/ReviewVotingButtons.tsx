@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 
@@ -8,10 +8,15 @@ const styles = (theme: ThemeType) => ({
     padding: theme.spacing.unit,
     paddingTop: 6,
     paddingBottom: 6,
+    marginRight: 2,
+    textAlign: "center",
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
-    cursor: "pointer"
+    cursor: "pointer",
+    '&:hover': {
+      backgroundColor: "rgba(0,0,0,.075)",
+    }
   },
   selectionHighlight: {
     backgroundColor: "rgba(0,0,0,.5)",
@@ -25,15 +30,18 @@ const styles = (theme: ThemeType) => ({
 })
 
 const indexToTermsLookup = {
-  0: "No",
-  1: "Neutral",
-  2: "Somewhat",
-  3: "Very",
-  4: "Crucial"
+  0: { label: "-16", tooltip: "Highly misleading or harmful"},
+  1: { label: "-4", tooltip: "Very misleading or harmful"},
+  2: { label: "-1", tooltip: "Misleading, harmful or unimportant"},
+  3: { label: "0", tooltip: "No strong opinion on this post"},
+  4: { label: "1", tooltip: "Good."},
+  5: { label: "4", tooltip: "Quite important."},
+  6: { label: "16", tooltip: "A crucial piece of intellectual work."},
 }
 
 
 const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVote|null}) => {
+  const { LWTooltip } = Components
   const score = voteForCurrentPost?.score
   const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
 
@@ -45,17 +53,19 @@ const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {c
   }
 
   return <div>
-      {[0,1,2,3,4].map((i) => {
-        return <span
-          className={classNames(classes.button, {
-            [classes.selectionHighlight]:selection === i && score,
-            [classes.defaultHighlight]: selection === i && !score
-          })}
-          onClick={createClickHandler(i)}
-          key={`${indexToTermsLookup[i]}-${i}`}
-        >
-          {indexToTermsLookup[i]}
-        </span>
+      {[0,1,2,3,4,5,6].map((i) => {
+        return <LWTooltip title={indexToTermsLookup[i].tooltip} 
+        key={`${indexToTermsLookup[i]}-${i}`}>
+          <span
+              className={classNames(classes.button, {
+                [classes.selectionHighlight]:selection === i && score,
+                [classes.defaultHighlight]: selection === i && !score
+              })}
+              onClick={createClickHandler(i)}
+            >
+            {indexToTermsLookup[i].label}
+          </span>
+        </LWTooltip>
       })}
   </div>
 }

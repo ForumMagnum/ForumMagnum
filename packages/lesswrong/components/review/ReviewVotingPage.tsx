@@ -433,11 +433,13 @@ function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] 
 }
 
 const qualitativeScoreScaling = {
-  0: -4,
-  1: 0,
-  2: 1,
-  3: 4,
-  4: 15
+  0: -16,
+  1: -4,
+  2: -1,
+  3: 0,
+  4: 1,
+  5: 4,
+  6: 16
 }
 
 const VOTE_BUDGET = 500
