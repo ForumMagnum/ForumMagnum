@@ -20,11 +20,11 @@ const PostsByVote = ({postIds, year}: {postIds: Array<string>, year: number | 'â
       limit: 1000,
     })
     
-    if (!posts || posts?.length === 0) return <div>None</div>
+    if (!posts || posts.length === 0) return <div>None</div>
 
 
     return <ErrorBoundary><div>
-          {posts?.map(post=> <PostsItem2 key={post._id} post={post} />)}
+          {posts.map(post=> <PostsItem2 key={post._id} post={post} />)}
       </div></ErrorBoundary>
 }
 

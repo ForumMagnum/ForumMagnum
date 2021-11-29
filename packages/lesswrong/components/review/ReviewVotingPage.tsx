@@ -242,7 +242,7 @@ const ReviewVotingPage = ({classes}: {
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
-  const [showKarmaVotes, setShowKarmaVotes] = useState<any>(null)
+  const [showKarmaVotes, setShowKarmaVotes] = useState<any>(true)
 
   const votes = dbVotes?.map(({_id, qualitativeScore, postId, reactions}) => ({_id, postId, score: qualitativeScore, type: "qualitative", reactions})) as qualitativeVote[]
   
@@ -348,11 +348,12 @@ const ReviewVotingPage = ({classes}: {
                 Re-Sort <CachedIcon className={classes.menuIcon} />
               </Button>
             </LWTooltip>
-            <LWTooltip title="Show which posts you have upvoted or downvoted">
+            {/* RAY: Hiding this UI. Instead I made the self-vote info more subdued and less informative so it's primarily communicating 'you saw this post' than what-particular-opinions-you-had. */}
+            {/* <LWTooltip title="Show which posts you have upvoted or downvoted">
               <Button onClick={() => setShowKarmaVotes(!showKarmaVotes)}>
                 {showKarmaVotes ? "Hide Karma Votes" : "Show Karma Votes"} 
               </Button>
-            </LWTooltip>
+            </LWTooltip> */}
             {(postsLoading || dbVotesLoading || loading) && <Loading/>}
             {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
               <Button className={classes.convert} onClick={async () => {
@@ -436,6 +437,7 @@ const ReviewVotingPage = ({classes}: {
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
+              <PostsTitle post={post}/>
               <div className={classes.leaveReactions}>
                 {[...new Set([...defaultReactions, ...currentReactions])].map(reaction =>  <ReactionsButton 
                   postId={expandedPost._id} 

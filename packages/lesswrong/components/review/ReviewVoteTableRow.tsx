@@ -59,19 +59,8 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     top: 0,
     height: "100%",
-    width: 6
-  },
-  bigUpvote: {
-    background: theme.palette.primary.dark
-  },
-  smallUpvote: {
-    background: theme.palette.primary.light
-  },
-  bigDownvote: {
-    background: theme.palette.error.dark
-  },
-  smallDownvote: {
-    background: theme.palette.error.light
+    width: 6,
+    background: "#bbb"
   },
   expandButtonWrapper: {
     position: "absolute",
@@ -108,6 +97,13 @@ const ReviewVoteTableRow = (
 
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
 
+  const voteMap = {
+    'bigDownvote': 'a strong downvote',
+    'smallDownvote': 'a downvote',
+    'smallUpvote': 'an upvote',
+    'bigUpvote': 'a strong upvote'
+  }
+
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
       {showPost ? 
@@ -123,7 +119,7 @@ const ReviewVoteTableRow = (
           </LWTooltip>
         </div>
       }
-      {showKarmaVotes && post.currentUserVote && <LWTooltip title={post.currentUserVote} placement="left" inlineBlock={false}>
+      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
       <div className={classes.topRow}>
@@ -139,6 +135,7 @@ const ReviewVoteTableRow = (
                 <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
               }
           </div>}
+          <PostsItemComments post={post}/>
           {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
       </div>

@@ -53,3 +53,5 @@ Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , be
     }
   }
 })
+ensureIndex(Votes, {collectionName: 1, userId: 1, voteType: 1, cancelled: 1, isUnvote: 1, votedAt: 1})
+
