@@ -12,9 +12,9 @@ const styles = (theme) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    padding: 12,
     textAlign: "center",
-    color: theme.palette.grey[800]
+    color: theme.palette.grey[800],
+    padding: theme.spacing.unit
   }
 })
 

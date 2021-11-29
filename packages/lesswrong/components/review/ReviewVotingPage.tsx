@@ -137,13 +137,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   voteAverage: {
     cursor: 'pointer',
-  },
-  leaveReactions: {
-    marginTop: 16,
   }
 });
 
-export type ReviewVote = {_id: string, postId: string, score: number, type?: string, reactions: string[]}
+export type ReviewVote = {_id: string, postId: string, score: number, type?: string}
 export type quadraticVote = ReviewVote & {type: "quadratic"}
 export type qualitativeVote = ReviewVote & {type: "qualitative", score: 0|1|2|3|4}
 
@@ -194,8 +191,8 @@ const ReviewVotingPage = ({classes}: {
   });
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean, $reactions: [String]) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy, reactions: $reactions) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
         ...reviewVoteFragment
       }
     }
@@ -215,7 +212,7 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
 
-  const votes = dbVotes?.map(({_id, qualitativeScore, postId, reactions}) => ({_id, postId, score: qualitativeScore, type: "qualitative", reactions})) as qualitativeVote[]
+  const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
   
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
@@ -233,36 +230,30 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = useCallback(async ({_id, postId, score, reactions}: {
+  const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
     _id: string|null,
     postId: string,
-    score: number,
-    reactions: string[],
+    score: number
   }) => {
-    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
-    const newReactions = reactions || existingVote?.reactions || []
-    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false, reactions: newReactions}})
+    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
   }, [submitVote, dbVotes]);
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
-  const dispatchQuadraticVote = async ({_id, postId, change, set, reactions}: {
+  const dispatchQuadraticVote = async ({_id, postId, change, set}: {
     _id?: string|null,
     postId: string,
     change?: number,
-    set?: number,
-    reactions?: string[],
+    set?: number
   }) => {
     const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
-    const newReactions = reactions || existingVote?.reactions || []
     await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: REVIEW_YEAR+"", reactions: newReactions, dummy: false},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: REVIEW_YEAR+"", dummy: false},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
           __typename: "ReviewVote",
           ...existingVote,
-          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0)),
-          reactions: newReactions
+          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
         }
       }
     })
@@ -292,8 +283,6 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
-
-  const currentReactions = expandedPost ? [...(votes.find(vote => vote.postId === expandedPost._id)?.reactions || [])] : []
   
   // TODO: Redundancy here due to merge
   const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0

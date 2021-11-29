@@ -83,12 +83,12 @@ const ReviewVoteTableRow = (
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
-    expandedPostId: string,
+    expandedPostId: string|null,
     currentQualitativeVote: ReviewVote|null,
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight, PostsItemComments } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
 
   const currentUser = useCurrentUser()
   const [showPost, setShowPost] = useState(false)

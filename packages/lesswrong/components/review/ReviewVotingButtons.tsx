@@ -6,6 +6,8 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType) => ({
   button: {
     padding: theme.spacing.unit,
+    paddingTop: 6,
+    paddingBottom: 6,
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],

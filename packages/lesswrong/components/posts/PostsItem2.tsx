@@ -12,6 +12,7 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { canNominate } from '../../lib/reviewUtils';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -392,7 +393,7 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarIcon } = (Components as ComponentTypes)
+    AddToCalendarIcon, PostsItemReviewVote } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -501,7 +502,7 @@ const PostsItem2 = ({
                   unreadComments={hasUnreadComments()}
                   newPromotedComments={hasNewPromotedComments()}
                 />}
-
+                <PostsItemReviewVote post={post}/>
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
