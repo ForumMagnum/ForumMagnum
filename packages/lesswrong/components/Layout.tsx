@@ -108,8 +108,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  // FIXME sure seems like this should be an optional prop
-  currentUser: UsersCurrent,
+  currentUser: UsersCurrent | null,
   messages: any,
   children?: React.ReactNode,
 }
@@ -180,14 +179,16 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   componentDidMount() {
     const { updateUser, currentUser, cookies } = this.props;
     const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone || (currentUser && currentUser.lastUsedTimezone!==newTimezone)) {
+    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
       cookies.set('timezone', newTimezone);
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          lastUsedTimezone: newTimezone,
-        }
-      })
+      if (currentUser) {
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            lastUsedTimezone: newTimezone,
+          }
+        })
+      }
       this.setState({
         timezone: newTimezone
       });
