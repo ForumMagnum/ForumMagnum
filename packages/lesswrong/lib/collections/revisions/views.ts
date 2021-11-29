@@ -21,7 +21,7 @@ Revisions.addView('revisionsByUser', (terms: RevisionsViewTerms) => {
     options: {sort: {editedAt: -1}},
   }
 });
-ensureIndex(Revisions, {userId: 1, editedAt: 1});
+ensureIndex(Revisions, {userId: 1, collectionName: 1, editedAt: 1});
 
 Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
   const result = {
@@ -44,4 +44,4 @@ Revisions.addView('revisionsOnDocument', (terms: RevisionsViewTerms) => {
   return result;
 });
 
-ensureIndex(Revisions, {collectionName:1, fieldName:1, editedAt:1, changeMetrics:1});
+ensureIndex(Revisions, {collectionName:1, fieldName:1, editedAt:1, _id: 1, changeMetrics:1});
