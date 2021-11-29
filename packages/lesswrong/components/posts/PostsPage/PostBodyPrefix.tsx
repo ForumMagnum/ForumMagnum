@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
 import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, reviewIsActive } from '../../../lib/reviewUtils';
+import { canNominate, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -39,11 +39,14 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget} = Components;
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton} = Components;
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && canNominate(currentUser, post) && <div className={classes.reviewVoting}><ReviewVotingWidget post={post} /></div>}
+    {reviewIsActive() && canNominate(currentUser, post) && <div className={classes.reviewVoting}>
+      <ReviewVotingWidget post={post} />
+      {/* <ReviewPostButton post={post} year={REVIEW_YEAR}/> */}
+    </div>}
 
     <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />
