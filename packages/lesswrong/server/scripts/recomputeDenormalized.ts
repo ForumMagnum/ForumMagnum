@@ -119,8 +119,6 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
       console.log(`${nonEmptyUpdates.length} documents in batch with changing denormalized value`)
       if (!validateOnly) {
         if (nonEmptyUpdates.length > 0)  {
-          // eslint-disable-next-line no-console
-          console.log(nonEmptyUpdates);
           await collection.rawCollection().bulkWrite(
             nonEmptyUpdates,
             { ordered: false }
