@@ -1,19 +1,16 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import moment from 'moment';
-import { annualReviewStart, annualReviewEnd } from '../../lib/publicSettings';
+import { reviewIsActive } from '../../lib/reviewUtils';
 
 const Home2 = () => {
   const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget } = Components
 
-  const reviewIsActive = moment(annualReviewStart.get()) < moment() && moment() < moment(annualReviewEnd.get())
-
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          {!reviewIsActive && <RecommendationsAndCurated configName="frontpage" />}
-          {reviewIsActive && <FrontpageReviewWidget />}
+          {!reviewIsActive() && <RecommendationsAndCurated configName="frontpage" />}
+          {reviewIsActive() && <FrontpageReviewWidget />}
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}

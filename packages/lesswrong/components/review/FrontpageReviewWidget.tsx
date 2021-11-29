@@ -135,11 +135,11 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
   
-  const nominationStartDate = moment(annualReviewStart.get())
-  const nominationEndDate = moment(annualReviewNominationPhaseEnd.get())
-  const reviewEndDate = moment(annualReviewReviewPhaseEnd.get())
-  const voteEndDate = moment(annualReviewEnd.get())
-  const currentDate = moment(new Date())
+  const nominationStartDate = moment.utc(annualReviewStart.get())
+  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
+  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
+  const voteEndDate = moment.utc(annualReviewEnd.get())
+  const currentDate = moment.utc()
   const activeRange = getReviewPhase()
 
   const forumTitle = forumTitleSetting.get()

@@ -16,12 +16,11 @@ export const REVIEW_NAME = isEAForum ? 'EA Writing Mega Review' : `${REVIEW_YEAR
 export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 
 export function getReviewPhase(): ReviewPhase | void {
-  // TODO; this should be UTC or will(?) cause SSR mismatch
-  const currentDate = moment()
-  const reviewStart = moment(annualReviewStart.get())
-  const nominationsPhaseEnd = moment(annualReviewNominationPhaseEnd.get())
-  const reviewPhaseEnd = moment(annualReviewReviewPhaseEnd.get())
-  const reviewEnd = moment(annualReviewEnd.get())
+  const currentDate = moment.utc()
+  const reviewStart = moment.utc(annualReviewStart.get())
+  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
+  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
+  const reviewEnd = moment.utc(annualReviewEnd.get())
   
   if (currentDate < reviewStart || reviewEnd < currentDate) return
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"

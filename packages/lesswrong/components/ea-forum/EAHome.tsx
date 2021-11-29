@@ -1,10 +1,10 @@
-import moment from 'moment'
 import React from 'react'
 import { userHasEAHomeHandbook } from '../../lib/betas'
 import { PublicInstanceSetting } from '../../lib/instanceSettings'
-import { annualReviewEnd, annualReviewStart, DatabasePublicSetting } from '../../lib/publicSettings'
+import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
+import { reviewIsActive } from '../../lib/reviewUtils'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -22,7 +22,6 @@ const EAHome = () => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderEAHomeHandbook = showHandbookBannerSetting.get() && userHasEAHomeHandbook(currentUser)
   const shouldRenderSmallpox = showSmallpoxSetting.get()
-  const reviewIsActive = moment(annualReviewStart.get()) < moment() && moment() < moment(annualReviewEnd.get())
 
   return (
     <React.Fragment>
@@ -33,11 +32,11 @@ const EAHome = () => {
       
       <StickiedPosts />
       
-      {reviewIsActive && <FrontpageReviewWidget />}
+      {reviewIsActive() && <FrontpageReviewWidget />}
       
       <HomeLatestPosts />
       
-      {!reviewIsActive && <RecommendationsAndCurated configName="frontpageEA" />}
+      {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
       <RecentDiscussionFeed
         af={false}
         commentsLimit={recentDiscussionCommentsPerPost}
