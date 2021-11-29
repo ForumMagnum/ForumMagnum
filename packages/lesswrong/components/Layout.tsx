@@ -108,7 +108,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  currentUser?: UsersCurrent,
+  currentUser: UsersCurrent | null,
   messages: any,
   children?: React.ReactNode,
 }
@@ -179,7 +179,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   componentDidMount() {
     const { updateUser, currentUser, cookies } = this.props;
     const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone || (currentUser && currentUser.lastUsedTimezone!==newTimezone)) {
+    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
       cookies.set('timezone', newTimezone);
       if (currentUser) {
         void updateUser({
@@ -246,7 +246,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       
     return (
       <AnalyticsContext path={location.pathname}>
-      <UserContext.Provider value={currentUser || null}>
+      <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <ItemsReadContext.Provider value={{
         postsRead: this.state.postsRead,
@@ -284,7 +284,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
-              {showIntercom(currentUser || null)}
+              {showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
