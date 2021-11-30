@@ -698,6 +698,7 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.event,
     control: 'checkbox',
     label: "Enable RSVPs for this event",
+    tooltip: "RSVPs are public, but the associated email addresses are only visible to organizers.",
     optional: true
   },
   

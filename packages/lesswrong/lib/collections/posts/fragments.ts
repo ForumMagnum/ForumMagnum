@@ -55,6 +55,7 @@ registerFragment(`
     location
     googleLocation
     onlineEvent
+    globalEvent
     startTime
     endTime
     localStartTime
