@@ -314,7 +314,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
-            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
+            {comment.reviewingForReview && <Link to={`/reviewVoting/${comment.reviewingForReview}`} className={classes.metaNotice}>
             {`Review for ${comment.reviewingForReview} Review`}
           </Link>}
           </div>
