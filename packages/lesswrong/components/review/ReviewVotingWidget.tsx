@@ -19,7 +19,7 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, title, setNewVote}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode, setNewVote?: (newVote:string)=>void}) => {
+const ReviewVotingWidget = ({classes, post, title, setNewVote}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode, setNewVote?: (newVote:number)=>void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, Loading } = Components
 
