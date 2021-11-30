@@ -153,8 +153,8 @@ export const overviewTooltip = isEAForum ?
     </ul>
     <div>To be eligible, posts must have been posted before January 1st, 2021.</div>
     <br/>
-    {/* TODO; this won't be true in other phases */}
-    <div>(Currently this section shows a random sample of {REVIEW_YEAR} posts, weighted by karma)</div>
+    {/* TODO:(Review) this won't be true in other phases */}
+    <div>(Currently this section shows a random sample of eligible posts, weighted by karma)</div>
   </div> :
   <div>
     <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
@@ -177,7 +177,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
 
   const nominationsTooltip = isEAForum ?
     <div>
-      <div>Nominate posts for the EA Writing Mega Review</div>
+      <div>Nominate posts for the {REVIEW_NAME_IN_SITU}</div>
       <ul>
         <li>Any post from before 2021 can be nominated</li>
         <li>Any user registered before the start of the review can nominate posts</li>
@@ -197,9 +197,9 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
 
   const reviewTooltip = isEAForum ?
     <>
-      <div>Review posts for the EA Writing Mega Review (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Review posts for the {REVIEW_NAME_IN_SITU} (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
       <ul>
-        <li>Write reviews of posts nominated for the EA Writing Mega Review</li>
+        <li>Write reviews of posts nominated for the {REVIEW_NAME_IN_SITU}</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
       </ul>
     </> :
@@ -213,12 +213,11 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
 
   const voteTooltip = isEAForum ?
     <>
-      <div>Cast your final votes for the EA Writing Mega Review. (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
       <ul>
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {nominationStartDate.format('MMM Do')} can vote in the review</li>
       </ul>
-      <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in {REVIEW_YEAR-1}</div>
     </> :
     <>
       <div>Cast your final votes for the {REVIEW_YEAR} Review. (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
@@ -227,6 +226,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         <li>Any user registered before {REVIEW_YEAR} can vote in the review</li>
         {!isEAForum && <li>The end result will be compiled into a canonical sequence and best-of {REVIEW_YEAR} book</li>}
       </ul>
+      {/* TODO: Raymond Arnold look here, This isn't that useful to say any more */}
       <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in {REVIEW_YEAR-1}</div>
     </>
 
@@ -289,7 +289,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       
       {/* Post list */}
       <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
-        {/* TODO; I think we can improve this */}
+        {/* TODO:(Review) I think we can improve this */}
         <RecommendationsList algorithm={getReviewAlgorithm()} />
       </AnalyticsContext>
       

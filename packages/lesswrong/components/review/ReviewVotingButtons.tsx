@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import forumThemeExport from '../../themes/forumTheme';
 
 const downvoteColor = "rgba(125,70,70, .87)"
 // TODO;
-const upvoteColor = "rgba(70,125,70, .87)"
+const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"
 
 const styles = (theme: ThemeType) => ({
   button: {

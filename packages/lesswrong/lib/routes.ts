@@ -3,6 +3,7 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './ins
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
+import { REVIEW_YEAR } from './reviewUtils';
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -864,7 +865,56 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
       title: "COVID-19 Link Database",
-    }
+    },
+    {
+      name: 'nominations2018-old',
+      path: '/nominations2018',
+      redirect: () => `/nominations/2018`,
+    },
+    {
+      name: 'nominations2018',
+      path: '/nominations/2018',
+      componentName: 'Nominations2018',
+      title: "2018 Nominations",
+    },
+    {
+      name: 'nominations2019-old',
+      path: '/nominations2019',
+      redirect: () => `/nominations/2019`,
+    },
+    {
+      name: 'nominations2019',
+      path: '/nominations/2019',
+      componentName: 'Nominations2019',
+      title: "2019 Nominations",
+    },
+    {
+      name: 'userReviews',
+      path:'/users/:slug/reviews',
+      redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
+    },
+    {
+      name: 'reviews2018-old',
+      path: '/reviews2018',
+      redirect: () => `/reviews/2018`,
+    },
+    {
+      name: 'reviews2018',
+      path: '/reviews/2018',
+      componentName: 'Reviews2018',
+      title: "2018 Reviews",
+    },
+    {
+      name: 'reviews2019-old',
+      path: '/reviews2019',
+      redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviews2019',
+      path: '/reviews/2019',
+      componentName: 'Reviews2019',
+      title: "2019 Reviews",
+    },
   )
 }
 
@@ -904,31 +954,9 @@ addRoute(
     componentName: 'PasswordResetPage',
   },
   {
-    name: 'nominations2018-old',
-    path: '/nominations2018',
-    redirect: () => `/nominations/2018`,
-  },
-  {
-    name: 'nominations2018',
-    path: '/nominations/2018',
-    componentName: 'Nominations2018',
-    title: "2018 Nominations",
-  },
-  {
-    name: 'nominations2019-old',
-    path: '/nominations2019',
-    redirect: () => `/nominations/2019`,
-  },
-  {
-    name: 'nominations2019',
-    path: '/nominations/2019',
-    componentName: 'Nominations2019',
-    title: "2019 Nominations",
-  },
-  {
     name: 'nominations',
     path: '/nominations',
-    redirect: () => `/reviewVoting/2020`,
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
     name: 'userReviewsByYear',
@@ -937,41 +965,14 @@ addRoute(
     title: "User Reviews",
   },
   {
-    name: 'userReviews',
-    path:'/users/:slug/reviews', 
-    redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
-  },
-  {
     name: 'userReplies',
     path:'/users/:slug/replies',
     componentName: 'UserCommentsReplies',
     title: "User Comment Replies",
   },
   {
-    name: 'reviews2018-old',
-    path: '/reviews2018',
-    redirect: () => `/reviews/2018`,
-  },
-  {
-    name: 'reviews2018',
-    path: '/reviews/2018',
-    componentName: 'Reviews2018',
-    title: "2018 Reviews",
-  },
-  {
-    name: 'reviews2019-old',
-    path: '/reviews2019',
-    redirect: () => `/reviews/2019`,
-  },
-  {
-    name: 'reviews2019',
-    path: '/reviews/2019',
-    componentName: 'Reviews2019',
-    title: "2019 Reviews", // TODO; move to lw
-  },
-  {
     name: 'reviews',
     path: '/reviews',
-    redirect: () => `/reviews/2019`, // TODO; move to REVIEW_YEAR
+    redirect: () => `/reviews/${REVIEW_YEAR}`,
   }
 );

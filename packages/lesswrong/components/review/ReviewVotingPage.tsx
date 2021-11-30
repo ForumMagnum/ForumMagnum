@@ -173,21 +173,21 @@ const ReviewVotingPage = ({classes}: {
 
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {
-      view: VOTING_VIEW, 
-      before: `${REVIEW_YEAR+1}-01-01`, 
-      after: `${REVIEW_YEAR}-01-01`, 
+      view: VOTING_VIEW,
+      before: `${REVIEW_YEAR+1}-01-01`,
+      ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
       limit: 300
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'network-only',
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: REVIEW_YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'network-only',
   })
 
   const {mutate: updateUser} = useUpdate({
@@ -300,11 +300,53 @@ const ReviewVotingPage = ({classes}: {
     const voteAdjustment = -Math.trunc(voteAverage)
     quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
   }
+  
+  const instructions = isEAForum ?
+    <div className={classes.instructions}>
+      <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
+
+      <p>We begin with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
+      
+      <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
+
+      <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post for details.</a></p>
+
+      <p><b>How exactly do the Preliminary Votes Work?</b></p>
+
+      <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
+
+      <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
+
+      <p><b>Submitting Reviews</b></p>
+
+      <p><em>The Review Phase</em> will involve writing deep reviews about the quality of posts. For now, feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
+
+      <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
+    </div> :
+    <div className={classes.instructions}>
+      <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
+
+      <p>This year, instead of a nominations phase, we're beginning with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
+      
+      <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
+
+      <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link></p>
+
+      <p><b>How exactly do the Preliminary Votes Work?</b></p>
+
+      <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
+
+      <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
+
+      <p><b>Submitting Reviews</b></p>
+
+      <p>Last year, nominating posts required writing a comment saying what was good about it. Since nomination is an "anonymous vote" this year, we're giving people the ability to write reviews right away. Feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
+    </div>
 
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
-      {/* TODO; link to list of nominated posts */}
+      {/* TODO(Review) link to list of nominated posts */}
       <div className={classNames(classes.hideOnDesktop, classes.message)}>
         Voting is not available on small screens. You can still vote on individual posts, however.
       </div>
@@ -315,49 +357,7 @@ const ReviewVotingPage = ({classes}: {
               {/* 160 is nbsp */}
               {REVIEW_NAME_TITLE}{isEAForum ? String.fromCharCode(160) + '—' : ':'} Preliminary Voting
             </h1>
-            
-            {isEAForum ?
-              <div className={classes.instructions}>
-                <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
-
-                <p>We begin with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
-                
-                <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
-
-                <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post for details.</a></p>
-
-                <p><b>How exactly do the Preliminary Votes Work?</b></p>
-
-                <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-
-                <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
-
-                <p><b>Submitting Reviews</b></p>
-
-                <p><em>The Review Phase</em> will involve writing deep reviews about the quality of posts. For now, feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
-
-                <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
-              </div> :
-              <div className={classes.instructions}>
-                <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
-
-                <p>This year, instead of a nominations phase, we're beginning with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
-                
-                <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
-
-                <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link></p>
-
-                <p><b>How exactly do the Preliminary Votes Work?</b></p>
-
-                <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-
-                <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
-
-                <p><b>Submitting Reviews</b></p>
-
-                <p>Last year, nominating posts required writing a comment saying what was good about it. Since nomination is an "anonymous vote" this year, we're giving people the ability to write reviews right away. Feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
-              </div>
-            }
+            {instructions}
           </div>}
           <ReviewVotingExpandedPost post={expandedPost}/>
         </div>
@@ -367,14 +367,6 @@ const ReviewVotingPage = ({classes}: {
               setExpandedPost(null)
               captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
             }}>Show Instructions</Button>
-
-            {/* RAY: Hiding this UI. Instead I made the self-vote info more subdued and less informative so it's primarily communicating 'you saw this post' than what-particular-opinions-you-had. */}
-            {/* <LWTooltip title="Show which posts you have upvoted or downvoted">
-              <Button onClick={() => setShowKarmaVotes(!showKarmaVotes)}>
-                {showKarmaVotes ? "Hide Karma Votes" : "Show Karma Votes"} 
-              </Button>
-            </LWTooltip> */}
-            {(postsLoading || dbVotesLoading || loading) && <Loading/>}
             
             {/* Turned off for the Preliminary Voting phase */}
             {getReviewPhase() !== "NOMINATIONS" && <>
@@ -416,28 +408,31 @@ const ReviewVotingPage = ({classes}: {
               </Button>
             </LWTooltip>
           </div>
-          <Paper>
-            {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
-                const currentQualitativeVote = votes.find(vote => vote.postId === post._id)
-                const currentQuadraticVote = quadraticVotes.find(vote => vote.postId === post._id)
-  
-                return <div key={post._id} onClick={()=>{
-                  setExpandedPost(post)
-                  captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
-                >
-                  <ReviewVoteTableRow
-                    post={post}
-                    showKarmaVotes={showKarmaVotes}
-                    dispatch={dispatchQualitativeVote}
-                    currentQualitativeVote={currentQualitativeVote||null}
-                    currentQuadraticVote={currentQuadraticVote||null}
-                    dispatchQuadraticVote={dispatchQuadraticVote}
-                    useQuadratic={useQuadratic}
-                    expandedPostId={expandedPost?._id}
-                  />
-                </div>
-              })}
-          </Paper>
+          {(postsLoading || dbVotesLoading || loading) ?
+            <Loading /> :
+            <Paper>
+              {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
+                  const currentQualitativeVote = votes.find(vote => vote.postId === post._id)
+                  const currentQuadraticVote = quadraticVotes.find(vote => vote.postId === post._id)
+    
+                  return <div key={post._id} onClick={()=>{
+                    setExpandedPost(post)
+                    captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+                  >
+                    <ReviewVoteTableRow
+                      post={post}
+                      showKarmaVotes={showKarmaVotes}
+                      dispatch={dispatchQualitativeVote}
+                      currentQualitativeVote={currentQualitativeVote||null}
+                      currentQuadraticVote={currentQuadraticVote||null}
+                      dispatchQuadraticVote={dispatchQuadraticVote}
+                      useQuadratic={useQuadratic}
+                      expandedPostId={expandedPost?._id}
+                    />
+                  </div>
+                })}
+            </Paper>
+          }
         </div>
       </div>
     </div>

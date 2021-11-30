@@ -93,7 +93,7 @@ export const filters: Record<string,any> = {
   "unnominated2019": {
     nominationCount2019: 0
   },
-  // TODO; is this indexed?
+  // TODO(Review) is this indexed?
   "unnominated": {
     positiveReviewVoteCount: 0
   },

@@ -12,7 +12,6 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { canNominate } from '../../lib/reviewUtils';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -507,6 +506,7 @@ const PostsItem2 = ({
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
                     {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                    {/* TODO:(Review) still 2019 */}
                     {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
                   </PostsItem2MetaInfo>
                   

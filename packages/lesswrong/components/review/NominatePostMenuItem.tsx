@@ -1,4 +1,4 @@
-// TODO; delete
+// TODO:(Review) delete
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
