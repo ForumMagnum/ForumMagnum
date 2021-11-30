@@ -867,22 +867,42 @@ addRoute(
     componentName: 'PasswordResetPage',
   },
   {
-    name: 'nominations2018',
+    name: 'nominations2018-old',
     path: '/nominations2018',
+    redirect: () => `/nominations/2018`,
+  },
+  {
+    name: 'nominations2018',
+    path: '/nominations/2018',
     componentName: 'Nominations2018',
     title: "2018 Nominations",
   },
   {
-    name: 'nominations',
-    path: '/nominations',
+    name: 'nominations2019-old',
+    path: '/nominations2019',
+    redirect: () => `/nominations/2019`,
+  },
+  {
+    name: 'nominations2019',
+    path: '/nominations/2019',
     componentName: 'Nominations2019',
     title: "2019 Nominations",
   },
   {
-    name: 'userReviews',
-    path:'/users/:slug/reviews',
+    name: 'nominations',
+    path: '/nominations',
+    redirect: () => `/nominations/2019`,
+  },
+  {
+    name: 'userReviewsByYear',
+    path:'/users/:slug/reviews/:year',
     componentName: 'UserReviews',
     title: "User Reviews",
+  },
+  {
+    name: 'userReviews',
+    path:'/users/:slug/reviews', 
+    redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
   },
   {
     name: 'userReplies',
@@ -891,16 +911,31 @@ addRoute(
     title: "User Comment Replies",
   },
   {
-    name: 'reviews2018',
+    name: 'reviews2018-old',
     path: '/reviews2018',
+    redirect: () => `/reviews/2018`,
+  },
+  {
+    name: 'reviews2018',
+    path: '/reviews/2018',
     componentName: 'Reviews2018',
     title: "2018 Reviews",
   },
   {
-    name: 'reviews',
-    path: '/reviews',
+    name: 'reviews2019-old',
+    path: '/reviews2019',
+    redirect: () => `/reviews/2019`,
+  },
+  {
+    name: 'reviews2019',
+    path: '/reviews/2019',
     componentName: 'Reviews2019',
     title: "2019 Reviews",
+  },
+  {
+    name: 'reviews',
+    path: '/reviews',
+    redirect: () => `/reviews/2019`,
   },
   {
     name: 'bookLanding',

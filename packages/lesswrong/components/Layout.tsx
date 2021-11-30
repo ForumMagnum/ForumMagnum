@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from './hooks/useUpdateCurrentUser';
+import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
@@ -108,14 +108,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  // FIXME sure seems like this should be an optional prop
-  currentUser: UsersCurrent,
+  currentUser: UsersCurrent | null,
   messages: any,
   children?: React.ReactNode,
 }
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
   cookies: any,
   theme: ThemeType,
+  updateUser: any,
 }
 interface LayoutState {
   timezone: string,
@@ -160,11 +160,14 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   toggleStandaloneNavigation = () => {
-    const { updateCurrentUser, currentUser } = this.props
+    const { updateUser, currentUser } = this.props
     this.setState(prevState => {
       if (currentUser) {
-        void updateCurrentUser({
-          hideNavigationSidebar: !prevState.hideNavigationSidebar
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            hideNavigationSidebar: !prevState.hideNavigationSidebar
+          }
         })
       }
       return {
@@ -174,10 +177,18 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   componentDidMount() {
-    const { cookies } = this.props;
+    const { updateUser, currentUser, cookies } = this.props;
     const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone) {
+    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
       cookies.set('timezone', newTimezone);
+      if (currentUser) {
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            lastUsedTimezone: newTimezone,
+          }
+        })
+      }
       this.setState({
         timezone: newTimezone
       });
@@ -323,7 +334,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
     withLocation, withCookies,
-    withUpdateCurrentUser,
+    withUpdate({
+      collectionName: "Users",
+      fragmentName: 'UsersCurrent',
+    }),
     withTheme()
   ]}
 );

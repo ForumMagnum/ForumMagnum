@@ -16,8 +16,10 @@ interface UsersDefaultFragment { // fragment on Users
   readonly displayName: string,
   readonly email: string,
   readonly slug: string,
+  readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
+  readonly lastUsedTimezone: string,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
@@ -125,6 +127,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly activateRSVPs: boolean,
   readonly nextDayReminderSent: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
+  readonly onlyVisibleToEstablishedAccounts: boolean,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -1470,6 +1473,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly petrovPressedButtonDate: Date,
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
+  readonly noindex: boolean,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
@@ -1544,6 +1548,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
+  readonly lastUsedTimezone: string,
 }
 
 interface UserKarmaChanges { // fragment on Users
