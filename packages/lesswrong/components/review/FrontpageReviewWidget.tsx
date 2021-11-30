@@ -47,7 +47,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'rgba(0,0,0,0.14)',
     display: 'flex',
     justifyContent: 'space-between',
-    cursor: 'pointer',
     '&:hover': {
       boxShadow: "0px 0px 10px rgba(0,0,0,.1)",
       opacity: 0.9
