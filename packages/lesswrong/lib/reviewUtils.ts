@@ -11,7 +11,7 @@ export type ReviewYear = 2018 | 2019 | 2020
 export const REVIEW_YEAR: ReviewYear = 2020
 
 // Probably only used while the EA Forum is doing something sufficiently different
-export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `$The {REVIEW_YEAR} Review`
+export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
 export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
