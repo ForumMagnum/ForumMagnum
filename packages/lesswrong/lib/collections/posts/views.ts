@@ -1270,7 +1270,7 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: Reso
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ _id: 1, userId: 1, isEvent:1 }),
+  augmentForDefaultView({ _id: 1, userId: 1, isEvent:1, baseScore:1 }),
   { name: "posts.nominatablePostsByVote", }
 );
 
