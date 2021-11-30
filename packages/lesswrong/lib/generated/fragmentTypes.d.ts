@@ -262,7 +262,6 @@ interface PostsMinimumInfo { // fragment on Posts
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
-  readonly currentUserReviewVote: number,
   readonly url: string,
   readonly postedAt: Date,
   readonly createdAt: Date,
@@ -354,6 +353,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
+  readonly currentUserReviewVote: number,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,

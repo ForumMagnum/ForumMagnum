@@ -775,9 +775,8 @@ const schema: SchemaType<DbPost> = {
         },
         "postId", post._id
       );
-      console.log("votes", votes)
       if (!votes.length) return null;
-      return votes[0].quadraticScore || votes[0].qualitativeScore;
+      return votes[0].qualitativeScore;
     }
   })
 };

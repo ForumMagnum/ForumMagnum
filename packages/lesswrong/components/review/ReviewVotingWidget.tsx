@@ -55,7 +55,7 @@ const ReviewVotingWidget = ({classes, post, title, setNewVote}: {classes:Classes
     postId: string,
     score: number
   }) => {
-    if (setNewVote) setNewVote(indexToTermsLookup[score].label)
+    if (setNewVote) setNewVote(score)
     return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
   }, [submitVote]);
 

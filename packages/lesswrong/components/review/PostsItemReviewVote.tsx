@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { canNominate } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
+import { indexToTermsLookup } from './ReviewVotingButtons';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -31,11 +32,13 @@ const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsLi
 
   if (!canNominate(currentUser, post)) return null
 
+  const displayVote = indexToTermsLookup[newVote || post.currentUserReviewVote]?.label
+
   return <div onMouseLeave={() => setAnchorEl(null)}>
 
     <LWTooltip title={<div>Nominate this post by casting a preliminary vote.</div>} placement="right">
       <div className={classes.button} onClick={(e) => setAnchorEl(e.target)}>
-        {newVote || post.currentUserReviewVote || "Vote"}
+        {displayVote || "Vote"}
       </div>
     </LWTooltip>
 

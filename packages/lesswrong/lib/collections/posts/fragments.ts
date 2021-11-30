@@ -17,7 +17,6 @@ registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
     
-    currentUserReviewVote
     # Core fields
     url
     postedAt
@@ -138,6 +137,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    currentUserReviewVote
     moderationGuidelines {
       _id
       html
