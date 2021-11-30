@@ -1254,7 +1254,7 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
   }
 ));
 
-
+// used to find a user's upvoted posts, so they can nominate them for the Review
 Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: ResolverContext) => {
   return {
     selector: {
