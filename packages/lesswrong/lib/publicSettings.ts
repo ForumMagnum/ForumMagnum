@@ -90,8 +90,8 @@ export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProdu
 
 // You will need to restart your server after changing these at present;
 // FrontpageReviewWidget reads them at startup.
-export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-01")
+export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-12-01")
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
 export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-11")
 export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-01-26")
-export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', "/posts/M9kDqF2fn3WH44nrv/the-2020-review-preliminary-voting")
+export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
