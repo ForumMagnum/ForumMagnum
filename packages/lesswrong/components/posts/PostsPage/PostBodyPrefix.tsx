@@ -4,6 +4,10 @@ import Info from '@material-ui/icons/Info';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, reviewIsActive, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { annualReviewAnnouncementPostPathSetting } from '../../../lib/publicSettings';
+import { overviewTooltip } from '../../review/FrontpageReviewWidget';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -33,11 +37,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewButton: {
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingLeft: theme.spacing.unit*3,
-    paddingRight: theme.spacing.unit*3,
-    paddingTop: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
-    marginTop: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    marginTop: theme.spacing.unit,
     display: "inline-block",
     borderRadius: 3
   }
@@ -48,14 +52,13 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton} = Components;
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton } = Components;
   const currentUser = useCurrentUser();
 
   return <>
     {reviewIsActive() && canNominate(currentUser, post) && <div className={classes.reviewVoting}>
       <ReviewVotingWidget post={post} title={<div>
-        <div>How important was this post?</div>
-        <div>Should it be considered for the {REVIEW_NAME_IN_SITU}?</div>
+        <div>Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={annualReviewAnnouncementPostPathSetting.get()}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip></div>
       </div>}/>
       <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Write a Review</div>
