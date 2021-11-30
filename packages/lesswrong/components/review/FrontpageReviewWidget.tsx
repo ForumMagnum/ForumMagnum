@@ -292,12 +292,12 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       </AnalyticsContext>
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-        <LWTooltip title={`Help jog your memory about your favorite ${REVIEW_YEAR} posts by looking at your previous upvotes`}>
+        <LWTooltip title={`Nominate posts you previously upvoted.`}>
           <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
             Your Upvotes from {isEAForum && '≤'}{REVIEW_YEAR}
           </Link>
         </LWTooltip>
-        <LWTooltip title={`All Posts written ${isEAForum ? 'in or before' : 'in'} ${REVIEW_YEAR} are eligible to participate in the review. Click here to see all un-nominated posts written ${isEAForum ? 'in or before' : 'in'} ${REVIEW_YEAR}.`}>
+        <LWTooltip title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
           <Link to={allEligiblePostsUrl} className={classes.actionButton}>
             All {isEAForum ? 'Eligible' : REVIEW_YEAR} Posts
           </Link>

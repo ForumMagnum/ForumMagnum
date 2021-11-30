@@ -36,7 +36,7 @@ const schema: SchemaType<DbReviewVote> = {
     type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
     optional: true,
-    ...schemaDefaultValue(1)
+    ...schemaDefaultValue(3)
   },
   quadraticScore: {
     type: SimpleSchema.Integer, 

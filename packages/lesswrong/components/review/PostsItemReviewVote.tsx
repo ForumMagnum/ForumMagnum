@@ -28,7 +28,7 @@ const PostsItemReviewVote = ({classes, post}:{classes:ClassesType, post:PostsBas
 
   return <div onMouseLeave={() => setAnchorEl(null)}>
 
-    <LWTooltip title={<div><div>Cast a preliminary vote in the {REVIEW_NAME}</div><div>Posts need at least one vote to pass to the Review Phase.</div></div>} placement="right">
+    <LWTooltip title={<div>Nominate this post by casting a preliminary vote.</div>} placement="right">
       <div className={classes.button} onClick={(e) => setAnchorEl(e.target)}>
         Vote
       </div>

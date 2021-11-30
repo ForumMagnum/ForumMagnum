@@ -578,13 +578,27 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     optional: true,
     defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "reviewVoteCount",
       collectionName: "Posts",
       foreignCollectionName: "ReviewVotes",
       foreignTypeName: "reviewVote",
       foreignFieldName: "postId",
+    }),
+    canRead: ['guests'],
+  },
+
+  positiveReviewVoteCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "positiveReviewVoteCount",
+      collectionName: "Posts",
+      foreignCollectionName: "ReviewVotes",
+      foreignTypeName: "reviewVote",
+      foreignFieldName: "postId",
+      filterFn: vote => vote.qualitativeScore > 3
     }),
     canRead: ['guests'],
   },
