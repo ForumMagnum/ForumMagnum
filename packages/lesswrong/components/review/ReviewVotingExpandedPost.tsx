@@ -9,7 +9,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 const styles = theme => ({
   postTitle: {
     ...postPageTitleStyles(theme),
-    marginBottom: 24
+    display: "block",
+    marginBottom: 12
   },
   writeAReview: {
     paddingTop: 12,
@@ -41,7 +42,7 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
 
   return <div className={classes.root}>
       <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
-      <PostsHighlight post={post} maxLengthWords={150} forceSeeMore /> 
+      <PostsHighlight post={post} maxLengthWords={90} forceSeeMore /> 
       <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
         <div className={classes.writeAReview}>
           <div className={classes.reviewPrompt}>Write a review for "{post.title}"</div>

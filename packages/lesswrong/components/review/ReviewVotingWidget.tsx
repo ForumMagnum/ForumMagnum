@@ -18,7 +18,7 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBase}) => {
+const ReviewVotingWidget = ({classes, post, title}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, Loading } = Components
 
@@ -49,11 +49,10 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
     }
   });
 
-  const dispatchQualitativeVote = useCallback(async ({_id, postId, score, reactions}: {
+  const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
     _id: string|null,
     postId: string,
-    score: number,
-    reactions: string[],
+    score: number
   }) => {
     return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
   }, [submitVote]);
@@ -67,9 +66,11 @@ const ReviewVotingWidget = ({classes, post}: {classes:ClassesType, post: PostsBa
     type: "qualitative"
   } as ReviewVote : null
 
+  const renderedTitle = title || `${REVIEW_NAME}: Was this post important?`
+
   return <ErrorBoundary>
       <div className={classes.root}>
-        <p>{REVIEW_NAME}: Was this post important?</p>
+        <p>{renderedTitle}</p>
         {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />}
       </div>
     </ErrorBoundary>

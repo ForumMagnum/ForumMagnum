@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
 
@@ -27,10 +27,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: "rgba(0,0,0,.4)",
   },
   reviewVoting: {
-    display: "flex",
-    justifyContent: "center",
+    textAlign: "center",
     padding: theme.spacing.unit*2,
     paddingBottom: theme.spacing.unit*6
+  },
+  reviewButton: {
+    border: `solid 1px ${theme.palette.primary.main}`,
+    paddingLeft: theme.spacing.unit*3,
+    paddingRight: theme.spacing.unit*3,
+    paddingTop: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
+    marginTop: theme.spacing.unit*2,
+    display: "inline-block",
+    borderRadius: 3
   }
 });
 
@@ -44,8 +53,13 @@ const PostBodyPrefix = ({post, query, classes}: {
 
   return <>
     {reviewIsActive() && canNominate(currentUser, post) && <div className={classes.reviewVoting}>
-      <ReviewVotingWidget post={post} />
-      {/* <ReviewPostButton post={post} year={REVIEW_YEAR}/> */}
+      <ReviewVotingWidget post={post} title={<div>
+        <div>How important was this post?</div>
+        <div>Should it be considered for the 2020 Review?</div>
+      </div>}/>
+      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+        <div className={classes.reviewButton}>Write a Review</div>
+      </LWTooltip>}/>
     </div>}
 
     <AlignmentCrosspostMessage post={post} />

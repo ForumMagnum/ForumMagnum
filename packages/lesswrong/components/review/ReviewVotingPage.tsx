@@ -10,14 +10,13 @@ import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
+import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import CachedIcon from '@material-ui/icons/Cached';
-import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 import { currentUserCanVote, REVIEW_NAME, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { overviewTooltip } from './FrontpageReviewWidget';
 
 const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 export const REVIEW_COMMENTS_VIEW = "reviews2020"
@@ -27,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 600px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
+      minmax(10px, 0.5fr) minmax(100px, 640px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
     `,
     gridTemplateAreas: `
     "... leftColumn ... rightColumn ..."
@@ -37,7 +36,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   instructions: {
     ...theme.typography.body2,
     ...commentBodyStyles(theme),
-    maxWidth: 545,
     paddingBottom: 35
   },
   leftColumn: {
@@ -305,52 +303,36 @@ const ReviewVotingPage = ({classes}: {
       <div className={classes.grid}>
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
-            <h1 className={classes.header}>The {REVIEW_NAME}</h1>
+            <h1 className={classes.header}>{REVIEW_NAME}: Preliminary Voting</h1>
             <div className={classes.instructions}>
-              <p>{overviewTooltip}</p>
-              <h3>Preliminary Voting</h3>
-              <p>This year, instead of a nominations phase, we're beginning with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on. At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results.</p>
+              <p><b>Welcome to the {REVIEW_NAME} dashboard.</b></p>
 
-              <p>The results will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, controversial posts or undervalued posts can get focused on.</p>
-
-              <p>During the Final Voting Phase, </p>
-
-              <p>The Review Voting Buttons are hopefully intuitive. But</p>
+              <p>This year, instead of a nominations phase, we're beginning with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
               
-              <p>In the preliminary vote phase, you put each post in a buckets of roughly 4x orders of magnitude. i.e. by click the "4" vote button, you're saying that post was roughly 4x the value of a post you put in the "1" bucket.</p>
-                
-              <p>Votes are normalized such that each voter's power is similar. (i.e. if you vote most things at 16x, your 16x votes <em>will</em> be 16x as powerful as your 1x votes, but will be weaker relative to other votes who </p>
-                
-              <p>Later, during the Final Voting Phase, you'll be given the opportunity to fine-tune those votes with a quadratic voting system.</p>
-              <p>Vote weight ascends in orders of 4. For example, your 4x vote will be worth four times the value of your 1x vote.</p>
-              <p>Your votes are weighted based on how many you cast. If you give every post a rating of "16x", the value of your 16x votes will be reduced relative to someone who used it more sparingly. (On the backend, these voting buttons are built on top of a quadratic voting system. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details). But your 4</p>
-              <p><b></b></p>
+              <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
 
-              {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {REVIEW_YEAR} Review on January 12th.</p> */}
-              {/* <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
-              <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
-              <ul>
-                <li><b>No</b> – Misleading, harmful or low quality.</li>
-                <li><b>Neutral</b> – You wouldn't personally recommend it, but seems fine if others do. <em>(If you don’t have strong opinions about a post, leaving it ‘neutral’ is fine)</em></li>
-                <li><b>Good</b> – Useful ideas that I still think about sometimes.</li>
-                <li><b>Important</b> – A key insight or excellent distillation.</li>
-                <li><b>Crucial</b> – One of the most significant posts of {REVIEW_YEAR}, for LessWrong to discuss and build upon over the coming years.</li>
-              </ul>
-              <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details. Also note that your vote allocation is not optimal if the average of your votes is above 1 or below -1, see <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results?commentId=HL9cPrFqMexGn4jmZ">this comment</Link> for details..)</p>
-              <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review">this post</Link>.</p>
-              <p>The vote closes on Jan 26th. If you leave this page and come back, your votes will be saved.</p> */}
+              <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link></p>
+
+              <p><b>How exactly do the Preliminary Votes Work?</b></p>
+
+              <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
+
+              <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
+
+              <p><b>Submitting Reviews</b></p>
+
+              <p>Last year, nominating posts required writing a comment saying what was good about it. Since nomination is an "anonymous vote" this year, we're giving people the ability to write reviews right away. Feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
             </div>
           </div>}
           <ReviewVotingExpandedPost post={expandedPost}/>
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.menu}>
-            <LWTooltip title="Sorts the list of post by vote-strength">
-              <Button onClick={reSortPosts}>
-                Re-Sort <CachedIcon className={classes.menuIcon} />
-              </Button>
-            </LWTooltip>
-            
+            <Button disabled={!expandedPost} onClick={()=>{
+              setExpandedPost(null)
+              captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
+            }}>Show Instructions</Button>
+
             {/* RAY: Hiding this UI. Instead I made the self-vote info more subdued and less informative so it's primarily communicating 'you saw this post' than what-particular-opinions-you-had. */}
             {/* <LWTooltip title="Show which posts you have upvoted or downvoted">
               <Button onClick={() => setShowKarmaVotes(!showKarmaVotes)}>
@@ -370,15 +352,15 @@ const ReviewVotingPage = ({classes}: {
               }}>
                 Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} />
               </Button>
-            </LWTooltip>} */}
-            {/* {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
+            </LWTooltip>}
+            {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
               <Button className={classes.convert} onClick={async () => {
                   handleSetUseQuadratic(false)
                   captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
               }}>
                 <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
               </Button>
-            </LWTooltip>} */}
+            </LWTooltip>}
             {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
                 <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
                   {voteTotal}/500
@@ -390,11 +372,12 @@ const ReviewVotingPage = ({classes}: {
                 <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
                   Avg: {(voteSum / posts.length).toFixed(2)}
                 </div>
-            </LWTooltip>}
-            <Button disabled={!expandedPost} onClick={()=>{
-              setExpandedPost(null)
-              captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
-            }}>Show Instructions</Button>
+            </LWTooltip>} */}
+            <LWTooltip title="Sorts the list of post by vote-strength">
+              <Button onClick={reSortPosts}>
+                Re-Sort <CachedIcon className={classes.menuIcon} />
+              </Button>
+            </LWTooltip>
           </div>
           <Paper>
             {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
