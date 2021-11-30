@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
-import { canNominate, REVIEW_NAME } from '../../lib/reviewUtils';
+import { canNominate } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({

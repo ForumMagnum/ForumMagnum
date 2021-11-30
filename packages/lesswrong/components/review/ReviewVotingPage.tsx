@@ -16,7 +16,12 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { currentUserCanVote, getReviewPhase, REVIEW_NAME, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { annualReviewStart } from '../../lib/publicSettings';
+import moment from 'moment';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 export const REVIEW_COMMENTS_VIEW = "reviews2020"
@@ -278,7 +283,10 @@ const ReviewVotingPage = ({classes}: {
     return (
       <div className={classes.message}>
         {/* TODO; */}
-        Only users registered before {REVIEW_YEAR} can vote in the {REVIEW_NAME}
+        {isEAForum ?
+          `Only users regerested before ${moment.utc(annualReviewStart.get()).format('MMM Do')} can vote in the ${REVIEW_NAME_IN_SITU}` :
+          `Only users registered before ${REVIEW_YEAR} can vote in the ${REVIEW_NAME_IN_SITU}`
+        }
       </div>
     )
   }
@@ -304,9 +312,9 @@ const ReviewVotingPage = ({classes}: {
       <div className={classes.grid}>
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
-            <h1 className={classes.header}>{REVIEW_NAME}: Preliminary Voting</h1>
+            <h1 className={classes.header}>{REVIEW_NAME_TITLE}: Preliminary Voting</h1>
             <div className={classes.instructions}>
-              <p><b>Welcome to the {REVIEW_NAME} dashboard.</b></p>
+              <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
 
               <p>This year, instead of a nominations phase, we're beginning with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
               

@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
-import { REVIEW_NAME } from '../../lib/reviewUtils';
+import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { ReviewVote } from './ReviewVotingPage';
@@ -66,7 +66,7 @@ const ReviewVotingWidget = ({classes, post, title}: {classes:ClassesType, post: 
     type: "qualitative"
   } as ReviewVote : null
 
-  const renderedTitle = title || `${REVIEW_NAME}: Was this post important?`
+  const renderedTitle = title || `${REVIEW_NAME_IN_SITU}: Was this post important?`
 
   return <ErrorBoundary>
       <div className={classes.root}>

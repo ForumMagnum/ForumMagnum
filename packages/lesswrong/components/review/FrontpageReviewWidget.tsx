@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
-import { currentUserCanVote, eligibleToNominate, getReviewPhase, ReviewYear, REVIEW_NAME, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { currentUserCanVote, eligibleToNominate, getReviewPhase, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -250,13 +250,13 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       <SectionTitle 
         title={<LWTooltip title={overviewTooltip} placement="bottom-start">
           <Link to={reviewPostPath}>
-            The {REVIEW_NAME}
+            {REVIEW_NAME_TITLE}
           </Link>
         </LWTooltip>}
       >
         <LWTooltip title={overviewTooltip}>
           <Link to={reviewPostPath}>
-            <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME} work?`}/>
+            <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
           </Link>
         </LWTooltip>
       </SectionTitle>
