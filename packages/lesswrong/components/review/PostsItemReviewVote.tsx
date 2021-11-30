@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { canNominate } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -30,10 +29,10 @@ const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsBa
 
   if (!canNominate(currentUser, post)) return null
 
-  return <ClickAwayListener onClickAway={() => setAnchorEl(null)}>
+  return <div onMouseLeave={() => setAnchorEl(null)}>
 
     <LWTooltip title={<div>Nominate this post by casting a preliminary vote.</div>} placement="right">
-      <div className={classes.button} onClick={(e) => setAnchorEl(anchorEl ? null : e.target)}>
+      <div className={classes.button} onClick={(e) => setAnchorEl(e.target)}>
         Vote
       </div>
     </LWTooltip>
@@ -43,7 +42,7 @@ const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsBa
         <ReviewVotingWidget post={post} />
       </Card>
     </LWPopper>
-  </ClickAwayListener>
+  </div>
 }
 
 const PostsItemReviewVoteComponent = registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
