@@ -6,7 +6,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { indexToTermsLookup } from './ReviewVotingButtons';
 import { ReviewVote } from './ReviewVotingPage';
 
 const styles = (theme) => ({
