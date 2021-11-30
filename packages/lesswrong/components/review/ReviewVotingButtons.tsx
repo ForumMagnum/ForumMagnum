@@ -4,6 +4,7 @@ import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import forumThemeExport from '../../themes/forumTheme';
+import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 
 const downvoteColor = "rgba(125,70,70, .87)"
 // TODO;
@@ -60,7 +61,7 @@ export const indexToTermsLookup = {
 const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVote|null}) => {
   const { LWTooltip } = Components
   const score = voteForCurrentPost?.score
-  const [selection, setSelection] = useState(voteForCurrentPost ? score : 3)
+  const [selection, setSelection] = useState(voteForCurrentPost ? score : DEFAULT_QUALITATIVE_VOTE)
 
   const createClickHandler = (index:number) => {
     return () => {

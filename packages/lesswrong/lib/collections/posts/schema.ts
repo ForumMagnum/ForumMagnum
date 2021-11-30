@@ -11,6 +11,7 @@ import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
+import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -598,7 +599,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "ReviewVotes",
       foreignTypeName: "reviewVote",
       foreignFieldName: "postId",
-      filterFn: vote => vote.qualitativeScore > 4 || vote.quadraticScore > 0
+      filterFn: vote => vote.qualitativeScore > DEFAULT_QUALITATIVE_VOTE || vote.quadraticScore > 0
     }),
     canRead: ['guests'],
   },

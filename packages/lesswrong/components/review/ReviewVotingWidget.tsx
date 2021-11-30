@@ -56,7 +56,7 @@ const ReviewVotingWidget = ({classes, post, title, setNewVote}: {classes:Classes
   }) => {
     if (setNewVote) setNewVote(score)
     return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
-  }, [submitVote]);
+  }, [submitVote, setNewVote]);
 
   if (voteLoadingError) return <div>{voteLoadingError.message}</div>
   const vote = votes?.length ? {
