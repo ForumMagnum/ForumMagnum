@@ -95,7 +95,7 @@ export const filters: Record<string,any> = {
   },
   // TODO; is this indexed?
   "unnominated": {
-    reviewVoteCount: 0
+    positiveReviewVoteCount: 0
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -1274,16 +1274,16 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: Reso
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewVoteCount: { $gt: 0 },
+      positiveReviewVoteCount: { $gt: 0 },
     },
     options: {
       sort: {
-        reviewVoteCount: terms.sortByMost ? -1 : 1
+        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
       }
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ reviewVoteCount: 1 }),
-  { name: "posts.reviewVoteCount", }
+  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
 );
