@@ -229,7 +229,7 @@ addRoute(
     name:'reviewVoting2019',
     path: '/reviewVoting/2019',
     title: "Voting 2019 Review",
-    componentName: "ReviewVotingPage2019"
+    componentName: "ReviewVotingPage"
   },
   {
     name:'reviewVoting2020',
@@ -697,7 +697,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  }
+  },
 );
 
 addRoute(
@@ -914,7 +914,7 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       path: '/reviews/2019',
       componentName: 'Reviews2019',
       title: "2019 Reviews",
-    },
+    }
   )
 }
 
@@ -973,6 +973,11 @@ addRoute(
   {
     name: 'reviews',
     path: '/reviews',
-    redirect: () => `/reviews/${REVIEW_YEAR}`,
-  }
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
+  },
+  {
+    name: 'reviews-2020',
+    path: '/reviews/2020',
+    redirect: () => `/reviewVoting/2020`,
+  },
 );

@@ -292,6 +292,8 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         {/* TODO:(Review) I think we can improve this */}
         <RecommendationsList algorithm={getReviewAlgorithm()} />
       </AnalyticsContext>
+
+      {/* TODO: Improve logged out user experience somehow */}
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         <LWTooltip title={`Nominate posts you previously upvoted.`}>
