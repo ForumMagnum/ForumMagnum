@@ -1269,6 +1269,11 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: Reso
     }
   }
 })
+ensureIndex(Posts,
+  augmentForDefaultView({ _id: 1, userId: 1, isEvent:1 }),
+  { name: "posts.nominatablePostsByVote", }
+);
+
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {

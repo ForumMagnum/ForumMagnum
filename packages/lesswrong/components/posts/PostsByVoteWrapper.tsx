@@ -3,7 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const PostsByVoteWrapper = ({voteType, year}: {voteType: string, year: number | '≤2020'}) => {
-  const { PostsByVote, ErrorBoundary, Loading } = Components
+  const { PostsByVote, ErrorBoundary, Loading, Typography } = Components
 
   // const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
@@ -21,7 +21,7 @@ const PostsByVoteWrapper = ({voteType, year}: {voteType: string, year: number | 
     limit: 10000
   });
 
-  if (loading) return <Loading/>
+  if (loading) return <div><Loading/><Typography variant="body2">Loading Votes</Typography></div>
     
   const postIds = votes.map(vote=>vote.documentId)
 

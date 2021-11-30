@@ -20,7 +20,7 @@ const PostsByVote = ({postIds, year}: {postIds: Array<string>, year: number | 'â
     limit: 1000,
   })
   
-  if (loading) return <Loading/>
+  if (loading) return <div><Loading/> <Typography variant="body2">Loading Posts</Typography></div>
 
   if (!posts || posts.length === 0) return <Typography variant="body2">You have no upvotes from this period</Typography>
 
