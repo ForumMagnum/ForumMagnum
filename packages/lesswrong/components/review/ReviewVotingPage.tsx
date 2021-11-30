@@ -16,7 +16,7 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { currentUserCanVote, REVIEW_NAME, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { currentUserCanVote, getReviewPhase, REVIEW_NAME, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
 export const REVIEW_COMMENTS_VIEW = "reviews2020"
@@ -277,7 +277,8 @@ const ReviewVotingPage = ({classes}: {
   if (!currentUserCanVote(currentUser)) {
     return (
       <div className={classes.message}>
-        Only users registered before {REVIEW_YEAR} can vote in the {REVIEW_YEAR} LessWrong Review
+        {/* TODO; */}
+        Only users registered before {REVIEW_YEAR} can vote in the {REVIEW_NAME}
       </div>
     )
   }
@@ -342,37 +343,39 @@ const ReviewVotingPage = ({classes}: {
             {(postsLoading || dbVotesLoading || loading) && <Loading/>}
             
             {/* Turned off for the Preliminary Voting phase */}
-            {/* {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
-              <Button className={classes.convert} onClick={async () => {
-                  setLoading(true)
-                  await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
-                  handleSetUseQuadratic(true)
-                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:true})
-                  setLoading(false)
-              }}>
-                Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} />
-              </Button>
-            </LWTooltip>}
-            {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
-              <Button className={classes.convert} onClick={async () => {
-                  handleSetUseQuadratic(false)
-                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
-              }}>
-                <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
-              </Button>
-            </LWTooltip>}
-            {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
-                <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
-                  {voteTotal}/500
-                </div>
-            </LWTooltip>}
-            {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
-                <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
-                <p>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details.</p></div>}>
-                <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
-                  Avg: {(voteSum / posts.length).toFixed(2)}
-                </div>
-            </LWTooltip>} */}
+            {getReviewPhase() !== "NOMINATIONS" && <>
+              {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
+                <Button className={classes.convert} onClick={async () => {
+                    setLoading(true)
+                    await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
+                    handleSetUseQuadratic(true)
+                    captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:true})
+                    setLoading(false)
+                }}>
+                  Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} />
+                </Button>
+              </LWTooltip>}
+              {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
+                <Button className={classes.convert} onClick={async () => {
+                    handleSetUseQuadratic(false)
+                    captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
+                }}>
+                  <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
+                </Button>
+              </LWTooltip>}
+              {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
+                  <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+                    {voteTotal}/500
+                  </div>
+              </LWTooltip>}
+              {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
+                  <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
+                  <p>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details.</p></div>}>
+                  <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
+                    Avg: {(voteSum / posts.length).toFixed(2)}
+                  </div>
+              </LWTooltip>}
+            </>}
             <LWTooltip title="Sorts the list of post by vote-strength">
               <Button onClick={reSortPosts}>
                 Re-Sort <CachedIcon className={classes.menuIcon} />

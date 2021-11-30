@@ -41,35 +41,35 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
   if (!post) return null
 
   return <div className={classes.root}>
-      <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
-      <PostsHighlight post={post} maxLengthWords={90} forceSeeMore /> 
-      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
-        <div className={classes.writeAReview}>
-          <div className={classes.reviewPrompt}>Write a review for "{post.title}"</div>
-          <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
-        </div>
-      </div>}/>
-
-      <div className={classes.comments}>
-        <ReviewPostComments
-          title="Reviews"
-          terms={{
-            view: REVIEW_COMMENTS_VIEW, 
-            postId: post._id
-          }}
-          post={post}
-        />
-        <ReviewPostComments
-          title="Unread Comments"
-          terms={{
-            view: "postsItemComments", 
-            postId: post._id,
-            limit:7, 
-            after: post.lastVisitedAt
-          }}
-          post={post}
-        />
+    <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
+    <PostsHighlight post={post} maxLengthWords={90} forceSeeMore /> 
+    <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
+      <div className={classes.writeAReview}>
+        <div className={classes.reviewPrompt}>Write a review for "{post.title}"</div>
+        <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
       </div>
+    </div>}/>
+
+    <div className={classes.comments}>
+      <ReviewPostComments
+        title="Reviews"
+        terms={{
+          view: REVIEW_COMMENTS_VIEW, 
+          postId: post._id
+        }}
+        post={post}
+      />
+      <ReviewPostComments
+        title="Unread Comments"
+        terms={{
+          view: "postsItemComments", 
+          postId: post._id,
+          limit:7, 
+          after: post.lastVisitedAt
+        }}
+        post={post}
+      />
+    </div>
   </div>
 }
 

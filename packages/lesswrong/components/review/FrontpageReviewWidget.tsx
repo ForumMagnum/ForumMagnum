@@ -135,8 +135,6 @@ const nominationStartDate = moment.utc(annualReviewStart.get())
 const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
 const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
 const voteEndDate = moment.utc(annualReviewEnd.get())
-const currentDate = moment.utc()
-const activeRange = getReviewPhase()
 
 const forumTitle = forumTitleSetting.get()
 
@@ -172,6 +170,10 @@ export const overviewTooltip = isEAForum ?
 const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
+
+  // These should be calculated at render
+  const currentDate = moment.utc()
+  const activeRange = getReviewPhase()
 
   const nominationsTooltip = isEAForum ?
     <div>

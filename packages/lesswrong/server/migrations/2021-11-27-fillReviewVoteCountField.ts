@@ -9,5 +9,4 @@ registerMigration({
   action: async () => {
     await recomputeDenormalizedValues({collectionName: "Posts", fieldName: "reviewVoteCount"});
   },
-});``
-
+});

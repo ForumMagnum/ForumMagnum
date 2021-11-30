@@ -4,6 +4,7 @@ import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 
 const downvoteColor = "rgba(125,70,70, .87)"
+// TODO;
 const upvoteColor = "rgba(70,125,70, .87)"
 
 const styles = (theme: ThemeType) => ({
