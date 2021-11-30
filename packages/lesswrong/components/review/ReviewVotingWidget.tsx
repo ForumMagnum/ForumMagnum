@@ -15,11 +15,6 @@ const styles = (theme) => ({
     textAlign: "center",
     color: theme.palette.grey[800],
     padding: theme.spacing.unit,
-  },
-  finePrint: {
-    fontSize: 10,
-    fontStyle: "italic",
-    color: theme.palette.grey[600]
   }
 })
 
@@ -77,7 +72,6 @@ const ReviewVotingWidget = ({classes, post, title}: {classes:ClassesType, post: 
       <div className={classes.root}>
         <p>{renderedTitle}</p>
         {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />}
-        <p className={classes.finePrint}>Posts with 1+ positive vote are nominated.</p>
       </div>
     </ErrorBoundary>
 }
