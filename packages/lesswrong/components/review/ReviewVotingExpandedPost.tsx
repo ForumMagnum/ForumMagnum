@@ -1,9 +1,16 @@
 import React from 'react';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { REVIEW_COMMENTS_VIEW } from './ReviewVotingPage';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
+  postTitle: {
+    ...postPageTitleStyles(theme),
+    marginBottom: 24
+  },
   writeAReview: {
     paddingTop: 12,
     paddingLeft: 12,
@@ -28,13 +35,13 @@ const styles = theme => ({
 })
 
 const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: PostsListWithVotes|null}) => {
-  const { PostsTitle, ReviewPostButton, ReviewPostComments} = Components
+  const { ReviewPostButton, ReviewPostComments, PostsHighlight} = Components
 
   if (!post) return null
 
   return <div className={classes.root}>
-    <div className={classes.expandedInfo}>
-      <PostsTitle post={post} showIcons={false}/>
+      <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
+      <PostsHighlight post={post} maxLengthWords={150} forceSeeMore /> 
       <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
         <div className={classes.writeAReview}>
           <div className={classes.reviewPrompt}>Write a review for "{post.title}"</div>
@@ -62,7 +69,6 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
           post={post}
         />
       </div>
-    </div>
   </div>
 }
 

@@ -3,12 +3,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const PostsByVoteWrapper = ({voteType, year}: {voteType: string, year: number | '≤2020'}) => {
-    const { PostsByVote, ErrorBoundary } = Components
+    const { PostsByVote, ErrorBoundary, Loading } = Components
 
     // const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
     const after = `${year}-01-01`
 
-    const { results: votes } = useMulti({
+    const { results: votes, loading } = useMulti({
       terms: {
         view: "userPostVotes",
         collectionName: "Posts",
@@ -20,6 +20,8 @@ const PostsByVoteWrapper = ({voteType, year}: {voteType: string, year: number | 
       fragmentName: "UserVotes",
       limit: 10000
     });
+
+    if (loading) return <Loading/>
       
     const postIds = votes?.length ? votes.map(vote=>vote.documentId) : []
 

@@ -32,11 +32,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine }: {
   });
   
   const { Loading, CommentsList, SubSection, CommentWithReplies, LoadMore } = Components
-
-  if (!loading && results && !results.length) {
-    return null
-  }
-
+  
   // TODO: This doesn't quite work yet. Not sure why - Ray
   const markAsRead = () => {
     recordPostView({post, extraEventProperties: {type: "markAsRead"}})

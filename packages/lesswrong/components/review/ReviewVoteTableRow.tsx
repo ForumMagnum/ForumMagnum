@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
   post: {
     paddingRight: theme.spacing.unit*2,
-    maxWidth: "calc(100% - 100px)"
+    maxWidth: "calc(100% - 240px)"
   },
   expand: {
     display:"none",

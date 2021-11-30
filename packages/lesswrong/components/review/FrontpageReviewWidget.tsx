@@ -131,48 +131,48 @@ export function getReviewAlgorithm(): RecommendationsAlgorithm {
   }
 }
 
+  
+const nominationStartDate = moment.utc(annualReviewStart.get())
+const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
+const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
+const voteEndDate = moment.utc(annualReviewEnd.get())
+const currentDate = moment.utc()
+const activeRange = getReviewPhase()
+
+const forumTitle = forumTitleSetting.get()
+
+const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
+const reviewPhaseDateRange = <span>{nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
+const votingPhaseDateRange = <span>{reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
+
+// EA will use LW text next year, so I've kept the forumType genericization
+export const overviewTooltip = isEAForum ?
+  <div>
+    <div>The EA Forum is reflecting on the best EA writing, in three phases</div>
+    <ul>
+      <li><em>Nomination</em> ({nominationPhaseDateRange})</li>
+      <li><em>Review</em> ({reviewPhaseDateRange})</li>
+      <li><em>Voting</em> ({votingPhaseDateRange})</li>
+    </ul>
+    <div>To be eligible, posts must have been posted before January 1st, 2021.</div>
+    <br/>
+    {/* TODO; this won't be true in other phases */}
+    <div>(Currently this section shows a random sample of {REVIEW_YEAR} posts, weighted by karma)</div>
+  </div> :
+  <div>
+    <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
+    <ul>
+      <li><em>Preliminary Voting</em> ({nominationPhaseDateRange})</li>
+      <li><em>Review</em> ({reviewPhaseDateRange})</li>
+      <li><em>Final Voting</em> ({votingPhaseDateRange})</li>
+    </ul>
+    {!isEAForum && <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" sequence.</div>}
+    <p>We're currently in the preliminary voting phase. Nominate posts by casting a preliminary vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
+  </div>
+
 const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
-  
-  const nominationStartDate = moment.utc(annualReviewStart.get())
-  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
-  const voteEndDate = moment.utc(annualReviewEnd.get())
-  const currentDate = moment.utc()
-  const activeRange = getReviewPhase()
-
-  const forumTitle = forumTitleSetting.get()
-
-  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
-  const reviewPhaseDateRange = <span>{nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
-  const votingPhaseDateRange = <span>{reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
-
-  // EA will use LW text next year, so I've kept the forumType genericization
-  const overviewToolip = isEAForum ?
-    <div>
-      <div>The EA Forum is reflecting on the best EA writing, in three phases</div>
-      <ul>
-        <li><em>Nomination</em> ({nominationPhaseDateRange})</li>
-        <li><em>Review</em> ({reviewPhaseDateRange})</li>
-        <li><em>Voting</em> ({votingPhaseDateRange})</li>
-      </ul>
-      <div>To be eligible, posts must have been posted before January 1st, 2021.</div>
-      <br/>
-      {/* TODO; this won't be true in other phases */}
-      <div>(Currently this section shows a random sample of {REVIEW_YEAR} posts, weighted by karma)</div>
-    </div> :
-    <div>
-      <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
-      <ul>
-        <li><em>Preliminary Voting</em> ({nominationPhaseDateRange})</li>
-        <li><em>Review</em> ({reviewPhaseDateRange})</li>
-        <li><em>Final Voting</em> ({votingPhaseDateRange})</li>
-      </ul>
-      {!isEAForum && <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" book.</div>}
-      {/* TODO; this won't be true in other phases */}
-      <div>(Currently this section shows a random sample of {REVIEW_YEAR} posts, weighted by karma)</div>
-    </div>
 
   const nominationsTooltip = isEAForum ?
     <div>
@@ -185,12 +185,12 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       <div>If you've been actively reading {siteNameWithArticleSetting.get()} before now, but didn't register an account, reach out to us on intercom.</div>
     </div> :
     <div>
-      <div>Cast initial votes for the {REVIEW_YEAR} Review
-        Nominate posts for the {REVIEW_YEAR} Review</div>
+      <div>Cast initial votes for the {REVIEW_YEAR} Review.</div>
       <ul>
-        <li>Nominate a post by casting a <em>rough vote</em>, or vote on an existing nomination to help us prioritize it during the Review Phase.</li>
+        <li>Nominate a post by casting a <em>preliminary vote</em>, or vote on an existing nomination to help us prioritize it during the Review Phase.</li>
         <li>Any post from {REVIEW_YEAR} can be nominated</li>
         <li>Any user registered before {REVIEW_YEAR} can nominate posts for review</li>
+        <li>Posts will need at least one vote to proceed to the Review Phase.</li>
       </ul>
     </div>
 
@@ -247,15 +247,15 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   return (
     <SingleColumnSection>
       <SectionTitle 
-        title={<LWTooltip title={overviewToolip} placement="bottom-start">
+        title={<LWTooltip title={overviewTooltip} placement="bottom-start">
           <Link to={reviewPostPath}>
             The {REVIEW_NAME}
           </Link>
         </LWTooltip>}
       >
-        <LWTooltip title={overviewToolip}>
+        <LWTooltip title={overviewTooltip}>
           <Link to={reviewPostPath}>
-            How does the {REVIEW_NAME} work?
+            <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME} work?`}/>
           </Link>
         </LWTooltip>
       </SectionTitle>

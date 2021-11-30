@@ -92,4 +92,4 @@ export const annualReviewStart = new DatabasePublicSetting('annualReview.start',
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
 export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-11")
 export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-01-26")
-export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
+export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', "https://lesswrong.com/posts/M9kDqF2fn3WH44nrv/the-2020-review-preliminary-voting")
