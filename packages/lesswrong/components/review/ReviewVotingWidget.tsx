@@ -6,6 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
+import { indexToTermsLookup } from './ReviewVotingButtons';
 import { ReviewVote } from './ReviewVotingPage';
 
 const styles = (theme) => ({
@@ -18,7 +19,7 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, title}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode}) => {
+const ReviewVotingWidget = ({classes, post, title, setNewVote}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode, setNewVote?: (newVote:string)=>void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, Loading } = Components
 
@@ -54,11 +55,11 @@ const ReviewVotingWidget = ({classes, post, title}: {classes:ClassesType, post: 
     postId: string,
     score: number
   }) => {
+    if (setNewVote) setNewVote(indexToTermsLookup[score].label)
     return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
   }, [submitVote]);
 
   if (voteLoadingError) return <div>{voteLoadingError.message}</div>
-
   const vote = votes?.length ? {
     _id: votes[0]._id, 
     postId: votes[0].postId, 
@@ -71,7 +72,7 @@ const ReviewVotingWidget = ({classes, post, title}: {classes:ClassesType, post: 
   return <ErrorBoundary>
       <div className={classes.root}>
         <p>{renderedTitle}</p>
-        {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote} />}
+        {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote}/>}
       </div>
     </ErrorBoundary>
 }

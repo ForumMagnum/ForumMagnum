@@ -262,6 +262,7 @@ interface PostsMinimumInfo { // fragment on Posts
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
+  readonly currentUserReviewVote: number,
   readonly url: string,
   readonly postedAt: Date,
   readonly createdAt: Date,

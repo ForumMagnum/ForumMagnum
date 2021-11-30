@@ -17,6 +17,7 @@ registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
     
+    currentUserReviewVote
     # Core fields
     url
     postedAt

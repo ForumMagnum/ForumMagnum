@@ -761,6 +761,25 @@ const schema: SchemaType<DbPost> = {
     label: "Hide this post from logged out users and newly created accounts",
     ...schemaDefaultValue(false),
   },
+
+  currentUserReviewVote: resolverOnlyField({
+    type: Number,
+    viewableBy: ['members'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<number|null> => {
+      const { ReviewVotes, currentUser } = context;
+      if (!currentUser) return null;
+      const votes = await getWithLoader(context, ReviewVotes,
+        `reviewVotesByUser${currentUser._id}`,
+        {
+          userId: currentUser._id
+        },
+        "postId", post._id
+      );
+      console.log("votes", votes)
+      if (!votes.length) return null;
+      return votes[0].quadraticScore || votes[0].qualitativeScore;
+    }
+  })
 };
 
 export default schema;

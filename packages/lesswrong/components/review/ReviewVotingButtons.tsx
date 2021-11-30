@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   6: { color: upvoteColor},
 })
 
-const indexToTermsLookup = {
+export const indexToTermsLookup = {
   0: { label: "-9", tooltip: "Highly misleading, harmful, or unimportant."},
   1: { label: "-4", tooltip: "Very misleading, harmful, or unimportant."},
   2: { label: "-1", tooltip: "Misleading, harmful or unimportant"},

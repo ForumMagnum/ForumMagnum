@@ -8,9 +8,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
-    paddingLeft: 6,
-    paddingRight: 12,
-    cursor: "pointer"
+    cursor: "pointer",
+    width: 28,
+    marginRight: 10,
+    textAlign: "center"
   },
   card: {
     padding: 12,
@@ -21,9 +22,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsBase}) => {
+const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsList}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
+  const [newVote, setNewVote] = useState<string|null>(null)
 
   const currentUser = useCurrentUser()
 
@@ -33,13 +35,13 @@ const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsBa
 
     <LWTooltip title={<div>Nominate this post by casting a preliminary vote.</div>} placement="right">
       <div className={classes.button} onClick={(e) => setAnchorEl(e.target)}>
-        Vote
+        {newVote || post.currentUserReviewVote || "Vote"}
       </div>
     </LWTooltip>
 
     <LWPopper placement="right" anchorEl={anchorEl} open={!!anchorEl}>
       <Card className={classes.card}>
-        <ReviewVotingWidget post={post} />
+        <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
       </Card>
     </LWPopper>
   </div>
