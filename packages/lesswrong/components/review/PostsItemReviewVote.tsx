@@ -4,7 +4,7 @@ import Card from '@material-ui/core/Card';
 import { canNominate } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   button: {
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
@@ -12,13 +12,16 @@ const styles = theme => ({
     paddingRight: 12,
     cursor: "pointer"
   },
+  card: {
+    padding: 12,
+  },
   disabled: {
     cursor: "unset",
     color: theme.palette.grey[500]
   }
 })
 
-const PostsItemReviewVote = ({classes, post}:{classes:ClassesType, post:PostsBase}) => {
+const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsBase}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
 

@@ -315,7 +315,7 @@ const ReviewVotingPage = ({classes}: {
 
       <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
 
-      <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
+      <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
 
       <p><b>Submitting Reviews</b></p>
 
