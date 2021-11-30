@@ -598,7 +598,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "ReviewVotes",
       foreignTypeName: "reviewVote",
       foreignFieldName: "postId",
-      filterFn: vote => vote.qualitativeScore > 3 || vote.quadraticScore > 0
+      filterFn: vote => vote.qualitativeScore > 4 || vote.quadraticScore > 0
     }),
     canRead: ['guests'],
   },

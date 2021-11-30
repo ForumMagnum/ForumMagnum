@@ -35,23 +35,25 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "rgba(0,0,0,.075)",
     borderRadius: 3
   },
-  0: { color: downvoteColor},
+  0: {},
   1: { color: downvoteColor},
   2: { color: downvoteColor},
-  3: { color: theme.palette.grey[700]},
-  4: { color: upvoteColor},
+  3: { color: downvoteColor},
+  4: { color: theme.palette.grey[700]},
   5: { color: upvoteColor},
   6: { color: upvoteColor},
+  7: { color: upvoteColor},
 })
 
 export const indexToTermsLookup = {
-  0: { label: "-9", tooltip: "Highly misleading, harmful, or unimportant."},
-  1: { label: "-4", tooltip: "Very misleading, harmful, or unimportant."},
-  2: { label: "-1", tooltip: "Misleading, harmful or unimportant"},
-  3: { label: "0", tooltip: "No strong opinion on this post"},
-  4: { label: "1", tooltip: "Good."},
-  5: { label: "4", tooltip: "Quite important."},
-  6: { label: "9", tooltip: "A crucial piece of intellectual work."},
+  0: {label: null, tooltip: null},
+  1: { label: "-9", tooltip: "Highly misleading, harmful, or unimportant."},
+  2: { label: "-4", tooltip: "Very misleading, harmful, or unimportant."},
+  3: { label: "-1", tooltip: "Misleading, harmful or unimportant"},
+  4: { label: "0", tooltip: "No strong opinion on this post"},
+  5: { label: "1", tooltip: "Good."},
+  6: { label: "4", tooltip: "Quite important."},
+  7: { label: "9", tooltip: "A crucial piece of intellectual work."},
 }
 
 
@@ -68,7 +70,7 @@ const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {c
   }
 
   return <div>
-      {[0,1,2,3,4,5,6].map((i) => {
+      {[1,2,3,4,5,6,7].map((i) => {
         return <LWTooltip title={indexToTermsLookup[i].tooltip} 
         key={`${indexToTermsLookup[i]}-${i}`}>
           <span

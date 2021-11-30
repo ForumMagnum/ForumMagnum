@@ -574,7 +574,6 @@ importComponent("ReviewVotingPage", () => require('../components/review/ReviewVo
 importComponent("ReviewVotingExpandedPost", () => require('../components/review/ReviewVotingExpandedPost'))
 importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
 importComponent("ReviewVotingWidget", () => require('../components/review/ReviewVotingWidget'))
-importComponent("ReviewVotingMenuItem", () => require('../components/review/ReviewVotingMenuItem'))
 
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))

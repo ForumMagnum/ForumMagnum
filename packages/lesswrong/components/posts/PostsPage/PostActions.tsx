@@ -166,7 +166,7 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, ReviewVotingMenuItem } = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -185,8 +185,6 @@ const PostActions = ({post, closeMenu, classes}: {
   
   return (
       <div className={classes.actions}>
-        <ReviewVotingMenuItem post={post}/>
-        {/* <NominatePostMenuItem post={post} closeMenu={closeMenu} /> */}
         { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
