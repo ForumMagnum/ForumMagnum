@@ -292,6 +292,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly onlineEvent: boolean,
+  readonly globalEvent: boolean,
   readonly startTime: Date,
   readonly endTime: Date,
   readonly localStartTime: Date,
