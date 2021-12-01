@@ -4,9 +4,6 @@ import Info from '@material-ui/icons/Info';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, reviewIsActive, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { annualReviewAnnouncementPostPathSetting } from '../../../lib/publicSettings';
-import { overviewTooltip } from '../../review/FrontpageReviewWidget';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -57,9 +54,7 @@ const PostBodyPrefix = ({post, query, classes}: {
 
   return <>
     {reviewIsActive() && canNominate(currentUser, post) && <div className={classes.reviewVoting}>
-      <ReviewVotingWidget post={post} title={<div>
-        <div>Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={annualReviewAnnouncementPostPathSetting.get()}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip></div>
-      </div>}/>
+      <ReviewVotingWidget post={post}/>
       <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Write a Review</div>
       </LWTooltip>}/>

@@ -235,10 +235,9 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
     return ((fractionDate.unix() - startDate.unix())/(endDate.unix() - startDate.unix())*100).toFixed(2)
   }
 
-  // TODO: Fix unnominated
   const allEligiblePostsUrl = 
-    isEAForum ? `/allPosts?timeframe=yearly&before=${REVIEW_YEAR+1}-01-01&limit=25&sortedBy=top&includeShortform=false`
-    : `/allPosts?timeframe=yearly&after=2020-01-01&before=2021-01-01&limit=100&sortedBy=top&includeShortform=false`
+    isEAForum ? `/allPosts?timeframe=yearly&before=${REVIEW_YEAR+1}-01-01&limit=25&sortedBy=top&filter=unnominated&includeShortform=false`
+    : `/allPosts?timeframe=yearly&after=2020-01-01&before=2021-01-01&limit=100&sortedBy=top&filter=unnominated&includeShortform=false`
   
   const reviewPostPath = annualReviewAnnouncementPostPathSetting.get()
   if (!reviewPostPath) {
@@ -294,7 +293,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         <RecommendationsList algorithm={getReviewAlgorithm()} />
       </AnalyticsContext>
 
-      {/* TODO: Improve logged out user experience somehow */}
+      {/* TODO: Improve logged out user experience */}
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         <LWTooltip title={`Nominate posts you previously upvoted.`}>

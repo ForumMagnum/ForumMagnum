@@ -7,6 +7,9 @@ import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { ReviewVote } from './ReviewVotingPage';
+import { Link } from '../../lib/reactRouterWrapper';
+import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
+import { overviewTooltip } from './FrontpageReviewWidget';
 
 const styles = (theme) => ({
   root: {
@@ -15,12 +18,15 @@ const styles = (theme) => ({
     textAlign: "center",
     color: theme.palette.grey[800],
     padding: theme.spacing.unit,
+    '& a': {
+      color: theme.palette.primary.main
+    }
   }
 })
 
-const ReviewVotingWidget = ({classes, post, title, setNewVote}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode, setNewVote?: (newVote:number)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode, setNewVote?: (newVote:number)=>void}) => {
 
-  const { ReviewVotingButtons, ErrorBoundary, Loading } = Components
+  const { ReviewVotingButtons, ErrorBoundary, Loading, LWTooltip } = Components
 
   const currentUser = useCurrentUser()
 
@@ -66,11 +72,11 @@ const ReviewVotingWidget = ({classes, post, title, setNewVote}: {classes:Classes
     type: "qualitative"
   } as ReviewVote : null
 
-  const renderedTitle = title || `${REVIEW_NAME_IN_SITU}: Was this post important?`
-
   return <ErrorBoundary>
       <div className={classes.root}>
-        <p>{renderedTitle}</p>
+        <p>
+          Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={annualReviewAnnouncementPostPathSetting.get()}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
+        </p>
         {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote}/>}
       </div>
     </ErrorBoundary>

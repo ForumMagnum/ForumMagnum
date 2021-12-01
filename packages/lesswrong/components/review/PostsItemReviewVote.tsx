@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
-import { canNominate } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import { indexToTermsLookup } from './ReviewVotingButtons';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import { canNominate, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -15,16 +16,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center"
   },
   card: {
-    padding: 12,
+    padding: 8,
+    textAlign: "center",
   },
-  disabled: {
-    cursor: "unset",
-    color: theme.palette.grey[500]
+  reviewButton: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    ...theme.typography.body2,
+    color: theme.palette.primary.main
   }
 })
 
 const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsList}) => {
-  const { ReviewVotingWidget, LWPopper, LWTooltip } = Components
+  const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<number|null>(null)
 
@@ -45,6 +49,9 @@ const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsLi
     <LWPopper placement="right" anchorEl={anchorEl} open={!!anchorEl}>
       <Card className={classes.card}>
         <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
+        <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+        <div className={classes.reviewButton}>Write a Review</div>
+      </LWTooltip>}/>
       </Card>
     </LWPopper>
   </div>
