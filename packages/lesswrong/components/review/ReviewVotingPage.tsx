@@ -180,6 +180,8 @@ const ReviewVotingPage = ({classes}: {
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
+    // network-only is to fix a bug that occurred when a user nominated a post
+    // and then visited this page. The inconsistent state caused an error
     fetchPolicy: 'network-only',
   });
   
@@ -187,6 +189,8 @@ const ReviewVotingPage = ({classes}: {
     terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: REVIEW_YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
+    // network-only is to fix a bug that occurred when a user nominated a post
+    // and then visited this page. The inconsistent state caused an error
     fetchPolicy: 'network-only',
   })
 

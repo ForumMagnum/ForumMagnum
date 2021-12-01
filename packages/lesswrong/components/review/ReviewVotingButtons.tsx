@@ -7,7 +7,6 @@ import forumThemeExport from '../../themes/forumTheme';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 
 const downvoteColor = "rgba(125,70,70, .87)"
-// TODO;
 const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"
 
 const styles = (theme: ThemeType) => ({
