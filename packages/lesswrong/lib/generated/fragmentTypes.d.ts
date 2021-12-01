@@ -120,6 +120,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly nominationCount2019: number,
   readonly reviewCount2018: number,
   readonly reviewCount2019: number,
+  readonly reviewVoteCount: number,
+  readonly positiveReviewVoteCount: number,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly noIndex: boolean,
@@ -321,6 +323,8 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
+  readonly reviewVoteCount: number,
+  readonly positiveReviewVoteCount: number,
   readonly group: PostsBase_group|null,
 }
 
@@ -349,6 +353,7 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
+  readonly currentUserReviewVote: number,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -1540,6 +1545,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly reviewVotesQuadratic2019: boolean,
+  readonly reviewVotesQuadratic2020: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly abTestKey: string,
@@ -1724,6 +1730,18 @@ interface TagVotingActivity extends TagRelVotes { // fragment on Votes
   readonly tagRel: TagRelFragment|null,
 }
 
+interface UserVotes { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string,
+  readonly voteType: string,
+  readonly power: number,
+  readonly cancelled: boolean,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly isUnvote: boolean,
+  readonly collectionName: string,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -1871,6 +1889,7 @@ interface FragmentTypes {
   FeaturedResourcesFragment: FeaturedResourcesFragment
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
+  UserVotes: UserVotes
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -2010,6 +2029,7 @@ interface CollectionNamesByFragmentName {
   FeaturedResourcesFragment: "FeaturedResources"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
+  UserVotes: "Votes"
   SuggestAlignmentComment: "Comments"
 }
 

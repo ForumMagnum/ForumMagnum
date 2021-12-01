@@ -354,6 +354,8 @@ interface DbPost extends DbObject {
   nominationCount2019: number
   reviewCount2018: number
   reviewCount2019: number
+  reviewVoteCount: number
+  positiveReviewVoteCount: number
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean
@@ -733,6 +735,7 @@ interface DbUser extends DbObject {
   beta: boolean
   reviewVotesQuadratic: boolean
   reviewVotesQuadratic2019: boolean
+  reviewVotesQuadratic2020: boolean
   petrovPressedButtonDate: Date
   petrovLaunchCodeDate: Date
   defaultToCKEditor: boolean

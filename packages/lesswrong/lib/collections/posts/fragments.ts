@@ -92,6 +92,8 @@ registerFragment(`
     reviewCount2018
     nominationCount2019
     reviewCount2019
+    reviewVoteCount
+    positiveReviewVoteCount
 
     group {
       _id
@@ -135,6 +137,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    currentUserReviewVote
     moderationGuidelines {
       _id
       html
@@ -453,4 +456,3 @@ registerFragment(`
     }
   }
 `);
-

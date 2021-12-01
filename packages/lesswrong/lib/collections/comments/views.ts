@@ -448,6 +448,22 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
     }
   };
 });
+
+// TODO: try to refactor this
+Comments.addView('reviews2020', function ({userId, postId, sortBy="top"}) {
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      reviewingForReview: "2020",
+      deleted: false
+    },
+    options: {
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+    }
+  };
+});
+
 // Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
 ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
