@@ -231,6 +231,8 @@ const generatePermutation = (count: number, user: UsersCurrent|null): Array<numb
 const ReviewVotingPage2019 = ({classes}: {
   classes: ClassesType,
 }) => {
+  return <div>This page no longer exists, sorry. :(</div>
+
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
