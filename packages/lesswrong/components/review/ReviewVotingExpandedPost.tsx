@@ -80,12 +80,3 @@ declare global {
     ReviewVotingExpandedPost: typeof ReviewVotingExpandedPostComponent
   }
 }
-
-function recordPostView(arg0: { post: PostsListWithVotes; extraEventProperties: { type: string; }; }) {
-  throw new Error('Function not implemented.');
-}
-
-
-function setMarkedVisitedAt(arg0: Date) {
-  throw new Error('Function not implemented.');
-}
