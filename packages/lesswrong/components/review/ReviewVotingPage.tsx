@@ -307,19 +307,19 @@ const ReviewVotingPage = ({classes}: {
 
       <p>We begin with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
       
-      <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
+      <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help you decide how to spend attention during the Review phase. You may want to focus on high-ranking posts, or those which seem undervalued or controversial.</p>
 
-      <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post for details.</a></p>
+      <p>During Preliminary Voting, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
 
-      <p><b>How exactly do the Preliminary Votes Work?</b></p>
+      <p><b>How exactly do the preliminary votes Work?</b></p>
 
-      <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
+      <p>If you intuitively sort posts into "good", "important", "crucial", etc., you'll probably do fine. But here are some details on how it works under the hood:</p>
 
-      <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
+      <p>Each of the voting buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. However, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than those of someone who used them more sparingly. On the "backend", we use a quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your votes.</p>
 
-      <p><b>Submitting Reviews</b></p>
+      <p><b>Submitting reviews</b></p>
 
-      <p><em>The Review Phase</em> will involve writing deep reviews about the quality of posts. For now, feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
+      <p>The Review phase involves writing reviews of posts, with the advantage of hindsight. They can be brief or very detailed. You can write multiple reviews if your thoughts evolve over the course of the event.</p>
 
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
     </div> :
@@ -370,7 +370,7 @@ const ReviewVotingPage = ({classes}: {
             
             {/* Turned off for the Preliminary Voting phase */}
             {getReviewPhase() !== "NOMINATIONS" && <>
-              {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
+              {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic voting, you cannot go back to default voting without losing your quadratic data.">
                 <Button className={classes.convert} onClick={async () => {
                     setLoading(true)
                     await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
@@ -396,13 +396,13 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>}
               {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
                   <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
-                  <p>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details.</p></div>}>
+                  <p>If the average of your votes is above 1 or below -1, you are always better off shifting all of your votes by 1 to move closer to an average of 0.</p></div>}>
                   <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
                     Avg: {(voteSum / posts.length).toFixed(2)}
                   </div>
               </LWTooltip>}
             </>}
-            <LWTooltip title="Sorts the list of post by vote-strength">
+            <LWTooltip title="Sorts the list of posts by vote strength">
               <Button onClick={reSortPosts}>
                 Re-Sort <CachedIcon className={classes.menuIcon} />
               </Button>
