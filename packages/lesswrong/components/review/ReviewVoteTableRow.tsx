@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { vote, quadraticVote } from './ReviewVotingPage';
+import type { ReviewVote, quadraticVote } from './ReviewVotingPage';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
   post: {
     paddingRight: theme.spacing.unit*2,
-    maxWidth: "calc(100% - 100px)"
+    maxWidth: "calc(100% - 240px)"
   },
   expand: {
     display:"none",
@@ -59,7 +59,19 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     top: 0,
     height: "100%",
-    width: 6
+    width: 6,
+    background: "#bbb"
+  },
+  expandButtonWrapper: {
+    position: "absolute",
+    left: -52,
+    padding: 8,
+    display: "none",
+    cursor: "pointer"
+  },
+  expandIcon: {
+    color: theme.palette.grey[500],
+    width: 36,
   },
   bigUpvote: {
     background: theme.palette.primary.dark
@@ -73,29 +85,18 @@ const styles = (theme: ThemeType) => ({
   smallDownvote: {
     background: theme.palette.error.light
   },
-  expandButtonWrapper: {
-    position: "absolute",
-    left: -52,
-    padding: 8,
-    display: "none",
-    cursor: "pointer"
-  },
-  expandIcon: {
-    color: theme.palette.grey[500],
-    width: 36,
-  }
 });
 
 const ReviewVoteTableRow = (
   { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, showKarmaVotes }: {
     post: PostsListWithVotes,
-    dispatch: React.Dispatch<vote>,
+    dispatch: React.Dispatch<ReviewVote>,
     dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
-    expandedPostId: string,
-    currentQualitativeVote: vote|null,
+    expandedPostId?: string|null,
+    currentQualitativeVote: ReviewVote|null,
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
@@ -107,6 +108,13 @@ const ReviewVoteTableRow = (
   const expanded = expandedPostId === post._id
 
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
+
+  const voteMap = {
+    'bigDownvote': 'a strong downvote',
+    'smallDownvote': 'a downvote',
+    'smallUpvote': 'an upvote',
+    'bigUpvote': 'a strong upvote'
+  }
 
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
@@ -123,7 +131,7 @@ const ReviewVoteTableRow = (
           </LWTooltip>
         </div>
       }
-      {showKarmaVotes && post.currentUserVote && <LWTooltip title={post.currentUserVote} placement="left" inlineBlock={false}>
+      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
       <div className={classes.topRow}>

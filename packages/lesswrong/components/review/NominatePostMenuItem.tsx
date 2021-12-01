@@ -1,3 +1,4 @@
+// TODO:(Review) delete
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -13,12 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
-
-export function eligibleToNominate (currentUser: UsersCurrent|null) {
-  if (!currentUser) return false;
-  if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return false
-  return true
-}
+import { canNominate } from '../../lib/reviewUtils';
 
 const NominatePostMenuItem = ({ post, closeMenu }: {
   post: PostsBase,
@@ -39,10 +35,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
     fragmentName: "CommentsList"
   });
 
-  if (!eligibleToNominate(currentUser)) return null
-  if (post.userId === currentUser!._id) return null
-  if (new Date(post.postedAt) > new Date("2020-01-01")) return null
-  if (new Date(post.postedAt) < new Date("2019-01-01")) return null
+  if (!canNominate(currentUser, post)) return null
 
   const nominated = !loading && nominations?.length;
 
@@ -88,4 +81,3 @@ declare global {
     NominatePostMenuItem: typeof NominatePostMenuItemComponent
   }
 }
-
