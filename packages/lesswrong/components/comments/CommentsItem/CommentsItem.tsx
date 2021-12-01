@@ -11,6 +11,9 @@ import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+
+const isEAForum= forumTypeSetting.get() === "EAForum"
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -317,7 +320,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             </Link>}
 
             {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
-              {`Review for ${comment.reviewingForReview} Review`}
+              {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
             </Link>}
             
           </div>
