@@ -181,7 +181,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       <ul>
         <li>Any post from before 2021 can be nominated</li>
         <li>Any user registered before the start of the review can nominate posts</li>
-        <li>Posts with at least one vote proceed to the Review Phase.</li>
+        <li>Posts with at least one positive vote proceed to the Review Phase.</li>
       </ul>
       <div>If you've been actively reading {siteNameWithArticleSetting.get()} before now, but didn't register an account, reach out to us on intercom.</div>
     </div> :
