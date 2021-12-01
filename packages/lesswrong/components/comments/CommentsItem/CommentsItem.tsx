@@ -11,6 +11,9 @@ import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+
+const isEAForum= forumTypeSetting.get() === "EAForum"
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -311,12 +314,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
             {!isParentComment && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
-            {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
+            
+            {comment.nominatedForReview && <Link to={`/nominations/${comment.nominatedForReview}`} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
-            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
-            {`Review for ${comment.reviewingForReview} Review`}
-          </Link>}
+
+            {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
+              {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
+            </Link>}
+            
           </div>
           { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}

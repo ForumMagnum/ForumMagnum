@@ -3,6 +3,7 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './ins
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
+import { REVIEW_YEAR } from './reviewUtils';
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -224,6 +225,18 @@ addRoute(
   {
     name:'reviewVoting',
     path: '/reviewVoting',
+    redirect: () => `/reviewVoting/2020`,
+  },
+  // {
+  //   name:'reviewVoting2019',
+  //   path: '/reviewVoting/2019',
+  //   title: "Voting 2019 Review",
+  //   componentName: "ReviewVotingPage2019"
+  // },
+  {
+    name:'reviewVoting2020',
+    path: '/reviewVoting/2020',
+    title: "Voting 2020 Review",
     componentName: "ReviewVotingPage"
   },
 
@@ -364,7 +377,13 @@ addRoute(
     componentName: 'SearchPage',
     title: 'Search',
     background: "white"
-  }
+  },
+  {
+    name: 'votesByYear',
+    path: '/votesByYear/:year',
+    componentName: 'UserSuggestNominations',
+    title: "Your Past Votes"
+  },
 );
 
 onStartup(() => {
@@ -484,6 +503,25 @@ if (forumTypeSetting.get() === 'LessWrong') {
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'bookLanding',
+      path: '/books',
+      redirect: () => `/books/2018`,
+    },
+    {
+      name: 'book2018Landing',
+      path: '/books/2018',
+      componentName: 'Book2018Landing',
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
+    }
+    // {
+    //   name: 'book2019Landing',
+    //   path: '/books/2019',
+    //   componentName: 'Book2019Landing',
+    //   title: "Books: Engines of Cognition",
+    //   background: "white"
+    // },
   );
 }
 
@@ -668,7 +706,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  }
+  },
 );
 
 addRoute(
@@ -836,6 +874,55 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
       title: "COVID-19 Link Database",
+    },
+    {
+      name: 'nominations2018-old',
+      path: '/nominations2018',
+      redirect: () => `/nominations/2018`,
+    },
+    {
+      name: 'nominations2018',
+      path: '/nominations/2018',
+      componentName: 'Nominations2018',
+      title: "2018 Nominations",
+    },
+    {
+      name: 'nominations2019-old',
+      path: '/nominations2019',
+      redirect: () => `/nominations/2019`,
+    },
+    {
+      name: 'nominations2019',
+      path: '/nominations/2019',
+      componentName: 'Nominations2019',
+      title: "2019 Nominations",
+    },
+    {
+      name: 'userReviews',
+      path:'/users/:slug/reviews',
+      redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
+    },
+    {
+      name: 'reviews2018-old',
+      path: '/reviews2018',
+      redirect: () => `/reviews/2018`,
+    },
+    {
+      name: 'reviews2018',
+      path: '/reviews/2018',
+      componentName: 'Reviews2018',
+      title: "2018 Reviews",
+    },
+    {
+      name: 'reviews2019-old',
+      path: '/reviews2019',
+      redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviews2019',
+      path: '/reviews/2019',
+      componentName: 'Reviews2019',
+      title: "2019 Reviews",
     }
   )
 }
@@ -876,31 +963,9 @@ addRoute(
     componentName: 'PasswordResetPage',
   },
   {
-    name: 'nominations2018-old',
-    path: '/nominations2018',
-    redirect: () => `/nominations/2018`,
-  },
-  {
-    name: 'nominations2018',
-    path: '/nominations/2018',
-    componentName: 'Nominations2018',
-    title: "2018 Nominations",
-  },
-  {
-    name: 'nominations2019-old',
-    path: '/nominations2019',
-    redirect: () => `/nominations/2019`,
-  },
-  {
-    name: 'nominations2019',
-    path: '/nominations/2019',
-    componentName: 'Nominations2019',
-    title: "2019 Nominations",
-  },
-  {
     name: 'nominations',
     path: '/nominations',
-    redirect: () => `/nominations/2019`,
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
     name: 'userReviewsByYear',
@@ -909,48 +974,19 @@ addRoute(
     title: "User Reviews",
   },
   {
-    name: 'userReviews',
-    path:'/users/:slug/reviews', 
-    redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
-  },
-  {
     name: 'userReplies',
     path:'/users/:slug/replies',
     componentName: 'UserCommentsReplies',
     title: "User Comment Replies",
   },
   {
-    name: 'reviews2018-old',
-    path: '/reviews2018',
-    redirect: () => `/reviews/2018`,
-  },
-  {
-    name: 'reviews2018',
-    path: '/reviews/2018',
-    componentName: 'Reviews2018',
-    title: "2018 Reviews",
-  },
-  {
-    name: 'reviews2019-old',
-    path: '/reviews2019',
-    redirect: () => `/reviews/2019`,
-  },
-  {
-    name: 'reviews2019',
-    path: '/reviews/2019',
-    componentName: 'Reviews2019',
-    title: "2019 Reviews",
-  },
-  {
     name: 'reviews',
     path: '/reviews',
-    redirect: () => `/reviews/2019`,
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
-    name: 'bookLanding',
-    path: '/books',
-    componentName: 'BookLanding',
-    title: "A Map that Reflects the Territory",
-    background: "white"
+    name: 'reviews-2020',
+    path: '/reviews/2020',
+    redirect: () => `/reviewVoting/2020`,
   },
 );

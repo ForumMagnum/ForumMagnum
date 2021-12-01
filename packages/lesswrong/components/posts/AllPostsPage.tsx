@@ -104,7 +104,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     if (parseInt(query.limit)) {
       postListParameters.limit = parseInt(query.limit)
     }
-
+    
     return <div>
       <AnalyticsContext
         listContext={"allPostsPage"}
@@ -116,8 +116,8 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
           postListParameters={postListParameters}
           numTimeBlocks={numTimeBlocks}
           dimWhenLoading={showSettings}
-          after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
-          before={query.before  || getBeforeDefault({timeBlock, timezone})}
+          after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone, before: query.before})}
+          before={query.before  || getBeforeDefault({timeBlock, timezone, after: query.after})}
           reverse={query.reverse === "true"}
           displayShortform={query.includeShortform !== "false"}
         />

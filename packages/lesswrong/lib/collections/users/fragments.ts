@@ -133,6 +133,7 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     reviewVotesQuadratic2019
+    reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
 
