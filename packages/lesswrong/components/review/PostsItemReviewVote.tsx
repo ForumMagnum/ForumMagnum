@@ -3,8 +3,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
 import { indexToTermsLookup } from './ReviewVotingButtons';
-import { forumTitleSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { canNominate, REVIEW_YEAR } from '../../lib/reviewUtils';
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -16,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center"
   },
   card: {
-    padding: 8,
+    padding: isEAForum ? "8px 24px" : 8,
     textAlign: "center",
   },
   reviewButton: {

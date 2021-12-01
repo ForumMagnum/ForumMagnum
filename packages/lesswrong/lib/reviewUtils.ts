@@ -23,7 +23,7 @@ export function getReviewPhase(): ReviewPhase | void {
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
   
-  if (currentDate < reviewStart || reviewEnd < currentDate) return
+  if (currentDate < reviewStart) return
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
   if (currentDate < reviewPhaseEnd) return "REVIEWS"
   if (currentDate < reviewEnd) return "VOTING"

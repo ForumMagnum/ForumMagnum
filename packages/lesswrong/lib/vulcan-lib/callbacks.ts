@@ -207,6 +207,7 @@ export const runCallbacksList = function (this: any, options: {
   if (typeof callbacks !== 'undefined' && !!callbacks.length) {
 
     const runCallback = (accumulator, callback) => {
+      logger(`running callback ${callback.name}`)
       try {
         const result = callback.apply(this, [accumulator].concat(args));
 
@@ -230,6 +231,7 @@ export const runCallbacksList = function (this: any, options: {
       }
     };
 
+    logger("Running callbacks list")
     return callbacks.reduce(function (accumulator, callback, index) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
