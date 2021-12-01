@@ -51,6 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
+    fontStyle: 'italic',
     marginTop: 4,
   }
 })
@@ -159,7 +160,7 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
           <div className={classes.newCommentLabel}>New Comment</div>
           {post?.isEvent && post?.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
-              Your comment will be emailed to everyone who RSVP'd for this event.
+              Everyone who RSVP'd to this event will be notified.
             </div>
           )}
           <Components.CommentsNewForm
