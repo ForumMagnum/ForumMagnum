@@ -131,5 +131,6 @@ registerFragment(`
     score
     afBaseScore
     voteCount
+    voteAggregates
   }
 `);

@@ -11,6 +11,7 @@ import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import {isVotingSystem, votingSystems, VotingSystemString} from "../../../lib/voting/voteTypes";
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -70,6 +71,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none",
       color: "rgba(0,0,0,0.3) !important",
     },
+  },
+  agreeButtons: {
+    marginLeft: 10
   },
   bottom: {
     paddingBottom: 5,
@@ -248,6 +252,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     return null;
   }
   
+  const votingSystem = (!!post?.votingSystem && isVotingSystem(post?.votingSystem)) ? post?.votingSystem : undefined
+  
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
@@ -307,8 +313,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               document={comment}
               collection={Comments}
               hideKarma={post?.hideCommentKarma}
+              votingSystem={votingSystem}
             />
-
+            {(votingSystem === 'TwoFactorAgree') && <div className = {classes.agreeButtons}>
+              <SmallSideVote
+                document={comment}
+                collection={Comments}
+                hideKarma={post?.hideCommentKarma}
+                votingSystem={votingSystem}
+                voteDimension="Agreement"
+              />
+            </div>}
             {!isParentComment && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>

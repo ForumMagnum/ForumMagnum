@@ -1,6 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
 import { VoteableCollections, collectionIsVoteable } from '../lib/make_voteable';
+import {VoteDimensionString} from "../lib/voting/voteTypes";
 
 export function createVoteableUnionType() {
   const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
@@ -23,7 +24,7 @@ const resolverMap = {
 
 addGraphQLResolvers(resolverMap);
 
-addGraphQLMutation('vote(documentId: String, voteType: String, collectionName: String, voteId: String) : Voteable');
+addGraphQLMutation('vote(documentId: String, voteType: String, voteDimension: String, collectionName: String, voteId: String) : Voteable');
 
 const voteResolver = {
   Mutation: {
@@ -37,17 +38,18 @@ const voteResolver = {
     // compatibility.
     //
     // Returns the document that was voted upon, with its score updated.
-    async vote(root: void, args: {documentId: string, voteType: string, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
-      const {documentId, voteType, collectionName} = args;
+    async vote(root: void, args: {documentId: string, voteType: string, voteDimension: VoteDimensionString, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
+      const {documentId, voteType, voteDimension, collectionName} = args;
       const { currentUser } = context;
       const collection = context[collectionName] as CollectionBase<DbVoteableType>;
-      
+  
+      console.log({1: currentUser})
       if (!collection) throw new Error("Error casting vote: Invalid collectionName");
       if (!collectionIsVoteable(collectionName)) throw new Error("Error casting vote: Collection is not voteable");
       if (!currentUser) throw new Error("Error casting vote: Not logged in.");
 
       const document = await performVoteServer({
-        documentId, voteType, collection, user: currentUser,
+        documentId, voteType, voteDimension, collection, user: currentUser,
         toggleIfAlreadyVoted: true,
       });
       return document;
@@ -62,24 +64,24 @@ function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
   const typeName = collection.options.typeName;
   const mutationName = `setVote${typeName}`;
   
-  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String): ${typeName}`);
+  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String, voteDimension: String): ${typeName}`);
   
   addGraphQLResolvers({
     Mutation: {
-      [mutationName]: async (root: void, args: {documentId: string, voteType: string|null}, context: ResolverContext) => {
+      [mutationName]: async (root: void, args: {documentId: string, voteType: string|null}, voteDimension: VoteDimensionString, context: ResolverContext) => {
         const {documentId, voteType} = args;
         const {currentUser} = context;
         const document = await collection.findOne({_id: documentId});
-        
+        console.log({2: currentUser})
         if (!currentUser) throw new Error("Error casting vote: Not logged in.");
         if (!document) throw new Error("No such document ID");
   
         if (voteType === null) {
-          return await clearVotesServer({document, user: currentUser, collection});
+          return await clearVotesServer({document, user: currentUser, collection, voteDimension});
         } else {
           return await performVoteServer({
             toggleIfAlreadyVoted: false,
-            document, voteType, collection, user: currentUser
+            document, voteType, voteDimension, collection, user: currentUser
           });
         }
       }

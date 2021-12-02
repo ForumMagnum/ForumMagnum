@@ -10,6 +10,7 @@ registerFragment(`
     draft
     hideCommentKarma
     af
+    votingSystem
   }
 `);
 

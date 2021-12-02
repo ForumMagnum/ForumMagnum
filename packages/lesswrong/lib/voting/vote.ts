@@ -17,15 +17,16 @@ export const voteCallbacks = {
 
 // Given a client-side view of a document, return a modified version in which
 // the user has voted and the scores are updated appropriately.
-const addVoteClient = ({ document, collection, voteType, user }: {
+const addVoteClient = ({ document, collection, voteType, voteDimension, user }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbObject>,
   voteType: string,
+  voteDimension: VoteDimensionString,
   user: UsersCurrent,
 }) => {
-  const power = getVotePower({user, voteType, document});
+  const power = getVotePower({user, voteType: voteType[voteDimension], voteDimension, document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType[voteDimension]) : 0;
 
   const newDocument = {
     ...document,
@@ -44,8 +45,9 @@ const addVoteClient = ({ document, collection, voteType, user }: {
 
 // Given a client-side view of a document, return a modified version in which
 // the current user's vote is removed and the score is adjusted accordingly.
-const cancelVoteClient = ({document, collection, user}: {
+const cancelVoteClient = ({document, voteDimension, collection, user}: {
   document: VoteableTypeClient,
+  voteDimension: VoteDimensionString,
   collection: CollectionBase<DbObject>,
   user: UsersCurrent,
 }): VoteableTypeClient => {
@@ -57,9 +59,9 @@ const cancelVoteClient = ({document, collection, user}: {
   // points based on the user's new vote weight, which will then be corrected
   // when the server responds.
   const voteType = document.currentUserVote;
-  const power = getVotePower({user, voteType, document});
+  const power = getVotePower({user, voteType: voteType[voteDimension], voteDimension, document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType[voteDimension]) : 0;
   
   const newDocument = {
     ...document,
@@ -135,10 +137,10 @@ export const setVoteClient = async ({ document, collection, voteType, voteDimens
   }
 
   if (!voteType) {
-    return cancelVoteClient({document, collection, user});
+    return cancelVoteClient({document, voteDimension, collection, user});
   } else {
-    document = cancelVoteClient({document, collection, user})
-    return addVoteClient({document, collection, voteType, user});
+    document = cancelVoteClient({document, voteDimension, collection, user})
+    return addVoteClient({document, collection, voteType, voteDimension, user});
   }
 }
 

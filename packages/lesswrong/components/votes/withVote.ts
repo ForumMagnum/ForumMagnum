@@ -12,8 +12,8 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   const mutationName = `setVote${typeName}`;
   
   return gql`
-    mutation ${mutationName}($documentId: String, $voteType: String) {
-      ${mutationName}(documentId: $documentId, voteType: $voteType) {
+    mutation ${mutationName}($documentId: String, $voteType: String, $voteDimension: String) {
+      ${mutationName}(documentId: $documentId, voteType: $voteType, voteDimension: $voteDimension) {
         ...WithVote${typeName}
       }
     }
@@ -65,6 +65,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
         variables: {
           documentId: document._id,
           voteType,
+          voteDimension
         },
       })
     } catch(e) {

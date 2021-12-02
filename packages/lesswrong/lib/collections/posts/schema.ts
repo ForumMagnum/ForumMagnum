@@ -4,13 +4,22 @@ import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
+import {
+  postGetPageUrl,
+  postGetEmailShareUrl,
+  postGetTwitterShareUrl,
+  postGetFacebookShareUrl,
+  postGetDefaultStatus,
+  getSocialPreviewImage,
+  postGetDefaultVotingSystem
+} from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
+import {votingSystems} from "../../voting/voteTypes";
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -732,6 +741,27 @@ const schema: SchemaType<DbPost> = {
     label: "Hide this post from logged out users and newly created accounts",
     ...schemaDefaultValue(false),
   },
+
+  votingSystem: {
+    type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      insertableBy: ['admins'],
+      editableBy: ['admins'],
+      control: 'select',
+      onInsert: (document) => {
+          return postGetDefaultVotingSystem()
+      },
+      onEdit: (modifier) => {
+        if (modifier.$unset && modifier.$unset.votingSystem) {
+          return postGetDefaultVotingSystem()
+        }
+      },
+      options: () => votingSystems.map((value, index) => {
+        return {label: value, value: value}
+      }),
+      group: formGroups.adminOptions,
+  }
 };
 
 export default schema;

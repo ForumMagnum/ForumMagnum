@@ -1,4 +1,9 @@
-export type VotingSystemString = "Classic" | "TwoFactorAgree"
+export const votingSystems = ["Classic", "TwoFactorAgree"] as const
+export type VotingSystemString = typeof  votingSystems[number]
+
+export const isVotingSystem = (str: string): str is VotingSystemString => {
+  return !!votingSystems.find((votingSystem) => str === votingSystem)
+}
 
 export const voteDimensions = ["Overall", "Agreement"] as const
 export type VoteDimensionString = typeof voteDimensions[number] //"Overall" | "Agreement"

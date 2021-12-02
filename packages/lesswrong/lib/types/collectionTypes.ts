@@ -134,7 +134,7 @@ interface VoteableType extends HasIdType, HasUserIdType {
 }
 
 interface VoteableTypeClient extends VoteableType {
-  currentUserVote: string|null
+  currentUserVote: Record<string,string>|null
 }
 
 interface DbVoteableType extends VoteableType, DbObject {

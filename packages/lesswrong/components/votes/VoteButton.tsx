@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { isMobile } from '../../lib/utils/isMobile'
 import { withTheme } from '@material-ui/core/styles';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
@@ -120,7 +122,7 @@ const VoteButton = <T extends VoteableTypeClient>({
       } else {
         vote({document, voteType: voteType, voteDimension, collectionName, currentUser});
       }
-      captureEvent("vote", {collectionName});
+      captureEvent("vote", {collectionName, voteDimension});
     }
   }
 
@@ -135,14 +137,14 @@ const VoteButton = <T extends VoteableTypeClient>({
     }
   }
 
-  const hasVoted = (type: string) => {
-    return document.currentUserVote === type;
+  const hasVoted = (type: string, voteDimension: VoteDimensionString) => {
+    return (document.currentUserVote && document.currentUserVote[voteDimension] === type);
   }
 
   const smallVoteType = `small${voteType}`
   const bigVoteType = `big${voteType}`
-  const voted = hasVoted(smallVoteType) || hasVoted(bigVoteType)
-  const bigVoted = hasVoted(bigVoteType)
+  const voted = hasVoted(smallVoteType, voteDimension) || hasVoted(bigVoteType, voteDimension)
+  const bigVoted = hasVoted(bigVoteType, voteDimension)
   
   const handleClick = () => { // This handler is only used for mobile
     if(isMobile()) {
@@ -157,7 +159,43 @@ const VoteButton = <T extends VoteableTypeClient>({
     }
   }
 
-  const Icon = solidArrow ? ArrowDropUpIcon :UpArrowIcon
+  
+  if (voteDimension === "Agreement") {
+  
+    const Icon = (orientation === "left") ? ClearIcon : CheckIcon
+    
+    return (
+      <IconButton
+        className={classNames(classes.root)}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseOut={clearState}
+        onClick={handleClick}
+        disableRipple
+      >
+        <Icon
+          className={classes.smallArrow}
+          color={voted ? color : 'inherit'}
+          viewBox='6 6 12 12'
+        />
+        <Transition in={!!(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
+          {(state) => (
+            <Icon
+              style={{color: bigVoteCompleted && theme.palette[color].light}}
+              className={classNames(classes.bigArrow, {
+                [classes.bigArrowCompleted]: bigVoteCompleted,
+                [classes.bigArrowSolid]: solidArrow
+              }, classes[state])}
+              color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
+              viewBox='6 6 12 12'
+            />)}
+        </Transition>
+      </IconButton>
+    )
+  } 
+  
+  const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
+  
   return (
     <IconButton
       className={classNames(classes.root, classes[orientation])}

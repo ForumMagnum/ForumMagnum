@@ -5,6 +5,7 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
+import {VotingSystemString} from "../../voting/voteTypes";
 
 
 // EXAMPLE-FORUM Helpers
@@ -41,6 +42,10 @@ export const postGetAuthorName = async function (post: DbPost) {
 // Get default status for new posts.
 export const postGetDefaultStatus = function (user: DbUser): number {
   return postStatuses.STATUS_APPROVED;
+};
+
+export const postGetDefaultVotingSystem = function (): VotingSystemString {
+  return "Classic";
 };
 
 const findWhere = (array: any, criteria: any) => array.find((item: any) => Object.keys(criteria).every((key: any) => item[key] === criteria[key]));

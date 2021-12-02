@@ -10,6 +10,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import {VoteDimensionString, VotingSystemString} from "../../lib/voting/voteTypes";
 
 const styles = (theme: ThemeType): JssStyles => ({
   vote: {
@@ -39,9 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
+const SmallSideVote = ({ document, hideKarma=false, voteDimension = "Overall", classes, collection }: {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
   hideKarma?: boolean,
+  voteDimension?: VoteDimensionString,
   classes: ClassesType,
   collection: any
 }) => {
@@ -92,6 +94,7 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
                 orientation="left"
                 color="error"
                 voteType="Downvote"
+                voteDimension={voteDimension}
                 {...voteProps}
               />
             </span>
@@ -114,10 +117,11 @@ const SmallSideVote = ({ document, hideKarma=false, classes, collection }: {
                 orientation="right"
                 color="secondary"
                 voteType="Upvote"
+                voteDimension={voteDimension}
                 {...voteProps}
               />
             </span>
-          </Tooltip>
+          </Tooltip> 
         </>
       }
       {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
