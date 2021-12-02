@@ -36,7 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridTemplateAreas: `
     "... leftColumn ... rightColumn ..."
     `,
-    paddingBottom: 175
+    paddingBottom: 175,
+    alignItems: "start"
   },
   instructions: {
     ...theme.typography.body2,
@@ -45,6 +46,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   leftColumn: {
     gridArea: "leftColumn",
+    position: "sticky",
+    top: 72,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
