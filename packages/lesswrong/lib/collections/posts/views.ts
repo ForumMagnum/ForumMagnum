@@ -45,6 +45,8 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     timeField?: keyof DbPost,
+    postIds?: Array<string>,
+    reviewYear?: number
   }
 }
 
@@ -90,6 +92,10 @@ export const filters: Record<string,any> = {
   },
   "unnominated2019": {
     nominationCount2019: 0
+  },
+  // TODO(Review) is this indexed?
+  "unnominated": {
+    positiveReviewVoteCount: 0
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -1247,3 +1253,42 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
     },
   }
 ));
+
+// used to find a user's upvoted posts, so they can nominate them for the Review
+Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: ResolverContext) => {
+  return {
+    selector: {
+      _id: {$in: terms.postIds},
+      userId: {$ne: context.currentUser?._id,},
+      isEvent: false
+    },
+    options: {
+      sort: {
+        baseScore: -1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ _id: 1, userId: 1, isEvent:1, baseScore:1 }),
+  { name: "posts.nominatablePostsByVote", }
+);
+
+
+// Nominations for the (≤)2020 review are determined by the number of votes
+Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      positiveReviewVoteCount: { $gt: 0 },
+    },
+    options: {
+      sort: {
+        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
+);

@@ -32,7 +32,7 @@ ensureIndex(ReviewVotes, {deleted: 1, postId: 1});
 
 ReviewVotes.addView("reviewVotesForPostAndUser", function ({postId, userId}: ReviewVotesViewTerms) {
   return {
-    selector: {postId, userId},
+    selector: {postId, userId}
   };
 });
 ensureIndex(ReviewVotes, {deleted: 1, postId: 1, userId: 1})
