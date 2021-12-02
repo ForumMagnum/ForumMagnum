@@ -12,7 +12,7 @@ const Home2 = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          {!reviewIsActive() || !currentUser && <RecommendationsAndCurated configName="frontpage" />}
+          {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
           {reviewIsActive() && <FrontpageReviewWidget />}
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
