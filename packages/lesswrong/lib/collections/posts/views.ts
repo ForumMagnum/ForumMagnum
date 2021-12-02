@@ -31,6 +31,7 @@ declare global {
     sortedBy?: string,
     af?: boolean,
     onlineEvent?: boolean,
+    globalEvent?: boolean,
     groupId?: string,
     lat?: number,
     lng?: number,
@@ -840,14 +841,14 @@ ensureIndex(Posts,
   { name: "posts.shortformDiscussionThreadsList", }
 );
 
-Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
+Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   const timeSelector = {$or: [
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
   let query = {
     selector: {
-      onlineEvent: true,
+      globalEvent: true,
       isEvent: true,
       groupId: null,
       ...timeSelector,
@@ -862,9 +863,10 @@ Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
   }
   return query
 })
+// to do remove the old index
 ensureIndex(Posts,
-  augmentForDefaultView({ onlineEvent:1, startTime:1 }),
-  { name: "posts.onlineEvents" }
+  augmentForDefaultView({ globalEvent:1, startTime:1 }),
+  { name: "posts.globalEvents" }
 );
 
 Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
@@ -872,13 +874,13 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
-  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
+
   let query: any = {
     selector: {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
-      onlineEvent: onlineEvent,
+      ...(terms.globalEvent === undefined ? {} : {globalEvent: terms.globalEvent}),
       ...timeSelector,
       mongoLocation: {
         $near: {
@@ -916,11 +918,10 @@ Posts.addView("events", (terms: PostsViewTerms) => {
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
-  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   return {
     selector: {
       isEvent: true,
-      onlineEvent: onlineEvent,
+      ...(terms.globalEvent === undefined ? {} : {globalEvent: terms.globalEvent}),
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
