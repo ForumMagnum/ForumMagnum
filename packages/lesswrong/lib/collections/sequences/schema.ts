@@ -153,6 +153,15 @@ const schema: SchemaType<DbSequence> = {
     editableBy: ['admins', 'sunshineRegiment'],
     insertableBy: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
+  },
+
+  hideFromAuthorPage: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
   }
 }
 
