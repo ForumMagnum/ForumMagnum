@@ -450,7 +450,7 @@ if (forumTypeSetting.get() !== 'EAForum') {
 if (forumTypeSetting.get() === 'LessWrong') {
   addRoute(
     {
-      name: 'Best of LessWrong',
+      name: 'bestoflesswrong',
       path: '/bestoflesswrong',
       componentName: 'BestOfLessWrong',
       title: "Best of LessWrong",
@@ -512,8 +512,7 @@ if (forumTypeSetting.get() === 'LessWrong') {
       name: 'book2018Landing',
       path: '/books/2018',
       componentName: 'Book2018Landing',
-      title: "Books: A Map that Reflects the Territory",
-      background: "white"
+      title: "Books: A Map that Reflects the Territory"
     }
     // {
     //   name: 'book2019Landing',

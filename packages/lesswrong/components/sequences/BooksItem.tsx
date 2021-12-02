@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     lineHeight: 1.1,
     fontStyle: "italic",
-    marginTop: 20,
+    marginBottom: 20,
   },
   posts: {
     marginLeft: 20,
@@ -60,6 +60,7 @@ const BooksItem = ({ book, canEdit, classes }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
+        <div className={classes.subtitle}>{book.subtitle}</div>
         {html  && <div className={classes.description}>
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: html}}
