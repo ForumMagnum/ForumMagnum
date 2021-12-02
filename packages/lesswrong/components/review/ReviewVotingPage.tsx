@@ -366,7 +366,7 @@ const ReviewVotingPage = ({classes}: {
             </h1>
             {instructions}
           </div>}
-          <ReviewVotingExpandedPost post={expandedPost}/>
+          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.menu}>
