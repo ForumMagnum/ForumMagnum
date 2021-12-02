@@ -173,15 +173,17 @@ const USER_SETTING_NAMES = {
   sortedBy: 'allPostsSorting',
   filter: 'allPostsFilter',
   showLowKarma: 'allPostsShowLowKarma',
+  showEvents: 'allPostsIncludeEvents'
 }
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, timeframes=defaultTimeframes, sortings=defaultSortings, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=defaultSortings, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
   currentSorting: any,
   currentFilter: any,
   currentShowLowKarma: boolean,
+  currentIncludeEvents: boolean,
   timeframes?: any,
   sortings?: any,
   showTimeframe?: boolean,
@@ -228,21 +230,39 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
           classes={classes}
         />
 
-        <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>}>
-          <QueryLink
-            className={classes.checkboxGroup}
-            onClick={() => setSetting('showLowKarma', !currentShowLowKarma)}
-            query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
-            merge
-            rel="nofollow"
-          >
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
+        <div>
+          <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+            <QueryLink
+              className={classes.checkboxGroup}
+              onClick={() => setSetting('showLowKarma', !currentShowLowKarma)}
+              query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+              merge
+              rel="nofollow"
+            >
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
-            <MetaInfo className={classes.checkboxLabel}>
-              Show Low Karma
-            </MetaInfo>
-          </QueryLink>
-        </Tooltip>
+              <MetaInfo className={classes.checkboxLabel}>
+                Show Low Karma
+              </MetaInfo>
+            </QueryLink>
+          </Tooltip>
+          
+          <Tooltip title={<div><div>By default, events are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+            <QueryLink
+              className={classes.checkboxGroup}
+              onClick={() => setSetting('showEvents', !currentIncludeEvents)}
+              query={{includeEvents: !currentIncludeEvents}}
+              merge
+              rel="nofollow"
+            >
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
+
+              <MetaInfo className={classes.checkboxLabel}>
+                Show Events
+              </MetaInfo>
+            </QueryLink>
+          </Tooltip>
+        </div>
       </div>
   );
 };

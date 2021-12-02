@@ -1499,6 +1499,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,
   readonly allPostsShowLowKarma: boolean,
+  readonly allPostsIncludeEvents: boolean,
   readonly allPostsOpenSettings: boolean,
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
