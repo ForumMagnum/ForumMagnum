@@ -16,9 +16,6 @@ const styles = (theme: ThemeType) => ({
         display: "block"
       }
     },
-    '&:hover $expandButtonWrapper': {
-      display: "block"
-    }
   },
   voteIcon: {
     padding: 0
@@ -62,13 +59,6 @@ const styles = (theme: ThemeType) => ({
     width: 6,
     background: "#bbb"
   },
-  expandButtonWrapper: {
-    position: "absolute",
-    left: -52,
-    padding: 8,
-    display: "none",
-    cursor: "pointer"
-  },
   expandIcon: {
     color: theme.palette.grey[500],
     width: 36,
@@ -100,10 +90,9 @@ const ReviewVoteTableRow = (
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons } = Components
 
   const currentUser = useCurrentUser()
-  const [showPost, setShowPost] = useState(false)
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
 
@@ -118,19 +107,6 @@ const ReviewVoteTableRow = (
 
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
-      {showPost ? 
-        <div className={classes.expandButtonWrapper}>
-          <LWTooltip title="Click to hide post" placement="top">
-            <ExpandLessIcon className={classes.expandIcon} onClick={() => setShowPost(false)}/>
-          </LWTooltip>
-        </div>
-        :
-        <div className={classes.expandButtonWrapper}>
-          <LWTooltip title="Click to expand post" placement="top">
-            <ExpandMoreIcon className={classes.expandIcon} onClick={() => setShowPost(true)}/>
-          </LWTooltip>
-        </div>
-      }
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
@@ -150,10 +126,6 @@ const ReviewVoteTableRow = (
           {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
       </div>
-      {showPost && <div className={classes.highlight}>
-        <PostsHighlight post={post} maxLengthWords={300} forceSeeMore /> 
-        </div>
-      }
     </div>
   </AnalyticsContext>
 }
