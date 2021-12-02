@@ -52,7 +52,7 @@ Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
     options: {
       sort: {
         drafts: -1,
-        hideFromAuthorPage: -1,
+        hideFromAuthorPage: 1,
         userProfileOrder: 1,
         createdAt: -1
       }
