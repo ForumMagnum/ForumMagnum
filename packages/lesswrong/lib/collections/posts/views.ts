@@ -83,7 +83,8 @@ export const filters: Record<string,any> = {
     hiddenRelatedQuestion: viewFieldAllowAny
   },
   "events": {
-    isEvent: true
+    isEvent: true,
+    groupId: null
   },
   "meta": {
     meta: true

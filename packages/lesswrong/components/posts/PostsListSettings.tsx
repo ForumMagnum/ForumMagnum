@@ -66,6 +66,10 @@ const FILTERS_ALL = {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
     },
+    events: {
+      label: "Events",
+      tooltip: "Events from around the world."
+    },
   }
 }
 const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
