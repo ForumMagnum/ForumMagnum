@@ -93,6 +93,7 @@ registerFragment(`
     reviewCount2018
     nominationCount2019
     reviewCount2019
+    reviewCount
     reviewVoteCount
     positiveReviewVoteCount
 

@@ -84,3 +84,5 @@ import './2021-10-05-fillRevisionDraftsField'
 import './2021-11-27-fillReviewVoteCountField'
 import './2021-11-29-fillPositiveReviewVoteCountField'
 import './2021-12-02-fillHideFromAuthorPage'
+import './2021-12-02-fillReviewCountField'
+
