@@ -540,6 +540,7 @@ interface DbSequence extends DbObject {
   isDeleted: boolean
   canonicalCollectionSlug: string
   hidden: boolean
+  hideFromAuthorPage: boolean
   contents: EditableFieldContents
   af: boolean
 }
