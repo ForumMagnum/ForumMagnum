@@ -174,7 +174,7 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
 
-  const { results: posts, loading: postsLoading } = useMulti({
+  const { results: posts, loading: postsLoading, loadMoreProps } = useMulti({
     terms: {
       view: VOTING_VIEW,
       before: `${REVIEW_YEAR+1}-01-01`,
@@ -188,15 +188,15 @@ const ReviewVotingPage = ({classes}: {
     fetchPolicy: 'network-only',
   });
   
-  const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: REVIEW_YEAR+""},
-    collectionName: "ReviewVotes",
-    fragmentName: "reviewVoteFragment",
-    // network-only is to fix a bug that occurred when a user nominated a post
-    // and then visited this page. The inconsistent state caused an error
-    fetchPolicy: 'network-only',
-  })
-
+  // const { results: dbVotes, loading: dbVotesLoading, loadMoreProps: votesLoadMoreProps } = useMulti({
+  //   terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: REVIEW_YEAR+""},
+  //   collectionName: "ReviewVotes",
+  //   fragmentName: "reviewVoteFragment",
+  //   // network-only is to fix a bug that occurred when a user nominated a post
+  //   // and then visited this page. The inconsistent state caused an error
+  //   fetchPolicy: 'network-only',
+  // })
+  
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
@@ -224,7 +224,7 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
 
-  const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
+  // const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
   
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
@@ -250,41 +250,41 @@ const ReviewVotingPage = ({classes}: {
     return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
   }, [submitVote]);
 
-  const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
-  const dispatchQuadraticVote = async ({_id, postId, change, set}: {
-    _id?: string|null,
-    postId: string,
-    change?: number,
-    set?: number
-  }) => {
-    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
-    await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: REVIEW_YEAR+"", dummy: false},
-      optimisticResponse: _id && {
-        __typename: "Mutation",
-        submitReviewVote: {
-          __typename: "ReviewVote",
-          ...existingVote,
-          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
-        }
-      }
-    })
-  }
+  // const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
+  // const dispatchQuadraticVote = async ({_id, postId, change, set}: {
+  //   _id?: string|null,
+  //   postId: string,
+  //   change?: number,
+  //   set?: number
+  // }) => {
+  //   const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+  //   await submitVote({
+  //     variables: {postId, quadraticChange: change, newQuadraticScore: set, year: REVIEW_YEAR+"", dummy: false},
+  //     optimisticResponse: _id && {
+  //       __typename: "Mutation",
+  //       submitReviewVote: {
+  //         __typename: "ReviewVote",
+  //         ...existingVote,
+  //         quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
+  //       }
+  //     }
+  //   })
+  // }
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
-    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
+    setPostOrder(new Map(getPostOrder(posts /*, useQuadratic ? quadraticVotes : votes, currentUser */)))
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }
 
   // Re-sort in response to changes. (But we don't need to re-sort in response
   // to everything exhaustively)
   useEffect(() => {
-    if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
+    if (!!posts/*  && useQuadratic ? !!quadraticVotes : !!votes */) setPostOrder(new Map(getPostOrder(posts /*, useQuadratic ? quadraticVotes : votes, currentUser */)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
+  }, [!!posts, /* useQuadratic, !!quadraticVotes, !!votes */])
 
   if (!currentUserCanVote(currentUser)) {
     return (
@@ -297,10 +297,10 @@ const ReviewVotingPage = ({classes}: {
     )
   }
 
-  const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
+  const voteTotal = /* useQuadratic ? computeTotalCost(quadraticVotes) : */ 0
   
   // TODO: Redundancy here due to merge
-  const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0
+  const voteSum = /* useQuadratic ? computeTotalVote(quadraticVotes) : */ 0
   const voteAverage = posts?.length > 0 ? voteSum/posts?.length : 0
 
   const renormalizeVotes = (quadraticVotes:quadraticVote[], voteAverage: number) => {
@@ -358,7 +358,7 @@ const ReviewVotingPage = ({classes}: {
         Voting is not available on small screens. You can still vote on individual posts, however.
       </div>
       <div className={classes.grid}>
-      <div className={classes.leftColumn}>
+        <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <h1 className={classes.header}>
               {/* 160 is nbsp */}
@@ -415,29 +415,31 @@ const ReviewVotingPage = ({classes}: {
               </Button>
             </LWTooltip>
           </div>
-          {(postsLoading || dbVotesLoading || loading) ?
+          {(postsLoading || loading) ?
             <Loading /> :
             <Paper>
-              {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
-                  const currentQualitativeVote = votes.find(vote => vote.postId === post._id)
-                  const currentQuadraticVote = quadraticVotes.find(vote => vote.postId === post._id)
-    
-                  return <div key={post._id} onClick={()=>{
-                    setExpandedPost(post)
-                    captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
-                  >
-                    <ReviewVoteTableRow
-                      post={post}
-                      showKarmaVotes={showKarmaVotes}
-                      dispatch={dispatchQualitativeVote}
-                      currentQualitativeVote={currentQualitativeVote||null}
-                      currentQuadraticVote={currentQuadraticVote||null}
-                      dispatchQuadraticVote={dispatchQuadraticVote}
-                      useQuadratic={useQuadratic}
-                      expandedPostId={expandedPost?._id}
-                    />
-                  </div>
-                })}
+              {posts && postOrder && applyOrdering(posts, postOrder).map((post) => {
+                // TODO:(Review)
+                // This isn't the best, but all ReviewVoteTableRow needs is the score
+                const currentQualitativeVote = {score: post.currentUserVote} as unknown as ReviewVote
+                const currentQuadraticVote = {score: post.currentUserVote} as unknown as quadraticVote
+  
+                return <div key={post._id} onClick={()=>{
+                  setExpandedPost(post)
+                  captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+                >
+                  <ReviewVoteTableRow
+                    post={post}
+                    showKarmaVotes={showKarmaVotes}
+                    dispatch={dispatchQualitativeVote}
+                    currentQualitativeVote={currentQualitativeVote||null}
+                    currentQuadraticVote={currentQuadraticVote||null}
+                    // dispatchQuadraticVote={dispatchQuadraticVote}
+                    useQuadratic={useQuadratic}
+                    expandedPostId={expandedPost?._id}
+                  />
+                </div>
+              })}
             </Paper>
           }
         </div>

@@ -78,10 +78,10 @@ const styles = (theme: ThemeType) => ({
 });
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, showKarmaVotes }: {
+  { post, dispatch, /* dispatchQuadraticVote, */ useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, showKarmaVotes }: {
     post: PostsListWithVotes,
     dispatch: React.Dispatch<ReviewVote>,
-    dispatchQuadraticVote: any,
+    // dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
@@ -118,10 +118,10 @@ const ReviewVoteTableRow = (
             </LWTooltip>
           </div>
           {!currentUserIsAuthor && <div>
-              {useQuadratic ?
-                <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
+              {/* {useQuadratic ? */}
+                {/* <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> : */}
                 <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
-              }
+              {/* } */}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
