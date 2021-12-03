@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   selectionHighlight: {
-    backgroundColor: "rgba(0,0,0,.27)",
+    backgroundColor: "rgba(0,0,0,.5)",
     color: "white",
     borderRadius: 3
   },

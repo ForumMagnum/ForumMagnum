@@ -22,6 +22,11 @@ const styles = (theme: ThemeType) => ({
   voteIcon: {
     padding: 0
   },
+  count: {
+    width: 30,
+    textAlign: "center",
+    marginRight: 8
+  },
   postVote: {
     display: "flex",
     justifyContent: "flex-end",
@@ -44,9 +49,6 @@ const styles = (theme: ThemeType) => ({
   },
   expanded: {
     backgroundColor: "#f0f0f0",
-  },
-  buttons: {
-    marginRight: 8
   },
   highlight: {
     padding: 16,
@@ -114,14 +116,6 @@ const ReviewVoteTableRow = (
         </LWTooltip>}
       <div className={classes.topRow}>
         <div className={classes.postVote}>
-        {!currentUserIsAuthor && <div className={classes.buttons}>
-              {useQuadratic ?
-                <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
-                <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
-              }
-          </div>}
-          {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
-
           <div className={classes.post}>
             <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
               <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
@@ -133,7 +127,19 @@ const ReviewVoteTableRow = (
             unreadComments={post.lastVisitedAt < post.lastCommentedAt}
             newPromotedComments={false}
           />
-          <PostsItem2MetaInfo>{ post.reviewCount }</PostsItem2MetaInfo>
+          <PostsItem2MetaInfo className={classes.count}>
+            <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 && "s"}`}>
+              { post.reviewCount }
+            </LWTooltip>
+          </PostsItem2MetaInfo>
+          {!currentUserIsAuthor && <div>
+              {useQuadratic ?
+                <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
+                <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
+              }
+          </div>}
+          {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+
         </div>
       </div>
     </div>

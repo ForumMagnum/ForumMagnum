@@ -354,6 +354,7 @@ interface DbPost extends DbObject {
   nominationCount2019: number
   reviewCount2018: number
   reviewCount2019: number
+  reviewCount: number
   reviewVoteCount: number
   positiveReviewVoteCount: number
   lastCommentPromotedAt: Date
