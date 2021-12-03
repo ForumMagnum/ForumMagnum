@@ -159,8 +159,8 @@ const schema: SchemaType<DbSequence> = {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['members'],
+    insertableBy: ['admins'],
     ...schemaDefaultValue(false),
   }
 }
