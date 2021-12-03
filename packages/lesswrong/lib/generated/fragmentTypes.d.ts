@@ -198,6 +198,7 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly isDeleted: boolean,
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
+  readonly hideFromAuthorPage: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -1177,6 +1178,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly draft: boolean,
   readonly isDeleted: boolean,
   readonly hidden: boolean,
+  readonly hideFromAuthorPage: boolean,
   readonly curatedOrder: number,
   readonly userProfileOrder: number,
   readonly af: boolean,
@@ -1499,6 +1501,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,
   readonly allPostsShowLowKarma: boolean,
+  readonly allPostsIncludeEvents: boolean,
   readonly allPostsOpenSettings: boolean,
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,

@@ -80,6 +80,7 @@ registerFragment(`
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
+    allPostsIncludeEvents
     allPostsOpenSettings
     lastNotificationsCheck
     bannedUserIds

@@ -540,6 +540,7 @@ interface DbSequence extends DbObject {
   isDeleted: boolean
   canonicalCollectionSlug: string
   hidden: boolean
+  hideFromAuthorPage: boolean
   contents: EditableFieldContents
   af: boolean
 }
@@ -654,6 +655,7 @@ interface DbUser extends DbObject {
   allPostsFilter: string
   allPostsSorting: string
   allPostsShowLowKarma: boolean
+  allPostsIncludeEvents: boolean
   allPostsOpenSettings: boolean
   lastNotificationsCheck: Date
   bio: string
