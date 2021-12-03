@@ -90,7 +90,7 @@ const ReviewVoteTableRow = (
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, ErrorBoundary} = Components
 
   const currentUser = useCurrentUser()
   if (!currentUser) return null;
@@ -106,27 +106,29 @@ const ReviewVoteTableRow = (
   }
 
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
-      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
-          <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
-        </LWTooltip>}
-      <div className={classes.topRow}>
-        <div className={classes.postVote}>
-          <div className={classes.post}>
-            <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-              <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
-            </LWTooltip>
+    <ErrorBoundary>
+      <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
+        {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
+            <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
+          </LWTooltip>}
+        <div className={classes.topRow}>
+          <div className={classes.postVote}>
+            <div className={classes.post}>
+              <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+                <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
+              </LWTooltip>
+            </div>
+            {!currentUserIsAuthor && <div>
+                {/* {useQuadratic ? */}
+                  {/* <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> : */}
+                  <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
+                {/* } */}
+            </div>}
+            {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
           </div>
-          {!currentUserIsAuthor && <div>
-              {/* {useQuadratic ? */}
-                {/* <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> : */}
-                <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
-              {/* } */}
-          </div>}
-          {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   </AnalyticsContext>
 }
 

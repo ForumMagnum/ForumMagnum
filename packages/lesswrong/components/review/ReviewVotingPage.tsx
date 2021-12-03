@@ -82,7 +82,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.reviewVotingMenu,
     padding: theme.spacing.unit,
     background: "#ddd",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
+  },
+  menuItem: {
+    ...commentBodyStyles(theme),
+    fontSize: "0.875rem",
+    textTransform: "uppercase"
   },
   menuIcon: {
     marginLeft: theme.spacing.unit
@@ -179,7 +184,7 @@ const ReviewVotingPage = ({classes}: {
       view: VOTING_VIEW,
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-      limit: 300
+      limit: 100
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
@@ -271,20 +276,22 @@ const ReviewVotingPage = ({classes}: {
   //   })
   // }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow } = Components
+  const { LWTooltip, LoadMore,Loading, ReviewVotingExpandedPost, ReviewVoteTableRow } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
-  const reSortPosts = () => {
-    setPostOrder(new Map(getPostOrder(posts /*, useQuadratic ? quadraticVotes : votes, currentUser */)))
-    captureEvent(undefined, {eventSubType: "postsResorted"})
-  }
 
-  // Re-sort in response to changes. (But we don't need to re-sort in response
-  // to everything exhaustively)
-  useEffect(() => {
-    if (!!posts/*  && useQuadratic ? !!quadraticVotes : !!votes */) setPostOrder(new Map(getPostOrder(posts /*, useQuadratic ? quadraticVotes : votes, currentUser */)))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!posts, /* useQuadratic, !!quadraticVotes, !!votes */])
+
+  // const reSortPosts = () => {
+  //   setPostOrder(new Map(getPostOrder(posts /*, useQuadratic ? quadraticVotes : votes, currentUser */)))
+  //   captureEvent(undefined, {eventSubType: "postsResorted"})
+  // }
+
+  // // Re-sort in response to changes. (But we don't need to re-sort in response
+  // // to everything exhaustively)
+  // useEffect(() => {
+  //   if (!!posts/*  && useQuadratic ? !!quadraticVotes : !!votes */) setPostOrder(new Map(getPostOrder(posts /*, useQuadratic ? quadraticVotes : votes, currentUser */)))
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [!!posts, /* useQuadratic, !!quadraticVotes, !!votes */])
 
   if (!currentUserCanVote(currentUser)) {
     return (
@@ -370,13 +377,15 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.menu}>
+            <div className={classes.menuItem}>{posts.length} Posts</div>
+
             <Button disabled={!expandedPost} onClick={()=>{
               setExpandedPost(null)
               captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
             }}>Show Instructions</Button>
             
             {/* Turned off for the Preliminary Voting phase */}
-            {getReviewPhase() !== "NOMINATIONS" && <>
+            {/* {getReviewPhase() !== "NOMINATIONS" && <>
               {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic voting, you cannot go back to default voting without losing your quadratic data.">
                 <Button className={classes.convert} onClick={async () => {
                     setLoading(true)
@@ -408,17 +417,17 @@ const ReviewVotingPage = ({classes}: {
                     Avg: {(voteSum / posts.length).toFixed(2)}
                   </div>
               </LWTooltip>}
-            </>}
-            <LWTooltip title="Sorts the list of posts by vote strength">
+            </>} */}
+            {/* <LWTooltip title="Sorts the list of posts by vote strength">
               <Button onClick={reSortPosts}>
                 Re-Sort <CachedIcon className={classes.menuIcon} />
               </Button>
-            </LWTooltip>
+            </LWTooltip> */}
           </div>
           {(postsLoading || loading) ?
             <Loading /> :
             <Paper>
-              {posts && postOrder && applyOrdering(posts, postOrder).map((post) => {
+              {posts.map((post) => {
                 // TODO:(Review)
                 // This isn't the best, but all ReviewVoteTableRow needs is the score
                 const currentQualitativeVote = {score: post.currentUserVote} as unknown as ReviewVote
@@ -440,6 +449,7 @@ const ReviewVotingPage = ({classes}: {
                   />
                 </div>
               })}
+              <LoadMore {...loadMoreProps}/>
             </Paper>
           }
         </div>
@@ -453,8 +463,8 @@ function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quad
   const randomPermutation = generatePermutation(posts.length, currentUser);
   const result = posts.map(
     (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
-      const voteForPost = votes.find(vote => vote.postId === post._id)
-      const  voteScore = voteForPost ? voteForPost.score : 1;
+    
+      const  voteScore = post.currentUserReviewVote || 0;
       return [post, voteForPost, voteScore, i, randomPermutation[i]]
     })
     .sort(([post1, vote1, voteScore1, i1, permuted1], [post2, vote2, voteScore2, i2, permuted2]) => {
