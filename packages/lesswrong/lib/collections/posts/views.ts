@@ -1007,6 +1007,15 @@ Posts.addView("tbdEvents", (terms: PostsViewTerms) => {
   }
 });
 
+Posts.addView("nonEventGroupPosts", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      isEvent: false,
+      groupId: terms.groupId ? terms.groupId : null,
+    },
+  }
+});
+
 // Same index as events
 
 Posts.addView("groupPosts", (terms: PostsViewTerms) => {
