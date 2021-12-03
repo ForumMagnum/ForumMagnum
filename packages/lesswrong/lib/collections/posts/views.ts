@@ -943,16 +943,14 @@ ensureIndex(Posts,
   { name: "posts.events" }
 );
 
-Posts.addView("pastEvents", (terms: PostsViewTerms) => {
+Posts.addView("eventsInTimeRange", (terms: PostsViewTerms) => {
   return {
     selector: {
       isEvent: true,
       groupId: terms.groupId ? terms.groupId : null,
-      baseScore: {$gte: 1},
     },
     options: {
       sort: {
-        baseScore: -1,
         startTime: -1,
       }
     }
@@ -961,14 +959,13 @@ Posts.addView("pastEvents", (terms: PostsViewTerms) => {
 // Same index as events
 
 Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
-  const oneDayAgo = moment().subtract(1, 'days').toDate();
-
+  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  
   return {
     selector: {
       isEvent: true,
       groupId: terms.groupId ? terms.groupId : null,
-      baseScore: {$gte: 1},
-      startTime: {$gte: oneDayAgo}
+      startTime: {$gte: timeCutoff},
     },
     options: {
       sort: {
@@ -977,6 +974,39 @@ Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
     }
   }
 })
+
+Posts.addView("pastEvents", (terms: PostsViewTerms) => {
+  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      startTime: {$lt: timeCutoff},
+    },
+    options: {
+      sort: {
+        startTime: -1,
+      }
+    },
+  }
+});
+
+Posts.addView("tbdEvents", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      startTime: viewFieldNullOrMissing,
+    },
+    options: {
+      sort: {
+        startTime: -1,
+      }
+    },
+  }
+});
+
 // Same index as events
 
 Posts.addView("groupPosts", (terms: PostsViewTerms) => {

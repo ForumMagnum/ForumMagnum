@@ -125,7 +125,15 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             description={`group ${groupId}`}
           />
         </div>
-        <PostsList2 terms={{view: 'groupPosts', groupId: groupId}} />
+        
+        <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
+        
+        <h2>Upcoming Events</h2>
+        <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
+        <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+        
+        <h2>Past Events</h2>
+        <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
       </SingleColumnSection>
     </div>
   )
