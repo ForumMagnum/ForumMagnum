@@ -160,7 +160,7 @@ const schema: SchemaType<DbSequence> = {
     optional: true,
     viewableBy: ['guests'],
     editableBy: ['members'],
-    insertableBy: ['admins'],
+    insertableBy: ['members'],
     ...schemaDefaultValue(false),
   }
 }
