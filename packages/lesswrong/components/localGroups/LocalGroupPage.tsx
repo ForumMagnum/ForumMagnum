@@ -33,9 +33,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit * 2
   },
   leftAction: {
-    [theme.breakpoints.down('xs')]: {
-      textAlign: 'left'
-    }
+    alignSelf: "center",
   },
   groupLocation: {
     ...theme.typography.body2,
