@@ -748,7 +748,7 @@ ensureIndex(Posts,
     baseScore: 1,
     af: 1,
     isEvent: 1,
-    onlineEvent: 1,
+    globalEvent: 1,
     commentCount: 1,
   },
 );
