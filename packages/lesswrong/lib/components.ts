@@ -498,6 +498,7 @@ importComponent("BigCollectionsCard", () => require('../components/collections/B
 importComponent("CoreSequences", () => require('../components/sequences/CoreSequences'));
 importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
+importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
