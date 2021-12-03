@@ -655,6 +655,7 @@ interface DbUser extends DbObject {
   allPostsFilter: string
   allPostsSorting: string
   allPostsShowLowKarma: boolean
+  allPostsIncludeEvents: boolean
   allPostsOpenSettings: boolean
   lastNotificationsCheck: Date
   bio: string
