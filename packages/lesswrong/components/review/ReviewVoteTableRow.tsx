@@ -15,9 +15,6 @@ const styles = (theme: ThemeType) => ({
         display: "block"
       }
     },
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
   },
   voteIcon: {
     padding: 0
@@ -33,8 +30,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center"
   },
   post: {
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit*2,
+    padding: 16,
+    paddingTop: 10,
+    paddingBottom: 8,
+    paddingRight: 10,
     maxWidth: "calc(100% - 240px)",
     marginRight: "auto"
   },
@@ -79,6 +78,13 @@ const styles = (theme: ThemeType) => ({
   smallDownvote: {
     background: theme.palette.error.light
   },
+  votes: {
+    backgroundColor: "rgba(0,0,0,.05)",
+    padding: 10,
+    alignSelf: "stretch",
+    display: "flex",
+    alignItems: "center"
+  }
 });
 
 const ReviewVoteTableRow = (
@@ -128,17 +134,17 @@ const ReviewVoteTableRow = (
             newPromotedComments={false}
           />
           <PostsItem2MetaInfo className={classes.count}>
-            <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 && "s"}`}>
+            <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
               { post.reviewCount }
             </LWTooltip>
           </PostsItem2MetaInfo>
-          {!currentUserIsAuthor && <div>
-              {useQuadratic ?
-                <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
-                <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
-              }
-          </div>}
-          {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+          <div className={classes.votes}>
+            {!currentUserIsAuthor && <div>{useQuadratic ?
+              <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
+              <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />}
+            </div>}
+            {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+          </div>
 
         </div>
       </div>

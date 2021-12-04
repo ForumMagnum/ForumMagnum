@@ -25,6 +25,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
     cursor: "pointer",
+    background: "white",
     '&:hover': {
       backgroundColor: "rgba(0,0,0,.075)",
     }
