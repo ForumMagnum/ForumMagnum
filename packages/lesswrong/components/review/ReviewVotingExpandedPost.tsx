@@ -3,13 +3,10 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
-import { REVIEW_COMMENTS_VIEW } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   root: {
-    height: "90vh",
-    overflow: "scroll"
   },
   postTitle: {
     ...postPageTitleStyles(theme),
@@ -58,7 +55,8 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
       <ReviewPostComments
         title="Reviews"
         terms={{
-          view: REVIEW_COMMENTS_VIEW, 
+          view: "reviews",
+          reviewYear: REVIEW_YEAR, 
           postId: post._id
         }}
         post={post}

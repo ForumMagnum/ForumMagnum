@@ -20,18 +20,20 @@ import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_NAME_TI
 import { annualReviewAnnouncementPostPathSetting, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
-export const REVIEW_COMMENTS_VIEW = "reviews2020"
+export const REVIEW_COMMENTS_VIEW = "reviews"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 640px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
+      minmax(10px, 0.5fr) minmax(100px, 740px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
     `,
     gridTemplateAreas: `
     "... leftColumn ... rightColumn ..."
@@ -48,6 +50,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "leftColumn",
     position: "sticky",
     top: 72,
+    height: "90vh",
+    overflow: "scroll",
+    paddingLeft: 24,
+    paddingRight: 36,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -221,6 +227,7 @@ const ReviewVotingPage = ({classes}: {
 
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
+  const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
 
@@ -271,7 +278,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -365,6 +372,18 @@ const ReviewVotingPage = ({classes}: {
               {REVIEW_NAME_TITLE}{isEAForum ? String.fromCharCode(160) + '—' : ':'} Preliminary Voting
             </h1>
             {instructions}
+            <SectionTitle title="Reviews">
+              <Select
+                value={sortReviews}
+                onChange={(e)=>setSortReviews(e.target.value)}
+                disableUnderline
+                >
+                <MenuItem value={'top'}>Sorted by Top</MenuItem>
+                <MenuItem value={'new'}>Sorted by New</MenuItem>
+                <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
+              </Select>
+            </SectionTitle>
+            <RecentComments terms={{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: sortReviews}} truncated/>
           </div>}
           <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
         </div>
