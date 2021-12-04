@@ -7,6 +7,10 @@ import { REVIEW_COMMENTS_VIEW } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
+  root: {
+    height: "90vh",
+    overflow: "scroll"
+  },
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",

@@ -354,6 +354,7 @@ interface DbPost extends DbObject {
   nominationCount2019: number
   reviewCount2018: number
   reviewCount2019: number
+  reviewCount: number
   reviewVoteCount: number
   positiveReviewVoteCount: number
   lastCommentPromotedAt: Date
@@ -540,6 +541,7 @@ interface DbSequence extends DbObject {
   isDeleted: boolean
   canonicalCollectionSlug: string
   hidden: boolean
+  hideFromAuthorPage: boolean
   contents: EditableFieldContents
   af: boolean
 }
@@ -654,6 +656,7 @@ interface DbUser extends DbObject {
   allPostsFilter: string
   allPostsSorting: string
   allPostsShowLowKarma: boolean
+  allPostsIncludeEvents: boolean
   allPostsOpenSettings: boolean
   lastNotificationsCheck: Date
   bio: string

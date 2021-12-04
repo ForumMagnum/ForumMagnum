@@ -120,6 +120,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly nominationCount2019: number,
   readonly reviewCount2018: number,
   readonly reviewCount2019: number,
+  readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
   readonly lastCommentPromotedAt: Date,
@@ -198,6 +199,7 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly isDeleted: boolean,
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
+  readonly hideFromAuthorPage: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -324,6 +326,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
+  readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
   readonly group: PostsBase_group|null,
@@ -1177,6 +1180,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly draft: boolean,
   readonly isDeleted: boolean,
   readonly hidden: boolean,
+  readonly hideFromAuthorPage: boolean,
   readonly curatedOrder: number,
   readonly userProfileOrder: number,
   readonly af: boolean,
@@ -1499,6 +1503,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allPostsSorting: string,
   readonly allPostsFilter: string,
   readonly allPostsShowLowKarma: boolean,
+  readonly allPostsIncludeEvents: boolean,
   readonly allPostsOpenSettings: boolean,
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,

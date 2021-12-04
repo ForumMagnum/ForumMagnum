@@ -32,7 +32,7 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 16
 // like to include
 const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex',
+    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex', 'bestoflesswrong',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
