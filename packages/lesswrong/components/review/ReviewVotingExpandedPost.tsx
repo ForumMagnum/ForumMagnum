@@ -37,7 +37,7 @@ const styles = theme => ({
 })
 
 const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: PostsListWithVotes|null}) => {
-  const { ReviewPostButton, ReviewPostComments, PostsHighlight} = Components
+  const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList} = Components
 
   if (!post) return null
 
@@ -52,6 +52,7 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
     </div>}/>
 
     <div className={classes.comments}>
+      <PingbacksList postId={post._id}/>
       <ReviewPostComments
         title="Reviews"
         terms={{
