@@ -75,7 +75,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 
     const baseTerms: PostsViewTerms = {
       karmaThreshold: query.karmaThreshold || (currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD),
-      includeEvents: currentIncludeEvents || currentFilter === 'events',
+      excludeEvents: !currentIncludeEvents && currentFilter !== 'events',
       filter: currentFilter,
       sortedBy: currentSorting,
       after: query.after,
