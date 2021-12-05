@@ -264,7 +264,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         <div className={classes.nominationBlock}>
           <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
             <div className={classNames(classes.blockText, classes.blockLabel)}>Preliminary Voting</div>
-            <div className={classes.blockText}>{nominationEndDate.format('MMM Do')}</div>
+            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDate.format('MMM Do')}</div>
             {activeRange === "NOMINATIONS" && <div
               className={classes.coloredProgress}
               style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}
@@ -274,14 +274,14 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         <div className={classes.reviewBlock}>     
           <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
             <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
-            <div className={classes.blockText}>{reviewEndDate.format('MMM Do')}</div>
+            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
             {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
           </LWTooltip>   
         </div>
         <div className={classes.votingBlock}>
           <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "VOTING"})}>
             <div className={classNames(classes.blockText, classes.blockLabel)}>Final Voting</div>
-            <div className={classes.blockText}>{voteEndDate.format('MMM Do')}</div>
+            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDate.format('MMM Do')}</div>
             {activeRange === "VOTING" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
           </LWTooltip>
         </div>
