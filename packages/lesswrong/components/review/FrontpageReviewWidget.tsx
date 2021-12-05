@@ -167,8 +167,8 @@ export const overviewTooltip = isEAForum ?
     <p>We're currently in the preliminary voting phase. Nominate posts by casting a preliminary vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
   </div>
 
-const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
-  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
+const FrontpageReviewWidget = ({classes, showRecommendations=true}: {classes: ClassesType, showRecommendations?: boolean}) => {
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -246,7 +246,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   }
 
   return (
-    <SingleColumnSection>
+    <div>
       <SectionTitle 
         title={<LWTooltip title={overviewTooltip} placement="bottom-start">
           <Link to={reviewPostPath}>
@@ -288,10 +288,10 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
       </div>
       
       {/* Post list */}
-      <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
+      {showRecommendations && <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
         {/* TODO:(Review) I think we can improve this */}
         <RecommendationsList algorithm={getReviewAlgorithm()} />
-      </AnalyticsContext>
+      </AnalyticsContext>}
 
       {/* TODO: Improve logged out user experience */}
       
@@ -331,7 +331,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
           Vote on {REVIEW_YEAR} Posts
         </Link>
       </div>}
-    </SingleColumnSection>
+    </div>
   )
 }
 

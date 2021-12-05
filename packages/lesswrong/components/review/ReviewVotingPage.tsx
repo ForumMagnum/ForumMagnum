@@ -22,6 +22,7 @@ import moment from 'moment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Card from '@material-ui/core/Card';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -44,7 +45,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   instructions: {
     ...theme.typography.body2,
     ...commentBodyStyles(theme),
-    paddingBottom: 35
+    padding: 16,
+    marginBottom: 24,
+    background: "white",
+    boxShadow: theme.boxShadow
   },
   leftColumn: {
     gridArea: "leftColumn",
@@ -77,6 +81,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   expandedInfo: {
     maxWidth: 600,
     marginBottom: 175,
+  },
+  widget: {
+    marginBottom: 32,
   },
   menu: {
     position: "sticky",
@@ -150,6 +157,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   voteAverage: {
     cursor: 'pointer',
+  },
+  faqCard: {
+    width: 400,
+    padding: 16,
+    ...commentBodyStyles(theme)
+  },
+  faqQuestion: {
+    color: theme.palette.primary.main
   }
 });
 
@@ -278,7 +293,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, PopperCard } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -338,23 +353,41 @@ const ReviewVotingPage = ({classes}: {
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
     </div> :
     <div className={classes.instructions}>
-      <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
+      <p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
+      <ul>
+        <li>
+          Vote on posts they think are worth considering as important intellectual progress.
+        </li>
+        <li>Write short reviews that explain why those posts seem important</li>
+      </ul> 
+      <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
 
-      <p>This year, instead of a nominations phase, we're beginning with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
-      
       <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
 
-      <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link></p>
+      <p><b>FAQ</b></p>
 
-      <p><b>How exactly do the Preliminary Votes Work?</b></p>
+      <p className={classes.faqQuestion}>
+        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+          <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
+          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly.</p>
+          <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
+          <p>You can change your votes during the Final Voting Phase.</p>
+        </Card>}>
+          How exactly do Preliminary Votes work?
+        </LWTooltip>
+      </p>
 
-      <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-
-      <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
-
-      <p><b>Submitting Reviews</b></p>
-
-      <p>Last year, nominating posts required writing a comment saying what was good about it. Since nomination is an "anonymous vote" this year, we're giving people the ability to write reviews right away. Feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
+      <p className={classes.faqQuestion}>
+        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+          <ul>
+            <li>Any user registered before {REVIEW_YEAR} can vote on posts.</li>
+            <li>Votes by users with 1000+ karma will be weighted more highly by the moderation team when assembling the final sequence, books or prizes.</li>
+            <li>Any user can write reviews.</li>
+          </ul>
+          </Card>}>
+            Who is eligible?
+        </LWTooltip>
+      </p>
     </div>
 
   return (
@@ -367,10 +400,9 @@ const ReviewVotingPage = ({classes}: {
       <div className={classes.grid}>
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
-            <h1 className={classes.header}>
-              {/* 160 is nbsp */}
-              {REVIEW_NAME_TITLE}{isEAForum ? String.fromCharCode(160) + '—' : ':'} Preliminary Voting
-            </h1>
+            <div className={classes.widget}>
+              <FrontpageReviewWidget showRecommendations={false}/>
+            </div>
             {instructions}
             <SectionTitle title="Reviews">
               <Select

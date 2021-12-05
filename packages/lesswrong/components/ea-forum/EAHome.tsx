@@ -15,7 +15,7 @@ const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, HomeLatestPosts, EAHomeHandbook, RecommendationsAndCurated,
-    SmallpoxBanner, StickiedPosts, EventBanner, FrontpageReviewWidget
+    SmallpoxBanner, StickiedPosts, EventBanner, FrontpageReviewWidget, SingleColumnSection
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -31,8 +31,11 @@ const EAHome = () => {
       {shouldRenderEventBanner && <EventBanner />}
       
       <StickiedPosts />
-      
-      {reviewIsActive() && <FrontpageReviewWidget />}
+
+      {/* EA forum look here */}
+      {reviewIsActive() && <SingleColumnSection>
+        <FrontpageReviewWidget />
+      </SingleColumnSection>}
       
       <HomeLatestPosts />
       
