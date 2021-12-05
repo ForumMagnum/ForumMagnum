@@ -32,7 +32,6 @@ const EAHome = () => {
       
       <StickiedPosts />
 
-      {/* EA forum look here */}
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget />
       </SingleColumnSection>}
