@@ -3,14 +3,9 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
-import { REVIEW_COMMENTS_VIEW } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
-  root: {
-    height: "90vh",
-    overflow: "scroll"
-  },
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",
@@ -40,11 +35,11 @@ const styles = theme => ({
 })
 
 const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: PostsListWithVotes|null}) => {
-  const { ReviewPostButton, ReviewPostComments, PostsHighlight} = Components
+  const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList} = Components
 
   if (!post) return null
 
-  return <div className={classes.root}>
+  return <div>
     <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
     <PostsHighlight post={post} maxLengthWords={90} forceSeeMore /> 
     <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
@@ -55,10 +50,12 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
     </div>}/>
 
     <div className={classes.comments}>
+      <PingbacksList postId={post._id}/>
       <ReviewPostComments
         title="Reviews"
         terms={{
-          view: REVIEW_COMMENTS_VIEW, 
+          view: "reviews",
+          reviewYear: REVIEW_YEAR, 
           postId: post._id
         }}
         post={post}

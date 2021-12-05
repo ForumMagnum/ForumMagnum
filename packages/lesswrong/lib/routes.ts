@@ -3,7 +3,7 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './ins
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
-import { REVIEW_YEAR } from './reviewUtils';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -19,6 +19,7 @@ const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of 
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
+const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
@@ -237,7 +238,8 @@ addRoute(
     name:'reviewVoting2020',
     path: '/reviewVoting/2020',
     title: "Voting 2020 Review",
-    componentName: "ReviewVotingPage"
+    componentName: "ReviewVotingPage",
+    ...reviewSubtitle
   },
 
   // Sequences

@@ -42,12 +42,16 @@ export function eligibleToNominate (currentUser: UsersCurrent|null) {
   return true
 }
 
-export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
-  if (!eligibleToNominate(currentUser)) return false
-  if (post.userId === currentUser!._id) return false
+export function postEligibleForReview (post: PostsBase) {
   if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWForum && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
   return true
+}
+
+export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
+  if (!eligibleToNominate(currentUser)) return false
+  if (post.userId === currentUser!._id) return false
+  return (postEligibleForReview(post))
 }
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
