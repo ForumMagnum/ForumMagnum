@@ -16,7 +16,7 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -26,8 +26,6 @@ import Card from '@material-ui/core/Card';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
-const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
-export const REVIEW_COMMENTS_VIEW = "reviews"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -202,7 +200,7 @@ const ReviewVotingPage = ({classes}: {
 
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {
-      view: VOTING_VIEW,
+      view: "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
       limit: 300
