@@ -110,7 +110,7 @@ const removeCallback = function (hookName: string, callback) {
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
 export const runCallbacks = function (this: any, options: {
-  name?: string,
+  name: string,
   iterator?: any,
   properties?: any,
   ignoreExceptions?: boolean,
@@ -128,6 +128,8 @@ export const runCallbacks = function (this: any, options: {
 
   // flag used to detect the callback that initiated the async context
   let asyncContext = false;
+  
+  let inProgressCallbackKey = markCallbackStarted(hook);
   
   if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
 
@@ -157,7 +159,7 @@ export const runCallbacks = function (this: any, options: {
       }
     };
 
-    return callbacks.reduce(function (accumulator, callback, index) {
+    const result = callbacks.reduce(function (accumulator, callback, index) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
           logger(`\x1b[32m>> Started async context in hook [${formattedHook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
@@ -180,8 +182,11 @@ export const runCallbacks = function (this: any, options: {
         return runCallback(accumulator, callback);
       }
     }, item);
-
+    
+    markCallbackFinished(inProgressCallbackKey, hook);
+    return result;
   } else { // else, just return the item unchanged
+    markCallbackFinished(inProgressCallbackKey, hook);
     return item;
   }
 };
@@ -286,9 +291,9 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
           if (isPromise(callbackResult)) {
             callbackResult
               .then(
-                result => markCallbackFinished(pendingAsyncCallback),
+                result => markCallbackFinished(pendingAsyncCallback, hook),
                 exception => {
-                  markCallbackFinished(pendingAsyncCallback)
+                  markCallbackFinished(pendingAsyncCallback, hook)
                   // eslint-disable-next-line no-console
                   console.log(`Error running async callback [${callback.name}] on hook [${hook}]`);
                   // eslint-disable-next-line no-console
@@ -297,14 +302,14 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
                 }
               )
           } else {
-            markCallbackFinished(pendingAsyncCallback);
+            markCallbackFinished(pendingAsyncCallback, hook);
           }
         } finally {
-          markCallbackFinished(pendingAsyncCallback);
+          markCallbackFinished(pendingAsyncCallback, hook);
         }
       });
       
-      markCallbackFinished(pendingDeferredCallbackStart);
+      markCallbackFinished(pendingDeferredCallbackStart, hook);
     }, 0);
 
   }
@@ -346,7 +351,9 @@ export const waitUntilCallbacksFinished = () => {
 
 // Dictionary of all outstanding callbacks (key is an ID, value is `true`). If
 // there are no outstanding callbacks, this should be an empty dictionary.
-let pendingCallbacks = {};
+let pendingCallbackKeys = {};
+
+let pendingCallbackDescriptions: Record<string,number> = {};
 
 // ID for a pending callback. Incremements with each call to
 // `markCallbackStarted`.
@@ -358,7 +365,7 @@ let numCallbacksPending = 0;
 
 // When starting an async callback, assign it an ID, record the fact that it's
 // running, and return the ID.
-function markCallbackStarted(description)
+function markCallbackStarted(description: string): number
 {
   if (numCallbacksPending > 1000) {
     // eslint-disable-next-line no-console
@@ -370,22 +377,41 @@ function markCallbackStarted(description)
     pendingCallbackKey = 0;
   else
     pendingCallbackKey++;
-  pendingCallbacks[pendingCallbackKey] = true;
+  pendingCallbackKeys[pendingCallbackKey] = true;
+  
+  if (description in pendingCallbackDescriptions) {
+    pendingCallbackDescriptions[description]++;
+  } else {
+    pendingCallbackDescriptions[description] = 1;
+  }
+  
   return pendingCallbackKey;
 }
 
 // Record the fact that an async callback with the given ID has finished.
-function markCallbackFinished(id)
+function markCallbackFinished(id: number, description: string)
 {
   numCallbacksPending--;
-  delete pendingCallbacks[id];
+  delete pendingCallbackKeys[id];
+  
+  if (pendingCallbackDescriptions[description] <= 1) {
+    delete pendingCallbackDescriptions[description];
+  } else {
+    pendingCallbackDescriptions[description]--;
+  }
 }
 
 // Return whether there is at least one async callback running.
-function callbacksArePending()
+function callbacksArePending(): boolean
 {
-  for(let id in pendingCallbacks) {
+  for(let id in pendingCallbackKeys) {
     return true;
   }
   return false;
+}
+
+export function printInProgressCallbacks() {
+  const callbacksInProgress = Object.keys(pendingCallbackDescriptions);
+  // eslint-disable-next-line no-console
+  console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!=1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
 }
