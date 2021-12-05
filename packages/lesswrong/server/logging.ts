@@ -110,7 +110,7 @@ export function logGraphqlQueryStarted(operationName: string, queryString: strin
     queriesInProgress[operationName] = 1;
   }
   
-  if (logGraphqlQueriesSetting.get() && queryString.startsWith("query")) {
+  if (logGraphqlQueriesSetting.get() && queryString && queryString.startsWith("query")) {
     const view = variables?.input?.terms?.view;
     if (view) {
       // eslint-disable-next-line no-console
@@ -120,7 +120,7 @@ export function logGraphqlQueryStarted(operationName: string, queryString: strin
       console.log(`query: ${operationName}`);
     }
   }
-  if (logGraphqlMutationsSetting.get() && queryString.startsWith("mutation")) {
+  if (logGraphqlMutationsSetting.get() && queryString && queryString.startsWith("mutation")) {
     const editedFields = variables?.data;
     if (editedFields) {
       // eslint-disable-next-line no-console
@@ -140,11 +140,11 @@ export function logGraphqlQueryFinished(operationName: string, queryString: stri
       delete queriesInProgress[operationName];
   }
   
-  if (logGraphqlQueriesSetting.get() && queryString.startsWith("query")) {
+  if (logGraphqlQueriesSetting.get() && queryString && queryString.startsWith("query")) {
     // eslint-disable-next-line no-console
     console.log(`Finished query: ${operationName}`);
   }
-  if (logGraphqlMutationsSetting.get() && queryString.startsWith("mutation")) {
+  if (logGraphqlMutationsSetting.get() && queryString && queryString.startsWith("mutation")) {
     // eslint-disable-next-line no-console
     console.log(`Finished mutation: ${operationName}`);
   }
