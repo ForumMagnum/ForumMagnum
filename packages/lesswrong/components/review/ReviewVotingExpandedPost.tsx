@@ -6,8 +6,6 @@ import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
-  root: {
-  },
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",
@@ -41,7 +39,7 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
 
   if (!post) return null
 
-  return <div className={classes.root}>
+  return <div>
     <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
     <PostsHighlight post={post} maxLengthWords={90} forceSeeMore /> 
     <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
