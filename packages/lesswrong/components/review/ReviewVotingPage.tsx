@@ -507,8 +507,10 @@ function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quad
       return [post, voteForPost, voteScore, i, randomPermutation[i]]
     })
     .sort(([post1, vote1, voteScore1, i1, permuted1], [post2, vote2, voteScore2, i2, permuted2]) => {
-      if (post1.reviewCount > 0 && post2.reviewCount == 0 && !post1.currentUserReviewVote) return 1;
-      if (post2.reviewCount > 0 && post1.reviewCount == 0 && !post1.currentUserReviewVote) return -1;
+      const reviewedNoteVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
+      const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
+      if (reviewedNoteVoted1 && !reviewedNotVoted2) return 1;
+      if (!reviewedNoteVoted1 && reviewedNotVoted2) return -1;
       if (voteScore1 < voteScore2) return -1;
       if (voteScore1 > voteScore2) return 1;
       if (permuted1 < permuted2) return -1;
