@@ -167,7 +167,7 @@ export const overviewTooltip = isEAForum ?
     <p>We're currently in the preliminary voting phase. Nominate posts by casting a preliminary vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
   </div>
 
-const FrontpageReviewWidget = ({classes, showRecommendations=true}: {classes: ClassesType, showRecommendations?: boolean}) => {
+const FrontpageReviewWidget = ({classes, showRecommendations=true, showDashboardButton=true}: {classes: ClassesType, showRecommendations?: boolean, showDashboardButton?: boolean}) => {
   const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
 
@@ -306,8 +306,8 @@ const FrontpageReviewWidget = ({classes, showRecommendations=true}: {classes: Cl
             All {isEAForum ? 'Eligible' : REVIEW_YEAR} Posts
           </Link>
         </LWTooltip>
-        <LWTooltip title={<div>
-          <p>Nominations Dashboard</p>
+        {showDashboardButton && <LWTooltip title={<div>
+          <p>Reviews Dashboard</p>
           <ul>
             <li>View all posts with at least one preliminary vote.</li>
             <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
@@ -317,7 +317,7 @@ const FrontpageReviewWidget = ({classes, showRecommendations=true}: {classes: Cl
           <Link to={"/reviewVoting/2020"} className={classNames(classes.actionButtonCTA, classes.hideOnMobile)}>
             Vote on nominated posts
           </Link>
-        </LWTooltip>
+        </LWTooltip>}
       </div>}
       
       {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>

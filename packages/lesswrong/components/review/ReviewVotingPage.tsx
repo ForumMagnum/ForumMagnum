@@ -296,7 +296,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, PopperCard } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -414,7 +414,7 @@ const ReviewVotingPage = ({classes}: {
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <div className={classes.widget}>
-              <FrontpageReviewWidget showRecommendations={false}/>
+              <FrontpageReviewWidget showRecommendations={false} showDashboardButton={false}/>
             </div>
             {instructions}
             <SectionTitle title="Reviews">
