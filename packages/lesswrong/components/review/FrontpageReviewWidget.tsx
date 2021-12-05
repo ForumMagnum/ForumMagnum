@@ -249,13 +249,13 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
     <SingleColumnSection>
       <SectionTitle 
         title={<LWTooltip title={overviewTooltip} placement="bottom-start">
-          <Link to={reviewPostPath}>
+          <Link to={reviewPostPath || ""}>
             {REVIEW_NAME_TITLE}
           </Link>
         </LWTooltip>}
       >
         <LWTooltip title={overviewTooltip}>
-          <Link to={reviewPostPath}>
+          <Link to={reviewPostPath || ""}>
             <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
           </Link>
         </LWTooltip>
