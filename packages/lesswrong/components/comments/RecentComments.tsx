@@ -30,7 +30,7 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
   }
   
   return (
-    <div>
+    <div className={classes.root}>
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
