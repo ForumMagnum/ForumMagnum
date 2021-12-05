@@ -2,6 +2,14 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
+const styles = (theme: ThemeType): JssStyles =>  ({
+  root: {
+    [theme.breakpoints.up('sm')]: {
+      marginRight: theme.spacing.unit*4,
+    }
+  }
+})
+
 const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType,
   terms: CommentsViewTerms,
@@ -43,7 +51,7 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
   )
 }
 
-const RecentCommentsComponent = registerComponent('RecentComments', RecentComments);
+const RecentCommentsComponent = registerComponent('RecentComments', RecentComments, {styles});
 
 declare global {
   interface ComponentTypes {
