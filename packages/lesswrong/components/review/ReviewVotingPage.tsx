@@ -361,7 +361,7 @@ const ReviewVotingPage = ({classes}: {
       <p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
       <ul>
         <li>
-          Vote on posts they think are worth considering as important intellectual progress.
+          Vote on posts that represent important intellectual progress.
         </li>
         <li>Write short reviews that explain why those posts seem important</li>
       </ul> 
