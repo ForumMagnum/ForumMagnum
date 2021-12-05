@@ -165,6 +165,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   faqQuestion: {
     color: theme.palette.primary.main
+  },
+  postCount: {
+    ...theme.typography.commentStyle,
+    marginLeft: 10,
+    color: theme.palette.grey[600]
   }
 });
 
@@ -421,10 +426,7 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.menu}>
-            <Button disabled={!expandedPost} onClick={()=>{
-              setExpandedPost(null)
-              captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
-            }}>Show Instructions</Button>
+            {!!posts && <div className={classes.postCount}>{posts.length} Nominated Posts</div>}
             
             {/* Turned off for the Preliminary Voting phase */}
             {getReviewPhase() !== "NOMINATIONS" && <>
