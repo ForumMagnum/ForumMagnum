@@ -66,12 +66,12 @@ const getClientBundle = () => {
 class ApolloServerLogging {
   requestDidStart(context: any) {
     const {request} = context;
-    const {operationName, queryString, variables} = request;
-    logGraphqlQueryStarted(operationName, queryString, variables);
+    const {operationName, query, variables} = request;
+    logGraphqlQueryStarted(operationName, query, variables);
     
     return {
       willSendResponse(props) {
-        logGraphqlQueryFinished(operationName, queryString);
+        logGraphqlQueryFinished(operationName, query);
       }
     };
   }
