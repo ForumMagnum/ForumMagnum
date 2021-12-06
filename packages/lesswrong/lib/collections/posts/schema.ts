@@ -582,7 +582,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted
+      filterFn: comment => !comment.deleted && !!comment.reviewingForReview
     }),
     canRead: ['guests'],
   },

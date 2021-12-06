@@ -167,8 +167,8 @@ export const overviewTooltip = isEAForum ?
     <p>We're currently in the preliminary voting phase. Nominate posts by casting a preliminary vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
   </div>
 
-const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
-  const { SectionTitle, SettingsButton, SingleColumnSection, RecommendationsList, LWTooltip } = Components
+const FrontpageReviewWidget = ({classes, showRecommendations=true, showDashboardButton=true}: {classes: ClassesType, showRecommendations?: boolean, showDashboardButton?: boolean}) => {
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -246,16 +246,16 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
   }
 
   return (
-    <SingleColumnSection>
+    <div>
       <SectionTitle 
         title={<LWTooltip title={overviewTooltip} placement="bottom-start">
-          <Link to={reviewPostPath}>
+          <Link to={reviewPostPath || ""}>
             {REVIEW_NAME_TITLE}
           </Link>
         </LWTooltip>}
       >
         <LWTooltip title={overviewTooltip}>
-          <Link to={reviewPostPath}>
+          <Link to={reviewPostPath || ""}>
             <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
           </Link>
         </LWTooltip>
@@ -264,7 +264,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         <div className={classes.nominationBlock}>
           <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
             <div className={classNames(classes.blockText, classes.blockLabel)}>Preliminary Voting</div>
-            <div className={classes.blockText}>{nominationEndDate.format('MMM Do')}</div>
+            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDate.format('MMM Do')}</div>
             {activeRange === "NOMINATIONS" && <div
               className={classes.coloredProgress}
               style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}
@@ -274,24 +274,24 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
         <div className={classes.reviewBlock}>     
           <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
             <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
-            <div className={classes.blockText}>{reviewEndDate.format('MMM Do')}</div>
+            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
             {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
           </LWTooltip>   
         </div>
         <div className={classes.votingBlock}>
           <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "VOTING"})}>
             <div className={classNames(classes.blockText, classes.blockLabel)}>Final Voting</div>
-            <div className={classes.blockText}>{voteEndDate.format('MMM Do')}</div>
+            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDate.format('MMM Do')}</div>
             {activeRange === "VOTING" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
           </LWTooltip>
         </div>
       </div>
       
       {/* Post list */}
-      <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
+      {showRecommendations && <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
         {/* TODO:(Review) I think we can improve this */}
         <RecommendationsList algorithm={getReviewAlgorithm()} />
-      </AnalyticsContext>
+      </AnalyticsContext>}
 
       {/* TODO: Improve logged out user experience */}
       
@@ -306,8 +306,8 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
             All {isEAForum ? 'Eligible' : REVIEW_YEAR} Posts
           </Link>
         </LWTooltip>
-        <LWTooltip title={<div>
-          <p>Nominations Dashboard</p>
+        {showDashboardButton && <LWTooltip title={<div>
+          <p>Reviews Dashboard</p>
           <ul>
             <li>View all posts with at least one preliminary vote.</li>
             <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
@@ -317,7 +317,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
           <Link to={"/reviewVoting/2020"} className={classNames(classes.actionButtonCTA, classes.hideOnMobile)}>
             Vote on nominated posts
           </Link>
-        </LWTooltip>
+        </LWTooltip>}
       </div>}
       
       {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
@@ -331,7 +331,7 @@ const FrontpageReviewWidget = ({classes}: {classes: ClassesType}) => {
           Vote on {REVIEW_YEAR} Posts
         </Link>
       </div>}
-    </SingleColumnSection>
+    </div>
   )
 }
 
