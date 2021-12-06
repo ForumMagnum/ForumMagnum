@@ -6,6 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 
 import { Posts } from '../../lib/collections/posts/collection'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers'
+import { userHasMinPostKarma } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
@@ -30,13 +31,24 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
   const { flash } = useMessages();
   const { history } = useNavigation();
   const { openDialog } = useDialog();
-  const { PostSubmit, SubmitToFrontpageCheckbox, LWDialog } = Components
-  
+  const { PostSubmit, SubmitToFrontpageCheckbox, LWDialog, KarmaThresholdNotice } = Components
+
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   });
   
+  if (!userHasMinPostKarma(currentUser!)) {
+    return (<LWDialog
+      open={true}
+      maxWidth={false}
+      onClose={onClose}
+      fullScreen={fullScreen}
+    >
+      <KarmaThresholdNotice thresholdType="post" disabledAbility="post questions" />
+    </LWDialog>)
+  }
+
   const QuestionSubmit = (props) => {
     return <div className={classes.formSubmit}>
       <SubmitToFrontpageCheckbox {...props}/>

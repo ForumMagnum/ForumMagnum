@@ -1,6 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { userHasMinCommentKarma } from '../../lib/collections/users/helpers'
+import { useCurrentUser } from '../common/withUser'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,7 +34,12 @@ const ShortformSubmitForm = ({ successCallback, classes }: {
   successCallback?: any,
   classes: ClassesType,
 }) => {
-  const { CommentsNewForm } = Components;
+  const { CommentsNewForm, KarmaThresholdNotice } = Components;
+  const currentUser = useCurrentUser();
+
+  if (!userHasMinCommentKarma(currentUser!)) {
+    return (<KarmaThresholdNotice thresholdType="comment" disabledAbility="write on Shortform" />);
+  }
 
   return (
     <div className={classes.root}>

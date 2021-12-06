@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { userCanDo, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
-import { userIsAllowedToComment } from '../users/helpers';
+import { userIsAllowedToComment, userHasMinCommentKarma } from '../users/helpers';
 import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
@@ -9,7 +9,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: async (user: DbUser|null, document: DbComment|null) => {
     if (!user) return false;
-
+    if (!userHasMinCommentKarma(user)) return false;
     if (!document || !document.postId) return userCanDo(user, 'comments.new')
     const post = await mongoFindOne("Posts", document.postId)
     if (!post) return true

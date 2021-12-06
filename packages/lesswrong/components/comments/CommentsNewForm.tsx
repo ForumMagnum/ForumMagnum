@@ -9,7 +9,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import { userIsAllowedToComment, userHasMinCommentKarma } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
@@ -73,7 +73,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, KarmaThresholdNotice } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -151,6 +151,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
   // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
   if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
+  }
+
+  if (!userHasMinCommentKarma(currentUser!)) {
+    return (<KarmaThresholdNotice thresholdType="comment" disabledAbility="comment" />);
   }
 
   const commentWillBeHidden = hideUnreviewedAuthorCommentsSettings.get() && currentUser && !currentUser.isReviewed

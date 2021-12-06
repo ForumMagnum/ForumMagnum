@@ -62,6 +62,8 @@ export const hideUnreviewedAuthorCommentsSettings = new DatabasePublicSetting<bo
 export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('cloudinary.cloudName', 'lesswrong-2-0') // Cloud name for cloudinary hosting
 
 export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('forum.numberOfDays', 10) // Number of days to display in the timeframe view
+export const minNewPostKarmaSetting = new DatabasePublicSetting<number>('forum.minimumNewPostKarma', Number.NEGATIVE_INFINITY)
+export const minNewCommentKarmaSetting = new DatabasePublicSetting<number>('forum.minimumNewCommentKarma', Number.NEGATIVE_INFINITY) // also applies to shortforms
 
 export const localeSetting = new DatabasePublicSetting<string>('locale', 'en-US')
 export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('legacyRouteAcronym', 'lw') // Because the EA Forum was identical except for the change from /lw/ to /ea/

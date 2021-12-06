@@ -6,7 +6,6 @@ import { userGetDisplayName } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 
-
 // EXAMPLE-FORUM Helpers
 
 //////////////////

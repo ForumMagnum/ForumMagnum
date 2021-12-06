@@ -4,6 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { userHasMinPostKarma } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
@@ -29,7 +30,8 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, SingleColumnSection, KarmaThresholdNotice } = Components
+
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
@@ -46,7 +48,10 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     fragmentName: 'SuggestAlignmentPost',
   })
 
-  
+  if (!userHasMinPostKarma(currentUser!)) {
+    return <SingleColumnSection><KarmaThresholdNotice thresholdType="post" disabledAbility="post" /></SingleColumnSection>
+  }
+
   return (
     <div className={classes.postForm}>
       <NoSsr>
