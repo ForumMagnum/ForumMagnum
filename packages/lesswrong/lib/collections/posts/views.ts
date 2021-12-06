@@ -868,7 +868,6 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   }
   return query
 })
-// to do remove the old index
 ensureIndex(Posts,
   augmentForDefaultView({ globalEvent:1, startTime:1 }),
   { name: "posts.globalEvents" }
