@@ -30,7 +30,7 @@ declare global {
     sortByMost?: boolean,
     sortedBy?: string,
     af?: boolean,
-    includeEvents?: boolean,
+    excludeEvents?: boolean,
     onlineEvent?: boolean,
     globalEvent?: boolean,
     groupId?: string,
@@ -144,7 +144,7 @@ export const sortings = {
  */
 Posts.addDefaultView((terms: PostsViewTerms) => {
   const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), includeEvents, and
+  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
@@ -170,7 +170,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
   }
-  if (!terms.includeEvents) {
+  if (terms.excludeEvents) {
     params.selector.isEvent = false
   }
   if (terms.userId) {
