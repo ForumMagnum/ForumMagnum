@@ -203,7 +203,7 @@ const ReviewVotingPage = ({classes}: {
       view: "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-      limit: 300
+      limit: 1000
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
@@ -213,7 +213,7 @@ const ReviewVotingPage = ({classes}: {
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: REVIEW_YEAR+""},
+    terms: {view: "reviewVotesFromUser", limit: 1000, userId: currentUser?._id, year: REVIEW_YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     // network-only is to fix a bug that occurred when a user nominated a post
