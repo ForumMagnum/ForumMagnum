@@ -411,7 +411,7 @@ const ReviewVotingPage = ({classes}: {
         Voting is not available on small screens. You can still vote on individual posts, however.
       </div>
       <div className={classes.grid}>
-      <div className={classes.leftColumn}>
+        <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <div className={classes.widget}>
               <FrontpageReviewWidget showRecommendations={false} showDashboardButton={false}/>
