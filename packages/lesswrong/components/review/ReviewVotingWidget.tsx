@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { ReviewVote } from './ReviewVotingPage';
+import { ReviewVotePart } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { overviewTooltip } from './FrontpageReviewWidget';
@@ -66,11 +66,10 @@ const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, p
 
   if (voteLoadingError) return <div>{voteLoadingError.message}</div>
   const vote = votes?.length ? {
-    _id: votes[0]._id, 
     postId: votes[0].postId, 
     score: votes[0].qualitativeScore, 
-    type: "qualitative"
-  } as ReviewVote : null
+    type: "QUALITATIVE" as const,
+  } : null
 
   return <ErrorBoundary>
       <div className={classes.root}>

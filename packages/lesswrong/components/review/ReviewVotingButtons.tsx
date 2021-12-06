@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { ReviewVote } from './ReviewVotingPage';
+import type { ReviewVotePart } from './ReviewVotingPage';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import forumThemeExport from '../../themes/forumTheme';
@@ -61,7 +61,7 @@ export const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVote|null}) => {
+const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVotePart|null}) => {
   const { LWTooltip } = Components
   const score = voteForCurrentPost?.score
   const [selection, setSelection] = useState(voteForCurrentPost ? score : DEFAULT_QUALITATIVE_VOTE)
