@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -27,7 +27,11 @@ const styles = (theme: ThemeType) => ({
   postVote: {
     display: "flex",
     justifyContent: "flex-end",
-    alignItems: "center"
+    alignItems: "center",
+    [theme.breakpoints.down('xs')]: {
+      flexWrap: "wrap",
+      background: "rgba(0,0,0,.05)"
+    }
   },
   post: {
     padding: 16,
@@ -35,7 +39,12 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 8,
     paddingRight: 10,
     maxWidth: "calc(100% - 240px)",
-    marginRight: "auto"
+    marginRight: "auto",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: "unset",
+      width: "100%",
+      background: "white"
+    }
   },
   expand: {
     display:"none",
@@ -120,33 +129,31 @@ const ReviewVoteTableRow = (
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
-      <div className={classes.topRow}>
-        <div className={classes.postVote}>
-          <div className={classes.post}>
-            <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-              <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
-            </LWTooltip>
-          </div>
-          <PostsItemComments
-            small={false}
-            commentCount={postGetCommentCount(post)}
-            unreadComments={post.lastVisitedAt < post.lastCommentedAt}
-            newPromotedComments={false}
-          />
-          <PostsItem2MetaInfo className={classes.count}>
-            <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
-              { post.reviewCount }
-            </LWTooltip>
-          </PostsItem2MetaInfo>
-          <div className={classes.votes}>
-            {!currentUserIsAuthor && <div>{useQuadratic ?
-              <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
-              <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />}
-            </div>}
-            {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
-          </div>
-
+      <div className={classes.postVote}>
+        <div className={classes.post}>
+          <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+            <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
+          </LWTooltip>
         </div>
+        <PostsItemComments
+          small={false}
+          commentCount={postGetCommentCount(post)}
+          unreadComments={post.lastVisitedAt < post.lastCommentedAt}
+          newPromotedComments={false}
+        />
+        <PostsItem2MetaInfo className={classes.count}>
+          <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
+            { post.reviewCount }
+          </LWTooltip>
+        </PostsItem2MetaInfo>
+        <div className={classes.votes}>
+          {!currentUserIsAuthor && <div>{useQuadratic ?
+            <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
+            <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />}
+          </div>}
+          {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+        </div>
+
       </div>
     </div>
   </AnalyticsContext>
