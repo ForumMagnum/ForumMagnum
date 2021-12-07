@@ -30,6 +30,7 @@ declare global {
     sortByMost?: boolean,
     sortedBy?: string,
     af?: boolean,
+    excludeEvents?: boolean,
     onlineEvent?: boolean,
     groupId?: string,
     lat?: number,
@@ -45,6 +46,8 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     timeField?: keyof DbPost,
+    postIds?: Array<string>,
+    reviewYear?: number
   }
 }
 
@@ -80,7 +83,8 @@ export const filters: Record<string,any> = {
     hiddenRelatedQuestion: viewFieldAllowAny
   },
   "events": {
-    isEvent: true
+    isEvent: true,
+    groupId: null
   },
   "meta": {
     meta: true
@@ -90,6 +94,10 @@ export const filters: Record<string,any> = {
   },
   "unnominated2019": {
     nominationCount2019: 0
+  },
+  // TODO(Review) is this indexed?
+  "unnominated": {
+    positiveReviewVoteCount: 0
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -135,7 +143,7 @@ export const sortings = {
  */
 Posts.addDefaultView((terms: PostsViewTerms) => {
   const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), and
+  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
@@ -160,6 +168,9 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
+  }
+  if (terms.excludeEvents) {
+    params.selector.isEvent = false
   }
   if (terms.userId) {
     params.selector.hideAuthor = false
@@ -389,12 +400,6 @@ ensureIndex(Posts,
   augmentForDefaultView({ tagRelevance: 1 }),
   {
     name: "posts.tagRelevance"
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({"tagRelevance.tNsqhzTibgGJKPEWB": 1, question: 1}),
-  {
-    name: "posts.coronavirus_questions"
   }
 );
 ensureIndex(Posts,
@@ -724,6 +729,28 @@ Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
   }
 });
 ensureIndex(Posts, {legacyId: "hashed"});
+
+
+// Corresponds to the postCommented subquery in recentDiscussionFeed.ts
+ensureIndex(Posts,
+  {
+    status: 1,
+    isFuture: 1,
+    draft: 1,
+    unlisted: 1,
+    authorIsUnreviewed: 1,
+    hideFrontpageComments: 1,
+    
+    lastCommentedAt: -1,
+    _id: 1,
+    
+    baseScore: 1,
+    af: 1,
+    isEvent: 1,
+    onlineEvent: 1,
+    commentCount: 1,
+  },
+);
 
 const recentDiscussionFilter = {
   baseScore: {$gt:0},
@@ -1231,3 +1258,42 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
     },
   }
 ));
+
+// used to find a user's upvoted posts, so they can nominate them for the Review
+Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: ResolverContext) => {
+  return {
+    selector: {
+      _id: {$in: terms.postIds},
+      userId: {$ne: context.currentUser?._id,},
+      isEvent: false
+    },
+    options: {
+      sort: {
+        baseScore: -1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ _id: 1, userId: 1, isEvent:1, baseScore:1 }),
+  { name: "posts.nominatablePostsByVote", }
+);
+
+
+// Nominations for the (≤)2020 review are determined by the number of votes
+Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      positiveReviewVoteCount: { $gt: 0 },
+    },
+    options: {
+      sort: {
+        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
+);

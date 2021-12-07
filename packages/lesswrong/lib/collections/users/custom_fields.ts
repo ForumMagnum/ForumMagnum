@@ -314,6 +314,14 @@ addFieldsDict(Users, {
     canCreate: 'guests',
     hidden: true,
   },
+  allPostsIncludeEvents: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   allPostsOpenSettings: {
     type: Boolean,
     optional: true,
@@ -1259,6 +1267,13 @@ addFieldsDict(Users, {
     hidden: true
   },
   reviewVotesQuadratic2019: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
+  reviewVotesQuadratic2020: {
     type: Boolean,
     optional: true,
     canRead: ['guests'],

@@ -3,6 +3,8 @@ import { schemaDefaultValue } from '../../collectionUtils';
 
 import SimpleSchema from 'simpl-schema'
 
+export const DEFAULT_QUALITATIVE_VOTE = 4
+
 const schema: SchemaType<DbReviewVote> = {
   createdAt: {
     type: Date,
@@ -36,7 +38,7 @@ const schema: SchemaType<DbReviewVote> = {
     type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
     optional: true,
-    ...schemaDefaultValue(1)
+    ...schemaDefaultValue(DEFAULT_QUALITATIVE_VOTE)
   },
   quadraticScore: {
     type: SimpleSchema.Integer, 

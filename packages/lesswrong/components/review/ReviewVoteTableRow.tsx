@@ -3,9 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { vote, quadraticVote } from './ReviewVotingPage';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import type { ReviewVote, quadraticVote } from './ReviewVotingPage';
+import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,21 +15,27 @@ const styles = (theme: ThemeType) => ({
         display: "block"
       }
     },
-    '&:hover $expandButtonWrapper': {
-      display: "block"
-    }
   },
   voteIcon: {
     padding: 0
   },
+  count: {
+    width: 30,
+    textAlign: "center",
+    marginRight: 8
+  },
   postVote: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center"
   },
   post: {
-    paddingRight: theme.spacing.unit*2,
-    maxWidth: "calc(100% - 100px)"
+    padding: 16,
+    paddingTop: 10,
+    paddingBottom: 8,
+    paddingRight: 10,
+    maxWidth: "calc(100% - 240px)",
+    marginRight: "auto"
   },
   expand: {
     display:"none",
@@ -44,11 +49,6 @@ const styles = (theme: ThemeType) => ({
   expanded: {
     backgroundColor: "#f0f0f0",
   },
-  topRow: {
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 10
-  },
   highlight: {
     padding: 16,
     background: "#f9f9f9",
@@ -59,7 +59,12 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     top: 0,
     height: "100%",
-    width: 6
+    width: 6,
+    background: "#bbb"
+  },
+  expandIcon: {
+    color: theme.palette.grey[500],
+    width: 36,
   },
   bigUpvote: {
     background: theme.palette.primary.dark
@@ -73,57 +78,46 @@ const styles = (theme: ThemeType) => ({
   smallDownvote: {
     background: theme.palette.error.light
   },
-  expandButtonWrapper: {
-    position: "absolute",
-    left: -52,
-    padding: 8,
-    display: "none",
-    cursor: "pointer"
-  },
-  expandIcon: {
-    color: theme.palette.grey[500],
-    width: 36,
+  votes: {
+    backgroundColor: "rgba(0,0,0,.05)",
+    padding: 10,
+    alignSelf: "stretch",
+    display: "flex",
+    alignItems: "center"
   }
 });
 
 const ReviewVoteTableRow = (
   { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, showKarmaVotes }: {
     post: PostsListWithVotes,
-    dispatch: React.Dispatch<vote>,
+    dispatch: React.Dispatch<ReviewVote>,
     dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
-    expandedPostId: string,
-    currentQualitativeVote: vote|null,
+    expandedPostId?: string|null,
+    currentQualitativeVote: ReviewVote|null,
     currentQuadraticVote: quadraticVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsHighlight } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo } = Components
 
   const currentUser = useCurrentUser()
-  const [showPost, setShowPost] = useState(false)
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
 
   const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
 
+  const voteMap = {
+    'bigDownvote': 'a strong downvote',
+    'smallDownvote': 'a downvote',
+    'smallUpvote': 'an upvote',
+    'bigUpvote': 'a strong upvote'
+  }
+
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
-      {showPost ? 
-        <div className={classes.expandButtonWrapper}>
-          <LWTooltip title="Click to hide post" placement="top">
-            <ExpandLessIcon className={classes.expandIcon} onClick={() => setShowPost(false)}/>
-          </LWTooltip>
-        </div>
-        :
-        <div className={classes.expandButtonWrapper}>
-          <LWTooltip title="Click to expand post" placement="top">
-            <ExpandMoreIcon className={classes.expandIcon} onClick={() => setShowPost(true)}/>
-          </LWTooltip>
-        </div>
-      }
-      {showKarmaVotes && post.currentUserVote && <LWTooltip title={post.currentUserVote} placement="left" inlineBlock={false}>
+      {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
       <div className={classes.topRow}>
@@ -133,19 +127,27 @@ const ReviewVoteTableRow = (
               <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
             </LWTooltip>
           </div>
-          {!currentUserIsAuthor && <div>
-              {useQuadratic ?
-                <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
-                <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />
-              }
-          </div>}
-          {currentUserIsAuthor && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
+          <PostsItemComments
+            small={false}
+            commentCount={postGetCommentCount(post)}
+            unreadComments={post.lastVisitedAt < post.lastCommentedAt}
+            newPromotedComments={false}
+          />
+          <PostsItem2MetaInfo className={classes.count}>
+            <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
+              { post.reviewCount }
+            </LWTooltip>
+          </PostsItem2MetaInfo>
+          <div className={classes.votes}>
+            {!currentUserIsAuthor && <div>{useQuadratic ?
+              <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
+              <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />}
+            </div>}
+            {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
+          </div>
+
         </div>
       </div>
-      {showPost && <div className={classes.highlight}>
-        <PostsHighlight post={post} maxLengthWords={300} forceSeeMore /> 
-        </div>
-      }
     </div>
   </AnalyticsContext>
 }

@@ -392,7 +392,7 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarIcon } = (Components as ComponentTypes)
+    AddToCalendarIcon, PostsItemReviewVote } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -501,20 +501,19 @@ const PostsItem2 = ({
                   unreadComments={hasUnreadComments()}
                   newPromotedComments={hasNewPromotedComments()}
                 />}
-
+                <PostsItemReviewVote post={post}/>
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
                     {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                    {/* TODO:(Review) still 2019 */}
                     {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
-
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}
-
                 <div className={classes.mobileDismissButton}>
                   {dismissButton}
                 </div>
@@ -536,7 +535,6 @@ const PostsItem2 = ({
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
-
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}

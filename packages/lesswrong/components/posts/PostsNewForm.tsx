@@ -115,7 +115,9 @@ const PostsNewForm = ({classes}: {
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = {
     isEvent: query && !!query.eventForm,
+    activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
+    globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
     af: af || (query && !!query.af),

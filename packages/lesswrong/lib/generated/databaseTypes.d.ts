@@ -354,6 +354,9 @@ interface DbPost extends DbObject {
   nominationCount2019: number
   reviewCount2018: number
   reviewCount2019: number
+  reviewCount: number
+  reviewVoteCount: number
+  positiveReviewVoteCount: number
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean
@@ -407,6 +410,7 @@ interface DbPost extends DbObject {
   endTime: Date
   localEndTime: Date
   onlineEvent: boolean
+  globalEvent: boolean
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   location: string
@@ -537,6 +541,7 @@ interface DbSequence extends DbObject {
   isDeleted: boolean
   canonicalCollectionSlug: string
   hidden: boolean
+  hideFromAuthorPage: boolean
   contents: EditableFieldContents
   af: boolean
 }
@@ -651,6 +656,7 @@ interface DbUser extends DbObject {
   allPostsFilter: string
   allPostsSorting: string
   allPostsShowLowKarma: boolean
+  allPostsIncludeEvents: boolean
   allPostsOpenSettings: boolean
   lastNotificationsCheck: Date
   bio: string
@@ -733,6 +739,7 @@ interface DbUser extends DbObject {
   beta: boolean
   reviewVotesQuadratic: boolean
   reviewVotesQuadratic2019: boolean
+  reviewVotesQuadratic2020: boolean
   petrovPressedButtonDate: Date
   petrovLaunchCodeDate: Date
   defaultToCKEditor: boolean

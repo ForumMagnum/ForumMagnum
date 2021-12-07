@@ -80,6 +80,7 @@ registerFragment(`
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
+    allPostsIncludeEvents
     allPostsOpenSettings
     lastNotificationsCheck
     bannedUserIds
@@ -133,6 +134,7 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     reviewVotesQuadratic2019
+    reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
 

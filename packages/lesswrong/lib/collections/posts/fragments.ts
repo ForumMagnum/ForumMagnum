@@ -55,6 +55,7 @@ registerFragment(`
     location
     googleLocation
     onlineEvent
+    globalEvent
     startTime
     endTime
     localStartTime
@@ -92,6 +93,9 @@ registerFragment(`
     reviewCount2018
     nominationCount2019
     reviewCount2019
+    reviewCount
+    reviewVoteCount
+    positiveReviewVoteCount
 
     group {
       _id
@@ -136,6 +140,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    currentUserReviewVote
     moderationGuidelines {
       _id
       html
@@ -454,4 +459,3 @@ registerFragment(`
     }
   }
 `);
-

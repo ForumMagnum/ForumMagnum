@@ -725,6 +725,19 @@ addFieldsDict(Posts, {
     order: 0,
     ...schemaDefaultValue(false),
   },
+  
+  globalEvent: {
+    type: Boolean,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    group: formGroups.event,
+    label: "This event is intended for a global audience",
+    tooltip: 'By default, events are only advertised to people who are located nearby (for both in-person and online events). Check this to advertise it people located anywhere.',
+    ...schemaDefaultValue(false),
+  },
 
   mongoLocation: {
     type: Object,

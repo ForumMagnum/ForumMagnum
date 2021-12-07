@@ -1,5 +1,8 @@
 import Users from '../../lib/collections/users/collection';
+import { Posts } from '../../lib/collections/posts/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { postPublishedCallback } from '../notificationCallbacks';
+import { batchUpdateScore } from '../updateScores';
 
 /**
  * @summary Update the karma of the item's owner
@@ -46,4 +49,20 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
   if (voter && voter.voteCount >= 20 && !voter.reviewedByUserId) {
     void Users.update({_id:voter._id}, {$set:{needsReview: true}})
   }
+});
+
+
+postPublishedCallback.add(async (publishedPost: DbPost) => {
+  // When a post is published (undrafted), update its score. (That is, recompute
+  // the time-decaying score used for sorting, since the time that's computed
+  // relative to has just changed).
+  //
+  // To do this, we mark it `inactive:false` and update the scores on the
+  // whole collection. (This is already something being done frequently by a
+  // cronjob.)
+  if (publishedPost.inactive) {
+    await Posts.update({_id: publishedPost._id}, {$set: {inactive: false}});
+  }
+  
+  await batchUpdateScore({collection: Posts});
 });

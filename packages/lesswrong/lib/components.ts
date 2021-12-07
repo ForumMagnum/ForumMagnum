@@ -205,6 +205,9 @@ importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCal
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
+importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
+importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));
+importComponent("UserSuggestNominations", () => require('../components/posts/UserSuggestNominations'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
@@ -495,6 +498,7 @@ importComponent("BigCollectionsCard", () => require('../components/collections/B
 importComponent("CoreSequences", () => require('../components/sequences/CoreSequences'));
 importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
+importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
@@ -550,10 +554,11 @@ importComponent("RecommendationsList", () => require('../components/recommendati
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 
-// 2018 Review Components
-importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
-importComponent("FrontpageReviewPhase", () => require('../components/review/FrontpageReviewPhase'));
-importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
+// Review Components
+// importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
+importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
+// importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
+importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));
 importComponent("Nominations2018", () => require('../components/review/Nominations2018'));
 importComponent("Nominations2019", () => require('../components/review/Nominations2019'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018'));
@@ -563,10 +568,15 @@ importComponent("ReviewPostForm", () => require('../components/review/ReviewPost
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem'));
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog'));
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
-importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
+importComponent("ReviewPostComments", () => require('../components/review/ReviewPostComments'));
 importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
+// importComponent("ReviewVotingPage2019", () => require('../components/review/ReviewVotingPage2019'))
 importComponent("ReviewVotingPage", () => require('../components/review/ReviewVotingPage'))
+importComponent("ReviewVotingExpandedPost", () => require('../components/review/ReviewVotingExpandedPost'))
 importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
+importComponent("ReviewVotingWidget", () => require('../components/review/ReviewVotingWidget'))
+
+
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
 importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))
@@ -589,6 +599,8 @@ importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Ale
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
 
 // Review Book related components
-importComponent("BookLanding", () => require('../components/books/BookLanding'));
+importComponent("Book2018Landing", () => require('../components/books/Book2018Landing'));
+importComponent("Book2019Landing", () => require('../components/books/Book2019Landing'));
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
+importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
