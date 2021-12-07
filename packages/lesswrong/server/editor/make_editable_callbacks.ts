@@ -488,7 +488,9 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
       }
 
-      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
+      if (newRevisionId) {
+        await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
+      }
 
       return {
         ...docData,
@@ -514,11 +516,13 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
-    await Revisions.update(
-      { _id: revisionID },
-      { $set: { documentId: newDoc._id } }
-    );
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
+    if (revisionID) {
+      await Revisions.update(
+        { _id: revisionID },
+        { $set: { documentId: newDoc._id } }
+      );
+      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
+    }
     return newDoc;
   });
 }

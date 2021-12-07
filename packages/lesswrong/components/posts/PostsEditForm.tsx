@@ -45,7 +45,18 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+  
+  // If logged out, show a login form. (Even if link-sharing is enabled, you still
+  // need to be logged into LessWrong with some account.)
+  if (!currentUser) {
+    return <Components.WrappedLoginForm />;
+  }
 
+  // If we only have read access to this post, but it's shared with us
+  // as a draft, redirect to the collaborative editor.
+  if (document && document.draft && document.userId!==currentUser?._id && document.sharingSettings) {
+    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
+  }
   
   return (
     <div className={classes.postForm}>
@@ -55,11 +66,15 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           documentId={documentId}
           queryFragment={getFragment('PostsEditQueryFragment')}
           mutationFragment={getFragment('PostsEditMutationFragment')}
-          successCallback={post => {
+          successCallback={(post, options) => {
             const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
             if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
-            flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
-            history.push({pathname: postGetPageUrl(post)});
+            if (options?.submitOptions?.redirectToEditor) {
+              history.push(`/editPost?postId=${post._id}`);
+            } else {
+              history.push({pathname: postGetPageUrl(post)})
+              flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
+            }
           }}
           eventForm={eventForm}
           removeSuccessCallback={({ documentId, documentTitle }) => {

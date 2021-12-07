@@ -125,7 +125,7 @@ const schema: SchemaType<DbPost> = {
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
-    group: formGroups.default,
+    group: formGroups.title,
   },
   // Slug
   slug: {

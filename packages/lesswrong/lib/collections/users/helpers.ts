@@ -35,7 +35,15 @@ export const userOwnsAndInGroup = (group: string) => {
 
 export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
   if (!currentUser) return false;
-  return document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)
+  
+  // Explicitly shared?
+  if (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) {
+    return !document.sharingSettings || document.sharingSettings.explicitlySharedUsersCan !== "none";
+  } else {
+    // If not individually shared with this user, still counts if shared if
+    // link sharing is enabled
+    return document.sharingSettings?.anyoneWithLinkCan && document.sharingSettings.anyoneWithLinkCan !== "none";
+  }
 }
 
 export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {

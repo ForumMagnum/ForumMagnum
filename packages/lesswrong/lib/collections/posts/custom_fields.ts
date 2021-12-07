@@ -9,10 +9,10 @@ import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeign
 import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
-import { postCanEditHideCommentKarma, isSharedWithUser } from './helpers';
+import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 
@@ -843,12 +843,13 @@ addFieldsDict(Posts, {
   sharingSettings: {
     type: Object,
     order: 16,
-    viewableBy: [userOwns, isSharedWithUser, 'admins'],
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
     editableBy: [userOwns, 'admins'],
+    insertableBy: ['members'],
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.options,
+    group: formGroups.title,
     blackbox: true,
   },
   

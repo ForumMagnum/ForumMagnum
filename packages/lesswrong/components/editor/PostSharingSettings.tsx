@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
+import { userCanUseSharing } from '../../lib/betas';
+import { useCurrentUser } from '../common/withUser';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -18,7 +20,7 @@ interface SharingSettings {
 }
 const defaultSharingSettings: SharingSettings = {
   anyoneWithLinkCan: "none",
-  explicitlySharedUsersCan: "none",
+  explicitlySharedUsersCan: "comment",
 };
 
 export function strongerAccessLevel(a: CollaborativeEditingAccessLevel|null, b: CollaborativeEditingAccessLevel|null): CollaborativeEditingAccessLevel {
@@ -52,6 +54,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   buttonRow: {
     marginTop: 16,
     marginLeft: "auto",
+    display: "flex",
+  },
+  spacer: {
+    flexGrow: 1,
   },
   linkSharingDescriptionPart: {
     display: "block",
@@ -67,7 +73,8 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   classes: ClassesType
 }, context) => {
   const {updateCurrentValues, submitForm} = context;
-  const {openDialog} = useDialog();
+  const {openDialog, closeDialog} = useDialog();
+  const currentUser = useCurrentUser();
   //const [hasUnsavedPermissionsChanges, setHasUnsavedPermissionsChanges] = useState(false);
   const hasUnsavedPermissionsChanges = false;
   const initialSharingSettings = value || defaultSharingSettings;
@@ -84,30 +91,31 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       componentProps: {
         postId: document._id,
         initialSharingSettings,
-        onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
-          if (isChanged) {
+        onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
+          if (isChanged || formType==="new") {
             console.log("Confirmed changes to sharing settings. Updating form.");
             console.log(newSharingSettings);
             console.log(newSharedUsers);
-            updateCurrentValues({
+            await updateCurrentValues({
               sharingSettings: newSharingSettings,
               shareWithUsers: newSharedUsers
             });
-            //setHasUnsavedPermissionsChanges(true);
             
             // If this is an unbacked post (ie a new-post form,
             // no corresponding document ID yet), we're going to
             // mark it as a draft, then submit the form.
             if (formType==="new") {
               console.log("Shared an unbacked draft. Saving.");
-              updateCurrentValues({ draft: true });
-              submitForm();
+              await updateCurrentValues({ draft: true });
+              await submitForm(null, {redirectToEditor: true});
             } else {
               // Otherwise we're going to leave whether-this-is-a-draft
               // unchanged, and subimt the form.
               console.log("Shared an existing post. Saving.");
-              submitForm();
+              await submitForm(null, {redirectToEditor: true});
             }
+            
+            closeDialog();
           }
         },
         initialShareWithUsers: document.shareWithUsers || [],
@@ -116,13 +124,13 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
     });
   }, [openDialog, formType, document, updateCurrentValues, initialSharingSettings]);
   
+  if (!userCanUseSharing(currentUser))
+    return null;
+  
   return <div className={classes.shareButtonSection}>
     <Button color="primary" onClick={onClickShare}>
       Share
     </Button>
-    <div onClick={onClickShare}>
-      <PreviewSharingSettings sharingSettings={value} unsavedChanges={hasUnsavedPermissionsChanges} classes={classes}/>
-    </div>
   </div>
 }
 
@@ -155,23 +163,6 @@ const PreviewSharingSettings = ({sharingSettings, unsavedChanges, classes}: {
   return <div/>
 }
 
-
-const PostSharingSaveFirstDialog = ({onClose, classes}: {
-  onClose: ()=>void,
-  classes: ClassesType
-}) => {
-  const { LWDialog } = Components;
-  
-  const onClickDone = useCallback(() => {
-    // TODO: Trigger a form submission to save a backing draft
-    onClose();
-  }, [onClose]);
-  
-  return <LWDialog open={true} onClose={onClose}>
-    <p>Please save this post as a draft before sharing it.</p>
-    <Button onClick={onClickDone}>Ok</Button>
-  </LWDialog>
-}
 
 const PostSharingSettingsDialog = ({postId, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
   postId: string,
@@ -248,18 +239,20 @@ const PostSharingSettingsDialog = ({postId, initialSharingSettings, initialShare
         </Select>
       </div>
       
-      {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && <div>
-        <CopyToClipboard
-          text={collabEditorLink}
-          onCopy={(text,result) => {
-            flash("Link copied");
-          }}
-        >
-          <Button>Copy link</Button>
-        </CopyToClipboard>
-      </div>}
-      
       <div className={classes.buttonRow}>
+        {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" &&
+          <CopyToClipboard
+            text={collabEditorLink}
+            onCopy={(text,result) => {
+              flash("Link copied");
+            }}
+          >
+            <Button>Copy link</Button>
+          </CopyToClipboard>
+        }
+        
+        <span className={classes.spacer}/>
+        
         <Button color="primary"
           onClick={() => onConfirm(sharingSettings, shareWithUsers, isChanged)}
         >
@@ -277,12 +270,10 @@ const PostSharingSettingsDialog = ({postId, initialSharingSettings, initialShare
 
 const PostSharingSettingsComponent = registerComponent('PostSharingSettings', PostSharingSettings, {styles});
 const PostSharingSettingsDialogComponent = registerComponent('PostSharingSettingsDialog', PostSharingSettingsDialog, {styles});
-const PostSharingSaveFirstDialogComponent = registerComponent('PostSharingSaveFirstDialog', PostSharingSaveFirstDialog, {styles});
 
 declare global {
   interface ComponentTypes {
     PostSharingSettings: typeof PostSharingSettingsComponent,
     PostSharingSettingsDialog: typeof PostSharingSettingsDialogComponent
-    PostSharingSaveFirstDialog: typeof PostSharingSaveFirstDialogComponent
   }
 }

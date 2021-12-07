@@ -180,14 +180,3 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
 
-
-export const isSharedWithUser = (user: UsersMinimumInfo|DbUser|null, document: DbPost) => {
-  if (!user) {
-    return false;
-  }
-  if (!document.shareWithUsers) {
-    return false;
-  }
-  
-  return _.any(document.shareWithUsers, userId=>userId===user._id);
-}
