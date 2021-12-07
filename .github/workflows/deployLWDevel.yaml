@@ -4,7 +4,7 @@
 name: Deploy LW-Devel
 on:
   push:
-    branches: [ deployLessestWrong, devel, review-2020 ]
+    branches: [ deployLessestWrong, devel, master, review-2020 ]
 jobs:
   deploy: 
     runs-on: ubuntu-latest
