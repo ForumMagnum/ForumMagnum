@@ -100,6 +100,7 @@ registerFragment(`
     group {
       _id
       name
+      organizerIds
     }
   }
 `);

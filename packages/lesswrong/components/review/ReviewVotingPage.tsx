@@ -424,7 +424,7 @@ const ReviewVotingPage = ({classes}: {
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <div className={classes.widget}>
-              <FrontpageReviewWidget showRecommendations={false} showDashboardButton={false}/>
+              <FrontpageReviewWidget showFrontpageItems={false}/>
             </div>
             {instructions}
             <SectionTitle title="Reviews">
@@ -518,9 +518,9 @@ const ReviewVotingPage = ({classes}: {
   );
 }
 
-function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
-  const randomPermutation = generatePermutation(posts.length, currentUser);
-  const result = posts.map(
+function getPostOrder(posts: Array<PostsList> | null, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> | null {
+  const randomPermutation = generatePermutation(posts?.length || 0, currentUser);
+  const result = posts?.map(
     (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
       const voteForPost = votes.find(vote => vote.postId === post._id)
       const  voteScore = voteForPost ? voteForPost.score : 1;
