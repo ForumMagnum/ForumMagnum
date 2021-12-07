@@ -509,7 +509,7 @@ const ReviewVotingPage = ({classes}: {
 }
 
 function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
-  const randomPermutation = generatePermutation(posts.length, currentUser);
+  const randomPermutation = generatePermutation(posts?.length, currentUser);
   const result = posts.map(
     (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
       const voteForPost = votes.find(vote => vote.postId === post._id)
