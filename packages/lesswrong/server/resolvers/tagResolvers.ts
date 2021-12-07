@@ -3,7 +3,7 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Votes } from '../../lib/collections/votes/collection';
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, augmentFieldsDict } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
@@ -16,6 +16,7 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
+import Users from '../../lib/collections/users/collection';
 
 addGraphQLSchema(`
   type TagUpdates {
@@ -27,6 +28,7 @@ addGraphQLSchema(`
     lastCommentedAt: Date
     added: Int
     removed: Int
+    users: [User!]
   }
 `);
 
@@ -57,9 +59,14 @@ addGraphQLResolvers({
         tagId: {$exists: true, $ne: null},
       }).fetch();
       
+      const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])
+      const usersAll = await context.loaders.Users.loadMany(userIds)
+      const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
+      
       // Get the tags themselves
       const tagIds = _.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]);
-      const tags = await context.loaders.Tags.loadMany(tagIds);
+      const tagsAll = await context.loaders.Tags.loadMany(tagIds);
+      const tags = await accessFilterMultiple(context.currentUser, Tags, tagsAll, context);
       
       return tags.map(tag => {
         const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
@@ -74,6 +81,7 @@ addGraphQLResolvers({
           lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
           added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
           removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
+          users: users,
         };
       });
     },
@@ -272,4 +280,3 @@ export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
   }});
   return html;
 }
-
