@@ -12,12 +12,15 @@ const styles = theme => ({
     textAlign: "left",
     height: 28,
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    paddingLeft: 6
   },
   lastReview: {
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    fontStyle: "italic"
+    color: theme.palette.grey[600]
+  },
+  title: {
+    color: theme.palette.primary.main
   }
 })
 
@@ -37,7 +40,7 @@ const LatestReview = ({classes}) => {
 
   return <ErrorBoundary><div className={classes.root}>
     <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingleWithComment postId={comment.postId} commentId={comment._id}/>}>
-      <Link to={postGetPageUrl(comment.post)} className={classes.lastReview}>Latest Review: {comment.post.title} <FormatDate date={comment.postedAt}/></Link>
+      <Link to={postGetPageUrl(comment.post)} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link>
     </LWTooltip>
   </div></ErrorBoundary>
 }
