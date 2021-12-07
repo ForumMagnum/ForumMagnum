@@ -23,7 +23,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
-import { sortBy } from 'lodash';
+import orderBy from 'lodash/orderBy'
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
@@ -185,17 +185,18 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
 
-  let { results: posts, loading: postsLoading } = useMulti({
+  let { results: postsResults, loading: postsLoading } = useMulti({
     terms: {
       view: "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-      limit: 300
+      limit: 20
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
     // network-only is to fix a bug that occurred when a user nominated a post
     // and then visited this page. The inconsistent state caused an error
+    // TODO;
     fetchPolicy: 'network-only',
   });
   
@@ -221,6 +222,7 @@ const ReviewVotingPage = ({classes}: {
     }
   });
 
+  const [posts, setSortedPosts] = useState(postsResults)
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
   const [sortReviews, setSortReviews ] = useState<string>("new")
@@ -258,7 +260,8 @@ const ReviewVotingPage = ({classes}: {
 
   const reSortPosts = () => {
     // This should be the same sorting as in the view
-    posts = sortBy(posts, ['reviews', 'baseScore'])
+    const sortedPosts = orderBy(posts, ['reviewCount', 'positiveReviewVoteCount', 'baseScore'], ['desc', 'desc', 'desc'])
+    setSortedPosts(sortedPosts)
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }
 
@@ -407,23 +410,23 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>}
               {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
                 <Button className={classes.convert} onClick={async () => {
-                    handleSetUseQuadratic(false)
-                    captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
+                  handleSetUseQuadratic(false)
+                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
                 }}>
                   <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
                 </Button>
               </LWTooltip>}
               {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
-                  <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
-                    {voteTotal}/500
-                  </div>
+                <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+                  {voteTotal}/500
+                </div>
               </LWTooltip>}
               {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
-                  <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
-                  <p>If the average of your votes is above 1 or below -1, you are always better off shifting all of your votes by 1 to move closer to an average of 0.</p></div>}>
-                  <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
-                    Avg: {(voteTotal / posts.length).toFixed(2)}
-                  </div>
+                <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
+                <p>If the average of your votes is above 1 or below -1, you are always better off shifting all of your votes by 1 to move closer to an average of 0.</p></div>}>
+                <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
+                  Avg: {(voteTotal / posts.length).toFixed(2)}
+                </div>
               </LWTooltip>}
             </>}
             <LWTooltip title="Sorts the list of posts by vote strength">
@@ -436,6 +439,7 @@ const ReviewVotingPage = ({classes}: {
             <Loading /> :
             <Paper>
               {posts.map((post) => {
+                console.log('🚀 ~ file: ReviewVotingPage.tsx ~ line 442 ~ {posts.map ~ post.title', post.title)
                 const currentVote = {
                   postId: post._id,
                   score: post.currentUserReviewVote,

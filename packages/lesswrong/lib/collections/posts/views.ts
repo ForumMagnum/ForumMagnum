@@ -1288,12 +1288,14 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
     },
     options: {
       sort: {
-        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
+        reviewCount: -1,
+        positiveReviewVoteCount: -1,
+        baseScore: -1,
       }
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  augmentForDefaultView({ reviewCount: 1, positiveReviewVoteCount: 1, baseScore: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
