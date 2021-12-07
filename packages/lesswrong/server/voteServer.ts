@@ -3,7 +3,7 @@ import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import {recalculateScore, recalculateBaseScore, recalculateAggregateScores} from '../lib/scoring';
-import {VoteDimensionString, voteTypes} from '../lib/voting/voteTypes';
+import {voteTypes, VoteTypesRecordType, PowersRecordType} from '../lib/voting/voteTypes';
 import { createVote, voteCallbacks, VoteDocTuple } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
 import moment from 'moment';
@@ -11,33 +11,49 @@ import { randomId } from '../lib/random';
 import * as _ from 'underscore';
 
 
-// Test if a user has voted on the server
-const hasVotedServer = async ({ document, voteType, user }: {
+// Test whether the user has voted (any vote on any dimension) on this document
+const hasVotedServer = async ({ document, user }: {
   document: DbVoteableType,
-  voteType: string|Record<string,string>,
   user: DbUser,
 }) => {
   const vote = await Connectors.get(Votes, {
     documentId: document._id,
-    userId: user._id, voteType,
+    userId: user._id,
+    cancelled: false,
+  }, {}, true);
+  return vote;
+}
+
+// Test whether the user has already made an Overall vote of this voteType on this document
+// This is used in performVoteServerShim to check whether to transform an old-style/GreaterWrong
+// toggle-off vote into a null voteType
+const hasSameOverallVoteServer = async ({ document, voteType, user }: {
+  document: DbVoteableType,
+  voteType: string,
+  user: DbUser,
+}) => {
+  const vote = await Connectors.get(Votes, {
+    documentId: document._id,
+    userId: user._id,
+    voteType,
     cancelled: false,
   }, {}, true);
   return vote;
 }
 
 // Add a vote of a specific type on the server
-const addVoteServer = async ({ document, collection, voteType, voteDimension, user, voteId }: {
+const addVoteServer = async ({ document, collection, voteType, voteTypesRecord, user, voteId }: {
   document: DbVoteableType,
   collection: CollectionBase<DbVoteableType>,
-  voteType: string|Record<string,string>,
-  voteDimension: VoteDimensionString,
+  voteType: string|null,
+  voteTypesRecord: VoteTypesRecordType,
   user: DbUser,
   voteId: string,
 }): Promise<VoteDocTuple> => {
   const newDocument = _.clone(document);
 
   // create vote and insert it
-  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, voteDimension, user, voteId });
+  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, voteTypesRecord, user, voteId });
   const {data: vote} = await createMutator({
     collection: Votes,
     document: partialVote,
@@ -48,7 +64,7 @@ const addVoteServer = async ({ document, collection, voteType, voteDimension, us
   newDocument.baseScore = await recalculateBaseScore(newDocument)
   newDocument.score = recalculateScore(newDocument);
   newDocument.voteCount++;
-  newDocument.voteAggregates = await recalculateAggregateScores(newDocument)
+  // TODO: update vote aggregates scores
 
   // update document score & set item as active
   await Connectors.update(collection,
@@ -57,23 +73,21 @@ const addVoteServer = async ({ document, collection, voteType, voteDimension, us
       $set: {
         inactive: false,
         baseScore: newDocument.baseScore,
-        score: newDocument.score,
-        voteAggregates: newDocument.voteAggregates
+        score: newDocument.score
       },
     },
     {}, true
   );
   void algoliaExportById(collection as any, newDocument._id);
-  console.log({newDocument, vote})
+
   return {newDocument, vote};
 }
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, voteDimension }: {
+export const clearVotesServer = async ({ document, user, collection }: {
   document: DbVoteableType,
   user: DbUser,
-  collection: CollectionBase<DbVoteableType>,
-  voteDimension: VoteDimensionString
+  collection: CollectionBase<DbVoteableType>
 }) => {
   const newDocument = _.clone(document);
   const votes = await Connectors.find(Votes, {
@@ -94,17 +108,33 @@ export const clearVotesServer = async ({ document, user, collection, voteDimensi
 
       //eslint-disable-next-line no-unused-vars
       const {_id, ...otherVoteFields} = vote;
-      // @ts-ignore
-      const power = (typeof vote.power === "object") ? {...vote.power, [voteDimension]: -vote.power} :  -vote.power //To-do address ts error
-      console.log({power})
-  
-  
+      
+      const powersRecord:PowersRecordType = (() => {
+        if (!!vote.voteTypesRecord) {
+          // let powersRecord = {}
+          // for (let [key, val:number] of Object.entries(vote.powersRecord)) {
+          //   powersRecord[key] = val * -1
+          // }
+          // return powersRecord
+          // TODO: check that this works, otherwise use the imperative way above
+          
+          return _.mapObject(vote.powersRecord, function(val, _) {
+            return val * -1
+          })
+        } else {
+          return { "Overall": -vote.power }
+        }
+      })()
+
+      // afPower will be positive due to otherVoteFields. TODO: is that okay? (will get reconsidered in a callback so maybe it's okay)
       // Create an un-vote for each of the existing votes
       const unvote = {
         ...otherVoteFields,
         cancelled: true,
         isUnvote: true,
-        power,
+        power: -vote.power,
+        afPower: -vote.afPower,
+        powersRecord,
         votedAt: new Date(),
       };
       await createMutator({
@@ -131,28 +161,52 @@ export const clearVotesServer = async ({ document, user, collection, voteDimensi
     newDocument.baseScore = await recalculateBaseScore(newDocument);
     newDocument.score = recalculateScore(newDocument);
     newDocument.voteCount -= votes.length;
+    // TODO: aggregateScores
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
 }
 
+// GreaterWrong still sends old-style toggle votes, i.e. votes that are Overall-only,
+// and if they're the same voteType as already exists on the server, are intended
+// to undo that vote. GreaterWrong vote mutations call performVoteServerShim, which
+// transform these old-style votes into new-style ones, where the new votes replace
+// old votes rather than toggling them on and off.
+export const performVoteServerShim = async ({ documentId, voteType, collection, user }: {
+  documentId: string,
+  voteType: string,
+  collection: CollectionBase<DbVoteableType>,
+  user: DbUser
+}) => {
+  const document = await Connectors.get(collection, documentId);
+  if (!document) throw new Error("Error casting vote: Document not found.");
+
+  const existingSameOverallVote = await hasSameOverallVoteServer({document, voteType, user});
+  if (existingSameOverallVote) {
+    const voteTypesRecord = { ...existingSameOverallVote.voteTypesRecord, "Overall": null }
+    await performVoteServer({document, voteType, voteTypesRecord, collection, user})
+  } else {
+    const voteTypesRecord = { "Overall": voteType }
+    await performVoteServer({document, voteType, voteTypesRecord, collection, user})
+  }
+}
+
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', voteDimension = "Overall", collection, voteId = randomId(), user, toggleIfAlreadyVoted = true }: {
+export const performVoteServer = async ({ documentId, document, voteType, voteTypesRecord, collection, voteId = randomId(), user }: {
   documentId?: string,
   document?: DbVoteableType|null,
-  voteType: string|Record<string,string>,
-  voteDimension: VoteDimensionString,
+  voteType: string|null,
+  voteTypesRecord: VoteTypesRecordType,
   collection: CollectionBase<DbVoteableType>,
   voteId?: string,
-  user: DbUser,
-  toggleIfAlreadyVoted?: boolean,
+  user: DbUser
 }) => {
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
 
   if (!document) throw new Error("Error casting vote: Document not found.");
-  
-  const voteOptions = {document, collection, voteType, voteDimension, user, voteId };
+
+  const voteOptions = {document, collection, voteType, voteTypesRecord, user, voteId };
 
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
@@ -160,32 +214,34 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   if (!userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
+
   if (typeof voteType === "string" && !voteTypes[voteType]) throw new Error("Invalid vote type");
 
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
     throw new Error("Revisions are only voteable if they're revisions of tags");
   
-  const existingVote = await hasVotedServer({document, voteType, user});
+  const existingVote = await hasVotedServer({document, user});
 
+  // If there's an existing vote, don't check the rate limit; clear it and re-add the ballot
   if (existingVote) {
-    if (toggleIfAlreadyVoted) {
-      document = await clearVotesServer(voteOptions)
-    }
+    await clearVotesServer(voteOptions)
   } else {
-    await checkRateLimit({ document, collection, voteType, user });
-
-    document = await clearVotesServer(voteOptions)
-
-    let voteDocTuple: VoteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
-    voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
-      iterator: voteDocTuple,
-      properties: [collection, user]
-    });
-    document = voteDocTuple.newDocument;
-    void voteCallbacks.castVoteAsync.runCallbacksAsync(
-      [voteDocTuple, collection, user]
-    );
+    await checkRateLimit({ document, user }); // throws an error if rate limit exceeded
   }
+
+  // If this was an undo vote and there are no other existing votes on the ballot, we're done
+  if (Object.values(voteTypesRecord).every(x => x === null)) return document;
+
+  let voteDocTuple: VoteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
+  
+  voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
+    iterator: voteDocTuple,
+    properties: [collection, user]
+  });
+  document = voteDocTuple.newDocument;
+  void voteCallbacks.castVoteAsync.runCallbacksAsync(
+    [voteDocTuple, collection, user]
+  );
 
   (document as any).__typename = collection.options.typeName;
   return document;
@@ -209,10 +265,8 @@ const getVotingRateLimits = async (user: DbUser|null) => {
 
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }: {
+const checkRateLimit = async ({ document, user }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
-  voteType: string|Record<string,string>,
   user: DbUser
 }): Promise<void> => {
   // No rate limit on self-votes

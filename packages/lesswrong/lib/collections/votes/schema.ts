@@ -51,11 +51,10 @@ const schema: SchemaType<DbVote> = {
   },
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
-  // voteType is the type of the vote that was reversed. If using multi-dimensions, 
-  // voteType is an object of voteDimension: voteType pairs.bb
+  // voteType is the type of the vote that was reversed.
   voteType: {
-    type: GraphQLJSON,
-    typescriptType: "string | Record<string,string>",
+    type: String,
+    optional: true,
     canRead: ['guests'],
   },
 
@@ -65,7 +64,25 @@ const schema: SchemaType<DbVote> = {
   // made. If this is an unvote, then the opposite: negative for undoing an
   // upvote, positive for undoing a downvote.
   power: {
-    typescriptType: "number | Record<string,number>",
+    type: Number,
+    optional: true,
+    canRead: [userOwns, docIsTagRel, 'admins'],
+    
+    // Can be inferred from userId+voteType+votedAt (votedAt necessary because
+    // the user's vote power may have changed over time)
+    denormalized: true,
+  },
+
+  // TODO write comment
+  voteTypesRecord: {
+    type: GraphQLJSON,
+    typescriptType: "VoteTypesRecordType",
+    canRead: ['guests'],
+  },
+
+  // TODO write comment
+  powersRecord: {
+    typescriptType: "PowersRecordType",
     type: GraphQLJSON,
     optional: true,
     canRead: [userOwns, docIsTagRel, 'admins'],

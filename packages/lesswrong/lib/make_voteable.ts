@@ -36,7 +36,32 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
 
   addFieldsDict(collection, {
     currentUserVote: {
-      type: Object,
+      type: String,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: 'String',
+        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+          const { Votes, currentUser } = context;
+          if (!currentUser) return null;
+          const votes = await getWithLoader(context, Votes,
+            `votesByUser${currentUser._id}`,
+            {
+              userId: currentUser._id,
+              cancelled: false,
+              voteType: { $ne: null }
+            },
+            "documentId", document._id
+          );
+
+          if (!votes.length) return null;
+          return votes[0].voteType;
+        }
+      }
+    },
+    
+    currentUserVoteRecord: {
+      type: 'JSON',
       optional: true,
       blackbox: true,
       viewableBy: ['guests'],
@@ -53,13 +78,13 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
             },
             "documentId", document._id
           );
-          
+
           if (!votes.length) return null;
-          return (typeof votes[0].voteType === "string") ? {"Overall": votes[0].voteType} : votes[0].voteType
+          return votes[0].voteTypesRecord;
         }
       }
     },
-    
+
     // DEPRECATED (but preserved for backwards compatibility): Returns an array
     // of vote objects, if the user has voted (or an empty array otherwise).
     currentUserVotes: {
@@ -147,16 +172,6 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         // default to 0 if empty
         return document.score || 0;
       }
-    },
-    voteAggregates: {
-      type: Object,
-      optional: true,
-      defaultValue: {Overall: 0, Agreement: 0},
-      canRead: customBaseScoreReadAccess || ['guests'],
-      // onInsert: (document: DbInsertion<T>): number => {
-      //   // default to 0 if empty
-      //   return document.baseScore || 0;
-      // }
     },
     // Whether the document is inactive. Inactive documents see their score
     // recalculated less often

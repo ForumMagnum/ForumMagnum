@@ -129,12 +129,12 @@ interface VoteableType extends HasIdType, HasUserIdType {
   af?: boolean
   afBaseScore?: number
   afVoteCount?: number
-  votingSystem?: VotingSystemString,
-  voteAggregates: object
+  votingSystem?: VotingSystemString
 }
 
 interface VoteableTypeClient extends VoteableType {
-  currentUserVote: Record<string,string>|null
+  currentUserVote: string|null,
+  currentUserVoteRecord: Record<string,string>|null
 }
 
 interface DbVoteableType extends VoteableType, DbObject {

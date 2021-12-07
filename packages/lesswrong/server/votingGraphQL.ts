@@ -1,7 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
-import { performVoteServer, clearVotesServer } from './voteServer';
+import { performVoteServer, performVoteServerShim, clearVotesServer } from './voteServer';
 import { VoteableCollections, collectionIsVoteable } from '../lib/make_voteable';
-import {VoteDimensionString} from "../lib/voting/voteTypes";
+import {VoteDimensionString, VoteTypesRecordType} from "../lib/voting/voteTypes";
 
 export function createVoteableUnionType() {
   const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
@@ -26,6 +26,12 @@ addGraphQLResolvers(resolverMap);
 
 addGraphQLMutation('vote(documentId: String, voteType: String, voteDimension: String, collectionName: String, voteId: String) : Voteable');
 
+// This handles votes from older systems such as GreaterWrong, which don't have
+// multi-dimensional votes, only Overall votes, and which don't send null voteTypes to
+// undo votes, but rather send the same voteType as already exists, expecting to toggle
+// the vote off. performVoteServerShim is a middleman function between this mutation
+// and performVoteServer; it calls performVoteServer with the arguments that a new-style
+// vote would have.
 const voteResolver = {
   Mutation: {
     // vote: Voting mutation. Voting toggles, like the vote button UI: if the
@@ -38,19 +44,17 @@ const voteResolver = {
     // compatibility.
     //
     // Returns the document that was voted upon, with its score updated.
-    async vote(root: void, args: {documentId: string, voteType: string, voteDimension: VoteDimensionString, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
-      const {documentId, voteType, voteDimension, collectionName} = args;
+    async vote(root: void, args: {documentId: string, voteType: string, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
+      const {documentId, voteType, collectionName} = args;
       const { currentUser } = context;
       const collection = context[collectionName] as CollectionBase<DbVoteableType>;
   
-      console.log({1: currentUser})
       if (!collection) throw new Error("Error casting vote: Invalid collectionName");
       if (!collectionIsVoteable(collectionName)) throw new Error("Error casting vote: Collection is not voteable");
       if (!currentUser) throw new Error("Error casting vote: Not logged in.");
 
-      const document = await performVoteServer({
-        documentId, voteType, voteDimension, collection, user: currentUser,
-        toggleIfAlreadyVoted: true,
+      const document = await performVoteServerShim({
+        documentId, voteType, collection, user: currentUser
       });
       return document;
     },
@@ -60,30 +64,26 @@ const voteResolver = {
 
 addGraphQLResolvers(voteResolver);
 
+//
 function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
   const typeName = collection.options.typeName;
   const mutationName = `setVote${typeName}`;
   
-  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String, voteDimension: String): ${typeName}`);
+  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String, voteTypesRecord: JSON): ${typeName}`);
   
   addGraphQLResolvers({
     Mutation: {
-      [mutationName]: async (root: void, args: {documentId: string, voteType: string|null}, voteDimension: VoteDimensionString, context: ResolverContext) => {
-        const {documentId, voteType} = args;
+      [mutationName]: async (root: void, args: {documentId: string, voteType: string|null, voteTypesRecord: VoteTypesRecordType}, context: ResolverContext) => {
+        const {documentId, voteType, voteTypesRecord} = args;
         const {currentUser} = context;
         const document = await collection.findOne({_id: documentId});
-        console.log({2: currentUser})
+
         if (!currentUser) throw new Error("Error casting vote: Not logged in.");
         if (!document) throw new Error("No such document ID");
   
-        if (voteType === null) {
-          return await clearVotesServer({document, user: currentUser, collection, voteDimension});
-        } else {
-          return await performVoteServer({
-            toggleIfAlreadyVoted: false,
-            document, voteType, voteDimension, collection, user: currentUser
-          });
-        }
+        return await performVoteServer({
+          document, voteType, voteTypesRecord, collection, user: currentUser
+        });
       }
     }
   });

@@ -110,18 +110,14 @@ const VoteButton = <T extends VoteableTypeClient>({
     setBigVoteCompleted(false);
   }
 
-  const wrappedVote = (voteType: string|null) => {
+  const wrappedVote = (voteType: string) => {
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
         componentProps: {}
       });
     } else {
-      if (document.currentUserVote === voteType) {
-        vote({document, voteType: null, voteDimension, collectionName, currentUser});
-      } else {
-        vote({document, voteType: voteType, voteDimension, collectionName, currentUser});
-      }
+      vote({document, voteType: voteType, voteDimension, collectionName, currentUser});
       captureEvent("vote", {collectionName, voteDimension});
     }
   }
@@ -138,7 +134,7 @@ const VoteButton = <T extends VoteableTypeClient>({
   }
 
   const hasVoted = (type: string, voteDimension: VoteDimensionString) => {
-    return (document.currentUserVote && document.currentUserVote[voteDimension] === type);
+    return document.currentUserVote
   }
 
   const smallVoteType = `small${voteType}`

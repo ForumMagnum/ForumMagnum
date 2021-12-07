@@ -12,6 +12,7 @@ export const FRONTPAGE_BONUS = frontpageBonusSetting;
 export const CURATED_BONUS = curatedBonusSetting;
 
 
+
 export const recalculateBaseScore = async (document: VoteableType) => {
   const votes = await Votes.find(
     {
@@ -19,15 +20,10 @@ export const recalculateBaseScore = async (document: VoteableType) => {
       cancelled: false
     }
   ).fetch() || [];
-  
-  const getVotePower = (vote: DbVote) => {
-    if (typeof vote.power === "number") return vote.power
-    return vote.power["Overall"]
-  }
-  
-  return votes.reduce((sum, vote) => { return getVotePower(vote) + sum}, 0)
+  return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
 }
 
+// TODO: this
 export const recalculateAggregateScores = async (document: VoteableType) => {
   const votes = await Votes.find(
     {

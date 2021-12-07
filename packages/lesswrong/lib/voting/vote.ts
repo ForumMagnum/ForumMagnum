@@ -1,7 +1,8 @@
 import { CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
-import {voteTypes, calculateVotePower, VoteDimensionString, voteDimensions} from './voteTypes';
+import {voteTypes, calculateVotePower, VoteTypesRecordType, VoteDimensionString} from './voteTypes';
+import * as _ from 'underscore';
 
 export interface VoteDocTuple {
   newDocument: DbVoteableType
@@ -30,7 +31,7 @@ const addVoteClient = ({ document, collection, voteType, voteDimension, user }: 
 
   const newDocument = {
     ...document,
-    currentUserVote: voteType,
+    currentUserVote: { ...document.currentUserVote, voteDimension: voteType},
     baseScore: (document.baseScore||0) + power,
     voteCount: (document.voteCount||0) + 1,
     afBaseScore: (document.afBaseScore||0) + afPower,
@@ -79,25 +80,33 @@ const cancelVoteClient = ({document, voteDimension, collection, user}: {
 
 // Determine a user's voting power for a given operation.
 // If power is a function, call it on user
-export const getVotePower = ({ user, voteType, voteDimension, document }: {
+export const getVotePower = ({ user, voteType, document }: {
   user: DbUser|UsersCurrent,
-  voteType: string|Record<string,string>,
-  voteDimension: VoteDimensionString,
+  voteType: string|null,
   document: VoteableType,
 }) => {
-  
-  const votedType = (typeof voteType === "string") ? voteType : voteType[voteDimension] 
-  
-  const power = (voteTypes[votedType]?.power) || 1;
+  if (!voteType) return 0
+
+  const power = (voteTypes[voteType]?.power) || 1;
+  console.log(`getVotePower voteType: ${voteType}`)
+  console.log(`getVotePower power: ${typeof power === 'function' ? power(user, document) : power}`)
   return typeof power === 'function' ? power(user, document) : power;
 };
 
+export const getPowersRecord = ({ user, voteTypesRecord, document }: {
+  user: DbUser|UsersCurrent,
+  voteTypesRecord: VoteTypesRecordType,
+  document: VoteableType,
+}) => {
+  return _.mapObject(voteTypesRecord, (voteType, key) => getVotePower({user, voteType, document}))
+};
+
 // Create new vote object
-export const createVote = ({ document, collectionName, voteType, voteDimension, user, voteId }: {
+export const createVote = ({ document, collectionName, voteType, voteTypesRecord, user, voteId }: {
   document: VoteableType,
   collectionName: CollectionNameString,
-  voteType: string|Record<string,string>,
-  voteDimension: VoteDimensionString,
+  voteType: string|null,
+  voteTypesRecord: VoteTypesRecordType,
   user: DbUser|UsersCurrent,
   voteId?: string,
 }) => {
@@ -111,8 +120,10 @@ export const createVote = ({ document, collectionName, voteType, voteDimension, 
     documentId: document._id,
     collectionName,
     userId: user._id,
-    voteType: {[voteDimension]: voteType},
-    power: {[voteDimension]: getVotePower({user, voteType, voteDimension, document})},
+    voteType: voteType || undefined, // TODO: is there a better way to do this?
+    voteTypesRecord,
+    power: getVotePower({user, voteType, document}),
+    powersRecord: getPowersRecord({user, voteTypesRecord, document}),
     votedAt: new Date(),
     authorId: document.userId,
     cancelled: false,
@@ -125,7 +136,7 @@ export const setVoteClient = async ({ document, collection, voteType, voteDimens
   document: VoteableTypeClient,
   collection: CollectionBase<DbVoteableType>
   voteType: string|null,
-  voteDimension: VoteDimensionString
+  voteDimension: VoteDimensionString,
   user: UsersCurrent,
 }): Promise<VoteableTypeClient> => {
   if (voteType && !voteTypes[voteType]) throw new Error("Invalid vote type");

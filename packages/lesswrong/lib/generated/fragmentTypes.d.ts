@@ -135,8 +135,10 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly collectionName: string,
   readonly userId: string,
   readonly authorId: string,
-  readonly voteType: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly power: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteType: string,
+  readonly power: number,
+  readonly voteTypesRecord: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly powersRecord: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afPower: number,
   readonly cancelled: boolean,
   readonly isUnvote: boolean,
@@ -331,11 +333,11 @@ interface PostsBase_group { // fragment on Localgroups
 }
 
 interface PostsWithVotes extends PostsBase { // fragment on Posts
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -404,7 +406,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly showModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
   readonly feedLink: string,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
@@ -553,7 +555,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 }
 
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -581,7 +583,7 @@ interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
 interface WithVotePost { // fragment on Posts
   readonly __typename: string,
   readonly _id: string,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
   readonly baseScore: number,
   readonly score: number,
   readonly afBaseScore: number,
@@ -613,7 +615,7 @@ interface CommentsList { // fragment on Comments
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
   readonly user: UsersMinimumInfo|null,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
   readonly baseScore: number,
   readonly score: number,
   readonly voteCount: number,
@@ -691,12 +693,11 @@ interface CommentsListWithParentMetadata extends CommentsList { // fragment on C
 interface WithVoteComment { // fragment on Comments
   readonly __typename: string,
   readonly _id: string,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
   readonly baseScore: number,
   readonly score: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
-  readonly voteAggregates: any /*{"definitions":[{}]}*/,
 }
 
 interface RevisionDisplay { // fragment on Revisions
@@ -736,7 +737,7 @@ interface RevisionMetadata { // fragment on Revisions
   readonly score: number,
   readonly baseScore: number,
   readonly voteCount: number,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
@@ -757,7 +758,7 @@ interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revi
 interface WithVoteRevision { // fragment on Revisions
   readonly __typename: string,
   readonly _id: string,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
   readonly baseScore: number,
   readonly score: number,
   readonly voteCount: number,
@@ -1250,7 +1251,7 @@ interface TagRelBasicInfo { // fragment on TagRels
 interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly post: PostsList|null,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
 }
 
 interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1262,7 +1263,7 @@ interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
 interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly post: TagRelCreationFragment_post|null,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
@@ -1272,7 +1273,7 @@ interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
@@ -1283,7 +1284,7 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly baseScore: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
-  readonly currentUserVote: any,
+  readonly currentUserVote: string,
 }
 
 interface TagBasicInfo { // fragment on Tags
@@ -1713,8 +1714,8 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
 interface TagRelVotes { // fragment on Votes
   readonly _id: string,
   readonly userId: string,
-  readonly voteType: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly power: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteType: string,
+  readonly power: number,
   readonly documentId: string,
   readonly votedAt: Date,
   readonly isUnvote: boolean,

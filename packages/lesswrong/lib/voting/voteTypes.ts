@@ -8,6 +8,9 @@ export const isVotingSystem = (str: string): str is VotingSystemString => {
 export const voteDimensions = ["Overall", "Agreement"] as const
 export type VoteDimensionString = typeof voteDimensions[number] //"Overall" | "Agreement"
 
+export type VoteTypesRecordType = Partial<Record<VoteDimensionString, string|null>>
+export type PowersRecordType = Partial<Record<VoteDimensionString, number|null>>
+
 interface VoteTypeOptions {
   power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),
 }
@@ -18,6 +21,7 @@ export const calculateVotePower = (karma: number, voteType: string): number => {
   if (voteType == "smallDownvote") { return userSmallVotePower(karma, -1)}
   if (voteType == "bigUpvote") { return userBigVotePower(karma, 1)}
   if (voteType == "bigDownvote") { return userBigVotePower(karma, -1)}
+  if (voteType === null) { return 0 }
   else throw new Error("Invalid vote type");
 }
 
@@ -59,4 +63,7 @@ export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {
   bigDownvote: {
     power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, -1),
   },
+  null: {
+    power: 0
+  }
 }

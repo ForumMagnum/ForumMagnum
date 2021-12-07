@@ -5,15 +5,15 @@ import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import {VoteDimensionString} from "../../lib/voting/voteTypes";
+import {VoteDimensionString, VoteTypesRecordType} from "../../lib/voting/voteTypes";
 
 const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   const typeName = collection.options.typeName;
   const mutationName = `setVote${typeName}`;
   
   return gql`
-    mutation ${mutationName}($documentId: String, $voteType: String, $voteDimension: String) {
-      ${mutationName}(documentId: $documentId, voteType: $voteType, voteDimension: $voteDimension) {
+    mutation ${mutationName}($documentId: String, $voteType: String, $voteTypesRecord: JSON) {
+      ${mutationName}(documentId: $documentId, voteType: $voteType, voteTypesRecord: $voteTypesRecord) {
         ...WithVote${typeName}
       }
     }
@@ -55,8 +55,24 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     // same order they're received (if they're in separate http requests), which
     // means that if you double-click a vote button, you can get a weird result
     // due to votes being processed out of order.
-    
-    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, voteDimension });
+    const existingVoteType = document.currentUserVote
+    const existingVoteTypesRecord = document.currentUserVoteRecord || {}
+
+    let newVoteType:string|null
+    if (voteDimension === 'Overall') {
+      newVoteType = (existingVoteType === voteType) ? null : voteType
+    } else { // voteDimension !== 'Overall'
+      newVoteType = existingVoteType
+    }
+
+    let newVoteTypesRecord:VoteTypesRecordType
+    if (existingVoteTypesRecord[voteDimension] === voteType) { // cancellation
+      newVoteTypesRecord = { ...existingVoteTypesRecord, [voteDimension]: null }
+    } else { // not a cancellation
+      newVoteTypesRecord = { ...existingVoteTypesRecord, [voteDimension]: voteType }
+    }
+
+    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType: newVoteType, voteDimension });
 
     try {
       mutationCounts.current.optimisticMutationIndex++;
@@ -64,8 +80,8 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       await mutate({
         variables: {
           documentId: document._id,
-          voteType,
-          voteDimension
+          voteType: newVoteType,
+          voteTypesRecord: newVoteTypesRecord
         },
       })
     } catch(e) {
