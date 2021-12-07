@@ -414,7 +414,7 @@ const ReviewVotingPage = ({classes}: {
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <div className={classes.widget}>
-              <FrontpageReviewWidget showRecommendations={false} showDashboardButton={false}/>
+              <FrontpageReviewWidget showFrontpageItems={false}/>
             </div>
             {instructions}
             <SectionTitle title="Reviews">
