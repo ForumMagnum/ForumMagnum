@@ -4,6 +4,7 @@ import { guestsGroup, membersGroup, adminsGroup, userCanDo, userOwns } from '../
 import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canCommentLockGroup } from '../../permissions';
 import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
+import { userIsPostGroupOrganizer } from './helpers';
 
 const guestsActions = [
   'posts.view.approved'
@@ -41,7 +42,7 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
   }
   if (userCanDo(currentUser, 'posts.view.all')) {
     return true
-  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post)) {
+  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post)) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;

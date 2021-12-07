@@ -80,6 +80,24 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly order: number,
 }
 
+interface LocalgroupsDefaultFragment { // fragment on Localgroups
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly organizerIds: Array<string>,
+  readonly lastActivity: Date,
+  readonly types: Array<string>,
+  readonly isOnline: boolean,
+  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly location: string,
+  readonly contactInfo: string,
+  readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
+  readonly website: string,
+  readonly inactive: boolean,
+}
+
 interface TagRelsDefaultFragment { // fragment on TagRels
   readonly createdAt: Date,
   readonly tagId: string,
@@ -335,6 +353,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
 interface PostsBase_group { // fragment on Localgroups
   readonly _id: string,
   readonly name: string,
+  readonly organizerIds: Array<string>,
 }
 
 interface PostsWithVotes extends PostsBase { // fragment on Posts
@@ -1096,24 +1115,6 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly reactions: Array<string>,
 }
 
-interface LocalgroupsDefaultFragment { // fragment on Localgroups
-  readonly createdAt: Date,
-  readonly name: string,
-  readonly organizerIds: Array<string>,
-  readonly lastActivity: Date,
-  readonly types: Array<string>,
-  readonly isOnline: boolean,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly location: string,
-  readonly contactInfo: string,
-  readonly facebookLink: string,
-  readonly facebookPageLink: string,
-  readonly meetupLink: string,
-  readonly website: string,
-  readonly inactive: boolean,
-}
-
 interface localGroupsBase { // fragment on Localgroups
   readonly _id: string,
   readonly createdAt: Date,
@@ -1767,6 +1768,7 @@ interface FragmentTypes {
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
+  LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
@@ -1839,7 +1841,6 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   reviewVoteFragment: reviewVoteFragment
-  LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   localGroupsBase: localGroupsBase
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsEdit: localGroupsEdit
@@ -1907,6 +1908,7 @@ interface CollectionNamesByFragmentName {
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
   PostRelationsDefaultFragment: "PostRelations"
+  LocalgroupsDefaultFragment: "Localgroups"
   TagRelsDefaultFragment: "TagRels"
   PostsDefaultFragment: "Posts"
   VotesDefaultFragment: "Votes"
@@ -1979,7 +1981,6 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   ReviewVotesDefaultFragment: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
-  LocalgroupsDefaultFragment: "Localgroups"
   localGroupsBase: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsEdit: "Localgroups"
