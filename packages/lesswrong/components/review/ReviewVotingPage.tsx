@@ -185,12 +185,12 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
 
-  let { results: postsResults, loading: postsLoading } = useMulti({
+  let { results: postsResults, loading: postsLoading, loadMoreProps, loadMore } = useMulti({
     terms: {
       view: "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-      limit: 20
+      limit: 100,
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
@@ -222,7 +222,7 @@ const ReviewVotingPage = ({classes}: {
     }
   });
 
-  const [posts, setSortedPosts] = useState(postsResults)
+  const [posts, setPosts] = useState(postsResults)
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
   const [sortReviews, setSortReviews ] = useState<string>("new")
@@ -256,14 +256,19 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, LoadMore } = Components
 
-  const reSortPosts = () => {
+  const reSortPosts = useCallback(() => {
     // This should be the same sorting as in the view
     const sortedPosts = orderBy(posts, ['reviewCount', 'positiveReviewVoteCount', 'baseScore'], ['desc', 'desc', 'desc'])
-    setSortedPosts(sortedPosts)
+    setPosts(sortedPosts)
     captureEvent(undefined, {eventSubType: "postsResorted"})
-  }
+  }, [posts])
+  
+  useEffect(() => {
+    // TODO; deal with pre-resorted posts
+    setPosts(postsResults)
+  }, [postsResults])
 
   if (!currentUserCanVote(currentUser)) {
     return (
@@ -435,11 +440,11 @@ const ReviewVotingPage = ({classes}: {
               </Button>
             </LWTooltip>
           </div>
+          {/* TODO; grey out instead perhaps? */}
           {(postsLoading || loading) ?
             <Loading /> :
             <Paper>
               {posts.map((post) => {
-                console.log('🚀 ~ file: ReviewVotingPage.tsx ~ line 442 ~ {posts.map ~ post.title', post.title)
                 const currentVote = {
                   postId: post._id,
                   score: post.currentUserReviewVote,
@@ -462,6 +467,11 @@ const ReviewVotingPage = ({classes}: {
               })}
             </Paper>
           }
+          <LoadMore
+            {...loadMoreProps}
+            // When you load more, we get them all
+            loadMore={() => loadMore(1000)}
+          />
         </div>
       </div>
     </div>
