@@ -25,7 +25,7 @@ const styles = theme => ({
 })
 
 const LatestReview = ({classes}) => {
-  const { PostsPreviewTooltipSingleWithComment, LWTooltip, FormatDate, ErrorBoundary } = Components
+  const { PostsPreviewTooltipSingleWithComment, LWTooltip, ErrorBoundary } = Components
 
   const { results: commentResults } = useMulti({
     terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
