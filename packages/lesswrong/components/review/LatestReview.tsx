@@ -10,10 +10,10 @@ const styles = theme => ({
     flexGrow: 1,
     flexShrink: 1,
     textAlign: "left",
-    height: 28,
-    display: "flex",
-    alignItems: "center",
-    paddingLeft: 6
+    overflow: "hidden",
+    padding: 6,
+    whiteSpace: "nowrap",
+    marginRight: 15
   },
   lastReview: {
     ...theme.typography.commentStyle,
