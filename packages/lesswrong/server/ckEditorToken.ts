@@ -1,10 +1,11 @@
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import { Posts } from '../lib/collections/posts'
-import { postCanEdit } from '../lib/collections/posts/helpers'
+import { userIsPostGroupOrganizer } from '../lib/collections/posts/helpers'
 import { getCKEditorDocumentId } from '../lib/ckEditorUtils'
 import { userGetDisplayName } from '../lib/collections/users/helpers';
 import jwt from 'jsonwebtoken'
 import { DatabaseServerSetting } from './databaseSettings';
+import { userCanDo, userOwns } from '../lib/vulcan-users/permissions';
 
 const ckEditorEnvironmentIdSetting = new DatabaseServerSetting<string | null>('ckEditor.environmentId', null)
 const ckEditorSecrretKeySetting = new DatabaseServerSetting<string | null>('ckEditor.secretKey', null)
@@ -25,7 +26,7 @@ export async function ckEditorTokenHandler (req, res, next) {
 
   const user = await getUserFromReq(req)
   const post = documentId && await Posts.findOne(documentId)
-  const canEdit = post && postCanEdit(user, post)  
+  const canEdit = post && (userOwns(user, post) || userCanDo(user, 'posts.edit.all') || await userIsPostGroupOrganizer(user, post))
   const canView = post && await Posts.checkAccess(user, post, null)
 
   let permissions = {}
