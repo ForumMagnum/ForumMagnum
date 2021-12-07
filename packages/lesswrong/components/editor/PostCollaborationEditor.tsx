@@ -3,6 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 
@@ -41,8 +42,15 @@ const PostCollaborationEditor = ({ classes }: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postId,
   });
+  if (!post) {
+    return <Loading/>
+  }
   return <SingleColumnSection>
     <div className={classes.title}>{post?.title}</div>
+    <Components.PostsAuthors post={post}/>
+    {/*!post.draft && <div>
+      You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
+    </div>*/}
     <div className={classes.editor}>
       <NoSSR>
         <Components.CKPostEditor

@@ -220,7 +220,7 @@ importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
-importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor'));
+importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
 
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
