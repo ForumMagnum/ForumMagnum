@@ -3,7 +3,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR } from "../../lib/reviewUtils";
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 
 const styles = theme => ({
   root: {
@@ -40,7 +40,7 @@ const LatestReview = ({classes}) => {
 
   return <ErrorBoundary><div className={classes.root}>
     <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingleWithComment postId={comment.postId} commentId={comment._id}/>}>
-      <Link to={postGetPageUrl(comment.post)} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link>
+      <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: comment.post.slug})} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link>
     </LWTooltip>
   </div></ErrorBoundary>
 }
