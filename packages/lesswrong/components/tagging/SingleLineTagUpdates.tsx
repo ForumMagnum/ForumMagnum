@@ -74,6 +74,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: "rgba(0, 0, 0, .4)",
     margin: "-8px 0 8px 8px",
   },
+  usernames: {
+    marginRight: 16,
+    
+    maxWidth: 310,
+    textOverflow: "ellipsis",
+    overflowX: "hidden",
+    textAlign: "right",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 160
+    },
+  },
 });
 
 const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, lastRevisedAt, classes}: {
@@ -105,10 +116,12 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
       }
       
       {users && users?.length > 0 && <div className={classes.usernames}>
-        <UsersName user={users[0]}/>
-        {users.length > 1 && users.slice(1).map(user =>
-          <span key={user._id}>, <UsersName user={user}/></span>
-        )}
+        <PostsItem2MetaInfo>
+          <UsersName user={users[0]}/>
+          {users.length > 1 && users.slice(1).map(user =>
+            <span key={user._id}>, <UsersName user={user}/></span>
+          )}
+        </PostsItem2MetaInfo>
       </div>}
 
       {(changeMetrics.added>0 || changeMetrics.removed>0) && <div className={classes.changeMetrics}>

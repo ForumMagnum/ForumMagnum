@@ -62,6 +62,7 @@ addGraphQLResolvers({
       const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])
       const usersAll = await context.loaders.Users.loadMany(userIds)
       const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
+      const usersById = keyBy(users, u => u._id);
       
       // Get the tags themselves
       const tagIds = _.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]);
@@ -71,6 +72,8 @@ addGraphQLResolvers({
       return tags.map(tag => {
         const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
         const relevantRootComments = _.filter(rootComments, c=>c.tagId===tag._id);
+        const relevantUsersIds = _.uniq([...relevantRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]);
+        const relevantUsers = _.map(relevantUsersIds, userId=>usersById[userId]);
         
         return {
           tag,
@@ -81,7 +84,7 @@ addGraphQLResolvers({
           lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
           added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
           removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
-          users: users,
+          users: relevantUsers,
         };
       });
     },
