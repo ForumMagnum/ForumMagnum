@@ -11,6 +11,16 @@ import * as _ from 'underscore';
 
 const autosaveInterval = 3000; //milliseconds
 
+function isCollaborative(post, fieldName: string): boolean {
+  if (!post) return false;
+  if (!post._id) return false;
+  if (fieldName !== "contents") return false;
+  if (post?.shareWithUsers) return true;
+  if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+    return true;
+  return false;
+}
+
 export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
   form: any,
   formType: "edit"|"new",
@@ -71,6 +81,15 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     const {contents,autosave} = change;
     setContents(contents);
     hasUnsavedDataRef.current.hasUnsavedData = true;
+    
+    // Hack: Fill in ${fieldName}_type with the editor type, to enable other
+    // form components (in particular PostSharingSettings) to check whether we're
+    // using CkEditor vs draftjs vs etc. (We transfer the actual contents from
+    // the editor to vulcan-forms only as a final step upon form submit, because
+    // this is a serialization of the whole document which can be too slow to do
+    // on every keystroke).
+    context.updateCurrentValues({[`${fieldName}_type`]: change.contents?.type});
+    
     if (autosave) {
       throttledSaveBackup(contents);
     }
@@ -126,7 +145,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType]);
   
-  const isCollaborative = document?._id && document?.shareWithUsers && (fieldName === "contents")
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
@@ -156,7 +174,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       formType={formType}
       documentId={document?._id}
       initialEditorType={initialEditorType}
-      isCollaborative={isCollaborative}
+      isCollaborative={isCollaborative(document, fieldName)}
       value={contents}
       onChange={wrappedSetContents}
       placeholder={actualPlaceholder}
@@ -168,7 +186,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents}/>}
+    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative}/>}
   </div>
 }
 
@@ -178,7 +196,8 @@ export const EditorFormComponentComponent = registerComponent('EditorFormCompone
 
 (EditorFormComponent as any).contextTypes = {
   addToSubmitForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func
+  addToSuccessForm: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
 };
 
 declare global {

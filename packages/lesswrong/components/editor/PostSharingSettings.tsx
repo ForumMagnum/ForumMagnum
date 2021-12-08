@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostSharingSettings = ({document, formType, value, path, label, classes}: {
   formType: "edit"|"new",
-  document: PostsEdit,
+  document: PostsEditQueryFragment,
   value: SharingSettings,
   path: string,
   label: string,
@@ -75,7 +75,6 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   const {updateCurrentValues, submitForm} = context;
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
-  //const [hasUnsavedPermissionsChanges, setHasUnsavedPermissionsChanges] = useState(false);
   const hasUnsavedPermissionsChanges = false;
   const initialSharingSettings = value || defaultSharingSettings;
   const { flash } = useMessages();
@@ -83,6 +82,13 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   const onClickShare = useCallback(() => {
     if (!document.title || !document.title.length) {
       flash("Please give this post a title before sharing.");
+      return;
+    }
+    
+    // HACK: Check whether we're using CkEditor or something else. See wrappedSetCOntents
+    // in EditorFormComponent.
+    if ((document as any).contents_type && (document as any).contents_type !== "ckEditorMarkup") {
+      flash("Change the editor type to LessWrong Docs to enable sharing");
       return;
     }
     

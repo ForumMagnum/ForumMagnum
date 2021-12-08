@@ -49,7 +49,9 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   // If logged out, show a login form. (Even if link-sharing is enabled, you still
   // need to be logged into LessWrong with some account.)
   if (!currentUser) {
-    return <Components.WrappedLoginForm />;
+    return <Components.SingleColumnSection>
+      <Components.WrappedLoginForm/>
+    </Components.SingleColumnSection>
   }
 
   // If we only have read access to this post, but it's shared with us

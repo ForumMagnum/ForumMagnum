@@ -11,9 +11,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EditorTypeSelect = ({value, setValue, classes}: {
+const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
   value: EditorContents,
   setValue: (change: EditorChangeEvent)=>void,
+  isCollaborative?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -37,6 +38,13 @@ const EditorTypeSelect = ({value, setValue, classes}: {
       value={value.type}
       onChange={(e) => {
         const targetFormat = e.target.value as EditorTypeString;
+        
+        if (isCollaborative && targetFormat !== "ckEditorMarkup") {
+          if (!window.confirm("Switching to a different editor type will disable collaborative editing and reset the sharing settings on this post to private.")) {
+            return;
+          }
+        }
+        
         convertDocument(value, targetFormat);
       }}
     >
