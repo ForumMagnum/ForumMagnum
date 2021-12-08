@@ -25,7 +25,7 @@ import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
-import { addSentryMiddlewares } from './logging';
+import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
@@ -35,10 +35,6 @@ import expressSession from 'express-session';
 import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
-import { DatabaseServerSetting } from './databaseSettings';
-
-const logGraphqlQueriesSetting = new DatabaseServerSetting<boolean>("logGraphqlQueries", false);
-const logGraphqlMutationsSetting = new DatabaseServerSetting<boolean>("logGraphqlMutations", false);
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -68,30 +64,16 @@ const getClientBundle = () => {
 }
 
 class ApolloServerLogging {
-  requestDidStart(args: any) {
-    const {queryString, operationName, variables, context} = args;
-    const userId = context?.userId;
+  requestDidStart(context: any) {
+    const {request} = context;
+    const {operationName, query, variables} = request;
+    logGraphqlQueryStarted(operationName, query, variables);
     
-    if (logGraphqlQueriesSetting.get() && queryString.startsWith("query")) {
-      const view = variables?.input?.terms?.view;
-      if (view) {
-        // eslint-disable-next-line no-console
-        console.log(`query: ${operationName} with view: ${variables?.input?.terms?.view} by ${userId}`);
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(`query: ${operationName} by ${userId}`);
+    return {
+      willSendResponse(props) {
+        logGraphqlQueryFinished(operationName, query);
       }
-    }
-    if (logGraphqlMutationsSetting.get() && queryString.startsWith("mutation")) {
-      const editedFields = variables?.data;
-      if (editedFields) {
-        // eslint-disable-next-line no-console
-        console.log(`mutation: ${operationName} editing ${JSON.stringify(Object.keys(editedFields))} by ${userId}`);
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(`mutation: ${operationName} by ${userId}`);
-      }
-    }
+    };
   }
 }
 
@@ -156,7 +138,7 @@ export function startWebserver() {
       configureSentryScope(context);
       return context;
     },
-    extensions: [() => new ApolloServerLogging()]
+    plugins: [new ApolloServerLogging()]
   });
 
   app.use('/graphql', bodyParser.json({ limit: '50mb' }));
