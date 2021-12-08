@@ -92,6 +92,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginRight: 12
   },
+  buttonWrapper: {
+    flexGrow: 0,
+    flexShrink: 0
+  },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
@@ -167,8 +171,8 @@ export const overviewTooltip = isEAForum ?
     <p>We're currently in the preliminary voting phase. Nominate posts by casting a preliminary vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
   </div>
 
-const FrontpageReviewWidget = ({classes, showRecommendations=true, showDashboardButton=true}: {classes: ClassesType, showRecommendations?: boolean, showDashboardButton?: boolean}) => {
-  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip } = Components
+const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, LatestReview } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -254,7 +258,7 @@ const FrontpageReviewWidget = ({classes, showRecommendations=true, showDashboard
           </Link>
         </LWTooltip>}
       >
-        <LWTooltip title={overviewTooltip}>
+        <LWTooltip title={overviewTooltip} className={classes.hideOnMobile}>
           <Link to={reviewPostPath || ""}>
             <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
           </Link>
@@ -288,7 +292,7 @@ const FrontpageReviewWidget = ({classes, showRecommendations=true, showDashboard
       </div>
       
       {/* Post list */}
-      {showRecommendations && <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
+      {showFrontpageItems && <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
         {/* TODO:(Review) I think we can improve this */}
         <RecommendationsList algorithm={getReviewAlgorithm()} />
       </AnalyticsContext>}
@@ -296,17 +300,18 @@ const FrontpageReviewWidget = ({classes, showRecommendations=true, showDashboard
       {/* TODO: Improve logged out user experience */}
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-        <LWTooltip title={`Nominate posts you previously upvoted.`}>
+        {showFrontpageItems && <LatestReview/>}
+        <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
           <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
             Your Upvotes from {isEAForum && '≤'}{REVIEW_YEAR}
           </Link>
         </LWTooltip>
-        <LWTooltip title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
+        <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
           <Link to={allEligiblePostsUrl} className={classes.actionButton}>
             All {isEAForum ? 'Eligible' : REVIEW_YEAR} Posts
           </Link>
         </LWTooltip>
-        {showDashboardButton && <LWTooltip title={<div>
+        {showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
           <p>Reviews Dashboard</p>
           <ul>
             <li>View all posts with at least one preliminary vote.</li>

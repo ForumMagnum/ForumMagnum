@@ -192,6 +192,7 @@ importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsIt
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle'));
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip'));
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltipSingle'));
+importComponent("PostsPreviewTooltipSingleWithComment", () => require('../components/posts/PostsPreviewTooltipSingle'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper'));
 importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.tsx'));
@@ -575,7 +576,7 @@ importComponent("ReviewVotingPage", () => require('../components/review/ReviewVo
 importComponent("ReviewVotingExpandedPost", () => require('../components/review/ReviewVotingExpandedPost'))
 importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
 importComponent("ReviewVotingWidget", () => require('../components/review/ReviewVotingWidget'))
-
+importComponent("LatestReview", () => require('../components/review/LatestReview'));
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
