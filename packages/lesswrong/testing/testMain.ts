@@ -7,7 +7,6 @@ import { MongoClient } from 'mongodb';
 import { setDatabaseConnection, closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
-import jestMongoSetup from '@shelf/jest-mongodb/setup';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../server/votingGraphQL';
 
@@ -25,7 +24,6 @@ async function ensureDbConnection() {
     return;
   
   try {
-    await jestMongoSetup();
     const connectionString = process.env.MONGO_URL as string; //Provided by @shelf/jest-mongodb
     const client = new MongoClient(connectionString, {
       // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
