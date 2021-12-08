@@ -66,11 +66,11 @@ addGraphQLResolvers({
   },
 })
 
-addGraphQLSchema(`
-  type ReviewListPost {
-    _id: String
-    title: String
-  }
-`)
+// addGraphQLSchema(`
+//   type ReviewListPost {
+//     _id: String
+//     title: String
+//   }
+// `)
 
-addGraphQLQuery("GetReviewList(year: Int, limit: Int): [ReviewListPost!]")
+addGraphQLQuery("GetReviewList(year: Int, limit: Int): [Post!]")

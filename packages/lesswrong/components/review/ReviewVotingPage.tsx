@@ -296,7 +296,7 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const quadraticVotes = useMemo(
-    () => posts.map(post => ({
+    () => posts?.map(post => ({
       postId: post._id,
       score: post.currentUserReviewVote,
       type: 'QUADRATIC' as const
@@ -437,7 +437,7 @@ const ReviewVotingPage = ({classes}: {
                   {voteTotal}/500
                 </div>
               </LWTooltip>}
-              {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
+              {useQuadratic && posts && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
                 <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
                 <p>If the average of your votes is above 1 or below -1, you are always better off shifting all of your votes by 1 to move closer to an average of 0.</p></div>}>
                 <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
@@ -455,7 +455,7 @@ const ReviewVotingPage = ({classes}: {
           {(postsLoading || loading) ?
             <Loading /> :
             <Paper>
-              {posts.map((post) => {
+              {posts?.map((post) => {
                 const currentVote = {
                   postId: post._id,
                   score: post.currentUserReviewVote,
@@ -512,7 +512,7 @@ type QuadraticVoteUpdate = {
 
 const votesToQuadraticVotes = (posts: PostsListWithVotes[]): QuadraticVoteUpdate[] => {
   const sumScaled = sumBy(posts, post => Math.abs(qualitativeScoreScaling[post.currentUserReviewVote || DEFAULT_QUALITATIVE_VOTE]) || 0)
-  return posts.map(post => {
+  return posts?.map(post => {
     if (post.currentUserReviewVote) {
       const newScore = computeQuadraticVoteScore(
         // DB stores it as number, sadly
