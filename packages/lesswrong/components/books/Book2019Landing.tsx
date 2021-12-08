@@ -38,6 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       "failure failure failure psycholinguist psycholinguist"
       "header2 header2 header2 header2 header2"
       "reframing reframing reframing reframing reframing"
+      "spread spread spread spread spread"
     `,
     [theme.breakpoints.down('xs')]: {
       gridAutoColumns: "100%",
@@ -51,7 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
         "failure"
         "molochNoWon"
         "header2"
-        "reframing"
+        "reframing",
+        "spread"
       `
     },
     gridGap: "40px 40px",
@@ -201,6 +203,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: "1rem",
     marginTop: 8,
     color: theme.palette.primary.main
+  },
+  spreads: {
+    width: 1260,
+    margin: "auto"
+  },
+  spread: {
+    height: "100%",
+    width: "100%",
+    objectFit: "cover"
   }
 })
 
@@ -245,7 +256,7 @@ const Book2019Landing = ({classes}: {
         <div className={classes.bookCheckout}>
           <div className={classes.bookCheckoutBackground}>
             <div className={classes.price}>
-              $34 for the four book set
+              $30 for the four book set
             </div>
             <a className={classes.cta} onClick={() => {
               captureEvent("2019BookAmazonClicked")
@@ -272,6 +283,7 @@ const Book2019Landing = ({classes}: {
             This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
             packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
         </div>
+
         <img className={classes.failure} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
         <img className={classes.molochNoWon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/moloch-hasnt-won_ndkkdu.jpg"/>
         <img className={classes.psycholinguist} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/human-psycholinguistics_tyrpqk.jpg"/>
@@ -284,6 +296,21 @@ const Book2019Landing = ({classes}: {
 
         <img className={classes.reframing} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637284917/reframing-superintelligence_rx8gjx.png"/>
         </div>
+        
+        <div className={classes.spreads}>
+          <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Trust-cover-with-spread-white_ckrtza.jpg"/>
+
+          <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Modularity-cover-with-spread-white_l95pen.jpg"/>
+
+          <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Failure-cover-with-spread-white_iqcwtf.jpg"/>
+
+
+          <video className={classes.spread} autoPlay loop muted><source src="https://res.cloudinary.com/lesswrong-2-0/video/upload/v1639001843/StraightOn_Compilation2_1_g7t4fy.mp4" /></video>
+
+        </div>
+        {/* <video controls autoPlay>
+          <source src="https://res.cloudinary.com/lesswrong-2-0/video/upload/v1639001843/StraightOn_Compilation2_1_g7t4fy.mp4" type="video/mp4"/>
+        </video> */}
     </div>
   )
 }

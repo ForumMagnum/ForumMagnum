@@ -515,14 +515,14 @@ if (forumTypeSetting.get() === 'LessWrong') {
       path: '/books/2018',
       componentName: 'Book2018Landing',
       title: "Books: A Map that Reflects the Territory"
-    }
-    // {
-    //   name: 'book2019Landing',
-    //   path: '/books/2019',
-    //   componentName: 'Book2019Landing',
-    //   title: "Books: Engines of Cognition",
-    //   background: "white"
-    // },
+    },
+    {
+      name: 'book2019Landing',
+      path: '/books/2019',
+      componentName: 'Book2019Landing',
+      title: "Books: Engines of Cognition",
+      background: "white"
+    },
   );
 }
 
