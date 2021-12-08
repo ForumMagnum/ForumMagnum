@@ -55,10 +55,12 @@ const SmallSideVote = ({ document, hideKarma=false, voteDimension = "Overall", c
 
   const { VoteButton } = Components
 
-  const voteCount = voteProps.voteCount;
-  const karma = voteProps.baseScore;
+  // TODO: don't hard-code Agreement?
+  const voteCount = (voteDimension === 'Overall') ? voteProps.voteCount : voteProps?.voteCountsRecord?.['Agreement'] || 0
+  const karma = (voteDimension === 'Overall') ? voteProps.baseScore : voteProps?.baseScoresRecord?.['Agreement'] || 0
+  const karmaAdjective = (voteDimension === 'Overall') ? '' : `${voteDimension.toLowerCase()} `
 
-  let moveToAlignnmentUserId = ""
+  let moveToAlignnmentUserId = "" // TODO: fix typo
   let documentTypeName = "comment";
   if (collection == Comments) {
     const comment = document as CommentsList
@@ -103,7 +105,7 @@ const SmallSideVote = ({ document, hideKarma=false, voteDimension = "Overall", c
             <Tooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </Tooltip> :
-            <Tooltip title={`This ${documentTypeName} has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+            <Tooltip title={`This ${documentTypeName} has ${karma} ${karmaAdjective}karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>

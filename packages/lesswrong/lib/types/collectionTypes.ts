@@ -7,7 +7,7 @@
  */
 import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
-import { VotingSystemString } from "../voting/voteTypes";
+import { VotingSystemString, VoteDimensionString, BaseScoresRecordType, VoteTypesRecordType } from "../voting/voteTypes";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -126,15 +126,17 @@ interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
   voteCount: number
+  voteCountsRecord?: BaseScoresRecordType
   af?: boolean
   afBaseScore?: number
   afVoteCount?: number
   votingSystem?: VotingSystemString
+  baseScoresRecord: BaseScoresRecordType
 }
 
 interface VoteableTypeClient extends VoteableType {
   currentUserVote: string|null,
-  currentUserVoteRecord: Record<string,string>|null
+  currentUserVotesRecord: VoteTypesRecordType|null
 }
 
 interface DbVoteableType extends VoteableType, DbObject {

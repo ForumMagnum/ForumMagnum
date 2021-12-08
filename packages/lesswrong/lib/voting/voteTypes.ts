@@ -9,7 +9,8 @@ export const voteDimensions = ["Overall", "Agreement"] as const
 export type VoteDimensionString = typeof voteDimensions[number] //"Overall" | "Agreement"
 
 export type VoteTypesRecordType = Partial<Record<VoteDimensionString, string|null>>
-export type PowersRecordType = Partial<Record<VoteDimensionString, number|null>>
+export type BaseScoresRecordType = Partial<Record<VoteDimensionString, number|null>>
+export type PowersRecordType = BaseScoresRecordType
 
 interface VoteTypeOptions {
   power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),

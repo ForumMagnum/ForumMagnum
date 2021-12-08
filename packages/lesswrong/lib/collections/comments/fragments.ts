@@ -23,9 +23,12 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     currentUserVote
+    currentUserVotesRecord
     baseScore
+    baseScoresRecord
     score
     voteCount
+    voteCountsRecord
     af
     afDate
     moveToAlignmentUserId
@@ -127,9 +130,12 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserVotesRecord
     baseScore
+    baseScoresRecord
     score
     afBaseScore
     voteCount
+    voteCountsRecord
   }
 `);

@@ -20,6 +20,7 @@ import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import {votingSystems} from "../../voting/voteTypes";
+import GraphQLJSON from 'graphql-type-json';
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -743,24 +744,25 @@ const schema: SchemaType<DbPost> = {
   },
 
   votingSystem: {
-    type: String,
-      optional: true,
-      viewableBy: ['guests'],
-      insertableBy: ['admins'],
-      editableBy: ['admins'],
-      control: 'select',
-      onInsert: (document) => {
-          return postGetDefaultVotingSystem()
-      },
-      onEdit: (modifier) => {
-        if (modifier.$unset && modifier.$unset.votingSystem) {
-          return postGetDefaultVotingSystem()
-        }
-      },
-      options: () => votingSystems.map((value, index) => {
-        return {label: value, value: value}
-      }),
-      group: formGroups.adminOptions,
+    type: GraphQLJSON,
+    typescriptType: "VotingSystemString",
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    control: 'select',
+    onInsert: (document) => {
+        return postGetDefaultVotingSystem()
+    },
+    onEdit: (modifier) => {
+      if (modifier.$unset && modifier.$unset.votingSystem) {
+        return postGetDefaultVotingSystem()
+      }
+    },
+    options: () => votingSystems.map((value, index) => {
+      return {label: value, value: value}
+    }),
+    group: formGroups.adminOptions,
   }
 };
 

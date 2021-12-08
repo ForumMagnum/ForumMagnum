@@ -105,6 +105,9 @@ registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVote
+    currentUserVotesRecord
+    baseScoresRecord
+    voteCountsRecord
   }
 `);
 

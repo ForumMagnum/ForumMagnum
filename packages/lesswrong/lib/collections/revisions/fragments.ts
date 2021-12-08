@@ -44,8 +44,10 @@ registerFragment(`
     
     score
     baseScore
+    baseScoresRecord
     voteCount
     currentUserVote
+    currentUserVotesRecord
   }
 `);
 
@@ -84,6 +86,7 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserVotesRecord
     baseScore
     score
     voteCount

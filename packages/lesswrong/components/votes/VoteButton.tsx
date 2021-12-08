@@ -134,7 +134,11 @@ const VoteButton = <T extends VoteableTypeClient>({
   }
 
   const hasVoted = (type: string, voteDimension: VoteDimensionString) => {
-    return document.currentUserVote
+    if (voteDimension === 'Overall') {
+      return document.currentUserVote === type
+    } else {
+      return document.currentUserVotesRecord?.[voteDimension] === type
+    }
   }
 
   const smallVoteType = `small${voteType}`

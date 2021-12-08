@@ -2,7 +2,7 @@ import { Connectors } from './vulcan-lib/connectors';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import {recalculateScore, recalculateBaseScore, recalculateAggregateScores} from '../lib/scoring';
+import {recalculateScore, recalculateBaseScore, recalculateVoteCount, recalculateBaseScoresRecord, recalculateVoteCountsRecord} from '../lib/scoring';
 import {voteTypes, VoteTypesRecordType, PowersRecordType} from '../lib/voting/voteTypes';
 import { createVote, voteCallbacks, VoteDocTuple } from '../lib/voting/vote';
 import { algoliaExportById } from './search/utils';
@@ -63,8 +63,9 @@ const addVoteServer = async ({ document, collection, voteType, voteTypesRecord, 
   // LESSWRONG – recalculateBaseScore
   newDocument.baseScore = await recalculateBaseScore(newDocument)
   newDocument.score = recalculateScore(newDocument);
-  newDocument.voteCount++;
-  // TODO: update vote aggregates scores
+  newDocument.voteCount = await recalculateVoteCount(newDocument);
+  newDocument.voteCountsRecord = await recalculateVoteCountsRecord(newDocument)
+  newDocument.baseScoresRecord = await recalculateBaseScoresRecord(newDocument)
 
   // update document score & set item as active
   await Connectors.update(collection,
@@ -73,13 +74,18 @@ const addVoteServer = async ({ document, collection, voteType, voteTypesRecord, 
       $set: {
         inactive: false,
         baseScore: newDocument.baseScore,
-        score: newDocument.score
+        score: newDocument.score,
+        baseScoresRecord: newDocument.baseScoresRecord,
+        voteCount: newDocument.voteCount,
+        voteCountsRecord: newDocument.voteCountsRecord
       },
     },
     {}, true
   );
-  void algoliaExportById(collection as any, newDocument._id);
 
+  console.log('saved', {baseScoresRecord: newDocument.baseScoresRecord}, {baseScore: newDocument.baseScore})
+
+  void algoliaExportById(collection as any, newDocument._id);
   return {newDocument, vote};
 }
 
@@ -111,13 +117,6 @@ export const clearVotesServer = async ({ document, user, collection }: {
       
       const powersRecord:PowersRecordType = (() => {
         if (!!vote.voteTypesRecord) {
-          // let powersRecord = {}
-          // for (let [key, val:number] of Object.entries(vote.powersRecord)) {
-          //   powersRecord[key] = val * -1
-          // }
-          // return powersRecord
-          // TODO: check that this works, otherwise use the imperative way above
-          
           return _.mapObject(vote.powersRecord, function(val, _) {
             return val * -1
           })
@@ -126,8 +125,6 @@ export const clearVotesServer = async ({ document, user, collection }: {
         }
       })()
 
-      // afPower will be positive due to otherVoteFields. TODO: is that okay? (will get reconsidered in a callback so maybe it's okay)
-      // Create an un-vote for each of the existing votes
       const unvote = {
         ...otherVoteFields,
         cancelled: true,
@@ -151,17 +148,24 @@ export const clearVotesServer = async ({ document, user, collection }: {
         [{newDocument, vote}, collection, user]
       );
     }
+    newDocument.baseScore = await recalculateBaseScore(newDocument);
+    newDocument.score = recalculateScore(newDocument);
+    newDocument.voteCount = await recalculateVoteCount(newDocument);
+    newDocument.voteCountsRecord = await recalculateVoteCountsRecord(newDocument)
+    newDocument.baseScoresRecord = await recalculateBaseScoresRecord(newDocument)
     await Connectors.update(collection,
       {_id: document._id},
       {
-        $set: {baseScore: await recalculateBaseScore(document) },
+        $set: {
+          baseScore: newDocument.baseScore,
+          score: newDocument.score,
+          voteCount: newDocument.voteCount,
+          voteCountsRecord: newDocument.voteCountsRecord,
+          baseScoresRecord: newDocument.baseScoresRecord
+        },
       },
       {}, true
     );
-    newDocument.baseScore = await recalculateBaseScore(newDocument);
-    newDocument.score = recalculateScore(newDocument);
-    newDocument.voteCount -= votes.length;
-    // TODO: aggregateScores
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
@@ -224,13 +228,15 @@ export const performVoteServer = async ({ documentId, document, voteType, voteTy
 
   // If there's an existing vote, don't check the rate limit; clear it and re-add the ballot
   if (existingVote) {
-    await clearVotesServer(voteOptions)
+    document = await clearVotesServer(voteOptions)
   } else {
     await checkRateLimit({ document, user }); // throws an error if rate limit exceeded
   }
 
   // If this was an undo vote and there are no other existing votes on the ballot, we're done
   if (Object.values(voteTypesRecord).every(x => x === null)) return document;
+
+  document = document || await Connectors.get(collection, documentId);
 
   let voteDocTuple: VoteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
   
@@ -244,6 +250,7 @@ export const performVoteServer = async ({ documentId, document, voteType, voteTy
   );
 
   (document as any).__typename = collection.options.typeName;
+
   return document;
 }
 

@@ -1,5 +1,7 @@
 import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
+import { BaseScoresRecordType, VoteDimensionString } from './voting/voteTypes';
+import GraphQLJSON from 'graphql-type-json';
 
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
@@ -45,23 +47,21 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           const { Votes, currentUser } = context;
           if (!currentUser) return null;
           const votes = await getWithLoader(context, Votes,
-            `votesByUser${currentUser._id}`,
+            `votesByUser${currentUser._id}`, // deliberately using the same key as currentUserVotesRecord
             {
               userId: currentUser._id,
-              cancelled: false,
-              voteType: { $ne: null }
+              cancelled: false
             },
             "documentId", document._id
           );
-
           if (!votes.length) return null;
           return votes[0].voteType;
         }
       }
     },
     
-    currentUserVoteRecord: {
-      type: 'JSON',
+    currentUserVotesRecord: {
+      type: GraphQLJSON,
       optional: true,
       blackbox: true,
       viewableBy: ['guests'],
@@ -71,10 +71,10 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           const { Votes, currentUser } = context;
           if (!currentUser) return null;
           const votes = await getWithLoader(context, Votes,
-            `votesByUser${currentUser._id}`,
+            `votesByUser${currentUser._id}`, // deliberately using the same key as currentUserVote
             {
               userId: currentUser._id,
-              cancelled: false,
+              cancelled: false
             },
             "documentId", document._id
           );
@@ -151,6 +151,15 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       }),
       viewableBy: ['guests'],
     },
+    voteCountsRecord: {
+      type: GraphQLJSON,
+      optional: true,
+      blackbox: true,
+      canRead: ['guests'],
+      onInsert: (document: DbInsertion<T>): BaseScoresRecordType => {
+        return { "Overall": 0 };
+      },
+    },
     // The document's base score (not factoring in the document's age)
     baseScore: {
       type: Number,
@@ -160,6 +169,16 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       onInsert: (document: DbInsertion<T>): number => {
         // default to 0 if empty
         return document.baseScore || 0;
+      }
+    },
+    // The document's base score aggregates (not factoring in the document's age)
+    baseScoresRecord: {
+      type: GraphQLJSON,
+      optional: true,
+      blackbox: true,
+      canRead: customBaseScoreReadAccess || ['guests'],
+      onInsert: (document: DbInsertion<T>): BaseScoresRecordType => {
+        return { "Overall": document.baseScore };
       }
     },
     // The document's current score (factoring in age)

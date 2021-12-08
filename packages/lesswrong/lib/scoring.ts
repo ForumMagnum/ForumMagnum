@@ -14,35 +14,51 @@ export const CURATED_BONUS = curatedBonusSetting;
 
 
 export const recalculateBaseScore = async (document: VoteableType) => {
-  const votes = await Votes.find(
-    {
-      documentId: document._id,
-      cancelled: false
-    }
-  ).fetch() || [];
-  return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
+  return recalculateVoteTotals(document, (vote) => (vote.power))
+}
+export const recalculateVoteCount = async (document: VoteableType) => {
+  return recalculateVoteTotals(document, (vote) => (vote.power !== 0 ? 1 : 0))
 }
 
-// TODO: this
-export const recalculateAggregateScores = async (document: VoteableType) => {
+export const recalculateVoteTotals = async (document: VoteableType, incrementFunction: any) => {
   const votes = await Votes.find(
     {
       documentId: document._id,
       cancelled: false
     }
   ).fetch() || [];
-  
-  const addToAgg = (aggregator, vote: DbVote) => {
-    for (const dimension in voteDimensions) {
-      aggregator[dimension] = aggregator[dimension] + vote[dimension]
+  return votes.reduce((sum, vote) => ( sum + incrementFunction(vote)), 0)
+}
+
+
+export const recalculateBaseScoresRecord = async (document: VoteableType) => {
+  return recalculateRecord(document, (power) => (power), recalculateBaseScore)
+}
+
+export const recalculateVoteCountsRecord = async (document: VoteableType) => {
+  return recalculateRecord(document, (power) => {return power !== 0 ? 1 : 0}, (recalculateVoteCount))
+}
+
+export const recalculateRecord = async (document: VoteableType, incrementFunction: any, recalculateOverall: any) => {
+  const votes = await Votes.find(
+    {
+      documentId: document._id,
+      cancelled: false
     }
-    return aggregator
+  ).fetch() || [];
+
+  // Initialize aggregator
+  const aggregator = Object.fromEntries(voteDimensions.map((el) => ([el, 0])))
+
+  const addToAgg = (aggregator, vote: DbVote) => {
+    return voteDimensions.reduce((agg, dimension) => {
+      return {...agg, [dimension]: agg[dimension] + incrementFunction(vote?.powersRecord?.[dimension] || 0)}
+    }, aggregator)
   }
-  
-  const aggregator = voteDimensions.reduce((o, dimension) => ({...o, [dimension]: 0}), {}) 
-  console.log({aggregator})
-  
-  return votes.reduce( (agg, vote) => addToAgg(agg, vote), aggregator)
+
+  const record = votes.reduce( (agg, vote) => addToAgg(agg, vote), aggregator)
+  record['Overall'] = await recalculateOverall(document)
+  return record
 }
 
 // NB: If you want to change this algorithm, make sure to also change the

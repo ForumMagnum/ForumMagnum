@@ -15,6 +15,57 @@ export const voteCallbacks = {
   castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.async"),
 };
 
+const createNewDocument = ({document, collection, voteType, voteDimension, user, direction}: {
+  document: VoteableTypeClient,
+  collection: CollectionBase<DbObject>,
+  voteType: string,
+  voteDimension: VoteDimensionString,
+  user: UsersCurrent,
+  direction: "add"|"cancel",
+}) => {
+
+  // Compute power for the vote being removed. Note that this is not quite
+  // right if the user's vote weight has changed; the eager update will remove
+  // points based on the user's new vote weight, which will then be corrected
+  // when the server responds.
+  const multiplier = direction === 'add' ? 1 : -1
+  const power = getVotePower({user, voteType, document});
+  const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  
+  const overallAggregates = voteDimension === 'Overall' ?
+    {
+      currentUserVote: direction === 'add' ? voteType : null,
+      baseScore: (document.baseScore||0) + (multiplier * power),
+      afBaseScore: (document.afBaseScore||0) + (multiplier * afPower),
+      voteCount: (document.voteCount||0) + (multiplier * 1),
+      afVoteCount: (document.afVoteCount||0) + (multiplier * (isAfVote?1:0)),
+    } : {}
+
+    console.log({multiplier})
+    console.log({power})
+    console.log({direction})
+
+  const otherDimensionAggregates = {
+    currentUserVotesRecord: { ...document.currentUserVotesRecord, [voteDimension]: direction === 'add' ? voteType : null},
+    baseScoresRecord: {...document.baseScoresRecord, [voteDimension]: (document?.baseScoresRecord?.[voteDimension] || 0) + multiplier * power},
+    voteCountsRecord: {...document.voteCountsRecord, [voteDimension]: (document?.voteCountsRecord?.[voteDimension] || 0) + multiplier * 1},
+  }
+
+  console.log({otherDimensionAggregates})
+  console.log('document.voteCount', document.voteCount)
+  console.log('document.voteCountsRecord', document.voteCountsRecord)
+  console.log('document.voteCountsRecord?.[voteDimension]', document.voteCountsRecord?.[voteDimension])
+
+  const newDocument = {
+    ...document,
+    ...overallAggregates,
+    ...otherDimensionAggregates
+  };
+  newDocument.score = recalculateScore(newDocument);
+  console.log({newDocument})
+  return newDocument;
+}
 
 // Given a client-side view of a document, return a modified version in which
 // the user has voted and the scores are updated appropriately.
@@ -25,22 +76,24 @@ const addVoteClient = ({ document, collection, voteType, voteDimension, user }: 
   voteDimension: VoteDimensionString,
   user: UsersCurrent,
 }) => {
-  const power = getVotePower({user, voteType: voteType[voteDimension], voteDimension, document});
-  const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType[voteDimension]) : 0;
+  // const power = getVotePower({user, voteType: voteType[voteDimension], document});
+  // const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
+  // const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType[voteDimension]) : 0;
 
-  const newDocument = {
-    ...document,
-    currentUserVote: { ...document.currentUserVote, voteDimension: voteType},
-    baseScore: (document.baseScore||0) + power,
-    voteCount: (document.voteCount||0) + 1,
-    afBaseScore: (document.afBaseScore||0) + afPower,
-    afVoteCount: (document.afVoteCount||0) + (isAfVote?1:0),
-    __typename: collection.options.typeName,
-  };
-
-  newDocument.score = recalculateScore(newDocument);
-  return newDocument;
+  // const newDocument = {
+  //   ...document,
+  //   currentUserVote: document.currentUserVote,
+  //   currentUserVotesRecord: { ...document.currentUserVotesRecord, voteDimension: voteType},
+  //   baseScore: (document.baseScore||0) + power,
+  //   baseScoresRecord: {...document.baseScoresRecord, voteDimension: (document?.baseScoresRecord?.[voteDimension] || 0) + power},
+  //   voteCount: (document.voteCount||0) + 1,
+  //   voteCountsRecord: {...document.voteCountsRecord, voteDimension: (document?.voteCountsRecord?.[voteDimension] || 0) + 1},
+  //   afBaseScore: (document.afBaseScore||0) + afPower,
+  //   afVoteCount: (document.afVoteCount||0) + (isAfVote?1:0),
+  //   __typename: collection.options.typeName,
+  // };
+  // newDocument.score = recalculateScore(newDocument);
+  return createNewDocument({ document, collection, voteType, voteDimension, user, direction: 'add' });
 }
 
 
@@ -52,29 +105,13 @@ const cancelVoteClient = ({document, voteDimension, collection, user}: {
   collection: CollectionBase<DbObject>,
   user: UsersCurrent,
 }): VoteableTypeClient => {
-  if (!document.currentUserVote)
-    return document;
-  
-  // Compute power for the vote being removed. Note that this is not quite
-  // right if the user's vote weight has changed; the eager update will remove
-  // points based on the user's new vote weight, which will then be corrected
-  // when the server responds.
-  const voteType = document.currentUserVote;
-  const power = getVotePower({user, voteType: voteType[voteDimension], voteDimension, document});
-  const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType[voteDimension]) : 0;
-  
-  const newDocument = {
-    ...document,
-    currentUserVote: null,
-    baseScore: (document.baseScore||0) - power,
-    afBaseScore: (document.afBaseScore||0) - afPower,
-    voteCount: (document.voteCount||0)-1,
-    afVoteCount: (document.afVoteCount||0) - (isAfVote?1:0),
-  };
-  newDocument.score = recalculateScore(newDocument);
-  
-  return newDocument;
+  const voteType = voteDimension === 'Overall' ?
+    document.currentUserVote :
+    document.currentUserVotesRecord?.[voteDimension]
+  if (!voteType) {
+    throw new Error("Can't cancel a vote that doesn't have a voteType")
+  }
+  return createNewDocument({ document, collection, voteType, voteDimension, user, direction: 'cancel' });
 }
 
 
@@ -127,17 +164,18 @@ export const createVote = ({ document, collectionName, voteType, voteTypesRecord
     votedAt: new Date(),
     authorId: document.userId,
     cancelled: false,
-    documentIsAf: !!(document.af),
+    documentIsAf: !!(document.af)
   }
 };
 
 // Optimistic response for votes
-export const setVoteClient = async ({ document, collection, voteType, voteDimension, user }: {
+export const setVoteClient = async ({ document, collection, voteType, voteDimension, user, direction }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbVoteableType>
-  voteType: string|null,
+  voteType: string,
   voteDimension: VoteDimensionString,
   user: UsersCurrent,
+  direction: 'add'|'cancel'
 }): Promise<VoteableTypeClient> => {
   if (voteType && !voteTypes[voteType]) throw new Error("Invalid vote type");
   const collectionName = collection.options.collectionName;
@@ -147,11 +185,18 @@ export const setVoteClient = async ({ document, collection, voteType, voteDimens
     throw new Error(`Cannot vote on '${collectionName.toLowerCase()}`);
   }
 
-  if (!voteType) {
-    return cancelVoteClient({document, voteDimension, collection, user});
-  } else {
-    document = cancelVoteClient({document, voteDimension, collection, user})
+  const hasVoted = (voteDimension === 'Overall' ? document.currentUserVote : document.currentUserVotesRecord?.[voteDimension])
+  console.log({hasVoted})
+  console.log({direction})
+
+  if (hasVoted) {
+    console.log('calling cancelVoteClient')
+    console.log({voteDimension})
+    document = cancelVoteClient({document, voteDimension, collection, user});
+  }
+  if (direction === 'add') {
     return addVoteClient({document, collection, voteType, voteDimension, user});
+  } else {
+    return document
   }
 }
-

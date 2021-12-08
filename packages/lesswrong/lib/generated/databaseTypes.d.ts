@@ -113,7 +113,9 @@ interface DbComment extends DbObject {
   moderatorHat: boolean
   contents: EditableFieldContents
   voteCount: number
+  voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   baseScore: number
+  baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   score: number
   inactive: boolean
   af: boolean
@@ -362,9 +364,11 @@ interface DbPost extends DbObject {
   nextDayReminderSent: boolean
   onlyVisibleToLoggedIn: boolean
   onlyVisibleToEstablishedAccounts: boolean
-  votingSystem: string
+  votingSystem: VotingSystemString
   voteCount: number
+  voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   baseScore: number
+  baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   score: number
   inactive: boolean
   legacy: boolean
@@ -517,7 +521,9 @@ interface DbRevision extends DbObject {
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
+  voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   baseScore: number
+  baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   score: number
   inactive: boolean
 }
@@ -581,7 +587,9 @@ interface DbTagRel extends DbObject {
   userId: string
   afBaseScore: number
   voteCount: number
+  voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   baseScore: number
+  baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   score: number
   inactive: boolean
 }

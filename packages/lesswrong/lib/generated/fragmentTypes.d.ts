@@ -127,7 +127,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly nextDayReminderSent: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
   readonly onlyVisibleToEstablishedAccounts: boolean,
-  readonly votingSystem: string,
+  readonly votingSystem: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -259,7 +259,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
-  readonly votingSystem: string,
+  readonly votingSystem: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -334,6 +334,9 @@ interface PostsBase_group { // fragment on Localgroups
 
 interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
+  readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
@@ -616,9 +619,12 @@ interface CommentsList { // fragment on Comments
   readonly hideAuthor: boolean,
   readonly user: UsersMinimumInfo|null,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
   readonly baseScore: number,
+  readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly score: number,
   readonly voteCount: number,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly af: boolean,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
@@ -694,10 +700,13 @@ interface WithVoteComment { // fragment on Comments
   readonly __typename: string,
   readonly _id: string,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
   readonly baseScore: number,
+  readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly score: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
 }
 
 interface RevisionDisplay { // fragment on Revisions
@@ -736,8 +745,10 @@ interface RevisionMetadata { // fragment on Revisions
   readonly userId: string,
   readonly score: number,
   readonly baseScore: number,
+  readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly voteCount: number,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
@@ -759,6 +770,7 @@ interface WithVoteRevision { // fragment on Revisions
   readonly __typename: string,
   readonly _id: string,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
   readonly baseScore: number,
   readonly score: number,
   readonly voteCount: number,
