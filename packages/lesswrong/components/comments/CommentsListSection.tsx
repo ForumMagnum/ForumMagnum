@@ -46,6 +46,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
+  },
+  newCommentSublabel: {
+    paddingLeft: theme.spacing.unit*1.5,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    fontStyle: 'italic',
+    marginTop: 4,
   }
 })
 
@@ -151,6 +158,11 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
       {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
         <div id="posts-thread-new-comment" className={classes.newComment}>
           <div className={classes.newCommentLabel}>New Comment</div>
+          {post?.isEvent && post?.rsvps?.length && (
+            <div className={classes.newCommentSublabel}>
+              Everyone who RSVP'd to this event will be notified.
+            </div>
+          )}
           <Components.CommentsNewForm
             post={post} tag={tag}
             prefilledProps={{

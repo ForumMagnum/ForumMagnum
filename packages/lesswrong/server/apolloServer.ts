@@ -11,7 +11,7 @@ import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -25,7 +25,7 @@ import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
-import { addSentryMiddlewares } from './logging';
+import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
@@ -61,6 +61,20 @@ const getClientBundle = () => {
   }
   
   return clientBundle;
+}
+
+class ApolloServerLogging {
+  requestDidStart(context: any) {
+    const {request} = context;
+    const {operationName, query, variables} = request;
+    logGraphqlQueryStarted(operationName, query, variables);
+    
+    return {
+      willSendResponse(props) {
+        logGraphqlQueryFinished(operationName, query);
+      }
+    };
+  }
 }
 
 export function startWebserver() {
@@ -119,7 +133,13 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: ({ req, res }) => computeContextFromReq(req, res),
+    context: async ({ req, res }) => {
+      const user = await getUserFromReq(req);
+      const context = await computeContextFromUser(user, req, res);
+      configureSentryScope(context);
+      return context;
+    },
+    plugins: [new ApolloServerLogging()]
   });
 
   app.use('/graphql', bodyParser.json({ limit: '50mb' }));
@@ -205,8 +225,9 @@ export function startWebserver() {
   // Start Server
   const port = process.env.PORT || 3000
   const env = process.env.NODE_ENV || 'production'
-  app.listen({ port }, () => {
+  const server = app.listen({ port }, () => {
     // eslint-disable-next-line no-console
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
+  server.keepAliveTimeout = 120000;
 }

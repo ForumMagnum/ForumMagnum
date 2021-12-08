@@ -6,6 +6,8 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
+import { forumTypeSetting } from "./instanceSettings";
+
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
 const moderatorOnly = (user: UsersCurrent|DbUser|null): boolean => !!(user?.isAdmin || user?.groups?.includes('sunshineRegiment'))
@@ -21,7 +23,7 @@ const karmaGated = (minKarma: number) => (user: UsersCurrent|DbUser|null): boole
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userCanEditTagPortal = adminOnly;
+export const userCanEditTagPortal = forumTypeSetting.get() === 'EAForum' ? moderatorOnly : adminOnly;
 export const userHasCkEditor = shippedFeature;
 export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled

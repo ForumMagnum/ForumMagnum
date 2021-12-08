@@ -169,13 +169,13 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
       tooltipTitle: 'Personal Blog Post',
       tooltipBody: <React.Fragment>
         <div>
-          Members can write whatever they want on their personal blog. Personal
-          blogposts are a good fit for:
+          Users can write whatever they want on their personal blog. This category
+          is a good fit for:
         </div>
         <ul>
-          <li>Niche topics</li>
-          <li>Topics that are difficult to discuss rationally</li>
-          <li>Personal ramblings</li>
+          <li>topics that aren't closely related to EA</li>
+          <li>topics that are difficult to discuss rationally</li>
+          <li>topics of interest to a small fraction of the Forum’s readers (e.g. local events)</li>
         </ul>
       </React.Fragment>,
       linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
@@ -193,8 +193,8 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
     shortform: {
       tooltipTitle: 'Shortform',
       tooltipBody: <div>
-        Writing that is short in length, or written in a short amount of time.
-        Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
+        Writing that is brief, or written very quickly. Perfect for off-the-cuff
+        thoughts, brainstorming, early stage drafts, etc.
       </div>,
       linkTarget: "/shortform",
       Icon: SubjectIcon

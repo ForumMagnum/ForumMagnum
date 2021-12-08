@@ -250,6 +250,7 @@ export interface UseMultiOptions<
   itemsPerPage?: number,
   skip?: boolean,
   queryLimitName?: string,
+  alwaysShowLoadMore?: boolean,
 }
 
 export function useMulti<
@@ -271,6 +272,7 @@ export function useMulti<
   itemsPerPage = 10,
   skip = false,
   queryLimitName,
+  alwaysShowLoadMore = false,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): {
   loading: boolean,
   loadingInitial: boolean,
@@ -338,7 +340,7 @@ export function useMulti<
   //
   // The caller of this function is responsible for showing a Load More button
   // if showLoadMore returned true.
-  const showLoadMore = enableTotal ? (count < totalCount) : (count >= limit);
+  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= limit));
   
   const loadMore = async (limitOverride: number) => {
     const newLimit = limitOverride || (limit+itemsPerPage)

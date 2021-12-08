@@ -11,6 +11,9 @@ import { postStatuses } from './constants';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
+const isEAForum = forumTypeSetting.get() === 'EAForum'
+const eventBuffer = isEAForum ? {startBuffer: '1 hour', endBuffer: null} : {startBuffer: '6 hours', endBuffer: '3 hours'}
+
 type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
 
 declare global {
@@ -27,6 +30,7 @@ declare global {
     sortByMost?: boolean,
     sortedBy?: string,
     af?: boolean,
+    excludeEvents?: boolean,
     onlineEvent?: boolean,
     groupId?: string,
     lat?: number,
@@ -42,6 +46,8 @@ declare global {
     before?: Date|string|null,
     after?: Date|string|null,
     timeField?: keyof DbPost,
+    postIds?: Array<string>,
+    reviewYear?: number
   }
 }
 
@@ -77,7 +83,8 @@ export const filters: Record<string,any> = {
     hiddenRelatedQuestion: viewFieldAllowAny
   },
   "events": {
-    isEvent: true
+    isEvent: true,
+    groupId: null
   },
   "meta": {
     meta: true
@@ -87,6 +94,10 @@ export const filters: Record<string,any> = {
   },
   "unnominated2019": {
     nominationCount2019: 0
+  },
+  // TODO(Review) is this indexed?
+  "unnominated": {
+    positiveReviewVoteCount: 0
   },
   "unNonCoreTagged": {
     tagRelevance: {$exists: true},
@@ -132,7 +143,7 @@ export const sortings = {
  */
 Posts.addDefaultView((terms: PostsViewTerms) => {
   const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), and
+  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
@@ -157,6 +168,9 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
+  }
+  if (terms.excludeEvents) {
+    params.selector.isEvent = false
   }
   if (terms.userId) {
     params.selector.hideAuthor = false
@@ -386,12 +400,6 @@ ensureIndex(Posts,
   augmentForDefaultView({ tagRelevance: 1 }),
   {
     name: "posts.tagRelevance"
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({"tagRelevance.tNsqhzTibgGJKPEWB": 1, question: 1}),
-  {
-    name: "posts.coronavirus_questions"
   }
 );
 ensureIndex(Posts,
@@ -722,6 +730,28 @@ Posts.addView("legacyIdPost", (terms: PostsViewTerms) => {
 });
 ensureIndex(Posts, {legacyId: "hashed"});
 
+
+// Corresponds to the postCommented subquery in recentDiscussionFeed.ts
+ensureIndex(Posts,
+  {
+    status: 1,
+    isFuture: 1,
+    draft: 1,
+    unlisted: 1,
+    authorIsUnreviewed: 1,
+    hideFrontpageComments: 1,
+    
+    lastCommentedAt: -1,
+    _id: 1,
+    
+    baseScore: 1,
+    af: 1,
+    isEvent: 1,
+    onlineEvent: 1,
+    commentCount: 1,
+  },
+);
+
 const recentDiscussionFilter = {
   baseScore: {$gt:0},
   hideFrontpageComments: false,
@@ -816,13 +846,16 @@ ensureIndex(Posts,
 );
 
 Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
+  const timeSelector = {$or: [
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+  ]}
   let query = {
     selector: {
       onlineEvent: true,
       isEvent: true,
       groupId: null,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      ...timeSelector,
     },
     options: {
       sort: {
@@ -840,7 +873,10 @@ ensureIndex(Posts,
 );
 
 Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
+  const timeSelector = {$or: [
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+  ]}
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   let query: any = {
     selector: {
@@ -848,18 +884,20 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
       groupId: null,
       isEvent: true,
       onlineEvent: onlineEvent,
-      $or: [{startTime: {$exists: false}}, {startTime: {$gt: yesterday}}],
+      ...timeSelector,
       mongoLocation: {
         $near: {
           $geometry: {
                type: "Point" ,
                coordinates: [ terms.lng, terms.lat ]
           },
+          $maxDistance: 240000 // only show in-person events within 150 miles
         },
       }
     },
     options: {
       sort: {
+        startTime: 1, // show events in chronological order
         createdAt: null,
         _id: null
       }
@@ -878,7 +916,10 @@ ensureIndex(Posts,
 );
 
 Posts.addView("events", (terms: PostsViewTerms) => {
-  const yesterday = moment().subtract(1, 'days').toDate();
+  const timeSelector = {$or: [
+    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+  ]}
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
   const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
   return {
@@ -888,12 +929,11 @@ Posts.addView("events", (terms: PostsViewTerms) => {
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
-      $or: [{startTime: {$exists: false}}, {startTime: {$gte: yesterday}}],
+      ...timeSelector,
     },
     options: {
       sort: {
-        baseScore: -1,
-        startTime: -1,
+        startTime: 1
       }
     }
   }
@@ -1218,3 +1258,42 @@ Posts.addView("stickied", (terms: PostsViewTerms) => (
     },
   }
 ));
+
+// used to find a user's upvoted posts, so they can nominate them for the Review
+Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: ResolverContext) => {
+  return {
+    selector: {
+      _id: {$in: terms.postIds},
+      userId: {$ne: context.currentUser?._id,},
+      isEvent: false
+    },
+    options: {
+      sort: {
+        baseScore: -1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ _id: 1, userId: 1, isEvent:1, baseScore:1 }),
+  { name: "posts.nominatablePostsByVote", }
+);
+
+
+// Nominations for the (≤)2020 review are determined by the number of votes
+Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      positiveReviewVoteCount: { $gt: 0 },
+    },
+    options: {
+      sort: {
+        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
+);

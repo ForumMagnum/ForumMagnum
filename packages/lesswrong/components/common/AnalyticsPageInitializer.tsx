@@ -122,16 +122,16 @@ function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
     }
 
     useEffect(() => {
-        if (timerIsActive) {
-            const  increment = (seconds < switchIncrement ) ? smallIncrementInSeconds : largeIncrementInSeconds
-            intervalTimer.current = setInterval(() => {
-              setSeconds(seconds + increment)
-              captureEvent("timerEvent", {seconds: seconds + increment, increment: increment})
-            }, increment*1000) //setInterval uses milliseconds
-        } else if (!timerIsActive && seconds !== 0) {
-            clearInterval(intervalTimer.current)
-        }
-        return () => clearInterval(intervalTimer.current)
+      if (timerIsActive) {
+        const  increment = (seconds < switchIncrement ) ? smallIncrementInSeconds : largeIncrementInSeconds
+        intervalTimer.current = setInterval(() => {
+          setSeconds(seconds + increment)
+          captureEvent("timerEvent", {seconds: seconds + increment, increment: increment})
+        }, increment*1000) //setInterval uses milliseconds
+      } else if (!timerIsActive && seconds !== 0) {
+        clearInterval(intervalTimer.current)
+      }
+      return () => clearInterval(intervalTimer.current)
     }, [timerIsActive, setTimerIsActive, seconds, captureEvent, smallIncrementInSeconds, largeIncrementInSeconds, switchIncrement])
 
     return { seconds, isActive: timerIsActive, setTimerIsActive, reset }

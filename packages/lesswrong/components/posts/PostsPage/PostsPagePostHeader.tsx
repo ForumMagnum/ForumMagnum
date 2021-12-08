@@ -32,6 +32,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1.4rem',
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
+  groupLinks: {
+    display: 'inline-block',
+    marginRight: 20
+  },
   commentsLink: {
     marginRight: SECONDARY_SPACING,
     color: theme.palette.grey[600],
@@ -40,14 +44,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body2.fontSize,
   },
   wordCount: {
-    display: 'none',
+    display: 'inline-block',
     marginRight: SECONDARY_SPACING,
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline-block'
-    }
   },
   actions: {
     display: 'inline-block',
@@ -113,7 +114,7 @@ const PostsPagePostHeader = ({post, classes}: {
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarIcon} = Components;
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -151,8 +152,13 @@ const PostsPagePostHeader = ({post, classes}: {
           {!post.isEvent && <span className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </span>}
-          {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+          {post.isEvent && <div className={classes.groupLinks}>
+            <Components.GroupLinks document={post} noMargin={true} />
+          </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
+          <div className={classes.commentsLink}>
+            <AddToCalendarIcon post={post} label="Add to Calendar" hideTooltip={true} />
+          </div>
           <span className={classes.actions}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
               <PostsPageActions post={post} />
@@ -165,7 +171,7 @@ const PostsPagePostHeader = ({post, classes}: {
       </div>}
     </div>
     
-    {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
+    {!post.shortform && !post.isEvent && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}

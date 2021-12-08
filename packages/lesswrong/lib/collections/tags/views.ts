@@ -174,7 +174,6 @@ Tags.addView('tagsByTagFlag', (terms: TagsViewTerms) => {
 Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
   return {
     selector: {
-      deleted: viewFieldAllowAny,
       adminOnly: viewFieldAllowAny,
       wikiOnly: viewFieldAllowAny
     },

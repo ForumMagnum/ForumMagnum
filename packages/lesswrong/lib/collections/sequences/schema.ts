@@ -19,9 +19,10 @@ const schema: SchemaType<DbSequence> = {
     }),
     optional: true,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['admin'],
-    hidden:  true,
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    control: 'text',
+    tooltip: 'The user id of the author',
   },
 
   title: {
@@ -151,6 +152,15 @@ const schema: SchemaType<DbSequence> = {
     viewableBy: ['guests'],
     editableBy: ['admins', 'sunshineRegiment'],
     insertableBy: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+  },
+
+  hideFromAuthorPage: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
     ...schemaDefaultValue(false),
   }
 }

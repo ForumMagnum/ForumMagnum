@@ -56,11 +56,13 @@ registerFragment(`
     location
     googleLocation
     onlineEvent
+    globalEvent
     startTime
     endTime
     localStartTime
     localEndTime
     facebookLink
+    meetupLink
     website
     contactInfo
     isEvent
@@ -86,15 +88,20 @@ registerFragment(`
     moderationStyle
     submitToFrontpage
     shortform
+    onlyVisibleToLoggedIn
 
     nominationCount2018
     reviewCount2018
     nominationCount2019
     reviewCount2019
+    reviewCount
+    reviewVoteCount
+    positiveReviewVoteCount
 
     group {
       _id
       name
+      organizerIds
     }
   }
 `);
@@ -134,6 +141,7 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
+    currentUserReviewVote
     moderationGuidelines {
       _id
       html
@@ -248,6 +256,16 @@ registerFragment(`
     contents {
       _id
       html
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsPlaintextDescription on Post {
+    _id
+    contents {
+      _id
+      plaintextDescription
     }
   }
 `);
@@ -457,4 +475,3 @@ registerFragment(`
     }
   }
 `);
-

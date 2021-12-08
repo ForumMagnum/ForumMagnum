@@ -11,6 +11,7 @@ import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
+import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -102,7 +103,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditUrl',
     order: 12,
     query: `
@@ -121,7 +122,7 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
@@ -308,6 +309,7 @@ const schema: SchemaType<DbPost> = {
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
+    tooltip: 'The user id of the author',
     
     group: formGroups.adminOptions,
   },
@@ -417,7 +419,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
+    editableBy: ['members', 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
@@ -437,7 +439,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
+    editableBy: ['members', 'admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -573,6 +575,47 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
   },
 
+  reviewCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && !!comment.reviewingForReview
+    }),
+    canRead: ['guests'],
+  },
+
+  reviewVoteCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewVoteCount",
+      collectionName: "Posts",
+      foreignCollectionName: "ReviewVotes",
+      foreignTypeName: "reviewVote",
+      foreignFieldName: "postId",
+    }),
+    canRead: ['guests'],
+  },
+
+  positiveReviewVoteCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "positiveReviewVoteCount",
+      collectionName: "Posts",
+      foreignCollectionName: "ReviewVotes",
+      foreignTypeName: "reviewVote",
+      foreignFieldName: "postId",
+      filterFn: vote => vote.qualitativeScore > DEFAULT_QUALITATIVE_VOTE || vote.quadraticScore > 0
+    }),
+    canRead: ['guests'],
+  },
+
   lastCommentPromotedAt: {
     type: Date,
     optional: true,
@@ -692,11 +735,12 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: (props) => !props.eventForm,
     group: formGroups.event,
     control: 'checkbox',
     label: "Enable RSVPs for this event",
+    tooltip: "RSVPs are public, but the associated email addresses are only visible to organizers.",
     optional: true
   },
   
@@ -709,6 +753,46 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     ...schemaDefaultValue(false),
   },
+  
+  onlyVisibleToLoggedIn: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from users who are not logged in",
+    ...schemaDefaultValue(false),
+  },
+  
+  onlyVisibleToEstablishedAccounts: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from logged out users and newly created accounts",
+    ...schemaDefaultValue(false),
+  },
+
+  currentUserReviewVote: resolverOnlyField({
+    type: Number,
+    viewableBy: ['members'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<number|null> => {
+      const { ReviewVotes, currentUser } = context;
+      if (!currentUser) return null;
+      const votes = await getWithLoader(context, ReviewVotes,
+        `reviewVotesByUser${currentUser._id}`,
+        {
+          userId: currentUser._id
+        },
+        "postId", post._id
+      );
+      if (!votes.length) return null;
+      return votes[0].qualitativeScore;
+    }
+  })
 };
 
 export default schema;

@@ -1,12 +1,11 @@
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from './hooks/useUpdateCurrentUser';
+import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -33,11 +32,11 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 16
 // like to include
 const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex',
+    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex', 'bestoflesswrong',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaSequencesHome'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaLibrary'],
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -109,14 +108,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  // FIXME sure seems like this should be an optional prop
-  currentUser: UsersCurrent,
+  currentUser: UsersCurrent | null,
   messages: any,
   children?: React.ReactNode,
 }
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
   cookies: any,
   theme: ThemeType,
+  updateUser: any,
 }
 interface LayoutState {
   timezone: string,
@@ -161,11 +160,14 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   toggleStandaloneNavigation = () => {
-    const { updateCurrentUser, currentUser } = this.props
+    const { updateUser, currentUser } = this.props
     this.setState(prevState => {
       if (currentUser) {
-        void updateCurrentUser({
-          hideNavigationSidebar: !prevState.hideNavigationSidebar
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            hideNavigationSidebar: !prevState.hideNavigationSidebar
+          }
         })
       }
       return {
@@ -174,24 +176,19 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     })
   }
 
-  getUniqueClientId = () => {
-    const { currentUser, cookies } = this.props
-
-    if (currentUser) return currentUser._id
-
-    const cookieId = cookies.get('clientId')
-    if (cookieId) return cookieId
-
-    const newId = randomId()
-    cookies.set('clientId', newId)
-    return newId
-  }
-
   componentDidMount() {
-    const { cookies } = this.props;
+    const { updateUser, currentUser, cookies } = this.props;
     const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone) {
+    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
       cookies.set('timezone', newTimezone);
+      if (currentUser) {
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            lastUsedTimezone: newTimezone,
+          }
+        })
+      }
       this.setState({
         timezone: newTimezone
       });
@@ -243,12 +240,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const afterTime = petrovAfterTime.get()
 
     const renderPetrovDay = 
-      currentRoute?.name == "home"
+      currentRoute?.name === "home"
       && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
-    
-    // console.log({renderPetrovDay, routeName: currentRoute?.name == 'home', correctTime: beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime, beforeTime, afterTime, currentTime: currentTime.valueOf(), afterTimeDirect: petrovAfterTime.get()})
-
+      
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -339,7 +334,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
     withLocation, withCookies,
-    withUpdateCurrentUser,
+    withUpdate({
+      collectionName: "Users",
+      fragmentName: 'UsersCurrent',
+    }),
     withTheme()
   ]}
 );

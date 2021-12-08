@@ -33,7 +33,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { TabNavigationItem } = Components
+  const { TabNavigationItem, FeaturedResourceBanner } = Components
   const customComponentProps = {currentUser}
 
   return (
@@ -58,6 +58,8 @@ const TabNavigationMenu = ({onClickSection, classes}: {
               onClick={onClickSection}
             />
           })}
+          {/* NB: This returns null if you don't have any active resources */}
+          <FeaturedResourceBanner terms={{view: "activeResources"}}/>
         </div>
     </AnalyticsContext>  )
 };

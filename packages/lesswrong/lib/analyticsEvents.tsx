@@ -8,6 +8,7 @@ import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
 import * as _ from 'underscore';
+import moment from 'moment';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -328,6 +329,10 @@ function browserConsoleLogAnalyticsEvent(event: any, rateLimitExceeded: boolean)
   for (let fieldName of Object.keys(event.props)) {
     c.log(`${fieldName}:`, event.props[fieldName]);
   }
+  // Timestamp recorded on the server will differ. Obviously in part because of
+  // the latency of the network, but also because we have a queue that we only
+  // flush max once/second. And something something skew.
+  c.log('[[time of day]]', moment().format('HH:mm:ss.SSS'));
   c.groupEnd();
 }
 
@@ -336,7 +341,10 @@ function serverConsoleLogAnalyticsEvent(event: any) {
   const colorEscapeSeq = `\x1b[38;2;0;${r};${g};${b}m`;
   const endColorEscapeSeq = '\x1b[0m';
   // eslint-disable-next-line no-console
-  console.log(`Analytics event: ${colorEscapeSeq}${event.type}${endColorEscapeSeq}`, event.props);
+  console.log(`Analytics event: ${colorEscapeSeq}${event.type}${endColorEscapeSeq}`, {
+    ...event.props,
+    '[[time of day]]': moment().format('HH:mm:ss.SSS')
+  });
 }
 
 Globals.captureEvent = captureEvent;
