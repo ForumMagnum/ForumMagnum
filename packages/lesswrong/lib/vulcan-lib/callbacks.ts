@@ -394,7 +394,7 @@ function markCallbackFinished(id: number, description: string)
   numCallbacksPending--;
   delete pendingCallbackKeys[id];
   
-  if (pendingCallbackDescriptions[description] <= 1) {
+  if (!pendingCallbackDescriptions[description] || pendingCallbackDescriptions[description]===1) {
     delete pendingCallbackDescriptions[description];
   } else {
     pendingCallbackDescriptions[description]--;
