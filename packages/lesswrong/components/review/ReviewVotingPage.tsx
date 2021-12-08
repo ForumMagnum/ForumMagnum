@@ -408,6 +408,7 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.menu}>
+            {/* TODO; real count */}
             {posts && <div className={classes.postCount}>{posts.length} Nominated Posts</div>}
             
             {/* Turned off for the Preliminary Voting phase */}
