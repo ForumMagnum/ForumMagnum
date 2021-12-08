@@ -30,7 +30,9 @@ declare global {
     sortByMost?: boolean,
     sortedBy?: string,
     af?: boolean,
+    excludeEvents?: boolean,
     onlineEvent?: boolean,
+    globalEvent?: boolean,
     groupId?: string,
     lat?: number,
     lng?: number,
@@ -82,7 +84,8 @@ export const filters: Record<string,any> = {
     hiddenRelatedQuestion: viewFieldAllowAny
   },
   "events": {
-    isEvent: true
+    isEvent: true,
+    groupId: null
   },
   "meta": {
     meta: true
@@ -141,7 +144,7 @@ export const sortings = {
  */
 Posts.addDefaultView((terms: PostsViewTerms) => {
   const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), and
+  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
@@ -166,6 +169,9 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
+  }
+  if (terms.excludeEvents) {
+    params.selector.isEvent = false
   }
   if (terms.userId) {
     params.selector.hideAuthor = false
@@ -742,7 +748,7 @@ ensureIndex(Posts,
     baseScore: 1,
     af: 1,
     isEvent: 1,
-    onlineEvent: 1,
+    globalEvent: 1,
     commentCount: 1,
   },
 );
@@ -840,14 +846,14 @@ ensureIndex(Posts,
   { name: "posts.shortformDiscussionThreadsList", }
 );
 
-Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
+Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   const timeSelector = {$or: [
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
   let query = {
     selector: {
-      onlineEvent: true,
+      globalEvent: true,
       isEvent: true,
       groupId: null,
       ...timeSelector,
@@ -863,8 +869,8 @@ Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
   return query
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ onlineEvent:1, startTime:1 }),
-  { name: "posts.onlineEvents" }
+  augmentForDefaultView({ globalEvent:1, startTime:1 }),
+  { name: "posts.globalEvents" }
 );
 
 Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
@@ -872,14 +878,22 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
-  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
+  // make sure that, by default, events are not global
+  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
+  if (terms.globalEvent === false) {
+    globalEventSelector = {$or: [
+      {globalEvent: false}, {globalEvent: {$exists: false}}
+    ]}
+  }
+
   let query: any = {
     selector: {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
-      onlineEvent: onlineEvent,
-      ...timeSelector,
+      $and: [
+        timeSelector, globalEventSelector
+      ],
       mongoLocation: {
         $near: {
           $geometry: {
@@ -916,15 +930,23 @@ Posts.addView("events", (terms: PostsViewTerms) => {
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
-  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
+  // make sure that, by default, events are not global
+  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
+  if (terms.globalEvent === false) {
+    globalEventSelector = {$or: [
+      {globalEvent: false}, {globalEvent: {$exists:false}}
+    ]}
+  }
+  
   return {
     selector: {
       isEvent: true,
-      onlineEvent: onlineEvent,
+      $and: [
+        timeSelector, globalEventSelector
+      ],
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
-      ...timeSelector,
     },
     options: {
       sort: {

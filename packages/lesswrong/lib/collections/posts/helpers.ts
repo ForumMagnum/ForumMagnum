@@ -5,6 +5,7 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
+import Localgroups from '../localgroups/collection';
 
 
 // EXAMPLE-FORUM Helpers
@@ -155,15 +156,34 @@ export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null =
   return post.lastCommentPromotedAt;
 }
 
-export const postCanEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
-  return userOwns(currentUser, post) || userCanDo(currentUser, 'posts.edit.all')
+/**
+ * Whether or not the given user is an organizer for the post's group
+ * @param user
+ * @param post
+ * @returns {Promise} Promise object resolves to true if the post has a group and the user is an organizer for that group
+ */
+export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost): Promise<boolean> => {
+  const groupId = ('group' in post) ? post.group?._id : post.groupId;
+  if (!user || !groupId)
+    return false
+    
+  const group = await Localgroups.findOne({_id: groupId});
+  return !!group && group.organizerIds.some(id => id === user._id);
 }
 
-export const postCanDelete = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const postCanEdit = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
+  const organizerIds = post.group?.organizerIds;
+  const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
+  return userOwns(currentUser, post) || userCanDo(currentUser, 'posts.edit.all') || isPostGroupOrganizer;
+}
+
+export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
   if (userCanDo(currentUser, "posts.remove.all")) {
     return true
   }
-  return userOwns(currentUser, post) && post.draft
+  const organizerIds = post.group?.organizerIds;
+  const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
+  return (userOwns(currentUser, post) || isPostGroupOrganizer) && post.draft
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {

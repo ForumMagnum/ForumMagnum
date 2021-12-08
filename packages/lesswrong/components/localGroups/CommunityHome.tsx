@@ -78,15 +78,14 @@ const CommunityHome = ({classes}: {
       lng: currentUserLocation.lng,
       limit: 5,
       filters: filters,
-      onlineEvent: false
     } : {
       view: 'events',
       limit: 5,
       filters: filters,
-      onlineEvent: false
+      globalEvent: false,
     }
-    const onlineEventsListTerms = {
-      view: 'onlineEvents',
+    const globalEventsListTerms = {
+      view: 'globalEvents',
       limit: 10
     }
     const onlineGroupsListTerms: LocalgroupsViewTerms = {
@@ -142,17 +141,17 @@ const CommunityHome = ({classes}: {
               </SectionFooter>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="Online Events">
+              <SectionTitle title="Global Events">
                 {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
                   <LibraryAddIcon /> Create New Event
                 </SectionButton></Link>}
               </SectionTitle>
               <AnalyticsContext listContext={"communityEvents"}>
-                <PostsList2 terms={onlineEventsListTerms}/>
+                <PostsList2 terms={globalEventsListTerms}/>
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="Nearby In-Person Events">
+              <SectionTitle title="Nearby Events">
                 {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
                   <LibraryAddIcon /> Create New Event
                 </SectionButton></Link>}

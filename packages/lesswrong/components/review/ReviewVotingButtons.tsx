@@ -10,18 +10,22 @@ const downvoteColor = "rgba(125,70,70, .87)"
 const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"
 
 const styles = (theme: ThemeType) => ({
+  root: { 
+    whiteSpace: "pre"
+  },
   button: {
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingTop: 2,
+    paddingBottom: 2,
     marginRight: 2,
     display: "inline-block",
     border: "solid 1px rgba(0,0,0,.1)",
     borderRadius: 3,
-    width: 28,
+    width: 24,
     textAlign: "center",
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
     cursor: "pointer",
+    background: "white",
     '&:hover': {
       backgroundColor: "rgba(0,0,0,.075)",
     }
@@ -69,7 +73,7 @@ const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {c
     }
   }
 
-  return <div>
+  return <div className={classes.root}>
       {[1,2,3,4,5,6,7].map((i) => {
         return <LWTooltip title={indexToTermsLookup[i].tooltip} 
         key={`${indexToTermsLookup[i]}-${i}`}>

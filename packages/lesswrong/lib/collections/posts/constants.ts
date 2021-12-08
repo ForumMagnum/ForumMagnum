@@ -1,8 +1,10 @@
 import React from 'react';
-import { DatabasePublicSetting } from "../../publicSettings";
+import { annualReviewAnnouncementPostPathSetting, DatabasePublicSetting } from "../../publicSettings";
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
+import StarIcon from '@material-ui/icons/Star';
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const postStatuses = {
   STATUS_PENDING: 1,
@@ -37,9 +39,18 @@ export const postStatusLabels = [
   }
 ];
 
+const isEAForum = forumTypeSetting.get() === 'EAForum'
+
 const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
 const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
 const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
+
+// Cute hack
+const reviewPostIdSetting = {
+  get: () => isEAForum ?
+    annualReviewAnnouncementPostPathSetting.get()?.match(/^\/posts\/([a-zA-Z\d]+)/)?.[1] :
+    null
+}
 
 export const tagSettingIcons = new Map<DatabasePublicSetting<string | null>, React.ComponentType<React.SVGProps<SVGElement>>>([
   [amaTagIdSetting, QuestionAnswerIcon], 
@@ -47,5 +58,7 @@ export const tagSettingIcons = new Map<DatabasePublicSetting<string | null>, Rea
 ]);
 
 export const idSettingIcons = new Map([
-  [startHerePostIdSetting, ArrowForwardIcon]
+  [startHerePostIdSetting, ArrowForwardIcon],
+  // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
+  [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
 ]);

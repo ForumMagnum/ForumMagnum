@@ -38,7 +38,7 @@ const PingbacksList = ({classes, postId}: {
     collectionName: "Posts",
     fragmentName: "PostsList",
     limit: 5,
-    enableTotal: false,
+    enableTotal: true,
   });
 
   const pingbackIds = (results||[]).map((pingback) => pingback._id)

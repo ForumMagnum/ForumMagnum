@@ -16,46 +16,65 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Card from '@material-ui/core/Card';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
-const VOTING_VIEW = "reviewVoting" // unfortunately this can't just inhereit from REVIEW_YEAR. It needs to exactly match a view-type so that the type-check of the view can pass.
-export const REVIEW_COMMENTS_VIEW = "reviews2020"
 const userVotesAreQuadraticField: keyof DbUser = "reviewVotesQuadratic2020";
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
-      minmax(10px, 0.5fr) minmax(100px, 640px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
+      minmax(10px, 0.5fr) minmax(100px, 740px) minmax(30px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr)
     `,
     gridTemplateAreas: `
     "... leftColumn ... rightColumn ..."
     `,
     paddingBottom: 175,
-    alignItems: "start"
+    alignItems: "start",
+    [theme.breakpoints.down('sm')]: {
+      display: "block"
+    }
   },
   instructions: {
     ...theme.typography.body2,
     ...commentBodyStyles(theme),
-    paddingBottom: 35
+    padding: 16,
+    marginBottom: 24,
+    background: "white",
+    boxShadow: theme.boxShadow,
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   leftColumn: {
     gridArea: "leftColumn",
     position: "sticky",
     top: 72,
+    height: "90vh",
+    overflow: "scroll",
+    paddingLeft: 24,
+    paddingRight: 36,
     [theme.breakpoints.down('sm')]: {
-      display: "none"
+      gridArea: "unset",
+      paddingLeft: 0,
+      paddingRight: 0,
+      overflow: "unset",
+      height: "unset",
+      position: "unset"
     }
   },
   rightColumn: {
     gridArea: "rightColumn",
     [theme.breakpoints.down('sm')]: {
-      display: "none"
+      gridArea: "unset"
     },
   },
   result: {
@@ -71,6 +90,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   expandedInfo: {
     maxWidth: 600,
     marginBottom: 175,
+  },
+  widget: {
+    marginBottom: 32,
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   menu: {
     position: "sticky",
@@ -144,6 +169,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   voteAverage: {
     cursor: 'pointer',
+  },
+  faqCard: {
+    width: 400,
+    padding: 16,
+    ...commentBodyStyles(theme)
+  },
+  faqQuestion: {
+    color: theme.palette.primary.main
+  },
+  postCount: {
+    ...theme.typography.commentStyle,
+    marginLeft: 10,
+    color: theme.palette.grey[600]
   }
 });
 
@@ -176,10 +214,10 @@ const ReviewVotingPage = ({classes}: {
 
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {
-      view: VOTING_VIEW,
+      view: "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-      limit: 300
+      limit: 600
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
@@ -189,7 +227,7 @@ const ReviewVotingPage = ({classes}: {
   });
   
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 300, userId: currentUser?._id, year: REVIEW_YEAR+""},
+    terms: {view: "reviewVotesFromUser", limit: 600, userId: currentUser?._id, year: REVIEW_YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteFragment",
     // network-only is to fix a bug that occurred when a user nominated a post
@@ -221,6 +259,7 @@ const ReviewVotingPage = ({classes}: {
 
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
+  const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
 
@@ -271,7 +310,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -317,63 +356,95 @@ const ReviewVotingPage = ({classes}: {
       <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help you decide how to spend attention during the Review phase. You may want to focus on high-ranking posts, or those which seem undervalued or controversial.</p>
 
       <p>During Preliminary Voting, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
+      
+      <p><b>FAQ</b></p>
+      
+      <p className={classes.faqQuestion}>
+        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+          <p>If you intuitively sort posts into "good", "important", "crucial", etc., you'll probably do fine. But here are some details on how it works under the hood:</p>
 
-      <p><b>How exactly do the preliminary votes Work?</b></p>
+          <p>Each of the voting buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. However, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than those of someone who used them more sparingly. On the "backend", we use a quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your votes.</p>
+        </Card>}>
+          How exactly do the preliminary votes Work?
+        </LWTooltip>
+      </p>
 
-      <p>If you intuitively sort posts into "good", "important", "crucial", etc., you'll probably do fine. But here are some details on how it works under the hood:</p>
-
-      <p>Each of the voting buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. However, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than those of someone who used them more sparingly. On the "backend", we use a quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your votes.</p>
-
-      <p><b>Submitting reviews</b></p>
-
-      <p>The Review phase involves writing reviews of posts, with the advantage of hindsight. They can be brief or very detailed. You can write multiple reviews if your thoughts evolve over the course of the event.</p>
-
+      <p className={classes.faqQuestion}>
+        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+          <p>The Review phase involves writing reviews of posts, with the advantage of hindsight. They can be brief or very detailed. You can write multiple reviews if your thoughts evolve over the course of the event.</p>
+        </Card>}>
+          Submitting reviews
+        </LWTooltip>
+      </p>
+      
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
     </div> :
     <div className={classes.instructions}>
-      <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
+      <p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
+      <ul>
+        <li>
+          Vote on posts that represent important intellectual progress.
+        </li>
+        <li>Write short reviews that explain why those posts seem important</li>
+      </ul> 
+      <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
 
-      <p>This year, instead of a nominations phase, we're beginning with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
-      
       <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
 
-      <p>During Preliminary voting, you can sort posts into 7 buckets (roughly "super strong downvote" to "super strong upvote"). During the Final Voting Phase, you'll have the opportunity to fine-tune those votes using our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link></p>
+      <p><b>FAQ</b></p>
 
-      <p><b>How exactly do the Preliminary Votes Work?</b></p>
+      <p className={classes.faqQuestion}>
+        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+          <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
+          <p>Each vote-button corresponds to a relative strength: 1x, 4x, or 9x. Your "9" votes are 9x as powerful as your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly.</p>
+          <p>On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system</Link>, giving you a 500 points and allocating them to match the relative strengths of your vote-choices. A 4x vote costs 10 points, a 9x costs 45.</p>
+          <p>You can change your votes during the Final Voting Phase.</p>
+        </Card>}>
+          How exactly do Preliminary Votes work?
+        </LWTooltip>
+      </p>
 
-      <p>If you intuitively sort posts into "good", "important", "crucial", you'll probably do fine. But here are some details on how it works under-the-hood:</p>
-
-      <p>Each of the voting-buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. But, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than someone who used them more sparingly. On the "backend" the system uses our <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">quadratic voting system.</Link>, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your vote-choices.</p>
-
-      <p><b>Submitting Reviews</b></p>
-
-      <p>Last year, nominating posts required writing a comment saying what was good about it. Since nomination is an "anonymous vote" this year, we're giving people the ability to write reviews right away. Feel free to write short reviews about what sticks out to you about a post, with a year of hindsight. You can write multiple reviews if your thoughts evolve over the course of the month.</p>
+      <p className={classes.faqQuestion}>
+        <LWTooltip tooltip={false} title={<Card className={classes.faqCard}>
+          <ul>
+            <li>Any user registered before {REVIEW_YEAR} can vote on posts.</li>
+            <li>Votes by users with 1000+ karma will be weighted more highly by the moderation team when assembling the final sequence, books or prizes.</li>
+            <li>Any user can write reviews.</li>
+          </ul>
+          </Card>}>
+            Who is eligible?
+        </LWTooltip>
+      </p>
     </div>
 
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
-      {/* TODO(Review) link to list of nominated posts */}
-      <div className={classNames(classes.hideOnDesktop, classes.message)}>
-        Voting is not available on small screens. You can still vote on individual posts, however.
-      </div>
       <div className={classes.grid}>
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
-            <h1 className={classes.header}>
-              {/* 160 is nbsp */}
-              {REVIEW_NAME_TITLE}{isEAForum ? String.fromCharCode(160) + '—' : ':'} Preliminary Voting
-            </h1>
+            <div className={classes.widget}>
+              <FrontpageReviewWidget showFrontpageItems={false}/>
+            </div>
             {instructions}
+            <SectionTitle title="Reviews">
+              <Select
+                value={sortReviews}
+                onChange={(e)=>setSortReviews(e.target.value)}
+                disableUnderline
+                >
+                <MenuItem value={'top'}>Sorted by Top</MenuItem>
+                <MenuItem value={'new'}>Sorted by New</MenuItem>
+                <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
+              </Select>
+            </SectionTitle>
+            <RecentComments terms={{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: sortReviews}} truncated/>
           </div>}
           <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.menu}>
-            <Button disabled={!expandedPost} onClick={()=>{
-              setExpandedPost(null)
-              captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
-            }}>Show Instructions</Button>
+            {posts && <div className={classes.postCount}>{posts.length} Nominated Posts</div>}
             
             {/* Turned off for the Preliminary Voting phase */}
             {getReviewPhase() !== "NOMINATIONS" && <>
@@ -447,15 +518,19 @@ const ReviewVotingPage = ({classes}: {
   );
 }
 
-function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
-  const randomPermutation = generatePermutation(posts.length, currentUser);
-  const result = posts.map(
+function getPostOrder(posts: Array<PostsList> | null, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> | null {
+  const randomPermutation = generatePermutation(posts?.length || 0, currentUser);
+  const result = posts?.map(
     (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
       const voteForPost = votes.find(vote => vote.postId === post._id)
       const  voteScore = voteForPost ? voteForPost.score : 1;
       return [post, voteForPost, voteScore, i, randomPermutation[i]]
     })
     .sort(([post1, vote1, voteScore1, i1, permuted1], [post2, vote2, voteScore2, i2, permuted2]) => {
+      const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
+      const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
+      if (reviewedNotVoted1 && !reviewedNotVoted2) return 1;
+      if (!reviewedNotVoted1 && reviewedNotVoted2) return -1;
       if (voteScore1 < voteScore2) return -1;
       if (voteScore1 > voteScore2) return 1;
       if (permuted1 < permuted2) return -1;
