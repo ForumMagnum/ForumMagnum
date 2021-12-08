@@ -878,14 +878,22 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
+  // make sure that, by default, events are not global
+  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
+  if (terms.globalEvent === false) {
+    globalEventSelector = {$or: [
+      {globalEvent: false}, {globalEvent: {$exists: false}}
+    ]}
+  }
 
   let query: any = {
     selector: {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
-      ...(terms.globalEvent === undefined ? {} : {globalEvent: terms.globalEvent}),
-      ...timeSelector,
+      $and: [
+        timeSelector, globalEventSelector
+      ],
       mongoLocation: {
         $near: {
           $geometry: {
@@ -922,14 +930,23 @@ Posts.addView("events", (terms: PostsViewTerms) => {
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
+  // make sure that, by default, events are not global
+  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
+  if (terms.globalEvent === false) {
+    globalEventSelector = {$or: [
+      {globalEvent: false}, {globalEvent: {$exists:false}}
+    ]}
+  }
+  
   return {
     selector: {
       isEvent: true,
-      ...(terms.globalEvent === undefined ? {} : {globalEvent: terms.globalEvent}),
+      $and: [
+        timeSelector, globalEventSelector
+      ],
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
-      ...timeSelector,
     },
     options: {
       sort: {
