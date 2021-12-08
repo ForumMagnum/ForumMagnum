@@ -185,6 +185,13 @@ const embedConfig = {
 		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
 		    </div>
 		  `
+		},
+		{
+		  name: 'Backtracks',
+		  url: /(https:\/\/player.backtracks.fm[^"]+)/,
+		  html: ([match, url]) => `
+		  	<iframe width="100%" scrolling="no" frameborder="no" src="${url}" style="height: 320px"></iframe>
+		  `,
 		}
 	]
 }
