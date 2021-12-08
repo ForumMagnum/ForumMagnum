@@ -258,7 +258,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
           </Link>
         </LWTooltip>}
       >
-        <LWTooltip title={overviewTooltip}>
+        <LWTooltip title={overviewTooltip} className={classes.hideOnMobile}>
           <Link to={reviewPostPath || ""}>
             <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
           </Link>
