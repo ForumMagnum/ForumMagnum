@@ -236,6 +236,7 @@ importComponent("ShortformTimeBlock", () => require('../components/shortform/Sho
 
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
+importComponent("SmallSideVoteSingle", () => require('../components/votes/SmallSideVoteSingle'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // Events

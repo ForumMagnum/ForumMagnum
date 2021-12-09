@@ -253,7 +253,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   }
   
   const votingSystem = (!!post?.votingSystem && isVotingSystem(post?.votingSystem)) ? post?.votingSystem : undefined
-  
+
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
@@ -312,16 +312,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             <SmallSideVote
               document={comment}
               collection={Comments}
+              voteDimensions={(votingSystem === 'TwoFactorAgree') ? ['Overall', 'Agreement'] : ['Overall']}
               hideKarma={post?.hideCommentKarma}
             />
-            {(votingSystem === 'TwoFactorAgree') && <div className={classes.agreeButtons}>
-              <SmallSideVote
-                document={comment}
-                collection={Comments}
-                hideKarma={post?.hideCommentKarma}
-                voteDimension="Agreement"
-              />
-            </div>}
             {!isParentComment && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>

@@ -21,7 +21,7 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   `
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): {
+export interface UseVoteProps<T> {
   vote: (props: {document: T, voteType: string, voteDimension: VoteDimensionString, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
   collectionName: VoteableCollectionName,
   document: T,
@@ -29,7 +29,9 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   baseScoresRecord: BaseScoresRecordType,
   voteCount: number,
   voteCountsRecord: BaseScoresRecordType,
-} => {
+}
+
+export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): UseVoteProps<T> => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
