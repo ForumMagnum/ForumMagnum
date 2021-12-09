@@ -15,6 +15,7 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
+import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import { EventDebouncer, DebouncerTiming } from './debouncer';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
