@@ -38,6 +38,7 @@ const votingActions = [
   'comments.bigDownvote',
   'comments.smallUpvote',
   'comments.bigUpvote',
+  'comments.null',
 ]
 
 membersGroup.can(votingActions);

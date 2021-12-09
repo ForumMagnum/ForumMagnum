@@ -275,7 +275,9 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly commentCount: number,
   readonly voteCount: number,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly baseScore: number,
+  readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly unlisted: boolean,
   readonly score: number,
   readonly lastVisitedAt: Date,
@@ -341,6 +343,7 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -410,6 +413,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
   readonly feedLink: string,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
@@ -559,6 +563,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -747,6 +752,7 @@ interface RevisionMetadata { // fragment on Revisions
   readonly baseScore: number,
   readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly voteCount: number,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly currentUserVote: string,
   readonly currentUserVotesRecord: any,
 }
@@ -774,6 +780,7 @@ interface WithVoteRevision { // fragment on Revisions
   readonly baseScore: number,
   readonly score: number,
   readonly voteCount: number,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -1253,8 +1260,10 @@ interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
   readonly score: number,
   readonly baseScore: number,
+  readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly afBaseScore: number,
   readonly voteCount: number,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly userId: string,
   readonly tagId: string,
   readonly postId: string,
@@ -1264,6 +1273,7 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly post: PostsList|null,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
 }
 
 interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1276,6 +1286,7 @@ interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRel
   readonly tag: TagPreviewFragment|null,
   readonly post: TagRelCreationFragment_post|null,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
@@ -1286,6 +1297,7 @@ interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
@@ -1294,9 +1306,12 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly userId: string,
   readonly score: number,
   readonly baseScore: number,
+  readonly baseScoresRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly afBaseScore: number,
   readonly voteCount: number,
+  readonly voteCountsRecord: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly currentUserVote: string,
+  readonly currentUserVotesRecord: any,
 }
 
 interface TagBasicInfo { // fragment on Tags

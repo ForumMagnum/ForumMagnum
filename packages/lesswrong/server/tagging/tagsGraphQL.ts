@@ -36,9 +36,9 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
     const votedTagRel = await performVoteServer({
       document: existingTagRel,
       voteType: 'smallUpvote',
+      voteTypesRecord: { "Overall": "smallUpvote" },
       collection: TagRels,
-      user: currentUser,
-      toggleIfAlreadyVoted: false,
+      user: currentUser
     });
     return votedTagRel;
   }

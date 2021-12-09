@@ -69,6 +69,7 @@ const TagVoteActivityRow = ({vote, classes}: {
             orientation="left"
             color="error"
             voteType="Downvote"
+            voteDimension="Overall"
             {...voteProps}
           />
           <span className={classes.score}>
@@ -78,6 +79,7 @@ const TagVoteActivityRow = ({vote, classes}: {
             orientation="right"
             color="secondary"
             voteType="Upvote"
+            voteDimension="Overall"
             {...voteProps}
           />
         </div>

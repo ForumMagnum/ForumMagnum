@@ -86,7 +86,7 @@ getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: 
 getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   // When you add a tag, vote for it as relevant
   var tagCreator = await Users.findOne(tagRel.userId);
-  const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
+  const votedTagRel = tagCreator && await performVoteServer({ document: tagRel, voteType: 'smallUpvote', voteTypesRecord: { "Overall": "smallUpvote" }, collection: TagRels, user: tagCreator })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;
 });

@@ -53,6 +53,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="down"
             color="error"
             voteType="Downvote"
+            voteDimension="Overall"
             solidArrow
             {...voteProps}
           />
@@ -67,6 +68,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="up"
             color="secondary"
             voteType="Upvote"
+            voteDimension="Overall"
             solidArrow
             {...voteProps}
           />

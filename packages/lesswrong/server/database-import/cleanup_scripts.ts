@@ -1,6 +1,7 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection'
 import { Posts } from '../../lib/collections/posts'
+import Votes from '../../lib/collections/votes/collection';
 import { Comments } from '../../lib/collections/comments'
 import { bulkUpdateWithJS, wrapVulcanAsyncScript } from '../scripts/utils'
 import { recalculateBaseScore } from '../../lib/scoring';
@@ -29,7 +30,14 @@ Vulcan.updateBaseScores = wrapVulcanAsyncScript('updateBaseScores', async () => 
     await bulkUpdateWithJS({
       collection,
       updateFunction: async (document) => {
-        const newBaseScore = await recalculateBaseScore(document)
+        const votes = await Votes.find(
+          {
+            documentId: document._id,
+            cancelled: false
+          }
+        ).fetch() || [];
+    
+        const newBaseScore = await recalculateBaseScore(document, votes)
         return {$set: {baseScore: newBaseScore}}
       }
     })

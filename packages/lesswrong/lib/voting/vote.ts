@@ -48,8 +48,8 @@ const createNewDocument = ({document, collection, voteType, voteDimension, user,
 
   const otherDimensionAggregates = {
     currentUserVotesRecord: { ...document.currentUserVotesRecord, [voteDimension]: direction === 'add' ? voteType : null},
-    baseScoresRecord: {...document.baseScoresRecord, [voteDimension]: (document?.baseScoresRecord?.[voteDimension] || 0) + multiplier * power},
-    voteCountsRecord: {...document.voteCountsRecord, [voteDimension]: (document?.voteCountsRecord?.[voteDimension] || 0) + multiplier * 1},
+    baseScoresRecord: {...document.baseScoresRecord, [voteDimension]: (document?.baseScoresRecord?.[voteDimension] || 0) + (multiplier * power)},
+    voteCountsRecord: {...document.voteCountsRecord, [voteDimension]: (document?.voteCountsRecord?.[voteDimension] || 0) + (multiplier * 1)},
   }
 
   console.log({otherDimensionAggregates})
@@ -119,7 +119,7 @@ const cancelVoteClient = ({document, voteDimension, collection, user}: {
 // If power is a function, call it on user
 export const getVotePower = ({ user, voteType, document }: {
   user: DbUser|UsersCurrent,
-  voteType: string|null,
+  voteType: string|null|undefined,
   document: VoteableType,
 }) => {
   if (!voteType) return 0

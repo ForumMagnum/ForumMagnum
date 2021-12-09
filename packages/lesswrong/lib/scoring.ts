@@ -13,39 +13,39 @@ export const CURATED_BONUS = curatedBonusSetting;
 
 
 
-export const recalculateBaseScore = async (document: VoteableType) => {
-  return recalculateVoteTotals(document, (vote) => (vote.power))
+export const recalculateBaseScore = async (document: VoteableType, votes: DbVote[]) => {
+  return recalculateVoteTotals(document, votes, (vote) => (vote.power))
 }
-export const recalculateVoteCount = async (document: VoteableType) => {
-  return recalculateVoteTotals(document, (vote) => (vote.power !== 0 ? 1 : 0))
+export const recalculateVoteCount = async (document: VoteableType, votes: DbVote[]) => {
+  return recalculateVoteTotals(document, votes, (vote) => (vote.power !== 0 ? 1 : 0))
 }
 
-export const recalculateVoteTotals = async (document: VoteableType, incrementFunction: any) => {
-  const votes = await Votes.find(
-    {
-      documentId: document._id,
-      cancelled: false
-    }
-  ).fetch() || [];
+export const recalculateVoteTotals = async (document: VoteableType, votes: DbVote[], incrementFunction: any) => {
+  // const votes = await Votes.find(
+  //   {
+  //     documentId: document._id,
+  //     cancelled: false
+  //   }
+  // ).fetch() || [];
   return votes.reduce((sum, vote) => ( sum + incrementFunction(vote)), 0)
 }
 
 
-export const recalculateBaseScoresRecord = async (document: VoteableType) => {
-  return recalculateRecord(document, (power) => (power), recalculateBaseScore)
+export const recalculateBaseScoresRecord = async (document: VoteableType, votes: DbVote[]) => {
+  return recalculateRecord(document, votes, (power) => (power), recalculateBaseScore)
 }
 
-export const recalculateVoteCountsRecord = async (document: VoteableType) => {
-  return recalculateRecord(document, (power) => {return power !== 0 ? 1 : 0}, (recalculateVoteCount))
+export const recalculateVoteCountsRecord = async (document: VoteableType, votes: DbVote[]) => {
+  return recalculateRecord(document, votes, (power) => {return power !== 0 ? 1 : 0}, (recalculateVoteCount))
 }
 
-export const recalculateRecord = async (document: VoteableType, incrementFunction: any, recalculateOverall: any) => {
-  const votes = await Votes.find(
-    {
-      documentId: document._id,
-      cancelled: false
-    }
-  ).fetch() || [];
+export const recalculateRecord = async (document: VoteableType, votes: DbVote[], incrementFunction: any, recalculateOverall: (document: VoteableType, votes: DbVote[]) => Promise<any>) => {
+  // const votes = await Votes.find(
+  //   {
+  //     documentId: document._id,
+  //     cancelled: false
+  //   }
+  // ).fetch() || [];
 
   // Initialize aggregator
   const aggregator = Object.fromEntries(voteDimensions.map((el) => ([el, 0])))
@@ -57,7 +57,7 @@ export const recalculateRecord = async (document: VoteableType, incrementFunctio
   }
 
   const record = votes.reduce( (agg, vote) => addToAgg(agg, vote), aggregator)
-  record['Overall'] = await recalculateOverall(document)
+  record['Overall'] = await recalculateOverall(document, votes)
   return record
 }
 

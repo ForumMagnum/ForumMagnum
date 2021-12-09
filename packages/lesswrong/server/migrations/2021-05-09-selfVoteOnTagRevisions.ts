@@ -20,6 +20,7 @@ registerMigration({
         }
         const user = usersCache[revision.userId];
         
+        // @ts-ignore
         await performVoteServer({ document: revision, voteType: 'smallUpvote', collection: Revisions, user, toggleIfAlreadyVoted: false });
       }
     });

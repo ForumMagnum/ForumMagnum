@@ -46,6 +46,7 @@ registerFragment(`
     baseScore
     baseScoresRecord
     voteCount
+    voteCountsRecord
     currentUserVote
     currentUserVotesRecord
   }
@@ -90,5 +91,6 @@ registerFragment(`
     baseScore
     score
     voteCount
+    voteCountsRecord
   }
 `);

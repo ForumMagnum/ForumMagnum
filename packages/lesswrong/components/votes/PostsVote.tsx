@@ -57,6 +57,7 @@ const PostsVote = ({ post, classes }: {
               orientation="up"
               color="secondary"
               voteType="Upvote"
+              voteDimension="Overall"
               {...voteProps}
             />
           </div>
@@ -97,6 +98,7 @@ const PostsVote = ({ post, classes }: {
               orientation="down"
               color="error"
               voteType="Downvote"
+              voteDimension="Overall"
               {...voteProps}
             />
           </div>

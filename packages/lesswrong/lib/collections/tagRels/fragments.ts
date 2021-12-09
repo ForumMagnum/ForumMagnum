@@ -5,8 +5,10 @@ registerFragment(`
     _id
     score
     baseScore
+    baseScoresRecord
     afBaseScore
     voteCount
+    voteCountsRecord
     userId
     tagId
     postId
@@ -24,6 +26,7 @@ registerFragment(`
       ...PostsList
     }
     currentUserVote
+    currentUserVotesRecord
   }
 `);
 
@@ -54,6 +57,7 @@ registerFragment(`
       }
     }
     currentUserVote
+    currentUserVotesRecord
   }
 `);
 
@@ -64,6 +68,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
     currentUserVote
+    currentUserVotesRecord
   }
 `);
 
@@ -76,8 +81,11 @@ registerFragment(`
     userId
     score
     baseScore
+    baseScoresRecord
     afBaseScore
     voteCount
+    voteCountsRecord
     currentUserVote
+    currentUserVotesRecord
   }
 `);

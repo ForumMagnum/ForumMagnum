@@ -33,7 +33,9 @@ registerFragment(`
     
     commentCount
     voteCount
+    voteCountsRecord
     baseScore
+    baseScoresRecord
     unlisted
     score
     lastVisitedAt
@@ -115,6 +117,7 @@ registerFragment(`
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
+    currentUserVotesRecord
   }
 `)
 
@@ -221,6 +224,7 @@ registerFragment(`
     
     # Voting
     currentUserVote
+    currentUserVotesRecord
     feedLink
     feed {
       ...RSSFeedMinimumInfo
@@ -412,6 +416,7 @@ registerFragment(`
     ...PostsListBase
 
     currentUserVote
+    currentUserVotesRecord
 
     contents {
       _id

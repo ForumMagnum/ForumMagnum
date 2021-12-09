@@ -71,7 +71,7 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 // LESSWRONG – bigUpvote
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
- const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
+ const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', voteTypesRecord: { "Overall": "bigUpvote" }, collection: Posts, user: postAuthor })
  return {...post, ...votedPost} as DbPost;
 });
 

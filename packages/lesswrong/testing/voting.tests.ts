@@ -69,7 +69,7 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       await Posts.update(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', voteTypesRecord: { "Overall": "smallUpvote" }, collection: Posts, user })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].postedAt as any).should.be.closeTo(yesterday, 1000);
@@ -81,7 +81,7 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', voteTypesRecord: { "Overall": "smallUpvote" }, collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
@@ -92,7 +92,7 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', voteTypesRecord: { "Overall": "smallDownvote" }, collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
@@ -103,8 +103,8 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', voteTypesRecord: { "Overall": "smallUpvote" }, collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', voteTypesRecord: { "Overall": "smallDownvote" }, collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
@@ -116,8 +116,8 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
-      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', voteTypesRecord: { "Overall": "smallDownvote" }, collection: Posts, user: otherUser })
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', voteTypesRecord: { "Overall": "smallUpvote" }, collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
@@ -141,6 +141,7 @@ describe('Voting', function() {
       await performVoteServer({
         document: post,
         voteType: "smallUpvote",
+        voteTypesRecord: { "Overall": "smallUpvote" },
         collection: Posts,
         user: voter,
       });

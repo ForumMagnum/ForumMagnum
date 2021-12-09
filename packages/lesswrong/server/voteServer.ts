@@ -41,54 +41,6 @@ const hasSameOverallVoteServer = async ({ document, voteType, user }: {
   return vote;
 }
 
-// Add a vote of a specific type on the server
-const addVoteServer = async ({ document, collection, voteType, voteTypesRecord, user, voteId }: {
-  document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
-  voteType: string|null,
-  voteTypesRecord: VoteTypesRecordType,
-  user: DbUser,
-  voteId: string,
-}): Promise<VoteDocTuple> => {
-  const newDocument = _.clone(document);
-
-  // create vote and insert it
-  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, voteTypesRecord, user, voteId });
-  const {data: vote} = await createMutator({
-    collection: Votes,
-    document: partialVote,
-    validate: false,
-  });
-
-  // LESSWRONG – recalculateBaseScore
-  newDocument.baseScore = await recalculateBaseScore(newDocument)
-  newDocument.score = recalculateScore(newDocument);
-  newDocument.voteCount = await recalculateVoteCount(newDocument);
-  newDocument.voteCountsRecord = await recalculateVoteCountsRecord(newDocument)
-  newDocument.baseScoresRecord = await recalculateBaseScoresRecord(newDocument)
-
-  // update document score & set item as active
-  await Connectors.update(collection,
-    {_id: document._id},
-    {
-      $set: {
-        inactive: false,
-        baseScore: newDocument.baseScore,
-        score: newDocument.score,
-        baseScoresRecord: newDocument.baseScoresRecord,
-        voteCount: newDocument.voteCount,
-        voteCountsRecord: newDocument.voteCountsRecord
-      },
-    },
-    {}, true
-  );
-
-  console.log('saved', {baseScoresRecord: newDocument.baseScoresRecord}, {baseScore: newDocument.baseScore})
-
-  void algoliaExportById(collection as any, newDocument._id);
-  return {newDocument, vote};
-}
-
 // Clear all votes for a given document and user (server)
 export const clearVotesServer = async ({ document, user, collection }: {
   document: DbVoteableType,
@@ -96,13 +48,13 @@ export const clearVotesServer = async ({ document, user, collection }: {
   collection: CollectionBase<DbVoteableType>
 }) => {
   const newDocument = _.clone(document);
-  const votes = await Connectors.find(Votes, {
+  const userVotes = await Connectors.find(Votes, {
     documentId: document._id,
     userId: user._id,
     cancelled: false,
   });
-  if (votes.length) {
-    for (let vote of votes) {
+  if (userVotes.length) {
+    for (let vote of userVotes) {
       // Cancel the existing votes
       await updateMutator({
         collection: Votes,
@@ -148,11 +100,19 @@ export const clearVotesServer = async ({ document, user, collection }: {
         [{newDocument, vote}, collection, user]
       );
     }
-    newDocument.baseScore = await recalculateBaseScore(newDocument);
+
+    const votes = await Votes.find(
+      {
+        documentId: document._id,
+        cancelled: false
+      }
+    ).fetch() || [];
+
+    newDocument.baseScore = await recalculateBaseScore(newDocument, votes);
     newDocument.score = recalculateScore(newDocument);
-    newDocument.voteCount = await recalculateVoteCount(newDocument);
-    newDocument.voteCountsRecord = await recalculateVoteCountsRecord(newDocument)
-    newDocument.baseScoresRecord = await recalculateBaseScoresRecord(newDocument)
+    newDocument.voteCount = await recalculateVoteCount(newDocument, votes);
+    newDocument.voteCountsRecord = await recalculateVoteCountsRecord(newDocument, votes)
+    newDocument.baseScoresRecord = await recalculateBaseScoresRecord(newDocument, votes)
     await Connectors.update(collection,
       {_id: document._id},
       {
@@ -169,6 +129,61 @@ export const clearVotesServer = async ({ document, user, collection }: {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
+}
+
+// Add a vote of a specific type on the server
+const addVoteServer = async ({ document, collection, voteType, voteTypesRecord, user, voteId }: {
+  document: DbVoteableType,
+  collection: CollectionBase<DbVoteableType>,
+  voteType: string|null,
+  voteTypesRecord: VoteTypesRecordType,
+  user: DbUser,
+  voteId: string,
+}): Promise<VoteDocTuple> => {
+  const newDocument = _.clone(document);
+
+  // create vote and insert it
+  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, voteTypesRecord, user, voteId });
+  const {data: vote} = await createMutator({
+    collection: Votes,
+    document: partialVote,
+    validate: false,
+  });
+
+  const votes = await Votes.find(
+    {
+      documentId: document._id,
+      cancelled: false
+    }
+  ).fetch() || [];
+
+  // LESSWRONG – recalculateBaseScore
+  newDocument.baseScore = await recalculateBaseScore(newDocument, votes)
+  newDocument.score = recalculateScore(newDocument);
+  newDocument.voteCount = await recalculateVoteCount(newDocument, votes);
+  newDocument.voteCountsRecord = await recalculateVoteCountsRecord(newDocument, votes)
+  newDocument.baseScoresRecord = await recalculateBaseScoresRecord(newDocument, votes)
+
+  // update document score & set item as active
+  await Connectors.update(collection,
+    {_id: document._id},
+    {
+      $set: {
+        inactive: false,
+        baseScore: newDocument.baseScore,
+        score: newDocument.score,
+        baseScoresRecord: newDocument.baseScoresRecord,
+        voteCount: newDocument.voteCount,
+        voteCountsRecord: newDocument.voteCountsRecord
+      },
+    },
+    {}, true
+  );
+
+  console.log('saved', {baseScoresRecord: newDocument.baseScoresRecord}, {baseScore: newDocument.baseScore})
+
+  void algoliaExportById(collection as any, newDocument._id);
+  return {newDocument, vote};
 }
 
 // GreaterWrong still sends old-style toggle votes, i.e. votes that are Overall-only,

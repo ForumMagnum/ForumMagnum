@@ -314,7 +314,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               collection={Comments}
               hideKarma={post?.hideCommentKarma}
             />
-            {(votingSystem === 'TwoFactorAgree') && <div className = {classes.agreeButtons}>
+            {(votingSystem === 'TwoFactorAgree') && <div className={classes.agreeButtons}>
               <SmallSideVote
                 document={comment}
                 collection={Comments}

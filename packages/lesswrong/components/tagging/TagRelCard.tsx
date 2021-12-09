@@ -54,6 +54,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           orientation="left"
           color="error"
           voteType="Downvote"
+          voteDimension="Overall"
           {...voteProps}
         />
       </div>
@@ -65,6 +66,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           orientation="right"
           color="secondary"
           voteType="Upvote"
+          voteDimension="Overall"
           {...voteProps}
         />
       </div>
