@@ -37,6 +37,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
+  const { updateCurrentValues } = context;
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
@@ -69,7 +70,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
     }
-  }, [getLocalStorageHandlers, contents, currentEditorType]);
+  }, [getLocalStorageHandlers, currentEditorType]);
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSaveBackup = useCallback(
@@ -88,12 +89,12 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // the editor to vulcan-forms only as a final step upon form submit, because
     // this is a serialization of the whole document which can be too slow to do
     // on every keystroke).
-    context.updateCurrentValues({[`${fieldName}_type`]: change.contents?.type});
+    updateCurrentValues({[`${fieldName}_type`]: change.contents?.type});
     
     if (autosave) {
       throttledSaveBackup(contents);
     }
-  }, [throttledSaveBackup]);
+  }, [throttledSaveBackup, updateCurrentValues, fieldName]);
   
   useEffect(() => {
     const unloadEventListener = (ev) => {
@@ -143,7 +144,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       };
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, fieldName, initialEditorType]);
+  }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
   
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
@@ -186,7 +187,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative}/>}
+    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
   </div>
 }
 

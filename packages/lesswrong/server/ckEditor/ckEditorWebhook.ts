@@ -112,8 +112,6 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
   const user = await Users.findOne(userId);
   const previousRev = await getLatestRev(documentId, fieldName);
   
-  console.log(`Saving document revision for post ${documentId}: ${html}`);
-  
   const newRevision: Partial<DbRevision> = {
     ...await buildRevision({
       originalContents: {
@@ -152,6 +150,7 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId}
   
   const authorAndCoauthors = [post.userId, ...(post.coauthorUserIds||[])];
   const usersToNotify = _.filter(authorAndCoauthors, u=>u!==commenterUserId);
+  // eslint-disable-next-line no-console
   console.log(`New CkEditor comment. Notifying users: ${JSON.stringify(usersToNotify)}`);
   
   await createNotifications({

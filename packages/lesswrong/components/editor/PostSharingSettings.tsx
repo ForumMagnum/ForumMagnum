@@ -99,9 +99,6 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
         initialSharingSettings,
         onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
-            console.log("Confirmed changes to sharing settings. Updating form.");
-            console.log(newSharingSettings);
-            console.log(newSharedUsers);
             await updateCurrentValues({
               sharingSettings: newSharingSettings,
               shareWithUsers: newSharedUsers
@@ -111,13 +108,11 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
             // no corresponding document ID yet), we're going to
             // mark it as a draft, then submit the form.
             if (formType==="new") {
-              console.log("Shared an unbacked draft. Saving.");
               await updateCurrentValues({ draft: true });
               await submitForm(null, {redirectToEditor: true});
             } else {
               // Otherwise we're going to leave whether-this-is-a-draft
               // unchanged, and subimt the form.
-              console.log("Shared an existing post. Saving.");
               await submitForm(null, {redirectToEditor: true});
             }
             
@@ -128,7 +123,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       },
       noClickawayCancel: true,
     });
-  }, [openDialog, formType, document, updateCurrentValues, initialSharingSettings]);
+  }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
   
   if (!userCanUseSharing(currentUser))
     return null;

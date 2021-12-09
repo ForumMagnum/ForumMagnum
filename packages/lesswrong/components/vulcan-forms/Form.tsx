@@ -858,7 +858,7 @@ class Form extends Component<any,any> {
   */
   formKeyDown = event => {
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-      this.submitForm();
+      void this.submitForm();
     }
   };
 
