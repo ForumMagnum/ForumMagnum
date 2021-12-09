@@ -1,5 +1,6 @@
 // @ts-check (uses JSDoc types for type checking)
 
+export const TOOLBAR_COMPONENT_NAME = 'footnote';
 export const DATA_FOOTNOTE_ID = 'data-footnote-id';
 
 export const ELEMENTS = {

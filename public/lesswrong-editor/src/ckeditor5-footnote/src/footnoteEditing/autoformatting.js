@@ -5,7 +5,7 @@ import { Editor } from '@ckeditor/ckeditor5-core';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element';
 import Text from '@ckeditor/ckeditor5-engine/src/model/text';
 import TextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
-import Range from '@ckeditor/ckeditor5-engine/src/model/range';
+import Range from '@ckeditor/ckeditor5-engine/src/view/range';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
 import { COMMANDS, ELEMENTS } from '../constants';
 
@@ -19,6 +19,7 @@ export const addFootnoteAutoformatting = (editor, rootElement) => {
 		const autoformatPluginInstance = editor.plugins.get('Autoformat');
 		inlineAutoformatEditing(editor, autoformatPluginInstance, 
 			text => regexMatchCallback(editor, text), 
+			// @ts-ignore Pretty sure definitely typed is wrong
 			(_, /**@type Range[]*/ ranges) => formatCallback(ranges, editor, rootElement)
 			);
 	}
@@ -42,7 +43,7 @@ export const addFootnoteAutoformatting = (editor, rootElement) => {
  * 
  * @param {Editor} editor
  * @param {string} text 
- * @returns {{remove: number[][], format: number[][]}}
+ * @returns {{remove: [number, number][], format: [number, number][]}}
  */
 const regexMatchCallback = (editor, text) => {
 	const selectionStart = editor.model.document.selection.anchor;

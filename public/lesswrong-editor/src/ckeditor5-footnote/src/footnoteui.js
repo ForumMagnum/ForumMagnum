@@ -1,19 +1,23 @@
 // @ts-check (uses JSDoc types for type checking)
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+// @ts-ignore-next-line
 import pilcrowIcon from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
 import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { modelQueryElement, modelQueryElementsAll } from './utils';
-import { COMMANDS, ATTRIBUTES, ELEMENTS } from './constants';
+import { COMMANDS, ATTRIBUTES, ELEMENTS, TOOLBAR_COMPONENT_NAME } from './constants';
+import { ListDropdownItemDefinition } from '@ckeditor/ckeditor5-ui'
 
 export default class FootnoteUI extends Plugin {
 	init() {
+		/** @type {import('@ckeditor/ckeditor5-core/src/editor/editorwithui').EditorWithUI} */
+		 // @ts-ignore
 		const editor = this.editor;
 		const translate = editor.t;
 		
-		editor.ui.componentFactory.add( ELEMENTS.footnoteItem, locale => {
+		editor.ui.componentFactory.add( TOOLBAR_COMPONENT_NAME, locale => {
 			const dropdownView = createDropdown( locale );
 
 			// Populate the list in the dropdown with items.
@@ -49,8 +53,13 @@ export default class FootnoteUI extends Plugin {
 		
 	}
 
+	/**
+	 * @returns {Collection<ListDropdownItemDefinition>}
+	 */
 	getDropdownItemsDefinitions() {
+		/** @type {Collection<ListDropdownItemDefinition>} */
 		const itemDefinitions = new Collection();
+		/** @type {ListDropdownItemDefinition} */
 		const defaultDef = {
 			type: 'button',
 			model: new Model( {
@@ -73,6 +82,7 @@ export default class FootnoteUI extends Plugin {
 			const footnoteLabels = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteLabel);
 			footnoteLabels.forEach((footnote) => {
 				const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
+				/** @type {ListDropdownItemDefinition} */
 				const definition = {
 					type: 'button',
 					model: new Model( {
