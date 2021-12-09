@@ -108,7 +108,6 @@ export const NominatedPostNotification = serverRegisterNotificationType({
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
-    console.log("EMAIL BODY")
     return <Components.PostNominatedEmail documentId={postId} />
   }
 })
