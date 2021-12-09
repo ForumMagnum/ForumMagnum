@@ -514,7 +514,8 @@ if (forumTypeSetting.get() === 'LessWrong') {
       name: 'book2018Landing',
       path: '/books/2018',
       componentName: 'Book2018Landing',
-      title: "Books: A Map that Reflects the Territory"
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
     },
     {
       name: 'book2019Landing',

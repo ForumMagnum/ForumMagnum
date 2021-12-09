@@ -31,14 +31,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: "0 20px 0 20px",
     display: 'grid',
     gridTemplateAreas: `
-      "title title title title title"
-      "text1 text1 text1 bookCheckout bookCheckout"
-      "bookStack bookStack text2 text2 text2"
-      "failure failure failure molochNoWon molochNoWon"
-      "failure failure failure psycholinguist psycholinguist"
-      "header2 header2 header2 header2 header2"
-      "reframing reframing reframing reframing reframing"
-      "spread spread spread spread spread"
+      "title title title"
+      "text1 text1 bookCheckout"
     `,
     [theme.breakpoints.down('xs')]: {
       gridAutoColumns: "100%",
@@ -47,13 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
         "title"
         "bookCheckout"
         "text1"
-        "bookStack"
-        "text2"
-        "failure"
-        "molochNoWon"
-        "header2"
-        "reframing",
-        "spread"
       `
     },
     gridGap: "40px 40px",
@@ -253,6 +240,11 @@ const Book2019Landing = ({classes}: {
             Essays by the LessWrong community
           </div>
         </div>
+        <div className={classNames(classes.body, classes.text1)}>
+          {lw()} is a community blog devoted to refining the art of human rationality.
+            This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
+            packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
+        </div>
         <div className={classes.bookCheckout}>
           <div className={classes.bookCheckoutBackground}>
             <div className={classes.price}>
@@ -274,40 +266,32 @@ const Book2019Landing = ({classes}: {
             </div>
           </div>
         </div>
-        <div className={classNames(classes.body, classes.text1)}>
-          A series of books featuring writing from <strong>Scott Alexander, Eliezer Yudkowsky, Wei Dai</strong>, Abram Demski, Alexander Turner, Ben Hoffman, Ben Pace, Buck Shlegeris, Chris Van Merwijk, Duncan Sabien, Elizabeth Van Nostrand, Evan Hubringer, Finan Adamson, Hazard, Jacob Falkovich, Jacob Lagerros, Jai Dhyani, Jeff Kaufman, Jeffrey Ladish, Joar Skalse, John S. Wentworth, Kaj Sotala, Lauren Lee, Logan Smith, Megan Crawford, Nostalgebraist, Oliver Habryka, Paul Christiano, P.J. Eby, Raymond Arnold, Rohin M. Shah, Ruben Bloom, Said Achmiz, Scott Garrabrant, Vaniver, Vladimir Mikulik, Zack M. Davis, and Zvi Mowshowitz. 
-        </div>
-         <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/books-stack_hpbzu7.jpg" />
+      </div>
+      <div className={classes.spreads}>
+        <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639007530/bookSide1_lj2trs.jpg" />
         <div className={classNames(classes.body, classes.text2)}>
-          {lw()} is a community blog devoted to refining the art of human rationality.
-            This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
-            packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
-        </div>
 
-        <img className={classes.failure} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
-        <img className={classes.molochNoWon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/moloch-hasnt-won_ndkkdu.jpg"/>
-        <img className={classes.psycholinguist} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/human-psycholinguistics_tyrpqk.jpg"/>
-        <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/books-stack_hpbzu7.jpg" />
+        </div>
 
 
         <div className={classNames(classes.header, classes.header2)}>
-          Header, more significant text
+          ML Generated Art
         </div>
 
         <img className={classes.reframing} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637284917/reframing-superintelligence_rx8gjx.png"/>
-        </div>
+      </div>
         
-        <div className={classes.spreads}>
-          <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Trust-cover-with-spread-white_ckrtza.jpg"/>
+      <div className={classes.spreads}>
+        <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Trust-cover-with-spread-white_ckrtza.jpg"/>
 
-          <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Modularity-cover-with-spread-white_l95pen.jpg"/>
+        <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Modularity-cover-with-spread-white_l95pen.jpg"/>
 
-          <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Failure-cover-with-spread-white_iqcwtf.jpg"/>
+        <img className={classes.spread} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639001843/Failure-cover-with-spread-white_iqcwtf.jpg"/>
 
 
-          <video className={classes.spread} autoPlay loop muted><source src="https://res.cloudinary.com/lesswrong-2-0/video/upload/v1639001843/StraightOn_Compilation2_1_g7t4fy.mp4" /></video>
+        <video className={classes.spread} autoPlay loop muted><source src="https://res.cloudinary.com/lesswrong-2-0/video/upload/v1639001843/StraightOn_Compilation2_1_g7t4fy.mp4" /></video>
 
-        </div>
+      </div>
         {/* <video controls autoPlay>
           <source src="https://res.cloudinary.com/lesswrong-2-0/video/upload/v1639001843/StraightOn_Compilation2_1_g7t4fy.mp4" type="video/mp4"/>
         </video> */}
