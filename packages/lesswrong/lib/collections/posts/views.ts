@@ -48,6 +48,7 @@ declare global {
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     reviewYear?: number,
+    excludeContents?: boolean,
   }
 }
 
@@ -1281,25 +1282,28 @@ ensureIndex(Posts,
 
 
 // Nominations for the (≤)2020 review are determined by the number of votes
-Posts.addView("reviewVoting", (terms: PostsViewTerms, _apolloClient, context) => {
+Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       positiveReviewVoteCount: { $gt: 0 },
     },
     options: {
-      sort: {
-        // Can I add votedon here?
-        // possibly, but it probably will be at most a hack
-        // hmm, but it can be a hack that ships
-        // randomness tho
-        reviewCount: -1,
-        positiveReviewVoteCount: -1,
-        baseScore: -1,
-      }
+      // sort: {
+      //   // Can I add votedon here?
+      //   // possibly, but it probably will be at most a hack
+      //   // hmm, but it can be a hack that ships
+      //   // randomness tho
+      //   reviewCount: -1,
+      //   positiveReviewVoteCount: -1,
+      //   baseScore: -1,
+      // },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ reviewCount: 1, positiveReviewVoteCount: 1, baseScore: 1 }),
-  { name: "posts.positiveReviewVoteCount", }
-);
+// ensureIndex(Posts,
+//   augmentForDefaultView({ reviewCount: 1, positiveReviewVoteCount: 1, baseScore: 1 }),
+//   { name: "posts.positiveReviewVoteCount", }
+// );
