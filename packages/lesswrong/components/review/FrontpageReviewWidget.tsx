@@ -101,6 +101,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'none'
     }
   },
+  hideOnXs: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  showOnXs: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'none'
+    }
+  }
 })
 
 /**
@@ -253,7 +263,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     <div>
       <SectionTitle 
         title={<LWTooltip title={overviewTooltip} placement="bottom-start">
-          <Link to={reviewPostPath || ""}>
+          <Link to={"/reviewVoting"}>
             {REVIEW_NAME_TITLE}
           </Link>
         </LWTooltip>}
@@ -300,17 +310,26 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       {/* TODO: Improve logged out user experience */}
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+        
         {showFrontpageItems && <LatestReview/>}
+
         <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
           <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
-            Your Upvotes from {isEAForum && '≤'}{REVIEW_YEAR}
+            <span>
+              <span className={classes.hideOnXs}>
+                Your Upvotes from {isEAForum && '≤'}{REVIEW_YEAR}
+              </span>
+              <span className={classes.showOnXs}>{REVIEW_YEAR} Upvotes</span>
+            </span>
           </Link>
         </LWTooltip>
+        
         <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
           <Link to={allEligiblePostsUrl} className={classes.actionButton}>
-            All {isEAForum ? 'Eligible' : REVIEW_YEAR} Posts
+            All <span className={classes.hideOnXs}>{isEAForum ? 'Eligible' : REVIEW_YEAR}</span> Posts
           </Link>
         </LWTooltip>
+        
         {showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
           <p>Reviews Dashboard</p>
           <ul>
@@ -319,7 +338,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             <li>Start writing reviews.</li>
           </ul>
           </div>}>
-          <Link to={"/reviewVoting/2020"} className={classNames(classes.actionButtonCTA, classes.hideOnMobile)}>
+          <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
             Vote on nominated posts
           </Link>
         </LWTooltip>}
