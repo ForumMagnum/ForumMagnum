@@ -19,6 +19,8 @@ import { taggedPostMessage } from '../lib/notificationTypes';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { responseToText } from '../components/posts/PostsPage/RSVPForm';
+import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
+import { post } from 'request';
 
 interface ServerNotificationType {
   name: string,
@@ -95,6 +97,21 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
     return <Components.NewPostEmail documentId={postId}/>
   },
 });
+
+export const NominatedPostNotification = serverRegisterNotificationType({
+  name: "postNominated",
+  canCombineEmails: false,
+  emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw new Error("Couldn't fine post for nomination notification")
+    return `Your post ${post.title} was nominated for the ${REVIEW_NAME_TITLE}`
+  },
+  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    console.log("EMAIL BODY")
+    return <Components.PostNominatedEmail documentId={postId} />
+  }
+})
 
 export const NewShortformNotification = serverRegisterNotificationType({
   name: "newShortform",
