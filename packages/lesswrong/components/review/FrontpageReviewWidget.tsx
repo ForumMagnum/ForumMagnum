@@ -332,10 +332,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
           </ul>
           </div>}>
           <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
-            <span>
-              <span className={classes.hideOnMobile}>Vote on nominated posts</span>
-              <span className={classes.showOnMobile}>Review Dashboard</span>
-            </span>
+            Vote on <span className={classes.hideOnMobile}>nominated</span> posts
           </Link>
         </LWTooltip>}
       </div>}
