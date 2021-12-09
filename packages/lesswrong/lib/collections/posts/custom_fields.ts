@@ -15,7 +15,6 @@ import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } fr
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
-import Localgroups from '../localgroups/collection';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 function eaFrontpageDate (document: Partial<DbPost>) {
@@ -644,6 +643,7 @@ addFieldsDict(Posts, {
     control: 'SelectLocalgroup',
     label: 'Group',
     group: formGroups.event,
+    hidden: (props) => !props.eventForm,
   },
 
   isEvent: {
