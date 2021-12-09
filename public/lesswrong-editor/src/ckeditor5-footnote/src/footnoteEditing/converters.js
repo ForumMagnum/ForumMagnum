@@ -103,15 +103,7 @@ export const defineConverters = (editor, rootElement) => {
 				[ATTRIBUTES.footnoteItem]: true,
 			},
 		},
-		model: (viewElement, conversionApi) => {
-			const modelWriter = conversionApi.writer;
-			const id = viewElement.getAttribute(ATTRIBUTES.footnoteId);
-			if(!id) {
-				return null;
-			}
-
-			return modelWriter.createElement(ELEMENTS.footnoteLabel, { [ATTRIBUTES.footnoteId]: id });
-		}
+		model: ELEMENTS.footnoteItem,
 	});
 
 	conversion.for('dataDowncast').elementToElement({
