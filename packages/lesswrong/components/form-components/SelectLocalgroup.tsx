@@ -3,7 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 
-/* A form input for selecting a localgroup -
+/**
+ * A form input for selecting a localgroup -
  * the options are a list of groups for which the current user is an organizer,
  * or all groups if the user is an admin.
  */
