@@ -78,7 +78,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     color: "white",
     ...theme.typography.commentStyle,
-    display: "inline-block"
+    display: "inline-block",
+    marginLeft: 12
   },
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
@@ -90,7 +91,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     ...theme.typography.commentStyle,
     display: "inline-block",
-    marginRight: 12
+    marginLeft: 12
   },
   buttonWrapper: {
     flexGrow: 0,
@@ -101,13 +102,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'none'
     }
   },
-  hideOnXs: {
-    [theme.breakpoints.down('xs')]: {
-      display: 'none'
-    }
-  },
-  showOnXs: {
-    [theme.breakpoints.up('sm')]: {
+  showOnMobile: {
+    [theme.breakpoints.up('md')]: {
       display: 'none'
     }
   }
@@ -316,17 +312,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
           <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
             <span>
-              <span className={classes.hideOnXs}>
-                Your Upvotes from {isEAForum && '≤'}{REVIEW_YEAR}
-              </span>
-              <span className={classes.showOnXs}>{REVIEW_YEAR} Upvotes</span>
+              <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{REVIEW_YEAR} Upvotes
             </span>
           </Link>
         </LWTooltip>
         
         <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
           <Link to={allEligiblePostsUrl} className={classes.actionButton}>
-            All <span className={classes.hideOnXs}>{isEAForum ? 'Eligible' : REVIEW_YEAR}</span> Posts
+            All <span className={classes.hideOnMobile}>{isEAForum ? 'Eligible' : REVIEW_YEAR}</span> Posts
           </Link>
         </LWTooltip>
         
@@ -339,7 +332,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
           </ul>
           </div>}>
           <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
-            Vote on nominated posts
+            <span>
+              <span className={classes.hideOnMobile}>Vote on nominated posts</span>
+              <span className={classes.showOnMobile}>Review Dashboard</span>
+            </span>
           </Link>
         </LWTooltip>}
       </div>}
