@@ -149,7 +149,7 @@ const ReviewVoteTableRow = (
         <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
             <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
-            <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentQualitativeVote} />}
+            <ReviewVotingButtons postId={post._id} dispatch={dispatch} currentUserVoteScore={currentQualitativeVote?.score || null} />}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>

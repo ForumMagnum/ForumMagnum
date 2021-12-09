@@ -92,10 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 175,
   },
   widget: {
-    marginBottom: 32,
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
+    marginBottom: 32
   },
   menu: {
     position: "sticky",

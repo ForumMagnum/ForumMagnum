@@ -61,10 +61,11 @@ export const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVote|null}) => {
+const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: {classes: ClassesType, postId: string, dispatch: any, currentUserVoteScore: number|null}) => {
   const { LWTooltip } = Components
-  const score = voteForCurrentPost?.score
-  const [selection, setSelection] = useState(voteForCurrentPost ? score : DEFAULT_QUALITATIVE_VOTE)
+
+
+  const [selection, setSelection] = useState(currentUserVoteScore || DEFAULT_QUALITATIVE_VOTE)
 
   const createClickHandler = (index:number) => {
     return () => {
@@ -79,8 +80,8 @@ const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {c
         key={`${indexToTermsLookup[i]}-${i}`}>
           <span
               className={classNames(classes.button, classes[i], {
-                [classes.selectionHighlight]:selection === i && score,
-                [classes.defaultHighlight]: selection === i && !score
+                [classes.selectionHighlight]:selection === i && currentUserVoteScore,
+                [classes.defaultHighlight]: selection === i && !currentUserVoteScore
               })}
               onClick={createClickHandler(i)}
             >
