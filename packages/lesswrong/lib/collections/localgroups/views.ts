@@ -32,9 +32,11 @@ Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
     selector: {
       organizerIds: terms.userId,
       inactive: false
-    }
+    },
+    options: {sort: {name: 1}}
   };
 });
+ensureIndex(Localgroups, { organizerIds: 1, inactive: 1, name: 1 });
 
 Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms) {
   return {
@@ -51,7 +53,7 @@ Localgroups.addView("all", function (terms: LocalgroupsViewTerms) {
     options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { name: 1 });
+ensureIndex(Localgroups, { inactive: 1, name: 1 });
 
 Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
   return {
