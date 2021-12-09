@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 
@@ -20,6 +21,7 @@ declare global {
     sortBy?: string,
     before?: Date|string|null,
     after?: Date|string|null,
+    reviewYear?: ReviewYear
   }
 }
 
@@ -450,12 +452,12 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
 });
 
 // TODO: try to refactor this
-Comments.addView('reviews2020', function ({userId, postId, sortBy="top"}) {
+Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
   return {
     selector: { 
       userId, 
       postId, 
-      reviewingForReview: "2020",
+      reviewingForReview: reviewYear+"",
       deleted: false
     },
     options: {

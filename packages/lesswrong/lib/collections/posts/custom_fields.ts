@@ -9,7 +9,6 @@ import { getWithLoader } from '../../loaders';
 import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
@@ -512,7 +511,7 @@ addFieldsDict(Posts, {
     ...schemaDefaultValue(false),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: true,
   },
 
@@ -522,7 +521,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     label: "Publish to meta",
@@ -615,7 +614,7 @@ addFieldsDict(Posts, {
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
     control: "UsersListEditor",
@@ -637,7 +636,7 @@ addFieldsDict(Posts, {
       nullable: true,
     }),
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     hidden: true,
@@ -685,7 +684,7 @@ addFieldsDict(Posts, {
     type: Date,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "Start Time",
@@ -703,7 +702,7 @@ addFieldsDict(Posts, {
     type: Date,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "End Time",
@@ -721,7 +720,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     group: formGroups.event,
@@ -733,7 +732,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     group: formGroups.event,
@@ -761,7 +760,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -772,7 +771,7 @@ addFieldsDict(Posts, {
   location: {
     type: String,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     optional: true
@@ -795,7 +794,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Facebook Event",
     control: "MuiTextField",
     optional: true,
@@ -809,7 +808,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Meetup.com Event",
     control: "MuiTextField",
     optional: true,
@@ -823,7 +822,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     control: "MuiTextField",
     optional: true,
     group: formGroups.event,
@@ -835,7 +834,7 @@ addFieldsDict(Posts, {
     type: Array,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: (props) => isEAForum || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
@@ -879,7 +878,7 @@ addFieldsDict(Posts, {
     order: 15,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     control: "UsersListEditor",
     label: "Share draft with users",
@@ -982,7 +981,7 @@ addFieldsDict(Posts, {
     group: formGroups.moderationGroup,
     label: "Style",
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
@@ -1062,6 +1061,11 @@ makeEditable({
     formGroup: formGroups.content,
     order: 25,
     pingbacks: true,
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      insertableBy: ['members']
+    },
   }
 })
 
@@ -1077,7 +1081,7 @@ makeEditable({
     fieldName: "moderationGuidelines",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
       insertableBy: [userHasModerationGuidelines]
     },
   }
