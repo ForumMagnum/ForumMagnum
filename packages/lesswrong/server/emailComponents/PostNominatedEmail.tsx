@@ -34,7 +34,7 @@ const PostNominatedEmail = ({documentId, reason}: {
     
     <p>You're encouraged to write a self-review, exploring how you think about the post today. Do you still endorse it? Have you learned anything new that adds more depth? How might you improve the post?</p>
     
-    <p>You can write a self-review by going to <a href={postGetPageUrl(post)}>your post</a> and clicking the "Write a Review" button</p>
+    <p>You can write a self-review by going to <a href={postGetPageUrl(post)}>your post</a> and clicking the "Write a Review" button.</p>
 
     <p>You can see a list of nominated posts over at <a href="lesswrong.com/reviewVoting">the Review Dashboard page</a>. Posts with at least one review are sorted to the top.</p>
   </React.Fragment>);
