@@ -282,7 +282,8 @@ const createfootnoteLabelViewElement = (modelElement, conversionApi) => {
 
 /**
  * Updates all references for a single footnote. This function is called when
- * the id of an existing footnote changes.
+ * the id of an existing footnote changes, which happens when a footnote 
+ * with a lower id is deleted.
  * @param {Data} data provides the old and new values of the changed attribute.
  * @param {DowncastConversionApi} conversionApi
  * @param {Editor} editor
