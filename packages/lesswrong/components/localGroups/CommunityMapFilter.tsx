@@ -304,7 +304,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
             </span>
             <span className={classes.buttonText}> Events </span>
             <span className={classes.actionContainer}>
-              {(!isEAForum || isAdmin) && <Tooltip title="Create New Event">
+              {currentUser && <Tooltip title="Create New Event">
                 <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: '/newPost', search: `?eventForm=true`})}/>
               </Tooltip>}
               <Tooltip title="Hide events from map">
