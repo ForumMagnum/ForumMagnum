@@ -640,19 +640,9 @@ addFieldsDict(Posts, {
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
-    order: 10,
+    order: 1,
     control: 'SelectLocalgroup',
     label: 'Group',
-    // options: (fieldSchema) => {
-    //   console.log(fieldSchema)
-    //   console.log(fieldSchema.currentUser)
-    //   // const groups = await Localgroups.find({ organizerId: fieldSchema.currentUser._id });
-    //   // console.log(groups)
-    //   return [['testid1','Test Group'], ['testid2','Another Group']].map(([id, name]) => ({
-    //     value: id,
-    //     label: name
-    //   }))
-    // },
     group: formGroups.event,
   },
 

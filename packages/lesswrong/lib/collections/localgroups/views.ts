@@ -48,10 +48,10 @@ ensureIndex(Localgroups, { organizerIds: 1, inactive: 1 });
 
 Localgroups.addView("all", function (terms: LocalgroupsViewTerms) {
   return {
-    options: {sort: {createdAt: -1}}
+    options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { createdAt: -1 });
+ensureIndex(Localgroups, { name: 1 });
 
 Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
   return {
