@@ -11,6 +11,9 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { getLocationFromLatLng, pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
@@ -41,7 +44,41 @@ const CommunityHome = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { query } = useLocation();
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, null));
+  
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'UsersProfile',
+  });
+  
+  // if the current user provides their browser location and they do not yet have a location in their user settings,
+  // assign their browser location to their user settings location
+  const [mapsLoaded, googleMaps] = useGoogleMaps("LocationFormComponent")
+  const updateUserLocation = async ({lat, lng, known}) => {
+    if (currentUser && !currentUser.location && known && mapsLoaded) {
+      // const location = await getLocationFromLatLng(lat, lng)
+      const geocoder = new googleMaps.Geocoder();
+      const {results: results} = await geocoder.geocode({
+        location: {
+          lat: lat,
+          lng: lng
+        }
+      });
+      console.log(results)
+      if (results?.length > 0) {
+        const location = pickBestReverseGeocodingResult(results)
+        console.log(location)
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            location: location?.formatted_address,
+            googleLocation: location
+          }
+        })
+      }
+    }
+  }
+
+  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, updateUserLocation));
   
   useEffect(() => {
     userGetLocation(currentUser, (newLocation) => {
