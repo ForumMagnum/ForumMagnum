@@ -58,12 +58,9 @@ export default class FootnoteEditing extends Plugin {
 
 	/**
 	 * This method broadly deals with deletion of text and elements, and updating the model
-	 * accordingly. There are three cases handled:
-	 * 1. If the footnote section gets deleted, remove all footnote references.
-	 * 2. If a delete operation happens in an empty footnote, delete the footnote.
-	 * 3. If the entire contents of a nonempty footnote are deleted, delete the contents
-	 *    without deleting the footnote (without this CKEditor deletes the parent element automatically,
-	 *    which feels). In practice, this means leaving one empty paragrpah.
+	 * accordingly. In particular, the following cases are handled:
+	 * 1. If the footnote section gets deleted, all footnote references are removed.
+	 * 2. If a delete operation happens in an empty footnote, the footnote is deleted.
 	 */
 	_handleDelete() {
 		const viewDocument = this.editor.editing.view.document;
@@ -78,11 +75,11 @@ export default class FootnoteEditing extends Plugin {
 			}
 
 			// delete all footnote references if footnote section gets deleted
-			if (deletedElement && deletedElement.name === ELEMENTS.footnoteSection) {
+			if (deletedElement && deletedElement.is(ELEMENTS.footnoteSection)) {
 				this._removeReferences();
 			}
 
-			const deletingFootnote = deletedElement && deletedElement.name === ELEMENTS.footnoteItem
+			const deletingFootnote = deletedElement && deletedElement.is(ELEMENTS.footnoteItem)
 
 			const currentFootnote = deletingFootnote ? 
 				deletedElement :
@@ -98,23 +95,13 @@ export default class FootnoteEditing extends Plugin {
 				return;
 			}
 
-			const footnoteIsEmpty = startParagraph .maxOffset === 0 && currentFootnoteContent.childCount === 1;
+			const footnoteIsEmpty = startParagraph.maxOffset === 0 && currentFootnoteContent.childCount === 1;
 
 			if(deletingFootnote || footnoteIsEmpty) {
 				this._removeFootnote(currentFootnote);
 				data.preventDefault();
 				evt.stop();
 				return;
-			}
-
-			const entireContentsSelected = 
-				selectionStartPos.isAtStart && startParagraph.index === 0 &&
-				selectionEndPos.isAtEnd && endParagraph.endOffset === currentFootnoteContent.maxOffset;
-
-			if(entireContentsSelected) {
-				this._clearContents(currentFootnoteContent);
-				data.preventDefault();
-				evt.stop();
 			}
 		}, { priority: 'high' });
 	}
