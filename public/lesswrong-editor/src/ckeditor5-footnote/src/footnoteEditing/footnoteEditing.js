@@ -54,11 +54,6 @@ export default class FootnoteEditing extends Plugin {
 			// @ts-ignore -- the type signature of `on` here seem to be just wrong, given how it's used in the source code. 
 			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteReference ) )
 		);
-		this.editor.editing.mapper.on(
-			'viewToModelPosition',
-			// @ts-ignore
-			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteLabel ) )
-		);
 	}
 
 	/**

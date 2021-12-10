@@ -31,25 +31,13 @@ export const defineSchema = schema => {
 	})
 
 	/**
-	 * Editable footnote item contents. 
+	 * Editable footnote item content container. 
 	 */
 	schema.register(ELEMENTS.footnoteContent, {
 		allowIn: ELEMENTS.footnoteItem,
 		allowContentOf: '$root',
 		isBlock: true,
 		allowAttributes: ['id', ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId, 'class'],
-	});
-
-	/** 
-	 * Text label for each footnote item. Contains only the text (e.g.) "1. ". 
-	 */
-	schema.register(ELEMENTS.footnoteLabel, {
-		allowIn: ELEMENTS.footnoteItem,
-		isBlock: true,
-		isSelectable: false,
-		isObject: false,
-		isLimit: true,
-		allowAttributes: ['id', ATTRIBUTES.footnoteLabel, ATTRIBUTES.footnoteId, 'class'],
 	});
 
 	/**

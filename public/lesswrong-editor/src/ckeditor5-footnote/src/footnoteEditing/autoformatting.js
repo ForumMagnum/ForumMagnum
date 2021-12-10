@@ -115,7 +115,7 @@ const formatCallback = (ranges, editor, rootElement) => {
 		editor.execute(COMMANDS.insertFootnote);
 		return;
 	}
-	const footnoteCount = modelQueryElementsAll(editor, footnoteSection, element =>  element.name === ELEMENTS.footnoteLabel).length;
+	const footnoteCount = modelQueryElementsAll(editor, footnoteSection, element =>  element.name === ELEMENTS.footnoteItem).length;
 	if(footnoteId === footnoteCount + 1) {
 		editor.execute(COMMANDS.insertFootnote);
 		return;
