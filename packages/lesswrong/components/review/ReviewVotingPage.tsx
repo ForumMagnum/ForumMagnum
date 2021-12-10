@@ -185,7 +185,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600]
   },
   postsLoading: {
-    background: theme.palette.grey[200],
+    opacity: .4,
   },
 });
 
@@ -257,6 +257,7 @@ const ReviewVotingPage = ({classes}: {
   const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
+  const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
@@ -305,6 +306,8 @@ const ReviewVotingPage = ({classes}: {
       })
       .map(([post, _]) => post)
     setSortedPosts(newlySortedPosts)
+    setPostsHaveBeenSorted(true)
+    
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }, [sortedPosts, currentUser])
   
@@ -439,7 +442,7 @@ const ReviewVotingPage = ({classes}: {
           <div className={classes.menu}>
             {sortedPosts && <div className={classes.postCount}>{sortedPosts.length} Nominated Posts</div>}
             
-            {/* postsLoading &&  */<Loading/>}
+            {(postsLoading || loading) && <Loading/>}
             
             {/* Turned off for the Preliminary Voting phase */}
             {getReviewPhase() !== "NOMINATIONS" && <>
@@ -481,8 +484,8 @@ const ReviewVotingPage = ({classes}: {
               </Button>
             </LWTooltip>
           </div>
-          <Paper className={/* postsLoading ?  */classes.postsLoading/*  : '' */}>
-            {sortedPosts?.map((post) => {
+          <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
+            {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = {
                 postId: post._id,
                 score: post.currentUserReviewVote,

@@ -21,7 +21,6 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
   return {
     // resolver for returning a list of documents based on a set of query terms
 
-    // TODO; think about adding support for fancier shit
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
@@ -41,7 +40,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const collection = getCollection(collectionName);
 
         // get selector and options from terms and perform Mongo query
-        const parameters = await collection.getParameters(terms, {}, context);
+        const parameters = collection.getParameters(terms, {}, context);
         
         const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
         
