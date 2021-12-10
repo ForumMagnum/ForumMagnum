@@ -7,8 +7,6 @@ import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
-import TextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
-import Node from '@ckeditor/ckeditor5-engine/src/model/node';
 import { modelQueryElementsAll, viewQueryElement, viewQueryText } from '../utils';
 import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 
@@ -59,36 +57,36 @@ export const defineConverters = (editor, rootElement) => {
 		}
 	});
 
-	/***********************************Footnote Contents Conversion************************************/
+	/***********************************Footnote Content Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
 		model: (_, conversionApi) => {
 			const modelWriter = conversionApi.writer;
-			return modelWriter.createElement(ELEMENTS.footnoteContents);
+			return modelWriter.createElement(ELEMENTS.footnoteContent);
 		},
 		view: {
 			name: 'section',
 			attributes: {
-				[ATTRIBUTES.footnoteContents]: true,
+				[ATTRIBUTES.footnoteContent]: true,
 			},
 		}
 	});
 
 	conversion.for('dataDowncast').elementToElement({
-		model: ELEMENTS.footnoteContents,
+		model: ELEMENTS.footnoteContent,
 		view: {
 			name: 'section',
-			attributes: {[ATTRIBUTES.footnoteContents]: ''},
-			classes: [CLASSES.footnoteContents],
+			attributes: {[ATTRIBUTES.footnoteContent]: ''},
+			classes: [CLASSES.footnoteContent],
 		}
 	});
 
 	conversion.for('editingDowncast').elementToElement({
-		model: ELEMENTS.footnoteContents,
+		model: ELEMENTS.footnoteContent,
 		view: (_, conversionApi) => {
 			const viewWriter = conversionApi.writer;
 			// Note: You use a more specialized createEditableElement() method here.
-			const section = viewWriter.createEditableElement('section', { [ATTRIBUTES.footnoteContents] : '', class: CLASSES.footnoteContents });
+			const section = viewWriter.createEditableElement('section', { [ATTRIBUTES.footnoteContent] : '', class: CLASSES.footnoteContent });
 
 			return toWidgetEditable(section, viewWriter);
 		}

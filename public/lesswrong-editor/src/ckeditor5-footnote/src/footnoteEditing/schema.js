@@ -33,7 +33,7 @@ export const defineSchema = schema => {
 	/**
 	 * Editable footnote item contents. 
 	 */
-	schema.register(ELEMENTS.footnoteContents, {
+	schema.register(ELEMENTS.footnoteContent, {
 		allowIn: ELEMENTS.footnoteItem,
 		allowContentOf: '$root',
 		isBlock: true,
@@ -66,7 +66,7 @@ export const defineSchema = schema => {
 	// (as does return false; returning false just also prevents the child add operation from happening.)
 	// The below pattern matches the canonical use in the docs--the type signature is just wrong.
 	schema.addChildCheck((context, childDefinition) => {
-		if (context.endsWith(ELEMENTS.footnoteContents) && childDefinition.name === ELEMENTS.footnoteSection) {
+		if (context.endsWith(ELEMENTS.footnoteContent) && childDefinition.name === ELEMENTS.footnoteSection) {
 			return false;
 		}
 	});

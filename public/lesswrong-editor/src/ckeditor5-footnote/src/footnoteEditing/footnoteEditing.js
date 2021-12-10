@@ -98,7 +98,7 @@ export default class FootnoteEditing extends Plugin {
 
 			const endParagraph = selectionEndPos.findAncestor('paragraph');
 			const startParagraph = selectionStartPos.findAncestor('paragraph');
-			const currentFootnoteContent = selectionEndPos.findAncestor(ELEMENTS.footnoteContents);
+			const currentFootnoteContent = selectionEndPos.findAncestor(ELEMENTS.footnoteContent);
 			if(!currentFootnoteContent || !startParagraph || !endParagraph) {
 				return;
 			}
@@ -128,12 +128,12 @@ export default class FootnoteEditing extends Plugin {
 	 * Clear the children of the provided footnoteContent element, 
 	 * leaving an empty paragraph behind. This allows users to empty
 	 * a footnote without deleting it.
-	 * @param {ModelElement} footnoteContents 
+	 * @param {ModelElement} footnoteContent 
 	 */
-	_clearContents(footnoteContents) {
+	_clearContents(footnoteContent) {
 		this.editor.model.enqueueChange(writer => {
-			const contents = writer.createRangeIn(footnoteContents);
-			writer.appendElement("paragraph", footnoteContents);
+			const contents = writer.createRangeIn(footnoteContent);
+			writer.appendElement("paragraph", footnoteContent);
 			writer.remove(contents);
 		})
 	}

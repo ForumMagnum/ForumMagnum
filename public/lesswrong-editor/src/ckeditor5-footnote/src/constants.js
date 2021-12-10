@@ -8,11 +8,11 @@ export const ELEMENTS = {
 	footnoteItem: "footnoteItem",
 	footnoteReference: "footnoteReference",
 	footnoteSection: "footnoteSection",
-	footnoteContents: "footnoteContents",
+	footnoteContent: "footnoteContent",
 };
 
 export const CLASSES = {
-	footnoteContents: "footnote-contents",
+	footnoteContent: "footnote-content",
 	footnoteItem: "footnote-item",
 	footnoteLabel: "footnote-label",
 	footnoteReference: "footnote-reference",
@@ -24,7 +24,7 @@ export const COMMANDS = {
 }
 
 export const ATTRIBUTES = {
-	footnoteContents: "data-footnote-contents",
+	footnoteContent: "data-footnote-content",
 	footnoteId: "data-footnote-id",
 	footnoteItem: "data-footnote-item",
 	footnoteLabel: "data-footnote-label",
