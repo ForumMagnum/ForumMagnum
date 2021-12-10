@@ -11,6 +11,7 @@ import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
+import { REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -1277,6 +1278,18 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVoteCount:resolverOnlyField({
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    resolver: async (document, args, context: ResolverContext) => {
+      const { ReviewVotes } = context;
+      const voteCount = await ReviewVotes.find({
+        userId: document._id,
+        year: REVIEW_YEAR+""
+      }).count();
+      return voteCount
+    }
+  }),
   reviewVotesQuadratic2020: {
     type: Boolean,
     optional: true,

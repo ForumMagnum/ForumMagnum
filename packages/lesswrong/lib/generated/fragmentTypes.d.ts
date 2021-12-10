@@ -1117,8 +1117,12 @@ interface reviewVoteFragment { // fragment on ReviewVotes
 }
 
 interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on ReviewVotes
-  readonly user: UsersMinimumInfo|null,
+  readonly user: reviewVoteWithUserAndPost_user|null,
   readonly post: PostsMinimumInfo|null,
+}
+
+interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
+  readonly email: string,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -1698,6 +1702,12 @@ interface UsersAdmin { // fragment on Users
   readonly karma: number,
 }
 
+interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
+  readonly reviewVoteCount: number,
+  readonly email: string,
+  readonly lastNotificationsCheck: Date,
+}
+
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
@@ -1898,6 +1908,7 @@ interface FragmentTypes {
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
   UsersAdmin: UsersAdmin
+  UsersWithReviewInfo: UsersWithReviewInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -2039,6 +2050,7 @@ interface CollectionNamesByFragmentName {
   UsersMapEntry: "Users"
   UsersEdit: "Users"
   UsersAdmin: "Users"
+  UsersWithReviewInfo: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"

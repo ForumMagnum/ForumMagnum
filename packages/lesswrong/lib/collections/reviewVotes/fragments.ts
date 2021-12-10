@@ -21,6 +21,7 @@ registerFragment(`
     ...reviewVoteFragment
     user {
       ...UsersMinimumInfo
+      email
     }
     post {
       ...PostsMinimumInfo
