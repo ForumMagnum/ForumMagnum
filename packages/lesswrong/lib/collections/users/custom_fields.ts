@@ -666,10 +666,6 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
-  notificationPostsNominatedReview: {
-    label: "Nominations of my posts for the annual LessWrong Review",
-    ...notificationTypeSettingsField(),
-  },
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
     ...notificationTypeSettingsField(),
@@ -695,6 +691,10 @@ addFieldsDict(Users, {
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationPostsNominatedReview: {
+    label: "Nominations of my posts for the annual LessWrong Review",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
