@@ -1305,6 +1305,11 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
       positiveReviewVoteCount: { $gt: 0 },
     },
     options: {
+      // This sorts the posts ~deterministically, which is important for the
+      // relative stability of the seeded frontend sort
+      sort: {
+        baseScore: -1
+      },
       ...(terms.excludeContents ?
         {projection: {contents: 0}} :
         {})
@@ -1312,6 +1317,6 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  augmentForDefaultView({ positiveReviewVoteCount: 1, baseScore: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
