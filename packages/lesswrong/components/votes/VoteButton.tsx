@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const VoteButton = <T extends VoteableTypeClient>({
-  vote, collectionName, document, voteType,
+  vote, collectionName, document, upOrDown,
   color = "secondary",
   orientation = "up",
   solidArrow,
@@ -75,7 +75,7 @@ const VoteButton = <T extends VoteableTypeClient>({
   collectionName: CollectionNameString,
   document: T,
   
-  voteType: string,
+  upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
   orientation: string,
   solidArrow?: boolean
@@ -105,7 +105,8 @@ const VoteButton = <T extends VoteableTypeClient>({
     setBigVoteCompleted(false);
   }
 
-  const wrappedVote = (voteType: string|null) => {
+  const wrappedVote = (bigOrSmall: "big"|"small") => {
+    const voteType = bigOrSmall+upOrDown;
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
@@ -124,9 +125,9 @@ const VoteButton = <T extends VoteableTypeClient>({
   const handleMouseUp = () => { // This handler is only used on desktop
     if(!isMobile()) {
       if (bigVoteCompleted) {
-        wrappedVote(`big${voteType}`)
+        wrappedVote("big")
       } else {
-        wrappedVote(`small${voteType}`)
+        wrappedVote("small")
       }
       clearState()
     }
@@ -136,8 +137,8 @@ const VoteButton = <T extends VoteableTypeClient>({
     return document.currentUserVote === type;
   }
 
-  const smallVoteType = `small${voteType}`
-  const bigVoteType = `big${voteType}`
+  const smallVoteType = `small${upOrDown}`
+  const bigVoteType = `big${upOrDown}`
   const voted = hasVoted(smallVoteType) || hasVoted(bigVoteType)
   const bigVoted = hasVoted(bigVoteType)
   
@@ -146,9 +147,9 @@ const VoteButton = <T extends VoteableTypeClient>({
       // This causes the following behavior (repeating after 3rd click):
       // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
       if (voted) {
-        wrappedVote(`big${voteType}`)
+        wrappedVote("big")
       } else {
-        wrappedVote(`small${voteType}`)
+        wrappedVote("small")
       }
       clearState()
     }

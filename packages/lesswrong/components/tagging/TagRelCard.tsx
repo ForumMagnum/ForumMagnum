@@ -53,7 +53,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
         <VoteButton
           orientation="left"
           color="error"
-          voteType="Downvote"
+          upOrDown="Downvote"
           {...voteProps}
         />
       </div>
@@ -64,7 +64,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
         <VoteButton
           orientation="right"
           color="secondary"
-          voteType="Upvote"
+          upOrDown="Upvote"
           {...voteProps}
         />
       </div>

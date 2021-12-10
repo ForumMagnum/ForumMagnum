@@ -149,6 +149,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly nextDayReminderSent: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
   readonly onlyVisibleToEstablishedAccounts: boolean,
+  readonly votingSystem: string,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -664,6 +665,7 @@ interface CommentsList { // fragment on Comments
   readonly promoted: boolean,
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
+  readonly votingSystem: string,
 }
 
 interface CommentsList_contents { // fragment on Revisions

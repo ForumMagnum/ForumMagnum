@@ -56,7 +56,7 @@ const PostsVote = ({ post, classes }: {
             <VoteButton
               orientation="up"
               color="secondary"
-              voteType="Upvote"
+              upOrDown="Upvote"
               {...voteProps}
             />
           </div>
@@ -96,7 +96,7 @@ const PostsVote = ({ post, classes }: {
             <VoteButton
               orientation="down"
               color="error"
-              voteType="Downvote"
+              upOrDown="Downvote"
               {...voteProps}
             />
           </div>

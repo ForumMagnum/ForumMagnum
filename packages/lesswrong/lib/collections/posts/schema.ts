@@ -12,6 +12,7 @@ import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
+import { getVotingSystems } from '../../votingSystems';
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -792,7 +793,23 @@ const schema: SchemaType<DbPost> = {
       if (!votes.length) return null;
       return votes[0].qualitativeScore;
     }
-  })
+  }),
+  
+  votingSystem: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    control: "select",
+    form: {
+      options: () => {
+        return getVotingSystems()
+          .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
+      }
+    },
+  },
 };
 
 export default schema;

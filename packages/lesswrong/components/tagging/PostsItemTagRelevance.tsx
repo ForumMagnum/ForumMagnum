@@ -52,7 +52,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
           <VoteButton
             orientation="down"
             color="error"
-            voteType="Downvote"
+            upOrDown="Downvote"
             solidArrow
             {...voteProps}
           />
@@ -66,7 +66,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
           <VoteButton
             orientation="up"
             color="secondary"
-            voteType="Upvote"
+            upOrDown="Upvote"
             solidArrow
             {...voteProps}
           />

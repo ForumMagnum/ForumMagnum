@@ -68,7 +68,7 @@ const TagVoteActivityRow = ({vote, classes}: {
           <VoteButton
             orientation="left"
             color="error"
-            voteType="Downvote"
+            upOrDown="Downvote"
             {...voteProps}
           />
           <span className={classes.score}>
@@ -77,7 +77,7 @@ const TagVoteActivityRow = ({vote, classes}: {
           <VoteButton
             orientation="right"
             color="secondary"
-            voteType="Upvote"
+            upOrDown="Upvote"
             {...voteProps}
           />
         </div>

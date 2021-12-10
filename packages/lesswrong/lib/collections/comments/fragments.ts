@@ -48,6 +48,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     directChildrenCount
+    votingSystem
   }
 `);
 

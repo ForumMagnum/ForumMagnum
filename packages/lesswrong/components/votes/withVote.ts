@@ -11,8 +11,8 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   const mutationName = `setVote${typeName}`;
   
   return gql`
-    mutation ${mutationName}($documentId: String, $voteType: String) {
-      ${mutationName}(documentId: $documentId, voteType: $voteType) {
+    mutation ${mutationName}($documentId: String, $voteType: String, $extendedVote: JSON) {
+      ${mutationName}(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
         ...WithVote${typeName}
       }
     }
@@ -20,13 +20,15 @@ const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   `
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): {
+export interface VotingProps<T extends VoteableTypeClient> {
   vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
   collectionName: VoteableCollectionName,
   document: T,
   baseScore: number,
   voteCount: number,
-} => {
+}
+
+export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): VotingProps<T> => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
@@ -41,8 +43,12 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     }, []),
   });
   
-  const vote = useCallback(async ({document, voteType, collectionName, currentUser}: {
-    document: T, voteType: string|null, collectionName: VoteableCollectionName, currentUser: UsersCurrent
+  const vote = useCallback(async ({document, voteType, extendedVote=null, collectionName, currentUser}: {
+    document: T,
+    voteType: string|null,
+    extendedVote?: any,
+    collectionName: VoteableCollectionName,
+    currentUser: UsersCurrent,
   }) => {
     // Cast a vote. Because the vote buttons are easy to mash repeatedly (and
     // the strong-voting mechanic encourages this), there could be multiple
@@ -55,7 +61,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     // means that if you double-click a vote button, you can get a weird result
     // due to votes being processed out of order.
     
-    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType });
+    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, extendedVote });
 
     try {
       mutationCounts.current.optimisticMutationIndex++;
@@ -63,7 +69,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       await mutate({
         variables: {
           documentId: document._id,
-          voteType,
+          voteType, extendedVote,
         },
       })
     } catch(e) {

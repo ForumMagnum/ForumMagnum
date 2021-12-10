@@ -114,10 +114,11 @@ export const createVote = ({ document, collectionName, voteType, user, voteId }:
 };
 
 // Optimistic response for votes
-export const setVoteClient = async ({ document, collection, voteType, user }: {
+export const setVoteClient = async ({ document, collection, voteType, extendedVote=null, user }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbVoteableType>
   voteType: string|null,
+  extendedVote?: any,
   user: UsersCurrent,
 }): Promise<VoteableTypeClient> => {
   if (voteType && !voteTypes[voteType]) throw new Error("Invalid vote type");
@@ -127,12 +128,13 @@ export const setVoteClient = async ({ document, collection, voteType, user }: {
   if (!document || !user || (voteType && !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`))) {
     throw new Error(`Cannot vote on '${collectionName.toLowerCase()}`);
   }
-
-  if (!voteType) {
-    return cancelVoteClient({document, collection, user});
-  } else {
-    document = cancelVoteClient({document, collection, user})
-    return addVoteClient({document, collection, voteType, user});
+  
+  if (document.currentUserVote) {
+    document = cancelVoteClient({document, collection, user});
   }
+  if (voteType) {
+    document =  addVoteClient({document, collection, voteType, user});
+  }
+  return document;
 }
 

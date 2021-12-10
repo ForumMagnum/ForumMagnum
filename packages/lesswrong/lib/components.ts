@@ -240,6 +240,9 @@ importComponent("ShortformTimeBlock", () => require('../components/shortform/Sho
 
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
+importComponent("VoteAxis", () => require('../components/votes/VoteAxis'));
+importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));
+importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // Events
