@@ -34,6 +34,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       "title title title"
       "text1 text1 bookCheckout"
     `,
+    gridTemplateColumns: `
+      minmax(0, min-content)
+      minmax(0, 1fr)
+      minmax(0, min-content)
+      minmax(0, 1.4fr)
+      minmax(0, min-content)
+    `,
     [theme.breakpoints.down('xs')]: {
       gridAutoColumns: "100%",
       padding: "0 10px 0 10px",
@@ -254,7 +261,7 @@ const Book2019Landing = ({classes}: {
               captureEvent("2019BookAmazonClicked")
               window.open("https://smile.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507?sa-no-redirect=1")
             }}>
-              Buy Now (TODO))
+              Amazon US ($30)
             </a>
             <div className={classes.ctaSmallText}>
               <div className={classes.availabilityNotice}>
@@ -277,8 +284,6 @@ const Book2019Landing = ({classes}: {
         <div className={classNames(classes.header, classes.header2)}>
           ML Generated Art
         </div>
-
-        <img className={classes.reframing} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637284917/reframing-superintelligence_rx8gjx.png"/>
       </div>
         
       <div className={classes.spreads}>
