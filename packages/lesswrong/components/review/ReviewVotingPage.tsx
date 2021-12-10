@@ -310,11 +310,21 @@ const ReviewVotingPage = ({classes}: {
     setPostsHaveBeenSorted(true)
     
     captureEvent(undefined, {eventSubType: "postsResorted"})
-  }, [sortedPosts, currentUser])
+  }, [sortedPosts, currentUser, captureEvent])
   
+  const canInitialResort = !!postsResults
   useEffect(() => {
     reSortPosts()
-  }, [!!postsResults])
+  }, [canInitialResort, reSortPosts])
+  
+  const quadraticVotes = useMemo(
+    () => sortedPosts?.map(post => ({
+      postId: post._id,
+      score: post.currentUserReviewVote,
+      type: 'QUADRATIC' as const
+    })),
+    [sortedPosts]
+  )
 
   if (!currentUserCanVote(currentUser)) {
     return (
@@ -327,14 +337,6 @@ const ReviewVotingPage = ({classes}: {
     )
   }
 
-  const quadraticVotes = useMemo(
-    () => sortedPosts?.map(post => ({
-      postId: post._id,
-      score: post.currentUserReviewVote,
-      type: 'QUADRATIC' as const
-    })),
-    [sortedPosts]
-  )
   const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
   const voteAverage = (sortedPosts && sortedPosts?.length > 0) ? voteTotal/sortedPosts?.length : 0
 
