@@ -65,10 +65,12 @@ const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {c
   const { LWTooltip } = Components
   const score = voteForCurrentPost?.score
   const [selection, setSelection] = useState(voteForCurrentPost ? score : DEFAULT_QUALITATIVE_VOTE)
+  const [isDefaultVote, setIsDefaultVote] = useState(!score)
 
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
+      setIsDefaultVote(false)
       dispatch({postId, score: index})
     }
   }
@@ -79,8 +81,8 @@ const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {c
         key={`${indexToTermsLookup[i]}-${i}`}>
           <span
               className={classNames(classes.button, classes[i], {
-                [classes.selectionHighlight]:selection === i && score,
-                [classes.defaultHighlight]: selection === i && !score
+                [classes.selectionHighlight]:selection === i && !isDefaultVote,
+                [classes.defaultHighlight]: selection === i && isDefaultVote
               })}
               onClick={createClickHandler(i)}
             >
