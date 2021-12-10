@@ -9,9 +9,9 @@ import { ATTRIBUTES, ELEMENTS } from './constants';
 export default class InsertFootnoteCommand extends Command {
 	/**
 	 *
-	 * @param {{footnoteId: number}} props - A footnoteId of 0 indicates creation of a new footnote.
+	 * @param {{footnoteId: number}} props
 	 */
-	execute({ footnoteId }) {
+	execute({ footnoteId } = { footnoteId: 0 }) {
 		this.editor.model.change(writer => {
 			const doc = this.editor.model.document;
 			const rootElement = doc.getRoot();

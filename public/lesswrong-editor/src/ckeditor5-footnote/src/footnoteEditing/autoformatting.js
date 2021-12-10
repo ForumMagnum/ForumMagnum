@@ -112,12 +112,12 @@ const formatCallback = (ranges, editor, rootElement) => {
 		if(footnoteId !== 1) {
 			return false;
 		}
-		editor.execute(COMMANDS.insertFootnote, { footnoteId: 0 });
+		editor.execute(COMMANDS.insertFootnote);
 		return;
 	}
 	const footnoteCount = modelQueryElementsAll(editor, footnoteSection, element =>  element.name === ELEMENTS.footnoteLabel).length;
 	if(footnoteId === footnoteCount + 1) {
-		editor.execute(COMMANDS.insertFootnote, { footnoteId: 0 });
+		editor.execute(COMMANDS.insertFootnote);
 		return;
 	}
 	else if(footnoteId >= 1 && footnoteId <= footnoteCount) {
