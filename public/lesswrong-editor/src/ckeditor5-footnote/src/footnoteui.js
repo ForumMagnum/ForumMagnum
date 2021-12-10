@@ -2,7 +2,7 @@
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 // @ts-ignore-next-line
-import pilcrowIcon from '@ckeditor/ckeditor5-core/theme/icons/pilcrow.svg';
+import footnoteIcon from '../theme/icon.svg';
 import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
@@ -27,7 +27,7 @@ export default class FootnoteUI extends Plugin {
 			
 			dropdownView.buttonView.set( {
 				label: translate( 'Footnote' ),
-				icon: pilcrowIcon,
+				icon: footnoteIcon,
 				tooltip: true
 			} );
 
