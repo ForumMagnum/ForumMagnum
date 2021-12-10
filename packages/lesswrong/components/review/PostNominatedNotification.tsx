@@ -45,7 +45,7 @@ const PostNominatedNotification = ({classes, postId}:{classes:ClassesType, postI
     <PostsTitle post={post}/>
     <div className={classes.text}>
       <p>Your post has been nominated for the {REVIEW_NAME_IN_SITU}.</p>
-      <p>You're encouraged to write a self-review, exploring how you think about the post today. Do you still endorse it? Have you learned anything new that adds more depth? How might you improve the post?</p>
+      <p>You're encouraged to write a self-review, exploring how you think about the post today. Do you still endorse it? Have you learned anything new that adds more depth? How might you improve the post? What further work do you think should be done exploring the ideas here?</p>
       <div className={classes.reviewButton}>
         <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
             <div className={classes.reviewButton}>Write a Review</div>
