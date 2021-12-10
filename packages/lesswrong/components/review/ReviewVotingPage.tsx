@@ -189,9 +189,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export type ReviewVotePart = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
-export type QualitativeVotePart = {postId: string, score: number, type: 'QUALITATIVE'}
-export type QuadraticVotePart = {postId: string, score: number, type: 'QUADRATIC'}
+export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
+export type SyntheticQualitativeVote = {postId: string, score: number, type: 'QUALITATIVE'}
+export type SyntheticQuadraticVote = {postId: string, score: number, type: 'QUADRATIC'}
 
 const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
   const seed = user?._id || "";
@@ -215,7 +215,7 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
 
-  let { results, loading: postsLoading } = useMulti({
+  const { results, loading: postsLoading } = useMulti({
     terms: {
       view: "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
@@ -227,6 +227,7 @@ const ReviewVotingPage = ({classes}: {
     fragmentName: 'PostsListWithVotes',
     fetchPolicy: 'cache-and-network',
   });
+  // useMulti is incorrectly typed
   const postsResults = results as PostsListWithVotes[] | null;
   
   const {mutate: updateUser} = useUpdate({
@@ -275,7 +276,7 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = useCallback(async ({postId, score}: QualitativeVotePart) => {
+  const dispatchQualitativeVote = useCallback(async ({postId, score}: SyntheticQualitativeVote) => {
     return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
   }, [submitVote]);
 
@@ -337,7 +338,7 @@ const ReviewVotingPage = ({classes}: {
   const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
   const voteAverage = (sortedPosts && sortedPosts?.length > 0) ? voteTotal/sortedPosts?.length : 0
 
-  const renormalizeVotes = (quadraticVotes: QuadraticVotePart[] | undefined, voteAverage: number) => {
+  const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
     if (!quadraticVotes) return
     const voteAdjustment = -Math.trunc(voteAverage)
     quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
@@ -569,7 +570,7 @@ const sumOf1ToN = (x:number) => {
   return absX*(absX+1)/2
 }
 
-const computeTotalCost = (votes: QuadraticVotePart[]) => {
+const computeTotalCost = (votes: SyntheticQuadraticVote[]) => {
   return sumBy(votes, ({score}) => sumOf1ToN(score))
 }
 

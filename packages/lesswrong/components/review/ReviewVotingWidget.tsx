@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { ReviewVotePart } from './ReviewVotingPage';
+import { SyntheticReviewVote } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { overviewTooltip } from './FrontpageReviewWidget';

@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { QuadraticVotePart, QualitativeVotePart, ReviewVotePart } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType) => ({
@@ -99,13 +99,13 @@ const styles = (theme: ThemeType) => ({
 const ReviewVoteTableRow = (
   { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentVote, showKarmaVotes }: {
     post: PostsListWithVotes,
-    dispatch: React.Dispatch<ReviewVotePart>,
+    dispatch: React.Dispatch<SyntheticReviewVote>,
     dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId?: string|null,
-    currentVote: ReviewVotePart|null,
+    currentVote: SyntheticReviewVote|null,
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo } = Components
@@ -147,8 +147,8 @@ const ReviewVoteTableRow = (
         </PostsItem2MetaInfo>
         <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
-            <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as QuadraticVotePart} vote={dispatchQuadraticVote} /> :
-            <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentVote as QualitativeVotePart} />}
+            <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
+            <ReviewVotingButtons postId={post._id} dispatch={dispatch} voteForCurrentPost={currentVote as SyntheticQualitativeVote} />}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>

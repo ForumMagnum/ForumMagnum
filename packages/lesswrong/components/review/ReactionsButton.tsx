@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { ReviewVotePart } from './ReviewVotingPage';
+import type { SyntheticReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import * as _ from "underscore"
 import Input from '@material-ui/core/Input';
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType, postId: string, vote: any, votes: ReviewVotePart[], reaction: string, freeEntry: boolean}) => {
+const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType, postId: string, vote: any, votes: SyntheticReviewVote[], reaction: string, freeEntry: boolean}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   // TODO: This component is unused, except in ReviewVotingPage2019. Cast to any
   // here is a way to make a minimally invasive fix.

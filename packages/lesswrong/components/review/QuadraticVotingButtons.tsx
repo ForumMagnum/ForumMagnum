@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { QuadraticVotePart, ReviewVotePart } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 
-const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType, postId: string, vote: any, voteForCurrentPost: QuadraticVotePart|null}) => {
+const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType, postId: string, vote: any, voteForCurrentPost: SyntheticQuadraticVote|null}) => {
   const clickHandler = (type: 'buy' | 'sell') => {
     vote({
       postId,
