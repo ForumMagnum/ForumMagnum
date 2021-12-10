@@ -13,7 +13,10 @@ const styles = theme => ({
     overflow: "hidden",
     padding: 6,
     whiteSpace: "nowrap",
-    marginRight: 15
+    marginRight: 15,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   },
   lastReview: {
     ...theme.typography.commentStyle,

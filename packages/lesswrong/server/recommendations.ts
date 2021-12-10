@@ -83,6 +83,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}
     }
     return {
+      isEvent: false,
       postedAt: {$gt: new Date(`${algorithm.reviewNominations}-01-01`), $lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)},
       meta: false
     }

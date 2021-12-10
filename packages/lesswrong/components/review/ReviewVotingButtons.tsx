@@ -61,11 +61,12 @@ export const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: SyntheticReviewVote|null}) => {
+const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: {classes: ClassesType, postId: string, dispatch: any, currentUserVoteScore: number|null}) => {
   const { LWTooltip } = Components
-  const score = voteForCurrentPost?.score
-  const [selection, setSelection] = useState(voteForCurrentPost ? score : DEFAULT_QUALITATIVE_VOTE)
-  const [isDefaultVote, setIsDefaultVote] = useState(!score)
+
+
+  const [selection, setSelection] = useState(currentUserVoteScore || DEFAULT_QUALITATIVE_VOTE)
+  const [isDefaultVote, setIsDefaultVote] = useState(!currentUserVoteScore)
 
   const createClickHandler = (index:number) => {
     return () => {
