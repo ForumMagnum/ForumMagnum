@@ -1116,8 +1116,9 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly reactions: Array<string>,
 }
 
-interface reviewVoteWithUser extends reviewVoteFragment { // fragment on ReviewVotes
+interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on ReviewVotes
   readonly user: UsersMinimumInfo|null,
+  readonly post: PostsMinimumInfo|null,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -1847,7 +1848,7 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   reviewVoteFragment: reviewVoteFragment
-  reviewVoteWithUser: reviewVoteWithUser
+  reviewVoteWithUserAndPost: reviewVoteWithUserAndPost
   localGroupsBase: localGroupsBase
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsEdit: localGroupsEdit
@@ -1988,7 +1989,7 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   ReviewVotesDefaultFragment: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
-  reviewVoteWithUser: "ReviewVotes"
+  reviewVoteWithUserAndPost: "ReviewVotes"
   localGroupsBase: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsEdit: "Localgroups"

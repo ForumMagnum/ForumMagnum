@@ -17,10 +17,13 @@ registerFragment(`
 
 
 registerFragment(`
-  fragment reviewVoteWithUser on ReviewVote {
+  fragment reviewVoteWithUserAndPost on ReviewVote {
     ...reviewVoteFragment
     user {
       ...UsersMinimumInfo
+    }
+    post {
+      ...PostsMinimumInfo
     }
   }
 `)
