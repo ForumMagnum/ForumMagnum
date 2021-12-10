@@ -5,7 +5,7 @@ import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils
 import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
 import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
-import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
+import TextProxy from '@ckeditor/ckeditor5-engine/src/view/textproxy';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import { modelQueryElementsAll, viewQueryElement, viewQueryText } from '../utils';
 import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
@@ -19,28 +19,29 @@ import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 export const defineConverters = (editor, rootElement) => {
 	const conversion = editor.conversion;
 
+	/***********************************Attribute Conversion************************************/
+
+	conversion.for('downcast').attributeToAttribute({
+		model: ATTRIBUTES.footnoteId,
+		view: ATTRIBUTES.footnoteId,
+	})
+
 	/***********************************Footnote Section Conversion************************************/
 	// ((data) view → model)
 	conversion.for('upcast').elementToElement({
 		view: {
-			name: 'section',
 			attributes: {
 				[ATTRIBUTES.footnoteSection]: true,
 			},
 		},
-		model: (_, conversionApi) => {
-			const modelWriter = conversionApi.writer;
-			const Footnote = modelWriter.createElement(ELEMENTS.footnoteSection);
-			return Footnote;
-		}
-
+		model: ELEMENTS.footnoteSection,
 	});
 
 	// (model → data view)
 	conversion.for('dataDowncast').elementToElement({
 		model: ELEMENTS.footnoteSection,
 		view: {
-			name: 'section',
+			name: 'ol',
 			attributes: {[ATTRIBUTES.footnoteSection]: ''},
 			classes: [CLASSES.footnoteSection, 'footnotes'],
 		}
@@ -51,7 +52,7 @@ export const defineConverters = (editor, rootElement) => {
 		model: ELEMENTS.footnoteSection,
 		view: (_, conversionApi) => {
 			const viewWriter = conversionApi.writer;
-			const section = viewWriter.createContainerElement('section', { [ATTRIBUTES.footnoteSection]: '', class: CLASSES.footnoteSection });
+			const section = viewWriter.createContainerElement('div', { [ATTRIBUTES.footnoteSection]: '', class: CLASSES.footnoteSection });
 
 			return toWidget(section, viewWriter, { label: 'footnote widget' });
 		}
@@ -65,7 +66,7 @@ export const defineConverters = (editor, rootElement) => {
 			return modelWriter.createElement(ELEMENTS.footnoteContent);
 		},
 		view: {
-			name: 'section',
+			name: 'div',
 			attributes: {
 				[ATTRIBUTES.footnoteContent]: true,
 			},
@@ -75,7 +76,7 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('dataDowncast').elementToElement({
 		model: ELEMENTS.footnoteContent,
 		view: {
-			name: 'section',
+			name: 'div',
 			attributes: {[ATTRIBUTES.footnoteContent]: ''},
 			classes: [CLASSES.footnoteContent],
 		}
@@ -86,7 +87,7 @@ export const defineConverters = (editor, rootElement) => {
 		view: (_, conversionApi) => {
 			const viewWriter = conversionApi.writer;
 			// Note: You use a more specialized createEditableElement() method here.
-			const section = viewWriter.createEditableElement('section', { [ATTRIBUTES.footnoteContent] : '', class: CLASSES.footnoteContent });
+			const section = viewWriter.createEditableElement('div', { [ATTRIBUTES.footnoteContent] : '', class: CLASSES.footnoteContent });
 
 			return toWidgetEditable(section, viewWriter);
 		}
@@ -103,11 +104,6 @@ export const defineConverters = (editor, rootElement) => {
 		},
 		model: ELEMENTS.footnoteItem,
 	});
-
-	conversion.for('downcast').attributeToAttribute({
-		model: ATTRIBUTES.footnoteId,
-		view: ATTRIBUTES.footnoteId,
-	})
 
 	conversion.for('dataDowncast').elementToElement({
 		model: ELEMENTS.footnoteItem,
@@ -188,17 +184,86 @@ export const defineConverters = (editor, rootElement) => {
 				{ priority: 'high' }
 			);
 		});
+
+	/***********************************Footnote Return Link Conversion************************************/
+
+	conversion.for('upcast').elementToElement({
+		view: {
+			attributes: {
+				[ATTRIBUTES.footnoteBackLink]: true,
+			},
+		},
+		model: (viewElement, conversionApi) => {
+			const modelWriter = conversionApi.writer;
+			const id = viewElement.getAttribute(ATTRIBUTES.footnoteId);
+			if(id === undefined) {
+				return null;
+			}
+
+			return modelWriter.createElement(
+				ELEMENTS.footnoteReference, 
+				{
+					[ATTRIBUTES.footnoteBackLink]: '',
+					[ATTRIBUTES.footnoteId]: id,
+				}
+			);
+		}
+	});
+
+	conversion.for('dataDowncast').elementToElement({
+		model: ELEMENTS.footnoteBackLink,
+		view: createFootnoteBackLinkViewElement,
+	});
+
+	conversion.for('editingDowncast').elementToElement({
+		model: ELEMENTS.footnoteBackLink,
+		view: {
+			name: 'span',
+			classes: CLASSES.hidden,
+			attributes: {
+				[ATTRIBUTES.footnoteBackLink]: '',
+			},
+		}
+	});
+
+};
+
+/**
+ * Creates and returns a view element for a footnote reference.
+ * @param {ModelElement} modelElement
+ * @param {DowncastConversionApi} conversionApi
+ * @returns {ContainerElement}
+ */
+function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
+	const viewWriter = conversionApi.writer;
+	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
+	if(id === undefined) {
+		throw new Error('Footnote return link has no provided Id.')
+	}
+
+	const footnoteBackLinkView = viewWriter.createContainerElement('span', {
+		class: [CLASSES.footnoteBackLink, CLASSES.hidden].join(' '),
+		[ATTRIBUTES.footnoteBackLink]: '',
+		[ATTRIBUTES.footnoteId]: id,
+	});
+	const anchor = viewWriter.createContainerElement('a', { href: `#fnref${id}` });
+	const innerText = viewWriter.createText(`↩`);
+
+	viewWriter.insert(viewWriter.createPositionAt(anchor, 0), innerText);
+	viewWriter.insert(viewWriter.createPositionAt(footnoteBackLinkView, 0), anchor);
+
+	return footnoteBackLinkView;
 }
 
 /**
  * Creates and returns a view element for a footnote reference.
- * @param {ModelElement} viewElement
+ * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
  */
-const createFootnoteReferenceViewElement = (viewElement, conversionApi) => {
+function createFootnoteReferenceViewElement(modelElement, conversionApi) {
 	const viewWriter = conversionApi.writer;
-	const id = viewElement.getAttribute(ATTRIBUTES.footnoteId);
+	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
 	if(id === undefined) {
 		throw new Error('Footnote reference has no provided Id.')
 	}
@@ -239,7 +304,7 @@ const createFootnoteReferenceViewElement = (viewElement, conversionApi) => {
  * @param {RootElement} rootElement
  * @returns
  */
-const updateReferences = (data, conversionApi, editor, rootElement) => {
+function updateReferences(data, conversionApi, editor, rootElement) {
 	const { item, attributeOldValue, attributeNewValue } = data;
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
 		return;
@@ -267,7 +332,9 @@ const updateReferences = (data, conversionApi, editor, rootElement) => {
  * @param {Editor} editor
  * @returns
  */
-const updateFootnoteItemView = (data, conversionApi, editor) => {
+function updateFootnoteItemView(data, conversionApi, editor) {
+	/** @type {{item: ModelElement, attributeOldValue: string, attributeNewValue: string}} */
+	// @ts-ignore - type casting in assign statements enough to appease JSDoc is nigh impossible
 	const { item, attributeOldValue, attributeNewValue } = data;
 	conversionApi.consumable.add(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`);
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
@@ -291,7 +358,7 @@ const updateFootnoteItemView = (data, conversionApi, editor) => {
  * @param {Editor} editor
  * @returns
  */
-const updateFootnoteReferenceView = (data, conversionApi, editor) => {
+function updateFootnoteReferenceView (data, conversionApi, editor) {
 	const { item, attributeOldValue, attributeNewValue } = data;
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteReference}`)) {
 		return;

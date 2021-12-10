@@ -50,6 +50,15 @@ export const defineSchema = schema => {
 	});
 
 	/**
+	 * return link which takes you from the footnote to the inline reference.
+	 */
+	schema.register(ELEMENTS.footnoteBackLink, {
+		allowIn: ELEMENTS.footnoteItem,
+		isInline: true,
+		isSelectable: false,
+		allowAttributes: [ATTRIBUTES.footnoteBackLink, ATTRIBUTES.footnoteId]
+	})
+
 	// @ts-ignore -- returning true here prevents future listeners from firing.
 	// (as does return false; returning false just also prevents the child add operation from happening.)
 	// The below pattern matches the canonical use in the docs--the type signature is just wrong.

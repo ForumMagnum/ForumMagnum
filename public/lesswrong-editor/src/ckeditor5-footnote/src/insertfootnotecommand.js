@@ -12,32 +12,34 @@ export default class InsertFootnoteCommand extends Command {
 	 * @param {{footnoteId: number}} props
 	 */
 	execute({ footnoteId } = { footnoteId: 0 }) {
-		this.editor.model.enqueueChange(writer => {
+		this.editor.model.enqueueChange(modelWriter => {
 			const doc = this.editor.model.document;
 			const rootElement = doc.getRoot();
 			if (!rootElement) {
 				return;
 			}
-			const footnoteSection = this._getFootnoteSection(writer, rootElement);
+			const footnoteSection = this._getFootnoteSection(modelWriter, rootElement);
 			const id = footnoteId === 0 ? footnoteSection.maxOffset + 1 : footnoteId;
 			doc.selection.isBackward ?
-				writer.setSelection(doc.selection.anchor) :
-				writer.setSelection(doc.selection.focus);
-			const footnoteReference = writer.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id });
+				modelWriter.setSelection(doc.selection.anchor) :
+				modelWriter.setSelection(doc.selection.focus);
+			const footnoteReference = modelWriter.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id });
 			this.editor.model.insertContent(footnoteReference);
-			writer.setSelection(footnoteReference, 'after');
+			modelWriter.setSelection(footnoteReference, 'after');
 			// if referencing an existing footnote
 			if (footnoteId !== 0) {
 				return;
 			}
 
-			const footnoteContent = writer.createElement(ELEMENTS.footnoteContent);
-			const footnoteItem = writer.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id, id: `fn${id}` });
-			const p = writer.createElement('paragraph');
-			writer.append(p, footnoteContent);
-			writer.append(footnoteContent, footnoteItem)
+			const footnoteContent = modelWriter.createElement(ELEMENTS.footnoteContent);
+			const footnoteItem = modelWriter.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id });
+			const footnoteBackLink = modelWriter.createElement(ELEMENTS.footnoteBackLink, { [ATTRIBUTES.footnoteId]: id });
+			const p = modelWriter.createElement('paragraph');
+			modelWriter.append(p, footnoteContent);
+			modelWriter.append(footnoteContent, footnoteItem)
+			modelWriter.append(footnoteBackLink, footnoteItem)
 
-			this.editor.model.insertContent(footnoteItem, writer.createPositionAt(footnoteSection, footnoteSection.maxOffset));
+			this.editor.model.insertContent(footnoteItem, modelWriter.createPositionAt(footnoteSection, footnoteSection.maxOffset));
 		});
 	}
 

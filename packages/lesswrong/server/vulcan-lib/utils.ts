@@ -39,10 +39,11 @@ export const sanitize = function(s: string): string {
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type'],
-      span: ['style'],
+      span: ['style', 'id'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
       a: ['href', 'name', 'target', 'rel'],
-      iframe: ['src', 'allowfullscreen', 'allow']
+      iframe: ['src', 'allowfullscreen', 'allow'],
+      li: ['id'],
     },
     allowedIframeHostnames: [
       'www.youtube.com', 'youtube.com', 

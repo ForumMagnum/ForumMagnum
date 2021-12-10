@@ -14,16 +14,25 @@
 	margin-bottom: 10px;
 }
 
-.footnote-contents {
-	width: 100%;
+.footnote-item {
+	list-style: decimal outside;
+}
+
+.footnote-item > * {
+	vertical-align: text-top;
+}
+
+.footnote-content {
+	display: inline-block;
+	width: 80%;
 	background: rgba( 0, 0, 0, 0 );
 }
 
-.footnote-title::selection {
+.hidden {
 	display: none;
 }
 
-/* Added styles LW/EA Forum styles*/
+/* Added LW/EA Forum styles*/
 .ck .ck-widget.footnote-section .ck-widget__type-around__button_after {
 	display:none;
 }
