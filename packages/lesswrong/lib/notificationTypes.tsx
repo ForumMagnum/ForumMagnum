@@ -17,8 +17,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import StarIcon from '@material-ui/icons/Star';
 import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
-import { getTestMessageUrl } from 'nodemailer';
-import { REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE } from './reviewUtils';
+import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 
 interface NotificationType {
   name: string
