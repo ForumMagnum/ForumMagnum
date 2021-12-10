@@ -63,7 +63,12 @@ export default class FootnoteEditing extends Plugin {
 
 	/**
 	 * This method broadly deals with deletion of text and elements, and updating the model
-	 * accordingly. 
+	 * accordingly. There are three cases handled:
+	 * 1. If the footnote section gets deleted, remove all footnote references.
+	 * 2. If a delete operation happens in an empty footnote, delete the footnote.
+	 * 3. If the entire contents of a nonempty footnote are deleted, delete the contents
+	 *    without deleting the footnote (without this CKEditor deletes the parent element automatically,
+	 *    which feels). In practice, this means leaving one empty paragrpah.
 	 */
 	_handleDelete() {
 		const viewDocument = this.editor.editing.view.document;
@@ -79,7 +84,7 @@ export default class FootnoteEditing extends Plugin {
 
 			// delete all footnote references if footnote section gets deleted
 			if (deletedElement && deletedElement.name === ELEMENTS.footnoteSection) {
-				this._removeReferences(0);
+				this._removeReferences();
 			}
 
 			const deletingFootnote = deletedElement && deletedElement.name === ELEMENTS.footnoteItem
@@ -90,35 +95,47 @@ export default class FootnoteEditing extends Plugin {
 			if(!currentFootnote) {
 				return;
 			}
-			const currentParagraph = deletedElement && deletedElement.name === 'paragraph' ? 
-				deletedElement :
-				selectionEndPos.findAncestor('paragraph');
-			const currentFootnoteContents = selectionEndPos.findAncestor(ELEMENTS.footnoteContents);
-			if(!currentFootnoteContents) {
+
+			const endParagraph = selectionEndPos.findAncestor('paragraph');
+			const startParagraph = selectionStartPos.findAncestor('paragraph');
+			const currentFootnoteContent = selectionEndPos.findAncestor(ELEMENTS.footnoteContents);
+			if(!currentFootnoteContent || !startParagraph || !endParagraph) {
 				return;
 			}
-			if(deletingFootnote) { 
+
+			const footnoteIsEmpty = startParagraph .maxOffset === 0 && currentFootnoteContent.childCount === 1;
+
+			if(deletingFootnote || footnoteIsEmpty) {
 				this._removeFootnote(currentFootnote);
 				data.preventDefault();
 				evt.stop();
 				return;
 			}
 
-			const entireParagraphSelected = currentParagraph && selectionStartPos.isAtStart && selectionEndPos.isAtEnd;
+			const entireContentsSelected = 
+				selectionStartPos.isAtStart && startParagraph.index === 0 &&
+				selectionEndPos.isAtEnd && endParagraph.endOffset === currentFootnoteContent.maxOffset;
 
-			const deletingFirstParagraphOfFootnote = 
-				(deletedElement && !deletedElement.index) ||
-				(entireParagraphSelected && !currentParagraph.index);
-
-			// if the deleted section isn't a paragraph, or if it isn't the first paragraph
-			// of its footnote, let the standard delete operation proceed.
-			if(deletingFirstParagraphOfFootnote && currentFootnoteContents.childCount === 1) {
-
-				this._removeFootnote(currentFootnote);
+			if(entireContentsSelected) {
+				this._clearContents(currentFootnoteContent);
 				data.preventDefault();
 				evt.stop();
-			};
+			}
 		}, { priority: 'high' });
+	}
+
+	/**
+	 * Clear the children of the provided footnoteContent element, 
+	 * leaving an empty paragraph behind. This allows users to empty
+	 * a footnote without deleting it.
+	 * @param {ModelElement} footnoteContents 
+	 */
+	_clearContents(footnoteContents) {
+		this.editor.model.enqueueChange(writer => {
+			const contents = writer.createRangeIn(footnoteContents);
+			writer.appendElement("paragraph", footnoteContents);
+			writer.remove(contents);
+		})
 	}
 
 	/**
@@ -150,8 +167,7 @@ export default class FootnoteEditing extends Plugin {
 			// if only one footnote remains, remove the footnote section
 			if(footnoteSection.maxOffset === 0) {
 				writer.remove(footnoteSection);
-				this._removeReferences(0);
-				footnoteSectionRemoved = true;
+				this._removeReferences();
 			} else {
 				// after footnote deletion the selection winds up surrounding the previous footnote
 				// (or the following footnote if no previous footnote exists). Typing in that state
@@ -173,9 +189,6 @@ export default class FootnoteEditing extends Plugin {
 				neighborEndParagraph && writer.setSelection(neighborEndParagraph, 'end');
 			}
 		} );
-		if(footnoteSectionRemoved) {
-			return;
-		}
 
 		// renumber subsequent footnotes
 		const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
@@ -194,7 +207,7 @@ export default class FootnoteEditing extends Plugin {
 	 * all references are deleted.
 	 * @param {number} footnoteId
 	 */
-	_removeReferences(footnoteId) {
+	_removeReferences(footnoteId=0) {
 		const removeList = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
 		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.name === ELEMENTS.footnoteReference);
