@@ -143,7 +143,6 @@ export default class FootnoteEditing extends Plugin {
 		const index = footnoteSection.getChildIndex(footnote);
 		this._removeReferences(index+1);
 
-		let footnoteSectionRemoved = false;
 		this.editor.model.enqueueChange(writer => {
 			writer.remove(footnote);
 			// if only one footnote remains, remove the footnote section
@@ -165,7 +164,7 @@ export default class FootnoteEditing extends Plugin {
 				const neighborEndParagraph = modelQueryElementsAll(
 					this.editor, 
 					neighborFootnote, 
-					element =>  element.name === 'paragraph'
+					element =>  element.is('paragraph')
 				).pop();
 
 				neighborEndParagraph && writer.setSelection(neighborEndParagraph, 'end');
@@ -175,9 +174,6 @@ export default class FootnoteEditing extends Plugin {
 		// renumber subsequent footnotes
 		const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
 		for (const [i, child] of subsequentFootnotes.entries()) {
-			if(!(child instanceof ModelElement)) {
-				continue;
-			}
 			this.editor.model.enqueueChange(writer => {
 				writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, child);
 			} );
@@ -192,7 +188,7 @@ export default class FootnoteEditing extends Plugin {
 	_removeReferences(footnoteId=0) {
 		const removeList = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
-		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.name === ELEMENTS.footnoteReference);
+		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is(ELEMENTS.footnoteReference));
 		footnoteReferences.forEach((footnoteReference) => {
 			const id = footnoteReference.getAttribute(ATTRIBUTES.footnoteId);
 			const idAsInt = parseInt(id ? id : '');

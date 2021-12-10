@@ -43,7 +43,7 @@ export const defineConverters = (editor, rootElement) => {
 		view: {
 			name: 'ol',
 			attributes: {[ATTRIBUTES.footnoteSection]: ''},
-			classes: [CLASSES.footnoteSection, 'footnotes'],
+			classes: [CLASSES.footnoteSection, CLASSES.footnotes],
 		}
 	});
 
@@ -52,6 +52,9 @@ export const defineConverters = (editor, rootElement) => {
 		model: ELEMENTS.footnoteSection,
 		view: (_, conversionApi) => {
 			const viewWriter = conversionApi.writer;
+			/** The below is a div rather than an ol because using an ol here caused weird behavior, including randomly duplicating the footnotes section.
+			 *  This is techincally invalid HTML, but it's valid in the data view (that is, the version shown in the post).
+			 */ 
 			const section = viewWriter.createContainerElement('div', { [ATTRIBUTES.footnoteSection]: '', class: CLASSES.footnoteSection });
 
 			return toWidget(section, viewWriter, { label: 'footnote widget' });

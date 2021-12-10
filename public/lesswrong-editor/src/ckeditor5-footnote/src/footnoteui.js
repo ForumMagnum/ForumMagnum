@@ -70,7 +70,6 @@ export default class FootnoteUI extends Plugin {
 		}
 		itemDefinitions.add( defaultDef );
 
-		// Does the document already have footnotes?
 		const rootElement = this.editor.model.document.getRoot();
 		if(!rootElement) {
 			throw new Error('Document has no root element.')
@@ -92,7 +91,6 @@ export default class FootnoteUI extends Plugin {
 					} )
 				};
 
-				// Add the item definition to the collection.
 				itemDefinitions.add( definition );
 			});
 		}

@@ -17,6 +17,7 @@ export const CLASSES = {
 	footnoteReference: "footnote-reference",
 	footnoteSection: "footnote-section",
 	footnoteBackLink: "footnote-back-link",
+	footnotes: "footnotes", // a class already used on our sites for the footnote section
 	hidden: "hidden",
 };
 
