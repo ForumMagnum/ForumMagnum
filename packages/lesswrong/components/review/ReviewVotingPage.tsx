@@ -284,7 +284,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, LoadMore } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
   const reSortPosts = useCallback(() => {
     if (!postsResults) return
@@ -307,7 +307,7 @@ const ReviewVotingPage = ({classes}: {
     setPostsHaveBeenSorted(true)
     
     captureEvent(undefined, {eventSubType: "postsResorted"})
-  }, [sortedPosts, currentUser, captureEvent])
+  }, [currentUser, captureEvent, postsResults])
   
   const canInitialResort = !!postsResults
   useEffect(() => {
