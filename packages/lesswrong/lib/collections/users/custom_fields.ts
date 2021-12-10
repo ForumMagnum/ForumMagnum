@@ -693,6 +693,10 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationPostsNominatedReview: {
+    label: "Nominations of my posts for the annual LessWrong Review",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {

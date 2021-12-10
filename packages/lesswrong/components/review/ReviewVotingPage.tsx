@@ -38,7 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     "... leftColumn ... rightColumn ..."
     `,
     paddingBottom: 175,
-    alignItems: "start"
+    alignItems: "start",
+    [theme.breakpoints.down('sm')]: {
+      display: "block"
+    }
   },
   instructions: {
     ...theme.typography.body2,
@@ -46,7 +49,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     marginBottom: 24,
     background: "white",
-    boxShadow: theme.boxShadow
+    boxShadow: theme.boxShadow,
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   leftColumn: {
     gridArea: "leftColumn",
@@ -57,13 +63,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 24,
     paddingRight: 36,
     [theme.breakpoints.down('sm')]: {
-      display: "none"
+      gridArea: "unset",
+      paddingLeft: 0,
+      paddingRight: 0,
+      overflow: "unset",
+      height: "unset",
+      position: "unset"
     }
   },
   rightColumn: {
     gridArea: "rightColumn",
     [theme.breakpoints.down('sm')]: {
-      display: "none"
+      gridArea: "unset"
     },
   },
   result: {
@@ -81,7 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 175,
   },
   widget: {
-    marginBottom: 32,
+    marginBottom: 32
   },
   menu: {
     position: "sticky",
@@ -406,10 +417,6 @@ const ReviewVotingPage = ({classes}: {
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
-      {/* TODO(Review) link to list of nominated posts */}
-      <div className={classNames(classes.hideOnDesktop, classes.message)}>
-        Voting is not available on small screens. You can still vote on individual posts, however.
-      </div>
       <div className={classes.grid}>
       <div className={classes.leftColumn}>
           {!expandedPost && <div>
