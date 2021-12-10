@@ -17,7 +17,7 @@ export const defineSchema = schema => {
 		isObject: true,
 		allowWhere: '$block',
 		allowChildren: ELEMENTS.footnoteItem,
-		allowAttributes: ['id', ATTRIBUTES.footnoteSection, 'class'],
+		allowAttributes: [ATTRIBUTES.footnoteSection],
 	});
 
 	/**
@@ -27,7 +27,7 @@ export const defineSchema = schema => {
 		isBlock: true,
 		isObject: true,
 		allowContentOf: '$root',
-		allowAttributes: ['id', ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId, 'class'],
+		allowAttributes: [ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId],
 	})
 
 	/**
@@ -36,8 +36,7 @@ export const defineSchema = schema => {
 	schema.register(ELEMENTS.footnoteContent, {
 		allowIn: ELEMENTS.footnoteItem,
 		allowContentOf: '$root',
-		isBlock: true,
-		allowAttributes: ['id', ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId, 'class'],
+		allowAttributes: [ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId],
 	});
 
 	/**
@@ -47,9 +46,10 @@ export const defineSchema = schema => {
 		allowWhere: '$text',
 		isInline: true,
 		isObject: true,
-		allowAttributes: [ 'id', ATTRIBUTES.footnoteReference, ATTRIBUTES.footnoteId, 'class' ],
+		allowAttributes: [ ATTRIBUTES.footnoteReference, ATTRIBUTES.footnoteId ],
 	});
 
+	/**
 	// @ts-ignore -- returning true here prevents future listeners from firing.
 	// (as does return false; returning false just also prevents the child add operation from happening.)
 	// The below pattern matches the canonical use in the docs--the type signature is just wrong.
