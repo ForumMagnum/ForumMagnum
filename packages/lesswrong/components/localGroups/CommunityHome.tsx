@@ -65,7 +65,8 @@ const CommunityHome = ({classes}: {
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   const isAdmin = userIsAdmin(currentUser);
-  const canCreateEvents = currentUser && (!isEAForum || isAdmin);
+  const canCreateEvents = currentUser;
+  const canCreateGroups = currentUser && (!isEAForum || isAdmin);
 
   const render = () => {
     const filters = query?.filters || [];
@@ -170,7 +171,7 @@ const CommunityHome = ({classes}: {
             
             <SingleColumnSection>
               <SectionTitle title="Online Groups">
-                {canCreateEvents && <GroupFormLink isOnline={true} />}
+                {canCreateGroups && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
                 <Components.LocalGroupsList terms={onlineGroupsListTerms}/>
@@ -178,7 +179,7 @@ const CommunityHome = ({classes}: {
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Local Groups">
-                {canCreateEvents && <GroupFormLink />}
+                {canCreateGroups && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Components.Loading />

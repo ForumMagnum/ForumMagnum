@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsList}) => {
+const PostsItemReviewVote = ({classes, post}: {classes:ClassesType, post:PostsListBase}) => {
   const { ReviewVotingWidget, LWPopper, LWTooltip, ReviewPostButton } = Components
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<number|null>(null)
