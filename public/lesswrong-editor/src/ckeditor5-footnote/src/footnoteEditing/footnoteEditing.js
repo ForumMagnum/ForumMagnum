@@ -13,7 +13,6 @@ import '../../theme/placeholder.css';
 import '../../theme/footnote.css';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
-import { Editor } from '@ckeditor/ckeditor5-core';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 
@@ -94,9 +93,12 @@ export default class FootnoteEditing extends Plugin {
 			const currentParagraph = deletedElement && deletedElement.name === 'paragraph' ? 
 				deletedElement :
 				selectionEndPos.findAncestor('paragraph');
-			const footnoteSection = currentFootnote.findAncestor(ELEMENTS.footnoteSection);
-			if(deletingFootnote && footnoteSection) { 
-				this._removeFootnote(editor, currentFootnote, footnoteSection);
+			const currentFootnoteContents = selectionEndPos.findAncestor(ELEMENTS.footnoteContents);
+			if(!currentFootnoteContents) {
+				return;
+			}
+			if(deletingFootnote) { 
+				this._removeFootnote(currentFootnote);
 				data.preventDefault();
 				evt.stop();
 				return;
@@ -110,13 +112,12 @@ export default class FootnoteEditing extends Plugin {
 
 			// if the deleted section isn't a paragraph, or if it isn't the first paragraph
 			// of its footnote, let the standard delete operation proceed.
-			if(!deletingFirstParagraphOfFootnote || !footnoteSection){
-				return;
-			}
+			if(deletingFirstParagraphOfFootnote && currentFootnoteContents.childCount === 1) {
 
-			this._removeFootnote(editor, currentFootnote, footnoteSection);
-			data.preventDefault();
-			evt.stop();
+				this._removeFootnote(currentFootnote);
+				data.preventDefault();
+				evt.stop();
+			};
 		}, { priority: 'high' });
 	}
 
@@ -124,18 +125,27 @@ export default class FootnoteEditing extends Plugin {
 	 * Removes a footnote and its references, and renumbers subsequent footnotes. When a footnote's
 	 * number changes, it's references automatically update from a dispatcher event in converters.js, 
 	 * which triggers the `updateReferences` method.
-	 * @param {Editor} editor 
 	 * @param {ModelElement} footnote 
-	 * @param {ModelElement} footnoteSection 
 	 */
-	_removeFootnote(editor, footnote, footnoteSection) {
+	_removeFootnote(footnote) {
 		// delete the current footnote and its references,
 		// and renumber subsequent footnotes.
+		if(!this.editor) {
+			return;
+		}
+		const footnoteSection = footnote.findAncestor(ELEMENTS.footnoteSection);
+		
+		if(!footnoteSection) {
+			this.editor.model.enqueueChange(writer => {
+				writer.remove(footnote);
+			});
+			return;
+		}
 		const index = footnoteSection.getChildIndex(footnote);
 		this._removeReferences(index+1);
 
 		let footnoteSectionRemoved = false;
-		editor.model.enqueueChange(writer => {
+		this.editor.model.enqueueChange(writer => {
 			writer.remove(footnote);
 			// if only one footnote remains, remove the footnote section
 			if(footnoteSection.maxOffset === 0) {
@@ -173,12 +183,8 @@ export default class FootnoteEditing extends Plugin {
 			if(!(child instanceof ModelElement)) {
 				continue;
 			}
-			editor.model.enqueueChange(writer => {
-				const footnoteLabel = modelQueryElement(this.editor, child, element =>  element.name === ELEMENTS.footnoteLabel);
-				if(!footnoteLabel) {
-					return;
-				}
-				writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, footnoteLabel);
+			this.editor.model.enqueueChange(writer => {
+				writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, child);
 			} );
 		}
 	}

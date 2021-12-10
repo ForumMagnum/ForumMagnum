@@ -98,7 +98,7 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('upcast').elementToElement({
 		view: {
-			name: 'div',
+			name: 'li',
 			attributes: {
 				[ATTRIBUTES.footnoteItem]: true,
 			},
@@ -106,10 +106,15 @@ export const defineConverters = (editor, rootElement) => {
 		model: ELEMENTS.footnoteItem,
 	});
 
+	conversion.for('downcast').attributeToAttribute({
+		model: ATTRIBUTES.footnoteId,
+		view: ATTRIBUTES.footnoteId,
+	})
+
 	conversion.for('dataDowncast').elementToElement({
 		model: ELEMENTS.footnoteItem,
 		view: {
-			name: 'div',
+			name: 'li',
 			attributes: {
 				[ATTRIBUTES.footnoteItem]: '',
 			},
@@ -120,7 +125,7 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('editingDowncast').elementToElement({
 		model: ELEMENTS.footnoteItem,
 		view: {
-			name: 'div',
+			name: 'li',
 			attributes: {
 				[ATTRIBUTES.footnoteItem]: '',
 			},
@@ -202,11 +207,11 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('editingDowncast')
 		.add(dispatcher => {
 			dispatcher.on(
-				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteLabel}`,
+				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`,
 				(_, data, conversionApi) => updateReferences(data, conversionApi, editor, rootElement),
 				{ priority: 'high' });
 			dispatcher.on(
-				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteLabel}`, 
+				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`, 
 				(_, data, conversionApi) => updatefootnoteLabelView(data, conversionApi, editor), 
 				{ priority: 'high' });
 			dispatcher.on(
@@ -282,7 +287,7 @@ const createfootnoteLabelViewElement = (modelElement, conversionApi) => {
 
 /**
  * Updates all references for a single footnote. This function is called when
- * the id of an existing footnote changes, which happens when a footnote 
+ * the id attribute of an existing footnote changes, which happens when a footnote 
  * with a lower id is deleted, which is triggered by `_removeFootnote` in
  * footnoteEditing.js.
  * @param {Data} data provides the old and new values of the changed attribute.
@@ -311,6 +316,47 @@ const updateReferences = (data, conversionApi, editor, rootElement) => {
 			writer.setAttribute(ATTRIBUTES.footnoteId, data.attributeNewValue, footnoteReference);
 		});
 	});
+}
+
+/**
+ * @param {Data} data
+ * @param {DowncastConversionApi} conversionApi
+ * @param {Editor} editor
+ * @returns
+ */
+const updatefootnoteItemView = (data, conversionApi, editor) => {
+	const { item, attributeOldValue, attributeNewValue } = data;
+	conversionApi.consumable.add(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`);
+	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
+		return;
+	}
+
+	const itemView = conversionApi.mapper.toViewElement(item);
+
+	if (attributeOldValue === null || !itemView) {
+		return;
+	}
+
+	const textNode = viewQueryText(editor, itemView, _ => true);
+
+	const viewWriter = conversionApi.writer;
+
+	if(!textNode){
+		return;
+	}
+
+	const parent = textNode.parent;
+	if(!parent || !(parent instanceof ViewElement)) {
+		return;
+	}
+	viewWriter.remove(textNode);
+
+
+	const innerText = viewWriter.createText(attributeNewValue + '. ');
+	viewWriter.insert(viewWriter.createPositionAt(parent, 0), innerText);
+	const newHref = `fn${attributeNewValue}`;
+	viewWriter.setAttribute('id', newHref, itemView);
+	viewWriter.setAttribute(ATTRIBUTES.footnoteId, attributeNewValue.toString(), itemView);
 }
 
 /**

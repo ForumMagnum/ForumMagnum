@@ -32,22 +32,16 @@ export default class InsertFootnoteCommand extends Command {
 			}
 
 			const footnoteContents = writer.createElement(ELEMENTS.footnoteContents);
-			const footnoteLabel = writer.createElement(
-				ELEMENTS.footnoteLabel,
-				//fn{id} is the format used by our existing markdown footnotes
-				{ [ATTRIBUTES.footnoteId]: id, id: `fn${id}` },
-			);
-			const div = writer.createElement(ELEMENTS.footnoteItem);
+			const footnoteItem = writer.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id });
 			const p = writer.createElement('paragraph');
-			writer.append(footnoteLabel, div);
 			writer.append(p, footnoteContents);
-			writer.append(footnoteContents, div)
+			writer.append(footnoteContents, footnoteItem)
 
 			// There must be at least one paragraph for the description to be editable.
 			// See https://github.com/ckeditor/ckeditor5/issues/1464.
 			//writer.appendElement('paragraph', footnoteContents);
 
-			this.editor.model.insertContent(div, writer.createPositionAt(footnoteSection, footnoteSection.maxOffset));
+			this.editor.model.insertContent(footnoteItem, writer.createPositionAt(footnoteSection, footnoteSection.maxOffset));
 		});
 	}
 

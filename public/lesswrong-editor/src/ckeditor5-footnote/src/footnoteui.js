@@ -79,8 +79,8 @@ export default class FootnoteUI extends Plugin {
 		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteSection);
 
 		if (footnoteSection) {
-			const footnoteLabels = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteLabel);
-			footnoteLabels.forEach((footnote) => {
+			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteItem);
+			footnoteItems.forEach((footnote) => {
 				const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
 				/** @type {ListDropdownItemDefinition} */
 				const definition = {

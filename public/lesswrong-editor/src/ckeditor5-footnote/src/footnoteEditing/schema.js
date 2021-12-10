@@ -44,7 +44,7 @@ export const defineSchema = schema => {
 	 * Text label for each footnote item. Contains only the text (e.g.) "1. ". 
 	 */
 	schema.register(ELEMENTS.footnoteLabel, {
-		allowIn: 'div',
+		allowIn: ELEMENTS.footnoteItem,
 		isBlock: true,
 		isSelectable: false,
 		isObject: false,
