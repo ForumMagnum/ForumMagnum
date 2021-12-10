@@ -1611,6 +1611,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 
 interface UsersEdit extends UsersProfile { // fragment on Users
   readonly moderationGuidelines: RevisionEdit|null,
+  readonly beta: boolean,
   readonly markDownPostEditor: boolean,
   readonly hideElicitPredictions: boolean,
   readonly hideAFNonMemberInitialWarning: boolean,

@@ -1,4 +1,5 @@
 import React from 'react'
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
@@ -7,7 +8,12 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
+const CKCommentEditor = ({ data, onSave, onChange, onInit }: {
+  data?: any,
+  onSave?: any,
+  onChange?: any,
+  onInit?: any,
+}) => {
   const ckEditorCloudConfigured = !!ckEditorWebsocketUrlSetting.get()
   const { CommentEditor } = getCkEditor();
   
@@ -36,4 +42,10 @@ const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
       />
     </div>
 }
-export default CKCommentEditor
+
+const CKCommentEditorComponent = registerComponent("CKCommentEditor", CKCommentEditor);
+declare global {
+  interface ComponentTypes {
+    CKCommentEditor: typeof CKCommentEditorComponent
+  }
+}

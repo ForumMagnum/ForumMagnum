@@ -564,19 +564,37 @@ class Form extends Component<any,any> {
     }));
   };
 
-  // add a callback to the form submission
+  // Add a callback to the form submission. Return a cleanup function which,
+  // when run, removes that callback.
   addToSubmitForm = callback => {
     this.submitFormCallbacks.push(callback);
+    return () => {
+      const index = this.submitFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.submitFormCallbacks.splice(index, 1);
+    };
   };
 
-  // add a callback to form submission success
+  // Add a callback to form submission success. Return a cleanup function which,
+  // when run, removes that callback.
   addToSuccessForm = callback => {
     this.successFormCallbacks.push(callback);
+    return () => {
+      const index = this.successFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.successFormCallbacks.splice(index, 1);
+    };
   };
 
-  // add a callback to form submission failure
+  // Add a callback to form submission failure. Return a cleanup function which,
+  // when run, removes that callback.
   addToFailureForm = callback => {
     this.failureFormCallbacks.push(callback);
+    return () => {
+      const index = this.failureFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.failureFormCallbacks.splice(index, 1);
+    };
   };
 
   setFormState = fn => {

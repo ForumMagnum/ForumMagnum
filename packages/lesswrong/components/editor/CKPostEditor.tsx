@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react'
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings';
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   sidebar: {
     position: 'absolute',
     right: -350,
@@ -21,7 +21,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       right: 0
     }
   }
-}))
+})
 
 const refreshDisplayMode = ( editor, sidebarElement ) => {
   if (!sidebarElement) return null
@@ -44,7 +44,17 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }) => {
+const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }: {
+  data?: any,
+  onSave?: any,
+  onChange?: any,
+  documentId?: string,
+  userId?: string,
+  formType?: "new"|"edit",
+  onInit?: any,
+  collaboration?: boolean,
+  classes: ClassesType,
+}) => {
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   
   // To make sure that the refs are populated we have to do two rendering passes
@@ -106,4 +116,10 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
     />}
   </div>
 }
-export default withStyles(styles)(CKPostEditor)
+
+const CKPostEditorComponent = registerComponent("CKPostEditor", CKPostEditor, {styles});
+declare global {
+  interface ComponentTypes {
+    CKPostEditor: typeof CKPostEditorComponent
+  }
+}
