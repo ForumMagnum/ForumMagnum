@@ -14,3 +14,13 @@ registerFragment(`
     reactions
   }
 `)
+
+
+registerFragment(`
+  fragment reviewVoteWithUser on ReviewVote {
+    ...reviewVoteFragment
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`)

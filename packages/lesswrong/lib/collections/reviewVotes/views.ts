@@ -36,3 +36,17 @@ ReviewVotes.addView("reviewVotesForPostAndUser", function ({postId, userId}: Rev
   };
 });
 ensureIndex(ReviewVotes, {deleted: 1, postId: 1, userId: 1})
+
+ReviewVotes.addView("reviewVotesAdminDashboard", function ({year}: ReviewVotesViewTerms) {
+  return {
+    selector: {
+      year: year,
+      dummy: false
+    },
+    options: {
+      sort: {
+        createdAt: -1
+      }
+    }
+  }
+})
