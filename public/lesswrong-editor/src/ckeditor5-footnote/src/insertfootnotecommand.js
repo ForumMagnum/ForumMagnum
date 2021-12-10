@@ -12,7 +12,7 @@ export default class InsertFootnoteCommand extends Command {
 	 * @param {{footnoteId: number}} props
 	 */
 	execute({ footnoteId } = { footnoteId: 0 }) {
-		this.editor.model.change(writer => {
+		this.editor.model.enqueueChange(writer => {
 			const doc = this.editor.model.document;
 			const rootElement = doc.getRoot();
 			if (!rootElement) {
@@ -32,7 +32,7 @@ export default class InsertFootnoteCommand extends Command {
 			}
 
 			const footnoteContent = writer.createElement(ELEMENTS.footnoteContent);
-			const footnoteItem = writer.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id });
+			const footnoteItem = writer.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id, id: `fn${id}` });
 			const p = writer.createElement('paragraph');
 			writer.append(p, footnoteContent);
 			writer.append(footnoteContent, footnoteItem)

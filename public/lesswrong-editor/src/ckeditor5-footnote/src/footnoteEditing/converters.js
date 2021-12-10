@@ -180,7 +180,7 @@ export const defineConverters = (editor, rootElement) => {
 				{ priority: 'high' });
 			dispatcher.on(
 				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`, 
-				(_, data, conversionApi) => updatefootnoteItemView(data, conversionApi, editor), 
+				(_, data, conversionApi) => updateFootnoteItemView(data, conversionApi, editor), 
 				{ priority: 'high' });
 			dispatcher.on(
 				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteReference}`, 
@@ -267,7 +267,7 @@ const updateReferences = (data, conversionApi, editor, rootElement) => {
  * @param {Editor} editor
  * @returns
  */
-const updatefootnoteItemView = (data, conversionApi, editor) => {
+const updateFootnoteItemView = (data, conversionApi, editor) => {
 	const { item, attributeOldValue, attributeNewValue } = data;
 	conversionApi.consumable.add(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`);
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
@@ -280,26 +280,9 @@ const updatefootnoteItemView = (data, conversionApi, editor) => {
 		return;
 	}
 
-	const textNode = viewQueryText(editor, itemView, _ => true);
-
 	const viewWriter = conversionApi.writer;
 
-	if(!textNode){
-		return;
-	}
-
-	const parent = textNode.parent;
-	if(!parent || !(parent instanceof ViewElement)) {
-		return;
-	}
-	viewWriter.remove(textNode);
-
-
-	const innerText = viewWriter.createText(attributeNewValue + '. ');
-	viewWriter.insert(viewWriter.createPositionAt(parent, 0), innerText);
-	const newHref = `fn${attributeNewValue}`;
-	viewWriter.setAttribute('id', newHref, itemView);
-	viewWriter.setAttribute(ATTRIBUTES.footnoteId, attributeNewValue.toString(), itemView);
+	viewWriter.setAttribute('id', `fn${attributeNewValue}`, itemView);
 }
 
 /**

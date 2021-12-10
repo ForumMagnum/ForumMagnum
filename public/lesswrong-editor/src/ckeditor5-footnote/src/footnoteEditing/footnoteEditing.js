@@ -214,7 +214,7 @@ export default class FootnoteEditing extends Plugin {
 			}
 		});
 		for (const item of removeList) {
-			this.editor.model.change( writer => {
+			this.editor.model.enqueueChange( writer => {
 				writer.remove( item );
 			} );
 		}
