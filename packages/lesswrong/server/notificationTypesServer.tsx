@@ -102,9 +102,7 @@ export const NominatedPostNotification = serverRegisterNotificationType({
   name: "postNominated",
   canCombineEmails: false,
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
-    const post = await Posts.findOne(notifications[0].documentId);
-    if (!post) throw new Error("Couldn't fine post for nomination notification")
-    return `Your post ${post.title} was nominated for the ${REVIEW_NAME_TITLE}`
+    return `Your post was nominated for the ${REVIEW_NAME_TITLE}`
   },
   emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
