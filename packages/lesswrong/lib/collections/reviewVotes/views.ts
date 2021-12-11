@@ -21,7 +21,7 @@ ReviewVotes.addView("reviewVotesFromUser", (terms: ReviewVotesViewTerms) => {
     }
   };
 });
-ensureIndex(ReviewVotes, {deleted: 1, userId: 1, dummy: 1});
+ensureIndex(ReviewVotes, {year: 1, deleted: 1, userId: 1, dummy: 1});
 
 ReviewVotes.addView("reviewVotesForPost", function ({postId}: ReviewVotesViewTerms) {
   return {
@@ -50,3 +50,4 @@ ReviewVotes.addView("reviewVotesAdminDashboard", function ({year}: ReviewVotesVi
     }
   }
 })
+ensureIndex(ReviewVotes, {year: 1, deleted: 1, dummy: 1, createdAt: -1});
