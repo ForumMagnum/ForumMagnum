@@ -47,10 +47,13 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   let newDocument = {
     ...document,
     ...(await recalculateDocumentScores(document, context)),
-    score: recalculateScore(document),
-    voteCount: document.voteCount+1,
+  }
+  newDocument = {
+    ...newDocument,
+    score: recalculateScore(newDocument),
+    voteCount: newDocument.voteCount+1,
   };
-
+  
   // update document score & set item as active
   await Connectors.update(collection,
     {_id: document._id},
