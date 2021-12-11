@@ -75,10 +75,10 @@ export default class FootnoteUI extends Plugin {
 			throw new Error('Document has no root element.')
 		}
 
-		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteSection);
+		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.is('element', ELEMENTS.footnoteSection));
 
 		if (footnoteSection) {
-			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.name === ELEMENTS.footnoteItem);
+			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.is('element', ELEMENTS.footnoteItem));
 			footnoteItems.forEach((footnote) => {
 				const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
 				/** @type {ListDropdownItemDefinition} */

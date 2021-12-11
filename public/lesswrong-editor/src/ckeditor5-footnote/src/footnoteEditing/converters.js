@@ -330,7 +330,7 @@ function updateReferences(data, conversionApi, editor, rootElement) {
 	const footnoteReferences = modelQueryElementsAll(
 		editor, 
 		rootElement, 
-		e => e.name === ELEMENTS.footnoteReference && e.getAttribute(ATTRIBUTES.footnoteId) === attributeOldValue
+		e => e.is('element', ELEMENTS.footnoteReference) && e.getAttribute(ATTRIBUTES.footnoteId) === attributeOldValue
 	);
 	footnoteReferences.forEach(footnoteReference => {
 		editor.model.enqueueChange(writer => {

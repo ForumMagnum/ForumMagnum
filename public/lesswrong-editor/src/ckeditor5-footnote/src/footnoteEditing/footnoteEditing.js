@@ -75,11 +75,11 @@ export default class FootnoteEditing extends Plugin {
 			}
 
 			// delete all footnote references if footnote section gets deleted
-			if (deletedElement && deletedElement.is(ELEMENTS.footnoteSection)) {
+			if (deletedElement && deletedElement.is('element', ELEMENTS.footnoteSection)) {
 				this._removeReferences();
 			}
 
-			const deletingFootnote = deletedElement && deletedElement.is(ELEMENTS.footnoteItem)
+			const deletingFootnote = deletedElement && deletedElement.is('element', ELEMENTS.footnoteItem)
 
 			const currentFootnote = deletingFootnote ? 
 				deletedElement :
@@ -145,8 +145,8 @@ export default class FootnoteEditing extends Plugin {
 
 		this.editor.model.enqueueChange(writer => {
 			writer.remove(footnote);
-			// if only one footnote remains, remove the footnote section
-			if(footnoteSection.maxOffset === 0) {
+			// if no footnotes remain, remove the footnote section
+			if(footnoteSection.childCount === 0) {
 				writer.remove(footnoteSection);
 				this._removeReferences();
 			} else {
@@ -164,7 +164,7 @@ export default class FootnoteEditing extends Plugin {
 				const neighborEndParagraph = modelQueryElementsAll(
 					this.editor, 
 					neighborFootnote, 
-					element =>  element.is('paragraph')
+					element =>  element.is('element', 'paragraph')
 				).pop();
 
 				neighborEndParagraph && writer.setSelection(neighborEndParagraph, 'end');
@@ -188,7 +188,7 @@ export default class FootnoteEditing extends Plugin {
 	_removeReferences(footnoteId=0) {
 		const removeList = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
-		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is(ELEMENTS.footnoteReference));
+		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteReference));
 		footnoteReferences.forEach((footnoteReference) => {
 			const id = footnoteReference.getAttribute(ATTRIBUTES.footnoteId);
 			const idAsInt = parseInt(id ? id : '');

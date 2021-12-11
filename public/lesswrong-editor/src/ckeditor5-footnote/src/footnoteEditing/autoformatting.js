@@ -107,7 +107,7 @@ const formatCallback = (ranges, editor, rootElement) => {
 		return false;
 	}
 	const footnoteId = parseInt(match[0]);
-	const footnoteSection = modelQueryElement(editor, rootElement, element => element.name === ELEMENTS.footnoteSection);
+	const footnoteSection = modelQueryElement(editor, rootElement, element => element.is('element', ELEMENTS.footnoteSection));
 	if(!footnoteSection) {
 		if(footnoteId !== 1) {
 			return false;
@@ -115,7 +115,7 @@ const formatCallback = (ranges, editor, rootElement) => {
 		editor.execute(COMMANDS.insertFootnote);
 		return;
 	}
-	const footnoteCount = modelQueryElementsAll(editor, footnoteSection, element =>  element.name === ELEMENTS.footnoteItem).length;
+	const footnoteCount = modelQueryElementsAll(editor, footnoteSection, element =>  element.is('element', ELEMENTS.footnoteItem)).length;
 	if(footnoteId === footnoteCount + 1) {
 		editor.execute(COMMANDS.insertFootnote);
 		return;
