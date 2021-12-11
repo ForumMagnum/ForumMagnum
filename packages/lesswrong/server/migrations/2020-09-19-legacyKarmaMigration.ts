@@ -14,7 +14,7 @@ registerMigration({
     // First we only get the relevant votes, which are all votes that are not self-votes
     // and are not cancelled. I should also do a sanity check to see how many votes there are that
     // are duplicated (i.e. have the same user-documentId pair but are not cancelled)
-    const voteFields = {_id: 1, documentId: 1, userId: 1, authorId: 1, voteType: 1, collectionName: 1, cancelled: 1, documentIsAf: 1}
+    const voteFields = {_id: 1, documentId: 1, userId: 1, authorId: 1, voteType: 1, collectionName: 1, cancelled: 1, documentIsAf: 1} as const
     const allVotes = await Votes.find({}, {sort: {votedAt: 1}}, voteFields).fetch()
     console.log("Got all the votes")
     const duplicateVotes = findDuplicateVotes(allVotes)

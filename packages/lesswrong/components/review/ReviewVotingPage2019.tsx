@@ -448,9 +448,8 @@ const ReviewVotingPage2019 = ({classes}: {
                   <ReviewVoteTableRow
                     post={post}
                     showKarmaVotes={showKarmaVotes}
-                    dispatch={dispatchQualitativeVote}
-                    currentQualitativeVote={currentQualitativeVote||null}
-                    currentQuadraticVote={currentQuadraticVote||null}
+                    dispatch={dispatchQualitativeVote as any}
+                    currentVote={(useQuadratic ? currentQuadraticVote : currentQualitativeVote) as any}
                     dispatchQuadraticVote={dispatchQuadraticVote}
                     useQuadratic={useQuadratic}
                     expandedPostId={expandedPost?._id}
@@ -487,14 +486,14 @@ const ReviewVotingPage2019 = ({classes}: {
                   postId={expandedPost._id} 
                   key={reaction}
                   vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
-                  votes={votes} 
+                  votes={votes as any}
                   reaction={reaction} 
                   freeEntry={false}
                 />)}
                 <ReactionsButton 
                   postId={expandedPost._id} 
                   vote={useQuadratic ? dispatchQuadraticVote : dispatchQualitativeVote} 
-                  votes={votes} 
+                  votes={votes as any}
                   reaction={"Other..."} 
                   freeEntry={true}
                 />
