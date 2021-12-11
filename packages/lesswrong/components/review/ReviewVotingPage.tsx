@@ -315,11 +315,11 @@ const ReviewVotingPage = ({classes}: {
   }, [canInitialResort, reSortPosts])
   
   const quadraticVotes = useMemo(
-    () => sortedPosts?.map(post => ({
+    () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
       postId: post._id,
       score: post.currentUserReviewVote,
       type: 'QUADRATIC' as const
-    })),
+    } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
     [sortedPosts]
   )
 
@@ -486,11 +486,11 @@ const ReviewVotingPage = ({classes}: {
           </div>
           <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
-              const currentVote = {
+              const currentVote = post.currentUserReviewVote !== null ? {
                 postId: post._id,
                 score: post.currentUserReviewVote,
                 type: useQuadratic ? "QUADRATIC" : "QUALITATIVE" as "QUALITATIVE" | "QUADRATIC"
-              }
+              } : null
               return <div key={post._id} onClick={()=>{
                 setExpandedPost(post)
                 captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
