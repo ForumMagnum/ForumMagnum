@@ -48,7 +48,8 @@ declare global {
     after?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
-    reviewYear?: number
+    reviewYear?: number,
+    excludeContents?: boolean,
   }
 }
 
@@ -1304,13 +1305,18 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
       positiveReviewVoteCount: { $gt: 0 },
     },
     options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
       sort: {
-        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
-      }
+        createdAt: -1
+      },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );

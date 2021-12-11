@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { ReviewVote } from './ReviewVotingPage';
+import type { SyntheticReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import forumThemeExport from '../../themes/forumTheme';
@@ -66,10 +66,12 @@ const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: 
 
 
   const [selection, setSelection] = useState(currentUserVoteScore || DEFAULT_QUALITATIVE_VOTE)
+  const [isDefaultVote, setIsDefaultVote] = useState(!currentUserVoteScore)
 
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
+      setIsDefaultVote(false)
       dispatch({postId, score: index})
     }
   }
@@ -80,8 +82,8 @@ const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: 
         key={`${indexToTermsLookup[i]}-${i}`}>
           <span
               className={classNames(classes.button, classes[i], {
-                [classes.selectionHighlight]:selection === i && currentUserVoteScore,
-                [classes.defaultHighlight]: selection === i && !currentUserVoteScore
+                [classes.selectionHighlight]:selection === i && !isDefaultVote,
+                [classes.defaultHighlight]: selection === i && isDefaultVote
               })}
               onClick={createClickHandler(i)}
             >
