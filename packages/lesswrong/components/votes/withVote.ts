@@ -3,8 +3,9 @@ import { useMessages } from '../common/withMessages';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
-import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
+import * as _ from 'underscore';
 
 const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   const typeName = collection.options.typeName;
@@ -28,12 +29,13 @@ export interface VotingProps<T extends VoteableTypeClient> {
   voteCount: number,
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): VotingProps<T> => {
+export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
   const collection = getCollection(collectionName);
   const query = getVoteMutationQuery(collection);
+  const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   
   const [mutate] = useMutation(query, {
     onCompleted: useCallback((mutationResult) => {
@@ -43,11 +45,10 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     }, []),
   });
   
-  const vote = useCallback(async ({document, voteType, extendedVote=null, collectionName, currentUser}: {
+  const vote = useCallback(async ({document, voteType, extendedVote=null, currentUser}: {
     document: T,
     voteType: string|null,
     extendedVote?: any,
-    collectionName: VoteableCollectionName,
     currentUser: UsersCurrent,
   }) => {
     // Cast a vote. Because the vote buttons are easy to mash repeatedly (and
@@ -61,7 +62,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     // means that if you double-click a vote button, you can get a weird result
     // due to votes being processed out of order.
     
-    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, extendedVote });
+    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
 
     try {
       mutationCounts.current.optimisticMutationIndex++;
@@ -77,7 +78,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       messages.flash({ messageString: errorMessage });
       setOptimisticResponseDocument(null);
     }
-  }, [messages, mutate, collection]);
+  }, [messages, mutate, collection, votingSystemOrDefault]);
   
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const result = optimisticResponseDocument || document;

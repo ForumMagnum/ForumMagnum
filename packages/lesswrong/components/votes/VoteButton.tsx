@@ -7,9 +7,6 @@ import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { useDialog } from '../common/withDialog';
-import { useTracking } from '../../lib/analyticsEvents';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -63,17 +60,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const VoteButton = <T extends VoteableTypeClient>({
-  vote, collectionName, document, upOrDown,
+const VoteButton = ({
+  vote, currentStrength, upOrDown,
   color = "secondary",
   orientation = "up",
   solidArrow,
   theme,
   classes,
 }: {
-  vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
-  collectionName: CollectionNameString,
-  document: T,
+  vote: (strength: "big"|"small"|"neutral")=>void,
+  currentStrength: "big"|"small"|"neutral",
   
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
@@ -83,12 +79,16 @@ const VoteButton = <T extends VoteableTypeClient>({
   theme?: ThemeType
   classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser();
-  const { openDialog } = useDialog();
-  const { captureEvent } = useTracking();
   const [votingTransition, setVotingTransition] = useState<any>(null);
   const [bigVotingTransition, setBigVotingTransition] = useState(false);
   const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
+  
+  const wrappedVote = (strength: "big"|"small"|"neutral") => {
+    if (currentStrength === "small")
+      vote("neutral")
+    else
+      vote(strength);
+  }
 
   const handleMouseDown = () => { // This handler is only used on desktop
     if(!isMobile()) {
@@ -105,23 +105,6 @@ const VoteButton = <T extends VoteableTypeClient>({
     setBigVoteCompleted(false);
   }
 
-  const wrappedVote = (bigOrSmall: "big"|"small") => {
-    const voteType = bigOrSmall+upOrDown;
-    if(!currentUser){
-      openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
-      });
-    } else {
-      if (document.currentUserVote === voteType) {
-        vote({document, voteType: null, collectionName, currentUser});
-      } else {
-        vote({document, voteType: voteType, collectionName, currentUser});
-      }
-      captureEvent("vote", {collectionName});
-    }
-  }
-
   const handleMouseUp = () => { // This handler is only used on desktop
     if(!isMobile()) {
       if (bigVoteCompleted) {
@@ -133,14 +116,8 @@ const VoteButton = <T extends VoteableTypeClient>({
     }
   }
 
-  const hasVoted = (type: string) => {
-    return document.currentUserVote === type;
-  }
-
-  const smallVoteType = `small${upOrDown}`
-  const bigVoteType = `big${upOrDown}`
-  const voted = hasVoted(smallVoteType) || hasVoted(bigVoteType)
-  const bigVoted = hasVoted(bigVoteType)
+  const voted = currentStrength !== "neutral";
+  const bigVoted = currentStrength === "big";
   
   const handleClick = () => { // This handler is only used for mobile
     if(isMobile()) {

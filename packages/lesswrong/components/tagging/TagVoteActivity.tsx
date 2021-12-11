@@ -50,7 +50,7 @@ const TagVoteActivityRow = ({vote, classes}: {
   vote: TagVotingActivity,
   classes: ClassesType
 }) => {
-  const { FormatDate, VoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
+  const { FormatDate, OverallVoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel!, "TagRels")
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
@@ -65,7 +65,7 @@ const TagVoteActivityRow = ({vote, classes}: {
       <td className={classes.smallCell}><FormatDate date={vote.votedAt}/></td>
       <td className={classes.votingCell}>
         <div className={classes.voteButtons}>
-          <VoteButton
+          <OverallVoteButton
             orientation="left"
             color="error"
             upOrDown="Downvote"
@@ -74,7 +74,7 @@ const TagVoteActivityRow = ({vote, classes}: {
           <span className={classes.score}>
             {voteProps.baseScore}
           </span>
-          <VoteButton
+          <OverallVoteButton
             orientation="right"
             color="secondary"
             upOrDown="Upvote"

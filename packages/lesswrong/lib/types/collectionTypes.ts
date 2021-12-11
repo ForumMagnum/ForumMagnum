@@ -124,6 +124,7 @@ interface HasUserIdType {
 interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
+  extendedScore: any,
   voteCount: number
   af?: boolean
   afBaseScore?: number
@@ -132,6 +133,7 @@ interface VoteableType extends HasIdType, HasUserIdType {
 
 interface VoteableTypeClient extends VoteableType {
   currentUserVote: string|null
+  currentUserExtendedVote?: any,
 }
 
 interface DbVoteableType extends VoteableType, DbObject {

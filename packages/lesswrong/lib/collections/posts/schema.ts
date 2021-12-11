@@ -12,7 +12,7 @@ import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
-import { getVotingSystems } from '../../votingSystems';
+import { getVotingSystems } from '../../voting/votingSystems';
 
 const STICKY_PRIORITIES = {
   1: "Low",

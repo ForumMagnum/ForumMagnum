@@ -239,6 +239,8 @@ importComponent("ShortformSubmitForm", () => require('../components/shortform/Sh
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
+importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
+importComponent("AxisVoteButton", () => require('../components/votes/AxisVoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
 importComponent("VoteAxis", () => require('../components/votes/VoteAxis'));
 importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));

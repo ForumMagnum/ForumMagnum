@@ -1,11 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps } from '../../lib/votingSystems';
+import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 
 
-const VoteOnComment = ({document, hideKarma=false, collection}: CommentVotingComponentProps) => {
-  const voteProps = useVote(document, collection.options.collectionName);
+const VoteOnComment = ({document, hideKarma=false, collection, votingSystem}: CommentVotingComponentProps) => {
+  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   return <Components.VoteAxis
     document={document}
     hideKarma={hideKarma}

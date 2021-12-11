@@ -23,7 +23,9 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     voteCount
     af
@@ -128,7 +130,9 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     afBaseScore
     voteCount

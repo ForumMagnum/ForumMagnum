@@ -1,12 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { CommentVotingComponentProps, CommentVotingComponent, getVotingSystemByName } from '../../lib/votingSystems';
+import { CommentVotingComponentProps, CommentVotingComponent, getVotingSystemByName } from '../../lib/voting/votingSystems';
 
-interface  SmallSideVoteProps extends CommentVotingComponentProps {
-  classes: ClassesType
-}
-
-const SmallSideVote = ({document, hideKarma=false, collection}: SmallSideVoteProps) => {
+const SmallSideVote = ({document, hideKarma=false, collection}: {
+  document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
+  hideKarma?: boolean,
+  collection: any,
+}) => {
   const votingSystemName = (document as any)?.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   
@@ -15,6 +15,7 @@ const SmallSideVote = ({document, hideKarma=false, collection}: SmallSideVotePro
     document={document}
     hideKarma={hideKarma}
     collection={collection}
+    votingSystem={votingSystem}
   />
 }
 

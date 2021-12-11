@@ -49,7 +49,7 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   
   if (!document) return null;
 
-  const { VoteButton, LWTooltip } = Components
+  const { OverallVoteButton, LWTooltip } = Components
 
   const collection = getCollection(voteProps.collectionName);
   const voteCount = voteProps.voteCount;
@@ -86,7 +86,7 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
             title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
-            <VoteButton
+            <OverallVoteButton
               orientation="left"
               color="error"
               upOrDown="Downvote"
@@ -107,7 +107,7 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
             title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
             placement="bottom"
           >
-            <VoteButton
+            <OverallVoteButton
               orientation="right"
               color="secondary"
               upOrDown="Upvote"

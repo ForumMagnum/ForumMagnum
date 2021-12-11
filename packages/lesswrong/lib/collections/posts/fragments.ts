@@ -33,6 +33,7 @@ registerFragment(`
     commentCount
     voteCount
     baseScore
+    extendedScore
     unlisted
     score
     lastVisitedAt
@@ -109,6 +110,7 @@ registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -116,6 +118,7 @@ registerFragment(`
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
+    currentUserExtendedVote
   }
 `)
 
@@ -223,6 +226,7 @@ registerFragment(`
     
     # Voting
     currentUserVote
+    currentUserExtendedVote
     feedLink
     feed {
       ...RSSFeedMinimumInfo
@@ -414,6 +418,7 @@ registerFragment(`
     ...PostsListBase
 
     currentUserVote
+    currentUserExtendedVote
 
     contents {
       _id
@@ -444,7 +449,9 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     afBaseScore
     voteCount

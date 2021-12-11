@@ -2,6 +2,7 @@ import { CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { voteTypes, calculateVotePower } from './voteTypes';
+import type { VotingSystem } from './votingSystems';
 
 export interface VoteDocTuple {
   newDocument: DbVoteableType
@@ -17,11 +18,13 @@ export const voteCallbacks = {
 
 // Given a client-side view of a document, return a modified version in which
 // the user has voted and the scores are updated appropriately.
-const addVoteClient = ({ document, collection, voteType, user }: {
+const addVoteClient = ({ document, collection, voteType, extendedVote, user, votingSystem }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbObject>,
   voteType: string,
+  extendedVote: any,
   user: UsersCurrent,
+  votingSystem: VotingSystem,
 }) => {
   const power = getVotePower({user, voteType, document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
@@ -30,6 +33,8 @@ const addVoteClient = ({ document, collection, voteType, user }: {
   const newDocument = {
     ...document,
     currentUserVote: voteType,
+    currentUserExtendedVote: extendedVote,
+    extendedScore: votingSystem.addVoteClient(document, extendedVote, user),
     baseScore: (document.baseScore||0) + power,
     voteCount: (document.voteCount||0) + 1,
     afBaseScore: (document.afBaseScore||0) + afPower,
@@ -44,10 +49,11 @@ const addVoteClient = ({ document, collection, voteType, user }: {
 
 // Given a client-side view of a document, return a modified version in which
 // the current user's vote is removed and the score is adjusted accordingly.
-const cancelVoteClient = ({document, collection, user}: {
+const cancelVoteClient = ({document, collection, user, votingSystem}: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbObject>,
   user: UsersCurrent,
+  votingSystem: VotingSystem,
 }): VoteableTypeClient => {
   if (!document.currentUserVote)
     return document;
@@ -64,6 +70,8 @@ const cancelVoteClient = ({document, collection, user}: {
   const newDocument = {
     ...document,
     currentUserVote: null,
+    currentUserExtendedVote: null,
+    extendedScore: votingSystem.cancelVoteClient(document, user),
     baseScore: (document.baseScore||0) - power,
     afBaseScore: (document.afBaseScore||0) - afPower,
     voteCount: (document.voteCount||0)-1,
@@ -86,42 +94,16 @@ export const getVotePower = ({ user, voteType, document }: {
   return typeof power === 'function' ? power(user, document) : power;
 };
 
-// Create new vote object
-export const createVote = ({ document, collectionName, voteType, user, voteId }: {
-  document: VoteableType,
-  collectionName: CollectionNameString,
-  voteType: string,
-  user: DbUser|UsersCurrent,
-  voteId?: string,
-}) => {
-  if (!document.userId)
-    throw new Error("Voted-on document does not have an author userId?");
-  
-  return {
-    // when creating a vote from the server, voteId can sometimes be undefined
-    ...(voteId ? {_id:voteId} : undefined),
-    
-    documentId: document._id,
-    collectionName,
-    userId: user._id,
-    voteType: voteType,
-    power: getVotePower({user, voteType, document}),
-    votedAt: new Date(),
-    authorId: document.userId,
-    cancelled: false,
-    documentIsAf: !!(document.af),
-  }
-};
-
 // Optimistic response for votes
-export const setVoteClient = async ({ document, collection, voteType, extendedVote=null, user }: {
+export const setVoteClient = async ({ document, collection, voteType, extendedVote=null, user, votingSystem }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbVoteableType>
   voteType: string|null,
   extendedVote?: any,
   user: UsersCurrent,
+  votingSystem: VotingSystem,
 }): Promise<VoteableTypeClient> => {
-  if (voteType && !voteTypes[voteType]) throw new Error("Invalid vote type");
+  if (voteType && !voteTypes[voteType]) throw new Error(`Invalid vote type in setVoteClient: ${voteType}`);
   const collectionName = collection.options.collectionName;
 
   // make sure item and user are defined
@@ -130,10 +112,10 @@ export const setVoteClient = async ({ document, collection, voteType, extendedVo
   }
   
   if (document.currentUserVote) {
-    document = cancelVoteClient({document, collection, user});
+    document = cancelVoteClient({document, collection, user, votingSystem});
   }
   if (voteType) {
-    document =  addVoteClient({document, collection, voteType, user});
+    document = addVoteClient({document, collection, voteType, extendedVote, user, votingSystem});
   }
   return document;
 }
