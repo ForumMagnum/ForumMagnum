@@ -53,9 +53,10 @@ export const defineConverters = (editor, rootElement) => {
 		view: (_, conversionApi) => {
 			const viewWriter = conversionApi.writer;
 			/** The below is a div rather than an ol because using an ol here caused weird behavior, including randomly duplicating the footnotes section.
-			 *  This is techincally invalid HTML, but it's valid in the data view (that is, the version shown in the post).
+			 *  This is techincally invalid HTML, but it's valid in the data view (that is, the version shown in the post). I've added role='list'
+			 *  as a next-best option, in accordance with ARIA recommendations.
 			 */ 
-			const section = viewWriter.createContainerElement('div', { [ATTRIBUTES.footnoteSection]: '', class: CLASSES.footnoteSection });
+			const section = viewWriter.createContainerElement('div', { [ATTRIBUTES.footnoteSection]: '', role: 'list', class: CLASSES.footnoteSection });
 
 			return toWidget(section, viewWriter, { label: 'footnote widget' });
 		}
@@ -64,16 +65,12 @@ export const defineConverters = (editor, rootElement) => {
 	/***********************************Footnote Content Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
-		model: (_, conversionApi) => {
-			const modelWriter = conversionApi.writer;
-			return modelWriter.createElement(ELEMENTS.footnoteContent);
-		},
 		view: {
-			name: 'div',
 			attributes: {
 				[ATTRIBUTES.footnoteContent]: true,
 			},
-		}
+		},
+		model: ELEMENTS.footnoteContent,
 	});
 
 	conversion.for('dataDowncast').elementToElement({
@@ -100,12 +97,27 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('upcast').elementToElement({
 		view: {
-			name: 'li',
 			attributes: {
 				[ATTRIBUTES.footnoteItem]: true,
 			},
 		},
-		model: ELEMENTS.footnoteItem,
+		model: (viewElement, conversionApi) => {
+			const modelWriter = conversionApi.writer;
+			const id = viewElement.getAttribute(ATTRIBUTES.footnoteId);
+			if(id === undefined) {
+				return null;
+			}
+
+			return modelWriter.createElement(
+				ELEMENTS.footnoteItem, 
+				{
+					[ATTRIBUTES.footnoteId]: id,
+				});
+		},
+		/** converterPriority is needed to supersede the builtin upcastListItemStyle 
+		 *  which for unknown reasons causes a null reference error.
+		 */ 
+		converterPriority: 'high',
 	});
 
 	conversion.for('dataDowncast').elementToElement({
@@ -134,7 +146,6 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('upcast').elementToElement({
 		view: {
-			name: 'span',
 			attributes: {
 				[ATTRIBUTES.footnoteReference]: true,
 			},
@@ -149,7 +160,6 @@ export const defineConverters = (editor, rootElement) => {
 			return modelWriter.createElement(
 				ELEMENTS.footnoteReference, 
 				{
-					[ATTRIBUTES.footnoteReference]: '',
 					[ATTRIBUTES.footnoteId]: id,
 				});
 		}
@@ -188,7 +198,7 @@ export const defineConverters = (editor, rootElement) => {
 			);
 		});
 
-	/***********************************Footnote Return Link Conversion************************************/
+	/***********************************Footnote Back Link Conversion************************************/
 
 	conversion.for('upcast').elementToElement({
 		view: {
@@ -204,9 +214,8 @@ export const defineConverters = (editor, rootElement) => {
 			}
 
 			return modelWriter.createElement(
-				ELEMENTS.footnoteReference, 
+				ELEMENTS.footnoteBackLink,
 				{
-					[ATTRIBUTES.footnoteBackLink]: '',
 					[ATTRIBUTES.footnoteId]: id,
 				}
 			);
@@ -222,7 +231,7 @@ export const defineConverters = (editor, rootElement) => {
 		model: ELEMENTS.footnoteBackLink,
 		view: {
 			name: 'span',
-			classes: CLASSES.hidden,
+			classes: [CLASSES.hidden, CLASSES.footnoteBackLink],
 			attributes: {
 				[ATTRIBUTES.footnoteBackLink]: '',
 			},
@@ -232,7 +241,8 @@ export const defineConverters = (editor, rootElement) => {
 };
 
 /**
- * Creates and returns a view element for a footnote reference.
+ * Creates and returns a view element for a footnote backlink,
+ * which returns to the inline reference in the text.
  * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}

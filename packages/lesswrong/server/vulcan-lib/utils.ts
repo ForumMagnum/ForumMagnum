@@ -52,10 +52,11 @@ export const sanitize = function(s: string): string {
       'app.thoughtsaver.com'
     ],
     allowedClasses: {
-      span: [ 'footnote-reference', 'footnote-label' ],
-      div: [ 'spoilers', 'footnote-contents', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes' ],
+      li: [ 'footnote-item' ],
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,
