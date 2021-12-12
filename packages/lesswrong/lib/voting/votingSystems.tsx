@@ -4,6 +4,8 @@ import { calculateVotePower } from './voteTypes';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
+import pickBy from 'lodash/pickBy';
+import fromPairs from 'lodash/fromPairs';
 
 export type CommentVotingComponentProps = {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
@@ -54,6 +56,7 @@ registerVotingSystem({
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     return {
       agreement: (document.extendedScore?.agreement||0) + newAgreementPower,
+      agreementVoteCount: (document.extendedScore?.agreementVoteCount||0) + 1,
     };
   },
   cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent): any => {
@@ -62,6 +65,7 @@ registerVotingSystem({
     const oldAgreementPower = calculateVotePower(currentUser.karma, oldVote);
     return {
       agreement: (document.extendedScore?.agreement||0) - oldAgreementPower,
+      agreementVoteCount: (document.extendedScore?.agreementVoteCount||0) - 1,
     };
   },
   computeDocumentScores: async (votes: DbVote[], context: ResolverContext) => {
@@ -73,6 +77,7 @@ registerVotingSystem({
       baseScore: sumBy(votes, v=>v.power),
       extendedScore: {
         agreement: sumBy(votes, v=>getVoteAxisStrength(v, usersById, "agreement")),
+        agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0),
       }
     };
     return result;
@@ -86,14 +91,84 @@ function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axi
   return calculateVotePower(user.karma, voteType);
 }
 
-/*registerVotingSystem({
+export type ReactBallotAxis = {
+  name: string,
+  scoreLabel: string,
+  goodLabel: string,
+  badLabel: string,
+}
+export type ReactBallotStandaloneReaction = {
+  name: string,
+  label: string,
+  icon: string,
+}
+export const reactBallotAxes: ReactBallotAxis[] = [
+  {name: "truth", scoreLabel: "Truth", goodLabel: "True", badLabel: "False"},
+  {name: "aim", scoreLabel: "Aim", goodLabel: "Hits the Mark", badLabel: "Misses the Point"},
+  {name: "clarity", scoreLabel: "Clarity", goodLabel: "Clear", badLabel: "Muddled"},
+  {name: "seeking", scoreLabel: "Seeking",goodLabel: "Seeks Truth", badLabel: "Seeks Conflict"},
+];
+export const reactBallotStandaloneReactions: ReactBallotStandaloneReaction[] = [
+  {name: "skepticism", label: "Skepticism", icon: "🤨"},
+  {name: "enthusiasm", label: "Enthusiasm", icon: "🎉"},
+  {name: "empathy",    label: "Empathy",    icon: "❤️"},
+  {name: "surprise",   label: "Surprise",   icon: "😮"},
+]
+
+const reactBallotAxisNames = reactBallotAxes.map(axis=>axis.name);
+const reactBallotStandaloneReactionNames = reactBallotStandaloneReactions.map(reaction => reaction.name);
+
+registerVotingSystem({
   name: "reactsBallot",
   description: "React-Ballots",
-  getCommentVotingComponent: 
-  addVoteClient: 
-  cancelVoteClient: 
-  computeDocumentScores: 
-});*/
+  getCommentVotingComponent: () => Components.ReactBallotVoteOnComment,
+  addVoteClient: (document: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent): any => {
+    const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
+      const axisPower = calculateVotePower(currentUser.karma, extendedVote?.[axis]||"neutral");
+      return [axis, (document.extendedScore?.axis||0) + axisPower];
+    }));
+    const standaloneReactCounts = fromPairs(reactBallotStandaloneReactionNames.map(reaction => {
+      const hasReaction = !!extendedVote?.[reaction];
+      return [reaction, (document.extendedScore?.[reaction]||0) + (hasReaction?1:0)];
+    }));
+    return filterZeroes({...axisScores, ...standaloneReactCounts});
+  },
+  cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent): any => {
+    const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
+      const oldVote = document.currentUserExtendedVote?.[axis];
+      const oldScore = (document.extendedScore?.[axis]||0);
+      if (!oldVote || oldVote==="neutral") return [axis, oldScore];
+      const oldAxisPower = calculateVotePower(currentUser.karma, oldVote);
+      return [axis, oldScore - oldAxisPower];
+    }));
+    const standaloneReactCounts = fromPairs(reactBallotStandaloneReactionNames.map(reaction => {
+      const oldVote = !!document.currentUserExtendedVote?.[reaction];
+      return [reaction, document.extendedScore?.[reaction] - (oldVote?1:0)];
+    }));
+    return filterZeroes({...axisScores, ...standaloneReactCounts});
+  },
+  computeDocumentScores: async (votes: DbVote[], context: ResolverContext) => {
+    const userIdsThatVoted = uniq(votes.map(v=>v.userId));
+    const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
+    const usersById = keyBy(usersThatVoted, u=>u._id);
+    
+    const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
+      return [axis, sumBy(votes, v => getVoteAxisStrength(v, usersById, axis))];
+    }))
+    const standaloneReactCounts = fromPairs(reactBallotStandaloneReactionNames.map(reaction => {
+      return [reaction, sumBy(votes, v => v?.extendedVoteType?.[reaction] ? 1 : 0)];
+    }));
+    
+    return {
+      baseScore: sumBy(votes, v=>v.power),
+      extendedScore: filterZeroes({ ...axisScores, ...standaloneReactCounts }),
+    };
+  },
+});
+
+function filterZeroes(obj: any) {
+  return pickBy(obj, v=>!!v);
+}
 
 export function getVotingSystemByName(name: string): VotingSystem {
   if (votingSystems[name])

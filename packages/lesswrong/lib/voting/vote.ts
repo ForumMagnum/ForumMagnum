@@ -107,7 +107,7 @@ export const setVoteClient = async ({ document, collection, voteType, extendedVo
   const collectionName = collection.options.collectionName;
 
   // make sure item and user are defined
-  if (!document || !user || (voteType && !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`))) {
+  if (!document || !user || (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, `${collectionName.toLowerCase()}.${voteType}`))) {
     throw new Error(`Cannot vote on '${collectionName.toLowerCase()}`);
   }
   

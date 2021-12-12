@@ -17,7 +17,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
-  orientation: string,
+  orientation: "up"|"down"|"left"|"right",
   solidArrow?: boolean
   classes: ClassesType
 }) => {
@@ -43,6 +43,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   }
 
   return <Components.VoteButton
+    VoteArrowComponent={Components.VoteArrow}
     vote={wrappedVote}
     currentStrength={
       (document.currentUserVote === "big"+upOrDown)

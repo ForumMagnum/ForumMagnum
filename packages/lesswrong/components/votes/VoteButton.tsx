@@ -1,63 +1,11 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { isMobile } from '../../lib/utils/isMobile'
 import { withTheme } from '@material-ui/core/styles';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import IconButton from '@material-ui/core/IconButton';
-import Transition from 'react-transition-group/Transition';
+import type { VoteArrowProps } from './VoteArrow';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
-    '&:hover': {
-      backgroundColor: 'transparent',
-    }
-  },
-  smallArrow: {
-    fontSize: '50%',
-    opacity: 0.6
-  },
-  up: {},
-  right: {
-    transform: 'rotate(-270deg)',
-  },
-  down: {
-    transform: 'rotate(-180deg)',
-  },
-  left: {
-    transform: 'rotate(-90deg)',
-  },
-  bigArrow: {
-    position: 'absolute',
-    top: '-70%',
-    fontSize: '82%',
-    opacity: 0,
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
-  },
-  bigArrowSolid: {
-    fontSize: '65%',
-    top: "-45%"
-  },
-  bigArrowCompleted: {
-    fontSize: '90%',
-    top: '-75%',
-  },
-  // Classes for the animation transitions of the bigArrow. See Transition component
-  entering: {
-    opacity: 1
-  },
-  entered: {
-    opacity: 1
-  },
-  exiting: {
-    transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
-  }
 })
 
 const VoteButton = ({
@@ -65,6 +13,7 @@ const VoteButton = ({
   color = "secondary",
   orientation = "up",
   solidArrow,
+  VoteArrowComponent,
   theme,
   classes,
 }: {
@@ -73,8 +22,9 @@ const VoteButton = ({
   
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
-  orientation: string,
+  orientation: "up"|"down"|"left"|"right",
   solidArrow?: boolean
+  VoteArrowComponent: React.ComponentType<VoteArrowProps>,
   // From withTheme. TODO: Hookify this.
   theme?: ThemeType
   classes: ClassesType
@@ -82,6 +32,7 @@ const VoteButton = ({
   const [votingTransition, setVotingTransition] = useState<any>(null);
   const [bigVotingTransition, setBigVotingTransition] = useState(false);
   const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
+  const strongVoteDelay = theme.voting.strongVoteDelay;
   
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     if (currentStrength === "small")
@@ -95,7 +46,7 @@ const VoteButton = ({
       setBigVotingTransition(true);
       setVotingTransition(setTimeout(() => {
         setBigVoteCompleted(true);
-      }, theme.voting.strongVoteDelay))
+      }, strongVoteDelay))
     }
   }
 
@@ -132,32 +83,13 @@ const VoteButton = ({
     }
   }
 
-  const Icon = solidArrow ? ArrowDropUpIcon :UpArrowIcon
-  return (
-    <IconButton
-      className={classNames(classes.root, classes[orientation])}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseOut={clearState}
-      onClick={handleClick}
-      disableRipple
-    >
-      <Icon
-        className={classes.smallArrow}
-        color={voted ? color : 'inherit'}
-        viewBox='6 6 12 12'
-      />
-      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
-        {(state) => (
-          <UpArrowIcon
-            style={{color: bigVoteCompleted && theme.palette[color].light}}
-            className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
-            color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
-            viewBox='6 6 12 12'
-          />)}
-      </Transition>
-    </IconButton>
-  )
+  const voteArrowProps = {
+    solidArrow, strongVoteDelay, orientation, color, voted,
+    bigVotingTransition, bigVoted,
+    bigVoteCompleted, theme,
+    eventHandlers: {handleMouseDown, handleMouseUp, handleClick, clearState},
+  };
+  return <VoteArrowComponent {...voteArrowProps} />
 }
 
 const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {

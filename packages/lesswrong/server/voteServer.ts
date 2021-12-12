@@ -190,7 +190,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
-  if (!extendedVote && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
+  if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);

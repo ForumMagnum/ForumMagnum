@@ -26,7 +26,7 @@ interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
 
 const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
-  const { VoteAxis, AxisVoteButton } = Components;
+  const { VoteAxis, AxisVoteButton, LWTooltip } = Components;
   
   return <span className={classes.root}>
     <VoteAxis
@@ -37,16 +37,20 @@ const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSyst
     
     <span className={classes.agreementSection}>
       <AxisVoteButton
+        VoteArrowComponent={Components.VoteArrow}
         axis="agreement"
         orientation="left" color="error" upOrDown="Downvote"
         {...voteProps}
       />
       
       <span className={classes.agreementScore}>
-        {voteProps?.document?.extendedScore?.agreement || 0}
+        <LWTooltip title={`${(voteProps?.document?.extendedScore?.agreementVoteCount||0)} agreement votes`}>
+          {voteProps?.document?.extendedScore?.agreement || 0}
+        </LWTooltip>
       </span>
       
       <AxisVoteButton
+        VoteArrowComponent={Components.VoteArrow}
         axis="agreement"
         orientation="right" color="secondary" upOrDown="Upvote"
         {...voteProps}
