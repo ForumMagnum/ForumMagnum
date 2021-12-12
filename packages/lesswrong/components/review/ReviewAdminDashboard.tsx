@@ -48,16 +48,6 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
     fetchPolicy: 'network-only',
   })
 
-  const { results: notifications, loading: notificationsLoading } = useMulti({
-    terms:{view:"adminAlertNotifications", type: "postNominated"},
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false
-  })
-
-  console.log(!notificationsLoading && notifications)
-
   if (!userIsAdmin(currentUser)) {
     return <Error404/>
   }
@@ -85,6 +75,23 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
           <b>Email</b>
         </PostsItemMetaInfo>
       </div>
+      <p><i>Users with at least 1 vote</i></p>
+      {votes && userRows.map(userRow => {
+        return <div key={userRow[0]} className={classes.voteItem}>
+          <PostsItemMetaInfo className={classes.karma}>
+            {userRow[1].length}
+          </PostsItemMetaInfo>
+          <PostsItemMetaInfo className={classes.karma}>
+            {userRow[1][0].user?.karma}
+          </PostsItemMetaInfo>
+          <PostsItemMetaInfo className={classes.author}>
+            {userRow[1][0].user?.displayName}
+          </PostsItemMetaInfo>
+          <PostsItemMetaInfo className={classes.author}>
+            {userRow[1][0].user?.email}
+          </PostsItemMetaInfo>
+        </div>
+      })}
       <p><i>1000+ karma users</i></p>
       {usersLoading && <Loading/>}
       {users && users.map(user => {
@@ -103,27 +110,10 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
           </PostsItemMetaInfo>
         </div>
       })}
-      <p><i>Users with at least 1 vote</i></p>
-      {votes && userRows.map(userRow => {
-        return <div key={userRow[0]} className={classes.voteItem}>
-          <PostsItemMetaInfo className={classes.karma}>
-            {userRow[1].length}
-          </PostsItemMetaInfo>
-          <PostsItemMetaInfo className={classes.karma}>
-            {userRow[1][0].user?.karma}
-          </PostsItemMetaInfo>
-          <PostsItemMetaInfo className={classes.author}>
-            {userRow[1][0].user?.displayName}
-          </PostsItemMetaInfo>
-          <PostsItemMetaInfo className={classes.author}>
-            {userRow[1][0].user?.email}
-          </PostsItemMetaInfo>
-        </div>
-      })}
     </div>
 
     <div>
-      <Typography variant="display1">All Votes ({votes.length})</Typography>
+      <Typography variant="display1">All Votes ({votes?.length})</Typography>
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.date}>
           <b>Date</b>
