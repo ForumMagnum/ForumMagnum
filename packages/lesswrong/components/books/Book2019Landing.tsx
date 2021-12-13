@@ -34,6 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       "title title title title title"
       "text1 text1 text1 bookCheckout bookCheckout"
       "spread1 spread1 spread1 spread1 spread1"
+      "spread1half spread1half spread1half spread1half spread1half"
       "bookStack bookStack bookStack text2 text2"
       "spread2 spread2 spread2 spread2 spread2"
       "failure failure failure molochNoWon molochNoWon"
@@ -80,6 +81,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   spread1: {
     gridArea: "spread1"
+  },
+  spread1half: {
+    gridArea: "spread1half"
   },
   spread2: {
     gridArea: "spread2",
@@ -136,7 +140,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bookCheckoutBackground: {
     background: "white",
-    height: 200,
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     }
@@ -289,7 +292,8 @@ const Book2019Landing = ({classes}: {
           <p>{lw()} is a community blog devoted to refining the art of human rationality. This book set is a collection of our best essays from 2019, as determined by our <Link to="/posts/kdGSTBj3NA2Go3XaE/2019-review-voting-results">Annual Review</Link>.</p>
           <p>It contains over 50 essays, packaged into a beautiful set of 4 books, which form the latest addition to the LessWrong canon.is a community blog devoted to refining the art of human rationality.</p>
         </div>
-        <img className={classes.spread1} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639197854/trust-spread2_asxvla.jpg" />
+        <img className={classes.spread1} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639425514/modularity-spread-2_vbhm8c.jpg" />
+        <img className={classes.spread1half} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639425148/Trust-cover-with-spread-new_trjvfg.jpg" />
         <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639200627/risks-from-learned-optimization_yk7hpc.jpg" />
         <div className={classNames(classes.body, classes.text2)}>
           <h2>Machine Learning Art</h2>
@@ -306,11 +310,11 @@ const Book2019Landing = ({classes}: {
             </video>
           </div>
         </div>
-        <img className={classes.failure} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
+        {/* <img className={classes.failure} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
         <img className={classes.molochNoWon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/moloch-hasnt-won_ndkkdu.jpg"/>
         <img className={classes.psycholinguist} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/human-psycholinguistics_tyrpqk.jpg"/>
 
-        <img className={classes.reframing} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637284917/reframing-superintelligence_rx8gjx.png"/>
+        <img className={classes.reframing} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637284917/reframing-superintelligence_rx8gjx.png"/> */}
         </div>
     </div>
   )
