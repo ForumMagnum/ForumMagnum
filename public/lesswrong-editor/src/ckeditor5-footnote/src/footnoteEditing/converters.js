@@ -190,6 +190,10 @@ export const defineConverters = (editor, rootElement) => {
 		view: createFootnoteReferenceViewElement,
 	});
 
+	/** This is an event listener for changes to the `data-footnote-index` attribute on `footnoteReference` elements.
+	 * When that event fires, the callback function below updates the displayed view of the footnote reference in the 
+	 * editor to match the new index.
+	*/
 	conversion.for('editingDowncast')
 		.add(dispatcher => {
 			dispatcher.on(
@@ -238,12 +242,11 @@ export const defineConverters = (editor, rootElement) => {
 			},
 		}
 	});
-
 };
 
 /**
  * Creates and returns a view element for a footnote backlink,
- * which returns to the inline reference in the text.
+ * which navigates back to the inline reference in the text.
  * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
@@ -270,7 +273,7 @@ function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
 }
 
 /**
- * Creates and returns a view element for a footnote reference.
+ * Creates and returns a view element for an inline footnote reference.
  * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
@@ -313,20 +316,22 @@ function createFootnoteReferenceViewElement(modelElement, conversionApi) {
  */
 
 /**
+ * Triggers when the index attribute of a footnote changes, and
+ * updates the editor display of footnote references accordingly.
  * @param {Data} data
  * @param {DowncastConversionApi} conversionApi
  * @param {Editor} editor
  * @returns
  */
 function updateFootnoteReferenceView (data, conversionApi, editor) {
-	const { item, attributeOldValue, attributeNewValue } = data;
+	const { item, attributeNewValue: newIndex } = data;
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteIndex}:${ELEMENTS.footnoteReference}`)) {
 		return;
 	}
 
 	const footnoteReferenceView = conversionApi.mapper.toViewElement(item);
 
-	if (attributeOldValue === null || !footnoteReferenceView) {
+	if (!footnoteReferenceView) {
 		return;
 	}
 
@@ -341,8 +346,9 @@ function updateFootnoteReferenceView (data, conversionApi, editor) {
 	}
 
 	viewWriter.remove(textNode);
-	const innerText = viewWriter.createText(`[${attributeNewValue.toString()}]`);
+	const innerText = viewWriter.createText(`[${newIndex}]`);
 	viewWriter.insert(viewWriter.createPositionAt(anchor, 0), innerText);
 
-	viewWriter.setAttribute(ATTRIBUTES.footnoteIndex, `fn${attributeNewValue}`, anchor);
+	viewWriter.setAttribute('href', `fn${newIndex}`, anchor);
+	viewWriter.setAttribute(ATTRIBUTES.footnoteIndex, newIndex, footnoteReferenceView);
 }

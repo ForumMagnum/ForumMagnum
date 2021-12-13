@@ -12,9 +12,10 @@ import InsertFootnoteCommand from '../insertfootnotecommand';
 import '../../theme/placeholder.css';
 import '../../theme/footnote.css';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
+import ModelWriter from '@ckeditor/ckeditor5-engine/src/model/writer';
 import Batch from '@ckeditor/ckeditor5-engine/src/model/batch';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
-import { modelQueryElementsAll } from '../utils';
+import { modelQueryElementsAll, modelQueryElement } from '../utils';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 
 import { defineSchema } from './schema';
@@ -47,7 +48,16 @@ export default class FootnoteEditing extends Plugin {
 		addFootnoteAutoformatting(this.editor, this.rootElement);
 
 		this.editor.model.document.on('change:data', (eventInfo, batch) => {
-			eventInfo.source.differ.getChanges().forEach(diffItem => {
+			const diffItems = [...eventInfo.source.differ.getChanges()]; 
+			// If a footnote reference is inserted, ensure that footnote references remain ordered.
+			if(diffItems.some(diffItem => (
+				diffItem.type === 'insert' &&
+				diffItem.name === ELEMENTS.footnoteReference
+			))) {
+				this._orderFootnotes(batch);
+			};
+			// for each change to a footnote item's index attribute, udate the corresponding references accordingly
+			diffItems.forEach(diffItem => {
 				if(
 					diffItem.type === 'attribute' &&
 					diffItem.attributeKey === ATTRIBUTES.footnoteIndex
@@ -141,10 +151,12 @@ export default class FootnoteEditing extends Plugin {
 	/**
 	 * Removes a footnote and its references, and renumbers subsequent footnotes. When a footnote's
 	 * id attribute changes, it's references automatically update from a dispatcher event in converters.js,
-	 * which triggers the `updateReferenceIds` method.
+	 * which triggers the `updateReferenceIds` method. modelWriter is passed in to batch these changes with
+	 * the one that instantiated them, such that the set can be undone with a single action.
+	 * @param {ModelWriter} modelWriter
 	 * @param {ModelElement} footnote
 	 */
-	_removeFootnote(writer, footnote) {
+	_removeFootnote(modelWriter, footnote) {
 		// delete the current footnote and its references,
 		// and renumber subsequent footnotes.
 		if(!this.editor) {
@@ -153,18 +165,18 @@ export default class FootnoteEditing extends Plugin {
 		const footnoteSection = footnote.findAncestor(ELEMENTS.footnoteSection);
 
 		if(!footnoteSection) {
-			writer.remove(footnote);
+			modelWriter.remove(footnote);
 			return;
 		}
 		const index = footnoteSection.getChildIndex(footnote);
 		const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
-		this._removeReferences(writer, id);
+		this._removeReferences(modelWriter, id);
 
-		writer.remove(footnote);
+		modelWriter.remove(footnote);
 		// if no footnotes remain, remove the footnote section
 		if(footnoteSection.childCount === 0) {
-			writer.remove(footnoteSection);
-			this._removeReferences(writer);
+			modelWriter.remove(footnoteSection);
+			this._removeReferences(modelWriter);
 		} else {
 			// after footnote deletion the selection winds up surrounding the previous footnote
 			// (or the following footnote if no previous footnote exists). Typing in that state
@@ -183,22 +195,24 @@ export default class FootnoteEditing extends Plugin {
 				element =>  element.is('element', 'paragraph')
 			).pop();
 
-			neighborEndParagraph && writer.setSelection(neighborEndParagraph, 'end');
+			neighborEndParagraph && modelWriter.setSelection(neighborEndParagraph, 'end');
 		}
 
 		// renumber subsequent footnotes
 		const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
 		for (const [i, child] of subsequentFootnotes.entries()) {
-			writer.setAttribute( ATTRIBUTES.footnoteIndex, index+i+1, child);
+			modelWriter.setAttribute( ATTRIBUTES.footnoteIndex, index+i+1, child);
 		}
 	}
 
 	/**
 	 * Deletes all references to the footnote with the given id. If no id is provided,
-	 * all references are deleted.
+	 * all references are deleted. modelWriter is passed in to batch these changes with
+	 * the one that instantiated them, such that the set can be undone with a single action.
+	 * @param {ModelWriter} modelWriter
 	 * @param {string|undefined} footnoteId
 	 */
-	_removeReferences(writer, footnoteId=undefined) {
+	_removeReferences(modelWriter, footnoteId=undefined) {
 		const removeList = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
 		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteReference));
@@ -209,14 +223,15 @@ export default class FootnoteEditing extends Plugin {
 			}
 		});
 		for (const item of removeList) {
-			writer.remove( item );
+			modelWriter.remove( item );
 		}
 	}
 
 	/**
 	 * Updates all references for a single footnote. This function is called when
 	 * the index attribute of an existing footnote changes, which happens when a footnote
-	 * with a lower index is deleted.
+	 * with a lower index is deleted. Batch is included to group these changes
+	 * with the original operation, such that they can all be undone with a single actioon.
 	 * @param {Batch} batch
 	 * @param {string} footnoteId
 	 * @param {string} newFootnoteIndex
@@ -231,6 +246,50 @@ export default class FootnoteEditing extends Plugin {
 			footnoteReferences.forEach(footnoteReference => {
 				writer.setAttribute(ATTRIBUTES.footnoteIndex, newFootnoteIndex, footnoteReference);
 			});
+		});
+	}
+
+	/**
+	 * Reindexes footnotes such that footnote references occur in order, and reorders
+	 * footnote items in the footer section accordingly. The `batch` argument allows this operation
+	 * to be grouped with the change that instantiated it, such that the set can be undone
+	 * with a single action.
+	 * @param {Batch} batch 
+	 */
+	_orderFootnotes(batch) {
+		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteReference));
+		const uniqueIds = new Set(footnoteReferences.map(e => e.getAttribute(ATTRIBUTES.footnoteId)));
+		const orderedFootnotes = [...uniqueIds].map(id => (
+			modelQueryElement(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteItem) && e.getAttribute(ATTRIBUTES.footnoteId) === id)
+		));
+
+		this.editor.model.enqueueChange(batch, writer => {
+			const footnoteSection = modelQueryElement(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteSection));
+			if(!footnoteSection) {
+				return;
+			}
+			/**
+			 * In order to keep footnotes with no existing references at the end of the list,
+			 * the loop below reverses the list of footnotes with references and inserts them
+			 * each at the beginning.
+			 */
+			for (const footnote of orderedFootnotes.reverse()) {
+				footnote && writer.move(writer.createRangeOn(footnote), footnoteSection, 0);
+			}
+			/**
+			 * once the list is sorted, make one final pass to update footnote indices.
+			 */
+			for(const footnote of modelQueryElementsAll(this.editor, footnoteSection, e => e.is('element', ELEMENTS.footnoteItem))) {
+				const index =  `${footnoteSection.getChildIndex(footnote)+1}`;
+				footnote && writer.setAttribute(ATTRIBUTES.footnoteIndex, index, footnote);
+				const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
+				/**
+				 * unfortunately the following line seems to be necessary, even though updateReferenceIndices
+				 * should fire from the attribute change immediately above. It seems that events initiated by
+				 * a `change:data` event do not themselves fire another `change:data` event.
+				 */
+				id && this._updateReferenceIndices(batch, id, index);
+			}
 		});
 	}
 }
