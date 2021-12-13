@@ -309,7 +309,7 @@ function createFootnoteReferenceViewElement(modelElement, conversionApi) {
 /**
  * Updates all references for a single footnote. This function is called when
  * the id attribute of an existing footnote changes, which happens when a footnote 
- * with a lower id is deleted, which is triggered by `_removeFootnote` in
+ * with a lower id is deleted, which is handled by `_removeFootnote` in
  * footnoteEditing.js.
  * @param {Data} data provides the old and new values of the changed attribute.
  * @param {DowncastConversionApi} conversionApi

@@ -122,7 +122,7 @@ export default class FootnoteEditing extends Plugin {
 
 	/**
 	 * Removes a footnote and its references, and renumbers subsequent footnotes. When a footnote's
-	 * number changes, it's references automatically update from a dispatcher event in converters.js, 
+	 * id attribute changes, it's references automatically update from a dispatcher event in converters.js, 
 	 * which triggers the `updateReferences` method.
 	 * @param {ModelElement} footnote 
 	 */
