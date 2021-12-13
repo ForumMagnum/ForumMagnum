@@ -49,22 +49,27 @@ export default class FootnoteEditing extends Plugin {
 		this.editor.model.document.on('change:data', (eventInfo, batch) => {
 			eventInfo.source.differ.getChanges().forEach(diffItem => {
 				if(
-					diffItem.type === 'attribute' && 
-					diffItem.attributeKey === ATTRIBUTES.footnoteId 
+					diffItem.type === 'attribute' &&
+					diffItem.attributeKey === ATTRIBUTES.footnoteIndex
 				) {
-					const {attributeOldValue: oldFootnoteId, attributeNewValue: newFootnoteId} = diffItem;
-					this._updateReferenceIds(batch, oldFootnoteId, newFootnoteId);
+					const {attributeNewValue: newFootnoteIndex} = diffItem;
+					const footnote = [...diffItem.range.getItems()].find(item => item.is('element', ELEMENTS.footnoteItem));
+					const footnoteId = footnote instanceof ModelElement && footnote.getAttribute(ATTRIBUTES.footnoteId);
+					if(!footnoteId) {
+						return;
+					}
+					this._updateReferenceIndices(batch, footnoteId, newFootnoteIndex);
 				}
 			});
 		}, { priority: 'high' });
-		
+
 		this._handleDelete();
 
 		// The following callbacks are needed to map nonempty view elements
 		// to empty model elements. See https://ckeditor.com/docs/ckeditor5/latest/api/module_widget_utils.html#function-viewToModelPositionOutsideModelElement
 		this.editor.editing.mapper.on(
 			'viewToModelPosition',
-			// @ts-ignore -- the type signature of `on` here seem to be just wrong, given how it's used in the source code. 
+			// @ts-ignore -- the type signature of `on` here seem to be just wrong, given how it's used in the source code.
 			viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasAttribute( ATTRIBUTES.footnoteReference ) )
 		);
 	}
@@ -87,7 +92,7 @@ export default class FootnoteEditing extends Plugin {
 				throw new Error('Selection must have at least one range to perform delete operation.');
 			}
 
-			this.editor.model.enqueueChange( writer => {
+			this.editor.model.change( writer => {
 				// delete all footnote references if footnote section gets deleted
 				if (deletedElement && deletedElement.is('element', ELEMENTS.footnoteSection)) {
 					this._removeReferences(writer);
@@ -95,7 +100,7 @@ export default class FootnoteEditing extends Plugin {
 
 				const deletingFootnote = deletedElement && deletedElement.is('element', ELEMENTS.footnoteItem)
 
-				const currentFootnote = deletingFootnote ? 
+				const currentFootnote = deletingFootnote ?
 					deletedElement :
 					selectionEndPos.findAncestor(ELEMENTS.footnoteItem);
 				if(!currentFootnote) {
@@ -122,10 +127,10 @@ export default class FootnoteEditing extends Plugin {
 	}
 
 	/**
-	 * Clear the children of the provided footnoteContent element, 
+	 * Clear the children of the provided footnoteContent element,
 	 * leaving an empty paragraph behind. This allows users to empty
 	 * a footnote without deleting it.
-	 * @param {ModelElement} footnoteContent 
+	 * @param {ModelElement} footnoteContent
 	 */
 	_clearContents(writer, footnoteContent) {
 		const contents = writer.createRangeIn(footnoteContent);
@@ -135,9 +140,9 @@ export default class FootnoteEditing extends Plugin {
 
 	/**
 	 * Removes a footnote and its references, and renumbers subsequent footnotes. When a footnote's
-	 * id attribute changes, it's references automatically update from a dispatcher event in converters.js, 
-	 * which triggers the `updateReferences` method.
-	 * @param {ModelElement} footnote 
+	 * id attribute changes, it's references automatically update from a dispatcher event in converters.js,
+	 * which triggers the `updateReferenceIds` method.
+	 * @param {ModelElement} footnote
 	 */
 	_removeFootnote(writer, footnote) {
 		// delete the current footnote and its references,
@@ -146,13 +151,14 @@ export default class FootnoteEditing extends Plugin {
 			return;
 		}
 		const footnoteSection = footnote.findAncestor(ELEMENTS.footnoteSection);
-		
+
 		if(!footnoteSection) {
 			writer.remove(footnote);
 			return;
 		}
 		const index = footnoteSection.getChildIndex(footnote);
-		this._removeReferences(writer, index+1);
+		const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
+		this._removeReferences(writer, id);
 
 		writer.remove(footnote);
 		// if no footnotes remain, remove the footnote section
@@ -164,16 +170,16 @@ export default class FootnoteEditing extends Plugin {
 			// (or the following footnote if no previous footnote exists). Typing in that state
 			// immediately deletes the footnote. This deliberately sets the new selection position
 			// to avoid that.
-			const neighborFootnote = index === 0 ? 
-				footnoteSection.getChild(index) : 
+			const neighborFootnote = index === 0 ?
+				footnoteSection.getChild(index) :
 				footnoteSection.getChild(index-1);
 			if(!(neighborFootnote instanceof ModelElement)) {
 				return;
 			}
 
 			const neighborEndParagraph = modelQueryElementsAll(
-				this.editor, 
-				neighborFootnote, 
+				this.editor,
+				neighborFootnote,
 				element =>  element.is('element', 'paragraph')
 			).pop();
 
@@ -183,23 +189,22 @@ export default class FootnoteEditing extends Plugin {
 		// renumber subsequent footnotes
 		const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
 		for (const [i, child] of subsequentFootnotes.entries()) {
-			writer.setAttribute( ATTRIBUTES.footnoteId, index+i+1, child);
+			writer.setAttribute( ATTRIBUTES.footnoteIndex, index+i+1, child);
 		}
 	}
 
 	/**
-	 * Deletes all references to the footnote with the given id. If an id of 0 is provided,
+	 * Deletes all references to the footnote with the given id. If no id is provided,
 	 * all references are deleted.
-	 * @param {number} footnoteId
+	 * @param {string|undefined} footnoteId
 	 */
-	_removeReferences(writer, footnoteId=0) {
+	_removeReferences(writer, footnoteId=undefined) {
 		const removeList = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
 		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteReference));
 		footnoteReferences.forEach((footnoteReference) => {
 			const id = footnoteReference.getAttribute(ATTRIBUTES.footnoteId);
-			const idAsInt = parseInt(id ? id : '');
-			if (idAsInt === footnoteId || footnoteId === 0) {
+			if (!footnoteId || id === footnoteId) {
 				removeList.push(footnoteReference);
 			}
 		});
@@ -210,22 +215,21 @@ export default class FootnoteEditing extends Plugin {
 
 	/**
 	 * Updates all references for a single footnote. This function is called when
-	 * the id attribute of an existing footnote changes, which happens when a footnote 
-	 * with a lower id is deleted, which is handled by `_removeFootnote` in
-	 * footnoteEditing.js.
+	 * the index attribute of an existing footnote changes, which happens when a footnote
+	 * with a lower index is deleted.
 	 * @param {Batch} batch
-	 * @param {string} oldFootnoteId
-	 * @param {string} newFootnoteId
+	 * @param {string} footnoteId
+	 * @param {string} newFootnoteIndex
 	 */
-	_updateReferenceIds(batch, oldFootnoteId, newFootnoteId) {
+	_updateReferenceIndices(batch, footnoteId, newFootnoteIndex) {
 		const footnoteReferences = modelQueryElementsAll(
-			this.editor, 
-			this.rootElement, 
-			e => e.is('element', ELEMENTS.footnoteReference) && e.getAttribute(ATTRIBUTES.footnoteId) === oldFootnoteId
+			this.editor,
+			this.rootElement,
+			e => e.is('element', ELEMENTS.footnoteReference) && e.getAttribute(ATTRIBUTES.footnoteId) === footnoteId
 		);
 		this.editor.model.enqueueChange(batch, writer => {
 			footnoteReferences.forEach(footnoteReference => {
-				writer.setAttribute(ATTRIBUTES.footnoteId, newFootnoteId, footnoteReference);
+				writer.setAttribute(ATTRIBUTES.footnoteIndex, newFootnoteIndex, footnoteReference);
 			});
 		});
 	}

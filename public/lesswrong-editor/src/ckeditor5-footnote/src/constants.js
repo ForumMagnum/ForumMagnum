@@ -28,6 +28,7 @@ export const COMMANDS = {
 export const ATTRIBUTES = {
 	footnoteContent: "data-footnote-content",
 	footnoteId: "data-footnote-id",
+	footnoteIndex: "data-footnote-index",
 	footnoteItem: "data-footnote-item",
 	footnoteReference: "data-footnote-reference",
 	footnoteSection: "data-footnote-section",

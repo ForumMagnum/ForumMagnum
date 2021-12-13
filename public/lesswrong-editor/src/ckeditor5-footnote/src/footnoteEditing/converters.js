@@ -7,7 +7,7 @@ import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import TextProxy from '@ckeditor/ckeditor5-engine/src/view/textproxy';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
-import { modelQueryElementsAll, viewQueryElement, viewQueryText } from '../utils';
+import { viewQueryElement, viewQueryText } from '../utils';
 import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 
 /**
@@ -24,6 +24,11 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('downcast').attributeToAttribute({
 		model: ATTRIBUTES.footnoteId,
 		view: ATTRIBUTES.footnoteId,
+	})
+
+	conversion.for('downcast').attributeToAttribute({
+		model: ATTRIBUTES.footnoteIndex,
+		view: ATTRIBUTES.footnoteIndex,
 	})
 
 	/***********************************Footnote Section Conversion************************************/
@@ -55,7 +60,7 @@ export const defineConverters = (editor, rootElement) => {
 			/** The below is a div rather than an ol because using an ol here caused weird behavior, including randomly duplicating the footnotes section.
 			 *  This is techincally invalid HTML, but it's valid in the data view (that is, the version shown in the post). I've added role='list'
 			 *  as a next-best option, in accordance with ARIA recommendations.
-			 */ 
+			 */
 			const section = viewWriter.createContainerElement('div', { [ATTRIBUTES.footnoteSection]: '', role: 'list', class: CLASSES.footnoteSection });
 
 			return toWidget(section, viewWriter, { label: 'footnote widget' });
@@ -104,19 +109,21 @@ export const defineConverters = (editor, rootElement) => {
 		model: (viewElement, conversionApi) => {
 			const modelWriter = conversionApi.writer;
 			const id = viewElement.getAttribute(ATTRIBUTES.footnoteId);
-			if(id === undefined) {
+			const index = viewElement.getAttribute(ATTRIBUTES.footnoteIndex);
+			if(id === undefined || index === undefined) {
 				return null;
 			}
 
 			return modelWriter.createElement(
-				ELEMENTS.footnoteItem, 
+				ELEMENTS.footnoteItem,
 				{
+					[ATTRIBUTES.footnoteIndex]: index,
 					[ATTRIBUTES.footnoteId]: id,
 				});
 		},
-		/** converterPriority is needed to supersede the builtin upcastListItemStyle 
+		/** converterPriority is needed to supersede the builtin upcastListItemStyle
 		 *  which for unknown reasons causes a null reference error.
-		 */ 
+		 */
 		converterPriority: 'high',
 	});
 
@@ -152,14 +159,16 @@ export const defineConverters = (editor, rootElement) => {
 		},
 		model: (viewElement, conversionApi) => {
 			const modelWriter = conversionApi.writer;
+			const index = viewElement.getAttribute(ATTRIBUTES.footnoteIndex);
 			const id = viewElement.getAttribute(ATTRIBUTES.footnoteId);
-			if(id === undefined) {
+			if(index === undefined || id === undefined) {
 				return null;
 			}
 
 			return modelWriter.createElement(
-				ELEMENTS.footnoteReference, 
+				ELEMENTS.footnoteReference,
 				{
+					[ATTRIBUTES.footnoteIndex]: index,
 					[ATTRIBUTES.footnoteId]: id,
 				});
 		}
@@ -184,12 +193,8 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('editingDowncast')
 		.add(dispatcher => {
 			dispatcher.on(
-				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`, 
-				(_, data, conversionApi) => updateFootnoteItemView(data, conversionApi, editor), 
-				{ priority: 'high' });
-			dispatcher.on(
-				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteReference}`, 
-				(_, data, conversionApi) => updateFootnoteReferenceView(data, conversionApi, editor), 
+				`attribute:${ATTRIBUTES.footnoteIndex}:${ELEMENTS.footnoteReference}`,
+				(_, data, conversionApi) => updateFootnoteReferenceView(data, conversionApi, editor),
 				{ priority: 'high' }
 			);
 		});
@@ -272,19 +277,24 @@ function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
  */
 function createFootnoteReferenceViewElement(modelElement, conversionApi) {
 	const viewWriter = conversionApi.writer;
+	const index = modelElement.getAttribute(ATTRIBUTES.footnoteIndex);
 	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
+	if(index === undefined) {
+		throw new Error('Footnote reference has no provided index.')
+	}
 	if(id === undefined) {
-		throw new Error('Footnote reference has no provided Id.')
+		throw new Error('Footnote reference has no provided id.')
 	}
 
 	const footnoteReferenceView = viewWriter.createContainerElement('span', {
 		class: CLASSES.footnoteReference,
 		[ATTRIBUTES.footnoteReference]: '',
+		[ATTRIBUTES.footnoteIndex]: index,
 		[ATTRIBUTES.footnoteId]: id,
 		id: `fnref${id}`,
 	});
 
-	const innerText = viewWriter.createText(`[${id}]`);
+	const innerText = viewWriter.createText(`[${index}]`);
 	const link = viewWriter.createContainerElement('a', {href: `#fn${id}`});
 	const superscript = viewWriter.createContainerElement('sup');
 	viewWriter.insert(viewWriter.createPositionAt(link, 0), innerText);
@@ -308,35 +318,9 @@ function createFootnoteReferenceViewElement(modelElement, conversionApi) {
  * @param {Editor} editor
  * @returns
  */
-function updateFootnoteItemView(data, conversionApi, editor) {
-	/** @type {{item: ModelElement, attributeOldValue: string, attributeNewValue: string}} */
-	// @ts-ignore - type casting in assign statements enough to appease JSDoc is nigh impossible
-	const { item, attributeOldValue, attributeNewValue } = data;
-	conversionApi.consumable.add(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`);
-	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
-		return;
-	}
-
-	const itemView = conversionApi.mapper.toViewElement(item);
-
-	if (attributeOldValue === null || !itemView) {
-		return;
-	}
-
-	const viewWriter = conversionApi.writer;
-
-	viewWriter.setAttribute('id', `fn${attributeNewValue}`, itemView);
-}
-
-/**
- * @param {Data} data
- * @param {DowncastConversionApi} conversionApi
- * @param {Editor} editor
- * @returns
- */
 function updateFootnoteReferenceView (data, conversionApi, editor) {
 	const { item, attributeOldValue, attributeNewValue } = data;
-	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteReference}`)) {
+	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteIndex}:${ELEMENTS.footnoteReference}`)) {
 		return;
 	}
 
@@ -360,5 +344,5 @@ function updateFootnoteReferenceView (data, conversionApi, editor) {
 	const innerText = viewWriter.createText(`[${attributeNewValue.toString()}]`);
 	viewWriter.insert(viewWriter.createPositionAt(anchor, 0), innerText);
 
-	viewWriter.setAttribute('href', `fn${attributeNewValue}`, anchor);
+	viewWriter.setAttribute(ATTRIBUTES.footnoteIndex, `fn${attributeNewValue}`, anchor);
 }

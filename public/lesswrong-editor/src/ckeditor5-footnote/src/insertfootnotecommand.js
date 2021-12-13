@@ -9,9 +9,9 @@ import { ATTRIBUTES, ELEMENTS } from './constants';
 export default class InsertFootnoteCommand extends Command {
 	/**
 	 *
-	 * @param {{footnoteId: number}} props
+	 * @param {{footnoteIndex?: number}} props
 	 */
-	execute({ footnoteId } = { footnoteId: 0 }) {
+	execute({ footnoteIndex } = { footnoteIndex: 0 }) {
 		this.editor.model.enqueueChange(modelWriter => {
 			const doc = this.editor.model.document;
 			const rootElement = doc.getRoot();
@@ -19,21 +19,33 @@ export default class InsertFootnoteCommand extends Command {
 				return;
 			}
 			const footnoteSection = this._getFootnoteSection(modelWriter, rootElement);
-			const id = footnoteId === 0 ? footnoteSection.maxOffset + 1 : footnoteId;
-			doc.selection.isBackward ?
-				modelWriter.setSelection(doc.selection.anchor) :
-				modelWriter.setSelection(doc.selection.focus);
-			const footnoteReference = modelWriter.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id });
+			let index, id;
+			if(footnoteIndex === 0) {
+				index = `${footnoteSection.maxOffset + 1}`;
+				id = Math.random().toString(36).slice(2);
+			} else {
+				index = `${footnoteIndex}`;
+				const matchingFootnote = modelQueryElement(this.editor, footnoteSection, element =>
+					element.is('element', ELEMENTS.footnoteItem) &&
+					element.getAttribute(ATTRIBUTES.footnoteIndex) === index
+				);
+				id = matchingFootnote && matchingFootnote.getAttribute(ATTRIBUTES.footnoteId);
+			}
+			if(!id || !index) {
+				return;
+			}
+			modelWriter.setSelection(doc.selection.getFirstPosition());
+			const footnoteReference = modelWriter.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id, [ATTRIBUTES.footnoteIndex]: index });
 			this.editor.model.insertContent(footnoteReference);
 			modelWriter.setSelection(footnoteReference, 'after');
 			// if referencing an existing footnote
-			if (footnoteId !== 0) {
+			if (footnoteIndex !== 0) {
 				return;
 			}
 
 			const footnoteContent = modelWriter.createElement(ELEMENTS.footnoteContent);
-			const footnoteItem = modelWriter.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id });
-			const footnoteBackLink = modelWriter.createElement(ELEMENTS.footnoteBackLink, { [ATTRIBUTES.footnoteId]: id });
+			const footnoteItem = modelWriter.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id, [ATTRIBUTES.footnoteIndex]: index });
+			const footnoteBackLink = modelWriter.createElement(ELEMENTS.footnoteBackLink, { [ATTRIBUTES.footnoteId]: id, [ATTRIBUTES.footnoteIndex]: index });
 			const p = modelWriter.createElement('paragraph');
 			modelWriter.append(p, footnoteContent);
 			modelWriter.append(footnoteContent, footnoteItem);

@@ -6,11 +6,11 @@ import Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
 /**
  * Declares the custom element types used by the footnotes plugin.
  * See here for the meanings of each rule: https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_schema-SchemaItemDefinition.html#member-isObject
- * @param {Schema} schema 
+ * @param {Schema} schema
  * @returns {void}
  */
 export const defineSchema = schema => {
-	/**	
+	/**
 	 * Footnote section at the footer of the document.
 	 */
 	schema.register(ELEMENTS.footnoteSection, {
@@ -27,16 +27,16 @@ export const defineSchema = schema => {
 		isBlock: true,
 		isObject: true,
 		allowContentOf: '$root',
-		allowAttributes: [ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId],
+		allowAttributes: [ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId, ATTRIBUTES.footnoteIndex],
 	})
 
 	/**
-	 * Editable footnote item content container. 
+	 * Editable footnote item content container.
 	 */
 	schema.register(ELEMENTS.footnoteContent, {
 		allowIn: ELEMENTS.footnoteItem,
 		allowContentOf: '$root',
-		allowAttributes: [ATTRIBUTES.footnoteSection, ATTRIBUTES.footnoteId],
+		allowAttributes: [ATTRIBUTES.footnoteSection],
 	});
 
 	/**
@@ -46,7 +46,7 @@ export const defineSchema = schema => {
 		allowWhere: '$text',
 		isInline: true,
 		isObject: true,
-		allowAttributes: [ ATTRIBUTES.footnoteReference, ATTRIBUTES.footnoteId ],
+		allowAttributes: [ATTRIBUTES.footnoteReference, ATTRIBUTES.footnoteId, ATTRIBUTES.footnoteIndex],
 	});
 
 	/**

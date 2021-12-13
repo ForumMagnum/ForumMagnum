@@ -16,7 +16,7 @@ export default class FootnoteUI extends Plugin {
 		 // @ts-ignore
 		const editor = this.editor;
 		const translate = editor.t;
-		
+
 		editor.ui.componentFactory.add( TOOLBAR_COMPONENT_NAME, locale => {
 			const dropdownView = createDropdown( locale );
 
@@ -24,7 +24,7 @@ export default class FootnoteUI extends Plugin {
 			// addListToDropdown( dropdownView, getDropdownItemsDefinitions( placeholderNames ) );
 			const command = editor.commands.get( COMMANDS.insertFootnote );
 			if(!command) throw new Error("Command not found.");
-			
+
 			dropdownView.buttonView.set( {
 				label: translate( 'Footnote' ),
 				icon: footnoteIcon,
@@ -44,13 +44,13 @@ export default class FootnoteUI extends Plugin {
 			// Execute the command when the dropdown item is clicked (executed).
 			this.listenTo( dropdownView, 'execute', evt => {
 				// @ts-ignore
-				editor.execute( COMMANDS.insertFootnote, { footnoteId: (evt.source).commandParam } );
+				editor.execute( COMMANDS.insertFootnote, { footnoteIndex: (evt.source).commandParam } );
 				editor.editing.view.focus();
 			} );
 
 			return dropdownView;
 		} );
-		
+
 	}
 
 	/**
@@ -80,13 +80,13 @@ export default class FootnoteUI extends Plugin {
 		if (footnoteSection) {
 			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.is('element', ELEMENTS.footnoteItem));
 			footnoteItems.forEach((footnote) => {
-				const id = footnote.getAttribute(ATTRIBUTES.footnoteId);
+				const index = footnote.getAttribute(ATTRIBUTES.footnoteIndex);
 				/** @type {ListDropdownItemDefinition} */
 				const definition = {
 					type: 'button',
 					model: new Model( {
-						commandParam: id,
-						label: `Insert footnote ${id}`,
+						commandParam: index,
+						label: `Insert footnote ${index}`,
 						withText: true
 					} )
 				};
