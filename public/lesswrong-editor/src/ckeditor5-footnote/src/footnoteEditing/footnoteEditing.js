@@ -203,7 +203,7 @@ export default class FootnoteEditing extends Plugin {
 		// renumber subsequent footnotes
 		const subsequentFootnotes = [...footnoteSection.getChildren()].slice(index);
 		for (const [i, child] of subsequentFootnotes.entries()) {
-			modelWriter.setAttribute( ATTRIBUTES.footnoteIndex, index+i+1, child);
+			modelWriter.setAttribute( ATTRIBUTES.footnoteIndex, `${index+i+1}`, child);
 		}
 	}
 
