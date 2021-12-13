@@ -1034,28 +1034,6 @@ Posts.addView("nonEventGroupPosts", (terms: PostsViewTerms) => {
   }
 });
 
-// Same index as events
-
-Posts.addView("groupPosts", (terms: PostsViewTerms) => {
-  return {
-    selector: {
-      isEvent: null,
-      groupId: terms.groupId,
-      authorIsUnreviewed: viewFieldAllowAny
-    },
-    options: {
-      sort: {
-        sticky: -1,
-        createdAt: -1,
-      }
-    }
-  }
-})
-ensureIndex(Posts,
-  augmentForDefaultView({ groupId: 1, sticky: -1, createdAt: -1 }),
-  { name: "posts.groupPosts" }
-);
-
 Posts.addView("postsWithBannedUsers", function () {
   return {
     selector: {
