@@ -246,7 +246,8 @@ export const defineConverters = (editor, rootElement) => {
 
 /**
  * Creates and returns a view element for a footnote backlink,
- * which navigates back to the inline reference in the text.
+ * which navigates back to the inline reference in the text. Used
+ * for both data and editing downcasts.
  * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}
@@ -273,7 +274,8 @@ function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
 }
 
 /**
- * Creates and returns a view element for an inline footnote reference.
+ * Creates and returns a view element for an inline footnote reference. Used for both
+ * data downcast and editing downcast conversions.
  * @param {ModelElement} modelElement
  * @param {DowncastConversionApi} conversionApi
  * @returns {ContainerElement}

@@ -102,10 +102,10 @@ export default class FootnoteEditing extends Plugin {
 				throw new Error('Selection must have at least one range to perform delete operation.');
 			}
 
-			this.editor.model.change( writer => {
+			this.editor.model.change( modelWriter => {
 				// delete all footnote references if footnote section gets deleted
 				if (deletedElement && deletedElement.is('element', ELEMENTS.footnoteSection)) {
-					this._removeReferences(writer);
+					this._removeReferences(modelWriter);
 				}
 
 				const deletingFootnote = deletedElement && deletedElement.is('element', ELEMENTS.footnoteItem)
@@ -127,7 +127,7 @@ export default class FootnoteEditing extends Plugin {
 				const footnoteIsEmpty = startParagraph.maxOffset === 0 && currentFootnoteContent.childCount === 1;
 
 				if(deletingFootnote || footnoteIsEmpty) {
-					this._removeFootnote(writer, currentFootnote);
+					this._removeFootnote(modelWriter, currentFootnote);
 					data.preventDefault();
 					evt.stop();
 					return;
@@ -139,20 +139,22 @@ export default class FootnoteEditing extends Plugin {
 	/**
 	 * Clear the children of the provided footnoteContent element,
 	 * leaving an empty paragraph behind. This allows users to empty
-	 * a footnote without deleting it.
+	 * a footnote without deleting it. modelWriter is passed in to 
+	 * batch these changes with the ones that instantiated them, 
+	 * such that the set can be undone with a single action.
 	 * @param {ModelElement} footnoteContent
 	 */
-	_clearContents(writer, footnoteContent) {
-		const contents = writer.createRangeIn(footnoteContent);
-		writer.appendElement("paragraph", footnoteContent);
-		writer.remove(contents);
+	_clearContents(modelWriter, footnoteContent) {
+		const contents = modelWriter.createRangeIn(footnoteContent);
+		modelWriter.appendElement("paragraph", footnoteContent);
+		modelWriter.remove(contents);
 	}
 
 	/**
 	 * Removes a footnote and its references, and renumbers subsequent footnotes. When a footnote's
 	 * id attribute changes, it's references automatically update from a dispatcher event in converters.js,
 	 * which triggers the `updateReferenceIds` method. modelWriter is passed in to batch these changes with
-	 * the one that instantiated them, such that the set can be undone with a single action.
+	 * the ones that instantiated them, such that the set can be undone with a single action.
 	 * @param {ModelWriter} modelWriter
 	 * @param {ModelElement} footnote
 	 */
@@ -208,7 +210,7 @@ export default class FootnoteEditing extends Plugin {
 	/**
 	 * Deletes all references to the footnote with the given id. If no id is provided,
 	 * all references are deleted. modelWriter is passed in to batch these changes with
-	 * the one that instantiated them, such that the set can be undone with a single action.
+	 * the ones that instantiated them, such that the set can be undone with a single action.
 	 * @param {ModelWriter} modelWriter
 	 * @param {string|undefined} footnoteId
 	 */
@@ -230,8 +232,8 @@ export default class FootnoteEditing extends Plugin {
 	/**
 	 * Updates all references for a single footnote. This function is called when
 	 * the index attribute of an existing footnote changes, which happens when a footnote
-	 * with a lower index is deleted. Batch is included to group these changes
-	 * with the original operation, such that they can all be undone with a single actioon.
+	 * with a lower index is deleted. batch is passed in to group these changes with
+	 * the ones that instantiated them.
 	 * @param {Batch} batch
 	 * @param {string} footnoteId
 	 * @param {string} newFootnoteIndex
@@ -251,9 +253,8 @@ export default class FootnoteEditing extends Plugin {
 
 	/**
 	 * Reindexes footnotes such that footnote references occur in order, and reorders
-	 * footnote items in the footer section accordingly. The `batch` argument allows this operation
-	 * to be grouped with the change that instantiated it, such that the set can be undone
-	 * with a single action.
+	 * footnote items in the footer section accordingly. batch is passed in to group changes with
+	 * the ones that instantiated them.
 	 * @param {Batch} batch 
 	 */
 	_orderFootnotes(batch) {
