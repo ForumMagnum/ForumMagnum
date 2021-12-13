@@ -53,7 +53,7 @@ export const defineSchema = schema => {
 	 * return link which takes you from the footnote to the inline reference.
 	 */
 	schema.register(ELEMENTS.footnoteBackLink, {
-		allowIn: ELEMENTS.footnoteContent,
+		allowIn: ELEMENTS.footnoteItem,
 		isInline: true,
 		isSelectable: false,
 		allowAttributes: [ATTRIBUTES.footnoteBackLink, ATTRIBUTES.footnoteId]

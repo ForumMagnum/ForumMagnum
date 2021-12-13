@@ -45,11 +45,11 @@ export default class InsertFootnoteCommand extends Command {
 
 			const footnoteContent = modelWriter.createElement(ELEMENTS.footnoteContent);
 			const footnoteItem = modelWriter.createElement(ELEMENTS.footnoteItem, { [ATTRIBUTES.footnoteId]: id, [ATTRIBUTES.footnoteIndex]: index });
-			const footnoteBackLink = modelWriter.createElement(ELEMENTS.footnoteBackLink, { [ATTRIBUTES.footnoteId]: id, [ATTRIBUTES.footnoteIndex]: index });
+			const footnoteBackLink = modelWriter.createElement(ELEMENTS.footnoteBackLink, { [ATTRIBUTES.footnoteId]: id });
 			const p = modelWriter.createElement('paragraph');
 			modelWriter.append(p, footnoteContent);
 			modelWriter.append(footnoteContent, footnoteItem);
-			modelWriter.append(footnoteBackLink, footnoteItem);
+			modelWriter.insert(footnoteBackLink, footnoteItem, 0);
 
 			this.editor.model.insertContent(footnoteItem, modelWriter.createPositionAt(footnoteSection, footnoteSection.maxOffset));
 		});

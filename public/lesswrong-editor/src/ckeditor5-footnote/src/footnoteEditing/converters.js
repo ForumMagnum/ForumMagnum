@@ -234,13 +234,7 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('editingDowncast').elementToElement({
 		model: ELEMENTS.footnoteBackLink,
-		view: {
-			name: 'span',
-			classes: [CLASSES.hidden, CLASSES.footnoteBackLink],
-			attributes: {
-				[ATTRIBUTES.footnoteBackLink]: '',
-			},
-		}
+		view: createFootnoteBackLinkViewElement,
 	});
 };
 
@@ -260,15 +254,19 @@ function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
 	}
 
 	const footnoteBackLinkView = viewWriter.createContainerElement('span', {
-		class: [CLASSES.footnoteBackLink, CLASSES.hidden].join(' '),
+		class: CLASSES.footnoteBackLink,
 		[ATTRIBUTES.footnoteBackLink]: '',
 		[ATTRIBUTES.footnoteId]: id,
 	});
+	const sup = viewWriter.createContainerElement('sup');
+	const strong = viewWriter.createContainerElement('strong');
 	const anchor = viewWriter.createContainerElement('a', { href: `#fnref${id}` });
-	const innerText = viewWriter.createText(`↩`);
+	const innerText = viewWriter.createText('^');
 
 	viewWriter.insert(viewWriter.createPositionAt(anchor, 0), innerText);
-	viewWriter.insert(viewWriter.createPositionAt(footnoteBackLinkView, 0), anchor);
+	viewWriter.insert(viewWriter.createPositionAt(strong, 0), anchor);
+	viewWriter.insert(viewWriter.createPositionAt(sup, 0), strong);
+	viewWriter.insert(viewWriter.createPositionAt(footnoteBackLinkView, 0), sup);
 
 	return footnoteBackLinkView;
 }
