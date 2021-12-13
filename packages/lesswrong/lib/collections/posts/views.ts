@@ -1019,7 +1019,7 @@ Posts.addView("tbdEvents", (terms: PostsViewTerms) => {
     },
     options: {
       sort: {
-        startTime: -1,
+        postedAt: 1,
       }
     },
   }
