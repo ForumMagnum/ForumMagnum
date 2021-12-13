@@ -184,10 +184,6 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('editingDowncast')
 		.add(dispatcher => {
 			dispatcher.on(
-				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`,
-				(_, data, conversionApi) => updateReferences(data, conversionApi, editor, rootElement),
-				{ priority: 'high' });
-			dispatcher.on(
 				`attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`, 
 				(_, data, conversionApi) => updateFootnoteItemView(data, conversionApi, editor), 
 				{ priority: 'high' });
@@ -305,39 +301,6 @@ function createFootnoteReferenceViewElement(modelElement, conversionApi) {
  * @property {string} attributeOldValue
  * @property {string} attributeNewValue
  */
-
-/**
- * Updates all references for a single footnote. This function is called when
- * the id attribute of an existing footnote changes, which happens when a footnote 
- * with a lower id is deleted, which is handled by `_removeFootnote` in
- * footnoteEditing.js.
- * @param {Data} data provides the old and new values of the changed attribute.
- * @param {DowncastConversionApi} conversionApi
- * @param {Editor} editor
- * @param {RootElement} rootElement
- * @returns
- */
-function updateReferences(data, conversionApi, editor, rootElement) {
-	const { item, attributeOldValue, attributeNewValue } = data;
-	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteId}:${ELEMENTS.footnoteItem}`)) {
-		return;
-	}
-
-	if (attributeOldValue === null || attributeNewValue === null || !item) {
-		return;
-	}
-
-	const footnoteReferences = modelQueryElementsAll(
-		editor, 
-		rootElement, 
-		e => e.is('element', ELEMENTS.footnoteReference) && e.getAttribute(ATTRIBUTES.footnoteId) === attributeOldValue
-	);
-	footnoteReferences.forEach(footnoteReference => {
-		editor.model.enqueueChange(writer => {
-			writer.setAttribute(ATTRIBUTES.footnoteId, data.attributeNewValue, footnoteReference);
-		});
-	});
-}
 
 /**
  * @param {Data} data
