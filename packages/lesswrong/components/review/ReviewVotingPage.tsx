@@ -445,7 +445,7 @@ const ReviewVotingPage = ({classes}: {
             {(postsLoading || loading) && <Loading/>}
             
             {/* Turned off for the Preliminary Voting phase */}
-            {getReviewPhase() !== "NOMINATIONS" && <>
+            {getReviewPhase() === "VOTING" && <>
               {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic voting, you cannot go back to default voting without losing your quadratic data.">
                 <Button className={classes.convert} onClick={async () => {
                   setLoading(true)
