@@ -347,11 +347,9 @@ const ReviewVotingPage = ({classes}: {
     <div className={classes.instructions}>
       <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
 
-      <p>We begin with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
-      
-      <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help you decide how to spend attention during the Review phase. You may want to focus on high-ranking posts, or those which seem undervalued or controversial.</p>
+      <p>This is the Review Phase. Posts with two nomations will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
 
-      <p>During Preliminary Voting, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
+      <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
       
       <p><b>FAQ</b></p>
       

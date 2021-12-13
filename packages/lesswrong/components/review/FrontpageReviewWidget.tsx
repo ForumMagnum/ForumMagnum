@@ -337,7 +337,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         </LWTooltip>}
       </div>}
       
-      {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+      {activeRange === 'REVIEWS' && showFrontpageItems && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviews"} className={classes.actionButtonCTA}>
           Review {REVIEW_YEAR} Posts
         </Link>
