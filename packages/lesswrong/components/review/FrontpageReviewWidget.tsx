@@ -343,7 +343,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         </Link>
       </div>}
 
-      {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
+      {activeRange === 'VOTING' && showFrontpageItems && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
           Vote on {REVIEW_YEAR} Posts
         </Link>
