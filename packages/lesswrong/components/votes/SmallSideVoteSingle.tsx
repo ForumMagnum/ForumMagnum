@@ -14,11 +14,6 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import {VoteDimensionString, VotingSystemString} from "../../lib/voting/voteTypes";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  vote: {
-    fontSize: 25,
-    lineHeight: 0.6,
-    display: "inline-block"
-  },
   voteScore: {
     fontSize: '1.1rem',
     marginLeft: 4,
@@ -34,10 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   secondaryScoreNumber: {
     marginLeft: 3,
-  },
-  tooltipHelp: {
-    fontSize: '1rem',
-    fontStyle: "italic"
   }
 })
 
@@ -52,7 +43,7 @@ const SmallSideVoteSingle =  <T extends SideVoteableType>({ document, hideKarma=
   voteProps: UseVoteProps<T>
 }) => {
   const currentUser = useCurrentUser();
-  const {eventHandlers, hover} = useHover();
+  const {eventHandlers} = useHover();
   
   if (!document) return null;
 
@@ -63,12 +54,8 @@ const SmallSideVoteSingle =  <T extends SideVoteableType>({ document, hideKarma=
   const karma = (voteDimension === 'Overall') ? voteProps.baseScore : voteProps?.baseScoresRecord?.['Agreement'] || 0
   const karmaAdjective = (voteDimension === 'Overall') ? '' : `${voteDimension.toLowerCase()} `
 
-  let moveToAlignmentUserId = ""
   let documentTypeName = "comment";
-  if (collection == Comments) {
-    const comment = document as CommentsList
-    moveToAlignmentUserId = comment.moveToAlignmentUserId
-  }
+
   if (collection == Posts) {
     documentTypeName = "post";
   }
@@ -79,15 +66,9 @@ const SmallSideVoteSingle =  <T extends SideVoteableType>({ document, hideKarma=
   const af = (document as any).af;
   const afDate = (document as any).afDate;
   const afBaseScore = (document as any).afBaseScore;
-  
-  const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignmentUserId && (
-    <div className={classes.tooltipHelp}>
-      {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>}
-    </div>
-  )
 
   return (
-    <span className={classes.vote} {...eventHandlers}>
+    <span {...eventHandlers}>
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <>
           <Tooltip
@@ -128,19 +109,6 @@ const SmallSideVoteSingle =  <T extends SideVoteableType>({ document, hideKarma=
             </span>
           </Tooltip> 
         </>
-      }
-      {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
-        <Tooltip placement="bottom" title={
-          <div>
-            <p>AI Alignment Forum Karma</p>
-            { moveToAfInfo }
-          </div>
-        }>
-          <span className={classes.secondaryScore}>
-            <span className={classes.secondarySymbol}>Ω</span>
-            <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
-          </span>
-        </Tooltip>
       }
       {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
         <Tooltip title="LessWrong Karma" placement="bottom">

@@ -54,6 +54,68 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '90%',
     top: '-75%',
   },
+  bigCheck: {
+    position: 'absolute',
+    top: 0,
+    left: 2,
+    fontSize: '82%',
+    opacity: 0,
+    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+    height: 23
+  },
+  bigCheckSolid: {
+    fontSize: '65%',
+    top: "-45%"
+  },
+  bigCheckCompleted: {
+    // fontSize: '90%',
+    // top: '-75%',
+    // left: 0
+  },
+  bigClear: {
+    position: 'absolute',
+    top: '-70%',
+    fontSize: '82%',
+    opacity: 0,
+    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+  },
+  bigClearSolid: {
+    fontSize: '65%',
+    top: "-45%"
+  },
+  bigClearCompleted: {
+    fontSize: '90%',
+    top: '-75%',
+  },
+  hideIcon: {
+    visibility: 'hidden'
+  },
+  agreeIcon: {
+    fontSize: '50%',
+    opacity: 0.6,
+    height: 15
+  },
+  disagreeIcon: {
+    fontSize: '40%',
+    opacity: 0.6
+  },
+  smallCheckBigVoted: {
+    fontSize: '50%',
+    opacity: 0.6,
+    position: 'relative',
+    top: -7,
+    left: -14,
+    height: 14
+  },
+  smallArrowBigVoted: {
+    fontSize: '50%',
+    opacity: 0.6,
+    position: 'relative',
+    transform: 'rotate(-90deg)',
+    height: 14,
+    top: -7,
+    left: -2
+  },
   // Classes for the animation transitions of the bigArrow. See Transition component
   entering: {
     opacity: 1
@@ -63,6 +125,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   exiting: {
     transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
+  },
+  bigVoteAgreementButtons: { // necessary? unclear
+    marginLeft: 6
   }
 })
 
@@ -159,11 +224,60 @@ const VoteButton = <T extends VoteableTypeClient>({
     }
   }
 
-  
   if (voteDimension === "Agreement") {
-  
-    const Icon = (orientation === "left") ? ClearIcon : CheckIcon
-    
+    // smallIconAgreementClass is the icon for Agreement smallVotes. Unlike the logic for Overall votes, we just
+    // hide this icon while bigVotes are displayed, and we use a different element to show the faded-looking
+    // small icon next to the big one.
+    const smallIconAgreementClass = (() => {
+      // TODO: this is not viable – I'll need to use a useState thing for this, or something
+      // if (bigVotingTransition || bigVoted) {
+      //   // There should be a pretty transition later, but while the UI is experimental and may change drastically,
+      //   // just hide the small icon during the transition
+      //   return classes.hideIcon;
+      // }
+      if (orientation === 'left') {
+        return classes.disagreeIcon
+      } else { // orientation === 'right'
+        return classes.agreeIcon
+      }
+    })()
+
+    // if (bigVotingTransition || bigVoted) {
+    //   // There should be a pretty transition later, but while the UI is experimental and may change drastically,
+    //   // just hide the small icon during the transition
+    //   setSmallIconAgreementClass(classes.hideIcon)
+    // }
+    // if (orientation === 'left') {
+    //   setSmallIconAgreementClass(classes.disagreeIcon)
+    // } else { // orientation === 'right'
+    //   setSmallIconAgreementClass(classes.agreeIcon)
+    // }
+
+    // bigVotedSmallIconAgreementClass shows the small faded icon behind/next to the vivid bigVoted icon
+    const bigVotedSmallIconAgreementClass = (() => {
+      if (orientation === 'left') {
+        return [classes.smallArrowBigVoted, classes.left]
+      } else { // orientation === 'right'
+        return classes.smallCheckBigVoted
+      }
+    })()
+
+    const BigVotedSmallIcon = (() => {
+      if (orientation === "left") {
+        return UpArrowIcon
+      } else {
+        return CheckIcon
+      }
+    })()
+
+    const Icon = (() => {
+      if (orientation === "left") {
+        return ClearIcon
+      } else {
+        return CheckIcon
+      }
+    })()
+
     return (
       <IconButton
         className={classNames(classes.root)}
@@ -174,21 +288,28 @@ const VoteButton = <T extends VoteableTypeClient>({
         disableRipple
       >
         <Icon
-          className={classes.smallArrow}
+          className={classNames(smallIconAgreementClass, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
           color={voted ? color : 'inherit'}
           viewBox='6 6 12 12'
         />
         <Transition in={!!(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
-            <Icon
-              style={{color: bigVoteCompleted && theme.palette[color].light}}
-              className={classNames(classes.bigArrow, {
-                [classes.bigArrowCompleted]: bigVoteCompleted,
-                [classes.bigArrowSolid]: solidArrow
-              }, classes[state])}
-              color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
-              viewBox='6 6 12 12'
-            />)}
+            <span className={classes.bigVoteAgreementButtons}>
+              <BigVotedSmallIcon
+                className={classNames({[bigVotedSmallIconAgreementClass]: bigVoted, [classes.hideIcon]: !bigVoted})}
+                color={voted ? color : 'inherit'}
+                viewBox='6 6 12 12'
+              />
+              <Icon
+                style={bigVoteCompleted ? {color: theme.palette[color].light} : {}}
+                className={classNames(classes.bigCheck, {
+                  [classes.bigCheckCompleted]: bigVoteCompleted,
+                  [classes.bigCheckSolid]: solidArrow
+                }, classes[state])}
+                color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
+                viewBox='6 6 12 12'
+              />
+            </span>)}
         </Transition>
       </IconButton>
     )
@@ -213,7 +334,7 @@ const VoteButton = <T extends VoteableTypeClient>({
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
         {(state) => (
           <UpArrowIcon
-            style={{color: bigVoteCompleted && theme.palette[color].light}}
+            style={bigVoteCompleted ? {color: theme.palette[color].light} : {}}
             className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
             color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
             viewBox='6 6 12 12'

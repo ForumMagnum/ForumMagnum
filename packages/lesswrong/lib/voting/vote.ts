@@ -42,9 +42,9 @@ const createNewDocument = ({document, collection, voteType, voteDimension, user,
       afVoteCount: (document.afVoteCount||0) + (multiplier * (isAfVote?1:0)),
     } : {}
 
-    console.log({multiplier})
-    console.log({power})
-    console.log({direction})
+    // console.log({multiplier})
+    // console.log({power})
+    // console.log({direction})
 
   const otherDimensionAggregates = {
     currentUserVotesRecord: { ...document.currentUserVotesRecord, [voteDimension]: direction === 'add' ? voteType : null},
@@ -52,10 +52,10 @@ const createNewDocument = ({document, collection, voteType, voteDimension, user,
     voteCountsRecord: {...document.voteCountsRecord, [voteDimension]: (document?.voteCountsRecord?.[voteDimension] || 0) + (multiplier * 1)},
   }
 
-  console.log({otherDimensionAggregates})
-  console.log('document.voteCount', document.voteCount)
-  console.log('document.voteCountsRecord', document.voteCountsRecord)
-  console.log('document.voteCountsRecord?.[voteDimension]', document.voteCountsRecord?.[voteDimension])
+  // console.log({otherDimensionAggregates})
+  // console.log('document.voteCount', document.voteCount)
+  // console.log('document.voteCountsRecord', document.voteCountsRecord)
+  // console.log('document.voteCountsRecord?.[voteDimension]', document.voteCountsRecord?.[voteDimension])
 
   const newDocument = {
     ...document,
@@ -63,7 +63,7 @@ const createNewDocument = ({document, collection, voteType, voteDimension, user,
     ...otherDimensionAggregates
   };
   newDocument.score = recalculateScore(newDocument);
-  console.log({newDocument})
+  // console.log({newDocument})
   return newDocument;
 }
 
@@ -125,8 +125,8 @@ export const getVotePower = ({ user, voteType, document }: {
   if (!voteType) return 0
 
   const power = (voteTypes[voteType]?.power) || 1;
-  console.log(`getVotePower voteType: ${voteType}`)
-  console.log(`getVotePower power: ${typeof power === 'function' ? power(user, document) : power}`)
+  // console.log(`getVotePower voteType: ${voteType}`)
+  // console.log(`getVotePower power: ${typeof power === 'function' ? power(user, document) : power}`)
   return typeof power === 'function' ? power(user, document) : power;
 };
 
