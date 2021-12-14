@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   voteResults: {
-    backgroundColor: "rgba(0,0,0,.05)",
+    backgroundColor: "rgba(0,0,0,.04)",
     padding: 10,
     width: 140,
     display: "flex",
@@ -109,12 +109,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: 12,
   },
   highVote: {
-    color: "black",
+    color: "rgba(0,0,0,.8)",
+    fontWeight: 600,
     padding: 2,
     cursor: "pointer"
   },
   lowVote: {
-    color: "rgba(0,0,0,.5)",
+    color: "rgba(0,0,0,.45)",
     padding: 2,
     cursor: "pointer"
   }
