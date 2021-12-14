@@ -15,7 +15,6 @@ const VoteButton = ({
   solidArrow,
   VoteArrowComponent,
   theme,
-  classes,
 }: {
   vote: (strength: "big"|"small"|"neutral")=>void,
   currentStrength: "big"|"small"|"neutral",
@@ -27,7 +26,6 @@ const VoteButton = ({
   VoteArrowComponent: React.ComponentType<VoteArrowProps>,
   // From withTheme. TODO: Hookify this.
   theme?: ThemeType
-  classes: ClassesType
 }) => {
   const [votingTransition, setVotingTransition] = useState<any>(null);
   const [bigVotingTransition, setBigVotingTransition] = useState(false);
@@ -88,13 +86,13 @@ const VoteButton = ({
     bigVotingTransition, bigVoted,
     bigVoteCompleted, theme,
     eventHandlers: {handleMouseDown, handleMouseUp, handleClick, clearState},
+    alwaysColored: false,
   };
   return <VoteArrowComponent {...voteArrowProps} />
 }
 
 const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {
-  styles,
-  hocs: [withTheme()]
+  hocs: [withTheme()], areEqual: "auto"
 });
 
 declare global {

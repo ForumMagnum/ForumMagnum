@@ -11,6 +11,7 @@ import { createAnonymousContext } from './vulcan-lib/query';
 import moment from 'moment';
 import { randomId } from '../lib/random';
 import * as _ from 'underscore';
+import sumBy from 'lodash/sumBy'
 
 
 // Test if a user has voted on the server
@@ -51,7 +52,6 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   newDocument = {
     ...newDocument,
     score: recalculateScore(newDocument),
-    voteCount: newDocument.voteCount+1,
   };
   
   // update document score & set item as active
@@ -101,10 +101,13 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 };
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, context }: {
+export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
   document: DbVoteableType,
   user: DbUser,
   collection: CollectionBase<DbVoteableType>,
+  // If true, clears all votes except the latest (ie, only clears duplicate
+  // votes). If false, clears all votes (including the latest).
+  excludeLatest?: boolean,
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
@@ -114,7 +117,12 @@ export const clearVotesServer = async ({ document, user, collection, context }: 
     cancelled: false,
   });
   if (votes.length) {
+    const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
     for (let vote of votes) {
+      if (excludeLatest && vote._id === latestVoteId) {
+        continue;
+      }
+      
       // Cancel the existing votes
       await updateMutator({
         collection: Votes,
@@ -160,7 +168,6 @@ export const clearVotesServer = async ({ document, user, collection, context }: 
       ...newDocument,
       ...newScores,
       score: recalculateScore(newDocument),
-      voteCount: newDocument.voteCount - votes.length,
     };
     void algoliaExportById(collection as any, newDocument._id);
   }
@@ -207,14 +214,19 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   } else {
     await checkRateLimit({ document, collection, voteType, user });
 
-    document = await clearVotesServer({document, user, collection, context})
-
     let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
     voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
       iterator: voteDocTuple,
       properties: [collection, user]
     });
     document = voteDocTuple.newDocument;
+    
+    document = await clearVotesServer({
+      document, user, collection,
+      excludeLatest: true,
+      context
+    })
+    
     void voteCallbacks.castVoteAsync.runCallbacksAsync(
       [voteDocTuple, collection, user]
     );
@@ -288,5 +300,10 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
     }
   ).fetch() || [];
   const votingSystem = await getVotingSystemForDocument(document, context);
-  return await votingSystem.computeDocumentScores(votes, context);
+  const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
+  return {
+    baseScore: sumBy(votes, v=>v.power),
+    voteCount: votes.length,
+    extendedScore: await votingSystem.computeExtendedScore(votes, context),
+  };
 }

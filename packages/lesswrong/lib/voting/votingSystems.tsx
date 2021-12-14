@@ -21,7 +21,8 @@ export interface VotingSystem {
   getCommentVotingComponent: ()=>CommentVotingComponent,
   addVoteClient: (document: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent)=>any,
   cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent)=>any
-  computeDocumentScores: (votes: DbVote[], context: ResolverContext)=>Promise<{baseScore: number, extendedScore: any}>
+  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<any>
+  isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
@@ -40,12 +41,12 @@ registerVotingSystem({
   cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent): any => {
     return null;
   },
-  computeDocumentScores: async (votes: DbVote[], context: ResolverContext) => {
-    return {
-      baseScore: sumBy(votes, v=>v.power),
-      extendedScore: null,
-    };
-  }
+  computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
+    return null;
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    return false;
+  },
 });
 
 registerVotingSystem({
@@ -68,20 +69,20 @@ registerVotingSystem({
       agreementVoteCount: (document.extendedScore?.agreementVoteCount||0) - 1,
     };
   },
-  computeDocumentScores: async (votes: DbVote[], context: ResolverContext) => {
+  computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     const userIdsThatVoted = uniq(votes.map(v=>v.userId));
     const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
     const usersById = keyBy(usersThatVoted, u=>u._id);
     
     const result = {
-      baseScore: sumBy(votes, v=>v.power),
-      extendedScore: {
-        agreement: sumBy(votes, v=>getVoteAxisStrength(v, usersById, "agreement")),
-        agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0),
-      }
+      agreement: sumBy(votes, v=>getVoteAxisStrength(v, usersById, "agreement")),
+      agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0),
     };
     return result;
-  }
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    return vote?.extendedVoteType?.agreement && vote.extendedVoteType.agreement !== "neutral";
+  },
 });
 
 function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axis: string) {
@@ -147,7 +148,7 @@ registerVotingSystem({
     }));
     return filterZeroes({...axisScores, ...standaloneReactCounts});
   },
-  computeDocumentScores: async (votes: DbVote[], context: ResolverContext) => {
+  computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
     const userIdsThatVoted = uniq(votes.map(v=>v.userId));
     const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
     const usersById = keyBy(usersThatVoted, u=>u._id);
@@ -159,10 +160,15 @@ registerVotingSystem({
       return [reaction, sumBy(votes, v => v?.extendedVoteType?.[reaction] ? 1 : 0)];
     }));
     
-    return {
-      baseScore: sumBy(votes, v=>v.power),
-      extendedScore: filterZeroes({ ...axisScores, ...standaloneReactCounts }),
-    };
+    return filterZeroes({ ...axisScores, ...standaloneReactCounts });
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    if (!vote.extendedVoteType) return false;
+    for (let key of Object.keys(vote.extendedVoteType)) {
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key]!=="neutral")
+        return true;
+    }
+    return false;
   },
 });
 

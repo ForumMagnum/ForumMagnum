@@ -74,10 +74,11 @@ export interface VoteArrowProps {
   bigVotingTransition: boolean,
   bigVoted: boolean,
   bigVoteCompleted: boolean,
+  alwaysColored: boolean,
   theme?: ThemeType,
 }
 
-const VoteArrow = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, theme, classes }: VoteArrowProps & {
+const VoteArrow = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, theme, classes }: VoteArrowProps & {
   classes: ClassesType
 }) => {
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
@@ -93,7 +94,7 @@ const VoteArrow = ({ solidArrow, strongVoteDelay, orientation, color, voted, eve
     >
       <Icon
         className={classes.smallArrow}
-        color={voted ? color : 'inherit'}
+        color={(voted || alwaysColored) ? color : 'inherit'}
         viewBox='6 6 12 12'
       />
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>

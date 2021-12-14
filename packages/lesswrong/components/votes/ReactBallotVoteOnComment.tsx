@@ -30,8 +30,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   voteButton: {
     display: "inline-block",
-    width: 150,
+    width: 140,
+    padding: 4,
+    marginRight: 6,
     fontSize: 16,
+    cursor: "pointer",
+    
+    "&:hover": {
+      background: "#e8e8e8",
+    },
   },
   buttonLabel: {
     marginLeft: 8,
@@ -41,13 +48,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: 0.6,
   },
   hoverBallotRow: {
-    padding: 4,
   },
   goodVersion: {
   },
   badVersion: {
   },
-  axisVoteSelected: {
+  voteButtonSelected: {
+    background: "#eee",
   },
   divider: {
     height: 12,
@@ -56,6 +63,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   emoji: {
     display: "inline-block",
     padding: 6,
+    paddingTop: 8,
+    borderRadius: 3,
     marginRight: 4,
     border: "1px solid #ddd",
   },
@@ -64,10 +73,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 16,
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 12,
+    lineHeight: 0.6,
   },
   axisScore: {
     display: "inline-block",
     padding: 6,
+    paddingTop: 8,
+    borderRadius: 3,
     marginRight: 4,
     border: "1px solid #ddd",
   },
@@ -78,10 +90,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   axisLabel: {
   },
   standaloneReaction: {
-    padding: 8,
-  },
-  selectedEmoji: {
-    background: "#eee",
   },
 });
 
@@ -118,12 +126,12 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
           onClick={eventHandlers.handleClick}
           className={classNames(classes.voteButton, {
             [classes.goodVersion]: direction==="up",
-            [classes.badVersion]: direction==="down"
-            [classes.axisVoteSelected]: voted,
+            [classes.badVersion]: direction==="down",
+            [classes.voteButtonSelected]: voted,
           })}
         >
           <span className={classes.voteArrow}>
-            <Components.VoteArrow eventHandlers={{}} voted={voted} {...rest}/>
+            <Components.VoteArrow eventHandlers={{}} voted={voted} {...rest} alwaysColored />
           </span>
           <span className={classes.buttonLabel}>
             {direction==="up" ? axis.goodLabel : axis.badLabel}
@@ -175,7 +183,7 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   
-  return <div className={classNames(classes.voteButton, classes.standaloneReaction, {[classes.selectedEmoji]: isSelected})} onClick={ev => {
+  return <div className={classNames(classes.voteButton, classes.standaloneReaction, {[classes.voteButtonSelected]: isSelected})} onClick={ev => {
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
@@ -227,6 +235,15 @@ const ReactBallotVoteOnComment = ({document, hideKarma=false, collection, voting
         {chunk(reactBallotStandaloneReactions, 2).map((row,i) => <div key={i} className={classes.hoverBallotRow}>
           {row.map(reaction => <BallotStandaloneReaction key={reaction.name} reaction={reaction} voteProps={voteProps} classes={classes}/>)}
         </div>)}
+        
+        <div className={classes.hoverBallotRow}>
+          <span className={classes.overallLabel}>Overall</span>
+          <VoteAxis
+            document={document}
+            hideKarma={hideKarma}
+            voteProps={voteProps}
+          />
+        </div>
       </div>
     </PopperCard>}
   </span>
