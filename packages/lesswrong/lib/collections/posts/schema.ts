@@ -618,6 +618,13 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
   },
 
+  reviewVoteScore: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+
   lastCommentPromotedAt: {
     type: Date,
     optional: true,
