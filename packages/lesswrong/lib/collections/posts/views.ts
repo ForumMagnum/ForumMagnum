@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
+import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -1300,9 +1301,10 @@ ensureIndex(Posts,
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+  const nominationThreshold = getReviewPhase() === "NOMINATIONS" ? 1 : 2
   return {
     selector: {
-      positiveReviewVoteCount: { $gt: 0 },
+      positiveReviewVoteCount: { $gte: nominationThreshold },
     },
     options: {
       // This sorts the posts deterministically, which is important for the

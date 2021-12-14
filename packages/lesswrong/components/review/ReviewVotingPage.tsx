@@ -335,7 +335,7 @@ const ReviewVotingPage = ({classes}: {
   }
 
   const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
-  const voteAverage = (sortedPosts && sortedPosts?.length > 0) ? voteTotal/sortedPosts?.length : 0
+  const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
 
   const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
     if (!quadraticVotes) return
@@ -347,11 +347,9 @@ const ReviewVotingPage = ({classes}: {
     <div className={classes.instructions}>
       <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
 
-      <p>We begin with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
-      
-      <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help you decide how to spend attention during the Review phase. You may want to focus on high-ranking posts, or those which seem undervalued or controversial.</p>
+      <p>This is the Review Phase. Posts with two nomations will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
 
-      <p>During Preliminary Voting, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
+      <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
       
       <p><b>FAQ</b></p>
       
@@ -376,7 +374,7 @@ const ReviewVotingPage = ({classes}: {
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
     </div> :
     <div className={classes.instructions}>
-      <p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
+      {getReviewPhase() === "NOMINATIONS" && <><p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
       <ul>
         <li>
           Vote on posts that represent important intellectual progress.
@@ -385,7 +383,13 @@ const ReviewVotingPage = ({classes}: {
       </ul> 
       <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
 
-      <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
+      <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
+
+      {getReviewPhase() === "REVIEWS"  && <><p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
+
+      <p>This is the Review Phase. Posts with two nomations will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
+
+      <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p></>}
 
       <p><b>FAQ</b></p>
 
@@ -445,7 +449,7 @@ const ReviewVotingPage = ({classes}: {
             {(postsLoading || loading) && <Loading/>}
             
             {/* Turned off for the Preliminary Voting phase */}
-            {getReviewPhase() !== "NOMINATIONS" && <>
+            {getReviewPhase() === "VOTING" && <>
               {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic voting, you cannot go back to default voting without losing your quadratic data.">
                 <Button className={classes.convert} onClick={async () => {
                   setLoading(true)

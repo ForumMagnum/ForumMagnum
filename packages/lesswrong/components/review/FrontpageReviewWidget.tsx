@@ -9,6 +9,7 @@ import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from 
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { currentUserCanVote, eligibleToNominate, getReviewPhase, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -92,6 +93,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: "inline-block",
     marginLeft: 12
+  },
+  adminButton: {
+    border: `solid 1px rgba(200,150,100)`,
+    color: 'rgba(200,150,100)'
   },
   buttonWrapper: {
     flexGrow: 0,
@@ -307,6 +312,12 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         
+        {!showFrontpageItems && userIsAdmin(currentUser) && <LWTooltip className={classes.buttonWrapper} title={`Look at metrics related to the Review`}>
+          <Link to={'/reviewAdmin'} className={classNames(classes.actionButton, classes.adminButton)}>
+            Review Admin
+          </Link>
+        </LWTooltip>}
+
         {showFrontpageItems && <LatestReview/>}
 
         <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
@@ -337,13 +348,13 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         </LWTooltip>}
       </div>}
       
-      {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+      {activeRange === 'REVIEWS' && showFrontpageItems && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviews"} className={classes.actionButtonCTA}>
           Review {REVIEW_YEAR} Posts
         </Link>
       </div>}
 
-      {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
+      {activeRange === 'VOTING' && showFrontpageItems && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
           Vote on {REVIEW_YEAR} Posts
         </Link>
