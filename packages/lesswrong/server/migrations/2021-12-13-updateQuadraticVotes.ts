@@ -60,6 +60,7 @@ registerMigration({
           posts[vote.postId] = posts[vote.postId] + getValue(vote)
         }
       })
+      // eslint-disable-next-line no-console
       if (totalUserPoints > 500) console.log(userId, totalUserPoints)
     })
     Object.keys(posts).forEach(postId => {
