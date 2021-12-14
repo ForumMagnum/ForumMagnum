@@ -142,8 +142,11 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
   readonly reviewVoteScoreAF: number,
+  readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
+  readonly reviewVotesHighKarma: Array<number>,
   readonly reviewVoteScoreAllKarma: number,
+  readonly reviewVotesAllKarma: Array<number>,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly noIndex: boolean,
@@ -352,8 +355,11 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
   readonly reviewVoteScoreAllKarma: number,
+  readonly reviewVotesAllKarma: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
+  readonly reviewVotesHighKarma: Array<number>,
   readonly reviewVoteScoreAF: number,
+  readonly reviewVotesAF: Array<number>,
   readonly group: PostsBase_group|null,
 }
 

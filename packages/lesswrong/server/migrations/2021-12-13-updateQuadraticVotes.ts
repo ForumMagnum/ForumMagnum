@@ -58,9 +58,9 @@ registerMigration({
 
     function updatePost(postList, vote) {
       if (postList[vote.postId] === undefined) { 
-        postList[vote.postId] = getValue(vote)
+        postList[vote.postId] = [getValue(vote)]
       } else {
-        postList[vote.postId] = postList[vote.postId] + getValue(vote)
+        postList[vote.postId].push(getValue(vote))
       }
     }
 
@@ -83,14 +83,24 @@ registerMigration({
       // eslint-disable-next-line no-console
       console.log(userId, totalUserPoints, totalUserPoints > 500 ? "Over 500" : "")
     })
+
     Object.keys(postsAllUsers).forEach(postId => {
-      Posts.update({_id:postId}, {$set: { reviewVoteScoreAllKarma: postsAllUsers[postId] }})
+      Posts.update({_id:postId}, {$set: { 
+        reviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
+        reviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
+      }})
     })
     Object.keys(postsHighKarmaUsers).forEach(postId => {
-      Posts.update({_id:postId}, {$set: { reviewVoteScoreHighKarma: postsHighKarmaUsers[postId] }})
+      Posts.update({_id:postId}, {$set: { 
+        reviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
+        reviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
+      }})
     })
     Object.keys(postsAFUsers).forEach(postId => {
-      Posts.update({_id:postId}, {$set: { reviewVoteScoreAF: postsAFUsers[postId] }})
+      Posts.update({_id:postId}, {$set: { 
+        reviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
+        reviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
+       }})
     })
   },
 });

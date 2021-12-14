@@ -358,8 +358,11 @@ interface DbPost extends DbObject {
   reviewVoteCount: number
   positiveReviewVoteCount: number
   reviewVoteScoreAF: number
+  reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number
+  reviewVotesHighKarma: Array<number>
   reviewVoteScoreAllKarma: number
+  reviewVotesAllKarma: Array<number>
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean

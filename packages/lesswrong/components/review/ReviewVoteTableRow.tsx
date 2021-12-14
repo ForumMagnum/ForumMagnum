@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
+import { getReviewPhase } from '../../lib/reviewUtils';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,7 +93,17 @@ const styles = (theme: ThemeType) => ({
     padding: 10,
     alignSelf: "stretch",
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+  },
+  voteResults: {
+    backgroundColor: "rgba(0,0,0,.05)",
+    padding: 10,
+    alignSelf: "stretch",
+    display: "flex",
+    alignItems: "center",
+    width: 140,
+    ...theme.typography.commentStyle,
+    fontSize: 12
   }
 });
 
@@ -123,6 +134,7 @@ const ReviewVoteTableRow = (
     'bigUpvote': 'a strong upvote'
   }
 
+  const votes = post.reviewVotesHighKarma || []
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
@@ -145,13 +157,16 @@ const ReviewVoteTableRow = (
             { post.reviewCount }
           </LWTooltip>
         </PostsItem2MetaInfo>
-        <div className={classes.votes}>
+        {getReviewPhase() === "REVIEWS" && <div className={classes.voteResults}>
+          { votes.join(" ")} ({post.reviewVoteScoreHighKarma})
+        </div>}
+        {getReviewPhase() !== "REVIEWS" && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
             <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
             <ReviewVotingButtons postId={post._id} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
-        </div>
+        </div>}
 
       </div>
     </div>
