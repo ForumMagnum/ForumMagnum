@@ -4,6 +4,7 @@ import ReviewVotes from '../../lib/collections/reviewVotes/collection';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../../lib/collections/posts';
+import Users from '../../lib/collections/users/collection';
 
 
 const voteMap = {
@@ -48,24 +49,49 @@ registerMigration({
   action: async () => {
     const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
     const votesByUserId = groupBy(votes, vote => vote.userId)
-    let posts = {}
-    Object.keys(votesByUserId).forEach((userId) => {
+    const users = await Users.find({_id: {$in: Object.keys(votesByUserId)}}).fetch()
+    const usersByUserId = groupBy(users, user => user._id)
+
+    let postsAllUsers = {}
+    let postsHighKarmaUsers = {}
+    let postsAFUsers = {}
+
+    function updatePost(postList, vote) {
+      if (postList[vote.postId] === undefined) { 
+        postList[vote.postId] = getValue(vote)
+      } else {
+        postList[vote.postId] = postList[vote.postId] + getValue(vote)
+      }
+    }
+
+    Object.keys(votesByUserId).forEach(async (userId) => {
       let totalUserPoints = 0 
+      const user = usersByUserId[userId][0]
+
       votesByUserId[userId].forEach(vote => {
         totalUserPoints += getCost(vote)
         ReviewVotes.update({_id:vote._id}, {$set: {quadraticVote: getValue(vote)}})
-        const currentPostScore = posts[vote.postId]
-        if (currentPostScore === undefined) { 
-          posts[vote.postId] = getValue(vote)
-        } else {
-          posts[vote.postId] = posts[vote.postId] + getValue(vote)
+        
+        updatePost(postsAllUsers, vote)
+        if (user.karma >= 1000) {
+          updatePost(postsHighKarmaUsers, vote)
+        }
+        if (user.groups?.includes('alignmentForum')) {
+          updatePost(postsAFUsers, vote)
         }
       })
       // eslint-disable-next-line no-console
       console.log(userId, totalUserPoints, totalUserPoints > 500 ? "Over 500" : "")
     })
-    Object.keys(posts).forEach(postId => {
-      Posts.update({_id:postId}, {$set: { reviewVoteScore: posts[postId] }})
+    Object.keys(postsAllUsers).forEach(postId => {
+      Posts.update({_id:postId}, {$set: { reviewVoteScoreAllKarma: postsAllUsers[postId] }})
+    })
+    Object.keys(postsHighKarmaUsers).forEach(postId => {
+      Posts.update({_id:postId}, {$set: { reviewVoteScoreHighKarma: postsHighKarmaUsers[postId] }})
+    })
+    Object.keys(postsAFUsers).forEach(postId => {
+      Posts.update({_id:postId}, {$set: { reviewVoteScoreAF: postsAFUsers[postId] }})
     })
   },
 });
+

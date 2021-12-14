@@ -97,7 +97,9 @@ registerFragment(`
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
-    reviewVoteScore
+    reviewVoteScoreAllKarma
+    reviewVoteScoreHighKarma
+    reviewVoteScoreAF
 
     group {
       _id

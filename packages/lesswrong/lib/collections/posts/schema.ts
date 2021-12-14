@@ -617,12 +617,55 @@ const schema: SchemaType<DbPost> = {
     }),
     canRead: ['guests'],
   },
-
-  reviewVoteScore: {
+  reviewVoteScoreAF: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
+  },
+  reviewVotesAF: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesAF.$': {
+    type: Number,
+    optional: true,
+  },
+
+  reviewVoteScoreHighKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesHighKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesHighKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  reviewVoteScoreAllKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesAllKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesAllKarma.$': {
+    type: Number,
+    optional: true,
   },
 
   lastCommentPromotedAt: {
