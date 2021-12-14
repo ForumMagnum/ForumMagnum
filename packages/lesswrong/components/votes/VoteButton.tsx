@@ -26,12 +26,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   up: {},
   right: {
     transform: 'rotate(-270deg)',
+    marginRight: 10
   },
   down: {
     transform: 'rotate(-180deg)',
   },
   left: {
     transform: 'rotate(-90deg)',
+    marginLeft: 10
   },
   bigArrow: {
     position: 'absolute',

@@ -36,6 +36,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipHelp: {
     fontSize: '1rem',
     fontStyle: "italic"
+  },
+  overallSection: {
+    display: 'inline-block',
+    height: 24,
+    paddingTop: 2,
+    outline: `1px solid ${theme.palette.commentBorderGrey}`,
+    minWidth: 70,
+    textAlign: 'center'
   }
 })
 
@@ -101,7 +109,7 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
       </LWTooltip>
       }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
-        <>
+        <span className={classes.overallSection}>
           <LWTooltip
             title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
@@ -134,7 +142,7 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
               {...voteProps}
             />
           </LWTooltip>
-        </>
+        </span>
       }
     </span>
   )

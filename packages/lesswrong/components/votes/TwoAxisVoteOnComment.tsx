@@ -9,8 +9,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 0,
+    marginLeft: 8,
     lineHeight: 0.6,
+    height: 24,
+    minWidth: 70,
+    paddingTop: 2,
+    outline: `1px solid ${theme.palette.commentBorderGrey}`,
+    textAlign: 'center'
   },
   agreementScore: {
     fontSize: "1.1rem",

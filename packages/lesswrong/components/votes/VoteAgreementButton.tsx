@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bigCheck: {
     position: 'absolute',
-    top: -2,
+    top: -3,
     left: 2,
     fontSize: '82%',
     opacity: 0,
@@ -54,9 +54,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bigClear: {
     position: 'absolute',
-    top: 3,
+    top: 1,
     left: 5,
-    fontSize: '60%',
+    fontSize: '70%',
     opacity: 0,
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
@@ -66,10 +66,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: "-45%"
   },
   bigClearCompleted: {
-    fontSize: '70%',
+    fontSize: '80%',
     position: 'absolute',
     left: 4,
-    top: 2,
+    top: 0,
   },
   hideIcon: {
     display: 'none'
@@ -83,16 +83,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     left: 3
   },
   clear: {
-    fontSize: '40%',
+    fontSize: '45%',
     opacity: 0.6,
     position: 'absolute',
-    top: 6
+    top: 5,
+    left: 11
   },
   smallCheckBigVoted: {
     fontSize: '50%',
     opacity: 0.6,
     position: 'absolute',
-    top: 0,
+    top: -1,
     left: 4,
     height: 14
   },
@@ -103,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     height: 14,
     top: 3,
-    left: 15
+    left: 17
   },
   // Classes for the animation transitions of the bigArrow. See Transition component
   entering: {
@@ -122,6 +123,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     width: 25,
     height: 20
+  },
+  noClickCatch: {
+    /* pointerEvents: none prevents elements under the IconButton from interfering with mouse
+       events during a bigVote transition. */
+    pointerEvents: 'none'
   }
 })
 
@@ -163,6 +169,7 @@ const VoteAgreementButton = ({
   const clearState = () => {
     clearTimeout(votingTransition);
     setBigVotingTransition(false);
+    setVotingTransition(false);
     setBigVoteCompleted(false);
   }
   
@@ -214,21 +221,21 @@ const VoteAgreementButton = ({
       >
         <span className={classes.iconsContainer}>
           <PrimaryIcon
-            className={classNames(primaryIconStyling, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
+            className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
             color={voted ? color : 'inherit'}
             viewBox='6 6 12 12'
           />
           <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
             {(state) => (
-              <span className={classes.bigVoteIconStyling}>
+              <span className={classNames(classes.noClickCatch, classes.bigVoteIconStyling)}>
                 <BigVoteAccentIcon
-                  className={classNames({[bigVoteAccentStyling]: bigVoted, [classes.hideIcon]: !bigVoted})}
+                  className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
                   color={voted ? color : 'inherit'}
                   viewBox='6 6 12 12'
                 />
                 <PrimaryIcon
                   style={bigVoteCompleted ? {color: theme.palette[color].light} : {}}
-                  className={classNames(bigVoteStyling, {
+                  className={classNames(bigVoteStyling, classes.noClickCatch, {
                     [bigVoteCompletedStyling]: bigVoteCompleted,
                     // [classes.bigCheckCompleted]: bigVoteCompleted,
                     [classes.bigCheckSolid]: solidArrow
