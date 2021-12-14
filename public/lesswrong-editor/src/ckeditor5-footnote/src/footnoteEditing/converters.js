@@ -349,6 +349,6 @@ function updateFootnoteReferenceView (data, conversionApi, editor) {
 	const innerText = viewWriter.createText(`[${newIndex}]`);
 	viewWriter.insert(viewWriter.createPositionAt(anchor, 0), innerText);
 
-	viewWriter.setAttribute('href', `fn${newIndex}`, anchor);
+	viewWriter.setAttribute('href', `#fn${newIndex}`, anchor);
 	viewWriter.setAttribute(ATTRIBUTES.footnoteIndex, newIndex, footnoteReferenceView);
 }
