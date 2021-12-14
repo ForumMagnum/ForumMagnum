@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bigCheck: {
     position: 'absolute',
-    top: 0,
+    top: -2,
     left: 2,
     fontSize: '82%',
     opacity: 0,
@@ -66,9 +66,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: "-45%"
   },
   bigClearCompleted: {
-    fontSize: '60%',
-    position: 'relative',
-    top: 3,
+    fontSize: '70%',
+    position: 'absolute',
+    left: 4,
+    top: 2,
   },
   hideIcon: {
     display: 'none'
@@ -78,20 +79,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.6,
     height: 15,
     position: 'absolute',
-    top: -1 
+    top: 2,
+    left: 3
   },
   clear: {
     fontSize: '40%',
     opacity: 0.6,
     position: 'absolute',
-    top: 5
+    top: 6
   },
   smallCheckBigVoted: {
     fontSize: '50%',
     opacity: 0.6,
     position: 'absolute',
-    top: -7,
-    left: -14,
+    top: 0,
+    left: 4,
     height: 14
   },
   smallArrowBigVoted: {
@@ -143,6 +145,7 @@ const VoteAgreementButton = ({
   const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
   
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
+    console.log('VoteAgreementButton wrappedVote ', {strength})
     if (currentStrength === "small")
       vote("neutral")
     else
@@ -151,14 +154,17 @@ const VoteAgreementButton = ({
   
   const handleMouseDown = () => { // This handler is only used on desktop
     if(!isMobile()) {
+      console.log('mouse down, transition started')
       setBigVotingTransition(true);
       setVotingTransition(setTimeout(() => {
+        console.log('bigVoteCompleted')
         setBigVoteCompleted(true);
       }, theme.voting.strongVoteDelay))
     }
   }
   
   const clearState = () => {
+    console.log("clearState (if this wasn't preceded by a wrappedVote or a handleClick message then it's direct from mouseOut")
     clearTimeout(votingTransition);
     setBigVotingTransition(false);
     setBigVoteCompleted(false);
@@ -167,8 +173,10 @@ const VoteAgreementButton = ({
   const handleMouseUp = () => { // This handler is only used on desktop
     if(!isMobile()) {
       if (bigVoteCompleted) {
+        console.log('handleMouseUp calling wrappedVote with big')
         wrappedVote("big")
       } else {
+        console.log('handleMouseUp calling wrappedVote with small')
         wrappedVote("small")
       }
       clearState()
@@ -187,6 +195,7 @@ const VoteAgreementButton = ({
       } else {
         wrappedVote("small")
       }
+      console.log('handleClick calls clearState')
       clearState()
     }
   }
