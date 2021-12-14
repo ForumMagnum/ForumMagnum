@@ -158,7 +158,7 @@ const ReviewVoteTableRow = (
           </LWTooltip>
         </PostsItem2MetaInfo>
         {getReviewPhase() === "REVIEWS" && <div className={classes.voteResults}>
-          { votes.join(" ")} ({post.reviewVoteScoreHighKarma})
+          { votes.join(" ")} 
         </div>}
         {getReviewPhase() !== "REVIEWS" && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
