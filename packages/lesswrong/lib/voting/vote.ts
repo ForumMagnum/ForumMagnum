@@ -114,7 +114,7 @@ export const setVoteClient = async ({ document, collection, voteType, extendedVo
   if (document.currentUserVote) {
     document = cancelVoteClient({document, collection, user, votingSystem});
   }
-  if (voteType) {
+  if (voteType || extendedVote) {
     document = addVoteClient({document, collection, voteType, extendedVote, user, votingSystem});
   }
   return document;

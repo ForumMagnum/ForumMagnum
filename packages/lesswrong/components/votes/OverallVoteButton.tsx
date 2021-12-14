@@ -34,9 +34,9 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
       });
     } else {
       if (strength === "neutral") {
-        vote({document, voteType: null, currentUser});
+        vote({document, voteType: null, extendedVote: document?.currentUserExtendedVote, currentUser});
       } else {
-        vote({document, voteType: voteType, currentUser});
+        vote({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
       }
       captureEvent("vote", {collectionName});
     }
