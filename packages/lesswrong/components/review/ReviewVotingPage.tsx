@@ -295,14 +295,16 @@ const ReviewVotingPage = ({classes}: {
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post2.reviewVoteScoreHighKarma < post1.reviewVoteScoreHighKarma ) return 1
 
-        const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
-        const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
-        if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
-        if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
-        if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
-        if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
-        if (permuted1 < permuted2) return -1;
-        if (permuted1 > permuted2) return 1;
+        // TODO: figure out why commenting this out makes it sort correctly.
+
+        // const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
+        // const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
+        // if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
+        // if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
+        // if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+        // if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+        // if (permuted1 < permuted2) return -1;
+        // if (permuted1 > permuted2) return 1;
         return 0
       })
       .map(([post, _]) => post)
