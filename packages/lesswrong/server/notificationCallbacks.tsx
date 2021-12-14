@@ -15,6 +15,7 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
+import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import { EventDebouncer, DebouncerTiming } from './debouncer';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
@@ -516,6 +517,16 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
     });
   }
 }
+
+getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
+  const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
+  if (post && post.positiveReviewVoteCount > 1) {
+    const notifications = await Notifications.find({documentId:post._id, notificationType: "postNominated" }).fetch()
+    if (!notifications.length) {
+      await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
+    }
+  }
+})
 
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { ReviewVote } from './ReviewVotingPage';
+import type { SyntheticReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import forumThemeExport from '../../themes/forumTheme';
@@ -61,14 +61,17 @@ export const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {classes: ClassesType, postId: string, dispatch: any, voteForCurrentPost: ReviewVote|null}) => {
+const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: {classes: ClassesType, postId: string, dispatch: any, currentUserVoteScore: number|null}) => {
   const { LWTooltip } = Components
-  const score = voteForCurrentPost?.score
-  const [selection, setSelection] = useState(voteForCurrentPost ? score : DEFAULT_QUALITATIVE_VOTE)
+
+
+  const [selection, setSelection] = useState(currentUserVoteScore || DEFAULT_QUALITATIVE_VOTE)
+  const [isDefaultVote, setIsDefaultVote] = useState(!currentUserVoteScore)
 
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
+      setIsDefaultVote(false)
       dispatch({postId, score: index})
     }
   }
@@ -79,8 +82,8 @@ const ReviewVotingButtons = ({classes, postId, dispatch, voteForCurrentPost}: {c
         key={`${indexToTermsLookup[i]}-${i}`}>
           <span
               className={classNames(classes.button, classes[i], {
-                [classes.selectionHighlight]:selection === i && score,
-                [classes.defaultHighlight]: selection === i && !score
+                [classes.selectionHighlight]:selection === i && !isDefaultVote,
+                [classes.defaultHighlight]: selection === i && isDefaultVote
               })}
               onClick={createClickHandler(i)}
             >

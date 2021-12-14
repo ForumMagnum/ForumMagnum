@@ -457,8 +457,9 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
-    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      return await PostRelations.find({targetPostId: post._id}).fetch()
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const result = await PostRelations.find({targetPostId: post._id}).fetch()
+      return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
     }
   }),
   'sourcePostRelations.$': {
@@ -470,7 +471,8 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
-    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { Posts, currentUser } = context;
       const postRelations = await Posts.aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
@@ -497,7 +499,7 @@ const schema: SchemaType<DbPost> = {
         }
      ]).toArray()
      if (!postRelations || postRelations.length < 1) return []
-     return postRelations
+     return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
   }),
   'targetPostRelations.$': {

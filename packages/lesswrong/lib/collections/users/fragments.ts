@@ -324,6 +324,7 @@ registerFragment(`
     notificationEventInRadius
     notificationRSVPs
     notificationCommentsOnDraft
+    notificationPostsNominatedReview
 
     hideFrontpageMap
     hideTaggingProgressBar

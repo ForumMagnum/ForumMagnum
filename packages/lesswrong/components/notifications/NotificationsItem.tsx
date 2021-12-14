@@ -74,13 +74,15 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   const notificationType = getNotificationTypeByName(notification.type);
 
   const renderPreview = () => {
-    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
 
     if (notificationType.onsiteHoverView) {
       return <Card>
         {notificationType.onsiteHoverView({notification})}
       </Card>
+    } else if (notification.type == "postNominated") {
+      return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
     } else {
       switch (notification.documentType) {
         case 'tagRel':

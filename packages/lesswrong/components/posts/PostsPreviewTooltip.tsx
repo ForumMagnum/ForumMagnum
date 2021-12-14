@@ -155,7 +155,7 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
     collectionName: "Posts",
     fragmentName: "HighlightWithHash",
     documentId: post?._id,
-    skip: !post || !hash,
+    skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
     extraVariables: { hash: "String" },
     extraVariablesValues: {hash}

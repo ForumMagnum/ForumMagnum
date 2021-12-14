@@ -298,7 +298,8 @@ addFieldsDict(Posts, {
       // work out of the box with the id-resolver generators
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
     },
   },
@@ -640,8 +641,11 @@ addFieldsDict(Posts, {
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
-    hidden: true,
+    order: 1,
+    control: 'SelectLocalgroup',
+    label: 'Group',
     group: formGroups.event,
+    hidden: (props) => !props.eventForm,
   },
 
   isEvent: {

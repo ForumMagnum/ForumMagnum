@@ -102,7 +102,7 @@ export class MongoCollection<T extends DbObject> {
     }
   }
   
-  find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>): FindResult<T> => {
+  find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
     return {
       fetch: async () => {
         const table = this.getTable();

@@ -67,6 +67,7 @@ registerFragment(`
     contactInfo
     isEvent
     types
+    groupId
 
     # Review data 
     reviewedByUserId

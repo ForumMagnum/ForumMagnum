@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 class FormComponentInner extends PureComponent<any> {
   renderClear = () => {
     const { classes } = this.props;
-    if (['datetime', 'time', 'select', 'radiogroup'].includes(this.props.input)) {
+    if (['datetime', 'time', 'select', 'radiogroup', 'SelectLocalgroup'].includes(this.props.input)) {
       return (
         <a
           className={classes.formComponentClear}

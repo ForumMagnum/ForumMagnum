@@ -6,7 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { ReviewVote } from './ReviewVotingPage';
+import { SyntheticReviewVote } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { overviewTooltip } from './FrontpageReviewWidget';
@@ -24,18 +24,9 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode, setNewVote?: (newVote:number)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, post: PostsListBase, title?: React.ReactNode, setNewVote?: (newVote:number)=>void}) => {
 
-  const { ReviewVotingButtons, ErrorBoundary, Loading, LWTooltip } = Components
-
-  const currentUser = useCurrentUser()
-
-  const { results: votes, loading: voteLoading, error: voteLoadingError } = useMulti({
-    terms: {view: "reviewVotesForPostAndUser", limit: 1, userId: currentUser?._id, postId: post._id},
-    collectionName: "ReviewVotes",
-    fragmentName: "reviewVoteFragment",
-    fetchPolicy: 'cache-and-network',
-  })
+  const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
   const [submitVote] = useMutation(gql`
@@ -64,20 +55,12 @@ const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, p
     return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
   }, [submitVote, setNewVote]);
 
-  if (voteLoadingError) return <div>{voteLoadingError.message}</div>
-  const vote = votes?.length ? {
-    _id: votes[0]._id, 
-    postId: votes[0].postId, 
-    score: votes[0].qualitativeScore, 
-    type: "qualitative"
-  } as ReviewVote : null
-
   return <ErrorBoundary>
       <div className={classes.root}>
         <p>
           Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={annualReviewAnnouncementPostPathSetting.get()}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
         </p>
-        {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote}/>}
+        <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} currentUserVoteScore={post.currentUserReviewVote}/>
       </div>
     </ErrorBoundary>
 }

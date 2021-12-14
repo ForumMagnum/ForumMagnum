@@ -15,8 +15,10 @@ import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import EventIcon from '@material-ui/icons/Event';
 import MailIcon from '@material-ui/icons/Mail';
+import StarIcon from '@material-ui/icons/Star';
 import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
+import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 
 interface NotificationType {
   name: string
@@ -105,6 +107,18 @@ export const PostApprovedNotification = registerNotificationType({
     return <AllIcon style={iconStyles} />
   },
 });
+
+export const PostNominatedNotification = registerNotificationType({
+  name: "postNominated",
+  userSettingField: "notificationPostsNominatedReview",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    let post: DbPost = await getDocument(documentType, documentId) as DbPost;
+    return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
+  },
+  getIcon() {
+    return <StarIcon style={iconStyles} />
+  }
+})
 
 export const NewEventNotification = registerNotificationType({
   name: "newEvent",

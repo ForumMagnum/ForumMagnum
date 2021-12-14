@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
+import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -32,6 +33,7 @@ declare global {
     af?: boolean,
     excludeEvents?: boolean,
     onlineEvent?: boolean,
+    globalEvent?: boolean,
     groupId?: string,
     lat?: number,
     lng?: number,
@@ -47,7 +49,8 @@ declare global {
     after?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
-    reviewYear?: number
+    reviewYear?: number,
+    excludeContents?: boolean,
   }
 }
 
@@ -747,7 +750,7 @@ ensureIndex(Posts,
     baseScore: 1,
     af: 1,
     isEvent: 1,
-    onlineEvent: 1,
+    globalEvent: 1,
     commentCount: 1,
   },
 );
@@ -845,14 +848,14 @@ ensureIndex(Posts,
   { name: "posts.shortformDiscussionThreadsList", }
 );
 
-Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
+Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   const timeSelector = {$or: [
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
   let query = {
     selector: {
-      onlineEvent: true,
+      globalEvent: true,
       isEvent: true,
       groupId: null,
       ...timeSelector,
@@ -868,8 +871,8 @@ Posts.addView("onlineEvents", (terms: PostsViewTerms) => {
   return query
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ onlineEvent:1, startTime:1 }),
-  { name: "posts.onlineEvents" }
+  augmentForDefaultView({ globalEvent:1, startTime:1 }),
+  { name: "posts.globalEvents" }
 );
 
 Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
@@ -877,14 +880,22 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
-  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
+  // make sure that, by default, events are not global
+  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
+  if (terms.globalEvent === false) {
+    globalEventSelector = {$or: [
+      {globalEvent: false}, {globalEvent: {$exists: false}}
+    ]}
+  }
+
   let query: any = {
     selector: {
       location: {$exists: true},
       groupId: null,
       isEvent: true,
-      onlineEvent: onlineEvent,
-      ...timeSelector,
+      $and: [
+        timeSelector, globalEventSelector
+      ],
       mongoLocation: {
         $near: {
           $geometry: {
@@ -921,15 +932,23 @@ Posts.addView("events", (terms: PostsViewTerms) => {
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
-  const onlineEvent = terms.onlineEvent === false ? false : viewFieldAllowAny
+  // make sure that, by default, events are not global
+  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
+  if (terms.globalEvent === false) {
+    globalEventSelector = {$or: [
+      {globalEvent: false}, {globalEvent: {$exists:false}}
+    ]}
+  }
+  
   return {
     selector: {
       isEvent: true,
-      onlineEvent: onlineEvent,
+      $and: [
+        timeSelector, globalEventSelector
+      ],
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
-      ...timeSelector,
     },
     options: {
       sort: {
@@ -1282,18 +1301,24 @@ ensureIndex(Posts,
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+  const nominationThreshold = getReviewPhase() === "NOMINATIONS" ? 1 : 2
   return {
     selector: {
-      positiveReviewVoteCount: { $gt: 0 },
+      positiveReviewVoteCount: { $gte: nominationThreshold },
     },
     options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
       sort: {
-        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
-      }
+        createdAt: -1
+      },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
