@@ -101,13 +101,22 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "rgba(0,0,0,.05)",
     padding: 10,
     width: 140,
+    display: "flex",
+    alignItems: "center",
     alignSelf: "stretch",
+    flexWrap: "wrap",
     ...theme.typography.commentStyle,
     fontSize: 12,
-    color: "black"
   },
-  lowVotes: {
+  highVote: {
+    color: "black",
+    padding: 2,
+    cursor: "pointer"
+  },
+  lowVote: {
     color: "rgba(0,0,0,.5)",
+    padding: 2,
+    cursor: "pointer"
   }
 });
 
@@ -173,12 +182,16 @@ const ReviewVoteTableRow = (
           </LWTooltip>
         </PostsItem2MetaInfo>
         {getReviewPhase() === "REVIEWS" && <div className={classes.voteResults}>
-          <LWTooltip title="Voters with 1000+ karma">
-            { highVotes.join(" ")}
-          </LWTooltip> 
-          <LWTooltip title="Voters with less than 1000 karma">
-            <span className={classes.lowVotes}>{ lowVotes.join(" ")}</span>
-          </LWTooltip>
+            { highVotes.map((v, i)=>
+              <LWTooltip className={classes.highVote} title="Voters with 1000+ karma" key={`${post._id}${i}H`}>
+                  {v}
+              </LWTooltip>
+            )}
+            { lowVotes.map((v, i)=>
+              <LWTooltip className={classes.lowVote} title="Voters with less than 1000 karma" key={`${post._id}${i}L`}>
+                  {v}
+              </LWTooltip>
+            )}
         </div>}
         {getReviewPhase() !== "REVIEWS" && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
