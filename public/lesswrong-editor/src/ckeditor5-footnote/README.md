@@ -10,7 +10,7 @@ There are two integer measures of location for a given `Node` within its parent:
 
 Each `Node` exists at a `Position` in the tree, which specifies its location relative to the root `Element` via a list of offsets.
 
-### Representations
+### Conversion
 CKEditor converts data between 3 representations:
 
 1. a model representation, which exists apart from any view layer
@@ -19,9 +19,13 @@ CKEditor converts data between 3 representations:
 
 Converting from the model representation to either view representation is called "downcasting", and the reverse is called "upcasting". Augmenting CKEditor functionality is largely a matter of defining custom `Element` types, specifying for each type how it gets converted between the three representations, and using event listeners to add extra functionality to those `Elements`.
 
+In this plugin, the model and view representations connect to one another entirely using a) element types in the downcast direction, and b) element attributes in the upcast direction. I've given each element type a unique attribute of the form `data-name-of-element`, which is solely used for casting.
+
 Note 1: separate converters can be specified for downcasting to each of the two view representations, which are called `"editingDowncast"` and `"dataDowncast"`. For the reverse direction, only one converter exists: upcasting only happens from the data view to the model, i.e. when loading HTML from the database or local storage into CKEditor. All document state during editing is maintained within the model representation directly.
 
-Note 2: Many types in CKEditor have a view version and a model version, including `Element`, `Text`, and `Writer`. I've tried to explicitly alias those types in the code to make clear which version is being used.
+Note 2: Many built-in types in CKEditor have a view version and a model version, including `Element`, `Text`, and `Writer`. I've tried to explicitly alias those types in the code to make clear which version is being used.
+
+Note 3: if an attribute/class isn't showing up on an element, two places to look are the `allowAttributes` property within `schema.js`, and the `sanitizeHtml` method in `packages/lesswrong/server/vulcan-lib/utils.js`. The second one merely affects which attributes/classes/elements can be displayed in posts--it doesn't constrain what gets stored in the database, or what gets upcasted when the editor is reopened.
 
 ## Footnotes
 ### Functionality
@@ -39,12 +43,12 @@ Note 2: Many types in CKEditor have a view version and a model version, includin
 	- The markdown case is an exception: here reverting the conversion to a footnote reference without deleting the matched text is valuable for allowing users to enter the literal syntax.
 
 ## Elements
-The plugin defines the following `Element` types:
+The plugin defines the following `Element` types (definitions in `schema.js`, conversion behavior in `converters.js`):
 
 1. `footnoteSection` -a drag-and-droppable widget container that lives at the bottom of the page, housing all footnotes.
-2. `footnoteItem` - a footnote itself, displayed as an `li` element that wraps the editable contents. Footnote items have an unchanging alphanumeric id, as well as an index. The index is the only one that's public facing, but the id is necessary for things like reordering and undoing certain batched operations.
+2. `footnoteItem` - a footnote itself, displayed as an `li` element that wraps its editable contents. Footnote items have an unchanging alphanumeric id, as well as an index. The index is the only one that's public facing, but the id is necessary for things like reordering and undoing certain batched operations.
 3. `footnoteContent` - an editable section within `footnoteItem`; included because editable `li` tags cause problems, so an extra layer was needed below `footnoteItem`. This element houses 1 or more paragraphs which house the footnote text.
-4. `footnoteReference` - an inline citation in the form of a superscript link that navigates to the footnote itself.
+4. `footnoteReference` - an inline citation in the form of a superscript link that navigates to the footnote itself. Has an unchanging alphanumeric id to match its `footnoteItem`, as well as an index that can change from e.g. reorderings.
 5. `footnoteBackLink` - a superscript link that lives within each footnote, and takes you back to the first matching `footnoteReference` in the text.
 
 ## Implementation
@@ -53,13 +57,13 @@ The plugin defines the following `Element` types:
 ### 2. Multiple references allowed for a given footnote
 - within `insertFootnoteCommand.js`, if an existing footnote index is provided, the 
 ### 3. Deleting a footnote deletes its references
-- covered in `footnoteEditing.js`, via the `_handleDelete` method.
+- covered in `footnoteEditing.js`, via the `_handleDelete` method. Updating reference indices is handled via an event listener on the `change:data` event, which is a broad event that includes all updates that affect the model's contents. 
 ### 4. Allow Markdown syntax
 - handled via `autoformatting.js`. Autoformatting is an autocorrect-like plugin that's built-in to CKEditor.
 ### 5. Reference remain in order
-- handled within `footnoteEditing.js` via an event listener on the `change:data` event (a broad event that covers general updates to the model). `_updateReferenceIndices` handles the specific case.
+- handled within `footnoteEditing.js`  `_updateReferenceIndices` handles the specific case.
 ### 6. Operations are atomic
-- handled by sharing `Batch` and writer objects, primarily in `footnoteEditing.js`. All changes to the model or the view typically happen either through converters (mentioned above) or via a `writer.change` method. All changes made by the same writer instance can be undone together. Changes made by different writer instances can be grouped by sharing a batch between them.
+- handled by sharing `Batch` and `Writer` objects, primarily in `footnoteEditing.js`. Basically all changes to the model or the view happen either through converters (mentioned above) or via a `writer.change`/`writer.enqueueChange` method. All changes made by the same `Writer` instance can be undone together, for both `change` and `enqueueChange`. Changes made by different writer instances can be grouped by sharing a `Batch` instance between them, which is merely a collection of operations to be performed on the document.
 
 # Known gaps
 ### Forbidden Ancestor Descendant Relationships

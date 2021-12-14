@@ -56,7 +56,7 @@ export default class FootnoteEditing extends Plugin {
 			))) {
 				this._orderFootnotes(batch);
 			};
-			// for each change to a footnote item's index attribute, udate the corresponding references accordingly
+			// for each change to a footnote item's index attribute, update the corresponding references accordingly
 			diffItems.forEach(diffItem => {
 				if(
 					diffItem.type === 'attribute' &&
