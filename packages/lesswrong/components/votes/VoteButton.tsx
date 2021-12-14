@@ -60,17 +60,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const VoteButton = ({
-  vote, currentStrength, upOrDown,
-  color = "secondary",
-  orientation = "up",
-  solidArrow,
-  theme,
-  classes,
-}: {
+export interface VoteButtonProps {
   vote: (strength: "big"|"small"|"neutral")=>void,
   currentStrength: "big"|"small"|"neutral",
-  
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
   orientation: string,
@@ -78,7 +70,18 @@ const VoteButton = ({
   // From withTheme. TODO: Hookify this.
   theme?: ThemeType
   classes: ClassesType
-}) => {
+}
+
+
+const VoteButton = ({
+  vote, currentStrength, upOrDown,
+  color = "secondary",
+  orientation = "up",
+  solidArrow,
+  theme,
+  classes,
+}: VoteButtonProps 
+) => {
   const [votingTransition, setVotingTransition] = useState<any>(null);
   const [bigVotingTransition, setBigVotingTransition] = useState(false);
   const [bigVoteCompleted, setBigVoteCompleted] = useState(false);

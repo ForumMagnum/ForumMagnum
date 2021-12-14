@@ -36,7 +36,9 @@ const AxisVoteButton = <T extends VoteableTypeClient>({vote, document, axis, upO
   const currentVoteOnAxis = document.currentUserExtendedVote?.[axis] || "neutral";
   const currentStrength = (currentVoteOnAxis === "small"+upOrDown) ? "small" : (currentVoteOnAxis === "big"+upOrDown) ? "big" : "neutral";
   
-  return <Components.VoteButton
+  const VoteButtonComponent = (axis === "agreement") ? Components.VoteAgreementButton : Components.VoteButton
+  
+  return <VoteButtonComponent
     vote={wrappedVote}
     currentStrength={currentStrength}
     
