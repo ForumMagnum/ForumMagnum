@@ -353,15 +353,16 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       
       {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         {allPhaseButtons}
-        <Link to={"/reviews"} className={classes.actionButtonCTA}>
+        {showFrontpageItems && <Link to={"/reviews"} className={classes.actionButtonCTA}>
           Review {REVIEW_YEAR} Posts
-        </Link>
+        </Link>}
       </div>}
 
-      {activeRange === 'VOTING' && showFrontpageItems && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
-        <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
+      {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
+        {allPhaseButtons}
+        {showFrontpageItems && <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
           Vote on {REVIEW_YEAR} Posts
-        </Link>
+        </Link>}
       </div>}
     </div>
   )

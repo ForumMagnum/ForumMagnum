@@ -292,6 +292,11 @@ const ReviewVotingPage = ({classes}: {
     const newlySortedPosts = postsResults
       .map((post, i) => ([post, randomPermutation[i]] as const))
       .sort(([post1, permuted1], [post2, permuted2]) => {
+        if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
+        if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
+
+        // TODO: figure out why commenting this out makes it sort correctly.
+
         const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
         const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
         if (reviewedNotVoted1 && !reviewedNotVoted2) return -1

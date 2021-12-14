@@ -5,6 +5,9 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
+import { getReviewPhase } from '../../lib/reviewUtils';
+import indexOf from 'lodash/indexOf'
+import pullAt from 'lodash/pullAt'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -92,9 +95,40 @@ const styles = (theme: ThemeType) => ({
     padding: 10,
     alignSelf: "stretch",
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+  },
+  voteResults: {
+    backgroundColor: "rgba(0,0,0,.04)",
+    padding: 10,
+    width: 140,
+    display: "flex",
+    alignItems: "center",
+    alignSelf: "stretch",
+    flexWrap: "wrap",
+    ...theme.typography.commentStyle,
+    fontSize: 12,
+  },
+  highVote: {
+    color: "rgba(0,0,0,.8)",
+    fontWeight: 600,
+    padding: 2,
+    cursor: "pointer"
+  },
+  lowVote: {
+    color: "rgba(0,0,0,.45)",
+    padding: 2,
+    cursor: "pointer"
   }
 });
+
+// TODO: this should probably live in some utility folder
+const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
+  let output = [...arr1]
+  arr2.forEach((value) => {
+    pullAt(output, indexOf(output, value))
+  })
+  return output
+}
 
 const ReviewVoteTableRow = (
   { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentVote, showKarmaVotes }: {
@@ -123,6 +157,9 @@ const ReviewVoteTableRow = (
     'bigUpvote': 'a strong upvote'
   }
 
+  const highVotes = post.reviewVotesHighKarma || []
+  const allVotes = post.reviewVotesAllKarma || []
+  const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
@@ -145,13 +182,25 @@ const ReviewVoteTableRow = (
             { post.reviewCount }
           </LWTooltip>
         </PostsItem2MetaInfo>
-        <div className={classes.votes}>
+        {getReviewPhase() === "REVIEWS" && <div className={classes.voteResults}>
+            { highVotes.map((v, i)=>
+              <LWTooltip className={classes.highVote} title="Voters with 1000+ karma" key={`${post._id}${i}H`}>
+                  {v}
+              </LWTooltip>
+            )}
+            { lowVotes.map((v, i)=>
+              <LWTooltip className={classes.lowVote} title="Voters with less than 1000 karma" key={`${post._id}${i}L`}>
+                  {v}
+              </LWTooltip>
+            )}
+        </div>}
+        {getReviewPhase() !== "REVIEWS" && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
             <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
             <ReviewVotingButtons postId={post._id} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
-        </div>
+        </div>}
 
       </div>
     </div>
