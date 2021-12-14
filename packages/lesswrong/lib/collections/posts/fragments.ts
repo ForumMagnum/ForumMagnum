@@ -97,6 +97,7 @@ registerFragment(`
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
+    reviewVoteScore
 
     group {
       _id
