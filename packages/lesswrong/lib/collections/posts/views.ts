@@ -1301,10 +1301,9 @@ ensureIndex(Posts,
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
-  const nominationThreshold = getReviewPhase() === "NOMINATIONS" ? 1 : 2
   return {
     selector: {
-      positiveReviewVoteCount: { $gte: nominationThreshold },
+      positiveReviewVoteCount: { $gte: 1 },
     },
     options: {
       // This sorts the posts deterministically, which is important for the

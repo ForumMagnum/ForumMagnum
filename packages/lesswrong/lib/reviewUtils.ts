@@ -17,8 +17,6 @@ export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR}
 export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 
 export function getReviewPhase(): ReviewPhase | void {
-  return "REVIEWS"
-
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())

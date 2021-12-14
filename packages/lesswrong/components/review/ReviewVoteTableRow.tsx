@@ -6,6 +6,8 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { getReviewPhase } from '../../lib/reviewUtils';
+import indexOf from 'lodash/indexOf'
+import pullAt from 'lodash/pullAt'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -98,14 +100,25 @@ const styles = (theme: ThemeType) => ({
   voteResults: {
     backgroundColor: "rgba(0,0,0,.05)",
     padding: 10,
-    alignSelf: "stretch",
-    display: "flex",
-    alignItems: "center",
     width: 140,
+    alignSelf: "stretch",
     ...theme.typography.commentStyle,
-    fontSize: 12
+    fontSize: 12,
+    color: "black"
+  },
+  lowVotes: {
+    color: "rgba(0,0,0,.5)",
   }
 });
+
+// TODO: this should probably live in some utility folder
+const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
+  let output = [...arr1]
+  arr2.forEach((value) => {
+    pullAt(output, indexOf(output, value))
+  })
+  return output
+}
 
 const ReviewVoteTableRow = (
   { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentVote, showKarmaVotes }: {
@@ -134,7 +147,9 @@ const ReviewVoteTableRow = (
     'bigUpvote': 'a strong upvote'
   }
 
-  const votes = post.reviewVotesHighKarma || []
+  const highVotes = post.reviewVotesHighKarma || []
+  const allVotes = post.reviewVotesAllKarma || []
+  const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
@@ -158,7 +173,12 @@ const ReviewVoteTableRow = (
           </LWTooltip>
         </PostsItem2MetaInfo>
         {getReviewPhase() === "REVIEWS" && <div className={classes.voteResults}>
-          { votes.join(" ")} 
+          <LWTooltip title="Voters with 1000+ karma">
+            { highVotes.join(" ")}
+          </LWTooltip> 
+          <LWTooltip title="Voters with less than 1000 karma">
+            <span className={classes.lowVotes}>{ lowVotes.join(" ")}</span>
+          </LWTooltip>
         </div>}
         {getReviewPhase() !== "REVIEWS" && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
