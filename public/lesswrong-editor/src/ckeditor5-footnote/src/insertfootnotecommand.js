@@ -3,12 +3,16 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
 import Writer from '@ckeditor/ckeditor5-engine/src/model/writer';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
+import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import { modelQueryElement } from './utils';
 import { ATTRIBUTES, ELEMENTS } from './constants';
 
 export default class InsertFootnoteCommand extends Command {
 	/**
-	 *
+	 * Creates a footnote reference with the given index, and creates a matching
+	 * footnote if one doesn't already exist. Also creates the footnote section
+	 * if it doesn't exist. If `footnoteIndex` is 0 (or not provided), the added
+	 * footnote is given the next unused index--e.g. 7, if 6 footnotes exist so far.
 	 * @param {{footnoteIndex?: number}} props
 	 */
 	execute({ footnoteIndex } = { footnoteIndex: 0 }) {
@@ -55,6 +59,10 @@ export default class InsertFootnoteCommand extends Command {
 		});
 	}
 
+	/**
+	 * Called automatically when changes are applied to the document. Sets `isEnabled`
+	 * to determine whether footnote creation is allowed at the current location.
+	 */
 	refresh() {
 		const model = this.editor.model;
 		const lastPosition = model.document.selection.getLastPosition();
@@ -63,9 +71,10 @@ export default class InsertFootnoteCommand extends Command {
 	}
 
 	/**
+	 * Returns the footnote section if it exists, or creates on if it doesn't.
 	 * @param {Writer} writer
 	 * @param {RootElement} rootElement
-	 * @returns
+	 * @returns {ModelElement}
 	 */
 	_getFootnoteSection(writer, rootElement) {
 		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.is('element', ELEMENTS.footnoteSection));

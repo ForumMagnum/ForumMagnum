@@ -16,6 +16,7 @@ export const defineSchema = schema => {
 	schema.register(ELEMENTS.footnoteSection, {
 		isObject: true,
 		allowWhere: '$block',
+		allowIn: '$root',
 		allowChildren: ELEMENTS.footnoteItem,
 		allowAttributes: [ATTRIBUTES.footnoteSection],
 	});
