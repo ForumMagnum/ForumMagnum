@@ -40,6 +40,7 @@ const voteMap = {
 const getCost = (vote) => voteMap[vote.qualitativeScore].cost
 const getValue = (vote) => voteMap[vote.qualitativeScore].value
 
+// TODO: Write a better version of this migration which properly normalizes vote strength
 registerMigration({
   name: "updateQuadraticVotes",
   dateWritten: "2021-12-02",
@@ -61,7 +62,7 @@ registerMigration({
         }
       })
       // eslint-disable-next-line no-console
-      if (totalUserPoints > 500) console.log(userId, totalUserPoints)
+      console.log(userId, totalUserPoints, totalUserPoints > 500 ? "Over 500" : "")
     })
     Object.keys(posts).forEach(postId => {
       Posts.update({_id:postId}, {$set: { reviewVoteScore: posts[postId] }})
