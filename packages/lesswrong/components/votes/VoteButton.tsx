@@ -87,7 +87,7 @@ const VoteButton = ({
   const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
   
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
-    if (currentStrength === "small")
+    if (strength === currentStrength)
       vote("neutral")
     else
       vote(strength);

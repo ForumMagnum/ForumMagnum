@@ -62,7 +62,6 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     // means that if you double-click a vote button, you can get a weird result
     // due to votes being processed out of order.
     
-    console.log('useVote vote', {voteType}, {extendedVote})
     const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
 
     try {

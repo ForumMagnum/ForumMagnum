@@ -21,7 +21,6 @@ const AxisVoteButton = <T extends VoteableTypeClient>({vote, document, axis, upO
         componentProps: {}
       });
     } else {
-      console.log('axisVoteButton wrappedVote ', {strength})
       vote({
         document,
         voteType: document.currentUserVote || null,

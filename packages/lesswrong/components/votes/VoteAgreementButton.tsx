@@ -145,8 +145,7 @@ const VoteAgreementButton = ({
   const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
   
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
-    console.log('VoteAgreementButton wrappedVote ', {strength})
-    if (currentStrength === "small")
+    if (strength === currentStrength)
       vote("neutral")
     else
       vote(strength);
@@ -154,17 +153,14 @@ const VoteAgreementButton = ({
   
   const handleMouseDown = () => { // This handler is only used on desktop
     if(!isMobile()) {
-      console.log('mouse down, transition started')
       setBigVotingTransition(true);
       setVotingTransition(setTimeout(() => {
-        console.log('bigVoteCompleted')
         setBigVoteCompleted(true);
       }, theme.voting.strongVoteDelay))
     }
   }
   
   const clearState = () => {
-    console.log("clearState (if this wasn't preceded by a wrappedVote or a handleClick message then it's direct from mouseOut")
     clearTimeout(votingTransition);
     setBigVotingTransition(false);
     setBigVoteCompleted(false);
@@ -173,10 +169,8 @@ const VoteAgreementButton = ({
   const handleMouseUp = () => { // This handler is only used on desktop
     if(!isMobile()) {
       if (bigVoteCompleted) {
-        console.log('handleMouseUp calling wrappedVote with big')
         wrappedVote("big")
       } else {
-        console.log('handleMouseUp calling wrappedVote with small')
         wrappedVote("small")
       }
       clearState()
@@ -195,7 +189,6 @@ const VoteAgreementButton = ({
       } else {
         wrappedVote("small")
       }
-      console.log('handleClick calls clearState')
       clearState()
     }
   }
