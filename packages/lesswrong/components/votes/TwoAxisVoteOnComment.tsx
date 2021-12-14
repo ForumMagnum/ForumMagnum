@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 16,
+    marginLeft: 0,
     lineHeight: 0.6,
   },
   agreementScore: {

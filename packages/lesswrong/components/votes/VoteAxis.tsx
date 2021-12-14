@@ -27,7 +27,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   secondaryScore: {
     fontSize: '1.1rem',
-    marginLeft: 7,
+    marginLeft: 2,
+    marginRight: 10
   },
   secondaryScoreNumber: {
     marginLeft: 3,
@@ -80,6 +81,25 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
 
   return (
     <span className={classes.vote} {...eventHandlers}>
+      {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
+      <LWTooltip placement="bottom" title={<div>
+        <p>AI Alignment Forum Karma</p>
+        { moveToAfInfo }
+      </div>}>
+          <span className={classes.secondaryScore}>
+            <span className={classes.secondarySymbol}>Ω</span>
+            <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
+          </span>
+      </LWTooltip>
+      }
+      {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
+      <LWTooltip title="LessWrong Karma" placement="bottom">
+          <span className={classes.secondaryScore}>
+            <span className={classes.secondarySymbol}>LW</span>
+            <span className={classes.secondaryScoreNumber}>{document.baseScore || 0}</span>
+          </span>
+      </LWTooltip>
+      }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
         <>
           <LWTooltip
@@ -115,25 +135,6 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
             />
           </LWTooltip>
         </>
-      }
-      {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
-        <LWTooltip placement="bottom" title={<div>
-            <p>AI Alignment Forum Karma</p>
-            { moveToAfInfo }
-        </div>}>
-          <span className={classes.secondaryScore}>
-            <span className={classes.secondarySymbol}>Ω</span>
-            <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
-          </span>
-        </LWTooltip>
-      }
-      {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
-        <LWTooltip title="LessWrong Karma" placement="bottom">
-          <span className={classes.secondaryScore}>
-            <span className={classes.secondarySymbol}>LW</span>
-            <span className={classes.secondaryScoreNumber}>{document.baseScore || 0}</span>
-          </span>
-        </LWTooltip>
       }
     </span>
   )
