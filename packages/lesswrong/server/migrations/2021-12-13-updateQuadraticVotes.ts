@@ -68,9 +68,9 @@ registerMigration({
       let totalUserPoints = 0 
       const user = usersByUserId[userId][0]
 
-      votesByUserId[userId].forEach(vote => {
+      votesByUserId[userId].forEach(async vote => {
         totalUserPoints += getCost(vote)
-        ReviewVotes.update({_id:vote._id}, {$set: {quadraticVote: getValue(vote)}})
+        await ReviewVotes.update({_id:vote._id}, {$set: {quadraticVote: getValue(vote)}})
         
         updatePost(postsAllUsers, vote)
         if (user.karma >= 1000) {
@@ -84,20 +84,20 @@ registerMigration({
       console.log(userId, totalUserPoints, totalUserPoints > 500 ? "Over 500" : "")
     })
 
-    Object.keys(postsAllUsers).forEach(postId => {
-      Posts.update({_id:postId}, {$set: { 
+    Object.keys(postsAllUsers).forEach(async postId => {
+      await Posts.update({_id:postId}, {$set: { 
         reviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
         reviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
       }})
     })
-    Object.keys(postsHighKarmaUsers).forEach(postId => {
-      Posts.update({_id:postId}, {$set: { 
+    Object.keys(postsHighKarmaUsers).forEach(async postId => {
+      await Posts.update({_id:postId}, {$set: { 
         reviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
         reviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
       }})
     })
-    Object.keys(postsAFUsers).forEach(postId => {
-      Posts.update({_id:postId}, {$set: { 
+    Object.keys(postsAFUsers).forEach(async postId => {
+      await Posts.update({_id:postId}, {$set: { 
         reviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
         reviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
        }})
