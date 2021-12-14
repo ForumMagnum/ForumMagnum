@@ -305,26 +305,26 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
 
       {/* TODO: Improve logged out user experience */}
       
-      {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+      {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         
         {showFrontpageItems && <LatestReview/>}
 
-        <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
+        {activeRange === "NOMINATIONS" && <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
           <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
             <span>
               <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{REVIEW_YEAR} Upvotes
             </span>
           </Link>
-        </LWTooltip>
+        </LWTooltip>}
         
-        <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
+        {activeRange === "NOMINATIONS" && <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
           <Link to={allEligiblePostsUrl} className={classes.actionButton}>
             All <span className={classes.hideOnMobile}>{isEAForum ? 'Eligible' : REVIEW_YEAR}</span> Posts
           </Link>
-        </LWTooltip>
+        </LWTooltip>}
         
-        {showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
-          <p>Reviews Dashboard</p>
+        {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && <LWTooltip className={classes.buttonWrapper} title={<div>
+          <p>Review Dashboard</p>
           <ul>
             <li>View all posts with at least one preliminary vote.</li>
             <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
@@ -335,13 +335,34 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             Vote on <span className={classes.hideOnMobile}>nominated</span> posts
           </Link>
         </LWTooltip>}
+
+        {activeRange === "REVIEWS" && showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
+          <p>Review Dashboard</p>
+          <ul>
+            <li>View all posts with at least one preliminary vote.</li>
+            <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
+            <li>Start writing reviews.</li>
+          </ul>
+          </div>}>
+          <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
+            Review Posts
+          </Link>
+        </LWTooltip>}
+
+        {activeRange === "VOTING" && showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
+          <p>Review Dashboard</p>
+          <ul>
+            <li>View all posts with at least one preliminary vote.</li>
+            <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
+            <li>Start writing reviews.</li>
+          </ul>
+          </div>}>
+          <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
+            Cast Final Votes
+          </Link>
+        </LWTooltip>}
       </div>}
       
-      {activeRange === 'REVIEWS' && showFrontpageItems && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-        <Link to={"/reviews"} className={classes.actionButtonCTA}>
-          Review {REVIEW_YEAR} Posts
-        </Link>
-      </div>}
 
       {activeRange === 'VOTING' && showFrontpageItems && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
