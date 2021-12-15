@@ -3,12 +3,14 @@ import NoSSR from 'react-no-ssr';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
+import Card from '@material-ui/core/Card';
+import { postBodyStyles } from '../../themes/stylePiping';
+import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
-
-    width: "calc(33% - 5px)",
+    // width: "calc(33% - 5px)",
     boxShadow: theme.boxShadow,
     paddingBottom: 0,
     marginBottom: 10,
@@ -26,6 +28,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     [legacyBreakpoints.maxTiny]: {
       width: "100% !important",
     },
+  },
+
+  previewCard: {
+    ...postBodyStyles(theme),
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
+    width: POST_PREVIEW_WIDTH,
+    padding: 12,
   },
 
   title: {
@@ -112,7 +122,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const { LinkCard } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence?.contents?.plaintextDescription?.slice(0, 750)}>
+  const tooltipText = sequence.contents?.plaintextDescription?.slice(0, 750)
+
+  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={tooltipText && <Card className={classes.previewCard}>
+    <h3>{sequence.title}</h3>{tooltipText}</Card>}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
