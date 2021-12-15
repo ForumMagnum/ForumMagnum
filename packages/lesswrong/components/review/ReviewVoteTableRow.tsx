@@ -142,7 +142,7 @@ const ReviewVoteTableRow = (
     currentVote: SyntheticReviewVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote } = Components
 
   const currentUser = useCurrentUser()
   if (!currentUser) return null;
@@ -193,6 +193,7 @@ const ReviewVoteTableRow = (
                   {v}
               </LWTooltip>
             )}
+            <PostsItemReviewVote post={post}/>
         </div>}
         {getReviewPhase() !== "REVIEWS" && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
