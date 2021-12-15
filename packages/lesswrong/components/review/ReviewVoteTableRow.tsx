@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
-import { getReviewPhase } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 
@@ -97,14 +97,11 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
   },
+  yourVote: {
+    marginLeft: 6
+  },
   voteResults: {
-    backgroundColor: "rgba(0,0,0,.04)",
-    padding: 10,
     width: 140,
-    display: "flex",
-    alignItems: "center",
-    alignSelf: "stretch",
-    flexWrap: "wrap",
     ...theme.typography.commentStyle,
     fontSize: 12,
   },
@@ -182,7 +179,8 @@ const ReviewVoteTableRow = (
             { post.reviewCount }
           </LWTooltip>
         </PostsItem2MetaInfo>
-        {getReviewPhase() === "REVIEWS" && <div className={classes.voteResults}>
+        {getReviewPhase() === "REVIEWS" && <div className={classes.votes}>
+          <div className={classes.voteResults}>
             { highVotes.map((v, i)=>
               <LWTooltip className={classes.highVote} title="Voters with 1000+ karma" key={`${post._id}${i}H`}>
                   {v}
@@ -193,9 +191,12 @@ const ReviewVoteTableRow = (
                   {v}
               </LWTooltip>
             )}
-            <PostsItemReviewVote post={post}/>
+          </div>
+          {eligibleToNominate(currentUser) && <div className={classes.yourVote}>
+            <PostsItemReviewVote post={post} marginRight={false}/>
+          </div>}
         </div>}
-        {getReviewPhase() !== "REVIEWS" && <div className={classes.votes}>
+        {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
             <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
             <ReviewVotingButtons postId={post._id} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
