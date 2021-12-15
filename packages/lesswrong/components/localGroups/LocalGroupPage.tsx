@@ -33,9 +33,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit * 2
   },
   leftAction: {
-    [theme.breakpoints.down('xs')]: {
-      textAlign: 'left'
-    }
+    alignSelf: "center",
   },
   groupLocation: {
     ...theme.typography.body2,
@@ -47,7 +45,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: "inline-block",
   },
   groupDescription: {
-    marginBottom: "30px",
+    marginBottom: 20,
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
     }
@@ -55,6 +53,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   groupDescriptionBody: {
     ...postBodyStyles(theme),
     padding: theme.spacing.unit,
+  },
+  eventPostsHeadline: {
+    marginTop: 20
   }
 }));
 
@@ -119,13 +120,25 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
               }
             </SectionFooter>
           </div>
-          <ContentItemBody
+          {group.contents && <ContentItemBody
             dangerouslySetInnerHTML={htmlBody}
             className={classes.groupDescriptionBody}
             description={`group ${groupId}`}
-          />
+          />}
         </div>
-        <PostsList2 terms={{view: 'groupPosts', groupId: groupId}} />
+        
+        <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
+        
+        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
+          Upcoming Events
+        </Components.Typography>
+        <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
+        <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+        
+        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
+          Past Events
+        </Components.Typography>
+        <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
       </SingleColumnSection>
     </div>
   )

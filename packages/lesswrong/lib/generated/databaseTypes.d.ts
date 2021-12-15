@@ -411,9 +411,9 @@ interface DbPost extends DbObject {
   isEvent: boolean
   reviewedByUserId: string
   reviewForCuratedUserId: string
-  startTime: Date
+  startTime: Date | null
   localStartTime: Date
-  endTime: Date
+  endTime: Date | null
   localEndTime: Date
   onlineEvent: boolean
   globalEvent: boolean

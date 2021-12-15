@@ -507,7 +507,7 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
 getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
   const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
   if (post && post.positiveReviewVoteCount > 1) {
-    const notifications = await Notifications.find({documentId:post._id, notificationType: "postNominated" }).fetch()
+    const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
     if (!notifications.length) {
       await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
     }
