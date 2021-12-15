@@ -9,13 +9,17 @@ import classNames from 'classnames';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
+export const voteTextStyling = theme => ({
+  ...theme.typography.smallText,
+  ...theme.typography.commentStyle,
+  textAlign: "center",
+  width: 28,
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   buttonWrapper: {
-    ...theme.typography.smallText,
-    ...theme.typography.commentStyle,
     cursor: "pointer",
-    width: 28,
-    textAlign: "center",
+    ...voteTextStyling(theme)
   },
   button: {
     border: "solid 1px rgba(0,0,0,.2)",

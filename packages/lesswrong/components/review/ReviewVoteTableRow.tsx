@@ -8,6 +8,7 @@ import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getReviewPhase } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
+import { voteTextStyling } from './PostsItemReviewVote';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,6 +116,11 @@ const styles = (theme: ThemeType) => ({
     color: "rgba(0,0,0,.45)",
     padding: 2,
     cursor: "pointer"
+  },
+  disabledVote: {
+    ...voteTextStyling(theme),
+    color: theme.palette.grey[500],
+    cursor: "default"
   }
 });
 
@@ -191,10 +197,14 @@ const ReviewVoteTableRow = (
                   {v}
               </LWTooltip>
             )}
+            
           </div>
           {eligibleToNominate(currentUser) && <div className={classes.yourVote}>
             <PostsItemReviewVote post={post} marginRight={false}/>
           </div>}
+          {currentUserIsAuthor && <LWTooltip title="You can't vote on your own posts">
+            <div className={classes.disabledVote}>Vote</div>
+          </LWTooltip>}
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?

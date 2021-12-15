@@ -53,11 +53,11 @@ const PostBodyPrefix = ({post, query, classes}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && postEligibleForReview(post) && <div className={classes.reviewVoting}>
+    {reviewIsActive() && postEligibleForReview(post) && postIsVoteable(post) && <div className={classes.reviewVoting}>
       {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
-      {postIsVoteable(post) && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Write a Review</div>
-      </LWTooltip>}/>}
+      </LWTooltip>}/>
     </div>}
 
     <AlignmentCrosspostMessage post={post} />

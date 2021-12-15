@@ -328,17 +328,6 @@ const ReviewVotingPage = ({classes}: {
     [sortedPosts]
   )
 
-  // if (!currentUserCanVote(currentUser)) {
-  //   return (
-  //     <div className={classes.message}>
-  //       {isEAForum ?
-  //         `Only users regerested before ${moment.utc(annualReviewStart.get()).format('MMM Do')} can vote in the ${REVIEW_NAME_IN_SITU}` :
-  //         `Only users registered before ${REVIEW_YEAR} can vote in the ${REVIEW_NAME_IN_SITU}`
-  //       }
-  //     </div>
-  //   )
-  // }
-
   const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
   const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
 
