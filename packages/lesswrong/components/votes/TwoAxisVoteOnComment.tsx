@@ -37,7 +37,7 @@ const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSyst
     
     <span className={classes.agreementSection}>
       <AxisVoteButton
-        VoteArrowComponent={Components.VoteArrow}
+        VoteArrowComponent={Components.VoteAgreement}
         axis="agreement"
         orientation="left" color="error" upOrDown="Downvote"
         {...voteProps}
@@ -50,7 +50,7 @@ const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSyst
       </span>
       
       <AxisVoteButton
-        VoteArrowComponent={Components.VoteArrow}
+        VoteArrowComponent={Components.VoteAgreement}
         axis="agreement"
         orientation="right" color="secondary" upOrDown="Upvote"
         {...voteProps}

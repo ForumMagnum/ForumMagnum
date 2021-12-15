@@ -95,10 +95,10 @@ export const getVotePower = ({ user, voteType, document }: {
 };
 
 // Optimistic response for votes
-export const setVoteClient = async ({ document, collection, voteType, extendedVote=null, user, votingSystem }: {
+export const setVoteClient = async ({ document, collection, voteType = 'neutral', extendedVote=null, user, votingSystem }: {
   document: VoteableTypeClient,
   collection: CollectionBase<DbVoteableType>
-  voteType: string|null,
+  voteType: string,
   extendedVote?: any,
   user: UsersCurrent,
   votingSystem: VotingSystem,
@@ -119,4 +119,3 @@ export const setVoteClient = async ({ document, collection, voteType, extendedVo
   }
   return document;
 }
-

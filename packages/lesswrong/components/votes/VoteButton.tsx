@@ -33,7 +33,7 @@ const VoteButton = ({
   const strongVoteDelay = theme.voting.strongVoteDelay;
   
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
-    if (currentStrength === "small")
+    if (strength === currentStrength)
       vote("neutral")
     else
       vote(strength);

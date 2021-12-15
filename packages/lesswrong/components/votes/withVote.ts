@@ -47,7 +47,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   
   const vote = useCallback(async ({document, voteType, extendedVote=null, currentUser}: {
     document: T,
-    voteType: string|null,
+    voteType: string,
     extendedVote?: any,
     currentUser: UsersCurrent,
   }) => {

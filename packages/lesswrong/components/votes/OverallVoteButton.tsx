@@ -34,7 +34,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
       });
     } else {
       if (strength === "neutral") {
-        vote({document, voteType: null, extendedVote: document?.currentUserExtendedVote, currentUser});
+        vote({document, voteType: "neutral", extendedVote: document?.currentUserExtendedVote, currentUser});
       } else {
         vote({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
       }
