@@ -2,6 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Revisions } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -9,8 +11,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 16,
+    marginLeft: 8,
     lineHeight: 0.6,
+    height: 24,
+    minWidth: 70,
+    paddingTop: 2,
+    outline: `1px solid ${theme.palette.commentBorderGrey}`,
+    textAlign: 'center'
   },
   agreementScore: {
     fontSize: "1.1rem",
@@ -27,34 +34,57 @@ interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
 const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
   const { VoteAxis, AxisVoteButton, LWTooltip } = Components;
+  const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
+  const karma = voteProps.document?.extendedScore?.agreement || 0;
+
+  let documentTypeName = "comment";
+  if (collection == Posts) {
+    documentTypeName = "post";
+  }
+  if (collection == Revisions) {
+    documentTypeName = "revision";
+  }
   
   return <span className={classes.root}>
     <VoteAxis
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
+      showBox={true}
     />
     
     <span className={classes.agreementSection}>
-      <AxisVoteButton
-        VoteArrowComponent={Components.VoteAgreement}
-        axis="agreement"
-        orientation="left" color="error" upOrDown="Downvote"
-        {...voteProps}
-      />
+      <LWTooltip
+        title={<div><b>Agreement: downvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+        placement="bottom"
+      >
+        <AxisVoteButton
+          VoteIconComponent={Components.VoteAgreementIcon}
+          axis="agreement"
+          orientation="left" color="error" upOrDown="Downvote"
+          {...voteProps}
+        />
+      </LWTooltip>
       
       <span className={classes.agreementScore}>
-        <LWTooltip title={`${(voteProps?.document?.extendedScore?.agreementVoteCount||0)} agreement votes`}>
-          {voteProps?.document?.extendedScore?.agreement || 0}
+        <LWTooltip title={<div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+          <span className={classes.voteScore}>
+            {karma}
+          </span>
         </LWTooltip>
       </span>
       
-      <AxisVoteButton
-        VoteArrowComponent={Components.VoteAgreement}
-        axis="agreement"
-        orientation="right" color="secondary" upOrDown="Upvote"
-        {...voteProps}
-      />
+      <LWTooltip
+        title={<div><b>Agreement: upvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+        placement="bottom"
+      >
+        <AxisVoteButton
+          VoteIconComponent={Components.VoteAgreementIcon}
+          axis="agreement"
+          orientation="right" color="secondary" upOrDown="Upvote"
+          {...voteProps}
+        />
+      </LWTooltip>
     </span>
   </span>
 }

@@ -10,6 +10,7 @@ const VoteOnComment = ({document, hideKarma=false, collection, votingSystem}: Co
     document={document}
     hideKarma={hideKarma}
     voteProps={voteProps}
+    showBox={false}
   />
 }
 

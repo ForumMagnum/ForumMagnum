@@ -1,9 +1,8 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import classNames from 'classnames';
 import { isMobile } from '../../lib/utils/isMobile'
 import { withTheme } from '@material-ui/core/styles';
-import type { VoteArrowProps } from './VoteArrow';
+import type { VoteArrowIconProps } from './VoteArrowIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
 })
@@ -13,7 +12,7 @@ const VoteButton = ({
   color = "secondary",
   orientation = "up",
   solidArrow,
-  VoteArrowComponent,
+  VoteIconComponent,
   theme,
 }: {
   vote: (strength: "big"|"small"|"neutral")=>void,
@@ -23,7 +22,7 @@ const VoteButton = ({
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
   solidArrow?: boolean
-  VoteArrowComponent: React.ComponentType<VoteArrowProps>,
+  VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
   // From withTheme. TODO: Hookify this.
   theme?: ThemeType
 }) => {
@@ -88,7 +87,7 @@ const VoteButton = ({
     eventHandlers: {handleMouseDown, handleMouseUp, handleClick, clearState},
     alwaysColored: false,
   };
-  return <VoteArrowComponent {...voteArrowProps} />
+  return <VoteIconComponent {...voteArrowProps} />
 }
 
 const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {

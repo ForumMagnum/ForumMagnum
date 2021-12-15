@@ -118,7 +118,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
   
   return (
     <AxisVoteButton
-      VoteArrowComponent={({eventHandlers, voted, ...rest}) => {
+      VoteIconComponent={({eventHandlers, voted, ...rest}) => {
         return <div
           onMouseDown={eventHandlers.handleMouseDown}
           onMouseUp={eventHandlers.handleMouseUp}
@@ -131,7 +131,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
           })}
         >
           <span className={classes.voteArrow}>
-            <Components.VoteArrow eventHandlers={{}} voted={voted} {...rest} alwaysColored />
+            <Components.VoteArrowIcon eventHandlers={{}} voted={voted} {...rest} alwaysColored />
           </span>
           <span className={classes.buttonLabel}>
             {direction==="up" ? axis.goodLabel : axis.badLabel}
@@ -215,6 +215,7 @@ const ReactBallotVoteOnComment = ({document, hideKarma=false, collection, voting
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
+      showBox={false}
     />
     
     <span className={classes.axisScores}>
@@ -242,6 +243,7 @@ const ReactBallotVoteOnComment = ({document, hideKarma=false, collection, voting
             document={document}
             hideKarma={hideKarma}
             voteProps={voteProps}
+            showBox={false}
           />
         </div>
       </div>

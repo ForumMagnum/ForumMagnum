@@ -2,10 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
-import type { VoteArrowProps } from '../votes/VoteArrow';
+import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
 
-const AxisVoteButton = <T extends VoteableTypeClient>({VoteArrowComponent, vote, document, axis, upOrDown, color, orientation}: {
-  VoteArrowComponent: React.ComponentType<VoteArrowProps>,
+const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation}: {
+  VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
   vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent})=>void,
   document: T,
   axis: string,
@@ -25,7 +25,7 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteArrowComponent, vote,
     } else {
       vote({
         document,
-        voteType: document.currentUserVote || null,
+        voteType: document.currentUserVote || 'neutral',
         extendedVote: {
           ...document.currentUserExtendedVote,
           [axis]: (strength==="neutral") ? "neutral" : (strength+upOrDown),
@@ -39,7 +39,7 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteArrowComponent, vote,
   const currentStrength = (currentVoteOnAxis === "small"+upOrDown) ? "small" : (currentVoteOnAxis === "big"+upOrDown) ? "big" : "neutral";
   
   return <Components.VoteButton
-    VoteArrowComponent={VoteArrowComponent}
+    VoteIconComponent={VoteIconComponent}
     vote={wrappedVote}
     currentStrength={currentStrength}
     

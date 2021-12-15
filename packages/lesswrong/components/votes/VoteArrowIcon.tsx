@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export interface VoteArrowProps {
+export interface VoteArrowIconProps {
   solidArrow?: boolean,
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
@@ -78,7 +78,7 @@ export interface VoteArrowProps {
   theme?: ThemeType,
 }
 
-const VoteArrow = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, theme, classes }: VoteArrowProps & {
+const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, theme, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
@@ -110,11 +110,11 @@ const VoteArrow = ({ solidArrow, strongVoteDelay, orientation, color, voted, eve
   )
 }
 
-const VoteArrowComponent = registerComponent('VoteArrow', VoteArrow, {styles});
+const VoteIconComponent = registerComponent('VoteArrowIcon', VoteArrowIcon, {styles});
 
 declare global {
   interface ComponentTypes {
-    VoteArrow: typeof VoteArrowComponent
+    VoteArrowIcon: typeof VoteIconComponent
   }
 }
 

@@ -238,8 +238,8 @@ importComponent("NewShortformDialog", () => require('../components/shortform/New
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 
-importComponent("VoteArrow", () => require('../components/votes/VoteArrow'));
-importComponent("VoteAgreement", () => require('../components/votes/VoteAgreement'));
+importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
+importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
 importComponent("AxisVoteButton", () => require('../components/votes/AxisVoteButton'));

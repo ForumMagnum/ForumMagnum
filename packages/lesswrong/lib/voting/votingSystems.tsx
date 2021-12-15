@@ -76,7 +76,7 @@ registerVotingSystem({
     
     const result = {
       agreement: sumBy(votes, v=>getVoteAxisStrength(v, usersById, "agreement")),
-      agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0),
+      agreementVoteCount: votes.filter(v=>getVoteAxisStrength(v, usersById, "agreement") !== 0).length,
     };
     return result;
   },

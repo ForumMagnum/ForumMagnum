@@ -43,7 +43,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   }
 
   return <Components.VoteButton
-    VoteArrowComponent={Components.VoteArrow}
+    VoteIconComponent={Components.VoteArrowIcon}
     vote={wrappedVote}
     currentStrength={
       (document.currentUserVote === "big"+upOrDown)

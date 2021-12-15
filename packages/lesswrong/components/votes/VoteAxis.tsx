@@ -8,9 +8,20 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Comments } from '../../lib/collections/comments/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import classNames from 'classnames';
 import type { VotingProps } from './withVote';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  overallSection: {
+    display: 'inline-block',
+    height: 24,
+    paddingTop: 2
+  },
+  overallSectionBox: {
+    outline: `1px solid ${theme.palette.commentBorderGrey}`,
+    textAlign: 'center',
+    minWidth: 70
+  },
   vote: {
     fontSize: 25,
     lineHeight: 0.6,
@@ -39,11 +50,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
+const VoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
+  showBox: boolean
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover} = useHover();
@@ -101,9 +113,9 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
         </LWTooltip>
       }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
-        <>
+        <span className={classNames(classes.overallSection, {[classes.overallSectionBox]: showBox})}>
           <LWTooltip
-            title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
             <OverallVoteButton
@@ -117,14 +129,14 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
             <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
-            <LWTooltip title={`This ${documentTypeName} has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>
             </LWTooltip>
           }
           <LWTooltip
-            title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
           >
             <OverallVoteButton
@@ -134,7 +146,7 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
               {...voteProps}
             />
           </LWTooltip>
-        </>
+        </span>
       }
     </span>
   )
