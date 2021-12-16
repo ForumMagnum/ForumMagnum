@@ -58,7 +58,7 @@ const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, trun
 
   const { document: comment, loading: commentLoading } = useSingle({
     collectionName: "Comments",
-    fragmentName: 'CommentsList',
+    fragmentName: 'CommentsListWithParentMetadata',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: commentId,
   });

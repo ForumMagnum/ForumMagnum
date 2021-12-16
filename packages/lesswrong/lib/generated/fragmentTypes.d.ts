@@ -1717,7 +1717,6 @@ interface UsersAdmin { // fragment on Users
 interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
   readonly reviewVoteCount: number,
   readonly email: string,
-  readonly lastNotificationsCheck: Date,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
