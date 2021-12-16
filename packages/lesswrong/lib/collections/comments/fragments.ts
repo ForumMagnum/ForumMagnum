@@ -115,6 +115,7 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+      currentUserReviewVote
     }
     tag {
       ...TagBasicInfo
