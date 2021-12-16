@@ -18,16 +18,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }))
 
-const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}: {
+const LocalGroupsList = ({terms, children, classes, showNoResults=true}: {
   terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
   classes: ClassesType,
   showNoResults?: boolean,
-  showLoadMore?: boolean,
-  showLoading?: boolean,
-  dimWhenLoading?: boolean,
 }) => {
-  const { results, count, loadMore, totalCount, loading, loadingMore } = useMulti({
+  const { results, count, loadMore, totalCount, loading, loadingMore, loadMoreProps } = useMulti({
     terms,
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
@@ -43,16 +40,9 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoad
         {results && results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}
       </div>
       <SectionFooter>
-        {(showLoadMore) &&
-          <div className={classes.loadMore}>
-            <LoadMore
-              loadMore={loadMore}
-              count={count}
-              totalCount={totalCount}
-            />
-            { !dimWhenLoading && showLoading && loadingMore && <Loading />}
-          </div>
-        }
+        <div className={classes.loadMore}>
+          <LoadMore {...loadMoreProps} />
+        </div>
         { children }
       </SectionFooter>
     </div>

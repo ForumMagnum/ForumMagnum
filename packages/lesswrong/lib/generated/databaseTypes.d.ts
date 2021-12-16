@@ -358,6 +358,12 @@ interface DbPost extends DbObject {
   reviewCount: number
   reviewVoteCount: number
   positiveReviewVoteCount: number
+  reviewVoteScoreAF: number
+  reviewVotesAF: Array<number>
+  reviewVoteScoreHighKarma: number
+  reviewVotesHighKarma: Array<number>
+  reviewVoteScoreAllKarma: number
+  reviewVotesAllKarma: Array<number>
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean
@@ -406,9 +412,9 @@ interface DbPost extends DbObject {
   isEvent: boolean
   reviewedByUserId: string
   reviewForCuratedUserId: string
-  startTime: Date
+  startTime: Date | null
   localStartTime: Date
-  endTime: Date
+  endTime: Date | null
   localEndTime: Date
   onlineEvent: boolean
   globalEvent: boolean

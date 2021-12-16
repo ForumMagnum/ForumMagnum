@@ -695,6 +695,7 @@ addFieldsDict(Posts, {
     label: "Start Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localStartTime: {
@@ -712,6 +713,7 @@ addFieldsDict(Posts, {
     label: "End Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localEndTime: {

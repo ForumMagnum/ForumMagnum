@@ -10,6 +10,7 @@ import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
 import { getCollectionHooks } from '../mutationCallbacks';
 import { postsUndraftNotification, postPublishedCallback } from '../notificationCallbacks';
+import moment from 'moment';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -218,3 +219,28 @@ async function oldPostsLastCommentedAt (post: DbPost) {
 }
 
 getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
+
+
+getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
+  // If the post has an end time but no start time, move the time given to the startTime
+  // slot, and leave the end time blank
+  if (post?.endTime && !post?.startTime) {
+    return {
+      ...post,
+      startTime: post.endTime,
+      endTime: null,
+    };
+  }
+  
+  // If both start time and end time are given but they're swapped, swap them to
+  // the right order
+  if (post.startTime && post.endTime && moment(post.startTime).isAfter(post.endTime)) {
+    return {
+      ...post,
+      startTime: post.endTime,
+      endTime: post.startTime,
+    };
+  }
+  
+  return post;
+});
