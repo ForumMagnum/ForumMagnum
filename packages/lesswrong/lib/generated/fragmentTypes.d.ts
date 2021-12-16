@@ -285,6 +285,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
+  readonly currentUserReviewVote: number,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -389,7 +390,6 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
-  readonly currentUserReviewVote: number,
   readonly moderationGuidelines: PostsListBase_moderationGuidelines|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
@@ -724,12 +724,8 @@ interface DeletedCommentsModerationLog_post { // fragment on Posts
 }
 
 interface CommentsListWithParentMetadata extends CommentsList { // fragment on Comments
-  readonly post: CommentsListWithParentMetadata_post|null,
+  readonly post: PostsMinimumInfo|null,
   readonly tag: TagBasicInfo|null,
-}
-
-interface CommentsListWithParentMetadata_post extends PostsMinimumInfo { // fragment on Posts
-  readonly currentUserReviewVote: number,
 }
 
 interface WithVoteComment { // fragment on Comments

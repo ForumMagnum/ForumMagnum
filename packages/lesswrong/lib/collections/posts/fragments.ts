@@ -10,6 +10,7 @@ registerFragment(`
     draft
     hideCommentKarma
     af
+    currentUserReviewVote
   }
 `);
 
@@ -147,7 +148,6 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
-    currentUserReviewVote
     moderationGuidelines {
       _id
       html
