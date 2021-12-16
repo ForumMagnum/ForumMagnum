@@ -49,10 +49,6 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     ...document,
     ...(await recalculateDocumentScores(document, context)),
   }
-  newDocument = {
-    ...newDocument,
-    score: recalculateScore(newDocument),
-  };
   
   // update document score & set item as active
   await Connectors.update(collection,
@@ -167,7 +163,6 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     newDocument = {
       ...newDocument,
       ...newScores,
-      score: recalculateScore(newDocument),
     };
     void algoliaExportById(collection as any, newDocument._id);
   }
@@ -188,7 +183,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 }) => {
   if (!context)
     context = await createAnonymousContext();
-  
+
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
 
@@ -299,11 +294,14 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
       cancelled: false
     }
   ).fetch() || [];
+
   const votingSystem = await getVotingSystemForDocument(document, context);
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
+  const baseScore = sumBy(votes, v=>v.power)
   return {
-    baseScore: sumBy(votes, v=>v.power),
+    baseScore,
     voteCount: votes.length,
     extendedScore: await votingSystem.computeExtendedScore(votes, context),
+    score: recalculateScore({...document, baseScore})
   };
 }
