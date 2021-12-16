@@ -4,6 +4,7 @@ import { REVIEW_YEAR } from "../../lib/reviewUtils";
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
+import { useHover } from '../common/withHover';
 
 const styles = theme => ({
   root: {
@@ -28,7 +29,7 @@ const styles = theme => ({
 })
 
 const LatestReview = ({classes}) => {
-  const { PostsPreviewTooltipSingleWithComment, LWTooltip, ErrorBoundary } = Components
+  const { PostsPreviewTooltipSingleWithComment, LWPopper, ErrorBoundary } = Components
 
   const { results: commentResults } = useMulti({
     terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
@@ -37,14 +38,30 @@ const LatestReview = ({classes}) => {
     limit: 1
   });
 
+  const { hover, anchorEl, eventHandlers } = useHover({
+    pageElementContext: "FrontpageReviewWidget",
+    pageElementSubContext: "LatestReviews",
+  })
+
   if (!commentResults?.length) return null
   const comment = commentResults[0]
   if (!comment.post) return null
 
-  return <ErrorBoundary><div className={classes.root}>
-    <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingleWithComment postId={comment.postId} commentId={comment._id}/>}>
-      <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: comment.post.slug})} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link>
-    </LWTooltip>
+  return <ErrorBoundary><div className={classes.root} {...eventHandlers} >
+    <LWPopper
+      open={hover}
+      anchorEl={anchorEl}
+      placement="bottom-start"
+      modifiers={{
+        flip: {
+          behavior: ["bottom-start"],
+          boundariesElement: 'viewport'
+        }
+      }}
+    >
+      <span className={classes.preview}>{<PostsPreviewTooltipSingleWithComment postId={comment.postId} commentId={comment._id}/>}</span>
+    </LWPopper>
+    <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: comment.post.slug})} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link>
   </div></ErrorBoundary>
 }
 

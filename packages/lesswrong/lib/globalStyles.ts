@@ -3,6 +3,8 @@ import forumTheme from "../themes/forumTheme";
 const maxSmallish = "@media screen and (max-width: 715px)";
 const maxTiny = "@media screen and (max-width: 400px)";
 
+export const commentsNodeRootMarginBottom = 17
+
 const clearStyle = (theme: ThemeType): JssStyles => ({
   html: {
     fontSize: 13,
@@ -88,7 +90,7 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
 
 const commentsStyle = (theme: ThemeType): JssStyles => ({
   ".comments-node-root": {
-    marginBottom: "1.3em",
+    marginBottom: commentsNodeRootMarginBottom,
   
     [maxSmallish]: {
       marginBottom: 10,
