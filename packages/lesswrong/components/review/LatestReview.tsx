@@ -40,15 +40,15 @@ const LatestReview = ({classes}) => {
   });
 
   const { hover, anchorEl, eventHandlers } = useHover({
-    pageElementContext: "FrontpageReviewWidget",
-    pageElementSubContext: "LatestReviews",
+    pageElementContext: "frontpageReviewWidget",
+    pageElementSubContext: "latestReviews",
   })
 
   if (!commentResults?.length) return null
   const comment = commentResults[0]
   if (!comment.post) return null
 
-  return <ErrorBoundary><AnalyticsContext pageSubsectionContext="LatestReview">
+  return <ErrorBoundary><AnalyticsContext pageSubsectionContext="latestReview">
     <div className={classes.root} {...eventHandlers} >
       <LWPopper
         open={hover}
