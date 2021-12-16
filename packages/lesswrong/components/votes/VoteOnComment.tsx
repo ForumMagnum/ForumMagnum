@@ -6,7 +6,7 @@ import { useVote } from './withVote';
 
 const VoteOnComment = ({document, hideKarma=false, collection, votingSystem}: CommentVotingComponentProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
-  return <Components.VoteAxis
+  return <Components.OverallVoteAxis
     document={document}
     hideKarma={hideKarma}
     voteProps={voteProps}

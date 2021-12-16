@@ -33,9 +33,7 @@ interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
 
 const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
   const voteProps = useVote(document, collection.options.collectionName, votingSystem);
-  const { VoteAxis, AxisVoteButton, LWTooltip } = Components;
-  const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
-  const karma = voteProps.document?.extendedScore?.agreement || 0;
+  const { OverallVoteAxis, AgreementVoteAxis } = Components;
 
   let documentTypeName = "comment";
   if (collection == Posts) {
@@ -46,46 +44,17 @@ const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSyst
   }
   
   return <span className={classes.root}>
-    <VoteAxis
+    <OverallVoteAxis
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
       showBox={true}
     />
-    
-    <span className={classes.agreementSection}>
-      <LWTooltip
-        title={<div><b>Agreement: downvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-        placement="bottom"
-      >
-        <AxisVoteButton
-          VoteIconComponent={Components.VoteAgreementIcon}
-          axis="agreement"
-          orientation="left" color="error" upOrDown="Downvote"
-          {...voteProps}
-        />
-      </LWTooltip>
-      
-      <span className={classes.agreementScore}>
-        <LWTooltip title={<div>This {documentTypeName} has {karma} <b>agreement</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-          <span className={classes.voteScore}>
-            {karma}
-          </span>
-        </LWTooltip>
-      </span>
-      
-      <LWTooltip
-        title={<div><b>Agreement: upvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-        placement="bottom"
-      >
-        <AxisVoteButton
-          VoteIconComponent={Components.VoteAgreementIcon}
-          axis="agreement"
-          orientation="right" color="secondary" upOrDown="Upvote"
-          {...voteProps}
-        />
-      </LWTooltip>
-    </span>
+    <AgreementVoteAxis
+      document={document}
+      hideKarma={hideKarma}
+      voteProps={voteProps}
+    />
   </span>
 }
 

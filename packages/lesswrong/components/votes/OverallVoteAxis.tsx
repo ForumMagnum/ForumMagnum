@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const VoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
+const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -152,11 +152,11 @@ const VoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false
   )
 }
 
-const VoteAxisComponent = registerComponent('VoteAxis', VoteAxis, {styles});
+const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis, {styles});
 
 declare global {
   interface ComponentTypes {
-    VoteAxis: typeof VoteAxisComponent
+    OverallVoteAxis: typeof OverallVoteAxisComponent
   }
 }
 

@@ -244,9 +244,10 @@ importComponent("VoteButton", () => require('../components/votes/VoteButton'));
 importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
 importComponent("AxisVoteButton", () => require('../components/votes/AxisVoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
-importComponent("VoteAxis", () => require('../components/votes/VoteAxis'));
+importComponent("OverallVoteAxis", () => require('../components/votes/OverallVoteAxis'));
 importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));
 importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
+importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
