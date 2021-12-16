@@ -21,6 +21,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...voteTextStyling(theme)
   },
+  style9: {
+    color: theme.palette.primary.dark,
+    border: `solid 2px ${theme.palette.primary.dark}`
+  },
+  style4: {
+
+  },
+  style1: {
+
+  },
+  style0: {
+
+  },
+  styleMinus1: {
+
+  },
+  styleMinus4: {
+
+  },
+  styleMinus9: {
+
+  },
   button: {
     border: "solid 1px rgba(0,0,0,.2)",
     borderRadius: 3,
@@ -60,7 +82,7 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {displayVote ? <span className={classes.button}>{displayVote}</span> : "Vote"}
+        {displayVote ? <span className={classNames(classes.button)}>{displayVote}</span> : "Vote"}
       </div>
     </LWTooltip>
 
