@@ -345,7 +345,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>
         { comment.reviewingForReview && post && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>Update your {REVIEW_NAME_IN_SITU} vote:</div>
-          <ReviewVotingWidget post={comment.post} showTitle={false}/>
+          <ReviewVotingWidget post={post} showTitle={false}/>
         </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>

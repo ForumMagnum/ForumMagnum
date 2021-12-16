@@ -21,7 +21,7 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsListBase, showTitle?: boolean, setNewVote?: (newVote:number)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:number)=>void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
 
