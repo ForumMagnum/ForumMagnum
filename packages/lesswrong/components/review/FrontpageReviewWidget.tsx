@@ -239,7 +239,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       <ul>
         <li>Look over {/* TODO: Raymond Arnold look here, sentence fragment */} </li>
         <li>Any user registered before {REVIEW_YEAR} can vote in the review</li>
-        {!isEAForum && <li>The end result will be compiled into a canonical sequence and best-of {REVIEW_YEAR} book</li>}
+        <li>The end result will be compiled into a canonical sequence and best-of {REVIEW_YEAR} book</li>
       </ul>
       {/* TODO: Raymond Arnold look here, This isn't that useful to say any more */}
       <div> Before the vote starts, you can try out the vote process on posts nominated and reviewed in {REVIEW_YEAR-1}</div>
@@ -270,101 +270,104 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
   </>
 
   return (
-    <div>
-      <SectionTitle 
-        title={<LWTooltip title={overviewTooltip} placement="bottom-start">
-          <Link to={"/reviewVoting"}>
-            {REVIEW_NAME_TITLE}
-          </Link>
-        </LWTooltip>}
-      >
-        <LWTooltip title={overviewTooltip} className={classes.hideOnMobile}>
-          <Link to={reviewPostPath || ""}>
-            <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
-          </Link>
-        </LWTooltip>
-      </SectionTitle>
-      <div className={classes.reviewTimeline}>
-        <div className={classes.nominationBlock}>
-          <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
-            <div className={classNames(classes.blockText, classes.blockLabel)}>Preliminary Voting</div>
-            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDate.format('MMM Do')}</div>
-            {activeRange === "NOMINATIONS" && <div
-              className={classes.coloredProgress}
-              style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}
-            />}
+    <AnalyticsContext pageSectionContext="frontpageReviewWidget">
+      <div>
+        <SectionTitle 
+          title={<LWTooltip title={overviewTooltip} placement="bottom-start">
+            <Link to={"/reviewVoting"}>
+              {REVIEW_NAME_TITLE}
+            </Link>
+          </LWTooltip>}
+        >
+          <LWTooltip title={overviewTooltip} className={classes.hideOnMobile}>
+            <Link to={reviewPostPath || ""}>
+              <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
+            </Link>
           </LWTooltip>
+        </SectionTitle>
+        <div className={classes.reviewTimeline}>
+          <div className={classes.nominationBlock}>
+            <LWTooltip placement="bottom-start" title={nominationsTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "NOMINATIONS"})}>
+              <div className={classNames(classes.blockText, classes.blockLabel)}>Preliminary Voting</div>
+              <div className={classNames(classes.blockText, classes.hideOnMobile)}>{nominationEndDate.format('MMM Do')}</div>
+              {activeRange === "NOMINATIONS" && <div
+                className={classes.coloredProgress}
+                style={{width: `${dateFraction(currentDate, nominationStartDate, nominationEndDate)}%`}}
+              />}
+            </LWTooltip>
+          </div>
+          <div className={classes.reviewBlock}>     
+            <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
+              <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
+              <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
+              {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
+            </LWTooltip>   
+          </div>
+          <div className={classes.votingBlock}>
+            <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "VOTING"})}>
+              <div className={classNames(classes.blockText, classes.blockLabel)}>Final Voting</div>
+              <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDate.format('MMM Do')}</div>
+              {activeRange === "VOTING" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
+            </LWTooltip>
+          </div>
         </div>
-        <div className={classes.reviewBlock}>     
-          <LWTooltip placement="bottom-start" title={reviewTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "REVIEWS"})}>
-            <div className={classNames(classes.blockText, classes.blockLabel)}>Reviews</div>
-            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{reviewEndDate.format('MMM Do')}</div>
-            {activeRange === "REVIEWS" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, nominationEndDate, reviewEndDate)}%`}}/>}
-          </LWTooltip>   
-        </div>
-        <div className={classes.votingBlock}>
-          <LWTooltip placement="bottom-start" title={voteTooltip} className={classNames(classes.progress, {[classes.activeProgress]: activeRange === "VOTING"})}>
-            <div className={classNames(classes.blockText, classes.blockLabel)}>Final Voting</div>
-            <div className={classNames(classes.blockText, classes.hideOnMobile)}>{voteEndDate.format('MMM Do')}</div>
-            {activeRange === "VOTING" && <div className={classes.coloredProgress} style={{width: `${dateFraction(currentDate, reviewEndDate, voteEndDate)}%`}}/>}
+        
+        {/* Post list */}
+        {/* ea-forum-look-here */}
+        {showFrontpageItems && <AnalyticsContext listContext={`frontpageReviewRecommendations`} reviewYear={`${REVIEW_YEAR}`} capturePostItemOnMount>
+          {/* TODO:(Review) I think we can improve this */}
+          <RecommendationsList algorithm={getReviewAlgorithm()} />
+        </AnalyticsContext>}
+
+        {/* TODO: Improve logged out user experience */}
+        
+        {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+          
+          {allPhaseButtons}
+
+          <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
+            <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
+              <span>
+                <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{REVIEW_YEAR} Upvotes
+              </span>
+            </Link>
           </LWTooltip>
-        </div>
+          
+          <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
+            <Link to={allEligiblePostsUrl} className={classes.actionButton}>
+              All <span className={classes.hideOnMobile}>{isEAForum ? 'Eligible' : REVIEW_YEAR}</span> Posts
+            </Link>
+          </LWTooltip>
+          
+          {showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
+            <p>Reviews Dashboard</p>
+            <ul>
+              <li>View all posts with at least one preliminary vote.</li>
+              <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
+              <li>Start writing reviews.</li>
+            </ul>
+            </div>}>
+            <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
+              Vote on <span className={classes.hideOnMobile}>nominated</span> posts
+            </Link>
+          </LWTooltip>}
+        </div>}
+        
+        {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+          {allPhaseButtons}
+          {showFrontpageItems && <Link to={"/reviews"} className={classes.actionButtonCTA}>
+            Review {REVIEW_YEAR} Posts
+          </Link>}
+        </div>}
+
+        {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
+          {allPhaseButtons}
+          {showFrontpageItems && <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
+            Vote on {REVIEW_YEAR} Posts
+          </Link>}
+        </div>}
       </div>
-      
-      {/* Post list */}
-      {showFrontpageItems && <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
-        {/* TODO:(Review) I think we can improve this */}
-        <RecommendationsList algorithm={getReviewAlgorithm()} />
-      </AnalyticsContext>}
-
-      {/* TODO: Improve logged out user experience */}
-      
-      {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-        
-        {allPhaseButtons}
-
-        <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
-          <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
-            <span>
-              <span className={classes.hideOnMobile}>Your</span> {isEAForum && '≤'}{REVIEW_YEAR} Upvotes
-            </span>
-          </Link>
-        </LWTooltip>
-        
-        <LWTooltip className={classes.buttonWrapper} title={`Nominate posts ${isEAForum ? 'in or before' : 'from'} ${REVIEW_YEAR}`}>
-          <Link to={allEligiblePostsUrl} className={classes.actionButton}>
-            All <span className={classes.hideOnMobile}>{isEAForum ? 'Eligible' : REVIEW_YEAR}</span> Posts
-          </Link>
-        </LWTooltip>
-        
-        {showFrontpageItems && <LWTooltip className={classes.buttonWrapper} title={<div>
-          <p>Reviews Dashboard</p>
-          <ul>
-            <li>View all posts with at least one preliminary vote.</li>
-            <li>Cast additional votes, to help prioritize posts during the Review Phase.</li>
-            <li>Start writing reviews.</li>
-          </ul>
-          </div>}>
-          <Link to={"/reviewVoting/2020"} className={classes.actionButtonCTA}>
-            Vote on <span className={classes.hideOnMobile}>nominated</span> posts
-          </Link>
-        </LWTooltip>}
-      </div>}
-      
-      {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-        {allPhaseButtons}
-        {showFrontpageItems && <Link to={"/reviews"} className={classes.actionButtonCTA}>
-          Review {REVIEW_YEAR} Posts
-        </Link>}
-      </div>}
-
-      {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
-        {allPhaseButtons}
-        {showFrontpageItems && <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
-          Vote on {REVIEW_YEAR} Posts
-        </Link>}
-      </div>}
-    </div>
+    </AnalyticsContext>
   )
 }
 
