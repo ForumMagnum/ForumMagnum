@@ -1507,6 +1507,8 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly sortDrafts: string,
   readonly reenableDraftJs: boolean,
   readonly noindex: boolean,
+  readonly paymentEmail: string,
+  readonly paymentInfo: string,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
