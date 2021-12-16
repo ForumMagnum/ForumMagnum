@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { SyntheticReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import forumThemeExport from '../../themes/forumTheme';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 const downvoteColor = "rgba(125,70,70, .87)"
 const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"
@@ -76,22 +76,24 @@ const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: 
     }
   }
 
-  return <div className={classes.root}>
-      {[1,2,3,4,5,6,7].map((i) => {
-        return <LWTooltip title={indexToTermsLookup[i].tooltip} 
-        key={`${indexToTermsLookup[i]}-${i}`}>
-          <span
-              className={classNames(classes.button, classes[i], {
-                [classes.selectionHighlight]:selection === i && !isDefaultVote,
-                [classes.defaultHighlight]: selection === i && isDefaultVote
-              })}
-              onClick={createClickHandler(i)}
-            >
-            {indexToTermsLookup[i].label}
-          </span>
-        </LWTooltip>
-      })}
-  </div>
+  return <AnalyticsContext pageElementContext="reviewVotingButtons">
+    <div className={classes.root}>
+        {[1,2,3,4,5,6,7].map((i) => {
+          return <LWTooltip title={indexToTermsLookup[i].tooltip} 
+          key={`${indexToTermsLookup[i]}-${i}`}>
+            <span
+                className={classNames(classes.button, classes[i], {
+                  [classes.selectionHighlight]:selection === i && !isDefaultVote,
+                  [classes.defaultHighlight]: selection === i && isDefaultVote
+                })}
+                onClick={createClickHandler(i)}
+              >
+              {indexToTermsLookup[i].label}
+            </span>
+          </LWTooltip>
+        })}
+    </div>
+  </AnalyticsContext>
 }
 
 const ReviewVotingButtonsComponent = registerComponent("ReviewVotingButtons", ReviewVotingButtons, {styles});

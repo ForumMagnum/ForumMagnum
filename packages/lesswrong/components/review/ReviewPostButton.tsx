@@ -1,4 +1,5 @@
 import React from 'react';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCommentBox } from '../common/withCommentBox';
 import { useDialog } from '../common/withDialog';
@@ -46,9 +47,11 @@ const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   }
 
   return (
-    <span onClick={handleClick} className={classes.root}>
-      {reviewMessage}
-    </span>
+    <AnalyticsContext pageElementContext="reviewPostButton">
+      <span onClick={handleClick} className={classes.root}>
+        {reviewMessage}
+      </span>
+    </AnalyticsContext>
   )
 }
 
