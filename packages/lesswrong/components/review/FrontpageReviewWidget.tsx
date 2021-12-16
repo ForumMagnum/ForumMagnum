@@ -313,7 +313,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         </div>
         
         {/* Post list */}
-        {showFrontpageItems && <AnalyticsContext listContext={`LessWrong ${REVIEW_YEAR} Review`} capturePostItemOnMount>
+        {/* ea-forum-look-here */}
+        {showFrontpageItems && <AnalyticsContext listContext={`frontpageReviewRecommendations`} reviewYear={`${REVIEW_YEAR}`} capturePostItemOnMount>
           {/* TODO:(Review) I think we can improve this */}
           <RecommendationsList algorithm={getReviewAlgorithm()} />
         </AnalyticsContext>}
