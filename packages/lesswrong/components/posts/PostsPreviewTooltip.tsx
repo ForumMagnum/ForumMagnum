@@ -8,6 +8,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
+import { commentsNodeRootMarginBottom } from '../../lib/globalStyles';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -45,7 +46,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     padding: theme.spacing.unit*1.5,
     paddingBottom: 0,
-    maxHeight: 500,
     '& img': {
       maxHeight: "200px"
     },
@@ -57,6 +57,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: "1rem",
       cursor: "pointer"
     }
+  },
+  postPreview: {
+    maxHeight: 450,
   },
   header: {
     display: "flex",
@@ -82,7 +85,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit,
     marginLeft: -13,
     marginRight: -13,
-    marginBottom: -9
+    marginBottom: -commentsNodeRootMarginBottom
   },
   bookmark: {
     marginTop: -4,
@@ -227,7 +230,7 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
             </div>
           : loading
             ? <Loading/>
-            : <div onClick={() => setExpanded(true)}>
+            : <div onClick={() => setExpanded(true)} className={classes.postPreview}>
                 <ContentItemBody
                   className={classes.highlight}
                   dangerouslySetInnerHTML={{__html: truncatedHighlight }}
