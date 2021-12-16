@@ -104,16 +104,17 @@ export async function getSubscribedUsers({
 }
 
 
-export const createNotifications = async ({ userIds, notificationType, documentType, documentId, noEmail }:{
+export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail }:{
   userIds: Array<string>
   notificationType: string,
   documentType: string|null,
   documentId: string|null,
+  extraData?: any,
   noEmail?: boolean|null
-}) => { 
+}) => {
   return Promise.all(
     userIds.map(async userId => {
-      await createNotification({userId, notificationType, documentType, documentId, noEmail});
+      await createNotification({userId, notificationType, documentType, documentId, extraData, noEmail});
     })
   );
 }
@@ -141,13 +142,20 @@ const getNotificationTiming = (typeSettings): DebouncerTiming => {
 }
 
 
-export const createNotification = async ({userId, notificationType, documentType, documentId, noEmail}:{
-    userId: string,
-    notificationType: string,
-    documentType: string|null,
-    documentId: string|null,
-    noEmail?: boolean|null
-  }) => { 
+export const createNotification = async ({userId, notificationType, documentType, documentId, extraData, noEmail}: {
+  userId: string,
+  notificationType: string,
+  documentType: string|null,
+  documentId: string|null,
+  
+  // extraData: something JSON-serializable that gets attached to the notification.
+  // May affect how it is displayed, but can't affect when it's delivered.
+  extraData?: any,
+  
+  // noEmail: If set, this notification can never be sent by email (even if the user's
+  // config settings say that it would be).
+  noEmail?: boolean|null,
+}) => {
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
@@ -159,7 +167,8 @@ export const createNotification = async ({userId, notificationType, documentType
     documentType: documentType||undefined,
     message: await notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
-    link: await getLink(notificationType, documentType, documentId),
+    link: await getLink(notificationType, documentType, documentId, extraData),
+    extraData,
   }
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
@@ -231,10 +240,15 @@ const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: str
   }
 }
 
-const getLink = async (notificationType: string, documentType: string|null, documentId: string|null) => {
+const getLink = async (notificationTypeName: string, documentType: string|null, documentId: string|null, extraData: any) => {
   let document = await getDocument(documentType, documentId);
+  const notificationType = getNotificationTypeByName(notificationTypeName);
+  
+  if (notificationType.getLink) {
+    return notificationType.getLink({ documentType, documentId, extraData });
+  };
 
-  switch(notificationType) {
+  switch(notificationTypeName) {
     case "emailVerificationRequired":
       return "/resendVerificationEmail";
     default:

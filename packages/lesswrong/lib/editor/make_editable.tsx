@@ -139,12 +139,24 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
           const { checkAccess } = Revisions
+          
           if (version) {
-            const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            if (!revision) return null;
-            return await checkAccess(currentUser, revision, context) ? revision : null
+            if (version === "draft") {
+              // If version is the special string "draft", that means
+              // instead of returning the latest non-draft version
+              // (what we'd normally do), we instead return the latest
+              // version period, including draft versions.
+              const revision = await Revisions.findOne({documentId: doc._id, fieldName: field}, {sort: {editedAt: -1}})
+              if (!revision) return null;
+              return await checkAccess(currentUser, revision, context) ? revision : null
+            } else {
+              const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
+              if (!revision) return null;
+              return await checkAccess(currentUser, revision, context) ? revision : null
+            }
           }
           const docField = doc[field];
+          if (!docField) return null
           return {
             _id: `${doc._id}_${fieldName}`, //HACK
             editedAt: (docField?.editedAt) || new Date(),

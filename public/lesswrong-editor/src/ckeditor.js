@@ -60,15 +60,16 @@ import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapte
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
-import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
-class CommentEditor extends BalloonBlockEditorBase {}
-class PostEditor extends BalloonBlockEditorBase {}
-class PostEditorCollaboration extends BalloonBlockEditorBase {}
+import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+
+export class CommentEditor extends BalloonBlockEditorBase {}
+export class PostEditor extends BalloonBlockEditorBase {}
+export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // NOTE: If you make changes to this file, you must:
 // 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
@@ -78,28 +79,14 @@ class PostEditorCollaboration extends BalloonBlockEditorBase {}
 //
 // alternately, you could run `yarn rebuild-reinstall-ckeditor` to do all of the above at once
 
-const headingOptions = {
-	options: [
-		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-		{ model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
-		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' }	
-	]
-};
-
-const postEditorPlugins = [
+const sharedPlugins = [
 	Autosave,
 	Alignment,
 	Autoformat,
-	BlockToolbar,
 	BlockQuote,
 	Bold,
 	CKFinder,
 	Essentials,
-	FontFamily,
-	FontSize,
-	// FontColor,
-	// FontBackgroundColor,
 	Heading,
 	HorizontalLine,
 	Image,
@@ -118,8 +105,8 @@ const postEditorPlugins = [
 	CodeBlock,
 	Subscript,
 	Superscript,
-	MediaEmbed,
 	Paragraph,
+	MediaEmbed,
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
@@ -135,11 +122,16 @@ const postEditorPlugins = [
 	AutoLink
 ];
 
-PostEditor.builtinPlugins = [
-	...postEditorPlugins
+const postEditorPlugins = [
+	...sharedPlugins,
+	BlockToolbar,
+	FontFamily,
+	FontSize,
+	// FontColor,
+	// FontBackgroundColor,
 ];
 
-PostEditorCollaboration.builtinPlugins = [
+const collaborativeEditorPlugins = [
 	...postEditorPlugins,
 	RealTimeCollaborativeEditing,
 	RealTimeCollaborativeComments,
@@ -147,174 +139,10 @@ PostEditorCollaboration.builtinPlugins = [
 	PresenceList
 ];
 
-const mathConfig = {
-	engine: 'mathjax',
-	outputType: 'span',
-	forceOutputType: true,
-	enablePreview: true
-}
+PostEditor.builtinPlugins = [ ...postEditorPlugins ];
+PostEditor.defaultConfig = { ...postEditorConfig };
+PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
+PostEditorCollaboration.defaultConfig = {...postEditorConfig};
+CommentEditor.builtinPlugins = [ ...sharedPlugins ];
+CommentEditor.defaultConfig = { ...commentEditorConfig };
 
-const embedConfig = {
-	toolbar: [ 'comment' ],
-	previewsInData: true,
-	removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook', 'spotify', 'vimeo', 'dailymotion'],
-	extraProviders: [
-		{
-			name: 'Elicit',
-			url: /^(?:forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
-			html: ([match, questionId]) => `
-				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
-					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
-				</div>
-			`
-		},
-		{
-			name: 'Metaculus',
-			url: /^metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/,
-			html: ([match, questionNumber]) => `
-				<div data-metaculus-id="${questionNumber}" style="background-color: #2c3947;" class="metaculus-preview">
-					<iframe style="height: 400px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
-				</div>
-			`
-		},
-		{
-		  name: 'Thoughtsaver',
-		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
-		  html: ([match,urlParams]) => `
-		    <div class="thoughtSaverFrameWrapper">
-		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
-		    </div>
-		  `
-		}
-	]
-}
-
-const postEditorConfig = {
-	blockToolbar: [
-		'imageUpload',
-		'insertTable',
-		'horizontalLine',
-		'mathDisplay',
-		'mediaEmbed'
-	],
-	toolbar: [
-		'heading',
-		'|',
-		'bold',
-		'italic',
-		'strikethrough',
-		'|',
-		'link',
-		'|',
-		'blockQuote',
-		'bulletedList',
-		'numberedList',
-		'codeBlock',
-		'|',
-		'trackChanges',
-		'comment',
-		'math'
-	],
-	image: {
-		toolbar: [
-			'imageTextAlternative',
-			'comment',
-		],
-	},
-	heading: headingOptions,
-	table: {
-		contentToolbar: [
-			'tableColumn', 'tableRow', 'mergeTableCells',
-			'tableProperties', 'tableCellProperties'
-		],
-		tableToolbar: [ 'comment' ]
-	},
-	math: mathConfig,
-	mediaEmbed: embedConfig,
-};
-
-PostEditor.defaultConfig = {
-	...postEditorConfig
-};
-
-PostEditorCollaboration.defaultConfig = {
-	...postEditorConfig
-};
-
-CommentEditor.builtinPlugins = [
-	Autosave,
-	Alignment,
-	Autoformat,
-	BlockQuote,
-	Bold,
-	CKFinder,
-	Essentials,
-	Heading,
-	HorizontalLine,
-	EasyImage,
-	Image,
-	ImageCaption,
-	ImageStyle,
-	ImageToolbar,
-	ImageUpload,
-	CloudServicesPlugin,
-	ImageResize,
-	Italic,
-	Link,
-	List,
-	ListStyle,
-	Paragraph,
-	Code,
-	CodeBlock,
-	Subscript,
-	Superscript,
-	MediaEmbed,
-	PasteFromOffice,
-	RemoveFormat,
-	Strikethrough,
-	Table,
-	TableToolbar,
-	TableProperties,
-	TableCellProperties,
-	Underline,
-	UploadAdapter,
-	Mathematics,
-	SanitizeTags,
-	Spoilers,
-	AutoLink
-];
-
-CommentEditor.defaultConfig = {
-	toolbar: [
-		'heading',
-		'|',
-		'bold',
-		'italic',
-		'strikethrough',
-		'|',
-		'link',
-		'|',
-		'blockQuote',
-		'bulletedList',
-		'numberedList',
-		'|',
-		'math'
-	],
-	image: {
-		toolbar: [
-			'imageTextAlternative'
-		]
-	},
-	heading: headingOptions,
-	table: {
-		contentToolbar: [
-			'tableColumn', 'tableRow', 'mergeTableCells',
-			'tableProperties', 'tableCellProperties'
-		],
-		tableToolbar: [ 'comment' ]
-	},
-	math: mathConfig,
-	mediaEmbed: embedConfig,
-};
-
-export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, EditorWatchdog };

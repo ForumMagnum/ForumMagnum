@@ -8,8 +8,6 @@ import { cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 
 
-// EXAMPLE-FORUM Helpers
-
 //////////////////
 // Link Helpers //
 //////////////////
@@ -200,3 +198,4 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
 export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
+

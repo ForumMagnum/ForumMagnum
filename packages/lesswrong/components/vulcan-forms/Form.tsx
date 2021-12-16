@@ -564,36 +564,41 @@ class Form extends Component<any,any> {
     }));
   };
 
-  // add a callback to the form submission
+  // Add a callback to the form submission. Return a cleanup function which,
+  // when run, removes that callback.
   addToSubmitForm = callback => {
     this.submitFormCallbacks.push(callback);
+    return () => {
+      const index = this.submitFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.submitFormCallbacks.splice(index, 1);
+    };
   };
 
-  // add a callback to form submission success
+  // Add a callback to form submission success. Return a cleanup function which,
+  // when run, removes that callback.
   addToSuccessForm = callback => {
     this.successFormCallbacks.push(callback);
+    return () => {
+      const index = this.successFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.successFormCallbacks.splice(index, 1);
+    };
   };
 
-  // add a callback to form submission failure
+  // Add a callback to form submission failure. Return a cleanup function which,
+  // when run, removes that callback.
   addToFailureForm = callback => {
     this.failureFormCallbacks.push(callback);
+    return () => {
+      const index = this.failureFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.failureFormCallbacks.splice(index, 1);
+    };
   };
 
   setFormState = fn => {
     this.setState(fn);
-  };
-
-  submitFormContext = newValues => {
-    // keep the previous ones and extend (with possible replacement) with new ones
-    this.setState(
-      prevState => ({
-        currentValues: {
-          ...prevState.currentValues,
-          ...newValues
-        } // Submit form after setState update completed
-      }),
-      () => this.submitForm()
-    );
   };
 
   // pass on context to all child components
@@ -603,7 +608,7 @@ class Form extends Component<any,any> {
       clearForm: this.clearForm,
       refetchForm: this.refetchForm,
       isChanged: this.isChanged,
-      submitForm: this.submitFormContext, //Change in name because we already have a function
+      submitForm: this.submitForm, //Change in name because we already have a function
       // called submitForm, but no reason for the user to know
       // about that
       addToDeletedValues: this.addToDeletedValues,
@@ -640,58 +645,58 @@ class Form extends Component<any,any> {
     }
   }
 
-  /*
-
-  Manually update the current values of one or more fields(i.e. on change or blur).
-
-  */
-  updateCurrentValues = (newValues, options: any = {}) => {
+  // Manually update the current values of one or more fields(i.e. on change or blur).
+  // Return a promise that resolves when the change is fully applied. Since this is
+  // a React state update, this is not immediate.
+  updateCurrentValues = async (newValues, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
     const { changeCallback } = this.props;
 
     // keep the previous ones and extend (with possible replacement) with new ones
-    this.setState(prevState => {
-      // keep only the relevant properties
-      const { currentValues, currentDocument, deletedValues } = cloneDeep(
-        prevState
-      );
-      const newState = {
-        currentValues,
-        currentDocument,
-        deletedValues,
-        foo: {}
-      };
-
-      Object.keys(newValues).forEach(key => {
-        const path = key;
-        let value = newValues[key];
-
-        if (isEmptyValue(value)) {
-          // delete value
-          unset(newState.currentValues, path);
-          set(newState.currentDocument, path, null);
-          newState.deletedValues = [...prevState.deletedValues, path];
-        } else {
-
-          // 1. update currentValues
-          set(newState.currentValues, path, value);
-
-          // 2. update currentDocument
-          // For arrays and objects, give option to merge instead of overwrite
-          if (mode === 'merge' && (Array.isArray(value) || isObject(value))) {
-            const oldValue = get(newState.currentDocument, path);
-            set(newState.currentDocument, path, merge(oldValue, value));
+    return new Promise<void>((resolve, reject) => {
+      this.setState(prevState => {
+        // keep only the relevant properties
+        const { currentValues, currentDocument, deletedValues } = cloneDeep(
+          prevState
+        );
+        const newState = {
+          currentValues,
+          currentDocument,
+          deletedValues,
+          foo: {}
+        };
+  
+        Object.keys(newValues).forEach(key => {
+          const path = key;
+          let value = newValues[key];
+  
+          if (isEmptyValue(value)) {
+            // delete value
+            unset(newState.currentValues, path);
+            set(newState.currentDocument, path, null);
+            newState.deletedValues = [...prevState.deletedValues, path];
           } else {
-            set(newState.currentDocument, path, value);
+  
+            // 1. update currentValues
+            set(newState.currentValues, path, value);
+  
+            // 2. update currentDocument
+            // For arrays and objects, give option to merge instead of overwrite
+            if (mode === 'merge' && (Array.isArray(value) || isObject(value))) {
+              const oldValue = get(newState.currentDocument, path);
+              set(newState.currentDocument, path, merge(oldValue, value));
+            } else {
+              set(newState.currentDocument, path, value);
+            }
+  
+            // 3. in case value had previously been deleted, "undelete" it
+            newState.deletedValues = _.without(prevState.deletedValues, path);
           }
-
-          // 3. in case value had previously been deleted, "undelete" it
-          newState.deletedValues = _.without(prevState.deletedValues, path);
-        }
-      });
-      if (changeCallback) changeCallback(newState.currentDocument);
-      return newState;
+        });
+        if (changeCallback) changeCallback(newState.currentDocument);
+        return newState;
+      }, resolve)
     });
   };
 
@@ -853,19 +858,19 @@ class Form extends Component<any,any> {
   */
   formKeyDown = event => {
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-      this.submitForm();
+      void this.submitForm();
     }
   };
 
-  newMutationSuccessCallback = result => {
-    this.mutationSuccessCallback(result, 'new');
+  newMutationSuccessCallback = (result, submitOptions) => {
+    this.mutationSuccessCallback(result, 'new', submitOptions);
   };
 
-  editMutationSuccessCallback = result => {
-    this.mutationSuccessCallback(result, 'edit');
+  editMutationSuccessCallback = (result, submitOptions) => {
+    this.mutationSuccessCallback(result, 'edit', submitOptions);
   };
 
-  mutationSuccessCallback = (result, mutationType) => {
+  mutationSuccessCallback = (result, mutationType, submitOptions) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -881,10 +886,21 @@ class Form extends Component<any,any> {
     }
 
     // run document through mutation success callbacks
-    document = runCallbacksList({ callbacks: this.successFormCallbacks, iterator: document, properties: { form: this } });
+    document = runCallbacksList({
+      callbacks: this.successFormCallbacks,
+      iterator: document,
+      properties: {
+        form: this
+      }
+    });
 
     // run success callback if it exists
-    if (this.props.successCallback) this.props.successCallback(document, { form: this });
+    if (this.props.successCallback) {
+      this.props.successCallback(document, {
+        form: this,
+        submitOptions
+      });
+    }
   };
 
   // catch graphql errors
@@ -919,7 +935,7 @@ class Form extends Component<any,any> {
   Submit form handler
 
   */
-  submitForm = (event?: any) => {
+  submitForm = async (event?: any, submitOptions?: any) => {
 
     event && event.preventDefault();
 
@@ -942,18 +958,24 @@ class Form extends Component<any,any> {
 
     if (this.getFormType() === 'new') {
       // create document form
-      this.props[`create${this.props.typeName}`]({ data })
-        .then(this.newMutationSuccessCallback)
-        .catch(error => this.mutationErrorCallback(document, error));
+      try {
+        const result = await this.props[`create${this.props.typeName}`]({ data });
+        this.newMutationSuccessCallback(result, submitOptions);
+      } catch(error) {
+        this.mutationErrorCallback(document, error);
+      }
     } else {
       // update document form
       const documentId = this.getDocument()._id;
-      this.props[`update${this.props.typeName}`]({
-        selector: { documentId },
-        data
-      })
-        .then(this.editMutationSuccessCallback)
-        .catch(error => this.mutationErrorCallback(document, error));
+      try {
+        const result = await this.props[`update${this.props.typeName}`]({
+          selector: { documentId },
+          data
+        });
+        this.editMutationSuccessCallback(result, submitOptions);
+      } catch(error) {
+        this.mutationErrorCallback(document, error);
+      }
     }
   };
 

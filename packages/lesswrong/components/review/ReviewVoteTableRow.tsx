@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { ReviewVote, quadraticVote } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType) => ({
@@ -97,16 +97,15 @@ const styles = (theme: ThemeType) => ({
 });
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentQualitativeVote, currentQuadraticVote, showKarmaVotes }: {
+  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentVote, showKarmaVotes }: {
     post: PostsListWithVotes,
-    dispatch: React.Dispatch<ReviewVote>,
+    dispatch: React.Dispatch<SyntheticReviewVote>,
     dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId?: string|null,
-    currentQualitativeVote: ReviewVote|null,
-    currentQuadraticVote: quadraticVote|null,
+    currentVote: SyntheticReviewVote|null,
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo } = Components
@@ -148,8 +147,8 @@ const ReviewVoteTableRow = (
         </PostsItem2MetaInfo>
         <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
-            <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentQuadraticVote} vote={dispatchQuadraticVote} /> :
-            <ReviewVotingButtons postId={post._id} dispatch={dispatch} currentUserVoteScore={currentQualitativeVote?.score || null} />}
+            <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
+            <ReviewVotingButtons postId={post._id} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>

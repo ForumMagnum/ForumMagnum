@@ -260,6 +260,15 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
     console.error("No review announcement post path set")
   }
 
+  const allPhaseButtons = <>        
+    {showFrontpageItems && <LatestReview/>}
+    {!showFrontpageItems && userIsAdmin(currentUser) && <LWTooltip className={classes.buttonWrapper} title={`Look at metrics related to the Review`}>
+      <Link to={'/reviewAdmin'} className={classNames(classes.actionButton, classes.adminButton)}>
+        Review Admin
+      </Link>
+    </LWTooltip>}
+  </>
+
   return (
     <div>
       <SectionTitle 
@@ -312,13 +321,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       
       {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
         
-        {!showFrontpageItems && userIsAdmin(currentUser) && <LWTooltip className={classes.buttonWrapper} title={`Look at metrics related to the Review`}>
-          <Link to={'/reviewAdmin'} className={classNames(classes.actionButton, classes.adminButton)}>
-            Review Admin
-          </Link>
-        </LWTooltip>}
-
-        {showFrontpageItems && <LatestReview/>}
+        {allPhaseButtons}
 
         <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
           <Link to={`/votesByYear/${isEAForum ? '%e2%89%a42020' : REVIEW_YEAR}`} className={classes.actionButton}>
@@ -349,12 +352,13 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
       </div>}
       
       {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+        {allPhaseButtons}
         <Link to={"/reviews"} className={classes.actionButtonCTA}>
           Review {REVIEW_YEAR} Posts
         </Link>
       </div>}
 
-      {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
+      {activeRange === 'VOTING' && showFrontpageItems && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
         <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
           Vote on {REVIEW_YEAR} Posts
         </Link>

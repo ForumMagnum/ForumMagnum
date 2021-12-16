@@ -14,6 +14,7 @@ const moderatorOnly = (user: UsersCurrent|DbUser|null): boolean => !!(user?.isAd
 const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // eslint-disable-line no-unused-vars
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
+const karmaGated = (minKarma: number) => (user: UsersCurrent|DbUser|null): boolean => user ? user.karma>=minKarma : false;
 
 // const tagManager = (user: UsersCurrent|DbUser|null): boolean =>
 //   !!(user?.isAdmin || user?.groups?.includes('sunshineRegiment') || user?.groups?.includes('tagManager'))
@@ -28,6 +29,8 @@ export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
+export const userHasRedesignedSettingsPage = disabled;
+export const userCanUseSharing = karmaGated(50);
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
+import { LoadMoreCallback } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // props.
 const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes }: {
   // loadMore: Callback when clicked.
-  loadMore: any,
+  loadMore: LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,
@@ -50,7 +51,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   const { Loading } = Components
   const handleClickLoadMore = event => {
     event.preventDefault();
-    loadMore();
+    void loadMore();
     captureEvent("loadMoreClicked")
   }
 

@@ -251,6 +251,7 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
+    beta
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -322,6 +323,7 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationCommentsOnDraft
     notificationPostsNominatedReview
 
     hideFrontpageMap

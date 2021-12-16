@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
+import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -48,7 +49,8 @@ declare global {
     after?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
-    reviewYear?: number
+    reviewYear?: number,
+    excludeContents?: boolean,
   }
 }
 
@@ -1024,7 +1026,7 @@ Posts.addView("postsWithBannedUsers", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ bannedUserIds:1 }),
+  augmentForDefaultView({ bannedUserIds:1, createdAt: 1 }),
   { name: "posts.postsWithBannedUsers" }
 );
 
@@ -1299,18 +1301,24 @@ ensureIndex(Posts,
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
+  const nominationThreshold = getReviewPhase() === "NOMINATIONS" ? 1 : 2
   return {
     selector: {
-      positiveReviewVoteCount: { $gt: 0 },
+      positiveReviewVoteCount: { $gte: nominationThreshold },
     },
     options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
       sort: {
-        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
-      }
+        createdAt: -1
+      },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
