@@ -12,6 +12,8 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -392,7 +394,7 @@ const PostsItem2 = ({
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarIcon, PostsItemReviewVote } = (Components as ComponentTypes)
+    AddToCalendarIcon, PostsItemReviewVote, ReviewPostButton } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -501,7 +503,13 @@ const PostsItem2 = ({
                   unreadComments={hasUnreadComments()}
                   newPromotedComments={hasNewPromotedComments()}
                 />}
-                <PostsItemReviewVote post={post}/>
+
+                {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
+                
+                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>This post has {post.reviewCount || "no"} Review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="bottom">
+                  Review
+                </LWTooltip>}/>}
+
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
