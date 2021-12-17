@@ -123,14 +123,14 @@ registerVotingSystem({
   name: "reactsBallot",
   description: "React-Ballots",
   getCommentVotingComponent: () => Components.ReactBallotVoteOnComment,
-  addVoteClient: (document: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: (doc: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       const axisPower = calculateVotePower(currentUser.karma, extendedVote?.[axis]||"neutral");
-      return [axis, (document.extendedScore?.axis||0) + axisPower];
+      return [axis, (doc.extendedScore?.[axis]||0) + axisPower];
     }));
     const standaloneReactCounts = fromPairs(reactBallotStandaloneReactionNames.map(reaction => {
       const hasReaction = !!extendedVote?.[reaction];
-      return [reaction, (document.extendedScore?.[reaction]||0) + (hasReaction?1:0)];
+      return [reaction, (doc.extendedScore?.[reaction]||0) + (hasReaction?1:0)];
     }));
     return filterZeroes({...axisScores, ...standaloneReactCounts});
   },
