@@ -12,7 +12,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
-import { REVIEW_NAME_IN_SITU } from '../../../lib/reviewUtils';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -343,7 +343,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
-        { comment.reviewingForReview && post && <div className={classes.reviewVotingButtons}>
+        { comment.reviewingForReview === REVIEW_YEAR+"" && post && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>Update your {REVIEW_NAME_IN_SITU} vote:</div>
           <ReviewVotingWidget post={post} showTitle={false}/>
         </div>}
