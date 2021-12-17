@@ -534,6 +534,7 @@ importComponent("FormComponentNumber", () => require('../components/form-compone
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
+importComponent("SelectLocalgroup", () => require('../components/form-components/SelectLocalgroup'));
 
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
@@ -586,6 +587,8 @@ importComponent("ReviewVotingExpandedPost", () => require('../components/review/
 importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
 importComponent("ReviewVotingWidget", () => require('../components/review/ReviewVotingWidget'))
 importComponent("LatestReview", () => require('../components/review/LatestReview'));
+importComponent("ReviewAdminDashboard", () => require('../components/review/ReviewAdminDashboard'));
+importComponent("PostNominatedNotification", () => require('../components/review/PostNominatedNotification'));
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))

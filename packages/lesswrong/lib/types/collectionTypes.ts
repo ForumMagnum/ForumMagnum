@@ -74,6 +74,7 @@ type ViewQueryAndOptions<
     sort?: MongoSort<T>
     limit?: number
     skip?: number
+    projection?: MongoProjection<T>
   }
 }
 
@@ -90,7 +91,7 @@ interface MergedViewQueryAndOptions<
 }
 
 type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Record<string,number>; //TODO
+type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
 type MongoModifier<T extends DbObject> = any; //TODO
 
 type MongoFindOptions<T extends DbObject> = any; //TODO

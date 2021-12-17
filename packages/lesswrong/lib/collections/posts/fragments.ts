@@ -10,6 +10,7 @@ registerFragment(`
     draft
     hideCommentKarma
     af
+    currentUserReviewVote
   }
 `);
 
@@ -67,6 +68,7 @@ registerFragment(`
     contactInfo
     isEvent
     types
+    groupId
 
     # Review data 
     reviewedByUserId
@@ -97,6 +99,12 @@ registerFragment(`
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
 
     group {
       _id
@@ -143,7 +151,6 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
-    currentUserReviewVote
     moderationGuidelines {
       _id
       html

@@ -48,9 +48,15 @@ export function postEligibleForReview (post: PostsBase) {
   return true
 }
 
+export function postIsVoteable (post: PostsBase) {
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount > 0
+}
+
+
 export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
   if (!eligibleToNominate(currentUser)) return false
   if (post.userId === currentUser!._id) return false
+  if (!postIsVoteable(post)) return false
   return (postEligibleForReview(post))
 }
 

@@ -53,3 +53,12 @@ ensureIndex(Notifications, {userId:1, type:1, createdAt:-1});
 // Index used in callbacks for finding notifications related to a document
 // that is being deleted
 ensureIndex(Notifications, {documentId:1});
+
+Notifications.addView("adminAlertNotifications", (terms: NotificationsViewTerms) => {
+  return {
+    selector: {
+      type: terms.type || null,
+    }, //Ugly construction to deal with falsy viewed values and null != false in Mongo
+    options: {sort: {createdAt: -1}}
+  }
+});

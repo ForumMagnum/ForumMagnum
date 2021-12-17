@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
-import { canNominate, postEligibleForReview, reviewIsActive, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -53,10 +53,10 @@ const PostBodyPrefix = ({post, query, classes}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {reviewIsActive() && postEligibleForReview(post) && <div className={classes.reviewVoting}>
+    {reviewIsActive() && postEligibleForReview(post) && postIsVoteable(post) && <div className={classes.reviewVoting}>
       {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
       <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
-        <div className={classes.reviewButton}>Write a Review</div>
+        <div className={classes.reviewButton}>Review</div>
       </LWTooltip>}/>
     </div>}
 

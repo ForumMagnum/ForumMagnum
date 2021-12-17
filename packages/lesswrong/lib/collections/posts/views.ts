@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
+import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -48,7 +49,8 @@ declare global {
     after?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
-    reviewYear?: number
+    reviewYear?: number,
+    excludeContents?: boolean,
   }
 }
 
@@ -960,16 +962,14 @@ ensureIndex(Posts,
   { name: "posts.events" }
 );
 
-Posts.addView("pastEvents", (terms: PostsViewTerms) => {
+Posts.addView("eventsInTimeRange", (terms: PostsViewTerms) => {
   return {
     selector: {
       isEvent: true,
       groupId: terms.groupId ? terms.groupId : null,
-      baseScore: {$gte: 1},
     },
     options: {
       sort: {
-        baseScore: -1,
         startTime: -1,
       }
     }
@@ -978,14 +978,13 @@ Posts.addView("pastEvents", (terms: PostsViewTerms) => {
 // Same index as events
 
 Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
-  const oneDayAgo = moment().subtract(1, 'days').toDate();
-
+  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  
   return {
     selector: {
       isEvent: true,
       groupId: terms.groupId ? terms.groupId : null,
-      baseScore: {$gte: 1},
-      startTime: {$gte: oneDayAgo}
+      startTime: {$gte: timeCutoff},
     },
     options: {
       sort: {
@@ -994,27 +993,47 @@ Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
     }
   }
 })
-// Same index as events
 
-Posts.addView("groupPosts", (terms: PostsViewTerms) => {
+Posts.addView("pastEvents", (terms: PostsViewTerms) => {
+  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  
   return {
     selector: {
-      isEvent: null,
-      groupId: terms.groupId,
-      authorIsUnreviewed: viewFieldAllowAny
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      startTime: {$lt: timeCutoff},
     },
     options: {
       sort: {
-        sticky: -1,
-        createdAt: -1,
+        startTime: -1,
       }
-    }
+    },
   }
-})
-ensureIndex(Posts,
-  augmentForDefaultView({ groupId: 1, sticky: -1, createdAt: -1 }),
-  { name: "posts.groupPosts" }
-);
+});
+
+Posts.addView("tbdEvents", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      startTime: viewFieldNullOrMissing,
+    },
+    options: {
+      sort: {
+        postedAt: 1,
+      }
+    },
+  }
+});
+
+Posts.addView("nonEventGroupPosts", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      isEvent: false,
+      groupId: terms.groupId ? terms.groupId : null,
+    },
+  }
+});
 
 Posts.addView("postsWithBannedUsers", function () {
   return {
@@ -1301,16 +1320,21 @@ ensureIndex(Posts,
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      positiveReviewVoteCount: { $gt: 0 },
+      positiveReviewVoteCount: { $gte: 1 },
     },
     options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
       sort: {
-        positiveReviewVoteCount: terms.sortByMost ? -1 : 1
-      }
+        createdAt: -1
+      },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
     }
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ positiveReviewVoteCount: 1 }),
+  augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
