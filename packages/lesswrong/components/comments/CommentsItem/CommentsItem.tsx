@@ -12,8 +12,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
-import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { reviewIsActive } from '../../../lib/reviewUtils';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive } from '../../../lib/reviewUtils';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -264,12 +263,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   if (!comment) {
     return null;
   }
-
-  const displayReviewVoting = 
-    reviewIsActive() &&
-    comment.reviewingForReview === REVIEW_YEAR+"" &&
-    post &&
-    currentUser?._id !== post.userId
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -350,10 +343,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
-        { displayReviewVoting && <div className={classes.reviewVotingButtons}>
-          <div className={classes.updateVoteMessage}>Update your {REVIEW_NAME_IN_SITU} vote:</div>
-          <ReviewVotingWidget post={post} showTitle={false}/>
-        </div>}
+        { reviewIsActive() && comment.reviewingForReview === REVIEW_YEAR+"" && post && currentUser?._id !== post.userId && 
+          <div className={classes.reviewVotingButtons}>
+            <div className={classes.updateVoteMessage}>Update your {REVIEW_NAME_IN_SITU} vote:</div>
+            <ReviewVotingWidget post={post} showTitle={false}/>
+          </div>
+        }
         { showReplyState && !collapsed && renderReply() }
       </div>
     </AnalyticsContext>
