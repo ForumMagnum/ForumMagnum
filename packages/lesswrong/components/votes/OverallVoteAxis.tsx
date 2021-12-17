@@ -55,7 +55,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
-  showBox: boolean
+  showBox?: boolean
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover} = useHover();
