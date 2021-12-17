@@ -11,6 +11,7 @@ registerFragment(`
     hideCommentKarma
     af
     currentUserReviewVote
+    userId
   }
 `);
 
