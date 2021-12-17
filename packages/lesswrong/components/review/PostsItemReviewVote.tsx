@@ -21,13 +21,38 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     ...voteTextStyling(theme)
   },
+  7: {
+    color: "white",
+    background: theme.palette.primary.dark
+  },
+  6: {
+    color: "white",
+    background: theme.palette.primary.light
+  },
+  5: {
+    background: "rgba(0,0,0,.1)"
+  },
+  4: {
+    color: theme.palette.grey[600]
+  },
+  3: {
+    background: "rgba(0,0,0,.1)"
+  },
+  2: {
+    color: "white",
+    background: theme.palette.error.light
+  },
+  1: {
+    color: "white",
+    background: theme.palette.error.dark
+  },
   button: {
     border: "solid 1px rgba(0,0,0,.2)",
     borderRadius: 3,
     paddingTop: 2,
     paddingBottom: 2,
-    paddingLeft: 6,
-    paddingRight: 6
+    width: 24,
+    display: "inline-block"
   },
   card: {
     padding: isEAForum ? "8px 24px" : 8,
@@ -53,14 +78,15 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
 
   if (!canNominate(currentUser, post)) return null
 
-  const displayVote = indexToTermsLookup[newVote || post.currentUserReviewVote]?.label
+  const voteIndex = newVote || post.currentUserReviewVote
+  const displayVote = indexToTermsLookup[voteIndex]?.label
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
   return <div onMouseLeave={() => setAnchorEl(null)}>
 
     <LWTooltip title={`${nominationsPhase ? "Nominate this post by casting a preliminary vote" : "Update your vote"}`} placement="right">
       <div className={classNames(classes.buttonWrapper, {[classes.marginRight]:marginRight})} onClick={(e) => setAnchorEl(e.target)}>
-        {displayVote ? <span className={classes.button}>{displayVote}</span> : "Vote"}
+        {displayVote ? <span className={classNames(classes.button, [classes[voteIndex]])}>{displayVote}</span> : "Vote"}
       </div>
     </LWTooltip>
 
