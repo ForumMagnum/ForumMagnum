@@ -264,6 +264,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   if (!comment) {
     return null;
   }
+
+  const displayReviewVoting = 
+    reviewIsActive() &&
+    comment.reviewingForReview === REVIEW_YEAR+"" &&
+    post &&
+    currentUser?._id !== post.userId
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -344,7 +350,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
-        { reviewIsActive() && comment.reviewingForReview === REVIEW_YEAR+"" && post && <div className={classes.reviewVotingButtons}>
+        { displayReviewVoting && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>Update your {REVIEW_NAME_IN_SITU} vote:</div>
           <ReviewVotingWidget post={post} showTitle={false}/>
         </div>}

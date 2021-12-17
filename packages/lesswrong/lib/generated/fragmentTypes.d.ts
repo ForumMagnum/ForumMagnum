@@ -286,6 +286,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
   readonly currentUserReviewVote: number,
+  readonly userId: string,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
