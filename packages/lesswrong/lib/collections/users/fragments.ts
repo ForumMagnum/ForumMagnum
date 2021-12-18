@@ -57,6 +57,8 @@ registerFragment(`
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
+    paymentEmail
+    paymentInfo
   }
 `);
 
