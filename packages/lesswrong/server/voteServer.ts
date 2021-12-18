@@ -12,6 +12,8 @@ import moment from 'moment';
 import { randomId } from '../lib/random';
 import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
+import uniq from 'lodash/uniq';
+import keyBy from 'lodash/keyBy';
 
 
 // Test if a user has voted on the server
@@ -294,14 +296,25 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
       cancelled: false
     }
   ).fetch() || [];
+  
+  const userIdsThatVoted = uniq(votes.map(v=>v.userId));
+  const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
+  const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
+  
+  const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 
   const votingSystem = await getVotingSystemForDocument(document, context);
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
+  
   const baseScore = sumBy(votes, v=>v.power)
+  const afBaseScore = sumBy(afVotes, v=>v.power)
+  
   return {
-    baseScore,
+    baseScore, afBaseScore,
     voteCount: votes.length,
+    afVoteCount: afVotes.length,
     extendedScore: await votingSystem.computeExtendedScore(votes, context),
+    afExtendedScore: await votingSystem.computeExtendedScore(afVotes, context),
     score: recalculateScore({...document, baseScore})
   };
 }

@@ -82,6 +82,7 @@ registerFragment(`
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
     afBaseScore
+    afExtendedScore
     afCommentCount
     afLastCommentedAt
     afSticky
@@ -461,6 +462,7 @@ registerFragment(`
     extendedScore
     score
     afBaseScore
+    afExtendedScore
     voteCount
   }
 `);

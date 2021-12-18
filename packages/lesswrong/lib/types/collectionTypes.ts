@@ -129,6 +129,7 @@ interface VoteableType extends HasIdType, HasUserIdType {
   voteCount: number
   af?: boolean
   afBaseScore?: number
+  afExtendedScore?: any,
   afVoteCount?: number
 }
 

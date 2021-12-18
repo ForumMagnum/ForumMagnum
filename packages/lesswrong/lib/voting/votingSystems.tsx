@@ -19,8 +19,8 @@ export interface VotingSystem {
   name: string,
   description: string,
   getCommentVotingComponent: ()=>CommentVotingComponent,
-  addVoteClient: (document: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent)=>any,
-  cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent)=>any
+  addVoteClient: (oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent)=>any,
+  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent)=>any
   computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<any>
   isNonblankExtendedVote: (vote: DbVote) => boolean,
 }
@@ -35,10 +35,10 @@ registerVotingSystem({
   name: "default",
   description: "Reddit-style up/down with strongvotes",
   getCommentVotingComponent: () => Components.VoteOnComment,
-  addVoteClient: (document: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: (oldExtendedScore, extendedVote: any, currentUser: UsersCurrent): any => {
     return null;
   },
-  cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent): any => {
+  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
     return null;
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
@@ -53,20 +53,20 @@ registerVotingSystem({
   name: "twoAxis",
   description: "Two-Axis Approve and Agree",
   getCommentVotingComponent: () => Components.TwoAxisVoteOnComment,
-  addVoteClient: (document: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: (oldExtendedScore, extendedVote: any, currentUser: UsersCurrent): any => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     return {
-      agreement: (document.extendedScore?.agreement||0) + newAgreementPower,
-      agreementVoteCount: (document.extendedScore?.agreementVoteCount||0) + 1,
+      agreement: (oldExtendedScore?.agreement||0) + newAgreementPower,
+      agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) + 1,
     };
   },
-  cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent): any => {
-    const oldVote = document.currentUserExtendedVote?.agreement;
-    if (!oldVote || oldVote==="neutral") return document;
+  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
+    const oldVote = cancelledExtendedVote?.agreement;
+    if (!oldVote || oldVote==="neutral") return oldExtendedScore;
     const oldAgreementPower = calculateVotePower(currentUser.karma, oldVote);
     return {
-      agreement: (document.extendedScore?.agreement||0) - oldAgreementPower,
-      agreementVoteCount: (document.extendedScore?.agreementVoteCount||0) - 1,
+      agreement: (oldExtendedScore?.agreement||0) - oldAgreementPower,
+      agreementVoteCount: (oldExtendedScore?.agreementVoteCount||0) - 1,
     };
   },
   computeExtendedScore: async (votes: DbVote[], context: ResolverContext) => {
@@ -123,28 +123,28 @@ registerVotingSystem({
   name: "reactsBallot",
   description: "React-Ballots",
   getCommentVotingComponent: () => Components.ReactBallotVoteOnComment,
-  addVoteClient: (doc: VoteableTypeClient, extendedVote: any, currentUser: UsersCurrent): any => {
+  addVoteClient: (oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       const axisPower = calculateVotePower(currentUser.karma, extendedVote?.[axis]||"neutral");
-      return [axis, (doc.extendedScore?.[axis]||0) + axisPower];
+      return [axis, (oldExtendedScore?.[axis]||0) + axisPower];
     }));
     const standaloneReactCounts = fromPairs(reactBallotStandaloneReactionNames.map(reaction => {
       const hasReaction = !!extendedVote?.[reaction];
-      return [reaction, (doc.extendedScore?.[reaction]||0) + (hasReaction?1:0)];
+      return [reaction, (oldExtendedScore?.[reaction]||0) + (hasReaction?1:0)];
     }));
     return filterZeroes({...axisScores, ...standaloneReactCounts});
   },
-  cancelVoteClient: (document: VoteableTypeClient, currentUser: UsersCurrent): any => {
+  cancelVoteClient: (oldExtendedScore: any, cancelledExtendedVote: any, currentUser: UsersCurrent): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
-      const oldVote = document.currentUserExtendedVote?.[axis];
-      const oldScore = (document.extendedScore?.[axis]||0);
+      const oldVote = cancelledExtendedVote?.[axis];
+      const oldScore = (oldExtendedScore?.[axis]||0);
       if (!oldVote || oldVote==="neutral") return [axis, oldScore];
       const oldAxisPower = calculateVotePower(currentUser.karma, oldVote);
       return [axis, oldScore - oldAxisPower];
     }));
     const standaloneReactCounts = fromPairs(reactBallotStandaloneReactionNames.map(reaction => {
-      const oldVote = !!document.currentUserExtendedVote?.[reaction];
-      return [reaction, document.extendedScore?.[reaction] - (oldVote?1:0)];
+      const oldVote = !!cancelledExtendedVote?.[reaction];
+      return [reaction, oldExtendedScore?.[reaction] - (oldVote?1:0)];
     }));
     return filterZeroes({...axisScores, ...standaloneReactCounts});
   },

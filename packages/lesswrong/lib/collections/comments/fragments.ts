@@ -32,6 +32,7 @@ registerFragment(`
     afDate
     moveToAlignmentUserId
     afBaseScore
+    afExtendedScore
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
     needsReview
@@ -135,6 +136,7 @@ registerFragment(`
     extendedScore
     score
     afBaseScore
+    afExtendedScore
     voteCount
   }
 `);
