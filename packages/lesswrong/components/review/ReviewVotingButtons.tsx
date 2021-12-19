@@ -5,6 +5,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import forumThemeExport from '../../themes/forumTheme';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { useCurrentUser } from '../common/withUser';
 
 const downvoteColor = "rgba(125,70,70, .87)"
 const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"
@@ -61,9 +62,10 @@ export const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: {classes: ClassesType, postId: string, dispatch: any, currentUserVoteScore: number|null}) => {
+const ReviewVotingButtons = ({classes, post, dispatch, currentUserVoteScore}: {classes: ClassesType, post: PostsMinimumInfo, dispatch: any, currentUserVoteScore: number|null}) => {
   const { LWTooltip } = Components
 
+  const currentUser = useCurrentUser()
 
   const [selection, setSelection] = useState(currentUserVoteScore || DEFAULT_QUALITATIVE_VOTE)
   const [isDefaultVote, setIsDefaultVote] = useState(!currentUserVoteScore)
@@ -72,9 +74,11 @@ const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: 
     return () => {
       setSelection(index)
       setIsDefaultVote(false)
-      dispatch({postId, score: index})
+      dispatch({postId: post._id, score: index})
     }
   }
+
+  if (currentUser?._id === post.userId) return <div className={classes.root}>You can't vote on your own posts</div>
 
   return <AnalyticsContext pageElementContext="reviewVotingButtons">
     <div className={classes.root}>
