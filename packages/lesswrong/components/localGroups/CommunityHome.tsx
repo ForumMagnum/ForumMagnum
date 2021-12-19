@@ -13,7 +13,7 @@ import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
-import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import { mapsAPIKeySetting, useGoogleMaps } from '../form-components/LocationFormComponent';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
@@ -62,7 +62,7 @@ const CommunityHome = ({classes}: {
       //     lng: lng
       //   }
       // });
-      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyDF0Nj1f1lFjk2CbKgsJJ1cp1DgCoB7xQY`)
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get()}`)
       if (!response.ok) {
         console.log(response)
         return
