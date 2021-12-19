@@ -123,6 +123,8 @@ const RecommendationsAndCurated = ({
 
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+    
+    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3 
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title={<LWTooltip title={recommendationsTooltip} placement="left">
@@ -196,7 +198,7 @@ const RecommendationsAndCurated = ({
           </Link>
         </LWTooltip>
         <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-          <BookmarksList limit={3} />
+          <BookmarksList limit={bookmarksLimit} />
         </AnalyticsContext>
       </div>}
 

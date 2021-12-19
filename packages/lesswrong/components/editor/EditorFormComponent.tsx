@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   questionWidth: {
     width: 640,
     [theme.breakpoints.down('sm')]: {
-      width: 'inherit'
+      width: '100%'
     }
   },
   postEditorHeight: {

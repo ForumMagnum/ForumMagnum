@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../../utils/schemaUtils';
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbSequence> = {
@@ -45,10 +45,10 @@ const schema: SchemaType<DbSequence> = {
       fieldName: 'chapters',
       type: '[Chapter]',
       resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
-        const books = await context.Chapters.find(
+        const chapters = await context.Chapters.find(
           {sequenceId: sequence._id},
         ).fetch();
-        return books;
+        return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
       }
     }
   },
@@ -141,7 +141,8 @@ const schema: SchemaType<DbSequence> = {
       // work out of the box with the id-resolver generators
       resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
-        return await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
+        const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
+        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
     }
   },
@@ -152,6 +153,15 @@ const schema: SchemaType<DbSequence> = {
     viewableBy: ['guests'],
     editableBy: ['admins', 'sunshineRegiment'],
     insertableBy: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+  },
+
+  hideFromAuthorPage: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
     ...schemaDefaultValue(false),
   }
 }

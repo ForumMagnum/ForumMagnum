@@ -1,6 +1,8 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue, } from '../../collectionUtils';
 import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import GraphQLJSON from 'graphql-type-json';
+
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -51,8 +53,21 @@ const schema: SchemaType<DbVote> = {
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
   // voteType is the type of the vote that was reversed.
+  //
+  // If this vote was cast in an alternate voting system, this is the projection
+  // of their vote onto an approve/disapprove axis, if that makes sense, or
+  // neutral if it doesn't.
   voteType: {
     type: String,
+    canRead: ['guests'],
+  },
+  
+  // If this vote was cast in an alternate voting system, this is the complete
+  // ballot. If the vote was cast in traditional Reddit-style upvoting/downvoting,
+  // then this is null.
+  extendedVoteType: {
+    type: GraphQLJSON,
+    optional: true,
     canRead: ['guests'],
   },
 
@@ -61,6 +76,9 @@ const schema: SchemaType<DbVote> = {
   // a regular or strong vote and on the voter's karma at the time the vote was
   // made. If this is an unvote, then the opposite: negative for undoing an
   // upvote, positive for undoing a downvote.
+  //
+  // If this vote was cast in an alternate voting system, this is not the whole
+  // ballot, but is the effect the vote has on the votee's karma.
   power: {
     type: Number,
     optional: true,
@@ -73,6 +91,9 @@ const schema: SchemaType<DbVote> = {
   
   // The vote's alignment-forum power - that is, the effect this vote had on
   // the comment/post's AF score.
+  //
+  // If this vote was cast in an alternate voting system, this is not the whole
+  // ballot, but is the effect the vote has on the votee's AF karma.
   afPower: {
     type: Number,
     optional: true,

@@ -146,7 +146,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
       [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
       [classes.adminRead]: read && userHasBoldPostItems(currentUser),
     })}>
-      {curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
+      {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>
       </span>}
       {isLink ? <Link to={url}>{title}</Link> : title }

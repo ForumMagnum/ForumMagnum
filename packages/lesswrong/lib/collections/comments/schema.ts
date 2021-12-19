@@ -375,6 +375,18 @@ const schema: SchemaType<DbComment> = {
       return contents.html;
     }
   }),
+  
+  votingSystem: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      if (!comment?.postId) {
+        return "default";
+      }
+      const post = await context.loaders.Posts.load(comment.postId);
+      return post.votingSystem || "default";
+    }
+  }),
 };
 
 export default schema;

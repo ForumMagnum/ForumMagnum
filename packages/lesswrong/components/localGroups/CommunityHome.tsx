@@ -65,7 +65,8 @@ const CommunityHome = ({classes}: {
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   const isAdmin = userIsAdmin(currentUser);
-  const canCreateEvents = currentUser && (!isEAForum || isAdmin);
+  const canCreateEvents = currentUser;
+  const canCreateGroups = currentUser && (!isEAForum || isAdmin);
 
   const render = () => {
     const filters = query?.filters || [];
@@ -77,20 +78,19 @@ const CommunityHome = ({classes}: {
       lng: currentUserLocation.lng,
       limit: 5,
       filters: filters,
-      onlineEvent: false
     } : {
       view: 'events',
       limit: 5,
       filters: filters,
-      onlineEvent: false
+      globalEvent: false,
     }
-    const onlineEventsListTerms = {
-      view: 'onlineEvents',
+    const globalEventsListTerms = {
+      view: 'globalEvents',
       limit: 10
     }
     const onlineGroupsListTerms: LocalgroupsViewTerms = {
       view: 'online',
-      limit: 10,
+      limit: 5,
       filters: filters
     }
     const groupsListTerms: LocalgroupsViewTerms = {
@@ -141,17 +141,17 @@ const CommunityHome = ({classes}: {
               </SectionFooter>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="Online Events">
+              <SectionTitle title="Global Events">
                 {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
                   <LibraryAddIcon /> Create New Event
                 </SectionButton></Link>}
               </SectionTitle>
               <AnalyticsContext listContext={"communityEvents"}>
-                <PostsList2 terms={onlineEventsListTerms}/>
+                <PostsList2 terms={globalEventsListTerms}/>
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
-              <SectionTitle title="Nearby In-Person Events">
+              <SectionTitle title="Nearby Events">
                 {canCreateEvents && <Link to="/newPost?eventForm=true"><SectionButton>
                   <LibraryAddIcon /> Create New Event
                 </SectionButton></Link>}
@@ -171,7 +171,7 @@ const CommunityHome = ({classes}: {
             
             <SingleColumnSection>
               <SectionTitle title="Online Groups">
-                {canCreateEvents && <GroupFormLink isOnline={true} />}
+                {canCreateGroups && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
                 <Components.LocalGroupsList terms={onlineGroupsListTerms}/>
@@ -179,7 +179,7 @@ const CommunityHome = ({classes}: {
             </SingleColumnSection>
             <SingleColumnSection>
               <SectionTitle title="Local Groups">
-                {canCreateEvents && <GroupFormLink />}
+                {canCreateGroups && <GroupFormLink />}
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Components.Loading />

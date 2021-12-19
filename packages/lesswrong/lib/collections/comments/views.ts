@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 
@@ -20,6 +21,7 @@ declare global {
     sortBy?: string,
     before?: Date|string|null,
     after?: Date|string|null,
+    reviewYear?: ReviewYear
   }
 }
 
@@ -448,6 +450,22 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
     }
   };
 });
+
+// TODO: try to refactor this
+Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      reviewingForReview: reviewYear+"",
+      deleted: false
+    },
+    options: {
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+    }
+  };
+});
+
 // Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
 ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),

@@ -5,6 +5,7 @@ registerFragment(`
     _id
     score
     baseScore
+    extendedScore
     afBaseScore
     voteCount
     userId
@@ -24,6 +25,7 @@ registerFragment(`
       ...PostsList
     }
     currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -54,6 +56,7 @@ registerFragment(`
       }
     }
     currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -64,6 +67,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
     currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -76,8 +80,10 @@ registerFragment(`
     userId
     score
     baseScore
+    extendedScore
     afBaseScore
     voteCount
     currentUserVote
+    currentUserExtendedVote
   }
 `);

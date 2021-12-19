@@ -3,7 +3,8 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Votes } from '../../lib/collections/votes/collection';
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
+import { Users } from '../../lib/collections/users/collection';
+import { augmentFieldsDict, accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
@@ -59,7 +60,8 @@ addGraphQLResolvers({
       
       // Get the tags themselves
       const tagIds = _.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]);
-      const tags = await context.loaders.Tags.loadMany(tagIds);
+      const tagsUnfiltered = await context.loaders.Tags.loadMany(tagIds);
+      const tags = await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
       
       return tags.map(tag => {
         const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
@@ -104,7 +106,8 @@ addGraphQLResolvers({
 
       // Get the tags themselves, keyed by the id
       const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
-      const tags = (await context.loaders.Tags.loadMany(tagIds)).reduce( (acc, tag) => {
+      const tagsUnfiltered = (await context.loaders.Tags.loadMany(tagIds));
+      const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc, tag) => {
         acc[tag._id] = tag;
         return acc;
       }, {});
@@ -152,7 +155,9 @@ augmentFieldsDict(Tags, {
       }> => {
         const contributionStatsByUserId = await getContributorsList(tag, version||null);
         const contributorUserIds = Object.keys(contributionStatsByUserId);
-        const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
+        const contributorUsersUnfiltered = await context.loaders.Users.loadMany(contributorUserIds);
+        const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
+        const usersById = keyBy(contributorUsers, u => u._id);
   
         const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
         
