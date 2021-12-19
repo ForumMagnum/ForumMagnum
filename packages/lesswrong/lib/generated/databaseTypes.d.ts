@@ -114,6 +114,7 @@ interface DbComment extends DbObject {
   contents: EditableFieldContents
   voteCount: number
   baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
   af: boolean
@@ -371,8 +372,10 @@ interface DbPost extends DbObject {
   nextDayReminderSent: boolean
   onlyVisibleToLoggedIn: boolean
   onlyVisibleToEstablishedAccounts: boolean
+  votingSystem: string
   voteCount: number
   baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
   legacy: boolean
@@ -527,6 +530,7 @@ interface DbRevision extends DbObject {
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
   baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
 }
@@ -592,6 +596,7 @@ interface DbTagRel extends DbObject {
   afBaseScore: number
   voteCount: number
   baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
 }
@@ -789,6 +794,7 @@ interface DbVote extends DbObject {
   userId: string
   authorId: string
   voteType: string
+  extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
   power: number
   afPower: number
   cancelled: boolean

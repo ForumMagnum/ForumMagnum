@@ -238,8 +238,17 @@ importComponent("NewShortformDialog", () => require('../components/shortform/New
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 
+importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
+importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
+importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
+importComponent("AxisVoteButton", () => require('../components/votes/AxisVoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
+importComponent("OverallVoteAxis", () => require('../components/votes/OverallVoteAxis'));
+importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));
+importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
+importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
+importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // Events
