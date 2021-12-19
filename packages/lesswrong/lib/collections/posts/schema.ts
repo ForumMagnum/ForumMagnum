@@ -12,6 +12,7 @@ import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
+import { getVotingSystems } from '../../voting/votingSystems';
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -457,8 +458,9 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
-    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      return await PostRelations.find({targetPostId: post._id}).fetch()
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const result = await PostRelations.find({targetPostId: post._id}).fetch()
+      return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
     }
   }),
   'sourcePostRelations.$': {
@@ -470,7 +472,8 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
-    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { Posts, currentUser } = context;
       const postRelations = await Posts.aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
@@ -497,7 +500,7 @@ const schema: SchemaType<DbPost> = {
         }
      ]).toArray()
      if (!postRelations || postRelations.length < 1) return []
-     return postRelations
+     return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
   }),
   'targetPostRelations.$': {
@@ -614,6 +617,56 @@ const schema: SchemaType<DbPost> = {
       filterFn: vote => vote.qualitativeScore > DEFAULT_QUALITATIVE_VOTE || vote.quadraticScore > 0
     }),
     canRead: ['guests'],
+  },
+  reviewVoteScoreAF: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesAF: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesAF.$': {
+    type: Number,
+    optional: true,
+  },
+
+  reviewVoteScoreHighKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesHighKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesHighKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  reviewVoteScoreAllKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesAllKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesAllKarma.$': {
+    type: Number,
+    optional: true,
   },
 
   lastCommentPromotedAt: {
@@ -792,7 +845,23 @@ const schema: SchemaType<DbPost> = {
       if (!votes.length) return null;
       return votes[0].qualitativeScore;
     }
-  })
+  }),
+  
+  votingSystem: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    control: "select",
+    form: {
+      options: () => {
+        return getVotingSystems()
+          .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
+      }
+    },
+  },
 };
 
 export default schema;

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import type { ReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import forumThemeExport from '../../themes/forumTheme';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { useCurrentUser } from '../common/withUser';
 
 const downvoteColor = "rgba(125,70,70, .87)"
 const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"
@@ -61,35 +62,42 @@ export const indexToTermsLookup = {
 }
 
 
-const ReviewVotingButtons = ({classes, postId, dispatch, currentUserVoteScore}: {classes: ClassesType, postId: string, dispatch: any, currentUserVoteScore: number|null}) => {
+const ReviewVotingButtons = ({classes, post, dispatch, currentUserVoteScore}: {classes: ClassesType, post: PostsMinimumInfo, dispatch: any, currentUserVoteScore: number|null}) => {
   const { LWTooltip } = Components
 
+  const currentUser = useCurrentUser()
 
   const [selection, setSelection] = useState(currentUserVoteScore || DEFAULT_QUALITATIVE_VOTE)
+  const [isDefaultVote, setIsDefaultVote] = useState(!currentUserVoteScore)
 
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
-      dispatch({postId, score: index})
+      setIsDefaultVote(false)
+      dispatch({postId: post._id, score: index})
     }
   }
 
-  return <div className={classes.root}>
-      {[1,2,3,4,5,6,7].map((i) => {
-        return <LWTooltip title={indexToTermsLookup[i].tooltip} 
-        key={`${indexToTermsLookup[i]}-${i}`}>
-          <span
-              className={classNames(classes.button, classes[i], {
-                [classes.selectionHighlight]:selection === i && currentUserVoteScore,
-                [classes.defaultHighlight]: selection === i && !currentUserVoteScore
-              })}
-              onClick={createClickHandler(i)}
-            >
-            {indexToTermsLookup[i].label}
-          </span>
-        </LWTooltip>
-      })}
-  </div>
+  if (currentUser?._id === post.userId) return <div className={classes.root}>You can't vote on your own posts</div>
+
+  return <AnalyticsContext pageElementContext="reviewVotingButtons">
+    <div className={classes.root}>
+        {[1,2,3,4,5,6,7].map((i) => {
+          return <LWTooltip title={indexToTermsLookup[i].tooltip} 
+          key={`${indexToTermsLookup[i]}-${i}`}>
+            <span
+                className={classNames(classes.button, classes[i], {
+                  [classes.selectionHighlight]:selection === i && !isDefaultVote,
+                  [classes.defaultHighlight]: selection === i && isDefaultVote
+                })}
+                onClick={createClickHandler(i)}
+              >
+              {indexToTermsLookup[i].label}
+            </span>
+          </LWTooltip>
+        })}
+    </div>
+  </AnalyticsContext>
 }
 
 const ReviewVotingButtonsComponent = registerComponent("ReviewVotingButtons", ReviewVotingButtons, {styles});

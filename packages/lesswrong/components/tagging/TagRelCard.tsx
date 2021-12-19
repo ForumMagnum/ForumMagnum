@@ -40,7 +40,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
-  const { TagPreview, VoteButton, TagRelevanceButton, LWTooltip } = Components;
+  const { TagPreview, OverallVoteButton, TagRelevanceButton, LWTooltip } = Components;
   
   return <div>
     <div className={classes.relevance}>
@@ -50,10 +50,10 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
         </span>
       </LWTooltip>
       <div className={classes.voteButton}>
-        <VoteButton
+        <OverallVoteButton
           orientation="left"
           color="error"
-          voteType="Downvote"
+          upOrDown="Downvote"
           {...voteProps}
         />
       </div>
@@ -61,10 +61,10 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
         {voteProps.baseScore}
       </span>
       <div className={classes.voteButton}>
-        <VoteButton
+        <OverallVoteButton
           orientation="right"
           color="secondary"
-          voteType="Upvote"
+          upOrDown="Upvote"
           {...voteProps}
         />
       </div>

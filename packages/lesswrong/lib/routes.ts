@@ -514,15 +514,16 @@ if (forumTypeSetting.get() === 'LessWrong') {
       name: 'book2018Landing',
       path: '/books/2018',
       componentName: 'Book2018Landing',
-      title: "Books: A Map that Reflects the Territory"
-    }
-    // {
-    //   name: 'book2019Landing',
-    //   path: '/books/2019',
-    //   componentName: 'Book2019Landing',
-    //   title: "Books: Engines of Cognition",
-    //   background: "white"
-    // },
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
+    },
+    {
+      name: 'book2019Landing',
+      path: '/books/2019',
+      componentName: 'Book2019Landing',
+      title: "Books: Engines of Cognition",
+      background: "white"
+    },
   );
 }
 
@@ -990,4 +991,10 @@ addRoute(
     path: '/reviews/2020',
     redirect: () => `/reviewVoting/2020`,
   },
+  {
+    name: 'reviewAdmin',
+    path: '/reviewAdmin',
+    componentName: 'ReviewAdminDashboard',
+    title: "Review Admin Dashboard",
+  }
 );

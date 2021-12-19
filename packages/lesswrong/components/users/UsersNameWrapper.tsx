@@ -18,11 +18,11 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className}:
   });
   if (!document && loading) {
     return <Components.Loading />
-  }
-  if (document) {
+  } else if (document) {
     return <Components.UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} className={className}/>
+  } else {
+    return <Components.UserNameDeleted/>
   }
-  return null
 };
 
 const UsersNameWrapperComponent = registerComponent('UsersNameWrapper', UsersNameWrapper);

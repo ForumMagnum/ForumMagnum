@@ -43,6 +43,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   getValue?: (doc: T, context: ResolverContext) => any,
   foreignKey?: any,
   logChanges?: boolean,
+  nullable?: boolean,
   
   min?: number,
   max?: number,

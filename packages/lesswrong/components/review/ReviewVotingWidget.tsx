@@ -2,11 +2,8 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
-import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { ReviewVote } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { overviewTooltip } from './FrontpageReviewWidget';
@@ -24,7 +21,7 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, post: PostsListBase, title?: React.ReactNode, setNewVote?: (newVote:number)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:number)=>void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
 
@@ -57,10 +54,10 @@ const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, p
 
   return <ErrorBoundary>
       <div className={classes.root}>
-        <p>
+        {showTitle && <p>
           Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={annualReviewAnnouncementPostPathSetting.get()}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
-        </p>
-        <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} currentUserVoteScore={post.currentUserReviewVote}/>
+        </p>}
+        <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVoteScore={post.currentUserReviewVote}/>
       </div>
     </ErrorBoundary>
 }
