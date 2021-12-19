@@ -64,11 +64,13 @@ registerMigration({
       }
     }
 
-    Object.keys(votesByUserId).forEach(async (userId) => {
+    for (let userId in votesByUserId) {
       let totalUserPoints = 0 
       const user = usersByUserId[userId][0]
 
-      votesByUserId[userId].forEach(async vote => {
+      for (let vote of votesByUserId[userId]) {
+        if (!vote.qualitativeScore) return
+        
         totalUserPoints += getCost(vote)
         await ReviewVotes.update({_id:vote._id}, {$set: {quadraticVote: getValue(vote)}})
         
@@ -79,29 +81,28 @@ registerMigration({
         if (user.groups?.includes('alignmentForum')) {
           updatePost(postsAFUsers, vote)
         }
-      })
+      }
       // eslint-disable-next-line no-console
       console.log(userId, totalUserPoints, totalUserPoints > 500 ? "Over 500" : "")
-    })
+    }
 
-    Object.keys(postsAllUsers).forEach(async postId => {
+    for (let postId in postsAllUsers) {
       await Posts.update({_id:postId}, {$set: { 
         reviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
         reviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
       }})
-    })
-    Object.keys(postsHighKarmaUsers).forEach(async postId => {
+    }
+    for (let postId in postsHighKarmaUsers) {
       await Posts.update({_id:postId}, {$set: { 
         reviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
         reviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
       }})
-    })
-    Object.keys(postsAFUsers).forEach(async postId => {
+    }
+    for (let postId in postsAFUsers) {
       await Posts.update({_id:postId}, {$set: { 
         reviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
         reviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
        }})
-    })
+    }
   },
 });
-
