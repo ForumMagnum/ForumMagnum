@@ -12,7 +12,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { getLocationFromLatLng, pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -52,17 +52,22 @@ const CommunityHome = ({classes}: {
   
   // if the current user provides their browser location and they do not yet have a location in their user settings,
   // assign their browser location to their user settings location
-  const [mapsLoaded, googleMaps] = useGoogleMaps("LocationFormComponent")
+  // const [mapsLoaded, googleMaps] = useGoogleMaps("LocationFormComponent")
   const updateUserLocation = async ({lat, lng, known}) => {
-    if (currentUser && !currentUser.location && known && mapsLoaded) {
-      // const location = await getLocationFromLatLng(lat, lng)
-      const geocoder = new googleMaps.Geocoder();
-      const {results: results} = await geocoder.geocode({
-        location: {
-          lat: lat,
-          lng: lng
-        }
-      });
+    if (currentUser && !currentUser.location && known) {
+      // const geocoder = new googleMaps.Geocoder();
+      // const {results: results} = await geocoder.geocode({
+      //   location: {
+      //     lat: lat,
+      //     lng: lng
+      //   }
+      // });
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyDF0Nj1f1lFjk2CbKgsJJ1cp1DgCoB7xQY`)
+      if (!response.ok) {
+        console.log(response)
+        return
+      }
+      const results = await response.json()
       console.log(results)
       if (results?.length > 0) {
         const location = pickBestReverseGeocodingResult(results)

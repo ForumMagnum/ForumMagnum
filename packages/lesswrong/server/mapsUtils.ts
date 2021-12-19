@@ -1,5 +1,4 @@
 import { Client, LatLng } from '@googlemaps/google-maps-services-js'
-import { mapsAPIKeySetting } from '../components/form-components/LocationFormComponent';
 import { DatabaseServerSetting } from './databaseSettings';
 
 const googleMapsApiKeySetting = new DatabaseServerSetting<string | null>('googleMaps.serverApiKey', null)
@@ -63,28 +62,3 @@ export function pickBestReverseGeocodingResult(results: any[]) {
   return results[0];
 }
 
-export async function getLocationFromLatLng(lat, lng) {
-  const googleMapsApiKey = mapsAPIKeySetting.get()
-  if (!googleMapsApiKey) {
-    // eslint-disable-next-line no-console
-    console.log("No Client-side Google Maps API key provided, can't resolve location")
-    return null
-  }
-  const googleMapsClient = new Client({});
-
-  try {
-    const apiResponse = await googleMapsClient.reverseGeocode({
-      params: {
-        key: googleMapsApiKey,
-        latlng: ([lat, lng] as LatLng)
-      }
-    });
-    const { data: { results } } = apiResponse
-    return results.length ? pickBestReverseGeocodingResult(results) : {}
-
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Error in getting location:", err)
-    throw err
-  }
-}
