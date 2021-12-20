@@ -14,10 +14,17 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
+  topSection: {
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    }
+  },
   imageContainer: {
     height: 200,
-    marginTop: -50,
-    marginBottom: 30
+    marginBottom: 30,
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    }
   },
   bannerImage: {
     width: '100%',
@@ -87,19 +94,22 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
   const isEAForum = forumTypeSetting.get() === 'EAForum';
 
+  // for now, we're only displaying the banner image for online groups
+  const bannerImage = group.bannerImageId ? <div className={classes.imageContainer}>
+    <CloudinaryImage2
+      publicId={group.bannerImageId}
+      objectFit="cover"
+      className={classes.bannerImage}
+    />
+  </div> : <div className={classes.topSection}></div>;
+
   return (
     <div className={classes.root}>
       {group.googleLocation ? <CommunityMapWrapper
         terms={{view: "events", groupId: groupId}}
         groupQueryTerms={{view: "single", groupId: groupId}}
         mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
-      /> : <div className={classes.imageContainer}>
-        <CloudinaryImage2
-          publicId={group.bannerImageId || "Banner/qnjqqba8qclypnkvdkqn"}
-          objectFit="cover"
-          className={classes.bannerImage}
-        />
-      </div>}
+      /> : bannerImage}
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>

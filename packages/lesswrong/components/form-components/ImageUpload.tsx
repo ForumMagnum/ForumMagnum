@@ -29,6 +29,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   imageIcon: {
     marginRight: theme.spacing.unit
   },
+  removeButton: {
+    marginLeft: 10
+  }
 });
 
 const cloudinaryArgsByImageType = {
@@ -111,6 +114,12 @@ class ImageUpload extends Component<any,any> {
       ...cloudinaryArgs
     }, this.setImageInfo);
   }
+  
+  removeImg = () => {
+    this.props.clearField();
+    this.setState({imageId: null});
+  }
+  
   render(){
     const { classes, name, label } = this.props;
     const formPreviewSize = formPreviewSizeByImageType[name]
@@ -134,6 +143,13 @@ class ImageUpload extends Component<any,any> {
           <ImageIcon className={classes.imageIcon}/>
           {this.state.imageId ? `Replace ${label}` : `Upload ${label}`}
         </Button>
+        {this.state.imageId && <Button
+          className={classes.removeButton}
+          title="Remove"
+          onClick={this.removeImg}
+        >
+          Remove {label}
+        </Button>}
       </div>
     );
   }
