@@ -43,17 +43,17 @@ const cloudinaryArgsByImageType = {
     uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
   },
   bannerImageId: {
-    minImageHeight: 380,
-    minImageWidth: 1600,
+    minImageHeight: 200,
+    minImageWidth: 600,
     croppingAspectRatio: 2.5375,
-    croppingDefaultSelectionRatio: 3,
+    croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
   socialPreviewImageId: {
     minImageHeight: 400,
     minImageWidth: 700,
     croppingAspectRatio: 1.91,
-    croppingDefaultSelectionRatio: 3,
+    croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
 }
@@ -91,9 +91,12 @@ class ImageUpload extends Component<any,any> {
   }
 
   setImageInfo = (error, result) => {
+    if (error) {
+      throw new Error(error.statusText)
+    }
     // currently we ignore all events other than a successful upload -
     // see list here: https://cloudinary.com/documentation/upload_widget_reference#events
-    if (error || result.event !== 'success') {
+    if (result.event !== 'success') {
       return
     }
     const imageInfo = result.info

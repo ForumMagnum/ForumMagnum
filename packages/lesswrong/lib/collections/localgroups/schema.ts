@@ -197,6 +197,7 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     label: "Banner Image",
     control: "ImageUpload",
+    tooltip: "Minimum 200x600 px"
   },
 };
 
