@@ -97,7 +97,7 @@ class ImageUpload extends Component<any,any> {
       return
     }
     const imageInfo = result.info
-    if (imageInfo && imageInfo.public_id ) {
+    if (imageInfo && imageInfo.public_id) {
       this.setState({imageId: imageInfo.public_id});
       const addValues = this.context.updateCurrentValues;
       const fieldName = this.props.name;

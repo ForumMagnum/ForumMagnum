@@ -26,10 +26,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginTop: -50,
     }
   },
-  bannerImage: {
-    width: '100%',
-    height: '100%'
-  },
   groupInfo: {
     ...sectionFooterLeftStyles,
     alignItems: 'baseline'
