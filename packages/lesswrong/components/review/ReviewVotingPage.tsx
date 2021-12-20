@@ -292,6 +292,11 @@ const ReviewVotingPage = ({classes}: {
     const newlySortedPosts = postsResults
       .map((post, i) => ([post, randomPermutation[i]] as const))
       .sort(([post1, permuted1], [post2, permuted2]) => {
+        if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
+        if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
+
+        // TODO: figure out why commenting this out makes it sort correctly.
+
         const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
         const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
         if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
@@ -322,17 +327,6 @@ const ReviewVotingPage = ({classes}: {
     } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
     [sortedPosts]
   )
-
-  if (!currentUserCanVote(currentUser)) {
-    return (
-      <div className={classes.message}>
-        {isEAForum ?
-          `Only users regerested before ${moment.utc(annualReviewStart.get()).format('MMM Do')} can vote in the ${REVIEW_NAME_IN_SITU}` :
-          `Only users registered before ${REVIEW_YEAR} can vote in the ${REVIEW_NAME_IN_SITU}`
-        }
-      </div>
-    )
-  }
 
   const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
   const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0

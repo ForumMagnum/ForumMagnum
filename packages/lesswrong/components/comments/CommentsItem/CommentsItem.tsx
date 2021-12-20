@@ -12,6 +12,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive } from '../../../lib/reviewUtils';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -104,6 +105,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
     display: "block",
+    color: theme.palette.grey[600]
+  },
+  reviewVotingButtons: {
+    borderTop: "solid 1px rgba(0,0,0,.2)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 6,
+  },
+  updateVoteMessage: {
+    ...theme.typography.body2,
+    ...theme.typography.smallText,
     color: theme.palette.grey[600]
   }
 })
@@ -245,11 +258,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget } = Components
 
   if (!comment) {
     return null;
   }
+
+  const displayReviewVoting = 
+    reviewIsActive() &&
+    comment.reviewingForReview === REVIEW_YEAR+"" &&
+    post &&
+    currentUser?._id !== post.userId
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -330,6 +349,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
+        {displayReviewVoting && <div className={classes.reviewVotingButtons}>
+          <div className={classes.updateVoteMessage}>Update your {REVIEW_NAME_IN_SITU} vote:</div>
+          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+        </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
     </AnalyticsContext>

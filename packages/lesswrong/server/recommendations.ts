@@ -77,7 +77,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
     if (isEAForum) {
       return {
         postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: 2},
+        positiveReviewVoteCount: {$gte: 1}, // EA-forum look here
       }
     }
     return {
@@ -85,7 +85,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
         $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
       },
-      positiveReviewVoteCount: {$gte: 2},
+      positiveReviewVoteCount: {$gte: 1},
     }
   }
   if (algorithm.reviewNominations) {

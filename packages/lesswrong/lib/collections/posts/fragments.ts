@@ -10,6 +10,8 @@ registerFragment(`
     draft
     hideCommentKarma
     af
+    currentUserReviewVote
+    userId
   }
 `);
 
@@ -33,6 +35,7 @@ registerFragment(`
     commentCount
     voteCount
     baseScore
+    extendedScore
     unlisted
     score
     lastVisitedAt
@@ -80,6 +83,7 @@ registerFragment(`
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
     afBaseScore
+    afExtendedScore
     afCommentCount
     afLastCommentedAt
     afSticky
@@ -97,6 +101,12 @@ registerFragment(`
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
 
     group {
       _id
@@ -110,6 +120,7 @@ registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -117,6 +128,7 @@ registerFragment(`
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
+    currentUserExtendedVote
   }
 `)
 
@@ -141,7 +153,6 @@ registerFragment(`
   fragment PostsListBase on Post {
     ...PostsBase
     ...PostsAuthors
-    currentUserReviewVote
     moderationGuidelines {
       _id
       html
@@ -224,6 +235,7 @@ registerFragment(`
     
     # Voting
     currentUserVote
+    currentUserExtendedVote
     feedLink
     feed {
       ...RSSFeedMinimumInfo
@@ -415,6 +427,7 @@ registerFragment(`
     ...PostsListBase
 
     currentUserVote
+    currentUserExtendedVote
 
     contents {
       _id
@@ -445,9 +458,12 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     afBaseScore
+    afExtendedScore
     voteCount
   }
 `);
