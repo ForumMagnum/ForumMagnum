@@ -188,7 +188,7 @@ const schema: SchemaType<DbLocalgroup> = {
     ...schemaDefaultValue(false),
   },
   
-  //Cloudinary image id for the banner image (high resolution)
+  // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
     type: String,
     optional: true,

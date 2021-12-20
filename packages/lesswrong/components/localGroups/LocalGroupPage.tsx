@@ -77,7 +77,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 }) => {
   const currentUser = useCurrentUser();
   const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404, CloudinaryImage2 } = Components
+    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404, CloudinaryImage } = Components
 
   const { document: group, loading } = useSingle({
     collectionName: "Localgroups",
@@ -96,10 +96,10 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   // for now, we're only displaying the banner image for online groups
   const bannerImage = group.bannerImageId ? <div className={classes.imageContainer}>
-    <CloudinaryImage2
+    <CloudinaryImage
       publicId={group.bannerImageId}
-      objectFit="cover"
-      className={classes.bannerImage}
+      width="auto"
+      height={200}
     />
   </div> : <div className={classes.topSection}></div>;
 

@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+import forumThemeExport from '../../themes/forumTheme';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
@@ -36,24 +37,24 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const cloudinaryArgsByImageType = {
   gridImageId: {
-    min_image_height: 80,
-    min_image_width: 203,
-    cropping_aspect_ratio: 2.5375,
-    upload_preset: cloudinaryUploadPresetGridImageSetting.get(),
+    minImageHeight: 80,
+    minImageWidth: 203,
+    croppingAspectRatio: 2.5375,
+    uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
   },
   bannerImageId: {
-    min_image_height: 380,
-    min_image_width: 1600,
-    cropping_aspect_ratio: 2.5375,
-    cropping_default_selection_ratio: 3,
-    upload_preset: cloudinaryUploadPresetBannerSetting.get(),
+    minImageHeight: 380,
+    minImageWidth: 1600,
+    croppingAspectRatio: 2.5375,
+    croppingDefaultSelectionRatio: 3,
+    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
   socialPreviewImageId: {
-    min_image_height: 400,
-    min_image_width: 700,
-    cropping_aspect_ratio: 1.91,
-    cropping_default_selection_ratio: 3,
-    upload_preset: cloudinaryUploadPresetSocialPreviewSetting.get(),
+    minImageHeight: 400,
+    minImageWidth: 700,
+    croppingAspectRatio: 1.91,
+    croppingDefaultSelectionRatio: 3,
+    uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
 }
 
@@ -89,12 +90,18 @@ class ImageUpload extends Component<any,any> {
     addToSuccessForm((results) => this.setImageInfo({} ,""));
   }
 
-  setImageInfo = (error, imageInfo) => {
-    if (imageInfo && imageInfo[0] && imageInfo[0].public_id ) {
-      this.setState({imageId: imageInfo[0].public_id});
+  setImageInfo = (error, result) => {
+    // currently we ignore all events other than a successful upload -
+    // see list here: https://cloudinary.com/documentation/upload_widget_reference#events
+    if (error || result.event !== 'success') {
+      return
+    }
+    const imageInfo = result.info
+    if (imageInfo && imageInfo.public_id ) {
+      this.setState({imageId: imageInfo.public_id});
       const addValues = this.context.updateCurrentValues;
       const fieldName = this.props.name;
-      addValues({[fieldName]: imageInfo[0].public_id})
+      addValues({[fieldName]: imageInfo.public_id})
     } else {
       //eslint-disable-next-line no-console
       console.error("Image Upload failed");
@@ -106,11 +113,28 @@ class ImageUpload extends Component<any,any> {
     if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
     // @ts-ignore
     cloudinary.openUploadWidget({
-      cropping: "server",
-      cloud_name: cloudinaryCloudNameSetting.get(),
+      multiple: false,
+      sources: ['local', 'url', 'camera', 'facebook', 'instagram', 'google_drive'],
+      cropping: true,
+      cloudName: cloudinaryCloudNameSetting.get(),
       theme: 'minimal',
-      cropping_validate_dimension: true,
-      cropping_show_dimensions: true,
+      croppingValidateDimensions: true,
+      croppingShowDimensions: true,
+      styles: {
+        palette: {
+            tabIcon: forumThemeExport.palette.primary.main,
+            link: forumThemeExport.palette.primary.main,
+            action: forumThemeExport.palette.primary.main,
+            textDark: "#212121",
+        },
+        fonts: {
+            default: null,
+            "'Merriweather', serif": {
+                url: "https://fonts.googleapis.com/css?family=Merriweather",
+                active: true
+            }
+        }
+      },
       ...cloudinaryArgs
     }, this.setImageInfo);
   }
@@ -128,7 +152,7 @@ class ImageUpload extends Component<any,any> {
     return (
       <div className={classes.root}>
         <Helmet>
-          <script src="https://widget.cloudinary.com/global/all.js" type="text/javascript"/>
+          <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
           <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'/>
         </Helmet>
         {this.state.imageId &&
