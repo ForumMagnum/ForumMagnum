@@ -69,7 +69,7 @@ registerMigration({
       const user = usersByUserId[userId][0]
 
       for (let vote of votesByUserId[userId]) {
-        if (!vote.qualitativeScore) return
+        if (!vote.qualitativeScore) continue
         
         totalUserPoints += getCost(vote)
         await ReviewVotes.update({_id:vote._id}, {$set: {quadraticVote: getValue(vote)}})
