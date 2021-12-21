@@ -13,9 +13,6 @@ const styles = theme => ({
     flexShrink: 1,
     textAlign: "left",
     overflow: "hidden",
-    padding: 6,
-    whiteSpace: "nowrap",
-    marginRight: 15,
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
@@ -30,7 +27,7 @@ const styles = theme => ({
 })
 
 const LatestReview = ({classes}) => {
-  const { PostsPreviewTooltipSingleWithComment, LWPopper, ErrorBoundary } = Components
+  const { PostsPreviewTooltip, LWPopper, ErrorBoundary, CommentsNode } = Components
 
   const { results: commentResults } = useMulti({
     terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
@@ -61,9 +58,17 @@ const LatestReview = ({classes}) => {
           }
         }}
       >
-        <span className={classes.preview}>{<PostsPreviewTooltipSingleWithComment postId={comment.postId} commentId={comment._id}/>}</span>
+        <span className={classes.preview}>{<PostsPreviewTooltip post={comment.post} comment={comment}/>}</span>
       </LWPopper>
-      <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: comment.post.slug})} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link>
+      <CommentsNode
+          treeOptions={{
+            post: comment.post, hideSingleLineMeta: true, enableHoverPreview: false
+          }}
+          comment={comment}
+          key={comment._id}
+          forceSingleLine loadChildrenSeparately
+        />
+      {/* <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: comment.post.slug})} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link> */}
     </div>
   </AnalyticsContext></ErrorBoundary>
 }
