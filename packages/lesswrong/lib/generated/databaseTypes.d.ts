@@ -119,6 +119,7 @@ interface DbComment extends DbObject {
   inactive: boolean
   af: boolean
   afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string
   afDate: Date
@@ -442,6 +443,7 @@ interface DbPost extends DbObject {
   af: boolean
   afDate: Date
   afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afCommentCount: number
   afLastCommentedAt: Date
   afSticky: boolean
@@ -594,6 +596,7 @@ interface DbTagRel extends DbObject {
   deleted: boolean
   userId: string
   afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   voteCount: number
   baseScore: number
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -729,6 +732,7 @@ interface DbUser extends DbObject {
   hideFrontpageMap: boolean
   hideTaggingProgressBar: boolean
   hideFrontpageBookAd: boolean
+  hideFrontpageBook2019Ad: boolean
   sunshineNotes: string
   sunshineFlagged: boolean
   needsReview: boolean
