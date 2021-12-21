@@ -98,16 +98,37 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isAdmin = userIsAdmin(currentUser);
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
   const isEAForum = forumTypeSetting.get() === 'EAForum';
+  
+  // by default, we try to show the map at the top if the group has a location
+  let topSection = group.googleLocation ? <CommunityMapWrapper
+    className={classes.imageContainer}
+    terms={{view: "events", groupId: groupId}}
+    groupQueryTerms={{view: "single", groupId: groupId}}
+    hideLegend={true}
+    mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+  /> : <div className={classes.topSection}></div>;
+  let bottomSection;
+  // if the group has a banner image, show that at the top instead, and move the map to the bottom
+  if (group.bannerImageId) {
+    topSection = <div className={classes.imageContainer}>
+      <CloudinaryImage
+        publicId={group.bannerImageId}
+        width="auto"
+        height={200}
+      />
+    </div>
+    bottomSection = group.googleLocation && <CommunityMapWrapper
+      className={classes.mapContainer}
+      terms={{view: "events", groupId: groupId}}
+      groupQueryTerms={{view: "single", groupId: groupId}}
+      hideLegend={true}
+      mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+    />
+  }
 
   return (
     <div className={classes.root}>
-      {group.bannerImageId ? <div className={classes.imageContainer}>
-        <CloudinaryImage
-          publicId={group.bannerImageId}
-          width="auto"
-          height={200}
-        />
-      </div> : <div className={classes.topSection}></div>}
+      {topSection}
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>
@@ -158,13 +179,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         </Components.Typography>
         <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
         
-        {group.googleLocation && <CommunityMapWrapper
-            className={classes.mapContainer}
-            terms={{view: "events", groupId: groupId}}
-            groupQueryTerms={{view: "single", groupId: groupId}}
-            hideLegend={true}
-            mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
-          />}
+        {bottomSection}
       </SingleColumnSection>
     </div>
   )
