@@ -51,7 +51,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: 'absolute',
       left: 'var(--starting-position)',
       top: 0,
-      zIndex: 2
+      zIndex: 2,
+      opacity: .85,
+      filter: "saturate(.8)"
     },
     '& .book': {
       transform: 'rotateY(0deg)',
