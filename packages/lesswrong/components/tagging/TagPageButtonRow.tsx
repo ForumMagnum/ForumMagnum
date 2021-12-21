@@ -10,6 +10,9 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
@@ -58,6 +61,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subscribeTo: {
     marginRight: 16
+  },
+  helpImprove: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
+    marginLeft: 'auto',
+    color: theme.palette.grey[700],
+    fontStyle: "italic",
   },
 });
 
@@ -119,14 +130,14 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
       <TagDiscussionButton tag={tag} hideLabelOnMobile />
     </div>
     <LWTooltip
-      className={classes.button}
+      className={isEAForum ? classes.button : classes.helpImprove}
       title={<ContentItemBody
         className={classes.beginnersGuide}
         dangerouslySetInnerHTML={{__html: beginnersGuideContentTag?.description?.html || ""}}
         description={`tag ${tag?.name}`}
       />}
     >
-      <HelpOutlineIcon />
+      {isEAForum ? <HelpOutlineIcon /> : <>Help improve this page</>}
     </LWTooltip>
   </div>
 }
