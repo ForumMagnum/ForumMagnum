@@ -13,7 +13,7 @@ const Home2 = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment> <Book2019FrontpageWidget />
           {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
-          {reviewIsActive() && <SingleColumnSection>
+          {reviewIsActive() && currentUser && <SingleColumnSection>
             <FrontpageReviewWidget />
           </SingleColumnSection>}
           <AnalyticsInViewTracker
