@@ -5,23 +5,23 @@ import { reviewIsActive } from '../../lib/reviewUtils';
 import { useCurrentUser } from './withUser';
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, Book2019FrontpageWidget } = Components
 
   const currentUser = useCurrentUser()
 
   return (
       <AnalyticsContext pageContext="homePage">
-        <React.Fragment>
+        <React.Fragment> <Book2019FrontpageWidget />
           {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
-          {reviewIsActive() && <SingleColumnSection>
-            <FrontpageReviewWidget />
-          </SingleColumnSection>}
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+          {reviewIsActive() && <SingleColumnSection>
+            <FrontpageReviewWidget />
+          </SingleColumnSection>}
           <AnalyticsContext pageSectionContext="recentDiscussion">
             <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
               <RecentDiscussionFeed

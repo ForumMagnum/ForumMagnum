@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       '& .book::after': {
         opacity: 0
       },
-      '& .parent-container::after': {
+      '& .parent-container::aftBook2019FrontpageWidgeter': {
         left: '75px',
         opacity: 1,
         top: '25px'

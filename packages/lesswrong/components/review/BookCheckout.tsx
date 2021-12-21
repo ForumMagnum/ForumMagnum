@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // recreating the `Stripe` object on every render.
 // const stripePublicKey = stripePublicKeySetting.get()
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
-const amazonLink = "https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"
+const amazonLink = "https://amazon.com/dp/1736128515?ref=myi_title_dp&sa-no-redirect=1"
 
 const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
   handleClickAmazon: (event: any)=>void,
