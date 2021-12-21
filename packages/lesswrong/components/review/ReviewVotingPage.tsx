@@ -256,6 +256,7 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+  const [sortPosts, setSortPosts] = useState("reviewVoteScoreHighKarma")
 
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
@@ -286,12 +287,15 @@ const ReviewVotingPage = ({classes}: {
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
-  const reSortPosts = useCallback(() => {
+  const reSortPosts = useCallback((sortPostsMethod) => {
     if (!postsResults) return
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
     const newlySortedPosts = postsResults
       .map((post, i) => ([post, randomPermutation[i]] as const))
       .sort(([post1, permuted1], [post2, permuted2]) => {
+        if (post1[sortPostsMethod] > post2[sortPostsMethod]) return -1
+        if (post1[sortPostsMethod] < post2[sortPostsMethod]) return 1
+
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
@@ -316,7 +320,7 @@ const ReviewVotingPage = ({classes}: {
   
   const canInitialResort = !!postsResults
   useEffect(() => {
-    reSortPosts()
+    reSortPosts(sortPosts)
   }, [canInitialResort, reSortPosts])
   
   const quadraticVotes = useMemo(
@@ -476,11 +480,25 @@ const ReviewVotingPage = ({classes}: {
                 </div>
               </LWTooltip>}
             </>}
-            <LWTooltip title="Sorts the list of posts by vote strength">
-              <Button onClick={reSortPosts}>
-                Re-Sort <CachedIcon className={classes.menuIcon} />
-              </Button>
-            </LWTooltip>
+            <Select
+                value={sortPosts}
+                onChange={(e)=>{setSortPosts(e.target.value); reSortPosts(e.target.value)}}
+                disableUnderline
+                >
+                <MenuItem value={'reviewCount'}>
+                  Sorted by Review Count
+                </MenuItem>
+                <MenuItem value={'reviewVoteScoreHighKarma'}>
+                  Sorted by 1000+ Karma Vote Total
+                </MenuItem>
+                <MenuItem value={'reviewVoteScoreAllKarma'}>
+                  Sorted by Vote Total
+                </MenuItem>
+                <MenuItem value={'reviewVoteScoreAF'}>
+                  Sorted by Alignment Vote Total
+                </MenuItem>
+                <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
+              </Select>
           </div>
           <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
