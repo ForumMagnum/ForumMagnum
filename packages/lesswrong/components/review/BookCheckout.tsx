@@ -58,9 +58,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 // recreating the `Stripe` object on every render.
 // const stripePublicKey = stripePublicKeySetting.get()
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
-const amazonLink = "https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"
+const amazonLink = "https://www.amazon.com/dp/1736128515"
 
-const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
+const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
   handleClickAmazon: (event: any)=>void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
@@ -68,7 +68,7 @@ const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
 }) => {
   return <>
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
-      {`${text} (US) - $29`}
+      {`${text} (US) - $30`}
     </button>
     {/* <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
       {`${text} (international) - $29`}

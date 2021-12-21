@@ -1611,6 +1611,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly reviewVotesQuadratic2020: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
+  readonly hideFrontpageBook2019Ad: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly sortDrafts: string,
@@ -1732,6 +1733,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
+  readonly hideFrontpageBook2019Ad: boolean,
   readonly deleted: boolean,
 }
 
