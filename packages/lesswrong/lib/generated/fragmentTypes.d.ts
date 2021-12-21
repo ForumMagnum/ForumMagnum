@@ -105,6 +105,7 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly deleted: boolean,
   readonly userId: string,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -344,6 +345,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afCommentCount: number,
   readonly afLastCommentedAt: Date,
   readonly afSticky: boolean,
@@ -635,6 +637,7 @@ interface WithVotePost { // fragment on Posts
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly voteCount: number,
 }
 
@@ -673,6 +676,7 @@ interface CommentsList { // fragment on Comments
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly needsReview: boolean,
@@ -750,6 +754,7 @@ interface WithVoteComment { // fragment on Comments
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly voteCount: number,
 }
 
@@ -1604,6 +1609,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly reviewVotesQuadratic2020: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
+  readonly hideFrontpageBook2019Ad: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly sortDrafts: string,
@@ -1725,6 +1731,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
+  readonly hideFrontpageBook2019Ad: boolean,
   readonly deleted: boolean,
 }
 
