@@ -13,15 +13,15 @@ const Home2 = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment> <Book2019FrontpageWidget />
           {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
+          {reviewIsActive() && <SingleColumnSection>
+            <FrontpageReviewWidget />
+          </SingleColumnSection>}
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
-          {reviewIsActive() && <SingleColumnSection>
-            <FrontpageReviewWidget />
-          </SingleColumnSection>}
           <AnalyticsContext pageSectionContext="recentDiscussion">
             <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
               <RecentDiscussionFeed
