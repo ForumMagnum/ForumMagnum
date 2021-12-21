@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
     zIndex: theme.zIndexes.frontpageBooks,
     position: "relative",
-    '--book-animation-left-offset': '87.5px',
+    '--book-animation-left-offset': '22.0px',
     '@media(max-width: 1375px)': {
       width: 'calc(100vw - 250px)',
       overflow: 'hidden'
@@ -71,22 +71,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     [theme.breakpoints.down('xs')]: {
-      position: "absolute",
-      left: 0, right: 0,
-      top: 220,
       flexDirection: 'row-reverse',
-      paddingLeft: 25,
+      flexWrap: 'wrap-reverse',
+      marginLeft: 169,
       paddingRight: 10,
-    },
-    [legacyBreakpoints.maxTiny]: {
-      paddingLeft: 10,
     },
   },
   closeButton: {
     ...theme.typography.commentStyle,
     position: 'absolute',
-    right: '182px',
-    top: '-20px',
+    right: '103px',
+    top: '-24px',
     fontSize: '1rem',
     color: 'rgba(0,0,0,0.4)',
     cursor: 'pointer',
@@ -190,11 +185,11 @@ const Book2019FrontpageWidget = ({ classes }: {
       }>
         <BookMarketingText 
           title={"The Engines of Cognition"} 
-          subtitle={"The best LessWrong essays from 2019, in a set of physical books"}
-          description={"A beautifully designed collection of books, each small enough to fit in your pocket. The book set contains over forty chapters by more than twenty authors including Eliezer Yudkowsky,  Scott Alexander and Zvi Mowshowitz. This is a collection of opinionated essays exploring argument, aesthetics, game theory, artificial intelligence, introspection, markets, and more, as part of LessWrong's mission to understand the laws that govern reasoning and decision-making, and build a map that reflects the territory."}
+          subtitle={"Newly Published Essays by the LessWrong Community"}
+          description={"In this new essay collection, LessWrong writers seek to understand key elements of the art of rationality. The collection features essays from Eliezer Yudkowsky, Scott Alexander, Zvi Mowshowitz, and over 30 more LessWrong writers. Starting with the simple epistemic question of when and how to trust different sources of information, the essays in the books move through understanding the lens of incentives, an exploration of when and why complex systems become modular, and finally into a discussions of failure, both personal and civilizational."}
           buttons={<>
             <div className={classes.mobileCloseButton} onClick={hideClickHandler}>Hide</div>
-            <Link className={classes.learnMore} to="/books">
+            <Link className={classes.learnMore} to="/posts/mvPfao35Moah8py46/the-engines-of-cognition-book-launch">
               Learn More
             </Link>
             <BookCheckout />
