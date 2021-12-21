@@ -129,14 +129,14 @@ const Book2019FrontpageWidget = ({ classes }: {
   });
   const { openDialog } = useDialog();
 
-  // if (currentUser?.hideFrontpageBook2019Ad) return null
+  if (currentUser?.hideFrontpageBook2019Ad) return null
 
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
         selector: { _id: currentUser._id },
         data: {
-          hideFrontpageBookAd: true
+          hideFrontpageBook2019Ad: true
         },
       })
     } else {
