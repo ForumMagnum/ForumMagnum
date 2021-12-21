@@ -329,7 +329,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   )
 }
 
-const BookLanding = ({classes}: {
+const Book2018Landing = ({classes}: {
   classes: ClassesType,
 }) => {
   const {BookAnimation, BookCheckout, HeadTags} = Components;
@@ -368,7 +368,7 @@ const BookLanding = ({classes}: {
             </p>
             <div>
               <div className={classes.buyButton}>
-                <BookCheckout />
+                {/* <BookCheckout /> */}
                 <Link className={classes.faqLink} to="/posts/TTPux7QFBpKxZtMKE/the-lesswrong-book-is-available-for-pre-order">
                   Read the FAQ
                 </Link>
@@ -497,10 +497,10 @@ const BookLanding = ({classes}: {
   )
 }
 
-const BookLandingComponent = registerComponent('BookLanding', BookLanding, {styles});
+const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018Landing, {styles});
 
 declare global {
   interface ComponentTypes {
-    BookLanding: typeof BookLandingComponent
+    Book2018Landing: typeof Book2018LandingComponent
   }
 }

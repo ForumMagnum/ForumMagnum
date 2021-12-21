@@ -10,6 +10,8 @@ registerFragment(`
     draft
     hideCommentKarma
     af
+    currentUserReviewVote
+    userId
   }
 `);
 
@@ -33,6 +35,7 @@ registerFragment(`
     commentCount
     voteCount
     baseScore
+    extendedScore
     unlisted
     score
     lastVisitedAt
@@ -55,6 +58,7 @@ registerFragment(`
     location
     googleLocation
     onlineEvent
+    globalEvent
     startTime
     endTime
     localStartTime
@@ -65,6 +69,7 @@ registerFragment(`
     contactInfo
     isEvent
     types
+    groupId
 
     # Review data 
     reviewedByUserId
@@ -78,6 +83,7 @@ registerFragment(`
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
     afBaseScore
+    afExtendedScore
     afCommentCount
     afLastCommentedAt
     afSticky
@@ -92,10 +98,20 @@ registerFragment(`
     reviewCount2018
     nominationCount2019
     reviewCount2019
+    reviewCount
+    reviewVoteCount
+    positiveReviewVoteCount
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
 
     group {
       _id
       name
+      organizerIds
     }
   }
 `);
@@ -104,6 +120,7 @@ registerFragment(`
   fragment PostsWithVotes on Post {
     ...PostsBase
     currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -111,6 +128,7 @@ registerFragment(`
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
+    currentUserExtendedVote
   }
 `)
 
@@ -217,6 +235,7 @@ registerFragment(`
     
     # Voting
     currentUserVote
+    currentUserExtendedVote
     feedLink
     feed {
       ...RSSFeedMinimumInfo
@@ -408,6 +427,7 @@ registerFragment(`
     ...PostsListBase
 
     currentUserVote
+    currentUserExtendedVote
 
     contents {
       _id
@@ -438,9 +458,12 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     afBaseScore
+    afExtendedScore
     voteCount
   }
 `);
@@ -453,4 +476,3 @@ registerFragment(`
     }
   }
 `);
-

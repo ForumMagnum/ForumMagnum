@@ -1,7 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { useCurrentUser } from '../../common/withUser';
+import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../../lib/reviewUtils';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -24,6 +27,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "top",
     color: "rgba(0,0,0,.4)",
   },
+  reviewVoting: {
+    textAlign: "center",
+    padding: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*6
+  },
+  reviewButton: {
+    border: `solid 1px ${theme.palette.primary.main}`,
+    paddingLeft: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    marginTop: theme.spacing.unit,
+    display: "inline-block",
+    borderRadius: 3
+  }
 });
 
 const PostBodyPrefix = ({post, query, classes}: {
@@ -31,16 +49,16 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip} = Components;
-  
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton } = Components;
+  const currentUser = useCurrentUser();
+
   return <>
-    {/* disabled except during Review */}
-    {/* {(post.nominationCount2019 >= 2) && <div className={classes.reviewInfo}>
-      <div className={classes.reviewLabel}>
-        This post has been nominated for the <HoverPreviewLink href={'/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review'} id="QFBEjjAvT6KbaA3dY" innerHTML={"2019 Review"}/>
-      </div>
-      <ReviewPostButton post={post} reviewMessage="Write a Review" year="2019"/>
-    </div>} */}
+    {reviewIsActive() && postEligibleForReview(post) && postIsVoteable(post) && <div className={classes.reviewVoting}>
+      {canNominate(currentUser, post) && <ReviewVotingWidget post={post}/>}
+      <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
+        <div className={classes.reviewButton}>Review</div>
+      </LWTooltip>}/>
+    </div>}
 
     <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />

@@ -253,6 +253,16 @@ export interface UseMultiOptions<
   alwaysShowLoadMore?: boolean,
 }
 
+export type LoadMoreCallback = (limitOverride?: number) => void
+
+export type LoadMoreProps = {
+  loadMore: LoadMoreCallback
+  count: number,
+  totalCount: number,
+  loading: boolean,
+  hidden: boolean,
+}
+
 export function useMulti<
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
@@ -277,13 +287,14 @@ export function useMulti<
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
+  // TODO: Should be nullable
   results: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
   error: ApolloError|undefined,
   count?: number,
   showLoadMore: boolean,
-  loadMoreProps: any,
+  loadMoreProps: LoadMoreProps,
   loadMore: any,
   limit: number,
 } {
@@ -342,7 +353,7 @@ export function useMulti<
   // if showLoadMore returned true.
   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= limit));
   
-  const loadMore = async (limitOverride: number) => {
+  const loadMore: LoadMoreCallback = async (limitOverride?: number) => {
     const newLimit = limitOverride || (limit+itemsPerPage)
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}

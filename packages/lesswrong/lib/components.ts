@@ -192,6 +192,7 @@ importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsIt
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle'));
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip'));
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltipSingle'));
+importComponent("PostsPreviewTooltipSingleWithComment", () => require('../components/posts/PostsPreviewTooltipSingle'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper'));
 importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.tsx'));
@@ -205,6 +206,9 @@ importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCal
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
+importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
+importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));
+importComponent("UserSuggestNominations", () => require('../components/posts/UserSuggestNominations'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
@@ -234,8 +238,17 @@ importComponent("NewShortformDialog", () => require('../components/shortform/New
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 
+importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
+importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
+importComponent("OverallVoteButton", () => require('../components/votes/OverallVoteButton'));
+importComponent("AxisVoteButton", () => require('../components/votes/AxisVoteButton'));
 importComponent("SmallSideVote", () => require('../components/votes/SmallSideVote'));
+importComponent("OverallVoteAxis", () => require('../components/votes/OverallVoteAxis'));
+importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));
+importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
+importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
+importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 // Events
@@ -495,6 +508,7 @@ importComponent("BigCollectionsCard", () => require('../components/collections/B
 importComponent("CoreSequences", () => require('../components/sequences/CoreSequences'));
 importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
+importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
@@ -520,6 +534,7 @@ importComponent("FormComponentNumber", () => require('../components/form-compone
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
+importComponent("SelectLocalgroup", () => require('../components/form-components/SelectLocalgroup'));
 
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
@@ -550,10 +565,11 @@ importComponent("RecommendationsList", () => require('../components/recommendati
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 
-// 2018 Review Components
-importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
-importComponent("FrontpageReviewPhase", () => require('../components/review/FrontpageReviewPhase'));
-importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
+// Review Components
+// importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
+importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
+// importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
+importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));
 importComponent("Nominations2018", () => require('../components/review/Nominations2018'));
 importComponent("Nominations2019", () => require('../components/review/Nominations2019'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018'));
@@ -563,10 +579,17 @@ importComponent("ReviewPostForm", () => require('../components/review/ReviewPost
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem'));
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog'));
 importComponent("UserReviews", () => require('../components/review/UserReviews'));
-importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations'));
+importComponent("ReviewPostComments", () => require('../components/review/ReviewPostComments'));
 importComponent("BookCheckout", () => require('../components/review/BookCheckout'));
+// importComponent("ReviewVotingPage2019", () => require('../components/review/ReviewVotingPage2019'))
 importComponent("ReviewVotingPage", () => require('../components/review/ReviewVotingPage'))
+importComponent("ReviewVotingExpandedPost", () => require('../components/review/ReviewVotingExpandedPost'))
 importComponent("ReactionsButton", () => require('../components/review/ReactionsButton'))
+importComponent("ReviewVotingWidget", () => require('../components/review/ReviewVotingWidget'))
+importComponent("LatestReview", () => require('../components/review/LatestReview'));
+importComponent("ReviewAdminDashboard", () => require('../components/review/ReviewAdminDashboard'));
+importComponent("PostNominatedNotification", () => require('../components/review/PostNominatedNotification'));
+
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))
 importComponent("ReviewVotingButtons", () => require('../components/review/ReviewVotingButtons'))
@@ -589,6 +612,10 @@ importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Ale
 importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button'));
 
 // Review Book related components
-importComponent("BookLanding", () => require('../components/books/BookLanding'));
+importComponent("Book2018Landing", () => require('../components/books/Book2018Landing'));
+importComponent("Book2019Landing", () => require('../components/books/Book2019Landing'));
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
+importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
+importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
+

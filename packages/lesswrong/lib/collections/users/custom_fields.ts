@@ -11,6 +11,7 @@ import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
+import { REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -307,6 +308,14 @@ addFieldsDict(Users, {
     canCreate: 'guests',
   },
   allPostsShowLowKarma: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  allPostsIncludeEvents: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
@@ -685,6 +694,10 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationPostsNominatedReview: {
+    label: "Nominations of my posts for the annual LessWrong Review",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
@@ -990,6 +1003,18 @@ addFieldsDict(Users, {
     label: "Hide the frontpage book ad"
   },
 
+  hideFrontpageBook2019Ad: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 47,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
   sunshineNotes: {
     type: String,
     canRead: ['admins', 'sunshineRegiment'],
@@ -1265,6 +1290,25 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVoteCount:resolverOnlyField({
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    resolver: async (document, args, context: ResolverContext) => {
+      const { ReviewVotes } = context;
+      const voteCount = await ReviewVotes.find({
+        userId: document._id,
+        year: REVIEW_YEAR+""
+      }).count();
+      return voteCount
+    }
+  }),
+  reviewVotesQuadratic2020: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
   petrovPressedButtonDate: {
     type: Date,
     optional: true,
@@ -1458,7 +1502,22 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
-  }
+  },
+  paymentEmail: {
+    // by default means "paypal email", unless something else is specified in paymentInfo
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+  paymentInfo: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
 });
 
 makeEditable({
