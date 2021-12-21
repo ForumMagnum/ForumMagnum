@@ -170,7 +170,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               type="number" 
               disableUnderline
               classes={{input:classes.input}}
-              defaultValue={otherValue} 
+              value={otherValue}
 
               onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
             />

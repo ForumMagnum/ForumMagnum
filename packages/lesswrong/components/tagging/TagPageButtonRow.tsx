@@ -82,9 +82,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
         <div>
           {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
         </div> :
-        <span>
-          This tag does not currently have any improvement flags set.
-        </span>
+        null
       }
     >
       <a className={classes.button} onClick={(ev) => {

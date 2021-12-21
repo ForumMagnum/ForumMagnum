@@ -158,7 +158,7 @@ export const useSubscribeUserToTag = (tag: TagBasicInfo) => {
   const { filterSettings, setTagFilter } = useFilterSettings()
   
   const filterSetting = filterSettings.tags.find(ft => ft.tagId === tag._id)
-  const isSubscribed = filterSetting?.filterMode === "Subscribed" || filterSetting?.filterMode === 25
+  const isSubscribed = filterSetting && (filterSetting.filterMode === "Subscribed" || filterSetting.filterMode >= 25)
   
   const subscribeUserToTag = useCallback((tag: TagBasicInfo, filterMode: FilterMode) => {
     setTagFilter({
