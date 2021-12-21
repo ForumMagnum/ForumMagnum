@@ -368,7 +368,7 @@ const Book2018Landing = ({classes}: {
             </p>
             <div>
               <div className={classes.buyButton}>
-                <BookCheckout />
+                {/* <BookCheckout /> */}
                 <Link className={classes.faqLink} to="/posts/TTPux7QFBpKxZtMKE/the-lesswrong-book-is-available-for-pre-order">
                   Read the FAQ
                 </Link>
