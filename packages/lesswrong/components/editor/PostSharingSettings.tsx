@@ -115,9 +115,8 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
               // unchanged, and subimt the form.
               await submitForm(null, {redirectToEditor: true});
             }
-            
-            closeDialog();
           }
+          closeDialog();
         },
         initialShareWithUsers: document.shareWithUsers || [],
       },
@@ -129,7 +128,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
     return null;
   
   return <div className={classes.shareButtonSection}>
-    <Button color="primary" onClick={onClickShare}>
+    <Button variant="contained" color="primary" onClick={onClickShare}>
       Share
     </Button>
   </div>
@@ -254,15 +253,15 @@ const PostSharingSettingsDialog = ({postId, initialSharingSettings, initialShare
         
         <span className={classes.spacer}/>
         
-        <Button color="primary"
-          onClick={() => onConfirm(sharingSettings, shareWithUsers, isChanged)}
-        >
-          Confirm
-        </Button>
         <Button
           onClick={()=>onClose()}
         >
           Cancel
+        </Button>
+        <Button variant="contained" color="primary"
+          onClick={() => onConfirm(sharingSettings, shareWithUsers, isChanged)}
+        >
+          Confirm
         </Button>
       </div>
     </div>

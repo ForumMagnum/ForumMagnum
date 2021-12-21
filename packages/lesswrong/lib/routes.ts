@@ -221,6 +221,7 @@ addRoute(
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
+    background: "white",
   },
   // disabled except during review voting phase
   {
