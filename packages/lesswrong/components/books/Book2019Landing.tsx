@@ -170,7 +170,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   body: {
     ...postBodyStyles(theme),
-    marginBottom: 70,
+    marginBottom: 50,
     marginLeft: 50
   },
   mainQuoteAuthor: {
