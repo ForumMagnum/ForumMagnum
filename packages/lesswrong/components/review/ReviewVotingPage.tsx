@@ -299,14 +299,16 @@ const ReviewVotingPage = ({classes}: {
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
-  const reSortPosts = useCallback((sortPostsMethod) => {
+  const reSortPosts = useCallback((sortPostsMethod, sortReversed) => {
     if (!postsResults) return
+
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
     const newlySortedPosts = postsResults
       .map((post, i) => ([post, randomPermutation[i]] as const))
       .sort(([inputPost1, permuted1], [inputPost2, permuted2]) => {
         const post1 = sortReversed ? inputPost2 : inputPost1
         const post2 = sortReversed ? inputPost1 : inputPost2
+        console.log("2", sortReversed)
 
         if (post1[sortPostsMethod] > post2[sortPostsMethod]) return -1
         if (post1[sortPostsMethod] < post2[sortPostsMethod]) return 1
@@ -335,7 +337,7 @@ const ReviewVotingPage = ({classes}: {
   
   const canInitialResort = !!postsResults
   useEffect(() => {
-    reSortPosts(sortPosts)
+    reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts])
   
   const quadraticVotes = useMemo(
@@ -495,16 +497,19 @@ const ReviewVotingPage = ({classes}: {
                 </div>
               </LWTooltip>}
             </>}
-            <LWTooltip title="Reverse Sorting">
-              <div onClick={() => { setSortReversed(!sortReversed); reSortPosts(sortPosts)}}>
-                {sortReversed ? <ArrowDownwardIcon className={classes.sortArrow} />
-                  : <ArrowUpwardIcon className={classes.sortArrow}  />
+            <LWTooltip title={`Sorted by ${sortReversed ? "Descending" : "Ascending"}`}>
+              <div onClick={() => { 
+                setSortReversed(!sortReversed); 
+                reSortPosts(sortPosts, !sortReversed);
+              }}>
+                {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
+                  : <ArrowDownwardIcon className={classes.sortArrow}  />
                 }
               </div>
             </LWTooltip>
             <Select
               value={sortPosts}
-              onChange={(e)=>{setSortPosts(e.target.value); reSortPosts(e.target.value)}}
+              onChange={(e)=>{setSortPosts(e.target.value); reSortPosts(e.target.value, sortReversed)}}
               disableUnderline
               >
               <MenuItem value={'reviewCount'}>
@@ -516,9 +521,9 @@ const ReviewVotingPage = ({classes}: {
               <MenuItem value={'reviewVoteScoreAllKarma'}>
                 Sorted by Vote Total (All Users)
               </MenuItem>
-              <MenuItem value={'reviewVoteScoreAF'}>
+              {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
                 Sorted by Vote Total (Alignment Forum Users)
-              </MenuItem>
+              </MenuItem>}
             </Select>
           </div>
           <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
