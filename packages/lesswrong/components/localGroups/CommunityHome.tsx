@@ -50,36 +50,40 @@ const CommunityHome = ({classes}: {
     fragmentName: 'UsersProfile',
   });
   
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  
   // if the current user provides their browser location and they do not yet have a location in their user settings,
   // assign their browser location to their user settings location
-  // const [mapsLoaded, googleMaps] = useGoogleMaps("LocationFormComponent")
+  const [geocodeError, setGeocodeError] = useState(false)
   const updateUserLocation = async ({lat, lng, known}) => {
-    if (currentUser && !currentUser.location && known) {
-      // const geocoder = new googleMaps.Geocoder();
-      // const {results: results} = await geocoder.geocode({
-      //   location: {
-      //     lat: lat,
-      //     lng: lng
-      //   }
-      // });
+    if (isEAForum && !geocodeError && currentUser && !currentUser.location && known) {
+      // get a list of matching Google locations for the current lat/lng
       const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get()}`)
       if (!response.ok) {
-        console.log(response)
+        setGeocodeError(true)
+        // eslint-disable-next-line no-console
+        console.error("Error sending reverse geocoding query:", response.status)
         return
       }
-      const results = await response.json()
-      console.log(results)
-      if (results?.length > 0) {
-        const location = pickBestReverseGeocodingResult(results)
-        console.log(location)
-        void updateUser({
-          selector: {_id: currentUser._id},
-          data: {
-            location: location?.formatted_address,
-            googleLocation: location
-          }
-        })
+      const data = await response.json()
+      const results = data?.results
+      if (!results?.length) {
+        setGeocodeError(true)
+        if (data.status) {
+          // eslint-disable-next-line no-console
+          console.error("Google geocode error:", data.status, data.error_message)
+        }
+        return
       }
+      
+      const location = pickBestReverseGeocodingResult(results)
+      void updateUser({
+        selector: {_id: currentUser._id},
+        data: {
+          location: location?.formatted_address,
+          googleLocation: location
+        }
+      })
     }
   }
 
@@ -105,7 +109,6 @@ const CommunityHome = ({classes}: {
     });
   }
 
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
   const isAdmin = userIsAdmin(currentUser);
   const canCreateEvents = currentUser;
   const canCreateGroups = currentUser && (!isEAForum || isAdmin);

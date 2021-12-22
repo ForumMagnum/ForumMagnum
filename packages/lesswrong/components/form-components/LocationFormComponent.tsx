@@ -119,6 +119,16 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  
+  const handleCheckClear = (value) => {
+    // clear location fields if the user deletes the input text
+    if (value === '') {
+      updateCurrentValues({
+        location: null,
+        googleLocation: null,
+      })
+    }
+  }
 
   const handleSuggestSelect = (suggestion) => {
     if (suggestion && suggestion.gmaps) {
@@ -134,6 +144,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
     return <div className={classes.root}>
       <Geosuggest
         placeholder="Location"
+        onChange={handleCheckClear}
         onSuggestSelect={handleSuggestSelect}
         initialValue={location}
       />
