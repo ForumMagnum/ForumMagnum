@@ -60,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const RecentDiscussionMeetupsPoke = ({classes}: {
   classes: ClassesType,
 }) => {
-  const [mapsLoaded, googleMaps] = useGoogleMaps("SetPersonalMapLocationDialog")
+  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geolocationLoading, setGeolocationLoading] = useState(false);
   const [label, setLabel] = useState<any>(null)
   const [location, setLocation] = useState<any>(null);

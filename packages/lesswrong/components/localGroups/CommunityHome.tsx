@@ -78,6 +78,7 @@ const CommunityHome = ({classes}: {
         }
       } catch (e) {
         setGeocodeError(true)
+        // eslint-disable-next-line no-console
         console.error(e?.message)
       }
     }

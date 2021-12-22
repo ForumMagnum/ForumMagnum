@@ -111,7 +111,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
   classes: ClassesType,
 }) => {
   const location = document?.location || ""
-  const [ mapsLoaded ] = useGoogleMaps("LocationFormComponent")
+  const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
   useEffect(() => {
     updateCurrentValues({
       location: (document && document.location) || "",
