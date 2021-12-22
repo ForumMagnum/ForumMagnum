@@ -62,14 +62,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   subscribeTo: {
     marginRight: 16
   },
-  helpImprove: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    },
-    marginLeft: 'auto',
-    color: theme.palette.grey[700],
-    fontStyle: "italic",
-  },
 });
 
 const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
@@ -81,34 +73,36 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
-  const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton } = Components;
   
   const numFlags = tag.tagFlagsIds?.length
+  
+  function handleEditClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (currentUser) {
+      setEditing(true)
+    } else {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+      e.preventDefault();
+    }
+  }
   
   return <div className={classNames(classes.buttonsRow, className)}>
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
       title={ tag.tagFlagsIds?.length > 0 ? 
         <div>
+          This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
           {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
         </div> :
         null
       }
     >
-      <a className={classes.button} onClick={(ev) => {
-        if (currentUser) {
-          setEditing(true)
-        } else {
-          openDialog({
-            componentName: "LoginPopup",
-            componentProps: {}
-          });
-          ev.preventDefault();
-        }
-      } }>
+      <a className={classes.button} onClick={handleEditClick}>
         <EditOutlinedIcon /><span className={classes.buttonLabel}>
-          Edit {!!numFlags && `(${numFlags} flag${numFlags === 1 ? '' : 's'})`}
+          Edit
         </span>
       </a>
     </LWTooltip>}
@@ -129,16 +123,6 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
     <div className={classes.button}>
       <TagDiscussionButton tag={tag} hideLabelOnMobile />
     </div>
-    <LWTooltip
-      className={isEAForum ? classes.button : classes.helpImprove}
-      title={<ContentItemBody
-        className={classes.beginnersGuide}
-        dangerouslySetInnerHTML={{__html: beginnersGuideContentTag?.description?.html || ""}}
-        description={`tag ${tag?.name}`}
-      />}
-    >
-      {isEAForum ? <HelpOutlineIcon /> : <>Help improve this page</>}
-    </LWTooltip>
   </div>
 }
 
