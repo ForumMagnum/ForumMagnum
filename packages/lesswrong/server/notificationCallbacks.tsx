@@ -161,6 +161,8 @@ export const createNotification = async ({userId, notificationType, documentType
     type: notificationType,
     link: await getLink(notificationType, documentType, documentId),
   }
+  console.log(notificationData)
+  console.log(notificationTypeSettings)
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
   {
@@ -342,6 +344,9 @@ export async function postsNewNotifications (post: DbPost) {
     
     const userIdsToNotify = _.map(usersToNotify, u=>u._id);
 
+    // TODO: compare with newEventInRadius
+    console.log('postsNewNotifications')
+    console.log(userIdsToNotify)
     if (post.groupId && post.isEvent) {
       await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
     } else if (post.groupId && !post.isEvent) {
@@ -659,11 +664,13 @@ async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Ar
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
 postPublishedCallback.add(async function PostsNewMeetupNotifications (newPost: DbPost) {
+  console.log('PostsNewMeetupNotifications')
+  console.log(newPost.mongoLocation)
   if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
     const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    await createNotifications({userIds: usersIdsWithoutAuthor, notificationType: "newEventInRadius", documentType: "post", documentId: newPost._id})
+    await createNotifications({userIds: userIds, notificationType: "newEventInRadius", documentType: "post", documentId: newPost._id})
   }
 });
 
@@ -682,6 +689,6 @@ getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifi
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
     const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    await createNotifications({userIds: usersIdsWithoutAuthor, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
+    await createNotifications({userIds: userIds, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
   }
 });

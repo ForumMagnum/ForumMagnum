@@ -48,6 +48,7 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
     }
   });
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
+  console.log('document', document?._id)
   if (!document) return null;
   return (<React.Fragment>
     <div className={classes.heading}>

@@ -342,6 +342,8 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
     return `A new event has been created in your area: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    console.log('new')
+    console.log(notifications)
     return <Components.EventInRadiusEmail
       openingSentence="A new event has been created in your area"
       postId={notifications[0].documentId}
@@ -358,6 +360,8 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
     return `An event in your area has been edited: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    console.log('edit')
+    console.log(notifications)
     return <Components.EventInRadiusEmail
       openingSentence="An event in your area has been edited"
       postId={notifications[0].documentId}
