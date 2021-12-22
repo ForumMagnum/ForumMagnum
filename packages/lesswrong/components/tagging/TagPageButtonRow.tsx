@@ -62,6 +62,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   subscribeTo: {
     marginRight: 16
   },
+  helpImprove: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
+    marginLeft: 'auto',
+    color: theme.palette.grey[700],
+    fontStyle: "italic",
+  },
 });
 
 const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
@@ -73,7 +81,8 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { LWTooltip, NotifyMeButton, TagDiscussionButton } = Components;
+  const { LWTooltip, NotifyMeButton, TagDiscussionButton, ContentItemBody } = Components;
+  const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment")
   
   const numFlags = tag.tagFlagsIds?.length
   
@@ -89,16 +98,25 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
     }
   }
   
+  const editTooltip = <>
+    {numFlags && <>
+      <div>
+        This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
+        {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
+      </div>
+      <br/>
+    </>}
+    <ContentItemBody
+      className={classes.beginnersGuide}
+      dangerouslySetInnerHTML={{__html: beginnersGuideContentTag?.description?.html || ""}}
+      description={`tag ${tag?.name}`}
+    />
+  </>
+  
   return <div className={classNames(classes.buttonsRow, className)}>
     {!editing && <LWTooltip
       className={classes.buttonTooltip}
-      title={ tag.tagFlagsIds?.length > 0 ? 
-        <div>
-          This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
-          {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
-        </div> :
-        null
-      }
+      title={editTooltip}
     >
       <a className={classes.button} onClick={handleEditClick}>
         <EditOutlinedIcon /><span className={classes.buttonLabel}>
@@ -123,6 +141,12 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
     <div className={classes.button}>
       <TagDiscussionButton tag={tag} hideLabelOnMobile />
     </div>
+    {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
+      className={classes.helpImprove}
+      title={editTooltip}
+    >
+      Help improve this page {numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
+    </LWTooltip>}
   </div>
 }
 
