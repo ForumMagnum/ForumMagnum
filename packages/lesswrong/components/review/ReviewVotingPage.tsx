@@ -524,6 +524,9 @@ const ReviewVotingPage = ({classes}: {
               {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
                 Sorted by Vote Total (Alignment Forum Users)
               </MenuItem>}
+              <MenuItem value={'currentUserReviewVote'}>
+                Sorted by Your Vote
+              </MenuItem>
             </Select>
           </div>
           <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
