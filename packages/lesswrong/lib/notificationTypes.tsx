@@ -324,7 +324,7 @@ export const EditedEventInNotificationRadiusNotification = registerNotificationT
   userSettingField: "notificationEventInRadius",
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost
-    return `The event ${document.title} changed locations`
+    return `The event ${document.title} has been updated`
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
