@@ -512,9 +512,6 @@ const ReviewVotingPage = ({classes}: {
               onChange={(e)=>{setSortPosts(e.target.value); reSortPosts(e.target.value, sortReversed)}}
               disableUnderline
               >
-              <MenuItem value={'reviewCount'}>
-                Sorted by Review Count
-              </MenuItem>
               <MenuItem value={'reviewVoteScoreHighKarma'}>
                 Sorted by Vote Total (1000+ Karma Users)
               </MenuItem>
@@ -526,6 +523,9 @@ const ReviewVotingPage = ({classes}: {
               </MenuItem>}
               <MenuItem value={'currentUserReviewVote'}>
                 Sorted by Your Vote
+              </MenuItem>
+              <MenuItem value={'reviewCount'}>
+                Sorted by Review Count
               </MenuItem>
             </Select>
           </div>
