@@ -18,11 +18,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   }
 }))
 
-const LocalGroupsList = ({terms, children, classes, showNoResults=true}: {
+const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}: {
   terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
   classes: ClassesType,
   showNoResults?: boolean,
+  heading?: string,
 }) => {
   const { results, count, loadMore, totalCount, loading, loadingMore, loadMoreProps } = useMulti({
     terms,
@@ -30,12 +31,24 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true}: {
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
   });
-  const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore } = Components
+  const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore, SingleColumnSection, SectionTitle } = Components
+
+  const MaybeTitleWrapper = ({children}) => heading ?
+    <SingleColumnSection>
+      <SectionTitle title={heading} />
+      {children}
+    </SingleColumnSection> :
+    children;
 
   if (!results && loading) return <Loading />
-  if ((results && !results.length) && showNoResults) return <PostsNoResults />
+  if (results && !results.length) {
+    return showNoResults ? 
+      <MaybeTitleWrapper><PostsNoResults /></MaybeTitleWrapper> :
+      null
+  }
 
-  return <div>
+  return <MaybeTitleWrapper>
+    <div>
       <div className={classes.localGroups}>
         {results && results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}
       </div>
@@ -46,6 +59,7 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true}: {
         { children }
       </SectionFooter>
     </div>
+  </MaybeTitleWrapper>;
 }
 
 const LocalGroupsListComponent = registerComponent('LocalGroupsList', LocalGroupsList, {styles})

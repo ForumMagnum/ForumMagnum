@@ -184,7 +184,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -337,6 +337,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
+          {/* Groups Section */
+            <LocalGroupsList terms={{
+              view: 'userActiveGroups',
+              userId: user?._id,
+              limit: 300
+            }} heading={ownPage ? "My Groups" : `${user?.displayName}'s Groups`} />
+          }
           {/* Wiki Section */}
           <SingleColumnSection>
             <SectionTitle title={"Wiki Contributions"}>
