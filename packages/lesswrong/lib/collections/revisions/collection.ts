@@ -37,7 +37,8 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // ResolverContext, use a findOne query; this is slow, but doesn't come up
   // in any contexts where speed matters.
   const { major: majorVersion } = extractVersionsFromSemver(revision.version)
-  const collectionName= revision.collectionName as CollectionNameString;
+  const collectionName= revision.collectionName
+  console.log('🚀 ~ file: collection.ts ~ line 41 ~ Revisions.checkAccess= ~ collectionName', collectionName)
   const documentId = revision.documentId;
   const collection = getCollection(collectionName);
   const document = context

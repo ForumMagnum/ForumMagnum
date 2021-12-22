@@ -103,15 +103,20 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         }
 
         const { currentUser }: {currentUser: DbUser|null} = context;
+        console.log('🚀 ~ file: default_resolvers.ts ~ line 107 ~ resolver ~ collectionName', collectionName)
         const collection = getCollection(collectionName);
+        console.log('🚀 ~ file: default_resolvers.ts ~ line 108 ~ resolver ~ collection', !!collection)
 
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
         const doc = documentId
           ? await context.loaders[collectionName].load(documentId)
           : await Utils.Connectors.get(collection, selector);
+          
+        console.log('got here 1')
 
         if (!doc) {
+          console.log('no doc')
           if (allowNull) {
             return { result: null };
           } else {
@@ -121,6 +126,8 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
             });
           }
         }
+        
+        console.log('doc', doc)
 
         // if collection has a checkAccess function defined, use it to perform a check on the current document
         // (will throw an error if check doesn't pass)

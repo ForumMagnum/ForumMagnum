@@ -3,6 +3,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
+const util = require('util');
 
 // Single query used on the client
 //
@@ -173,11 +174,17 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     skip: skip || !documentId,
   })
   if (error) {
+    console.log('🚀 ~ file: withSingle.ts ~ line 161 ~ collectionName', collectionName)
+    console.log('🚀 ~ file: withSingle.ts ~ line 162 ~ collection', !!collection)
+    console.log('🚀 ~ file: withSingle.ts ~ line 162 ~ query', !!query)
+    console.log('🚀 ~ file: withSingle.ts ~ line 166 ~ resolverName', resolverName)
+    console.log('yes its this err')
     // This error was already caught by the apollo middleware, but the
     // middleware had no idea who  made the query. To aid in debugging, log a
     // stack trace here.
     // eslint-disable-next-line no-console
     console.error(error.message)
+    console.log('err', util.inspect(error, { showHidden: true, depth: null }))
   }
   const document: FragmentTypes[FragmentTypeName] | undefined = data && data[resolverName] && data[resolverName].result
   // TS can't deduce that either the document or the error are set and thus loading is inferred to be of type boolean always (instead of either true or false)

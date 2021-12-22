@@ -221,6 +221,7 @@ const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: str
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
+      console.log('sendPostByEmail, sending')
       await wrapAndSendEmail({
         user,
         subject: post.title,

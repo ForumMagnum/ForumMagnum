@@ -57,6 +57,7 @@ export const NewPostNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
+    console.log('NewPostNotification, getting email body')
     return <Components.NewPostEmail documentId={postId}/>
   },
 });
@@ -80,6 +81,7 @@ export const NewEventNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
+    console.log('NewEventNotification, getting email body')
     return <Components.NewPostEmail documentId={postId}/>
   },
 });
@@ -94,6 +96,7 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
+    console.log('newGroupPost, getting email body')
     return <Components.NewPostEmail documentId={postId}/>
   },
 });
@@ -138,6 +141,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
+      console.log('newTagPosts, getting email body')
       return <Components.NewPostEmail documentId={ tagRel.postId}/>
     }
   }
