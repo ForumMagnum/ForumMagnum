@@ -13,7 +13,7 @@ import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
-import { mapsAPIKeySetting, useGoogleMaps } from '../form-components/LocationFormComponent';
+import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
@@ -54,36 +54,32 @@ const CommunityHome = ({classes}: {
   
   // if the current user provides their browser location and they do not yet have a location in their user settings,
   // assign their browser location to their user settings location
+  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
   const updateUserLocation = async ({lat, lng, known}) => {
-    if (isEAForum && !geocodeError && currentUser && !currentUser.location && known) {
-      // get a list of matching Google locations for the current lat/lng
-      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get()}`)
-      if (!response.ok) {
-        setGeocodeError(true)
-        // eslint-disable-next-line no-console
-        console.error("Error sending reverse geocoding query:", response.status)
-        return
-      }
-      const data = await response.json()
-      const results = data?.results
-      if (!results?.length) {
-        setGeocodeError(true)
-        if (data.status) {
-          // eslint-disable-next-line no-console
-          console.error("Google geocode error:", data.status, data.error_message)
+    if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
+      try {
+        // get a list of matching Google locations for the current lat/lng
+        const geocoder = new googleMaps.Geocoder();
+        const geocodingResponse = await geocoder.geocode({
+          location: {lat, lng}
+        });
+        const results = geocodingResponse?.results;
+        
+        if (results?.length) {
+          const location = pickBestReverseGeocodingResult(results)
+          void updateUser({
+            selector: {_id: currentUser._id},
+            data: {
+              location: location?.formatted_address,
+              googleLocation: location
+            }
+          })
         }
-        return
+      } catch (e) {
+        setGeocodeError(true)
+        console.error(e?.message)
       }
-      
-      const location = pickBestReverseGeocodingResult(results)
-      void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          location: location?.formatted_address,
-          googleLocation: location
-        }
-      })
     }
   }
 
