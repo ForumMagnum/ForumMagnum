@@ -189,7 +189,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     padding: 4,
     borderRadius: 3,
-    marginRight: 10,
+    marginRight: 6,
     border: "solid 1px rgba(0,0,0,.2)",
     "&:hover": {
       background: "rgba(0,0,0,.2)",
@@ -297,7 +297,7 @@ const ReviewVotingPage = ({classes}: {
     })
   }
 
-  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget, SectionFooterCheckbox } = Components
+  const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
   const reSortPosts = useCallback((sortPostsMethod) => {
     if (!postsResults) return
