@@ -508,7 +508,7 @@ if (forumTypeSetting.get() === 'LessWrong') {
     {
       name: 'bookLanding',
       path: '/books',
-      redirect: () => `/books/2018`,
+      redirect: () => `/books/2019`,
     },
     {
       name: 'book2018Landing',
