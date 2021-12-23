@@ -590,6 +590,7 @@ importComponent("ReviewVotingWidget", () => require('../components/review/Review
 importComponent("LatestReview", () => require('../components/review/LatestReview'));
 importComponent("ReviewAdminDashboard", () => require('../components/review/ReviewAdminDashboard'));
 importComponent("PostNominatedNotification", () => require('../components/review/PostNominatedNotification'));
+importComponent("SingleLineReviewsList", () => require('../components/review/SingleLineReviewsList'));
 
 importComponent("QuadraticVotingButtons", () => require('../components/review/QuadraticVotingButtons'))
 importComponent("ReviewVoteTableRow", () => require('../components/review/ReviewVoteTableRow'))

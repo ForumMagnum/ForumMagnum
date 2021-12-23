@@ -183,7 +183,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
-  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, LatestReview } = Components
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, SingleLineReviewsList, LatestReview } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -261,7 +261,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
   }
 
   const allPhaseButtons = <>        
-    {showFrontpageItems && <LatestReview/>}
     {!showFrontpageItems && userIsAdmin(currentUser) && <LWTooltip className={classes.buttonWrapper} title={`Look at metrics related to the Review`}>
       <Link to={'/reviewAdmin'} className={classNames(classes.actionButton, classes.adminButton)}>
         Review Admin
@@ -314,15 +313,22 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         
         {/* Post list */}
         {/* ea-forum-look-here */}
-        {showFrontpageItems && <AnalyticsContext listContext={`frontpageReviewRecommendations`} reviewYear={`${REVIEW_YEAR}`} capturePostItemOnMount>
+        {showFrontpageItems && (activeRange === "NOMINATIONS" || !eligibleToNominate(currentUser) ) && <AnalyticsContext listContext={`frontpageReviewRecommendations`} reviewYear={`${REVIEW_YEAR}`} capturePostItemOnMount>
           {/* TODO:(Review) I think we can improve this */}
           <RecommendationsList algorithm={getReviewAlgorithm()} />
+        </AnalyticsContext>}
+
+        {showFrontpageItems && (activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) ) && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
+          {/* TODO:(Review) I think we can improve this */}
+          <SingleLineReviewsList />
         </AnalyticsContext>}
 
         {/* TODO: Improve logged out user experience */}
         
         {activeRange === "NOMINATIONS" && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
           
+          {showFrontpageItems && <LatestReview/>}
+
           {allPhaseButtons}
 
           <LWTooltip className={classes.buttonWrapper} title={`Nominate posts you previously upvoted.`}>
