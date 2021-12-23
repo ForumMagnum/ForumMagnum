@@ -12,13 +12,13 @@ import classNames from 'classnames';
 import * as _ from "underscore"
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import CachedIcon from '@material-ui/icons/Cached';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { annualReviewAnnouncementPostPathSetting, annualReviewStart } from '../../lib/publicSettings';
-import moment from 'moment';
+import { getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -179,11 +179,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   postCount: {
     ...theme.typography.commentStyle,
     marginLeft: 10,
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    marginRight: "auto"
   },
   postsLoading: {
     opacity: .4,
   },
+  sortArrow: {
+    cursor: "pointer",
+    padding: 4,
+    borderRadius: 3,
+    marginRight: 6,
+    border: "solid 1px rgba(0,0,0,.2)",
+    "&:hover": {
+      background: "rgba(0,0,0,.2)",
+    }
+  }
 });
 
 export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
@@ -256,6 +267,8 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+  const [sortPosts, setSortPosts] = useState("reviewVoteScoreHighKarma")
+  const [sortReversed, setSortReversed] = useState(false)
 
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
@@ -286,12 +299,30 @@ const ReviewVotingPage = ({classes}: {
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
-  const reSortPosts = useCallback(() => {
+  const reSortPosts = useCallback((sortPosts, sortReversed) => {
     if (!postsResults) return
+
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
     const newlySortedPosts = postsResults
       .map((post, i) => ([post, randomPermutation[i]] as const))
-      .sort(([post1, permuted1], [post2, permuted2]) => {
+      .sort(([inputPost1, permuted1], [inputPost2, permuted2]) => {
+        const post1 = sortReversed ? inputPost2 : inputPost1
+        const post2 = sortReversed ? inputPost1 : inputPost2
+
+        if (sortPosts === "needsReview") {
+          // This prioritizes posts with no reviews, which you highly upvoted
+          const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
+          const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
+
+          if (post1NeedsReview && !post2NeedsReview) return -1
+          if (post2NeedsReview && !post1NeedsReview) return 1
+          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+        }
+
+        if (post1[sortPosts] > post2[sortPosts]) return -1
+        if (post1[sortPosts] < post2[sortPosts]) return 1
+
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
 
@@ -316,8 +347,8 @@ const ReviewVotingPage = ({classes}: {
   
   const canInitialResort = !!postsResults
   useEffect(() => {
-    reSortPosts()
-  }, [canInitialResort, reSortPosts])
+    reSortPosts(sortPosts, sortReversed)
+  }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
   
   const quadraticVotes = useMemo(
     () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
@@ -476,11 +507,39 @@ const ReviewVotingPage = ({classes}: {
                 </div>
               </LWTooltip>}
             </>}
-            <LWTooltip title="Sorts the list of posts by vote strength">
-              <Button onClick={reSortPosts}>
-                Re-Sort <CachedIcon className={classes.menuIcon} />
-              </Button>
+            <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
+              <div onClick={() => { 
+                setSortReversed(!sortReversed); 
+              }}>
+                {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
+                  : <ArrowDownwardIcon className={classes.sortArrow}  />
+                }
+              </div>
             </LWTooltip>
+            <Select
+              value={sortPosts}
+              onChange={(e)=>{setSortPosts(e.target.value)}}
+              disableUnderline
+              >
+              <MenuItem value={'reviewVoteScoreHighKarma'}>
+                Sorted by Vote Total (1000+ Karma Users)
+              </MenuItem>
+              <MenuItem value={'reviewVoteScoreAllKarma'}>
+                Sorted by Vote Total (All Users)
+              </MenuItem>
+              {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
+                Sorted by Vote Total (Alignment Forum Users)
+              </MenuItem>}
+              <MenuItem value={'currentUserReviewVote'}>
+                Sorted by Your Vote
+              </MenuItem>
+              <MenuItem value={'reviewCount'}>
+                Sorted by Review Count
+              </MenuItem>
+              <MenuItem value={'needsReview'}>
+                Needs Review
+              </MenuItem>
+            </Select>
           </div>
           <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
@@ -537,7 +596,7 @@ const votesToQuadraticVotes = (posts: PostsListWithVotes[] | null): QuadraticVot
     throw new Error("Cannot convert votes to quadratic votes without posts")
   }
   const sumScaled = sumBy(posts, post => Math.abs(qualitativeScoreScaling[post.currentUserReviewVote || DEFAULT_QUALITATIVE_VOTE]) || 0)
-  return posts?.map(post => {
+  return posts.map(post => {
     if (post.currentUserReviewVote) {
       const newScore = computeQuadraticVoteScore(
         // DB stores it as number, sadly
