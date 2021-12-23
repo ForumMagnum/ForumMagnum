@@ -308,7 +308,6 @@ const ReviewVotingPage = ({classes}: {
       .sort(([inputPost1, permuted1], [inputPost2, permuted2]) => {
         const post1 = sortReversed ? inputPost2 : inputPost1
         const post2 = sortReversed ? inputPost1 : inputPost2
-        console.log("2", sortReversed)
 
         if (post1[sortPostsMethod] > post2[sortPostsMethod]) return -1
         if (post1[sortPostsMethod] < post2[sortPostsMethod]) return 1
