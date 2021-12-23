@@ -14,9 +14,19 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
-  bannerImage: {
+  topSection: {
     [theme.breakpoints.up('md')]: {
-      marginTop: -50
+      marginTop: -50,
+    }
+  },
+  imageContainer: {
+    height: 200,
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -4,
+      marginRight: -4,
     }
   },
   groupInfo: {
@@ -56,6 +66,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventPostsHeadline: {
     marginTop: 20
+  },
+  mapContainer: {
+    height: 200,
+    marginTop: 50,
+    marginLeft: 'auto',
+    marginRight: 'auto'
   }
 }));
 
@@ -65,8 +81,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
+  const { HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
+    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404, CloudinaryImage } = Components
 
   const { document: group, loading } = useSingle({
     collectionName: "Localgroups",
@@ -82,14 +98,42 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isAdmin = userIsAdmin(currentUser);
   const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
   const isEAForum = forumTypeSetting.get() === 'EAForum';
+  
+  // by default, we try to show the map at the top if the group has a location
+  let topSection = group.googleLocation ? <CommunityMapWrapper
+    className={classes.imageContainer}
+    terms={{view: "events", groupId: groupId}}
+    groupQueryTerms={{view: "single", groupId: groupId}}
+    hideLegend={true}
+    mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+  /> : <div className={classes.topSection}></div>;
+  let bottomSection;
+  // if the group has a banner image, show that at the top instead, and move the map to the bottom
+  if (group.bannerImageId) {
+    topSection = <div className={classes.imageContainer}>
+      <CloudinaryImage
+        publicId={group.bannerImageId}
+        width="auto"
+        height={200}
+      />
+    </div>
+    bottomSection = group.googleLocation && <CommunityMapWrapper
+      className={classes.mapContainer}
+      terms={{view: "events", groupId: groupId}}
+      groupQueryTerms={{view: "single", groupId: groupId}}
+      hideLegend={true}
+      mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+    />
+  }
 
   return (
     <div className={classes.root}>
-      {group.googleLocation ? <CommunityMapWrapper
-        terms={{view: "events", groupId: groupId}}
-        groupQueryTerms={{view: "single", groupId: groupId}}
-        mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
-      /> : <div className={classes.bannerImage}></div>}
+      <HeadTags
+        title={group.name}
+        description={group.contents?.plaintextDescription}
+        image={group.bannerImageId && `https://res.cloudinary.com/cea/image/upload/v1640139083/${group.bannerImageId}.jpg`}
+      />
+      {topSection}
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>
@@ -139,6 +183,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           Past Events
         </Components.Typography>
         <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
+        
+        {bottomSection}
       </SingleColumnSection>
     </div>
   )
