@@ -309,6 +309,16 @@ const ReviewVotingPage = ({classes}: {
         const post1 = sortReversed ? inputPost2 : inputPost1
         const post2 = sortReversed ? inputPost1 : inputPost2
 
+        if (sortPostsMethod === "needsReview") {
+          const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
+          const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
+
+          if (post1NeedsReview && !post2NeedsReview) return -1
+          if (post2NeedsReview && !post1NeedsReview) return 1
+          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+        }
+
         if (post1[sortPostsMethod] > post2[sortPostsMethod]) return -1
         if (post1[sortPostsMethod] < post2[sortPostsMethod]) return 1
 
@@ -525,6 +535,9 @@ const ReviewVotingPage = ({classes}: {
               </MenuItem>
               <MenuItem value={'reviewCount'}>
                 Sorted by Review Count
+              </MenuItem>
+              <MenuItem value={'needsReview'}>
+                Needs Review
               </MenuItem>
             </Select>
           </div>
