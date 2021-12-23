@@ -8,6 +8,7 @@ import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
+import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -122,6 +123,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   postTitle: {
     ...commentsItemStyles(theme).metaNotice,
     marginRight: 20
+  },
+  preview: {
+    backgroundColor: "white",
+    border: "solid 1px rgba(0,0,0,.1)",
+    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    width: POST_PREVIEW_WIDTH
   }
 })
 
@@ -134,14 +141,14 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   showDescendentCount?: boolean,
   classes: ClassesType,
 }) => {
-  const {hover, eventHandlers} = useHover();
+  const {hover, anchorEl, eventHandlers} = useHover();
   
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta, post } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLineLargePreview, singleLinePostTitle } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
-  const { CommentsItem, CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments } = Components
+  const { CommentsNode, CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, LWPopper } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
 
@@ -166,7 +173,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
         {renderHighlight && <span className={classes.truncatedHighlight}> 
-          {treeOptions.singleLinePostTitle && <span className={classes.postTitle}>{treeOptions.post?.title}</span>}
+          {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
@@ -179,8 +186,23 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           newPromotedComments={false}
         />}
       </div>
-      {displayHoverOver && <span className={classNames(classes.highlight)}>
-        {treeOptions.singleLineLargePreview ?  <CommentsItem truncated nestingLevel={0} comment={comment} treeOptions={treeOptions}/> : <div className={classes.highlightPadding}><CommentBody truncated comment={comment}/></div>}
+      <LWPopper
+        open={displayHoverOver && !!singleLineLargePreview}
+        anchorEl={anchorEl}
+        placement="bottom-end"
+        modifiers={{
+          flip: {
+            behavior: ["bottom-end"],
+            boundariesElement: 'viewport'
+          }
+        }}
+      >
+          <div className={classes.preview}>
+            <CommentsNode truncated nestingLevel={1} comment={comment} treeOptions={treeOptions} forceNotSingleLine/>
+          </div>
+      </LWPopper>
+      {displayHoverOver && !singleLineLargePreview && <span className={classNames(classes.highlight)}>
+         <div className={classes.highlightPadding}><CommentBody truncated comment={comment}/></div>
       </span>}
     </div>
   )
