@@ -6,6 +6,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useHover } from '../common/withHover';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { useABTest } from '../../lib/abTestImpl';
+import { reviewWidgetABTest } from '../../lib/abTests';
 
 const styles = theme => ({
   root: {
@@ -43,13 +45,16 @@ const LatestReview = ({classes}) => {
     pageElementContext: "frontpageReviewWidget",
     pageElementSubContext: "latestReviews",
   })
+  
+  const abTestGroup = useABTest(reviewWidgetABTest)
 
   if (!commentResults?.length) return null
   const comment = commentResults[0]
   if (!comment.post) return null
-
-  return <ErrorBoundary><AnalyticsContext pageSubsectionContext="latestReview">
-    <div className={classes.root} {...eventHandlers} >
+  
+  const latestReviewContent = {
+    inlineComment: <div className={classes.root}>TODO inline comment</div>,
+    postTitle: <div className={classes.root} {...eventHandlers} >
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
@@ -65,6 +70,10 @@ const LatestReview = ({classes}) => {
       </LWPopper>
       <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: comment.post.slug})} className={classes.lastReview}>Latest Review: <span className={classes.title}>{comment.post.title}</span></Link>
     </div>
+  }[abTestGroup]
+
+  return <ErrorBoundary><AnalyticsContext pageSubsectionContext="latestReview">
+    {latestReviewContent}
   </AnalyticsContext></ErrorBoundary>
 }
 
