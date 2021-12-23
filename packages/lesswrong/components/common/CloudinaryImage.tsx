@@ -3,10 +3,19 @@ import React from 'react';
 import { Image } from 'cloudinary-react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
-const CloudinaryImage = ({width, height, publicId}: {
+type ImgPropsType = {
+  quality?: string,
+  dpr?: string,
+  crop?: string,
+  gravity?: string,
+  background?: string,
+}
+
+const CloudinaryImage = ({width, height, publicId, imgProps = {}}: {
   width?: number|string,
   height?: number|string,
   publicId: string,
+  imgProps?: ImgPropsType
 }) => {
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   
@@ -25,6 +34,7 @@ const CloudinaryImage = ({width, height, publicId}: {
     crop="fill"
     gravity="custom"
     {...sizeProps}
+    {...imgProps}
   />
 };
 

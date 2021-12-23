@@ -230,6 +230,7 @@ importComponent("ElicitBlock", () => require('../components/posts/ElicitBlock'))
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
 importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageTitle'));
+importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));
@@ -617,3 +618,5 @@ importComponent("Book2019Landing", () => require('../components/books/Book2019La
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
 importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
+importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
+
