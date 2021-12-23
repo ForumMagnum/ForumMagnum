@@ -243,9 +243,9 @@ const getVotingRateLimits = async (user: DbUser|null) => {
     }
   }
   return {
-    perDay: 100,
-    perHour: 30,
-    perUserPerDay: 30,
+    perDay: 200,
+    perHour: 100,
+    perUserPerDay: 100,
   };
 }
 
