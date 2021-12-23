@@ -299,7 +299,7 @@ const ReviewVotingPage = ({classes}: {
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
-  const reSortPosts = useCallback((sortPostsMethod, sortReversed) => {
+  const reSortPosts = useCallback((sortPosts, sortReversed) => {
     if (!postsResults) return
 
     const randomPermutation = generatePermutation(postsResults.length, currentUser)
@@ -309,7 +309,7 @@ const ReviewVotingPage = ({classes}: {
         const post1 = sortReversed ? inputPost2 : inputPost1
         const post2 = sortReversed ? inputPost1 : inputPost2
 
-        if (sortPostsMethod === "needsReview") {
+        if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
           const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
           const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
@@ -320,8 +320,8 @@ const ReviewVotingPage = ({classes}: {
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
         }
 
-        if (post1[sortPostsMethod] > post2[sortPostsMethod]) return -1
-        if (post1[sortPostsMethod] < post2[sortPostsMethod]) return 1
+        if (post1[sortPosts] > post2[sortPosts]) return -1
+        if (post1[sortPosts] < post2[sortPosts]) return 1
 
         if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
         if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
@@ -507,10 +507,9 @@ const ReviewVotingPage = ({classes}: {
                 </div>
               </LWTooltip>}
             </>}
-            <LWTooltip title={`Sorted by ${sortReversed ? "Descending" : "Ascending"}`}>
+            <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
               <div onClick={() => { 
                 setSortReversed(!sortReversed); 
-                reSortPosts(sortPosts, !sortReversed);
               }}>
                 {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
                   : <ArrowDownwardIcon className={classes.sortArrow}  />
@@ -519,7 +518,7 @@ const ReviewVotingPage = ({classes}: {
             </LWTooltip>
             <Select
               value={sortPosts}
-              onChange={(e)=>{setSortPosts(e.target.value); reSortPosts(e.target.value, sortReversed)}}
+              onChange={(e)=>{setSortPosts(e.target.value)}}
               disableUnderline
               >
               <MenuItem value={'reviewVoteScoreHighKarma'}>
