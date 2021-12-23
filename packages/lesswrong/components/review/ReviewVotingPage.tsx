@@ -310,6 +310,7 @@ const ReviewVotingPage = ({classes}: {
         const post2 = sortReversed ? inputPost1 : inputPost2
 
         if (sortPostsMethod === "needsReview") {
+          // This prioritizes posts with no reviews, which you highly upvoted
           const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
           const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
 
