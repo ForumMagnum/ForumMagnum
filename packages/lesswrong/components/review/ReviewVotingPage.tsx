@@ -348,7 +348,7 @@ const ReviewVotingPage = ({classes}: {
   const canInitialResort = !!postsResults
   useEffect(() => {
     reSortPosts(sortPosts, sortReversed)
-  }, [canInitialResort, reSortPosts])
+  }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
   
   const quadraticVotes = useMemo(
     () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
