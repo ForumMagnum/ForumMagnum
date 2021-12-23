@@ -318,7 +318,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
           <RecommendationsList algorithm={getReviewAlgorithm()} />
         </AnalyticsContext>}
 
-        {showFrontpageItems && activeRange === "REVIEWS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
+        {showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
           {/* TODO:(Review) I think we can improve this */}
           <SingleLineReviewsList />
         </AnalyticsContext>}

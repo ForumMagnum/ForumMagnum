@@ -128,7 +128,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: "white",
     border: "solid 1px rgba(0,0,0,.1)",
     boxShadow: "0 0 10px rgba(0,0,0,.2)",
-    width: POST_PREVIEW_WIDTH
+    width: 500
   }
 })
 
@@ -198,7 +198,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         }}
       >
           <div className={classes.preview}>
-            <CommentsNode truncated nestingLevel={1} comment={comment} treeOptions={treeOptions} forceNotSingleLine/>
+            <CommentsNode truncated comment={comment} treeOptions={treeOptions} forceNotSingleLine hoverPreview/>
           </div>
       </LWPopper>
       {displayHoverOver && !singleLineLargePreview && <span className={classNames(classes.highlight)}>
