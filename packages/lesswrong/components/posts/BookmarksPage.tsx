@@ -3,18 +3,23 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
+import { useContinueReading } from '../recommendations/withContinueReading';
 
 const BookmarksPage = () => {
-  const {SingleColumnSection, SectionTitle, BookmarksList} = Components
+  const {SingleColumnSection, SectionTitle, BookmarksList, ContinueReadingList} = Components
 
   const currentUser = useCurrentUser()
 
   if (!currentUser) return <span>You must sign in to view bookmarked posts.</span>
 
+  const {continueReading} = useContinueReading();
+
   return <SingleColumnSection>
       <AnalyticsContext listContext={"bookmarksPage"} capturePostItemOnMount>
         <SectionTitle title="Bookmarks"/>
         <BookmarksList/>
+        <SectionTitle title="Continue Reading"/>
+        <ContinueReadingList continueReading={continueReading}/>
       </AnalyticsContext>
     </SingleColumnSection>
 }
