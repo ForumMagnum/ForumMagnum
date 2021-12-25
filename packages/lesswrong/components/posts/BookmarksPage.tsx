@@ -9,10 +9,10 @@ const BookmarksPage = () => {
   const {SingleColumnSection, SectionTitle, BookmarksList, ContinueReadingList} = Components
 
   const currentUser = useCurrentUser()
+  const {continueReading} = useContinueReading();
 
   if (!currentUser) return <span>You must sign in to view bookmarked posts.</span>
 
-  const {continueReading} = useContinueReading();
 
   return <SingleColumnSection>
       <AnalyticsContext listContext={"bookmarksPage"} capturePostItemOnMount>
