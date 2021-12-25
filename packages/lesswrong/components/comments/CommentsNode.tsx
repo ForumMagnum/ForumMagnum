@@ -138,7 +138,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 
   const handleExpand = async (event: React.MouseEvent) => {
     event.stopPropagation()
-    if (isTruncated || (isSingleLine && !singleLineLargePreview)) {
+    if (isTruncated || isSingleLine) {
       markAsRead && await markAsRead()
       setTruncated(false);
       setSingleLine(false);
@@ -194,6 +194,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
               toggleCollapse={toggleCollapse}
               key={comment._id}
               scrollIntoView={scrollIntoView}
+              setSingleLine={setSingleLine}
               { ...passedThroughItemProps}
             />
         }
