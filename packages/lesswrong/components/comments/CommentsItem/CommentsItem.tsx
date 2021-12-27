@@ -11,6 +11,10 @@ import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive } from '../../../lib/reviewUtils';
+
+const isEAForum= forumTypeSetting.get() === "EAForum"
 
 // Shared with ParentCommentItem
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -102,6 +106,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: "block",
     color: theme.palette.grey[600]
+  },
+  reviewVotingButtons: {
+    borderTop: "solid 1px rgba(0,0,0,.2)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 6,
+  },
+  updateVoteMessage: {
+    ...theme.typography.body2,
+    ...theme.typography.smallText,
+    color: theme.palette.grey[600]
   }
 })
 
@@ -170,6 +186,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           className={classes.menu}
           comment={comment}
           post={post}
+          tag={tag}
           showEdit={setShowEdit}
         />
       </AnalyticsContext>
@@ -241,11 +258,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget } = Components
 
   if (!comment) {
     return null;
   }
+
+  const displayReviewVoting = 
+    reviewIsActive() &&
+    comment.reviewingForReview === REVIEW_YEAR+"" &&
+    post &&
+    currentUser?._id !== post.userId
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -269,7 +292,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         )}
 
         {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>{comment.post.title}</Link>
+            <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+              {comment.post.draft && "[Draft] "}
+              {comment.post.title}
+            </Link>
           </LWTooltip>}
         {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetUrl(comment.tag)}>{comment.tag.name}</Link>}
 
@@ -307,12 +333,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
             {!isParentComment && renderMenu()}
             {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
-            {comment.nominatedForReview && <Link to={"/nominations"} className={classes.metaNotice}>
+            
+            {comment.nominatedForReview && <Link to={`/nominations/${comment.nominatedForReview}`} className={classes.metaNotice}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
-            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.metaNotice}>
-            {`Review for ${comment.reviewingForReview} Review`}
-          </Link>}
+
+            {comment.reviewingForReview && <Link to={`/reviews/${comment.reviewingForReview}`} className={classes.metaNotice}>
+              {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
+            </Link>}
+            
           </div>
           { comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Promoted by {comment.promotedByUser.displayName}
@@ -320,6 +349,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
+        {displayReviewVoting && <div className={classes.reviewVotingButtons}>
+          <div className={classes.updateVoteMessage}>Update your {REVIEW_NAME_IN_SITU} vote:</div>
+          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+        </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
     </AnalyticsContext>

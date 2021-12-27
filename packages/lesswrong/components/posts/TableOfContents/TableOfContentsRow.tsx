@@ -37,6 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       textShadow: "0 0 0 rgba(0,0,0,1].87)",
     }
   },
+  highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
   title: {
     paddingTop: 3,
@@ -115,7 +116,10 @@ const TableOfContentsRow = ({
       { [classes.highlighted]: highlighted }
     )}
   >
-    <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title})}>
+    <a href={href} onClick={onClick} className={classNames(classes.link, {
+      [classes.title]: title,
+      [classes.highlightDot]: !answer,
+    })}>
       {children}
     </a>
   </div>

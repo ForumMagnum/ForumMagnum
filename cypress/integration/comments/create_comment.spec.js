@@ -3,8 +3,8 @@
 describe('Comments', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
-    cy.fixture('users/freshTestUser').as('freshTestUser').then(() => {
-      cy.loginAs(this.freshTestUser);
+    cy.fixture('users/testUser').as('testUser').then(() => {
+      cy.loginAs(this.testUser);
     });
   });
 

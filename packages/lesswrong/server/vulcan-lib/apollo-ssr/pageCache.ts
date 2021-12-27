@@ -4,6 +4,7 @@ import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '.
 import { Globals } from '../../../lib/vulcan-lib';
 import type { Request } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import sumBy from 'lodash/sumBy';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -95,9 +96,9 @@ export const cachedPageRender = async (req: Request, abTestGroups, renderFn: (re
   if (cacheKey in inProgressRenders) {
     for (let inProgressRender of inProgressRenders[cacheKey]) {
       if (objIsSubset(abTestGroups, inProgressRender.abTestGroups)) {
-        const result = await inProgressRender.renderPromise;
         //eslint-disable-next-line no-console
-        console.log("Merged request into in-progress render");
+        console.log(`Merging request for ${path} into in-progress render`);
+        const result = await inProgressRender.renderPromise;
         return {
           ...result,
           cached: true,
@@ -261,3 +262,46 @@ function printCacheState(options:any={}) {
   log("}");
 }
 Globals.printCacheState = printCacheState;
+
+
+export function checkForMemoryLeaks() {
+  if (Object.keys(cachedABtestsIndex).length > 5000) {
+    // eslint-disable-next-line no-console
+    console.log(`Possible memory leak: cachedABtestsIndex has ${Object.keys(cachedABtestsIndex).length} entries`);
+  }
+  if (keysToCheckForExpiredEntries.length > 5000) {
+    // eslint-disable-next-line no-console
+    console.log(`Possible memory leak: keysToCheckForExpiredEntries has ${keysToCheckForExpiredEntries} entries`);
+  }
+  
+  const cachedABtestsIndexArrayElements = sumBy(Object.keys(cachedABtestsIndex), key=>cachedABtestsIndex[key]?.length||0);
+  if (cachedABtestsIndexArrayElements > 5000) {
+    // eslint-disable-next-line no-console
+    console.log(`Possible memory leak: cachedABtestsIndexArrayElements=${cachedABtestsIndexArrayElements}`);
+  }
+  
+  const inProgressRenderCount = sumBy(Object.keys(inProgressRenders), key=>inProgressRenders[key]?.length||0);
+  if (inProgressRenderCount > 100) {
+    // eslint-disable-next-line no-console
+    console.log(`Possible memory leak: inProgressRenderCount=${inProgressRenderCount}`);
+  }
+  
+  const pageCacheContentsBytes = sumBy(pageCache.values(), v=>JSON.stringify(v).length);
+  if (pageCacheContentsBytes > 2*maxPageCacheSizeBytes) {
+    // eslint-disable-next-line no-console
+    console.log(`Possible memory leak: pageCacheContentsBytes=${pageCacheContentsBytes}`);
+  }
+}
+
+export function printInFlightRequests() {
+  let inProgressRenderKeys: string[] = [];
+  for (let cacheKey of Object.keys(inProgressRenders)) {
+    for (let render of inProgressRenders[cacheKey]) {
+      inProgressRenderKeys.push(render.cacheKey);
+    }
+  }
+  if (inProgressRenderKeys.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log(`In progress: ${inProgressRenderKeys.join(", ")}`);
+  }
+}

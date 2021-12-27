@@ -15,6 +15,7 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
+import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
 import { EventDebouncer, DebouncerTiming } from './debouncer';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
@@ -41,31 +42,37 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 export const postPublishedCallback = new CallbackHook<[DbPost]>("post.published");
 
 
-// Return a list of users (as complete user objects) subscribed to a given
-// document. This is the union of users who have subscribed to it explicitly,
-// and users who were subscribed to it by default and didn't suppress the
-// subscription.
-//
-// documentId: The document to look for subscriptions to.
-// collectionName: The collection the document to look for subscriptions to is in.
-// type: The type of subscription to check for.
-// potentiallyDefaultSubscribedUserIds: (Optional) An array of user IDs for
-//   users who are potentially subscribed to this document by default, eg
-//   because they wrote the post being replied to or are an organizer of the
-//   group posted in.
-// userIsDefaultSubscribed: (Optional. User=>bool) If
-//   potentiallyDefaultSubscribedUserIds is given, takes a user and returns
-//   whether they would be default-subscribed to this document.
-async function getSubscribedUsers({
+/**
+ * Return a list of users (as complete user objects) subscribed to a given
+ * document. This is the union of users who have subscribed to it explicitly,
+ * and users who were subscribed to it by default and didn't suppress the
+ * subscription.
+ *
+ * documentId: The document to look for subscriptions to.
+ * collectionName: The collection the document to look for subscriptions to is in.
+ * type: The type of subscription to check for.
+ * potentiallyDefaultSubscribedUserIds: (Optional) An array of user IDs for
+ *   users who are potentially subscribed to this document by default, eg
+ *   because they wrote the post being replied to or are an organizer of the
+ *   group posted in.
+ * userIsDefaultSubscribed: (Optional. User=>bool) If
+ *   potentiallyDefaultSubscribedUserIds is given, takes a user and returns
+ *   whether they would be default-subscribed to this document.
+ */
+export async function getSubscribedUsers({
   documentId, collectionName, type,
   potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
 }: {
-  documentId: string,
+  documentId: string|null,
   collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
   userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
 }) {
+  if (!documentId) {
+    return [];
+  }
+  
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
   const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
   
@@ -297,8 +304,9 @@ function postIsPublic (post: DbPost) {
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 }
 
-// Add new post notification callback on post submit
-async function postsNewNotifications (post: DbPost) {
+// Export for testing
+/** Add new post notification callback on post submit */
+export async function postsNewNotifications (post: DbPost) {
   if (postIsPublic(post)) {
 
     // add users who are subscribed to this post's author
@@ -496,18 +504,21 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
   }
 }
 
+getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
+  const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
+  if (post && post.positiveReviewVoteCount > 1) {
+    const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
+    if (!notifications.length) {
+      await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
+    }
+  }
+})
+
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
-  if (!comment.postId) {
-    throw new Error("Comment has no postId");
-  }
-
-  const post = await Posts.findOne(comment.postId);
-  if (!post) {
-    throw new Error("Comment has no post");
-  }
+  const post = comment.postId ? await Posts.findOne(comment.postId) : null;
   
-  if (post.isEvent) {
+  if (post?.isEvent) {
     await notifyRsvps(comment, post);
   }
 
@@ -660,7 +671,7 @@ getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifi
   if (
     (
       (!newPost.draft && oldPost.draft) || 
-      (newPost.mongoLocation && !newPost.mongoLocation) || 
+      !_.isEqual(newPost.mongoLocation, oldPost.mongoLocation) ||
       (newPost.startTime !== oldPost.startTime) || 
       (newPost.endTime !== oldPost.endTime) || 
       (newPost.contents?.html !== oldPost.contents?.html) ||

@@ -45,15 +45,18 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
       <div className={classes.subtitle}>
         <ContentType type="shortform" label="Shortform"/>
       </div>
-      {comments?.map((comment, i) =>
-        <CommentsNode
+      {comments?.map((comment, i) => {
+        if (!comment.post)
+          return null;
+        return <CommentsNode
           treeOptions={{
             post: comment.post || undefined,
           }}
           comment={comment}
           key={comment._id}
           forceSingleLine loadChildrenSeparately
-        />)}
+        />
+      })}
       {comments?.length < totalCount! &&
         <div className={classes.loadMore}>
           <LoadMore

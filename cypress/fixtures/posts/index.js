@@ -1,5 +1,5 @@
-const testPost = require('./testPost.json');
-const testAdminPost = require('./testAdminPost.json');
+const testPost = require('./testPost');
+const testAdminPost = require('./testAdminPost');
 
 module.exports = [
   testPost,

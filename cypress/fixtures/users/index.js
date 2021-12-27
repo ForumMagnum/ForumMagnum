@@ -1,14 +1,11 @@
-const freshTestUser = require('./freshTestUser.json');
-const testUserWithContent = require('./testUserWithContent.json');
-const testAdmin = require('./testAdmin.json');
+const testUser = require('./testUser');
+const testOtherUser = require('./testOtherUser');
+const testAdmin = require('./testAdmin');
+const testUserUnsetUsername = require('./testUserUnsetUsername');
 
-/*
-The reason for a user with content and a user without is rate limiting.
-With the database having just been seeded, a user with e.g. existing posts
-can't create a new one without waiting about ten seconds.
-*/
 module.exports = [
-  freshTestUser,
-  testUserWithContent,
+  testUser,
+  testOtherUser,
   testAdmin,
+  testUserUnsetUsername,
 ];

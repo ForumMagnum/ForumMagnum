@@ -145,6 +145,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
             return await checkAccess(currentUser, revision, context) ? revision : null
           }
           const docField = doc[field];
+          if (!docField) return null
           return {
             _id: `${doc._id}_${fieldName}`, //HACK
             editedAt: (docField?.editedAt) || new Date(),

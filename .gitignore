@@ -76,3 +76,5 @@ globalConfig.json
 
 cypress/screenshots/*
 cypress/videos/*
+!cypress/screenshots/.keep
+!cypress/videos/.keep

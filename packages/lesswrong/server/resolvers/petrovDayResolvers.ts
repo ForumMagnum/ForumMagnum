@@ -317,4 +317,3 @@ addGraphQLResolvers(petrovDayLaunchResolvers);
 
 addGraphQLQuery('PetrovDayCheckIfIncoming(external: Boolean): PetrovDayCheckIfIncomingData');
 addGraphQLMutation('PetrovDayLaunchMissile(launchCode: String): PetrovDayLaunchMissileData');
-

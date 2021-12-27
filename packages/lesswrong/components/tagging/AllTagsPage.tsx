@@ -9,6 +9,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,7 +69,7 @@ const AllTagsPage = ({classes}: {
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title="EA Forum Wiki">
+            <SectionTitle title={forumTypeSetting.get() === 'EAForum' ? 'EA Forum Wiki' : 'Concepts Portal'}>
               <SectionButton>
                 {currentUser
                   ? <Link to="/tag/create">

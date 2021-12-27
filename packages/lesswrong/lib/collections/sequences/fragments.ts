@@ -24,6 +24,7 @@ registerFragment(`
     draft
     isDeleted
     hidden
+    hideFromAuthorPage
     curatedOrder
     userProfileOrder
     af

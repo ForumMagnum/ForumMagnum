@@ -2,11 +2,12 @@
 
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
-const process = require('process');;
 
-const seedPosts = require('../fixtures/posts/index.js');
-const seedComments = require('../fixtures/comments/index.js');
-const seedUsers = require('../fixtures/users/index.js');
+const seedPosts = require('../fixtures/posts');
+const seedComments = require('../fixtures/comments');
+const seedUsers = require('../fixtures/users');
+const seedConversations = require('../fixtures/conversations');
+const seedMessages = require('../fixtures/messages');
 
 function hashLoginToken(loginToken) {
   const hash = createHash('sha256');
@@ -37,20 +38,6 @@ function hashLoginToken(loginToken) {
 module.exports = (on, config) => {
   on('task', {
     async dropAndSeedDatabase() {
-      const now = new Date();
-      const postsWithDates = seedPosts
-        .map(post => ({...post, 
-          createdAt: now,
-          postedAt: now,
-          modifiedAt: now,
-          frontpageDate: now,
-        }));
-      const commentsWithDates = seedComments
-        .map(post => ({...post, 
-          createdAt: now,
-          postedAt: now,
-          lastSubthreadActivity: now,
-        }));
       const client = new MongoClient(config.env.TESTING_DB_URL);
       try{
         await client.connect();
@@ -58,14 +45,22 @@ module.exports = (on, config) => {
         if(isProd) {
           throw new Error('Cannot run tests on production DB.');
         }
-        await client.db().dropDatabase();
+
         const db = await client.db();
-        await db.collection('posts').insertMany(postsWithDates);
-        await db.collection('comments').insertMany(commentsWithDates);
-        await db.collection('users').insertMany(seedUsers);
-      } catch(err) {
-        console.error(err);
-        return undefined; //  Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
+
+        await Promise.all((await db.collections()).map(collection => {
+          if(collection.collectionName  !== "databasemetadata") {
+            return db.collection(collection.collectionName).drop();
+          }
+        }));
+
+        await Promise.all([
+          db.collection('comments').insertMany(seedComments),
+          db.collection('users').insertMany(seedUsers),
+          db.collection('conversations').insertMany(seedConversations),
+          db.collection('posts').insertMany(seedPosts),
+          db.collection('messages').insertMany(seedMessages),
+        ]);
       } finally {
         await client.close();
       }
@@ -76,7 +71,7 @@ module.exports = (on, config) => {
       try{
         await client.connect();
         const db = await client.db();
-        await db.collection('users').updateOne({username: user.username}, {
+        await db.collection('users').updateOne({_id: user._id}, {
           $addToSet: {
             "services.resume.loginTokens": {
               when: new Date(),
@@ -84,9 +79,6 @@ module.exports = (on, config) => {
             },
           },
         });
-      } catch(err) {
-        console.error(err);
-        return undefined; // Cypress tasks use undefined to signal failure (https://docs.cypress.io/api/commands/task#Usage)
       } finally {
         await client.close();
       }

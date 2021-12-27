@@ -40,7 +40,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const collection = getCollection(collectionName);
 
         // get selector and options from terms and perform Mongo query
-        const parameters = await collection.getParameters(terms, {}, context);
+        const parameters = collection.getParameters(terms, {}, context);
         
         const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
         
@@ -125,16 +125,20 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // if collection has a checkAccess function defined, use it to perform a check on the current document
         // (will throw an error if check doesn't pass)
         if (collection.checkAccess) {
-          await Utils.performCheck(
-            collection.checkAccess,
-            currentUser,
-            doc,
-            
-            context,
-            documentId,
-            `${typeName}.read.single`,
-            collectionName
-          );
+          const reasonDenied = {reason:undefined};
+          const canAccess = await collection.checkAccess(currentUser, doc, context, reasonDenied)
+          if (!canAccess) {
+            if (reasonDenied.reason) {
+              Utils.throwError({
+                id: reasonDenied.reason,
+              });
+            } else {
+              Utils.throwError({
+                id: 'app.operation_not_allowed',
+                data: {documentId, operationName: `${typeName}.read.single`}
+              });
+            }
+          }
         }
 
         const restrictedDoc = restrictViewableFields(currentUser, collection, doc);
@@ -151,12 +155,12 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
 }
 
 const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
+  const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   const options = {
     ...parameters.options,
     skip: terms.offset,
   };
-
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
@@ -178,6 +182,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     if (parameters.options.limit) {
       pipeline.push({ $limit: parameters.options.limit });
     }
+    logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
     return await Utils.Connectors.find(collection, selector, options);

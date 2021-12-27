@@ -228,6 +228,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
+    const currentIncludeEvents = (query.includeEvents === 'true')
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
@@ -238,7 +239,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
           description={metaDescription}
-          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0}
+          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
         />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
@@ -329,6 +330,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentSorting={currentSorting}
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
+              currentIncludeEvents={currentIncludeEvents}
               sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>

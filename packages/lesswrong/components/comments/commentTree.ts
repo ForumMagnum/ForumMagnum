@@ -9,8 +9,10 @@ export interface CommentTreeOptions {
   scrollOnExpand?: boolean,
   hideSingleLineMeta?: boolean,
   enableHoverPreview?: boolean,
+  singleLineLargePreview?: boolean,
   hideReply?: boolean,
   showPostTitle?: boolean,
+  singleLinePostTitle?: boolean,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
 }

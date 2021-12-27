@@ -1,13 +1,12 @@
 branch-defaults:
+  lw-devel:
+    environment: LessestWrong
   ea-dev:
-    environment: EAForum-Staging
-    group_suffix: null
-  mergeLWMaster:
     environment: EAForum-Staging-2
 global:
-  application_name: EAForum
+  # Use deploy.sh to change this to the correct application name
+  application_name: APPLICATION_NAME
   branch: null
-  default_ec2_keyname: cea_devops
   default_platform: Docker
   default_region: us-east-1
   include_git_submodules: true

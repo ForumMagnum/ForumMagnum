@@ -13,21 +13,27 @@ import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
+let adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
+  {
+    username: "AdminTeam",
+    email: "forum@effectivealtruism.org"
+  } :
+  {
+    username: "LessWrong",
+    email: "lesswrong@lesswrong.com"
+  }
+
 const getLessWrongAccount = async () => {
-  let account = await Users.findOne({username: "AdminTeam"});
+  let account = await Users.findOne({username: adminTeamUserData.username});
   if (!account) {
-    const userData = {
-      // TODO nicer solution
-      username: "AdminTeam",
-      email: "forum@effectivealtruism.org",
-    }
     const newAccount = await createMutator({
       collection: Users,
-      document: userData,
+      document: adminTeamUserData,
       validate: false,
     })
     return newAccount.data

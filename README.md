@@ -1,10 +1,14 @@
-# Welcome to the code behind the EA Forum
+# Forum Magnum
 
-The EA Forum is a synced fork of [LessWrong](https://github.com/LessWrong2/Lesswrong2).
+Forum Magnum is the codebase powering [LessWrong](https://lesswrong.com) and the
+[Effective Altruism Forum](https://forum.effectivealtruism.org).
+
+The team behind LessWrong created this codebase in 2017 as a rewrite of the
+original version of LessWrong, which was a difficult-to-maintain fork of reddit.
 
 ## Technologies
 
-The EA Forum is built on top of a number major open-source libraries.
+Forum Magnum is built on top of a number major open-source libraries.
 
 1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
 
@@ -41,17 +45,19 @@ git clone git@github.com:centre-for-effective-altruism/EAForum.git
 Install dependencies:
 
 ```
-cd EAForum
+cd ForumMagnum
 yarn install
 ```
 
 Start the development server:
 
 ```
-yarn ea-start
+yarn [start|ea-start]
 ```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
+
+It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA, this doesn't apply to you, your database is shared with other developers.]
 
 ## Documentation
 
@@ -142,16 +148,18 @@ We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cy
 ### Cypress
 
 * To run Cypress tests locally, first run `yarn ea-start-testing-db`, then in a separate terminal run either `yarn ea-cypress-run` for a CLI version, or `yarn ea-cypress-open` for a GUI version. To run specific tests in the CLI, you can use the `-s <glob-file-pattern>` option.
+* Test database instance settings for Cypress are stored under `./settings-test.json`.
 * For the basics of writing Cypress tests, see [Writing your first test](https://docs.cypress.io/guides/getting-started/writing-your-first-test#Step-2-Query-for-an-element). Primarily you'll use `cy.get()` to find elements via CSS selectors, `cy.contains()` to find elements via text contents, `cy.click()` and `cy.type()` for input, and `cy.should()` for assertions. Feel free to steal from existing tests in `./cypress/integration/`.
 * Add custom commands under `./cypress/support/commands.js`, and access them via `cy.commandName()`.
 * Seed data for tests is stored under `./cypress/fixtures`, and can be accessed using `cy.fixture('<filepath>')`. See [here](https://docs.cypress.io/api/commands/fixture) for more.
 * To execute code in a node context, you can create a [task](https://docs.cypress.io/api/commands/task#Syntax) under `./cypress/plugins/index.js`. Tasks are executed using `cy.task('<task-name>', args)`.
 
-## EA Forum-Specific
-
 ### Where to branch off of
 
-Branch off of `ea-master` and submit to `ea-master`. After review and merging, submit to `LessWrong:master`.
+Branch off of `master` and submit to `master`. Deploys occur when `master` is
+merged into `ea-deploy` and `lw-deploy`.
+
+## EA Forum-Specific
 
 ### \[CEA-Specific] Local Dev Database
 

@@ -167,10 +167,12 @@ const AppComponent = registerComponent<ExternalProps>('App', App, {
   ]
 });
 
+
+
 declare global {
   interface ComponentTypes {
     App: typeof AppComponent
   }
 }
 
-export default App;
+export default App; 

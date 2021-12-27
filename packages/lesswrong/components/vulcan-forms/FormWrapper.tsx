@@ -341,12 +341,12 @@ class FormWrapper extends PureComponent<any> {
   intl: intlShape
 };
 
-const SmartFormComponent = registerComponent('SmartForm', FormWrapper, {
+const FormWrapperComponent = registerComponent('FormWrapper', FormWrapper, {
   hocs: [withUser, withApollo, withRouter, withCollectionProps]
 });
 
 declare global {
   interface ComponentTypes {
-    SmartForm: typeof SmartFormComponent
+    FormWrapper: typeof FormWrapperComponent
   }
 }

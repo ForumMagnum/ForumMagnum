@@ -49,6 +49,9 @@ const palette = {
   background: {
     default: '#f6f8f9'
   },
+  event: '#0C869B',
+  group: '#538747',
+  individual: '#BF577D',
 }
 
 const basicText = {

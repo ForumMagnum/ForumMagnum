@@ -40,10 +40,10 @@ const TabNavigationMenu = ({onClickSection, classes}: {
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
           {menuTabs[forumTypeSetting.get()].map(tab => {
-            if (tab.divider) {
+            if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
             }
-            if (tab.customComponentName) {
+            if ('customComponentName' in tab) {
               const CustomComponent = Components[tab.customComponentName];
               return <CustomComponent
                 key={tab.id}
@@ -58,6 +58,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
               onClick={onClickSection}
             />
           })}
+          {/* NB: This returns null if you don't have any active resources */}
           <FeaturedResourceBanner terms={{view: "activeResources"}}/>
         </div>
     </AnalyticsContext>  )

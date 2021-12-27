@@ -56,6 +56,9 @@ registerFragment(`
     reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
+    noindex
+    paymentEmail
+    paymentInfo
   }
 `);
 
@@ -79,6 +82,7 @@ registerFragment(`
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
+    allPostsIncludeEvents
     allPostsOpenSettings
     lastNotificationsCheck
     bannedUserIds
@@ -111,6 +115,7 @@ registerFragment(`
     emails
     whenConfirmationEmailSent
     hideSubscribePoke
+    hideMeetupsPoke
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
@@ -131,8 +136,10 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     reviewVotesQuadratic2019
+    reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     abTestKey
     abTestOverrides
@@ -142,6 +149,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    lastUsedTimezone
     ...SharedUserBooleans
   }
 `);
@@ -317,10 +325,12 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationPostsNominatedReview
 
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     deleted
   }
@@ -340,3 +350,11 @@ registerFragment(`
     karma
   }
 `);
+
+registerFragment(`
+  fragment UsersWithReviewInfo on User {
+    ...UsersMinimumInfo
+    reviewVoteCount
+    email
+  }
+`)

@@ -9,12 +9,14 @@ const isComment = (document: PostsBase | CommentsList) : document is CommentsLis
   return false
 }
 
-export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]) => {
+export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]): boolean => {
   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
     openDialog({componentName: "AFNonMemberInitialPopup"})
+    return true;
   }
+  return false;
 }
-  
+
 export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, updateDocument}: {
   currentUser: UsersCurrent|null,
   document: PostsBase | CommentsList,

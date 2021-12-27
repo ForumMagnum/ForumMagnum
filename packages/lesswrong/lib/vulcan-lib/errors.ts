@@ -81,9 +81,9 @@ export const getErrors = error => {
   if (error.graphQLErrors && error.graphQLErrors.length > 0) {
     // get graphQL error (see https://github.com/thebigredgeek/apollo-errors/issues/12)
     const graphQLError = error.graphQLErrors[0]
-    const data = (graphQLError?.extensions?.exception?.data) || graphQLError.data
+    const data = (graphQLError?.extensions?.exception?.data) || graphQLError?.data
 
-    let baseErrorMessages = parseErrorMessage(graphQLError.message)
+    let baseErrorMessages = parseErrorMessage(graphQLError?.message)
     if (data && !isEmpty(data)) {
       if (data.errors) {
         // 2. There are multiple errors on the data.errors object

@@ -4,8 +4,8 @@
 describe('Comments', function() {
   beforeEach(function() {
     cy.task('dropAndSeedDatabase');
-    cy.fixture('users/testUserWithContent').as('testUserWithContent').then(() => {
-      cy.loginAs(this.testUserWithContent);
+    cy.fixture('users/testUser').as('testUser').then(() => {
+      cy.loginAs(this.testUser);
     });
     cy.fixture('posts/testPost').as('testPost');
     cy.fixture('comments/testComment').as('testComment');

@@ -137,7 +137,7 @@ const getInitialStateFromProps = nextProps => {
 /**
  * Note: Only use this through WrappedSmartForm
  */
-class SmartForm extends Component<any,any> {
+class Form extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -1064,7 +1064,7 @@ class SmartForm extends Component<any,any> {
   }
 }
 
-(SmartForm as any).propTypes = {
+(Form as any).propTypes = {
   // main options
   collection: PropTypes.object.isRequired,
   collectionName: PropTypes.string.isRequired,
@@ -1097,18 +1097,18 @@ class SmartForm extends Component<any,any> {
   currentUser: PropTypes.object,
 };
 
-(SmartForm as any).defaultProps = {
+(Form as any).defaultProps = {
   layout: 'horizontal',
   prefilledProps: {},
   repeatErrors: false,
   showRemove: true
 };
 
-(SmartForm as any).contextTypes = {
+(Form as any).contextTypes = {
   intl: intlShape
 };
 
-(SmartForm as any).childContextTypes = {
+(Form as any).childContextTypes = {
   addToDeletedValues: PropTypes.func,
   deletedValues: PropTypes.array,
   addToSubmitForm: PropTypes.func,
@@ -1128,7 +1128,7 @@ class SmartForm extends Component<any,any> {
   currentValues: PropTypes.object
 };
 
-const FormComponent = registerComponent("Form", SmartForm, {
+const FormComponent = registerComponent("Form", Form, {
   hocs: [withCollectionProps]
 });
 

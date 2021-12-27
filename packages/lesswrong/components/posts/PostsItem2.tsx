@@ -12,6 +12,8 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -391,7 +393,8 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
+    AddToCalendarIcon, PostsItemReviewVote, ReviewPostButton } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -436,7 +439,7 @@ const PostsItem2 = ({
           >
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classes.karma}>
-                  <PostsItemKarma post={post} />
+                  {post.isEvent ? <AddToCalendarIcon post={post} /> : <PostsItemKarma post={post} />}
                 </PostsItem2MetaInfo>
 
                 <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
@@ -473,7 +476,7 @@ const PostsItem2 = ({
                 
                 }
 
-                { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
+                { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
                   <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 
@@ -501,19 +504,24 @@ const PostsItem2 = ({
                   newPromotedComments={hasNewPromotedComments()}
                 />}
 
+                {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
+                
+                {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="bottom">
+                  Review
+                </LWTooltip>}/>}
+
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
                     {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                    {/* TODO:(Review) still 2019 */}
                     {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}
-
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}
-
                 <div className={classes.mobileDismissButton}>
                   {dismissButton}
                 </div>
@@ -535,7 +543,6 @@ const PostsItem2 = ({
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
-
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}

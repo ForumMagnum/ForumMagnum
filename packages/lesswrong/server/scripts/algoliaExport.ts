@@ -68,7 +68,7 @@ async function algoliaExportByCollectionName(collectionName: AlgoliaIndexCollect
       await algoliaExport(Posts, {baseScore: {$gte: 0}, draft: {$ne: true}, status: postStatuses.STATUS_APPROVED})
       break
     case 'Comments':
-      await algoliaExport(Comments, {baseScore: {$gt: 0}, isDeleted: {$ne: true}})
+      await algoliaExport(Comments, {baseScore: {$gt: 0}, deleted: {$ne: true}})
       break
     case 'Users':
       await algoliaExport(Users, {deleted: {$ne: true}})
