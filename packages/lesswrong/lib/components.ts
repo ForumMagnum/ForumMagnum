@@ -139,6 +139,7 @@ importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSe
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
+importComponent("DraftsPage", () => require('../components/users/DraftsPage'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
 importComponent("NewUsersEditForm", () => require('../components/users/NewUsersEditForm'));
