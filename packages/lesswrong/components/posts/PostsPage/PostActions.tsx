@@ -171,6 +171,21 @@ const PostActions = ({post, closeMenu, classes}: {
   const postAuthor = post.user;
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
+  
+  let editLink: React.ReactNode|null = null;
+  const isAuthor = postCanEdit(currentUser,post);
+  const isShared = userCanCollaborate(currentUser, post);
+  if (isAuthor || isShared) {
+    const link = isAuthor ? {pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`} : {pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}
+    editLink = <Link to={link}>
+      <MenuItem>
+        <ListItemIcon>
+          <EditIcon />
+        </ListItemIcon>
+        Edit
+      </MenuItem>
+    </Link>
+  }
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <MenuItem> component. In particular,
@@ -185,14 +200,7 @@ const PostActions = ({post, closeMenu, classes}: {
   
   return (
       <div className={classes.actions}>
-        { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
-          <MenuItem>
-            <ListItemIcon>
-              <EditIcon />
-            </ListItemIcon>
-            Edit
-          </MenuItem>
-        </Link>}
+        {editLink}
         { forumTypeSetting.get() === 'EAForum' && postCanEdit(currentUser, post) && <Link
           to={{pathname: '/postAnalytics', search: `?${qs.stringify({postId: post._id})}`}}
         >
@@ -203,16 +211,6 @@ const PostActions = ({post, closeMenu, classes}: {
             Analytics
           </MenuItem>
         </Link>}
-        { userCanCollaborate(currentUser, post) &&
-          <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
-            <MenuItem>
-              <ListItemIcon>
-                <EditIcon />
-              </ListItemIcon>
-              Collaborative Editing
-            </MenuItem>
-          </Link>
-        }
         {currentUser && post.group &&
           <SubscribeTo asMenuItem
             document={post.group} showIcon

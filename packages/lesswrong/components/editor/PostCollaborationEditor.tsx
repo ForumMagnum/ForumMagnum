@@ -6,6 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
+import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -36,15 +37,35 @@ const PostCollaborationEditor = ({ classes }: {
 
   const { query: { postId } } = useLocation();
 
-  const { document: post } = useSingle({
+  const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsPage',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postId,
   });
-  if (!post) {
+  
+  // If logged out, show a login form. (Even if link-sharing is enabled, you still
+  // need to be logged into LessWrong with some account.)
+  if (!currentUser) {
+    return <Components.SingleColumnSection>
+      <div>
+        Please log in to access this draft
+      </div>
+      <Components.WrappedLoginForm/>
+    </Components.SingleColumnSection>
+  }
+  
+  if (error) {
+    if (isMissingDocumentError(error)) {
+      return <Components.Error404 />
+    }
+    return <SingleColumnSection>Sorry, you don't have access to this draft</SingleColumnSection>
+  }
+  
+  if (loading || !post) {
     return <Loading/>
   }
+  
   return <SingleColumnSection>
     <div className={classes.title}>{post?.title}</div>
     <Components.PostsAuthors post={post}/>
