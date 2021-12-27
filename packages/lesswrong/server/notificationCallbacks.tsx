@@ -161,8 +161,6 @@ export const createNotification = async ({userId, notificationType, documentType
     type: notificationType,
     link: await getLink(notificationType, documentType, documentId),
   }
-  console.log(notificationData)
-  console.log(notificationTypeSettings)
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
   {
@@ -221,7 +219,6 @@ const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: str
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
-      console.log('sendPostByEmail, sending')
       await wrapAndSendEmail({
         user,
         subject: post.title,
@@ -296,69 +293,103 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsync
   }
 });
 
-export async function postsUndraftNotification(post: DbPost) {
-  //eslint-disable-next-line no-console
-  console.info("Post undrafted, creating notifications");
-
-  await postsNewNotifications(post);
-}
-
 function postIsPublic (post: DbPost) {
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 }
+
+async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
+  return await Users.aggregate([
+    {
+      "$geoNear": {
+        "near": location, 
+        "spherical": true,
+        "distanceField": "distance",
+        "distanceMultiplier": 0.001,
+        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
+        "key": "nearbyEventsNotificationsMongoLocation"
+      }
+    },
+    {
+      "$match": {
+        "$expr": {
+            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
+        }
+      }
+    }
+  ]).toArray()
+}
+ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
 // Export for testing
 /** Add new post notification callback on post submit */
 export async function postsNewNotifications (post: DbPost) {
   if (postIsPublic(post)) {
-
-    // add users who are subscribed to this post's author
-    let usersToNotify = await getSubscribedUsers({
-      documentId: post.userId,
-      collectionName: "Users",
-      type: subscriptionTypes.newPosts
-    })
-
-    // add users who are subscribed to this post's groups
+    // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
+    // start by excluding the post author
+    let userIdsNotified: string[] = [post.userId];
+    
+    // first, if the post is in a group, notify all users who are subscribed to the group
     if (post.groupId) {
       // Load the group, so we know who the organizers are
       const group = await Localgroups.findOne(post.groupId);
       if (group) {
         const organizerIds = group.organizerIds;
-        const subscribedUsers = await getSubscribedUsers({
+        const groupSubscribedUsers = await getSubscribedUsers({
           documentId: post.groupId,
           collectionName: "Localgroups",
           type: subscriptionTypes.newEvents,
           potentiallyDefaultSubscribedUserIds: organizerIds,
           userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
         });
-        usersToNotify = _.union(usersToNotify, subscribedUsers)
+        
+        const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
+        if (post.groupId && post.isEvent) {
+          await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
+        } else if (post.groupId && !post.isEvent) {
+          await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
+        }
+        // don't notify these users again
+        userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
       }
     }
     
-    // remove this post's author
-    // TODO: Removed because this was written in a way that didn't work and didn't
-    // typecheck, but also, it seems fine for people to get notifications for their
-    // own submissions to localgroups? It's nice to have a preview of what other
-    // subscribed users would see.
-    //usersToNotify = _.without(usersToNotify, post.userId);
-    
-    const userIdsToNotify = _.map(usersToNotify, u=>u._id);
-
-    // TODO: compare with newEventInRadius
-    console.log('postsNewNotifications')
-    console.log(userIdsToNotify)
-    if (post.groupId && post.isEvent) {
-      await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
-    } else if (post.groupId && !post.isEvent) {
-      await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
-    } else {
-      await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
+    // then notify all users who want to be notified of events in a radius
+    if (post.isEvent && post.mongoLocation) {
+      const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
+      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
+      // don't notify these users again
+      userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
     }
-
+    
+    // finally notify all users who are subscribed to the post's author
+    let authorSubscribedUsers = await getSubscribedUsers({
+      documentId: post.userId,
+      collectionName: "Users",
+      type: subscriptionTypes.newPosts
+    })
+    const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
+    await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
   }
 }
-getCollectionHooks("Posts").newAsync.add(postsNewNotifications);
+
+postPublishedCallback.add(postsNewNotifications);
+
+getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+  if (
+    (
+      !_.isEqual(newPost.mongoLocation, oldPost.mongoLocation) ||
+      (newPost.startTime !== oldPost.startTime) || 
+      (newPost.endTime !== oldPost.endTime)
+    )
+    && newPost.mongoLocation && newPost.isEvent && !newPost.draft && !newPost.authorIsUnreviewed)
+  {
+    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIds = usersToNotify.map(user => user._id)
+    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
+    await createNotifications({userIds: usersIdsWithoutAuthor, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
+  }
+});
 
 getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
@@ -641,55 +672,3 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
-async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
-  return await Users.aggregate([
-    {
-      "$geoNear": {
-        "near": location, 
-        "spherical": true,
-        "distanceField": "distance",
-        "distanceMultiplier": 0.001,
-        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
-        "key": "nearbyEventsNotificationsMongoLocation"
-      }
-    },
-    {
-      "$match": {
-        "$expr": {
-            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
-        }
-      }
-    }
-  ]).toArray()
-}
-ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
-
-postPublishedCallback.add(async function PostsNewMeetupNotifications (newPost: DbPost) {
-  console.log('PostsNewMeetupNotifications')
-  console.log(newPost.mongoLocation)
-  if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
-    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-    const userIds = usersToNotify.map(user => user._id)
-    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    await createNotifications({userIds: userIds, notificationType: "newEventInRadius", documentType: "post", documentId: newPost._id})
-  }
-});
-
-getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
-  if (
-    (
-      (!newPost.draft && oldPost.draft) || 
-      !_.isEqual(newPost.mongoLocation, oldPost.mongoLocation) ||
-      (newPost.startTime !== oldPost.startTime) || 
-      (newPost.endTime !== oldPost.endTime) || 
-      (newPost.contents?.html !== oldPost.contents?.html) ||
-      (newPost.title !== oldPost.title)
-    )
-    && newPost.mongoLocation && newPost.isEvent && !newPost.draft) 
-  {
-    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-    const userIds = usersToNotify.map(user => user._id)
-    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    await createNotifications({userIds: userIds, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
-  }
-});

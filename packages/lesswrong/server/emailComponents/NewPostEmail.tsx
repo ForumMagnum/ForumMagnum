@@ -48,11 +48,7 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
     }
   });
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
-  console.log('document', document?._id)
-  console.log('🚀 ~ file: NewPostEmail.tsx ~ line 42 ~ loading', loading)
-  console.log('🚀 ~ file: NewPostEmail.tsx ~ line 42 ~ error', error)
   if (!document) {
-    console.log('no document')
     return null;
   }
   return (<React.Fragment>
