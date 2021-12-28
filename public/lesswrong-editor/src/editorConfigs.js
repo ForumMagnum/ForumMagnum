@@ -60,7 +60,7 @@ export const postEditorConfig = {
 	],
 	toolbar: {
 		items: [
-			'comment',
+			'restyledCommentButton',
 			'|',
 			'heading',
 			'|',
