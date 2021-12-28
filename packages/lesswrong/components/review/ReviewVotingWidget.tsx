@@ -2,11 +2,12 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
-import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
+import { eligibleToNominate, REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { overviewTooltip } from './FrontpageReviewWidget';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme) => ({
   root: {
@@ -24,6 +25,8 @@ const styles = (theme) => ({
 const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:number)=>void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
+  
+  const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
   const [submitVote] = useMutation(gql`
@@ -51,6 +54,8 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     if (setNewVote) setNewVote(score)
     return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
   }, [submitVote, setNewVote]);
+
+  if (!eligibleToNominate(currentUser)) return null
 
   return <ErrorBoundary>
       <div className={classes.root}>

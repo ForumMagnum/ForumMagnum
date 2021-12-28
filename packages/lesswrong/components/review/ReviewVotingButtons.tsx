@@ -6,6 +6,7 @@ import forumThemeExport from '../../themes/forumTheme';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
+import { eligibleToNominate } from '../../lib/reviewUtils';
 
 const downvoteColor = "rgba(125,70,70, .87)"
 const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"
@@ -79,6 +80,8 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVoteScore}: {c
   }
 
   if (currentUser?._id === post.userId) return <div className={classes.root}>You can't vote on your own posts</div>
+
+  if (!eligibleToNominate(currentUser)) return <div className={classes.root}>You aren't eligible to vote</div>
 
   return <AnalyticsContext pageElementContext="reviewVotingButtons">
     <div className={classes.root}>
