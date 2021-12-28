@@ -132,6 +132,15 @@ registerFragment(`
   }
 `)
 
+registerFragment(`
+  fragment PostsListWithVotesAndReviews on Post {
+    ...PostsListWithVotes
+    reviews {
+      ...CommentWithRepliesFragment
+    }
+  }
+`)
+
 
 registerFragment(`
   fragment PostsAuthors on Post {

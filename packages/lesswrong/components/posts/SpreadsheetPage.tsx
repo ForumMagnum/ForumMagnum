@@ -14,12 +14,12 @@ import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-const cellStyle = () => ({
+export const cellStyle = () => ({
   maxWidth: 350,
   wordBreak: "break-word"
 })
 
-const headerStyle = (theme: ThemeType) => ({
+export const headerStyle = (theme: ThemeType) => ({
   fontSize: "1.1rem",
   fontWeight: 600,
   backgroundColor: theme.palette.grey[800],

@@ -125,7 +125,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 // TODO: this should probably live in some utility folder
-const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
+export const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
   let output = [...arr1]
   arr2.forEach((value) => {
     pullAt(output, indexOf(output, value))

@@ -241,6 +241,18 @@ addRoute(
     componentName: "ReviewVotingPage",
     ...reviewSubtitle
   },
+  {
+    name:'reviewFullDashboard',
+    path: '/reviewFullDashboard',
+    redirect: () => `/reviewVoting/2020`,
+  },
+  {
+    name:'reviewFullDashboard2020',
+    path: '/reviewFullDashboard/2020',
+    title: "Voting 2020 Review",
+    componentName: "ReviewFullDashboard",
+    ...reviewSubtitle
+  },
 
   // Sequences
   {
