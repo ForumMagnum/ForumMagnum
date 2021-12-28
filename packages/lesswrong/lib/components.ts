@@ -111,6 +111,7 @@ importComponent("DefaultStyleFormGroup", () => require('../components/common/Def
 importComponent("LinkCard", () => require('../components/common/LinkCard'));
 importComponent("LWDialog", () => require('../components/common/LWDialog'));
 importComponent("Error404", () => require('../components/common/Error404'));
+importComponent("ErrorAccessDenied", () => require('../components/common/ErrorAccessDenied'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect'));
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
 
