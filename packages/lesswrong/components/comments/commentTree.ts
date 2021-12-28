@@ -9,7 +9,7 @@ export interface CommentTreeOptions {
   scrollOnExpand?: boolean,
   hideSingleLineMeta?: boolean,
   enableHoverPreview?: boolean,
-  singleLineLargePreview?: boolean,
+  singleLineCollapse?: boolean,
   hideReply?: boolean,
   showPostTitle?: boolean,
   singleLinePostTitle?: boolean,

@@ -17,9 +17,10 @@ const SingleLineReviewsList = () => {
           <Components.CommentsNode
             treeOptions={{
               condensed: true,
-              singleLineLargePreview: true,
+              singleLineCollapse: true,
               hideSingleLineMeta: true,
               singleLinePostTitle: true,
+              showPostTitle: true,
               post: comment.post || undefined
             }}
             comment={comment}
