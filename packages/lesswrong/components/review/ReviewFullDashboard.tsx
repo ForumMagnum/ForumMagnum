@@ -94,7 +94,7 @@ const ReviewFullDashboard = ({classes}) => {
             Voting
           </TableCell>
         </TableRow>
-        { postsResults?.map((post) => <ReviewFullDashboardRow key={post.
+        { results?.map((post) => <ReviewFullDashboardRow key={post.
         _id} post={post} reviewYear={reviewYear}/>)}
       </TableBody>
     </Table>

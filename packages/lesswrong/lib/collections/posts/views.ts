@@ -1326,7 +1326,7 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
       // This sorts the posts deterministically, which is important for the
       // relative stability of the seeded frontend sort
       sort: {
-        createdAt: -1
+        lastCommentedAt: -1
       },
       ...(terms.excludeContents ?
         {projection: {contents: 0}} :
