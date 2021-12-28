@@ -59,7 +59,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < KARMA_COLLAPSE_THRESHOLD);
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand, singleLineLargePreview } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, markAsRead, scrollOnExpand } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?

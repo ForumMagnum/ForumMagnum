@@ -142,7 +142,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineLargePreview } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -317,7 +317,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
-            {singleLineLargePreview && <a className={classes.collapse} onClick={() => 
+            {singleLineCollapse && <a className={classes.collapse} onClick={() => 
               setSingleLine && setSingleLine(true)}>
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
