@@ -5,7 +5,6 @@ import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils
 import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
 import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
-import TextProxy from '@ckeditor/ckeditor5-engine/src/view/textproxy';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import { viewQueryElement, viewQueryText } from '../utils';
 import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
@@ -129,24 +128,12 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('dataDowncast').elementToElement({
 		model: ELEMENTS.footnoteItem,
-		view: {
-			name: 'li',
-			attributes: {
-				[ATTRIBUTES.footnoteItem]: '',
-			},
-			classes: [CLASSES.footnoteItem],
-		},
+		view: createFootnoteItemViewElement,
 	});
 
 	conversion.for('editingDowncast').elementToElement({
 		model: ELEMENTS.footnoteItem,
-		view: {
-			name: 'li',
-			attributes: {
-				[ATTRIBUTES.footnoteItem]: '',
-			},
-			classes: [CLASSES.footnoteItem],
-		},
+		view: createFootnoteItemViewElement,
 	});
 
 	/***********************************Footnote Reference Conversion************************************/
@@ -307,10 +294,36 @@ function createFootnoteReferenceViewElement(modelElement, conversionApi) {
 	return footnoteReferenceView;
 }
 
+/**
+ * Creates and returns a view element for an inline footnote reference. Used for both
+ * data downcast and editing downcast conversions.
+ * @param {ModelElement} modelElement
+ * @param {DowncastConversionApi} conversionApi
+ * @returns {ContainerElement}
+ */
+function createFootnoteItemViewElement(modelElement, conversionApi) {
+	const viewWriter = conversionApi.writer;
+	const index = modelElement.getAttribute(ATTRIBUTES.footnoteIndex);
+	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
+	if(index === undefined) {
+		throw new Error('Footnote item has no provided index.')
+	}
+	if(id === undefined) {
+		throw new Error('Footnote item has no provided id.')
+	}
+
+	return viewWriter.createContainerElement('li', {
+		class: CLASSES.footnoteItem,
+		[ATTRIBUTES.footnoteItem]: '',
+		[ATTRIBUTES.footnoteIndex]: index,
+		[ATTRIBUTES.footnoteId]: id,
+		id: `fn${id}`,
+	});
+}
 
 /**
  * @typedef {Object} Data
- * @property {Node | TextProxy} item
+ * @property {ModelElement} item
  * @property {string} attributeOldValue
  * @property {string} attributeNewValue
  */
@@ -349,6 +362,6 @@ function updateFootnoteReferenceView (data, conversionApi, editor) {
 	const innerText = viewWriter.createText(`[${newIndex}]`);
 	viewWriter.insert(viewWriter.createPositionAt(anchor, 0), innerText);
 
-	viewWriter.setAttribute('href', `#fn${newIndex}`, anchor);
+	viewWriter.setAttribute('href', `#fn${item.getAttribute(ATTRIBUTES.footnoteId)}`, anchor);
 	viewWriter.setAttribute(ATTRIBUTES.footnoteIndex, newIndex, footnoteReferenceView);
 }
