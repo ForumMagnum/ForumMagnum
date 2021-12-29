@@ -38,7 +38,7 @@ export default class InsertFootnoteCommand extends Command {
 			if(!id || !index) {
 				return;
 			}
-			modelWriter.setSelection(doc.selection.getFirstPosition());
+			modelWriter.setSelection(doc.selection.getLastPosition());
 			const footnoteReference = modelWriter.createElement(ELEMENTS.footnoteReference, { [ATTRIBUTES.footnoteId]: id, [ATTRIBUTES.footnoteIndex]: index });
 			this.editor.model.insertContent(footnoteReference);
 			modelWriter.setSelection(footnoteReference, 'after');
