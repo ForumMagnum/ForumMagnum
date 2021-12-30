@@ -16,6 +16,7 @@ import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import type { ForumTypeString } from '../../../lib/instanceSettings';
 import { communityPath } from '../../../lib/routes';
+import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -128,7 +129,7 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       id: 'bestoflesswrong',
       title: 'Best of LessWrong',
       link: '/bestoflesswrong',
-      tooltip: 'Top-voted posts from the 2018 and 2019 Review',
+      tooltip: `Top-voted posts from the Annual Review (2018 – ${REVIEW_YEAR - 1})`,
       subItem: true,
     }, {
       id: 'events',
