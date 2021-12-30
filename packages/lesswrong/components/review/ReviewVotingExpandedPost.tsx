@@ -38,47 +38,49 @@ const styles = theme => ({
 const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: PostsListWithVotes|null}) => {
   const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
-  if (!post) return null
-
   const {document: postWithContents, loading} = useSingle({
-    skip: !!post.contents,
-    documentId: post._id,
+    skip: !!post?.contents,
+    documentId: post?._id,
     collectionName: "Posts",
     fetchPolicy: "cache-first",
     fragmentName: "PostsList",
   });
 
+  const newPost = post || postWithContents
+
+  if (!newPost) return null
+
   return <div>
-    <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
+    <Link to={postGetPageUrl(newPost)}  className={classes.postTitle}>{newPost.title}</Link>
     {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={90} forceSeeMore />}
     {loading && <Loading/>}
-    <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
+    <ReviewPostButton post={newPost} year={REVIEW_YEAR+""} reviewMessage={<div>
       <div className={classes.writeAReview}>
-        <div className={classes.reviewPrompt}>Write a review for "{post.title}"</div>
+        <div className={classes.reviewPrompt}>Write a review for "{newPost.title}"</div>
         <div className={classes.fakeTextfield}>Any thoughts about this post you want to share with other voters?</div>
       </div>
     </div>}/>
 
     <div className={classes.comments}>
-      <PingbacksList postId={post._id}/>
+      <PingbacksList postId={newPost._id}/>
       <ReviewPostComments
         title="Reviews"
         terms={{
           view: "reviews",
           reviewYear: REVIEW_YEAR, 
-          postId: post._id
+          postId: newPost._id
         }}
-        post={post}
+        post={newPost}
       />
       <ReviewPostComments
         title="Unread Comments"
         terms={{
           view: "postsItemComments", 
-          postId: post._id,
+          postId: newPost._id,
           limit:7, 
-          after: post.lastVisitedAt
+          after: newPost.lastVisitedAt
         }}
-        post={post}
+        post={newPost}
       />
     </div>
   </div>
