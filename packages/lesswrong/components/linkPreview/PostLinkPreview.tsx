@@ -294,10 +294,11 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
     href,
     onsite
   });
-  const footnoteHTML = document.querySelector(href)?.innerHTML?.replace(/<a href="#fnref.*?\/a>/g, '');
+  // grab contents of linked footnote if it exists, while removes the backlink anchor tag.
+  const footnoteHTML = document.querySelector(href)?.innerHTML?.replace(/<a.*?href="#fnref.*?\/a>/g, '');
   return (
     <span {...eventHandlers}>
-      <LWPopper
+      {footnoteHTML && <LWPopper
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
@@ -313,13 +314,9 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
             <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
           </div>
         </Card>
-      </LWPopper>
+      </LWPopper>}
 
-      {onsite
-        ? <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
-        : <Components.AnalyticsTracker eventType="link" eventProps={{to: href}}>
-            <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
-          </Components.AnalyticsTracker>}
+      <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
     </span>
   );
 }
