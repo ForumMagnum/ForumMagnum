@@ -338,11 +338,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
-            <LocalGroupsList terms={{
-              view: 'userActiveGroups',
-              userId: user?._id,
-              limit: 300
-            }} heading={ownPage ? "My Groups" : `${user?.displayName}'s Groups`} />
+            (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
+                view: 'userActiveGroups',
+                userId: user?._id,
+                limit: 300
+              }} heading="Organizer of" showNoResults={false} />
           }
           {/* Wiki Section */}
           <SingleColumnSection>

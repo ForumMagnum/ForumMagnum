@@ -41,7 +41,10 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
     children;
 
   if (!results && loading) return <Loading />
-  if (results && !results.length) {
+
+  // if we are given a section title/heading,
+  // then we can make sure to hide it when showNoResults is true and there are no results to show
+  if (!results || !results.length) {
     return showNoResults ? 
       <MaybeTitleWrapper><PostsNoResults /></MaybeTitleWrapper> :
       null
