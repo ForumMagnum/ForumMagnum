@@ -56,7 +56,7 @@ The plugin defines the following `Element` types (definitions in `schema.js`, co
 ### 1. Footnote creation
 - handled by `insertFootnoteCommand.js`. Linked to the toolbar UI via `footnoteUI.js`.
 ### 2. Multiple references allowed for a given footnote
-- within `insertFootnoteCommand.js`, if an existing footnote index is provided, the 
+- within `insertFootnoteCommand.js`, if an existing footnote index is provided, the id and index of that footnote are used for the added reference.
 ### 3. Deleting a footnote deletes its references
 - covered in `footnoteEditing.js`, via the `_handleDelete` method. Updating reference indices is handled via an event listener on the `change:data` event, which is a broad event that includes all updates that affect the model's contents. 
 ### 4. Allow Markdown syntax
