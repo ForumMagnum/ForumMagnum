@@ -199,7 +199,6 @@ const postEditorConfig = {
 		'horizontalLine',
 		'mathDisplay',
 		'mediaEmbed',
-		'footnote',
 	],
 	toolbar: [
 		'heading',
