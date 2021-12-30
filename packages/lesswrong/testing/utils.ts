@@ -8,6 +8,7 @@ import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
 import { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import Localgroups from '../lib/collections/localgroups/collection';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -248,6 +249,19 @@ export const createDummyMessage = async (user: any, data?: any) => {
     validate: false,
   });
   return newMessageResponse.data
+}
+
+export const createDummyLocalgroup = async (data?: any) => {
+  let defaultData = {
+    name: randomId()
+  }
+  const groupData = {...defaultData, ...data};
+  const groupResponse = await createMutator({
+    collection: Localgroups,
+    document: groupData,
+    validate: false,
+  });
+  return groupResponse.data
 }
 
 export const clearDatabase = async () => {

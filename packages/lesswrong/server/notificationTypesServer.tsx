@@ -76,11 +76,11 @@ export const NewEventNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post to generate subject-line for: ${notifications}`)
-    return post.title;
+    return `New event: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
-    return <Components.NewPostEmail documentId={postId}/>
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -94,7 +94,7 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
-    return <Components.NewPostEmail documentId={postId}/>
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -339,13 +339,11 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `A new event has been created in your area: ${post.title}`;
+    return `New event in your area: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    return <Components.EventInRadiusEmail
-      openingSentence="A new event has been created in your area"
-      postId={notifications[0].documentId}
-    />
+    const postId = notifications[0].documentId;
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
   },
 });
 
@@ -355,11 +353,11 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `An event in your area has been edited: ${post.title}`;
+    return `Event in your area updated: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return <Components.EventInRadiusEmail
-      openingSentence="An event in your area has been edited"
+      openingSentence="An event in your area has been updated"
       postId={notifications[0].documentId}
     />
   },
