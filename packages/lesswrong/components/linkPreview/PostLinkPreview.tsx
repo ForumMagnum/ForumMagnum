@@ -268,6 +268,66 @@ const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPre
   styles,
 });
 
+const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
+  hovercard: {
+    padding: `${theme.spacing.unit*3}px ${theme.spacing.unit*2}px ${theme.spacing.unit*2}px`,
+    ...theme.typography.body2,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    maxWidth: 500,
+  },
+})
+
+const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  onsite?: boolean,
+  id?: string,
+  rel?: string
+}) => {
+  const { LWPopper } = Components
+  const { eventHandlers, hover, anchorEl } = useHover({
+    pageElementContext: "linkPreview",
+    hoverPreviewType: "DefaultPreview",
+    href,
+    onsite
+  });
+  const footnoteHTML = document.querySelector(href)?.innerHTML?.replace(/<a href="#fnref.*?\/a>/g, '');
+  return (
+    <span {...eventHandlers}>
+      <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="bottom-start"
+        modifiers={{
+          flip: {
+            behavior: ["bottom-start", "top-end", "bottom-start"],
+            boundariesElement: 'viewport'
+          }
+        }}
+      >
+        <Card>
+          <div className={classes.hovercard}>
+            <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+          </div>
+        </Card>
+      </LWPopper>
+
+      {onsite
+        ? <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+        : <Components.AnalyticsTracker eventType="link" eventProps={{to: href}}>
+            <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+          </Components.AnalyticsTracker>}
+    </span>
+  );
+}
+
+const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
+  styles: footnotePreviewStyles,
+});
+
 const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
     padding: theme.spacing.unit,
@@ -596,6 +656,7 @@ declare global {
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
+    FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
   }
 }
