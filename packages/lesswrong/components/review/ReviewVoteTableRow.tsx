@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getReviewPhase } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
@@ -148,6 +148,9 @@ const ReviewVoteTableRow = (
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote } = Components
 
   const currentUser = useCurrentUser()
+
+  const [hasBeenClicked, setHasBeenClicked] = useState(false)
+
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
 
@@ -164,7 +167,7 @@ const ReviewVoteTableRow = (
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
+    <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={() => setHasBeenClicked(true)}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
@@ -177,7 +180,7 @@ const ReviewVoteTableRow = (
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}
-          unreadComments={post.lastVisitedAt < post.lastCommentedAt}
+          unreadComments={(post.lastVisitedAt < post.lastCommentedAt && !hasBeenClicked)}
           newPromotedComments={false}
         />
         <PostsItem2MetaInfo className={classes.count}>

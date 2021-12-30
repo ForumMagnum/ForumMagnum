@@ -24,6 +24,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
+import { filter } from 'lodash';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -182,8 +183,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     marginRight: "auto"
   },
+  reviewedCount: {
+    color: theme.palette.primary.main,
+    cursor: "pointer"
+  },
   postsLoading: {
     opacity: .4,
+  },
+  sortedBy: {
+    fontSize: 13,
+    ...theme.typography.commentStyle,
+    color: 'rgba(0,0,0,.87)',
+    position: "relative",
+    top: -1,
+    right: -3
   },
   sortArrow: {
     cursor: "pointer",
@@ -372,7 +385,7 @@ const ReviewVotingPage = ({classes}: {
     <div className={classes.instructions}>
       <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
 
-      <p>This is the Review Phase. Posts with two nomations will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
+      <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
 
       <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
       
@@ -410,9 +423,10 @@ const ReviewVotingPage = ({classes}: {
 
       <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
 
-      {getReviewPhase() === "REVIEWS"  && <><p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
 
-      <p>This is the Review Phase. Posts with two nomations will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
+      {getReviewPhase() === "REVIEWS"  && <><p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
+
+      <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
 
       <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p></>}
 
@@ -442,6 +456,8 @@ const ReviewVotingPage = ({classes}: {
       </p>
     </div>
 
+  const reviewedPosts = filter(sortedPosts, post=>post.reviewCount > 0)
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -469,7 +485,13 @@ const ReviewVotingPage = ({classes}: {
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.menu}>
-            {sortedPosts && <div className={classes.postCount}>{sortedPosts.length} Nominated Posts</div>}
+            {sortedPosts && 
+              <div className={classes.postCount}>
+                <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
+                <span className={classes.reviewedCount}>
+                  {reviewedPosts.length} Reviewed Posts
+                </span>
+                </LWTooltip> ({sortedPosts.length} Nominated)</div>}
             
             {(postsLoading || loading) && <Loading/>}
             
@@ -516,25 +538,29 @@ const ReviewVotingPage = ({classes}: {
                 }
               </div>
             </LWTooltip>
+            <div className={classes.sortedBy}>Sorted by</div>
             <Select
               value={sortPosts}
               onChange={(e)=>{setSortPosts(e.target.value)}}
               disableUnderline
               >
+              <MenuItem value={'lastCommentedAt'}>
+                Last Commented
+              </MenuItem>
               <MenuItem value={'reviewVoteScoreHighKarma'}>
-                Sorted by Vote Total (1000+ Karma Users)
+                Vote Total (1000+ Karma Users)
               </MenuItem>
               <MenuItem value={'reviewVoteScoreAllKarma'}>
-                Sorted by Vote Total (All Users)
+                Vote Total (All Users)
               </MenuItem>
               {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
-                Sorted by Vote Total (Alignment Forum Users)
+                Vote Total (Alignment Forum Users)
               </MenuItem>}
               <MenuItem value={'currentUserReviewVote'}>
-                Sorted by Your Vote
+                Your Vote
               </MenuItem>
               <MenuItem value={'reviewCount'}>
-                Sorted by Review Count
+                Review Count
               </MenuItem>
               <MenuItem value={'needsReview'}>
                 Needs Review

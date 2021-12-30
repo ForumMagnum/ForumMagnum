@@ -23,20 +23,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   7: {
     color: "white",
-    background: theme.palette.primary.dark
+    background: theme.palette.grey[700]
   },
   6: {
     color: "white",
-    background: theme.palette.primary.light
+    background: theme.palette.grey[400]
   },
   5: {
-    background: "rgba(0,0,0,.1)"
+    background: theme.palette.grey[200]
   },
   4: {
     color: theme.palette.grey[600]
   },
   3: {
-    background: "rgba(0,0,0,.1)"
+    background: theme.palette.grey[200]
   },
   2: {
     color: "white",
