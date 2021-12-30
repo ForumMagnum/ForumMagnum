@@ -4,6 +4,7 @@ import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useSingle } from '../../lib/crud/withSingle';
 
 const styles = theme => ({
   postTitle: {
@@ -35,13 +36,22 @@ const styles = theme => ({
 })
 
 const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: PostsListWithVotes|null}) => {
-  const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList} = Components
+  const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
   if (!post) return null
 
+  const {document: postWithContents, loading} = useSingle({
+    skip: !!post.contents,
+    documentId: post._id,
+    collectionName: "Posts",
+    fetchPolicy: "cache-first",
+    fragmentName: "PostsList",
+  });
+
   return <div>
     <Link to={postGetPageUrl(post)}  className={classes.postTitle}>{post.title}</Link>
-    <PostsHighlight post={post} maxLengthWords={90} forceSeeMore /> 
+    {postWithContents && <PostsHighlight post={postWithContents} maxLengthWords={90} forceSeeMore />}
+    {loading && <Loading/>}
     <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<div>
       <div className={classes.writeAReview}>
         <div className={classes.reviewPrompt}>Write a review for "{post.title}"</div>
