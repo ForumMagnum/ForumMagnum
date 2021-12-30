@@ -27,16 +27,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   6: {
     color: "white",
-    background: theme.palette.grey[400]
+    background: theme.palette.grey[500]
   },
   5: {
-    background: theme.palette.grey[200]
+    background: theme.palette.grey[300]
   },
   4: {
     color: theme.palette.grey[600]
   },
   3: {
-    background: theme.palette.grey[200]
+    background: theme.palette.grey[300]
   },
   2: {
     color: "white",
