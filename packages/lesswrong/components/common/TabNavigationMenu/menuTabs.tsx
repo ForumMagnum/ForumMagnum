@@ -125,6 +125,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
       subItem: true,
     }, {
+      id: 'bestoflesswrong',
+      title: 'Best of LessWrong',
+      link: '/bestoflesswrong',
+      tooltip: 'Top-voted posts from the 2018 and 2019 Review',
+      subItem: true,
+    }, {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
