@@ -24,7 +24,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
-import { filter } from 'lodash';
+import filter from 'lodash/filter';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
