@@ -81,7 +81,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
+  const { HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
     SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404, CloudinaryImage } = Components
 
   const { document: group, loading } = useSingle({
@@ -128,6 +128,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   return (
     <div className={classes.root}>
+      <HeadTags
+        title={group.name}
+        description={group.contents?.plaintextDescription}
+        image={group.bannerImageId && `https://res.cloudinary.com/cea/image/upload/v1640139083/${group.bannerImageId}.jpg`}
+      />
       {topSection}
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>

@@ -11,6 +11,9 @@ import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
@@ -41,7 +44,47 @@ const CommunityHome = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { query } = useLocation();
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, null));
+  
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'UsersProfile',
+  });
+  
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  
+  // if the current user provides their browser location and they do not yet have a location in their user settings,
+  // assign their browser location to their user settings location
+  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
+  const [geocodeError, setGeocodeError] = useState(false)
+  const updateUserLocation = async ({lat, lng, known}) => {
+    if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
+      try {
+        // get a list of matching Google locations for the current lat/lng
+        const geocoder = new googleMaps.Geocoder();
+        const geocodingResponse = await geocoder.geocode({
+          location: {lat, lng}
+        });
+        const results = geocodingResponse?.results;
+        
+        if (results?.length) {
+          const location = pickBestReverseGeocodingResult(results)
+          void updateUser({
+            selector: {_id: currentUser._id},
+            data: {
+              location: location?.formatted_address,
+              googleLocation: location
+            }
+          })
+        }
+      } catch (e) {
+        setGeocodeError(true)
+        // eslint-disable-next-line no-console
+        console.error(e?.message)
+      }
+    }
+  }
+
+  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, updateUserLocation));
   
   useEffect(() => {
     userGetLocation(currentUser, (newLocation) => {
@@ -63,7 +106,6 @@ const CommunityHome = ({classes}: {
     });
   }
 
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
   const isAdmin = userIsAdmin(currentUser);
   const canCreateEvents = currentUser;
   const canCreateGroups = currentUser && (!isEAForum || isAdmin);

@@ -194,6 +194,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
               toggleCollapse={toggleCollapse}
               key={comment._id}
               scrollIntoView={scrollIntoView}
+              setSingleLine={setSingleLine}
               { ...passedThroughItemProps}
             />
         }
