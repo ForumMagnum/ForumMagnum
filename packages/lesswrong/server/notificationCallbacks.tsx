@@ -26,6 +26,7 @@ import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
+import moment from 'moment';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -126,19 +127,44 @@ export async function postsNewNotifications (post: DbPost) {
 
 postPublishedCallback.add(postsNewNotifications);
 
-getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+  // don't bother notifying people about past or unscheduled events
+  const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
+  // only send notifications if the event was already published *before* being edited
+  const alreadyPublished = !oldPost.draft && !newPost.draft && !oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed
   if (
     (
       !_.isEqual(newPost.mongoLocation, oldPost.mongoLocation) ||
+      (newPost.onlineEvent !== oldPost.onlineEvent) ||
       (newPost.startTime !== oldPost.startTime) || 
       (newPost.endTime !== oldPost.endTime)
     )
-    && newPost.mongoLocation && newPost.isEvent && !newPost.draft && !newPost.authorIsUnreviewed)
+    && newPost.mongoLocation && newPost.isEvent && isUpcomingEvent && alreadyPublished)
   {
-    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-    const userIds = usersToNotify.map(user => user._id)
-    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    await createNotifications({userIds: usersIdsWithoutAuthor, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
+    // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification
+    let userIdsNotified: string[] = []
+
+    // first email everyone who RSVP'd to the event
+    const rsvpUsers = await getUsersToNotifyAboutEvent(newPost)
+    for (let {userId,email} of rsvpUsers) {
+      if (!email) continue
+      const user = await Users.findOne(userId)
+      if (userId) {
+        userIdsNotified.push(userId)
+      }
+      
+      await wrapAndSendEmail({
+        user: user,
+        to: email,
+        subject: `Event updated: ${newPost.title}`,
+        body: <Components.EventUpdatedEmail postId={newPost._id} />
+      });
+    }
+    
+    // then notify all users who want to be notified of events in a radius
+    const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+    await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
   }
 });
 
