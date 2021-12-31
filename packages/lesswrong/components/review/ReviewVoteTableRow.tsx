@@ -151,6 +151,11 @@ const ReviewVoteTableRow = (
   const currentUser = useCurrentUser()
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
+  const { recordPostView } = useRecordPostView(post);
+  const markAsRead = () => {
+    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    setMarkedVisitedAt(new Date()) 
+  }
 
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
@@ -162,13 +167,6 @@ const ReviewVoteTableRow = (
     'smallDownvote': 'a downvote',
     'smallUpvote': 'an upvote',
     'bigUpvote': 'a strong upvote'
-  }
-
-  const { recordPostView } = useRecordPostView(post);
-
-  const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
-    setMarkedVisitedAt(new Date()) 
   }
 
   const highVotes = post.reviewVotesHighKarma || []
