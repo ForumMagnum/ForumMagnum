@@ -17,14 +17,13 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
-import filter from 'lodash/filter';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -106,7 +105,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.reviewVotingMenu,
     padding: theme.spacing.unit,
     background: "#ddd",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
+    flexWrap: "wrap"
   },
   menuIcon: {
     marginLeft: theme.spacing.unit
@@ -181,11 +181,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     marginLeft: 10,
     color: theme.palette.grey[600],
-    marginRight: "auto"
+    marginRight: "auto",
+    whiteSpace: "pre"
   },
   reviewedCount: {
     color: theme.palette.primary.main,
-    cursor: "pointer"
+    cursor: "pointer",
+    marginRight: 8
+  },
+  sortingOptions: {
+    whiteSpace: "pre",
+    display: "flex",
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 12,
+      paddingLeft: 4
+    }
   },
   postsLoading: {
     opacity: .4,
@@ -459,7 +469,7 @@ const ReviewVotingPage = ({classes}: {
       </p>
     </div>
 
-  const reviewedPosts = filter(sortedPosts, post=>post.reviewCount > 0)
+  const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
@@ -493,14 +503,17 @@ const ReviewVotingPage = ({classes}: {
               <div className={classes.postCount}>
                 <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
                 <span className={classes.reviewedCount}>
-                  {reviewedPosts.length} Reviewed Posts
+                  {reviewedPosts?.length || 0} Reviewed Posts
                 </span>
-                </LWTooltip> ({sortedPosts.length} Nominated)</div>}
+                </LWTooltip> 
+                ({sortedPosts.length} Nominated)
+              </div>
+            }
             
             {(postsLoading || loading) && <Loading/>}
             
             {/* Turned off for the Preliminary Voting phase */}
-            {getReviewPhase() === "VOTING" && <>
+            {/* {getReviewPhase() === "VOTING" && <>
               {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic voting, you cannot go back to default voting without losing your quadratic data.">
                 <Button className={classes.convert} onClick={async () => {
                   setLoading(true)
@@ -532,43 +545,45 @@ const ReviewVotingPage = ({classes}: {
                   Avg: {(voteTotal / sortedPosts.length).toFixed(2)}
                 </div>
               </LWTooltip>}
-            </>}
-            <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
-              <div onClick={() => { 
-                setSortReversed(!sortReversed); 
-              }}>
-                {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
-                  : <ArrowDownwardIcon className={classes.sortArrow}  />
-                }
-              </div>
-            </LWTooltip>
-            <Select
-              value={sortPosts}
-              onChange={(e)=>{setSortPosts(e.target.value)}}
-              disableUnderline
-              >
-              <MenuItem value={'lastCommentedAt'}>
-                <span className={classes.sortBy}>Sort by</span> Last Commented
-              </MenuItem>
-              <MenuItem value={'reviewVoteScoreHighKarma'}>
-                <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
-              </MenuItem>
-              <MenuItem value={'reviewVoteScoreAllKarma'}>
-                <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
-              </MenuItem>
-              {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
-                <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
-              </MenuItem>}
-              <MenuItem value={'currentUserReviewVote'}>
-                <span className={classes.sortBy}>Sort by</span> Your Vote
-              </MenuItem>
-              <MenuItem value={'reviewCount'}>
-                <span className={classes.sortBy}>Sort by</span> Review Count
-              </MenuItem>
-              <MenuItem value={'needsReview'}>
-                <span className={classes.sortBy}>Sort by</span> Needs Review
-              </MenuItem>
-            </Select>
+            </>} */}
+            <div className={classes.sortingOptions}>
+              <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
+                <div onClick={() => { 
+                  setSortReversed(!sortReversed); 
+                }}>
+                  {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
+                    : <ArrowDownwardIcon className={classes.sortArrow}  />
+                  }
+                </div>
+              </LWTooltip>
+              <Select
+                value={sortPosts}
+                onChange={(e)=>{setSortPosts(e.target.value)}}
+                disableUnderline
+                >
+                <MenuItem value={'lastCommentedAt'}>
+                  <span className={classes.sortBy}>Sort by</span> Last Commented
+                </MenuItem>
+                <MenuItem value={'reviewVoteScoreHighKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
+                </MenuItem>
+                <MenuItem value={'reviewVoteScoreAllKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
+                </MenuItem>
+                {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
+                  <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
+                </MenuItem>}
+                <MenuItem value={'currentUserReviewVote'}>
+                  <span className={classes.sortBy}>Sort by</span> Your Vote
+                </MenuItem>
+                <MenuItem value={'reviewCount'}>
+                  <span className={classes.sortBy}>Sort by</span> Review Count
+                </MenuItem>
+                <MenuItem value={'needsReview'}>
+                  <span className={classes.sortBy}>Sort by</span> Needs Review
+                </MenuItem>
+              </Select>
+            </div>
           </div>
           <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
