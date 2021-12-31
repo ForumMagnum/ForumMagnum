@@ -16,6 +16,7 @@ import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import type { ForumTypeString } from '../../../lib/instanceSettings';
 import { communityPath } from '../../../lib/routes';
+import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -123,6 +124,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       title: 'HPMOR',
       link: '/hpmor',
       tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
+      subItem: true,
+    }, {
+      id: 'bestoflesswrong',
+      title: 'Best Of',
+      link: '/bestoflesswrong',
+      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
       subItem: true,
     }, {
       id: 'events',

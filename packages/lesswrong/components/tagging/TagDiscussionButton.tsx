@@ -13,7 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     display: "flex",
     alignItems: "center",
-    marginRight: 8,
     marginLeft: "auto"
   },
   discussionButtonIcon: {
@@ -24,10 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700]
   },
   discussionCount: {
-      [theme.breakpoints.down('sm')]: { 
-        alignSelf: "flex-start" //appears to low when there's no label
-      }
-    },
+    [theme.breakpoints.down('sm')]: {
+      alignSelf: "flex-start" //appears to low when there's no label
+    }
+  },
   hideOnMobile: {
     marginRight: 2,
     [theme.breakpoints.down('sm')]: { //optimized or tag paye

@@ -12,7 +12,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: ()=>void,
 }) => {
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, ToggleIsModeratorComment } = Components
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, NotifyMeButton, ToggleIsModeratorComment } = Components
   
   const { document: postDetails } = useSingle({
     skip: !post,
@@ -35,18 +35,18 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   return <>
     <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
     {post && comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
-      <SubscribeTo asMenuItem document={post} showIcon
+      <NotifyMeButton asMenuItem document={post} showIcon
         subscriptionType={subscriptionTypes.newShortform}
         subscribeMessage={`Subscribe to ${post.title}`}
         unsubscribeMessage={`Unsubscribe from ${post.title}`}
       />
     }
-    <SubscribeTo asMenuItem document={comment} showIcon
+    <NotifyMeButton asMenuItem document={comment} showIcon
       subscribeMessage="Subscribe to comment replies"
       unsubscribeMessage="Unsubscribe from comment replies"
     />
     {comment.user?._id && (comment.user._id !== currentUser._id) &&
-      <SubscribeTo asMenuItem document={comment.user} showIcon
+      <NotifyMeButton asMenuItem document={comment.user} showIcon
         subscribeMessage={"Subscribe to posts by "+userGetDisplayName(comment.user)}
         unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(comment.user)}
       />
@@ -72,4 +72,3 @@ declare global {
     CommentActions: typeof CommentActionsComponent,
   }
 }
-
