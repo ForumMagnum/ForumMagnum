@@ -312,7 +312,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         </div>
         
         {/* Post list */}
-        {/* ea-forum-look-here */}
         {showFrontpageItems && (activeRange === "NOMINATIONS" || !eligibleToNominate(currentUser) ) && <AnalyticsContext listContext={`frontpageReviewRecommendations`} reviewYear={`${REVIEW_YEAR}`} capturePostItemOnMount>
           {/* TODO:(Review) I think we can improve this */}
           <RecommendationsList algorithm={getReviewAlgorithm()} />

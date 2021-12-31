@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getReviewPhase } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
+import { useRecordPostView } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -163,6 +164,14 @@ const ReviewVoteTableRow = (
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote } = Components
 
   const currentUser = useCurrentUser()
+
+  const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
+  const { recordPostView } = useRecordPostView(post);
+  const markAsRead = () => {
+    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    setMarkedVisitedAt(new Date()) 
+  }
+
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
 
@@ -179,7 +188,7 @@ const ReviewVoteTableRow = (
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
+    <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={markAsRead}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
@@ -192,7 +201,7 @@ const ReviewVoteTableRow = (
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}
-          unreadComments={post.lastVisitedAt < post.lastCommentedAt}
+          unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
           newPromotedComments={false}
         />
         <PostsItem2MetaInfo className={classes.count}>
