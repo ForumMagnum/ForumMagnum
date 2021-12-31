@@ -139,7 +139,7 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
       (newPost.startTime !== oldPost.startTime) || 
       (newPost.endTime !== oldPost.endTime)
     )
-    && newPost.mongoLocation && newPost.isEvent && isUpcomingEvent && alreadyPublished)
+    && newPost.isEvent && isUpcomingEvent && alreadyPublished)
   {
     // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification
     let userIdsNotified: string[] = []
@@ -162,9 +162,11 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
     }
     
     // then notify all users who want to be notified of events in a radius
-    const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-    const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
-    await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
+    if (newPost.mongoLocation) {
+      const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
+    }
   }
 });
 
@@ -286,6 +288,10 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
 
 
 export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{rsvp: RSVPType, userId: string|null, email: string|undefined}[]> {
+  if (!post.rsvps || !post.rsvps.length) {
+    return [];
+  }
+  
   return await Promise.all(post.rsvps
     .filter(r => r.response !== "no")
     .map(async (r: RSVPType) => ({

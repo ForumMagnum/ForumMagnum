@@ -211,52 +211,47 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
  */
 export const prettyEventDateTimes = (post: PostsBase|DbPost): string => {
   // when no start time, just show "TBD"
-  let eventTime = 'TBD';
-
-  if (post.startTime) {
-    let start = moment(post.startTime)
-    let end = post.endTime && moment(post.endTime)
-    // if we have event times in the local timezone, use those instead
-    const useLocalTimes = post.localStartTime && (!post.endTime || post.localEndTime)
-    if (useLocalTimes) {
-      start = moment(post.localStartTime).utc()
-      end = post.localEndTime && moment(post.localEndTime).utc()
-    }
-    
-    // hide the year if it's reasonable to assume it
-    const now = moment()
-    const sixMonthsFromNow = moment().add(6, 'months')
-    const startYear = (now.isSame(start, 'year') || start.isBefore(sixMonthsFromNow)) ? '' : `, ${start.format('YYYY')}`
-    
-    const startDate = start.format('ddd, MMM D')
-    const startTime = start.format('h:mm')
-    let startAmPm = ` ${start.format('A')}`
-    const timezone = useLocalTimes ? '' : ` ${start.format('[UTC]ZZ')}`
-    
-    if (!end) {
-      // just a start time
-      // ex: Starts on Mon, Jan 3 at 4:30 PM
-      // ex: Starts on Mon, Jan 3, 2023 at 4:30 PM
-      eventTime = `Starts on ${startDate}${startYear} at ${startTime}${startAmPm}${timezone}`
-    } else {
-      const endTime = end.format('h:mm A')
-      // start and end time on the same day
-      // ex: Mon, Jan 3 at 4:30 - 5:30 PM
-      // ex: Mon, Jan 3, 2023 at 4:30 - 5:30 PM
-      if (start.isSame(end, 'day')) {
-        // hide the start time am/pm if it's the same as the end time's
-        startAmPm = start.format('A') === end.format('A') ? '' : startAmPm
-        eventTime = `${startDate}${startYear} at ${startTime}${startAmPm} - ${endTime}${timezone}`
-      }
-      // start and end time on different days
-      // ex: Mon, Jan 3 at 4:30 PM - Tues, Jan 4 at 5:30 PM
-      // ex: Mon, Jan 3, 2023 at 4:30 PM - Tues, Jan 4, 2023 at 5:30 PM
-      else {
-        const endYear = (now.isSame(end, 'year') || end.isBefore(sixMonthsFromNow)) ? '' : `, ${end.format('YYYY')}`
-        eventTime = `${startDate}${startYear} at ${startTime}${startAmPm} - ${end.format('ddd, MMM D')}${endYear} at ${endTime}${timezone}`
-      }
-    }
+  if (!post.startTime) return 'TBD'
+  
+  let start = moment(post.startTime)
+  let end = post.endTime && moment(post.endTime)
+  // if we have event times in the local timezone, use those instead
+  const useLocalTimes = post.localStartTime && (!post.endTime || post.localEndTime)
+  if (useLocalTimes) {
+    start = moment(post.localStartTime).utc()
+    end = post.localEndTime && moment(post.localEndTime).utc()
   }
   
-  return eventTime
+  // hide the year if it's reasonable to assume it
+  const now = moment()
+  const sixMonthsFromNow = moment().add(6, 'months')
+  const startYear = (now.isSame(start, 'year') || start.isBefore(sixMonthsFromNow)) ? '' : `, ${start.format('YYYY')}`
+  
+  const startDate = start.format('ddd, MMM D')
+  const startTime = start.format('h:mm')
+  let startAmPm = ` ${start.format('A')}`
+  const timezone = useLocalTimes ? '' : ` ${start.format('[UTC]ZZ')}`
+  
+  if (!end) {
+    // just a start time
+    // ex: Starts on Mon, Jan 3 at 4:30 PM
+    // ex: Starts on Mon, Jan 3, 2023 at 4:30 PM
+    return `Starts on ${startDate}${startYear} at ${startTime}${startAmPm}${timezone}`
+  }
+
+  const endTime = end.format('h:mm A')
+  // start and end time on the same day
+  // ex: Mon, Jan 3 at 4:30 - 5:30 PM
+  // ex: Mon, Jan 3, 2023 at 4:30 - 5:30 PM
+  if (start.isSame(end, 'day')) {
+    // hide the start time am/pm if it's the same as the end time's
+    startAmPm = start.format('A') === end.format('A') ? '' : startAmPm
+    return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endTime}${timezone}`
+  }
+
+  // start and end time on different days
+  // ex: Mon, Jan 3 at 4:30 PM - Tues, Jan 4 at 5:30 PM
+  // ex: Mon, Jan 3, 2023 at 4:30 PM - Tues, Jan 4, 2023 at 5:30 PM
+  const endYear = (now.isSame(end, 'year') || end.isBefore(sixMonthsFromNow)) ? '' : `, ${end.format('YYYY')}`
+  return `${startDate}${startYear} at ${startTime}${startAmPm} - ${end.format('ddd, MMM D')}${endYear} at ${endTime}${timezone}`
 }

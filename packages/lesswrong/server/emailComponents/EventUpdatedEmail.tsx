@@ -5,10 +5,10 @@ import { postGetPageUrl, prettyEventDateTimes } from '../../lib/collections/post
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontFamily: "Arial, sans-serif",
     marginBottom: 40
   },
   headingSection: {
+    fontFamily: "Arial, sans-serif",
     color: "rgba(0, 0, 0, 0.87)",
     marginBottom: 40
   },
