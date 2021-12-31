@@ -166,7 +166,7 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton } = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -214,7 +214,7 @@ const PostActions = ({post, closeMenu, classes}: {
           </Link>
         }
         {currentUser && post.group &&
-          <SubscribeTo asMenuItem
+          <NotifyMeButton asMenuItem
             document={post.group} showIcon
             subscribeMessage={"Subscribe to "+post.group.name}
             unsubscribeMessage={"Unsubscribe from "+post.group.name}
@@ -222,7 +222,7 @@ const PostActions = ({post, closeMenu, classes}: {
         }
 
         {currentUser && post.shortform && (post.userId !== currentUser._id) &&
-          <SubscribeTo asMenuItem document={post} showIcon
+          <NotifyMeButton asMenuItem document={post} showIcon
             subscriptionType={subscriptionTypes.newShortform}
             subscribeMessage={`Subscribe to ${post.title}`}
             unsubscribeMessage={`Unsubscribe from ${post.title}`}
@@ -230,13 +230,13 @@ const PostActions = ({post, closeMenu, classes}: {
         }
 
         {currentUser && postAuthor && postAuthor._id !== currentUser._id &&
-          <SubscribeTo asMenuItem document={postAuthor} showIcon
+          <NotifyMeButton asMenuItem document={postAuthor} showIcon
             subscribeMessage={"Subscribe to posts by "+userGetDisplayName(postAuthor)}
             unsubscribeMessage={"Unsubscribe from posts by "+userGetDisplayName(postAuthor)}
           />
         }
 
-        {currentUser && <SubscribeTo asMenuItem
+        {currentUser && <NotifyMeButton asMenuItem
           document={post} showIcon
           subscribeMessage="Subscribe to comments"
           unsubscribeMessage="Unsubscribe from comments"

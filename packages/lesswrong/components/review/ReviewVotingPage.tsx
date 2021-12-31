@@ -203,6 +203,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: "rgba(0,0,0,.2)",
     }
+  },
+  votingTitle: {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    }
   }
 });
 
@@ -480,6 +487,7 @@ const ReviewVotingPage = ({classes}: {
           <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
         </div>
         <div className={classes.rightColumn}>
+          <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
             {sortedPosts && 
               <div className={classes.postCount}>

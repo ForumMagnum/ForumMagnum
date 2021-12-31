@@ -112,7 +112,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
-  const [ mapsLoaded ] = useGoogleMaps("EventNotificationsDialog")
+  const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
   const [ location, setLocation ] = useState(nearbyEventsNotificationsLocation || mapLocation || googleLocation)
   const [ label, setLabel ] = useState(nearbyEventsNotificationsLocation?.formatted_address || mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ distance, setDistance ] = useState(nearbyEventsNotificationsRadius || 50)

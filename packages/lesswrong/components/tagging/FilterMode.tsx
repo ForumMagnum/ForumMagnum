@@ -10,6 +10,8 @@ import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { userHasNewTagSubscriptions } from '../../lib/betas';
+import { useCurrentUser } from '../common/withUser';
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -94,6 +96,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const { LWTooltip, PopperCard, TagPreview } = Components
   const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
+  const currentUser = useCurrentUser()
   const { document: tag } = useSingle({
     documentId: tagId,
     collectionName: "Tags",
@@ -105,7 +108,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const tagLabel = <span>
     {label}
     <span className={classes.filterScore}>
-      {filterModeToStr(mode)}
+      {filterModeToStr(mode, currentUser)}
     </span>
   </span>
 
@@ -133,33 +136,32 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(-25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-25})} onClick={ev => onChangeMode(-25)}>
-                -25
+              <span className={classNames(classes.filterButton, {[classes.selected]: [-25, "Reduced"].includes(mode)})} onClick={ev => onChangeMode(-25)}>
+                {userHasNewTagSubscriptions(currentUser) ? "Reduced" : "-25"}
               </span>
             </LWTooltip>
-            <LWTooltip title={filterModeToTooltip(-10)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
-                -10
-              </span>
-            </LWTooltip>
-            <LWTooltip title={filterModeToTooltip("Default")}>
+            {!userHasNewTagSubscriptions(currentUser) && <>
+              <LWTooltip title={filterModeToTooltip(-10)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
+                  -10
+                </span>
+              </LWTooltip>
+              <LWTooltip
+                title={filterModeToTooltip("Default")}
+              >
               <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => onChangeMode(0)}>
                 +0
               </span>
-            </LWTooltip>
-            <LWTooltip title={filterModeToTooltip(10)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
-                +10
-              </span>
-            </LWTooltip>
+              </LWTooltip>
+              <LWTooltip title={filterModeToTooltip(10)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
+                  +10
+                </span>
+              </LWTooltip>
+            </>}
             <LWTooltip title={filterModeToTooltip(25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode===25})} onClick={ev => onChangeMode(25)}>
-                +25
-              </span>
-            </LWTooltip>
-            <LWTooltip title={filterModeToTooltip("Required")}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Required"})} onClick={ev => onChangeMode("Required")}>
-                Required
+              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => onChangeMode(25)}>
+              {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
               </span>
             </LWTooltip>
             <Input 
@@ -168,7 +170,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               type="number" 
               disableUnderline
               classes={{input:classes.input}}
-              defaultValue={otherValue} 
+              value={otherValue}
 
               onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
             />
@@ -206,16 +208,20 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
   }
 }
 
-function filterModeToStr(mode: FilterMode): string {
+function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): string {
   if (typeof mode === "number") {
-    if (mode>0) return `+${mode}`;
-    else if (mode===0) return "";
-    else return `${mode}`;
+    if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
+    if (mode === -25 && userHasNewTagSubscriptions(currentUser)) return "Reduced"
+    if (mode > 0) return `+${mode}`
+    if (mode === 0) return ""
+    return `${mode}`
   } else switch(mode) {
     default:
     case "Default": return "";
     case "Hidden": return "Hidden";
     case "Required": return "Required";
+    case "Subscribed": return "Subscribed";
+    case "Reduced": return "Reduced";
   }
 }
 
