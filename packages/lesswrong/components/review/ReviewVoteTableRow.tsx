@@ -201,7 +201,7 @@ const ReviewVoteTableRow = (
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}
-          unreadComments={(post.lastVisitedAt < (markedVisitedAt || post.lastCommentedAt))}
+          unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
           newPromotedComments={false}
         />
         <PostsItem2MetaInfo className={classes.count}>
