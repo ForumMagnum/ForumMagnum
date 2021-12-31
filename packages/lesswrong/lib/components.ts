@@ -262,6 +262,7 @@ importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 importComponent("EventsPast", () => require('../components/posts/EventsPast'));
 importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
+importComponent("EventsHome", () => require('../components/events/EventsHome'));
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
 importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));

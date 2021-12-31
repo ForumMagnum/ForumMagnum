@@ -556,6 +556,14 @@ if (hasEventsSetting.get()) {
       componentName: 'EventsUpcoming',
       title: "Upcoming Events by Day"
     },
+    {
+      name: 'EventsHome',
+      path: '/events',
+      componentName: 'EventsHome',
+      title: 'Events',
+      subtitle: 'Events',
+      subtitleLink: '/events'
+    },
 
     {
       name: 'CommunityHome',

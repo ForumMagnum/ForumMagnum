@@ -863,8 +863,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
     options: {
       sort: {
         startTime: 1,
-        createdAt: null,
-        _id: null
+        _id: 1
       }
     }
   }
@@ -909,8 +908,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     options: {
       sort: {
         startTime: 1, // show events in chronological order
-        createdAt: null,
-        _id: null
+        _id: 1
       }
     }
   };
