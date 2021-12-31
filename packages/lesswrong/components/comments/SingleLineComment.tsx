@@ -141,14 +141,14 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   showDescendentCount?: boolean,
   classes: ClassesType,
 }) => {
-  const {hover, anchorEl, eventHandlers} = useHover();
+  const {hover, eventHandlers} = useHover();
   
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLineLargePreview, singleLinePostTitle } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
-  const { CommentsNode, CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, LWPopper } = Components
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
 
@@ -186,22 +186,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           newPromotedComments={false}
         />}
       </div>
-      <LWPopper
-        open={displayHoverOver && !!singleLineLargePreview}
-        anchorEl={anchorEl}
-        placement="bottom-end"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-end"],
-            boundariesElement: 'viewport'
-          }
-        }}
-      >
-          <div className={classes.preview}>
-            <CommentsNode truncated comment={comment} treeOptions={treeOptions} forceNotSingleLine hoverPreview/>
-          </div>
-      </LWPopper>
-      {displayHoverOver && !singleLineLargePreview && <span className={classNames(classes.highlight)}>
+      {displayHoverOver && <span className={classNames(classes.highlight)}>
          <div className={classes.highlightPadding}><CommentBody truncated comment={comment}/></div>
       </span>}
     </div>
