@@ -1,0 +1,21 @@
+{
+  "public": {
+    "forumType": "LessWrong",
+    "title": "LessWrong",
+    "tagline": "A community blog devoted to refining the art of rationality",
+    "logoUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_png/LessWrong_Logo_skglnw.svg",
+    "siteNameWithArticle": "LessWrong",
+    "siteUrl": "http://localhost:3000",
+    "aboutPostId": "dummyId",
+    "faviconUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
+    "forumSettings": {
+      "headerTitle": "LESSWRONG",
+      "shortForumTitle": "LW",
+      "tabTitle": "LessWrong"
+    },
+    "analytics": {
+      "environment": "localhost"
+    },
+    "testServer": true
+  }
+}
