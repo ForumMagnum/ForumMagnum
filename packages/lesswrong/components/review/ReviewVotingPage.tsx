@@ -379,7 +379,7 @@ const ReviewVotingPage = ({classes}: {
   
   const instructions = isEAForum ?
     <div className={classes.instructions}>
-      <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
+      <p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
 
       <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
 
@@ -421,7 +421,6 @@ const ReviewVotingPage = ({classes}: {
 
 
       {getReviewPhase() === "REVIEWS"  && <><p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
-      {/* EA forum look here */}
 
       <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
 
