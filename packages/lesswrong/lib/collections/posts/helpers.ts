@@ -244,7 +244,7 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
     // just a start time
     // ex: Starts on Mon, Jan 3 at 4:30 PM
     // ex: Starts on Mon, Jan 3, 2023 at 4:30 PM
-    return `${dense ? '' : 'Starts on '}${startDate}${startYear} at ${startTime}${startAmPm}${timezone}`
+    return `${dense ? '' : 'Starts on '}${startDate}${startYear} at ${startTime}${startAmPm}${tz}`
   }
 
   const endTime = end.format('h:mm A').replace(':00', '')
@@ -254,7 +254,7 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   if (start.isSame(end, 'day')) {
     // hide the start time am/pm if it's the same as the end time's
     startAmPm = start.format('A') === end.format('A') ? '' : startAmPm
-    return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endTime}${timezone}`
+    return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endTime}${tz}`
   }
 
   // start and end time on different days
@@ -262,5 +262,5 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   // ex: Mon, Jan 3, 2023 at 4:30 PM - Tues, Jan 4, 2023 at 5:30 PM
   const endDate = dense ? end.format('MMM D') : end.format('ddd, MMM D')
   const endYear = (now.isSame(end, 'year') || end.isBefore(sixMonthsFromNow)) ? '' : `, ${end.format('YYYY')}`
-  return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${timezone}`
+  return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }

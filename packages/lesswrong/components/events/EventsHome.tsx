@@ -389,7 +389,7 @@ const EventsHome = ({classes}: {
                 <Link to={`/events/${highlightedEvent._id}/${highlightedEvent.slug}`}>{highlightedEvent.title}</Link>
               </h1>
               {highlightedEvent.group && <div className={classes.highlightedCardGroup}>
-                <Link to={`/groups/${highlightedEvent.group.name}`}>{highlightedEvent.group.name}</Link>
+                <Link to={`/groups/${highlightedEvent.group._id}`}>{highlightedEvent.group.name}</Link>
               </div>}
               <div className={classes.highlightedCardDetail}>
                 {prettyEventDateTimes(highlightedEvent, timezone, true)}
@@ -427,7 +427,7 @@ const EventsHome = ({classes}: {
                   </div>
                   <div className={classes.eventCardLocation}>{event.onlineEvent ? 'Online' : event.location?.split(',')[0]}</div>
                   {event.group && <div className={classes.eventCardGroup}>
-                    <Link to={`/groups/${event.group.name}`}>{event.group.name}</Link>
+                    <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
                   </div>}
                   <div className={classes.eventCardTime}>
                     {prettyEventDateTimes(event, timezone, true)}
