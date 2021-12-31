@@ -8,10 +8,6 @@ import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
-import './emailComponents/EmailWrapper';
-import './emailComponents/NewPostEmail';
-import './emailComponents/PostNominatedEmail';
-import './emailComponents/PrivateMessagesEmail';
 import { DebouncerTiming } from './debouncer';
 import { ensureIndex } from '../lib/collectionUtils';
 import { getNotificationTypeByName } from '../lib/notificationTypes';
