@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getReviewPhase } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
+import { useRecordPostView } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,6 +20,10 @@ const styles = (theme: ThemeType) => ({
         display: "block"
       }
     },
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 2,
+      boxShadow: "0 0 0 3px rgba(0,0,0,.05)"
+    }
   },
   voteIcon: {
     padding: 0
@@ -34,7 +39,6 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap",
-      background: "rgba(0,0,0,.05)"
     }
   },
   post: {
@@ -45,8 +49,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "calc(100% - 240px)",
     marginRight: "auto",
     [theme.breakpoints.down('xs')]: {
-      maxWidth: "unset",
-      width: "100%",
+      maxWidth: "calc(100% - 100px)",
       background: "white"
     }
   },
@@ -92,19 +95,32 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.error.light
   },
   votes: {
-    backgroundColor: "rgba(0,0,0,.05)",
+    backgroundColor: "#eee",
     padding: 10,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.down('xs')]: {
+      padding: 7,
+      width: "100%"
+    }
   },
   yourVote: {
-    marginLeft: 6
+    marginLeft: 6,
+    [theme.breakpoints.down('xs')]: {
+      order: 0,
+      marginRight: 10
+    }
   },
   voteResults: {
     width: 140,
     ...theme.typography.commentStyle,
     fontSize: 12,
+    [theme.breakpoints.down('xs')]: {
+      order: 1,
+      width: "100%",
+      marginLeft: "auto"
+    }
   },
   highVote: {
     color: "rgba(0,0,0,.8)",
@@ -148,6 +164,14 @@ const ReviewVoteTableRow = (
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote } = Components
 
   const currentUser = useCurrentUser()
+
+  const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
+  const { recordPostView } = useRecordPostView(post);
+  const markAsRead = () => {
+    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    setMarkedVisitedAt(new Date()) 
+  }
+
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
 
@@ -164,7 +188,7 @@ const ReviewVoteTableRow = (
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
+    <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={markAsRead}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
@@ -177,7 +201,7 @@ const ReviewVoteTableRow = (
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}
-          unreadComments={post.lastVisitedAt < post.lastCommentedAt}
+          unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
           newPromotedComments={false}
         />
         <PostsItem2MetaInfo className={classes.count}>

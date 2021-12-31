@@ -1,9 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import moment from '../../lib/moment-timezone';
-
-const eventTimeFormat = "Do MMMM YYYY h:mm A"
-const eventTimeUTCFormat = "Do MMMM YYYY h:mm A [UTC]ZZ"
+import { prettyEventDateTimes } from '../../lib/collections/posts/helpers';
 
 const EmailPostDate = ({post}: {
   post: PostsBase
@@ -11,15 +8,7 @@ const EmailPostDate = ({post}: {
   const { EmailFormatDate } = Components;
   
   if (post.isEvent) {
-    if (post.startTime) {
-      return post.localStartTime ? (
-        <span>Starts at {moment(post.localStartTime).utc().format(eventTimeFormat)}</span>
-      ) : (
-        <span>Starts at {moment(post.startTime).format(eventTimeUTCFormat)}</span>
-      )
-    } else {
-      return <span>TBD</span>;
-    }
+    return <span>{prettyEventDateTimes(post)}</span>
   } else if (post.curatedDate) {
     return <EmailFormatDate date={post.curatedDate}/>
   } else {
