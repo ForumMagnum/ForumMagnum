@@ -19,6 +19,10 @@ const styles = (theme: ThemeType) => ({
         display: "block"
       }
     },
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 2,
+      boxShadow: "0 0 0 3px rgba(0,0,0,.05)"
+    }
   },
   voteIcon: {
     padding: 0
@@ -34,7 +38,6 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap",
-      background: "rgba(0,0,0,.05)"
     }
   },
   post: {
@@ -45,8 +48,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "calc(100% - 240px)",
     marginRight: "auto",
     [theme.breakpoints.down('xs')]: {
-      maxWidth: "unset",
-      width: "100%",
+      maxWidth: "calc(100% - 100px)",
       background: "white"
     }
   },
@@ -92,19 +94,32 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.error.light
   },
   votes: {
-    backgroundColor: "rgba(0,0,0,.05)",
+    backgroundColor: "#eee",
     padding: 10,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.down('xs')]: {
+      padding: 7,
+      width: "100%"
+    }
   },
   yourVote: {
-    marginLeft: 6
+    marginLeft: 6,
+    [theme.breakpoints.down('xs')]: {
+      order: 0,
+      marginRight: 10
+    }
   },
   voteResults: {
     width: 140,
     ...theme.typography.commentStyle,
     fontSize: 12,
+    [theme.breakpoints.down('xs')]: {
+      order: 1,
+      width: "100%",
+      marginLeft: "auto"
+    }
   },
   highVote: {
     color: "rgba(0,0,0,.8)",
