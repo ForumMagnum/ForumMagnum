@@ -127,7 +127,7 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'bestoflesswrong',
-      title: 'Best of LessWrong',
+      title: 'Best Of',
       link: '/bestoflesswrong',
       tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
       subItem: true,
