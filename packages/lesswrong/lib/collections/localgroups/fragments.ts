@@ -21,6 +21,7 @@ registerFragment(`
     meetupLink
     website
     inactive
+    bannerImageId
   }
 `);
 

@@ -230,6 +230,7 @@ importComponent("ElicitBlock", () => require('../components/posts/ElicitBlock'))
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
 importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageTitle'));
+importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));
