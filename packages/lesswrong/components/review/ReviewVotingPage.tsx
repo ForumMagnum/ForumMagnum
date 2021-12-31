@@ -190,13 +190,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   postsLoading: {
     opacity: .4,
   },
-  sortedBy: {
-    fontSize: 13,
-    ...theme.typography.commentStyle,
-    color: 'rgba(0,0,0,.87)',
-    position: "relative",
-    top: -1,
-    right: -3
+  sortBy: {
+    color: theme.palette.grey[600],
+    marginRight: 3
   },
   sortArrow: {
     cursor: "pointer",
@@ -539,32 +535,31 @@ const ReviewVotingPage = ({classes}: {
                 }
               </div>
             </LWTooltip>
-            <div className={classes.sortedBy}>Sorted by</div>
             <Select
               value={sortPosts}
               onChange={(e)=>{setSortPosts(e.target.value)}}
               disableUnderline
               >
               <MenuItem value={'lastCommentedAt'}>
-                Last Commented
+                <span className={classes.sortBy}>Sort by</span> Last Commented
               </MenuItem>
               <MenuItem value={'reviewVoteScoreHighKarma'}>
-                Vote Total (1000+ Karma Users)
+                <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
               </MenuItem>
               <MenuItem value={'reviewVoteScoreAllKarma'}>
-                Vote Total (All Users)
+                <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
               </MenuItem>
               {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
-                Vote Total (Alignment Forum Users)
+                <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
               </MenuItem>}
               <MenuItem value={'currentUserReviewVote'}>
-                Your Vote
+                <span className={classes.sortBy}>Sort by</span> Your Vote
               </MenuItem>
               <MenuItem value={'reviewCount'}>
-                Review Count
+                <span className={classes.sortBy}>Sort by</span> Review Count
               </MenuItem>
               <MenuItem value={'needsReview'}>
-                Needs Review
+                <span className={classes.sortBy}>Sort by</span> Needs Review
               </MenuItem>
             </Select>
           </div>

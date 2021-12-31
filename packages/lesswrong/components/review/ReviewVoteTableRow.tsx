@@ -9,6 +9,7 @@ import { eligibleToNominate, getReviewPhase } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
+import { useRecordPostView } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -149,7 +150,7 @@ const ReviewVoteTableRow = (
 
   const currentUser = useCurrentUser()
 
-  const [hasBeenClicked, setHasBeenClicked] = useState(false)
+  const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
 
   if (!currentUser) return null;
   const expanded = expandedPostId === post._id
@@ -163,11 +164,18 @@ const ReviewVoteTableRow = (
     'bigUpvote': 'a strong upvote'
   }
 
+  const { recordPostView } = useRecordPostView(post);
+
+  const markAsRead = () => {
+    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    setMarkedVisitedAt(new Date()) 
+  }
+
   const highVotes = post.reviewVotesHighKarma || []
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={() => setHasBeenClicked(true)}>
+    <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={markAsRead}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
@@ -180,7 +188,7 @@ const ReviewVoteTableRow = (
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}
-          unreadComments={(post.lastVisitedAt < post.lastCommentedAt && !hasBeenClicked)}
+          unreadComments={(post.lastVisitedAt < (markedVisitedAt || post.lastCommentedAt))}
           newPromotedComments={false}
         />
         <PostsItem2MetaInfo className={classes.count}>
