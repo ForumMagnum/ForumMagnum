@@ -8,6 +8,7 @@ export const defaultSubscriptionTypeTable = {
   "Posts": subscriptionTypes.newComments,
   "Users": subscriptionTypes.newPosts,
   "Localgroups": subscriptionTypes.newEvents,
+  // TODO: Tags?
 }
 
 /**
@@ -37,4 +38,3 @@ export const performSubscriptionAction = async (action, collection, itemId, user
     },
   })
 };
-

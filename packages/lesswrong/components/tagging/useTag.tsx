@@ -1,5 +1,4 @@
 import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
-import { Tags } from '../../lib/collections/tags/collection';
 
 export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
   slug: string,

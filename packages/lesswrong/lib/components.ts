@@ -48,7 +48,7 @@ importComponent("NotificationsList", () => require('../components/notifications/
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));
-importComponent("SubscribeTo", () => require('../components/notifications/SubscribeTo'));
+importComponent("NotifyMeButton", () => require('../components/notifications/NotifyMeButton'));
 importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings'));
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview'));
@@ -440,7 +440,6 @@ importComponent("TagFlagItem", () => require('../components/tagging/TagFlagItem'
 importComponent("TagContributorsList", () => require('../components/tagging/TagContributorsList'));
 importComponent("TagDiscussionSection", () => require('../components/tagging/TagDiscussionSection'));
 importComponent("TagDiscussionButton", () => require('../components/tagging/TagDiscussionButton'));
-importComponent("TagCTAPopup", () => require('../components/tagging/TagCTAPopup'));
 importComponent("AllPostsPageTagRevisionItem", () => require('../components/tagging/AllPostsPageTagRevisionItem'));
 
 
@@ -472,6 +471,7 @@ importComponent("TagHistoryPage", () => require('../components/tagging/history/T
 importComponent("TagActivityFeed", () => require('../components/tagging/TagActivityFeed'));
 importComponent("TagProgressBar", () => require('../components/tagging/TagProgressBar'));
 importComponent("SingleLineTagUpdates", () => require('../components/tagging/SingleLineTagUpdates'));
+importComponent("SubscribeButton", () => require('../components/tagging/SubscribeButton'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle'));
