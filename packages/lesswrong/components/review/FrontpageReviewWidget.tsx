@@ -310,26 +310,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             </LWTooltip>
           </div>
         </div>
-        
-        {/* Post list */}
-        {showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
-          {/* TODO:(Review) I think we can improve this */}
-          {/* <SingleLineReviewsList /> */}
-          <PostsList2 terms={{
-            view:"reviewVoting",
-            before: `${REVIEW_YEAR+1}-01-01`,
-            ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-            limit: 3
-           }}
-          >       
-            {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-              {allPhaseButtons}
-              <Link to={"/reviews"} className={classes.actionButtonCTA}>
-                Review {REVIEW_YEAR} Posts
-              </Link>
-            </div>}
-          </PostsList2>
-        </AnalyticsContext>}
 
         {/* TODO: Improve logged out user experience */}
         
@@ -366,6 +346,32 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             </Link>
           </LWTooltip>}
         </div>}
+
+        {/* Post list */}
+        {showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
+          {/* TODO:(Review) I think we can improve this */}
+          {/* <SingleLineReviewsList /> */}
+          <PostsList2 terms={{
+            view:"reviewVoting",
+            before: `${REVIEW_YEAR+1}-01-01`,
+            ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
+            limit: 3,
+            itemsPerPage: 10
+           }}
+          >       
+            {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) &&
+              <Link to={"/reviews"} className={classes.actionButtonCTA}>
+                Review {REVIEW_YEAR} Posts
+              </Link>
+            }
+          </PostsList2>
+        </AnalyticsContext>}
+
+        {!showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
+          {eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+            {allPhaseButtons}
+          </div>}
+        </AnalyticsContext>}
 
         {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
           {allPhaseButtons}
