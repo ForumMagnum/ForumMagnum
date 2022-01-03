@@ -46,8 +46,12 @@ export const defineConverters = (editor, rootElement) => {
 		model: ELEMENTS.footnoteSection,
 		view: {
 			name: 'ol',
-			attributes: {[ATTRIBUTES.footnoteSection]: ''},
+			attributes: {
+				[ATTRIBUTES.footnoteSection]: '',
+				role: 'doc-endnotes',
+			},
 			classes: [CLASSES.footnoteSection, CLASSES.footnotes],
+			
 		}
 	});
 
@@ -60,7 +64,7 @@ export const defineConverters = (editor, rootElement) => {
 			 *  This is techincally invalid HTML, but it's valid in the data view (that is, the version shown in the post). I've added role='list'
 			 *  as a next-best option, in accordance with ARIA recommendations.
 			 */
-			const section = viewWriter.createContainerElement('div', { [ATTRIBUTES.footnoteSection]: '', role: 'list', class: CLASSES.footnoteSection });
+			const section = viewWriter.createContainerElement('div', { [ATTRIBUTES.footnoteSection]: '', role: 'doc-endnotes list', class: CLASSES.footnoteSection });
 
 			return toWidget(section, viewWriter, { label: 'footnote widget' });
 		}
@@ -281,6 +285,7 @@ function createFootnoteReferenceViewElement(modelElement, conversionApi) {
 		[ATTRIBUTES.footnoteReference]: '',
 		[ATTRIBUTES.footnoteIndex]: index,
 		[ATTRIBUTES.footnoteId]: id,
+		role: 'doc-noteref',
 		id: `fnref${id}`,
 	});
 
@@ -317,6 +322,7 @@ function createFootnoteItemViewElement(modelElement, conversionApi) {
 		[ATTRIBUTES.footnoteItem]: '',
 		[ATTRIBUTES.footnoteIndex]: index,
 		[ATTRIBUTES.footnoteId]: id,
+		role: 'doc-endnote',
 		id: `fn${id}`,
 	});
 }
