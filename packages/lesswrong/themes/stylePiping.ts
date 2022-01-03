@@ -162,18 +162,6 @@ const footnoteStyles = () => ({
     padding: "0 0.3em",
     width: '95%',
   },
-  /**
-   * The below section adds padding to account for the header when following a fragment link to the reference,
-   * since react-headroom auto-extends the header when navigating up in the page
-   **/
-  '& .footnote-reference:not(.ck-widget), & .footnote-item': {
-    position: 'relative',
-    borderTop: '128px solid transparent',
-    marginTop: '-128px',
-    webkitBackgroundClip: 'padding-box',
-    mozBackgroundClip: 'padding',
-    backgroundClip: 'padding-box',
-  },
 });
 
 const baseBodyStyles = (theme: ThemeType) => ({
