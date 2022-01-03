@@ -183,7 +183,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
-  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, SingleLineReviewsList, LatestReview } = Components
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, SingleLineReviewsList, LatestReview, PostsList2 } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -312,14 +312,23 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         </div>
         
         {/* Post list */}
-        {showFrontpageItems && (activeRange === "NOMINATIONS" || !eligibleToNominate(currentUser) ) && <AnalyticsContext listContext={`frontpageReviewRecommendations`} reviewYear={`${REVIEW_YEAR}`} capturePostItemOnMount>
+        {showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
           {/* TODO:(Review) I think we can improve this */}
-          <RecommendationsList algorithm={getReviewAlgorithm()} />
-        </AnalyticsContext>}
-
-        {showFrontpageItems && (activeRange !== "NOMINATIONS" && eligibleToNominate(currentUser) ) && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
-          {/* TODO:(Review) I think we can improve this */}
-          <SingleLineReviewsList />
+          {/* <SingleLineReviewsList /> */}
+          <PostsList2 terms={{
+            view:"reviewVoting",
+            before: `${REVIEW_YEAR+1}-01-01`,
+            ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
+            limit: 3
+           }}
+          >       
+            {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
+              {allPhaseButtons}
+              <Link to={"/reviews"} className={classes.actionButtonCTA}>
+                Review {REVIEW_YEAR} Posts
+              </Link>
+            </div>}
+          </PostsList2>
         </AnalyticsContext>}
 
         {/* TODO: Improve logged out user experience */}
@@ -356,13 +365,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
               Vote on <span className={classes.hideOnMobile}>nominated</span> posts
             </Link>
           </LWTooltip>}
-        </div>}
-        
-        {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) && <div className={classes.actionButtonRow}>
-          {allPhaseButtons}
-          {showFrontpageItems && <Link to={"/reviews"} className={classes.actionButtonCTA}>
-            Review {REVIEW_YEAR} Posts
-          </Link>}
         </div>}
 
         {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
