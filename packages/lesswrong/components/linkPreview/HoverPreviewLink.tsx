@@ -61,6 +61,9 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
 
   // Within-page relative link?
   if (href.startsWith("#")) {
+    if(href.startsWith("#fn") && !href.startsWith("#fnref")){
+      return <Components.FootnotePreview href={href} innerHTML={innerHTML} id={id} rel={rel}/>
+    }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel} />
   }
 

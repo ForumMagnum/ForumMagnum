@@ -7,7 +7,7 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
 ]
 
 const allowedTableStyles = {
@@ -39,10 +39,11 @@ export const sanitize = function(s: string): string {
       td: ['rowspan', 'colspan', 'style'],
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type'],
-      span: ['style'],
+      span: ['style', 'id'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
       a: ['href', 'name', 'target', 'rel'],
-      iframe: ['src', 'allowfullscreen', 'allow']
+      iframe: ['src', 'allowfullscreen', 'allow'],
+      li: ['id'],
     },
     allowedIframeHostnames: [
       'www.youtube.com', 'youtube.com', 
@@ -51,8 +52,11 @@ export const sanitize = function(s: string): string {
       'app.thoughtsaver.com'
     ],
     allowedClasses: {
-      div: [ 'spoilers', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
+      ol: [ 'footnotes' ],
+      li: [ 'footnote-item' ],
     },
     allowedStyles: {
       ...(sanitizeHtml.defaults as any).allowedStyles,
