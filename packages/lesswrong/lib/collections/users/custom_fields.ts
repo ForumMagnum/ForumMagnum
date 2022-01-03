@@ -843,6 +843,7 @@ addFieldsDict(Users, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (user) => {
         if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
+        return null
       }
     }),
   },

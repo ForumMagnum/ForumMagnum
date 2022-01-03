@@ -96,6 +96,7 @@ const schema: SchemaType<DbLocalgroup> = {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (localgroup) => {
         if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation)
+        return null
       }
     }),
   },

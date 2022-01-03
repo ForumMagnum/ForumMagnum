@@ -11,11 +11,18 @@ import './EmailFooterRecommendations';
 const styles = (theme: ThemeType): JssStyles => ({
   heading: {
     textAlign: "center",
+    color: theme.palette.primary.main,
+    marginBottom: 30
+  },
+  headingRow: {
+    marginBottom: 8
   },
   
   headingLink: {
     color: "black",
     textDecoration: "none",
+    fontWeight: "normal",
+    fontFamily: "Arial, sans-serif"
   },
   
   headingHR: {
@@ -49,6 +56,7 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   });
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
   if (!document) return null;
+
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>
@@ -57,18 +65,20 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
       
       <hr className={classes.headingHR}/>
       
-      <EmailPostAuthors post={document}/><br/>
-      <div className="postDate">
+      <div className={classes.headingRow}>
+        <EmailPostAuthors post={document}/>
+      </div>
+      <div className={classes.headingRow}>
         <EmailPostDate post={document}/>
-      </div><br/>
-      {document.location && <div>
-        {document.location}
+      </div>
+      {document.isEvent && <div className={classes.headingRow}>
+        {document.onlineEvent ? 'Online event' : document.location}
       </div>}
-      {document.contactInfo && <div>
+      {document.contactInfo && <div className={classes.headingRow}>
         Contact: {document.contactInfo}
       </div>}
       
-      {document.url && <div>
+      {document.url && <div className={classes.headingRow}>
         This is a linkpost for <a href={postGetLink(document)} target={postGetLinkTarget(document)}>{document.url}</a>
       </div>}
     </div>
