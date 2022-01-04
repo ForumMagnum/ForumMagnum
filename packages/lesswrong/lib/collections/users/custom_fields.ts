@@ -996,7 +996,7 @@ addFieldsDict(Users, {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 46,
     hidden: forumTypeSetting.get() === "EAForum",
