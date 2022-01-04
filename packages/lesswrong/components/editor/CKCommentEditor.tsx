@@ -9,8 +9,10 @@ import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting }
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const CKCommentEditor = ({ data, onSave, onChange, onInit }: {
+const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, onInit }: {
   data?: any,
+  collectionName: CollectionNameString,
+  fieldName: string,
   onSave?: any,
   onChange?: any,
   onInit?: any,
@@ -18,7 +20,7 @@ const CKCommentEditor = ({ data, onSave, onChange, onInit }: {
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const { CommentEditor } = getCkEditor();
-  
+
   return <div>
     <CKEditor
       editor={CommentEditor}
@@ -31,7 +33,13 @@ const CKCommentEditor = ({ data, onSave, onChange, onInit }: {
       onChange={onChange}
       config={{
         cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(),
+          // A tokenUrl token is needed here in order for image upload to work.
+          // (It's accessible via drag-and-drop onto the comment box, and is
+          // stored on CkEditor's CDN.)
+          //
+          // The collaborative editor is not activated because no `websocketUrl`
+          // or `documentId` is provided.
+          tokenUrl: generateTokenRequest(collectionName, fieldName),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
         } : undefined,
         autosave: {

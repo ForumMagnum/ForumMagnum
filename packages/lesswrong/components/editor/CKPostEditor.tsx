@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor } from '../../lib/wrapCkEditor';
-import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
+import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 
@@ -52,8 +52,10 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }: {
+const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }: {
   data?: any,
+  collectionName: CollectionNameString,
+  fieldName: string,
   onSave?: any,
   onChange?: any,
   documentId?: string,
@@ -106,7 +108,7 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
           }
         },
         cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(documentId, userId, formType),
+          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType)

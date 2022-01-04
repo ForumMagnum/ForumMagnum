@@ -54,6 +54,8 @@ export function FormEditor<T, FN extends keyof T>({form, fieldName, placeholder,
       currentUser={currentUser}
       formType={"new" /*TODO*/}
       documentId={undefined /*TODO*/}
+      collectionName={collectionName}
+      fieldName={fieldName}
       initialEditorType={initialEditorType}
       isCollaborative={false}
       value={contents}

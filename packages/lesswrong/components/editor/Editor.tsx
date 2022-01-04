@@ -165,6 +165,8 @@ interface EditorProps {
   currentUser: UsersCurrent|null,
   formType: "edit"|"new",
   documentId?: string,
+  collectionName: CollectionNameString,
+  fieldName: string,
   initialEditorType: EditorTypeString,
   isCollaborative: boolean,
   value: EditorContents,
@@ -415,7 +417,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   renderCkEditor = (contents: EditorContents) => {
     const { ckEditorReference } = this.state
     const ckEditorValue = contents.value;
-    const { documentId, currentUser, commentEditor, formType } = this.props
+    const { documentId, collectionName, fieldName, currentUser, commentEditor, formType } = this.props
     const { Loading } = Components
     const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
     const value = ckEditorValue || ckEditorReference?.getData()
@@ -425,6 +427,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       const editorProps = {
         data: value,
         documentId: documentId,
+        collectionName, fieldName,
         formType: formType,
         userId: currentUser?._id,
         onChange: (event, editor) => this.throttledSetCkEditor(editor.getData()),

@@ -76,6 +76,8 @@ const PostCollaborationEditor = ({ classes }: {
       <NoSSR>
         <Components.CKPostEditor
           documentId={postId}
+          collectionName="Posts"
+          fieldName="contents"
           formType="edit"
           userId={currentUser?._id}
           collaboration
