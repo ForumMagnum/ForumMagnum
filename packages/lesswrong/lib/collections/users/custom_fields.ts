@@ -993,6 +993,7 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageBookAd: {
+    // this was for the 2018 book, no longer relevant
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
