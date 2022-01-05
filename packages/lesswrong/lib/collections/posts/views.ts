@@ -51,7 +51,6 @@ declare global {
     postIds?: Array<string>,
     reviewYear?: number,
     excludeContents?: boolean,
-    userLoggedIn?: boolean,
   }
 }
 
