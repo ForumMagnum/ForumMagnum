@@ -285,7 +285,8 @@ CommentEditor.builtinPlugins = [
 	Mathematics,
 	SanitizeTags,
 	Spoilers,
-	AutoLink
+	AutoLink,
+	Footnote,
 ];
 
 CommentEditor.defaultConfig = {
@@ -302,7 +303,8 @@ CommentEditor.defaultConfig = {
 		'bulletedList',
 		'numberedList',
 		'|',
-		'math'
+		'math',
+		'footnote'
 	],
 	image: {
 		toolbar: [
