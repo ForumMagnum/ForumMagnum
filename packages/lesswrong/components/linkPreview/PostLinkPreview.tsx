@@ -276,6 +276,9 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[800],
     maxWidth: 500,
+    '& a': {
+      color: theme.palette.primary.main,
+    },
   },
 })
 
