@@ -274,8 +274,11 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[800],
     maxWidth: 500,
+    '& a': {
+      color: theme.palette.primary.main,
+    },
   },
 })
 
@@ -295,7 +298,7 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
     onsite
   });
   // grab contents of linked footnote if it exists, while removes the backlink anchor tag.
-  const footnoteHTML = document.querySelector(href)?.innerHTML?.replace(/<a.*?href="#fnref.*?\/a>/g, '');
+  const footnoteHTML = document.querySelector(href)?.innerHTML?.replace(/<a[^>]*href="#fnref.*?\/a>/g, '');
   const footnoteContentsNonempty = Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
   return (
     <span {...eventHandlers}>
