@@ -5,7 +5,7 @@ import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 
-export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
+export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to the art of human rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 
@@ -56,10 +56,11 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           <meta property='og:description' content={description}/>
 
           {/* twitter */}
+          <meta name='twitter:title' content={titleString ? `${titleString} - ${siteName}` : siteName}/>
+          <meta name='twitter:description' content={description}/>
           <meta name='twitter:card' content='summary'/>
           {image && <meta name='twitter:image:src' content={image}/>}
-          { /* <meta name='twitter:title' content={title}/> */ }
-          <meta name='twitter:description' content={description}/>
+          <meta name='twitter:url' content={url}/>
 
           {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
