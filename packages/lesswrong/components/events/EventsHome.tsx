@@ -12,13 +12,11 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
-import { Button, Card, CardContent, CardMedia, CircularProgress } from '@material-ui/core';
+import { Button, Card, CardContent, CardMedia, CircularProgress, Select, MenuItem } from '@material-ui/core';
 import { useMulti } from '../../lib/crud/withMulti';
-import classNames from 'classnames';
 import { prettyEventDateTimes } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../common/withTimezone';
-import { verify } from 'crypto';
-import { getBrowserLocalStorage, getLSHandlers } from '../async/localStorageHandlers';
+import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   highlightCard: {
@@ -103,12 +101,20 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     lineHeight: '1.8em',
     margin: 'auto'
   },
+  filters: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: 20
+  },
+  filter: {
+    marginLeft: 10
+  },
   eventCards: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, auto)',
     gridGap: '20px',
     justifyContent: 'center',
-    marginTop: 40,
+    marginTop: 10,
     [theme.breakpoints.down('md')]: {
       gridTemplateColumns: 'repeat(2, auto)',
     },
@@ -150,6 +156,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.headline,
     gridArea: 'title',
     fontSize: 20,
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
     marginBottom: 0
   },
   eventCardLocation: {
@@ -166,6 +176,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     gridArea: 'group',
     fontStyle: 'italic',
     fontSize: 14,
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden'
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
@@ -262,6 +275,7 @@ const EventsHome = ({classes}: {
       return null
     }
   })
+  const [placeFilter, setPlaceFilter] = useState('all')
   // const [events, setEvents] = useState(null)
   
   // useEffect(() => {
@@ -334,24 +348,28 @@ const EventsHome = ({classes}: {
       componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
     });
   }
-
-  const filters = query?.filters || [];
+  
   const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime } = Components
 
+  const filters = {}
+  if (placeFilter === 'in-person') {
+    filters.onlineEvent = false
+  } else if (placeFilter === 'online') {
+    filters.onlineEvent = true
+  }
+  
   console.log('currentUserLocation', currentUserLocation)
   console.log('userLocation', userLocation)
   const eventsListTerms = userLocation ? {
-    view: 'nearbyEvents',
+    view: 'events', //'nearbyEvents',
     lat: userLocation.lat,
     lng: userLocation.lng,
-    filters: filters,
   } : {
     view: 'globalEvents',
-    filters: filters,
   }
   
   const { results, loading, error, showLoadMore, loadMore } = useMulti({
-    terms: eventsListTerms,
+    terms: Object.assign(eventsListTerms, filters),
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
@@ -412,6 +430,16 @@ const EventsHome = ({classes}: {
             Connect with people near you and around the world who are trying to find the best ways to help others. Learn, discuss, collaborate, or just hang out with like-minded people.
           </div>
           
+          <div className={classes.filters}>
+            <Select
+              className={classes.filter}
+              value={placeFilter}
+              onChange={(e) => setPlaceFilter(e.target.value)}>
+                <MenuItem key="all" value="all">In-person and online</MenuItem>
+                <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
+                <MenuItem key="online" value="online">Online only</MenuItem>
+            </Select>
+          </div>
           <div className={classes.eventCards}>
             {results ? results.map(event => {
               return <Card key={event._id} className={classes.eventCard}>
@@ -422,11 +450,11 @@ const EventsHome = ({classes}: {
                   style={{objectFit: 'cover', borderRadius: '4px 4px 0 0'}}
                 />
                 <CardContent className={classes.eventCardContent}>
-                  <div className={classes.eventCardTitle}>
+                  <div className={classes.eventCardTitle} title={event.title}>
                     <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
                   </div>
                   <div className={classes.eventCardLocation}>{event.onlineEvent ? 'Online' : event.location?.split(',')[0]}</div>
-                  {event.group && <div className={classes.eventCardGroup}>
+                  {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
                     <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
                   </div>}
                   <div className={classes.eventCardTime}>

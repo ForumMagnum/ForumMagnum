@@ -886,6 +886,13 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
       {globalEvent: false}, {globalEvent: {$exists: false}}
     ]}
   }
+  
+  let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
+  if (terms.onlineEvent === false) {
+    onlineEventSelector = {$or: [
+      {onlineEvent: false}, {onlineEvent: {$exists: false}}
+    ]}
+  }
 
   let query: any = {
     selector: {
@@ -893,7 +900,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
       groupId: null,
       isEvent: true,
       $and: [
-        timeSelector, globalEventSelector
+        timeSelector, globalEventSelector, onlineEventSelector
       ],
       mongoLocation: {
         $near: {
@@ -938,11 +945,18 @@ Posts.addView("events", (terms: PostsViewTerms) => {
     ]}
   }
   
+  let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
+  if (terms.onlineEvent === false) {
+    onlineEventSelector = {$or: [
+      {onlineEvent: false}, {onlineEvent: {$exists: false}}
+    ]}
+  }
+  
   return {
     selector: {
       isEvent: true,
       $and: [
-        timeSelector, globalEventSelector
+        timeSelector, globalEventSelector, onlineEventSelector
       ],
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
