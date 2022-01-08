@@ -223,8 +223,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins', 'members'],
+    insertableBy: ['sunshineRegiment', 'admins', 'members'],
     optional: true,
     label: "Co-Authors",
     control: "UsersListEditor",
