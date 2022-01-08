@@ -137,6 +137,7 @@ const MixedTypeFeed = (args: {
   // Whether we've reached the end. The end-marker is when a query returns null
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
+  console.log("Test Reached End!: ", reachedEnd)
   
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start
