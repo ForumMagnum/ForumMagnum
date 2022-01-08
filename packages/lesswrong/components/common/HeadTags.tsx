@@ -65,7 +65,8 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
-
+          <link rel="apple-touch-icon" href={faviconUrlSetting.get()}/>
+  
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
         </Helmet>
       </React.Fragment>
