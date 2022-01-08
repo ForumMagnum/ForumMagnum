@@ -7,7 +7,7 @@ import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
-import { postStatuses } from './constants';
+import { postStatuses, startHerePostIdSetting } from './constants';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -1282,10 +1282,10 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("stickied", (terms: PostsViewTerms) => (
-  {
+Posts.addView("stickied", (terms: PostsViewTerms, _, context: ResolverContext) => ({
     selector: {
       sticky: true,
+      ...(context.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
     },
     options: {
       sort: {
