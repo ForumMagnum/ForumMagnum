@@ -4,6 +4,7 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const fetch = require("node-fetch");
 const crypto = require('crypto');
+require('dotenv').config()
 
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;
