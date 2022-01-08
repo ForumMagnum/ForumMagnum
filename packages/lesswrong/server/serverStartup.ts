@@ -27,8 +27,8 @@ async function serverStartup() {
     
     // Uncomment to add stacktraces to every console.log, for debugging where
     // mysterious output came from.
-    //var stack = new Error().stack
-    //log(stack)
+    var stack = new Error().stack
+    log(stack)
   });
   
   const commandLineArguments = getCommandLineArguments();
