@@ -25,7 +25,7 @@ const [opts, args] = cliopts.parse(
 //  * Start a local mongodb server, if no mongo URL was provided
 //      https://github.com/shelfio/jest-mongodb
 
-const isProduction = !!opts.production;
+const isProduction = true;
 const settingsFile = opts.settings || "settings.json"
 
 if (isProduction) {
