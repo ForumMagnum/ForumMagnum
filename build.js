@@ -4,6 +4,7 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const fetch = require("node-fetch");
 const crypto = require('crypto');
+require('dotenv').config()
 
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;
@@ -25,7 +26,7 @@ const [opts, args] = cliopts.parse(
 //  * Start a local mongodb server, if no mongo URL was provided
 //      https://github.com/shelfio/jest-mongodb
 
-const isProduction = true;
+const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
 
 if (isProduction) {
