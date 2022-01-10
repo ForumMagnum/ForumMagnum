@@ -7,7 +7,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import { createMutator } from '../vulcan-lib/mutators';
-import { createNotifications } from '../notificationCallbacks';
+import { createNotifications } from '../notificationCallbacksHelpers';
 import fetch from 'node-fetch';
 import crypto from 'crypto';
 import fs from 'fs';
