@@ -219,13 +219,16 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string):
   // if we have event times in the local timezone, use those instead
   const useLocalTimes = post.localStartTime && (!post.endTime || post.localEndTime)
   // prefer to use the provided timezone
+  let tz = ` ${start.format('[UTC]ZZ')}`
   if (timezone) {
     start = start.tz(timezone)
     end = end && end.tz(timezone)
+    tz = ` ${start.format('z')}`
   } else if (useLocalTimes) {
     // see postResolvers.ts for more on how local times work
     start = moment(post.localStartTime).utc()
     end = post.localEndTime && moment(post.localEndTime).utc()
+    tz = ''
   }
   
   // hide the year if it's reasonable to assume it
@@ -236,7 +239,6 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string):
   const startDate = start.format('ddd, MMM D')
   const startTime = start.format('h:mm')
   let startAmPm = ` ${start.format('A')}`
-  const tz = timezone ? ` ${start.format('z')}` : useLocalTimes ? '' : ` ${start.format('[UTC]ZZ')}`
   
   if (!end) {
     // just a start time
