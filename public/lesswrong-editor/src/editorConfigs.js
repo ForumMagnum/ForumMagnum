@@ -56,7 +56,8 @@ export const postEditorConfig = {
 		'insertTable',
 		'horizontalLine',
 		'mathDisplay',
-		'mediaEmbed'
+		'mediaEmbed',
+		'footnote'
 	],
 	toolbar: {
 		items: [
@@ -76,7 +77,8 @@ export const postEditorConfig = {
 			'codeBlock',
 			'|',
 			'trackChanges',
-			'math'
+			'math',
+			'footnote',
 		],
 		shouldNotGroupWhenFull: true,
 	},
@@ -112,7 +114,8 @@ export const commentEditorConfig = {
 		'bulletedList',
 		'numberedList',
 		'|',
-		'math'
+		'math',
+		'footnote',
 	],
 	image: {
 		toolbar: [

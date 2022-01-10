@@ -16,23 +16,23 @@ const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // esl
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
 const karmaGated = (minKarma: number) => (user: UsersCurrent|DbUser|null): boolean => user ? user.karma>=minKarma : false;
 
-// const tagManager = (user: UsersCurrent|DbUser|null): boolean =>
-//   !!(user?.isAdmin || user?.groups?.includes('sunshineRegiment') || user?.groups?.includes('tagManager'))
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userCanEditTagPortal = forumTypeSetting.get() === 'EAForum' ? moderatorOnly : adminOnly;
-export const userHasCkEditor = shippedFeature;
+export const userCanEditTagPortal = isEAForum ? moderatorOnly : adminOnly;
 export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userHasRedesignedSettingsPage = disabled;
 export const userCanUseSharing = karmaGated(50);
+export const userHasNewTagSubscriptions =  isEAForum ? optInOnly : disabled
 
 // Shipped Features
+export const userHasCkEditor = shippedFeature;
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
 export const userCanUseTags = shippedFeature;

@@ -16,7 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   discussionButtonPositioning: {
     display: "flex",
-    marginTop: "3px"
+    marginTop: 16,
+    marginRight: 8
   }
 });
 

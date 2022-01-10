@@ -695,6 +695,7 @@ addFieldsDict(Posts, {
     label: "Start Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localStartTime: {
@@ -712,6 +713,7 @@ addFieldsDict(Posts, {
     label: "End Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localEndTime: {
@@ -754,6 +756,7 @@ addFieldsDict(Posts, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (post) => {
         if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation)
+        return null
       }
     }),
   },

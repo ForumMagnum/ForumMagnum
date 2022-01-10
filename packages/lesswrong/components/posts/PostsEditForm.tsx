@@ -29,7 +29,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
@@ -62,6 +62,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   
   return (
     <div className={classes.postForm}>
+      <HeadTags title={document?.title} />
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}

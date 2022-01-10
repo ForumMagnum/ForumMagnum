@@ -133,7 +133,7 @@ export const NewEventNotification = registerNotificationType({
       }
     }
     if (group)
-      return await postGetAuthorName(document as DbPost) + ' has created a new event in the group "' + group.name + '"';
+      return `${group.name} posted a new event`;
     else
       return await postGetAuthorName(document as DbPost) + ' has created a new event';
   },
@@ -315,7 +315,7 @@ export const NewEventInNotificationRadiusNotification = registerNotificationType
   userSettingField: "notificationEventInRadius",
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost
-    return `A new event has been created within your notification radius: ${document.title}`
+    return `New event in your area: ${document.title}`
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
@@ -327,7 +327,7 @@ export const EditedEventInNotificationRadiusNotification = registerNotificationT
   userSettingField: "notificationEventInRadius",
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     let document = await getDocument(documentType, documentId) as DbPost
-    return `The event ${document.title} changed locations`
+    return `Event in your area updated: ${document.title}`
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
@@ -342,7 +342,7 @@ export const NewRSVPNotification = registerNotificationType({
     const document = await getDocument(documentType, documentId) as DbPost
     const rsvps = document.rsvps || []
     const lastRSVP = sortBy(rsvps, r => r.createdAt)[rsvps.length - 1]
-    return `${lastRSVP.name} ${lastRSVP.email ? `(${lastRSVP.email})` : ""} responded "${responseToText[lastRSVP.response]}" to your event ${document.title}`
+    return `${lastRSVP.name} responded "${responseToText[lastRSVP.response]}" to your event ${document.title}`
   },
   getIcon() {
     return <EventIcon style={iconStyles} />

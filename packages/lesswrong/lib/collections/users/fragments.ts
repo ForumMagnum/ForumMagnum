@@ -57,6 +57,8 @@ registerFragment(`
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
+    paymentEmail
+    paymentInfo
   }
 `);
 
@@ -137,6 +139,7 @@ registerFragment(`
     reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     abTestKey
     abTestOverrides
@@ -267,6 +270,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    beta
 
     # Emails
     email
@@ -329,6 +333,7 @@ registerFragment(`
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     deleted
   }

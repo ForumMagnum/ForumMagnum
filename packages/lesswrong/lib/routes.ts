@@ -588,12 +588,14 @@ if (hasEventsSetting.get()) {
       name:'Localgroups.single',
       path: '/groups/:groupId',
       componentName: 'LocalGroupSingle',
+      titleComponentName: 'LocalgroupPageTitle',
       ...communitySubtitle
     },
     {
       name:'events.single',
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
+      titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),

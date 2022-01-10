@@ -1,6 +1,6 @@
 import { Posts } from '../lib/collections/posts';
 import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from './vulcan-lib';
-import { createNotification } from './notificationCallbacks';
+import { createNotification } from './notificationCallbacksHelpers';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
 import sortBy from 'lodash/sortBy';
 

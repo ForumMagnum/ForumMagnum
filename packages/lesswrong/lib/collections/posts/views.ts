@@ -7,7 +7,7 @@ import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
-import { postStatuses } from './constants';
+import { postStatuses, startHerePostIdSetting } from './constants';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -962,16 +962,14 @@ ensureIndex(Posts,
   { name: "posts.events" }
 );
 
-Posts.addView("pastEvents", (terms: PostsViewTerms) => {
+Posts.addView("eventsInTimeRange", (terms: PostsViewTerms) => {
   return {
     selector: {
       isEvent: true,
       groupId: terms.groupId ? terms.groupId : null,
-      baseScore: {$gte: 1},
     },
     options: {
       sort: {
-        baseScore: -1,
         startTime: -1,
       }
     }
@@ -980,14 +978,13 @@ Posts.addView("pastEvents", (terms: PostsViewTerms) => {
 // Same index as events
 
 Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
-  const oneDayAgo = moment().subtract(1, 'days').toDate();
-
+  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  
   return {
     selector: {
       isEvent: true,
       groupId: terms.groupId ? terms.groupId : null,
-      baseScore: {$gte: 1},
-      startTime: {$gte: oneDayAgo}
+      startTime: {$gte: timeCutoff},
     },
     options: {
       sort: {
@@ -996,27 +993,47 @@ Posts.addView("upcomingEvents", (terms: PostsViewTerms) => {
     }
   }
 })
-// Same index as events
 
-Posts.addView("groupPosts", (terms: PostsViewTerms) => {
+Posts.addView("pastEvents", (terms: PostsViewTerms) => {
+  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  
   return {
     selector: {
-      isEvent: null,
-      groupId: terms.groupId,
-      authorIsUnreviewed: viewFieldAllowAny
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      startTime: {$lt: timeCutoff},
     },
     options: {
       sort: {
-        sticky: -1,
-        createdAt: -1,
+        startTime: -1,
       }
-    }
+    },
   }
-})
-ensureIndex(Posts,
-  augmentForDefaultView({ groupId: 1, sticky: -1, createdAt: -1 }),
-  { name: "posts.groupPosts" }
-);
+});
+
+Posts.addView("tbdEvents", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      isEvent: true,
+      groupId: terms.groupId ? terms.groupId : null,
+      startTime: viewFieldNullOrMissing,
+    },
+    options: {
+      sort: {
+        postedAt: 1,
+      }
+    },
+  }
+});
+
+Posts.addView("nonEventGroupPosts", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      isEvent: false,
+      groupId: terms.groupId ? terms.groupId : null,
+    },
+  }
+});
 
 Posts.addView("postsWithBannedUsers", function () {
   return {
@@ -1265,10 +1282,10 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("stickied", (terms: PostsViewTerms) => (
-  {
+Posts.addView("stickied", (terms: PostsViewTerms, _, context: ResolverContext) => ({
     selector: {
       sticky: true,
+      ...(context.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
     },
     options: {
       sort: {
@@ -1301,16 +1318,15 @@ ensureIndex(Posts,
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
-  const nominationThreshold = getReviewPhase() === "NOMINATIONS" ? 1 : 2
   return {
     selector: {
-      positiveReviewVoteCount: { $gte: nominationThreshold },
+      positiveReviewVoteCount: { $gte: 1 },
     },
     options: {
       // This sorts the posts deterministically, which is important for the
       // relative stability of the seeded frontend sort
       sort: {
-        createdAt: -1
+        lastCommentedAt: -1
       },
       ...(terms.excludeContents ?
         {projection: {contents: 0}} :

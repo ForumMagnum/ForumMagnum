@@ -19,7 +19,7 @@ const formGroups: Partial<Record<string,FormGroup>> = {
 
 addGraphQLSchema(`
   type TagContributor {
-    user: User!
+    user: User
     contributionScore: Int!
     numCommits: Int!
     voteCount: Int!

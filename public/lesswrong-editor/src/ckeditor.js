@@ -63,6 +63,7 @@ import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 import RestyledCommentButton from './restyled-comment-button-plugin';
+import Footnote from './ckeditor5-footnote/src/footnote';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
@@ -123,6 +124,7 @@ const sharedPlugins = [
 	Spoilers,
 	AutoLink,
 	RestyledCommentButton,
+	Footnote,
 ];
 
 const postEditorPlugins = [

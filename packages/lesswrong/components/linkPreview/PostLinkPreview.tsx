@@ -27,7 +27,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
     documentId: postID,
   });
 
-  if (!post) return null;
+  if (!post) return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;
 
   return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
@@ -47,7 +47,7 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
   });
-  if (!post) {return null;}
+  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
   return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
@@ -116,7 +116,7 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
     documentId: postId,
   });
 
-  if (!post) {return null;}
+  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
   return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
 }
@@ -266,6 +266,67 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
 }
 const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
   styles,
+});
+
+const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
+  hovercard: {
+    padding: `${theme.spacing.unit*3}px ${theme.spacing.unit*2}px ${theme.spacing.unit*2}px`,
+    ...theme.typography.body2,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[800],
+    maxWidth: 500,
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
+})
+
+const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  onsite?: boolean,
+  id?: string,
+  rel?: string
+}) => {
+  const { LWPopper } = Components
+  const { eventHandlers, hover, anchorEl } = useHover({
+    pageElementContext: "linkPreview",
+    hoverPreviewType: "DefaultPreview",
+    href,
+    onsite
+  });
+  // grab contents of linked footnote if it exists, while removes the backlink anchor tag.
+  const footnoteHTML = document.querySelector(href)?.innerHTML?.replace(/<a[^>]*href="#fnref.*?\/a>/g, '');
+  const footnoteContentsNonempty = Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
+  return (
+    <span {...eventHandlers}>
+      {footnoteContentsNonempty && <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="bottom-start"
+        modifiers={{
+          flip: {
+            behavior: ["bottom-start", "top-end", "bottom-start"],
+            boundariesElement: 'viewport'
+          }
+        }}
+      >
+        <Card>
+          <div className={classes.hovercard}>
+            <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+          </div>
+        </Card>
+      </LWPopper>}
+
+      <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+    </span>
+  );
+}
+
+const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
+  styles: footnotePreviewStyles,
 });
 
 const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
@@ -596,6 +657,7 @@ declare global {
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
+    FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
   }
 }

@@ -8,6 +8,7 @@ import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
+import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -81,9 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   highlight: {
-    ...commentBodyStyles(theme),
     backgroundColor: "white",
-    padding: theme.spacing.unit*1.5,
     width: "inherit",
     maxWidth: 625,
     position: "absolute",
@@ -97,6 +96,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& img': {
       maxHeight: "200px"
     }
+  },
+  highlightPadding: {
+    padding: theme.spacing.unit*1.5
   },
   isAnswer: {
     ...postBodyStyles(theme),
@@ -117,6 +119,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   metaNotice: {
     ...commentsItemStyles(theme).metaNotice,
     marginRight: theme.spacing.unit
+  },
+  postTitle: {
+    ...commentsItemStyles(theme).metaNotice,
+    marginRight: 20
+  },
+  preview: {
+    backgroundColor: "white",
+    border: "solid 1px rgba(0,0,0,.1)",
+    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    width: 500
   }
 })
 
@@ -133,7 +145,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   
   if (!comment) return null
   
-  const { enableHoverPreview=true, hideSingleLineMeta, post } = treeOptions;
+  const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments } = Components
@@ -161,6 +173,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
         {renderHighlight && <span className={classes.truncatedHighlight}> 
+          {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
@@ -174,7 +187,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         />}
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
-        <CommentBody truncated comment={comment}/>
+         <div className={classes.highlightPadding}><CommentBody truncated comment={comment}/></div>
       </span>}
     </div>
   )

@@ -20,6 +20,7 @@ import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
 import { syncDocumentWithLatestRevision } from './editor/utils';
+import { createAdminContext } from './vulcan-lib/query';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -55,12 +56,12 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
   }
 });
 
-const reverseVote = async (vote: DbVote) => {
+const reverseVote = async (vote: DbVote, context: ResolverContext) => {
   const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
-    await clearVotesServer({document, collection, user})
+    await clearVotesServer({document, collection, user, context})
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user);
@@ -75,6 +76,7 @@ export const nullifyVotesForUser = async (user: DbUser) => {
 
 const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<DbVoteableType>) => {
   const collectionName = capitalize(collection.collectionName);
+  const context = await createAdminContext();
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -83,7 +85,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection: Collec
   for (let vote of votes) {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    await reverseVote(vote);
+    await reverseVote(vote, context);
   };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);

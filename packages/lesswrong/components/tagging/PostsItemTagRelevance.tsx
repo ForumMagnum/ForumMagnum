@@ -37,7 +37,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  const { VoteButton, PostsItem2MetaInfo } = Components;
+  const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");
   
   const tooltip = <div>
@@ -49,10 +49,10 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
     <Tooltip title={tooltip} placement="left-end">
       <span>
         <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
-          <VoteButton
+          <OverallVoteButton
             orientation="down"
             color="error"
-            voteType="Downvote"
+            upOrDown="Downvote"
             solidArrow
             {...voteProps}
           />
@@ -63,10 +63,10 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
         </div>
       
         <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
-          <VoteButton
+          <OverallVoteButton
             orientation="up"
             color="secondary"
-            voteType="Upvote"
+            upOrDown="Upvote"
             solidArrow
             {...voteProps}
           />

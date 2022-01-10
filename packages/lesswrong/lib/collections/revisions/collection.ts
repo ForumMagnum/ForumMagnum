@@ -30,6 +30,10 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
     return false;
   }
   
+  // not sure why some revisions have no collectionName,
+  // but this will cause an error below so just exclude them
+  if (!revision.collectionName) return false
+  
   // Get the document that this revision is a field of, and check for access to
   // it. This is necessary for correctly handling things like posts' draft
   // status and sharing settings.
@@ -40,7 +44,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // ResolverContext, use a findOne query; this is slow, but doesn't come up
   // in any contexts where speed matters.
   const { major: majorVersion } = extractVersionsFromSemver(revision.version)
-  const collectionName= revision.collectionName as CollectionNameString;
+  const collectionName= revision.collectionName;
   const documentId = revision.documentId;
   const collection = getCollection(collectionName);
   const document = context

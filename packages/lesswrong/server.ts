@@ -69,6 +69,7 @@ import './server/updateScores';
 import './server/siteAdminMetadata';
 import './server/callbacks';
 import './server/notificationCallbacks';
+import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
 import './server/emails/emailTokens';
