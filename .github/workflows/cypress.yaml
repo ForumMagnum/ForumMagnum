@@ -1,5 +1,6 @@
 name: Run Cypress Tests
 on: [push]
+concurrency: cypress
 jobs:
   buildAndRunCypressTests:
     runs-on: ubuntu-latest
