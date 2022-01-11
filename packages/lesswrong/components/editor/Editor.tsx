@@ -299,10 +299,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         data = ckEditorReference.getData()
         break
     }
-    return data ? {
+    return {
       originalContents: {type, data},
       commitMessage, updateType,
-    } : undefined
+    };
   }
   
   setContents = (editorType: EditorTypeString, value) => {
@@ -430,7 +430,19 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         collectionName, fieldName,
         formType: formType,
         userId: currentUser?._id,
-        onChange: (event, editor) => this.throttledSetCkEditor(editor.getData()),
+        onChange: (event, editor) => {
+          const data: string = editor.getData();
+          // If transitioning from empty to nonempty or nonempty to empty,
+          // bypass throttling. These cases don't have the performance
+          // implications that motivated having throttling in the first place,
+          // and this prevents an annoying delay in the blank-document
+          // placeholder text appearing/disappeaering.
+          if (isBlank({type: "ckEditorMarkup", value: data}) || isBlank(this.props.value)) {
+            this.setContents("ckEditorMarkup", data);
+          } else {
+            this.throttledSetCkEditor(data)
+          }
+        },
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
@@ -440,9 +452,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // TODO: figure out a better solution to this problem.
 
       const collaboration = this.isDocumentCollaborative()
+      const showPlaceholder = isBlank({type: "ckEditorMarkup", value});
 
       return <div className={this.getHeightClass()}>
-        { this.renderPlaceholder(!value, collaboration)}
+        { this.renderPlaceholder(showPlaceholder, collaboration)}
         { collaboration
           ? <Components.CKPostEditor key="ck-collaborate" { ...editorProps } collaboration />
           : <CKEditor key="ck-default" { ...editorProps } />}

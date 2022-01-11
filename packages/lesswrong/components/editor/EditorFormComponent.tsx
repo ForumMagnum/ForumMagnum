@@ -41,6 +41,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
+  const isCollabEditor = isCollaborative(document, fieldName);
   
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
@@ -81,7 +82,15 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
     const {contents,autosave} = change;
     setContents(contents);
-    hasUnsavedDataRef.current.hasUnsavedData = true;
+    
+    // Only save to localStorage if not using collaborative editing, since with
+    // collaborative editing stuff is getting constantly sent through a
+    // websocket and saved taht way.
+    if (!isCollabEditor) {
+      if (!isBlank(contents)) {
+        hasUnsavedDataRef.current.hasUnsavedData = true;
+      }
+    }
     
     // Hack: Fill in ${fieldName}_type with the editor type, to enable other
     // form components (in particular PostSharingSettings) to check whether we're
@@ -109,7 +118,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     return () => {
       window.removeEventListener("beforeunload", unloadEventListener);
     };
-  }, []);
+  }, [fieldName, hasUnsavedDataRef]);
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
     wrappedSetContents({contents: newState, autosave: false});
@@ -177,7 +186,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       collectionName={collectionName}
       fieldName={fieldName}
       initialEditorType={initialEditorType}
-      isCollaborative={isCollaborative(document, fieldName)}
+      isCollaborative={isCollabEditor}
       value={contents}
       onChange={wrappedSetContents}
       placeholder={actualPlaceholder}
