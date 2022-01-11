@@ -438,6 +438,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           // and this prevents an annoying delay in the blank-document
           // placeholder text appearing/disappeaering.
           if (isBlank({type: "ckEditorMarkup", value: data}) || isBlank(this.props.value)) {
+            this.throttledSetCkEditor.cancel();
             this.setContents("ckEditorMarkup", data);
           } else {
             this.throttledSetCkEditor(data)
