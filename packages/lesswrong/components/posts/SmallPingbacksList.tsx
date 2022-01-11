@@ -9,11 +9,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SmallPingbacksList = ({classes, postId}: {
+const SmallPingbacksList = ({postId}: {
   classes: ClassesType,
   postId: string,
 }) => {
-  const { results, loadMoreProps, loading } = useMulti({
+  const { results, loading } = useMulti({
     terms: {
       view: "pingbackPosts",
       postId: postId,
