@@ -1320,6 +1320,7 @@ ensureIndex(Posts,
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
+      reviewCount: { $gte: 1},
       positiveReviewVoteCount: { $gte: 1 },
     },
     options: {

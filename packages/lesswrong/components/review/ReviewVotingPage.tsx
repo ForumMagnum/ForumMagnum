@@ -220,6 +220,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
+  },
+  postList: {
+    boxShadow: "0 1px 5px 0px rgba(0,0,0,.2)",
+    background: "white",
+    [theme.breakpoints.down('sm')]: {
+      boxShadow: "unset"
+    }
   }
 });
 
@@ -506,7 +513,7 @@ const ReviewVotingPage = ({classes}: {
                   {reviewedPosts?.length || 0} Reviewed Posts
                 </span>
                 </LWTooltip> 
-                ({sortedPosts.length} Nominated)
+                {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
               </div>
             }
             
@@ -585,7 +592,7 @@ const ReviewVotingPage = ({classes}: {
               </Select>
             </div>
           </div>
-          <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
+          <div className={classNames({[classes.postList]: getReviewPhase() !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
                 postId: post._id,
@@ -599,7 +606,7 @@ const ReviewVotingPage = ({classes}: {
                 <ReviewVoteTableRow
                   post={post}
                   showKarmaVotes={showKarmaVotes}
-                  dispatch={dispatchQualitativeVote}
+                dispatch={dispatchQualitativeVote}
                   currentVote={currentVote}
                   dispatchQuadraticVote={dispatchQuadraticVote}
                   useQuadratic={useQuadratic}
@@ -607,7 +614,7 @@ const ReviewVotingPage = ({classes}: {
                 />
               </div>
             })}
-          </Paper>
+          </div>
         </div>
       </div>
     </div>

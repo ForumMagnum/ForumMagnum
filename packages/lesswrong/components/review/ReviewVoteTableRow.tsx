@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
-import { eligibleToNominate, getReviewPhase } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
 import pullAt from 'lodash/pullAt'
 import { voteTextStyling } from './PostsItemReviewVote';
@@ -15,6 +15,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     borderBottom: "solid 1px rgba(0,0,0,.15)",
     position: "relative",
+    background: "white",
     '&:hover': {
       '& $expand': {
         display: "block"
@@ -22,8 +23,13 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('xs')]: {
       marginBottom: 2,
-      boxShadow: "0 0 0 3px rgba(0,0,0,.05)"
+      boxShadow: theme.boxShadow
     }
+  },
+  votingPhase: {
+    marginTop: 20,
+    border: "solid 1px rgba(0,0,0,.1)",
+    boxShadow: "0 1px 3px 0px rgba(0,0,0,.05)"
   },
   voteIcon: {
     padding: 0
@@ -37,21 +43,18 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    [theme.breakpoints.down('xs')]: {
-      flexWrap: "wrap",
-    }
+    flexWrap: "wrap"
   },
   post: {
     padding: 16,
     paddingTop: 10,
     paddingBottom: 8,
     paddingRight: 10,
-    maxWidth: "calc(100% - 240px)",
+    maxWidth: "100%",
     marginRight: "auto",
-    [theme.breakpoints.down('xs')]: {
-      maxWidth: "calc(100% - 100px)",
-      background: "white"
-    }
+  },
+  reviews: {
+    width: "100%"
   },
   expand: {
     display:"none",
@@ -95,8 +98,10 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.error.light
   },
   votes: {
-    backgroundColor: "#eee",
-    padding: 10,
+    backgroundColor: "#dfdfdf",
+    padding: 5,
+    margin: 5,
+    borderRadius:2,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
@@ -161,7 +166,7 @@ const ReviewVoteTableRow = (
     currentVote: SyntheticReviewVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
 
   const currentUser = useCurrentUser()
 
@@ -188,7 +193,7 @@ const ReviewVoteTableRow = (
   const allVotes = post.reviewVotesAllKarma || []
   const lowVotes = arrayDiff(allVotes, highVotes)
   return <AnalyticsContext pageElementContext="voteTableRow">
-    <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={markAsRead}>
+    <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: getReviewPhase() === "VOTING" })} onClick={markAsRead}>
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
@@ -198,17 +203,29 @@ const ReviewVoteTableRow = (
             <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
           </LWTooltip>
         </div>
+        {getReviewPhase() === "VOTING" && <div className={classes.reviews}>
+          <ReviewPostComments
+            singleLine
+            placeholderCount={post.reviewCount}
+            terms={{
+              view: "reviews",
+              reviewYear: REVIEW_YEAR, 
+              postId: post._id
+            }}
+            post={post}
+          />
+        </div>}
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}
           unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
           newPromotedComments={false}
         />
-        <PostsItem2MetaInfo className={classes.count}>
+        {getReviewPhase() !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
             { post.reviewCount }
           </LWTooltip>
-        </PostsItem2MetaInfo>
+        </PostsItem2MetaInfo>}
         {getReviewPhase() === "REVIEWS" && <div className={classes.votes}>
           <div className={classes.voteResults}>
             { highVotes.map((v, i)=>
@@ -233,7 +250,7 @@ const ReviewVoteTableRow = (
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classes.votes}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
             <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
-            <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
+          <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>}
