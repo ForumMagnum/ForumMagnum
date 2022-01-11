@@ -244,7 +244,7 @@ addRoute(
   {
     name:'reviewFullDashboard',
     path: '/reviewFullDashboard',
-    redirect: () => `/reviewVoting/2020`,
+    redirect: () => `/reviewFullDashboard/2020`,
   },
   {
     name:'reviewFullDashboard2020',
