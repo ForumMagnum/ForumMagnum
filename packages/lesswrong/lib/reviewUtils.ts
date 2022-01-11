@@ -17,6 +17,7 @@ export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR}
 export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 
 export function getReviewPhase(): ReviewPhase | void {
+  return "VOTING"
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
@@ -45,6 +46,7 @@ export function eligibleToNominate (currentUser: UsersCurrent|null) {
 export function postEligibleForReview (post: PostsBase) {
   if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWForum && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (getReviewPhase() === "VOTING" && post.reviewCount < 1) return false
   return true
 }
 
