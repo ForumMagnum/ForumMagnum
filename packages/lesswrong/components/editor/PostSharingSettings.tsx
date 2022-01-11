@@ -5,32 +5,13 @@ import { useMessages } from '../common/withMessages';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { userCanUseSharing } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
+import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import PropTypes from 'prop-types';
-
-export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";
-
-interface SharingSettings {
-  anyoneWithLinkCan: CollaborativeEditingAccessLevel,
-  explicitlySharedUsersCan: CollaborativeEditingAccessLevel,
-}
-const defaultSharingSettings: SharingSettings = {
-  anyoneWithLinkCan: "none",
-  explicitlySharedUsersCan: "comment",
-};
-
-export function strongerAccessLevel(a: CollaborativeEditingAccessLevel|null, b: CollaborativeEditingAccessLevel|null): CollaborativeEditingAccessLevel {
-  if (a==="edit" || b==="edit") return "edit";
-  if (a==="comment" || b==="comment") return "comment";
-  if (a==="read" || b==="read") return "read";
-  if (a) return a;
-  if (b) return b;
-  return "none";
-}
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {

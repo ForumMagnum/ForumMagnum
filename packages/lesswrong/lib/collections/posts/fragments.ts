@@ -373,6 +373,7 @@ registerFragment(`
     contents {
       ...RevisionDisplay
     }
+    myEditorAccess
   }
 `)
 

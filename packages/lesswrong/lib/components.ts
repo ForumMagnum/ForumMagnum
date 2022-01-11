@@ -230,6 +230,7 @@ importComponent("PostsEditForm", () => require('../components/posts/PostsEditFor
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
 importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
+importComponent("CollabEditorPermissionsNotices", () => require('../components/editor/CollabEditorPermissionsNotices'));
 
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));

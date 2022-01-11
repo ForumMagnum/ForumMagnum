@@ -55,6 +55,7 @@ const PostCollaborationEditor = ({ classes }: {
     </Components.SingleColumnSection>
   }
   
+  // Error handling and loading state
   if (error) {
     if (isMissingDocumentError(error)) {
       return <Components.Error404 />
@@ -66,9 +67,16 @@ const PostCollaborationEditor = ({ classes }: {
     return <Loading/>
   }
   
+  // If you're the primary author, redirect to the main editor (rather than the
+  // collab editor) so you can edit metadata etc
+  if (post?.userId === currentUser._id) {
+    return <Components.PermanentRedirect url={`/editPost?postId=${post._id}`}/>
+  }
+  
   return <SingleColumnSection>
     <div className={classes.title}>{post?.title}</div>
     <Components.PostsAuthors post={post}/>
+    <Components.CollabEditorPermissionsNotices post={post}/>
     {/*!post.draft && <div>
       You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
     </div>*/}
