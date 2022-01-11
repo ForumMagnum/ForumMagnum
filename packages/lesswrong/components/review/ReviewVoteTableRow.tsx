@@ -98,9 +98,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.error.light
   },
   votes: {
-    backgroundColor: "#dfdfdf",
-    padding: 5,
-    margin: 5,
+    padding: 10,
     borderRadius:2,
     alignSelf: "stretch",
     display: "flex",
@@ -203,7 +201,7 @@ const ReviewVoteTableRow = (
             <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
           </LWTooltip>
         </div>
-        {getReviewPhase() === "VOTING" && <div className={classes.reviews}>
+        <div className={classes.reviews}>
           <ReviewPostComments
             singleLine
             placeholderCount={post.reviewCount}
@@ -214,7 +212,7 @@ const ReviewVoteTableRow = (
             }}
             post={post}
           />
-        </div>}
+        </div>
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}

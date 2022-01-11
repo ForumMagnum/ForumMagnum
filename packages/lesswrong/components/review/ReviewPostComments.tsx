@@ -3,7 +3,7 @@ import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { useRecordPostView } from '../common/withRecordPostView';
-import { SINGLE_LINE_PADDING_TOP, singleLineStyles } from '../comments/SingleLineComment';
+import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -63,7 +63,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {(!results || results.length > 1) && "s"}
       </div>}
       <SubSection>
-        {loading && (results?.length === 0) && <div>
+        {loading && <div>
             {placeholderArray.map((pl,i) => <div className={classes.singleLinePlaceholder} key={`placeholder${post._id}${new Date()}${pl}`}/>)}
           </div>}
         {singleLine ? <CommentsList

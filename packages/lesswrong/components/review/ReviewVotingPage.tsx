@@ -258,7 +258,7 @@ const ReviewVotingPage = ({classes}: {
 
   const { results, loading: postsLoading } = useMulti({
     terms: {
-      view: "reviewVoting",
+      view: getReviewPhase() === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
       limit: 600,

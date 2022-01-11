@@ -1320,7 +1320,6 @@ ensureIndex(Posts,
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewCount: { $gte: 1},
       positiveReviewVoteCount: { $gte: 1 },
     },
     options: {
@@ -1337,5 +1336,29 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
 })
 ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
+);
+
+// Nominations for the (≤)2020 review are determined by the number of votes
+Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      reviewCount: { $gte: 1},
+      positiveReviewVoteCount: { $gte: 1 },
+    },
+    options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
+      sort: {
+        lastCommentedAt: -1
+      },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
