@@ -84,7 +84,7 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
     return null;
   
   return <div className={classes.root}>
-    You have an autosaved version of this document.{" "}
+    You have autosaved text.{" "}
     <a className={classes.restoreLink} onClick={() => {
       setRestorableState(null);
       const restored = deserializeEditorContents(restorableState.savedDocument);
