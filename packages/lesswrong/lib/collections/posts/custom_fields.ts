@@ -15,6 +15,7 @@ import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } fr
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
+import { userOverNKarmaFunc } from "../../vulcan-users";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 function eaFrontpageDate (document: Partial<DbPost>) {
@@ -223,8 +224,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins', 'members'],
-    insertableBy: ['sunshineRegiment', 'admins', 'members'],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
     optional: true,
     label: "Co-Authors",
     control: "UsersListEditor",
