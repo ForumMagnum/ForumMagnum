@@ -6,11 +6,13 @@ import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
-import { Helmet } from 'react-helmet'
-// import fetch from 'node-fetch'
-
-import { mapboxAPIKeySetting } from '../localGroups/CommunityMap';
+import { Helmet } from 'react-helmet';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
+
+const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
+const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -50,6 +52,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2
   },
+  incomingTitle: {
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit*2,
+    color: 'red',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
+  },
+  timer: {
+    fontSize: '3rem',
+    marginTop: 10
+  },
   button: {
     height: 189,
     width: 189,
@@ -72,6 +86,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   launchButton: {
     width: 174,
   },
+  inputSection: {
+    display: "flex",
+    flexDirection: "column"
+  },
   keyCode: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit,
@@ -90,7 +108,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   info: {
     marginTop: theme.spacing.unit*1.5,
-    width: 234,
+    width: 255,
     textAlign: "center",
     lineHeight: "1.8em",
     color: theme.palette.grey[600]
@@ -101,15 +119,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PetrovDayButton = ({classes, refetch}: {
+const PetrovDayButton = ({classes, refetch, alreadyLaunched, timeTillArrival}: {
   classes: ClassesType,
   refetch?: any,
+  alreadyLaunched?: boolean,
+  timeTillArrival?: number
 }) => {
   const currentUser = useCurrentUser()
   const { petrovPressedButtonDate, petrovCodesEntered } = (currentUser || {}) as any; //FIXME: These fields are not in the fragment; add them back for next Petrov day if we want to do it again
-  const [pressed, setPressed] = useState(petrovPressedButtonDate)
+  const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
   const [launchCode, setLaunchCode] = useState(petrovCodesEntered)
-  const [launched, setLaunched] = useState(false)
+  const [launched, setLaunched] = useState(!!alreadyLaunched)
+
 
   const [ mutate ] = useMutation(gql`
     mutation petrovDayLaunchResolvers($launchCode: String) {
@@ -145,8 +166,18 @@ const PetrovDayButton = ({classes, refetch}: {
 
   const renderButtonAsPressed = !!petrovPressedButtonDate || pressed
   const renderLaunchButton = (launchCode?.length >= 8)
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
-  if (petrovCodesEntered) return null
+  const secondsRemainingToTimeDisplay = (differenceInSeconds: number) : string => {
+    const absSeconds = Math.abs(differenceInSeconds)
+    
+    const minutes = Math.sign(differenceInSeconds)*Math.floor(absSeconds/60)
+    const seconds = ('0' + (absSeconds % 60)).slice(-2)
+    return `${minutes}:${seconds}`
+  }
+  
+  
+
 
   return (
     <div className={classes.root}>
@@ -157,56 +188,85 @@ const PetrovDayButton = ({classes, refetch}: {
         zoom={2}
         width="100%"
         height="100%"
-        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>
-        {!launched && !currentUser?.petrovLaunchCodeDate && <div className={classes.panel}>
-            <Typography variant="display1" className={classes.title}>
-              <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
-            </Typography>
-            {currentUser ? 
-                <div className={classes.button}>
-                  {renderButtonAsPressed ? 
-                    <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
-                      <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
-                    </LWTooltip>
-                    :
-                    <LWTooltip title="Are you sure?" placement="right">
-                      <div onClick={pressButton}>
-                        <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
-                        <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
-                      </div>
-                    </LWTooltip>
-                  }
+        
+        
+        {<div className={classes.panel}>
+          {!!timeTillArrival ? 
+            <Typography variant="display1" className={classes.incomingTitle}>
+              <Link className={classes.incomingTitle} to={"/posts/" + petrovPostIdSetting.get()}>
+                <div>MISSILES INCOMING!!</div>
+                <div className={classes.timer}>
+                  {secondsRemainingToTimeDisplay(timeTillArrival)}
                 </div>
-              :
+              </Link>
+            </Typography>
+            : 
+            <Typography variant="display1" className={classes.title}>
+            <Link to={"/posts/" + petrovPostIdSetting.get()}>Petrov Day</Link>
+            </Typography>
+          }
+          {currentUser ? 
               <div className={classes.button}>
-                <LoginPopupButton title={"Log in if you'd like to push the button"}>
-                  <div>
-                    <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
-                    <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
-                  </div>
-                </LoginPopupButton>
+                {(renderButtonAsPressed || launched) ? 
+                  <LWTooltip title={<div><div>You have pressed the button.</div><div>You cannot un-press it.</div></div>} placement="right">
+                    <img className={classes.buttonPressed} src={"../petrovButtonPressedDark.png"}/> 
+                  </LWTooltip>
+                  :
+                  <LWTooltip title="Are you sure?" placement="right">
+                    <div onClick={pressButton}>
+                      <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
+                      <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+                    </div>
+                  </LWTooltip>
+                }
               </div>
-            }
-
-            {renderButtonAsPressed && <TextField
-              onChange={updateLaunchCode}
-              placeholder={"Enter Launch Codes"}
-              margin="normal"
-              variant="outlined"
-            />}
-            {(renderLaunchButton) && 
-              <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
-                Launch
-              </Button>
-            }
-            <p className={classes.info}>Enter launch codes to destroy LessWrong. (This is not an anonymous action)</p>
-            <Link to={"/posts/XfHXQPPKNY8BXkn72/honoring-petrov-day-on-lesswrong-in-2020"} className={classes.link}>
+            :
+            <div className={classes.button}>
+              <LoginPopupButton title={"Log in if you'd like to push the button"}>
+                <div>
+                  <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
+                  <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
+                </div>
+              </LoginPopupButton>
+            </div>
+          }
+  
+          {launched ?
+            <div className={classes.info}>
+              <p >{isEAForum ? "The EA Forum's" : "LessWrong's"} missiles have been launched.</p>
+              <p>We hope you made good choices.</p>
+            </div>
+            : <div className={classes.inputSection}>
+              {renderButtonAsPressed && <TextField
+                onChange={updateLaunchCode}
+                placeholder={"Enter Launch Codes"}
+                margin="normal"
+                variant="outlined"
+              />}
+              {(renderLaunchButton) && 
+                <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
+                  Launch
+                </Button>
+              }
+              <div className={classes.info}>
+                <p>Enter launch codes to destroy {isEAForum ? ' LessWrong' : " the EA Forum"}.</p>
+                <p>(This is not an anonymous action)</p>
+              </div>
+            </div>
+          }
+          
+            <Link to={"/posts/" + petrovGamePostIdSetting.get()} className={classes.link}>
               Learn More
             </Link>
           </div>}
+        
+        
+        
+        
         </div>
     </div>
   )

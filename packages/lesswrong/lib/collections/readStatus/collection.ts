@@ -41,7 +41,8 @@ const schema: SchemaType<DbReadStatus> = {
 export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
-  schema
+  schema,
+  logChanges: false,
 });
 
 addUniversalFields({collection: ReadStatuses});

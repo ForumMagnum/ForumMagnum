@@ -187,7 +187,6 @@ export const schemaProperties = [
   'onDelete', // field remove callback
   'onInsert', // OpenCRUD backwards compatibility
   'onEdit', // OpenCRUD backwards compatibility
-  'onRemove', // OpenCRUD backwards compatibility
   'canRead',
   'canCreate',
   'canUpdate',

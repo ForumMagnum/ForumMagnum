@@ -87,4 +87,5 @@ addStrings('en', {
   'errors.expectedType': 'Expected a field “{label}” of type {dataType}, got “{value}” instead.',
   'errors.required': 'Field “{label}” is required.',
   'errors.maxString': 'Field “{label}” is limited to {max} characters.',
+  'errors.regEx': 'Field "{label}" is invalid.',
 });

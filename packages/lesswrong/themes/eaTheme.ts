@@ -21,7 +21,7 @@ const serifStack = [
   'serif'
 ].join(',')
 
-
+// TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Merriweather Sans',
@@ -34,7 +34,8 @@ const sansSerifStack = [
 
 const palette = {
   primary: {
-    main: '#0c869b', // Maybe replace with: 00b2be
+    main: '#0c869b',
+    light: '#00b2be',
   },
   secondary: {
     main: '#0c869b',
@@ -49,6 +50,9 @@ const palette = {
   background: {
     default: '#f6f8f9'
   },
+  event: '#0C869B',
+  group: '#538747',
+  individual: '#BF577D',
 }
 
 const basicText = {
@@ -67,8 +71,11 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
     fontDownloads: [
       "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
       "https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700",
+      // TODO we use these?
       "https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700",
       "https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,500,600,700",
+      // TODO we need to find where this is used in material ui and remove
+      "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
     ],
     fontFamily: sansSerifStack,
     body1: {
@@ -279,6 +286,11 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
         marginBottom: 'unset',
         padding: '20px',
         boxShadow: "0 1px 5px rgba(0,0,0,.025)",
+      }
+    },
+    TagSmallPostLink: {
+      wrap: {
+        lineHeight: '1.2em'
       }
     },
     TagsDetailsItem: {

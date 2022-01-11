@@ -9,7 +9,10 @@ import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
 import { getWithLoader } from '../../loaders';
+import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
+import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
+import { getVotingSystems } from '../../voting/votingSystems';
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -18,20 +21,40 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-const formGroups = {
-  // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
+export interface RSVPType {
+  name: string
+  email: string
+  nonPublic: boolean
+  response: "yes" | "maybe" | "no"
+  userId: string
+  createdAt: Date
+}
+const rsvpType = new SimpleSchema({
+  name: {
+    type: String,
   },
-  visibleOptions: {
-    name: "visibleOptions",
-    order: 30,
-    defaultStyle: true,
-  }
-};
+  email: {
+    type: String,
+    optional: true,
+  },
+  nonPublic: {
+    type: Boolean,
+    optional: true,
+  },
+  response: {
+    type: String,
+    allowedValues: ["yes", "maybe", "no"],
+  },
+  userId: {
+    type: String,
+    optional: true,
+  },
+  createdAt: {
+    type: Date,
+    optional: true
+  },
+})
+
 
 const schema: SchemaType<DbPost> = {
   // Timestamp of post creation
@@ -81,15 +104,17 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: 'url',
-    order: 10,
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    control: 'EditUrl',
+    order: 12,
     query: `
       SiteData{
         logoUrl
         title
       }
     `,
+    placeholder: 'Add a linkpost URL',
+    group: formGroups.options,
   },
   // Title
   title: {
@@ -98,9 +123,11 @@ const schema: SchemaType<DbPost> = {
     max: 500,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: 'text',
-    order: 20,
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    order: 10,
+    placeholder: "Title",
+    control: 'EditTitle',
+    group: formGroups.default,
   },
   // Slug
   slug: {
@@ -129,6 +156,8 @@ const schema: SchemaType<DbPost> = {
     denormalized: true,
     optional: true,
     viewableBy: ['guests'],
+    hidden: true,
+    onInsert: (post: DbPost) => post.postedAt || new Date(),
   },
   // Count of how many times the post's link was clicked
   clickCount: {
@@ -153,7 +182,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     viewableBy: ['guests'],
     insertableBy: ['admins'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
     control: 'select',
     onInsert: (document, currentUser) => {
       if (!document.status) {
@@ -208,6 +237,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     control: 'checkbox',
+    order: 10,
     group: formGroups.adminOptions,
     onInsert: (post) => {
       if(!post.sticky) {
@@ -276,10 +306,13 @@ const schema: SchemaType<DbPost> = {
       nullable: true
     }),
     optional: true,
-    control: 'select',
+    control: 'text',
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    hidden: true,
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    tooltip: 'The user id of the author',
+    
+    group: formGroups.adminOptions,
   },
 
   // GraphQL-only fields
@@ -387,7 +420,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
+    editableBy: ['members', 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
     ...schemaDefaultValue(true),
@@ -407,7 +440,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'admins', 'sunshineRegiment'],
+    editableBy: ['members', 'admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -425,8 +458,9 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
-    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      return await PostRelations.find({targetPostId: post._id}).fetch()
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const result = await PostRelations.find({targetPostId: post._id}).fetch()
+      return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
     }
   }),
   'sourcePostRelations.$': {
@@ -438,7 +472,8 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
-    resolver: async (post: DbPost, args: void, { Posts }: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { Posts, currentUser } = context;
       const postRelations = await Posts.aggregate([
         { $match: { _id: post._id }},
         { $graphLookup: { 
@@ -465,7 +500,7 @@ const schema: SchemaType<DbPost> = {
         }
      ]).toArray()
      if (!postRelations || postRelations.length < 1) return []
-     return postRelations
+     return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
   }),
   'targetPostRelations.$': {
@@ -541,6 +576,97 @@ const schema: SchemaType<DbPost> = {
       filterFn: comment => !comment.deleted && comment.reviewingForReview === "2019"
     }),
     canRead: ['guests'],
+  },
+
+  reviewCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && !!comment.reviewingForReview
+    }),
+    canRead: ['guests'],
+  },
+
+  reviewVoteCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewVoteCount",
+      collectionName: "Posts",
+      foreignCollectionName: "ReviewVotes",
+      foreignTypeName: "reviewVote",
+      foreignFieldName: "postId",
+    }),
+    canRead: ['guests'],
+  },
+
+  positiveReviewVoteCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "positiveReviewVoteCount",
+      collectionName: "Posts",
+      foreignCollectionName: "ReviewVotes",
+      foreignTypeName: "reviewVote",
+      foreignFieldName: "postId",
+      filterFn: vote => vote.qualitativeScore > DEFAULT_QUALITATIVE_VOTE || vote.quadraticScore > 0
+    }),
+    canRead: ['guests'],
+  },
+  reviewVoteScoreAF: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesAF: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesAF.$': {
+    type: Number,
+    optional: true,
+  },
+
+  reviewVoteScoreHighKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesHighKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesHighKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  reviewVoteScoreAllKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  reviewVotesAllKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'reviewVotesAllKarma.$': {
+    type: Number,
+    optional: true,
   },
 
   lastCommentPromotedAt: {
@@ -642,6 +768,99 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins'],
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
+  },
+  
+  // TODO: doc
+  rsvps: {
+    type: Array,
+    viewableBy: ['guests'],
+    optional: true,
+    // TODO: how to remove people without db access?
+    hidden: true,
+  },
+  
+  'rsvps.$': {
+    type: rsvpType,
+    viewableBy: ['guests'],
+  },
+
+  activateRSVPs: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    hidden: (props) => !props.eventForm,
+    group: formGroups.event,
+    control: 'checkbox',
+    label: "Enable RSVPs for this event",
+    tooltip: "RSVPs are public, but the associated email addresses are only visible to organizers.",
+    optional: true
+  },
+  
+  nextDayReminderSent: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+  
+  onlyVisibleToLoggedIn: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from users who are not logged in",
+    ...schemaDefaultValue(false),
+  },
+  
+  onlyVisibleToEstablishedAccounts: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    optional: true,
+    group: formGroups.adminOptions,
+    label: "Hide this post from logged out users and newly created accounts",
+    ...schemaDefaultValue(false),
+  },
+
+  currentUserReviewVote: resolverOnlyField({
+    type: Number,
+    viewableBy: ['members'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<number|null> => {
+      const { ReviewVotes, currentUser } = context;
+      if (!currentUser) return null;
+      const votes = await getWithLoader(context, ReviewVotes,
+        `reviewVotesByUser${currentUser._id}`,
+        {
+          userId: currentUser._id
+        },
+        "postId", post._id
+      );
+      if (!votes.length) return null;
+      return votes[0].qualitativeScore;
+    }
+  }),
+  
+  votingSystem: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    control: "select",
+    form: {
+      options: () => {
+        return getVotingSystems()
+          .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
+      }
+    },
   },
 };
 

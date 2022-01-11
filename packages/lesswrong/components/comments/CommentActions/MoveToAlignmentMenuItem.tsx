@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { withUpdate } from '../../../lib/crud/withUpdate';
-import { withMessages } from '../../common/withMessages';
+import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withApollo } from '@apollo/client/react/hoc';
-import withUser from '../../common/withUser';
+import { useApolloClient } from '@apollo/client/react/hooks';
+import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
@@ -32,17 +32,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+const MoveToAlignmentMenuItem = ({comment, post, classes}: {
   comment: CommentsList,
   post: PostsBase,
-}
-interface MoveToAlignmentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps, WithUpdateCommentProps, WithApolloProps {
-}
-
-class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps,{}> {
-
-  handleMoveToAlignmentForum = async () => {
-    const { comment, updateComment, client, flash, currentUser, } = this.props
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
+  const client = useApolloClient();
+  const {flash} = useMessages();
+  const {mutate: updateComment} = useUpdate({
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+  });
+  
+  const handleMoveToAlignmentForum = async () => {
     if (!currentUser) return;
     await updateComment({
       selector: { _id: comment._id},
@@ -52,13 +55,11 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
         moveToAlignmentUserId: currentUser._id
       },
     })
-    client.resetStore()
+    await client.resetStore()
     flash("Comment and its parents moved to AI Alignment Forum")
   }
 
-  handleRemoveFromAlignmentForum = async () => {
-    const { comment, updateComment, client, flash } = this.props
-
+  const handleRemoveFromAlignmentForum = async () => {
     await updateComment({
       selector: { _id: comment._id},
       data: {
@@ -68,17 +69,16 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
       },
     })
 
-    client.resetStore()
+    await client.resetStore()
     flash("Comment and its children removed from AI Alignment Forum")
   }
 
-  render() {
-    const { comment, post, currentUser, classes } = this.props
+  const render = () => {
     const { OmegaIcon } = Components
     if (post.af && userCanDo(currentUser, 'comments.alignment.move.all')) {
       if (!comment.af) {
         return (
-          <MenuItem onClick={ this.handleMoveToAlignmentForum}>
+          <MenuItem onClick={handleMoveToAlignmentForum}>
             <ListItemIcon>
               <span className={classes.iconRoot}>
                 <OmegaIcon className={classes.omegaIcon}/>
@@ -90,7 +90,7 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
         )
       } else {
         return (
-          <MenuItem onClick={ this.handleRemoveFromAlignmentForum }>
+          <MenuItem onClick={handleRemoveFromAlignmentForum}>
             <ListItemIcon>
               <span className={classes.iconRoot}>
                 <OmegaIcon className={classes.omegaIcon} />
@@ -105,19 +105,11 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
       return null
     }
   }
+  return render();
 }
 
-const MoveToAlignmentMenuItemComponent = registerComponent<ExternalProps>(
-  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem, {
-    styles,
-    hocs: [
-      withUpdate({
-        collectionName: "Comments",
-        fragmentName: 'CommentsList',
-      }),
-      withMessages, withApollo, withUser
-    ]
-  }
+const MoveToAlignmentMenuItemComponent = registerComponent(
+  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem, {styles}
 );
 
 declare global {

@@ -42,7 +42,7 @@ export function registerMigration({ name, dateWritten, idempotent, action })
   migrationRunners[name] = async () => await runMigration(name);
 }
 
-export async function runMigration(name)
+export async function runMigration(name: string)
 {
   if (!(name in availableMigrations))
     throw new Error(`Unrecognized migration: ${name}`);
@@ -78,7 +78,7 @@ export async function runMigration(name)
   }
 }
 
-function sleep(ms)
+function sleep(ms: number)
 {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -88,7 +88,7 @@ function sleep(ms)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function runThenSleep(loadFactor, func)
+export async function runThenSleep(loadFactor: number, func: ()=>Promise<void>)
 {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
@@ -324,6 +324,22 @@ export async function forEachDocumentBatchInCollection({collection, batchSize=10
       ).fetch();
     });
   }
+}
+
+export async function forEachDocumentInCollection({collection, batchSize=1000, filter=null, callback, loadFactor=1.0}: {
+  collection: any,
+  batchSize?: number,
+  filter?: MongoSelector<DbObject> | null,
+  callback: Function,
+  loadFactor?: number
+}) {
+  await forEachDocumentBatchInCollection({collection,batchSize,filter,loadFactor,
+    callback: async (docs: any[]) => {
+      for (let doc of docs) {
+        await callback(doc);
+      }
+    }
+  });
 }
 
 // Given a collection, an optional filter, and a target batch size, partition

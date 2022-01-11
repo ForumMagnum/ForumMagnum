@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
 import { withSingle } from '../../lib/crud/withSingle';
-import withUser from '../common/withUser';
+import withUser, { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
@@ -111,8 +111,13 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   classes: ClassesType,
   handleClose: (ev: MouseEvent)=>any,
 }) => {
-  const { posts, comments, updateFrequency } = karmaChanges
-  const noKarmaChanges = !((posts && (posts.length > 0)) || (comments && (comments.length > 0)))
+  const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
+  const currentUser = useCurrentUser();
+  const noKarmaChanges = !(
+    (posts && (posts.length > 0))
+    || (comments && (comments.length > 0))
+    || (tagRevisions && (tagRevisions.length > 0))
+  )
   
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
@@ -148,6 +153,19 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 </span>
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
+                </div>
+              </MenuItemUntyped>
+            ))}
+            {karmaChanges.tagRevisions.map(tagChange => (
+              <MenuItemUntyped className={classes.votedItemRow}
+                component={Link} key={tagChange._id}
+                to={`/tag/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
+              >
+                <span className={classes.votedItemScoreChange}>
+                  <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
+                </span>
+                <div className={classes.votedItemDescription}>
+                  {tagChange.tagName}
                 </div>
               </MenuItemUntyped>
             ))}
@@ -237,10 +255,10 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
     if (settings && settings.updateFrequency === "disabled")
       return null;
 
-    const { posts, comments, endDate, totalChange } = karmaChanges
+    const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
-    const starIsHollow = ((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
+    const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
     
     const { LWPopper } = Components;
 

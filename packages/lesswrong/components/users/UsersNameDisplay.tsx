@@ -5,6 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';
+import TagIcon from '@material-ui/icons/LocalOffer';
 import { BookIcon } from '../icons/bookIcon'
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
@@ -59,6 +60,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = userGetPostCount(user)
   const commentCount = userGetCommentCount(user)
+  const wikiContributionCount = user.tagRevisionCount
   const sequenceCount = user.sequenceCount; // TODO: Counts LW sequences on Alignment Forum
 
   const tooltip = <span>
@@ -68,6 +70,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
       </div>}
     { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } post{postCount !== 1 && 's'}</div>}
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comment{commentCount !== 1 && 's'}</div>}
+    { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } wiki contribution{wikiContributionCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </span>
 
@@ -77,7 +80,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
 
   return <span {...eventHandlers} className={className}>
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-    <LWTooltip title={tooltip} placement={tooltipPlacement}>
+    <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}
           {...(nofollow ? {rel:"nofollow"} : {})}
         >

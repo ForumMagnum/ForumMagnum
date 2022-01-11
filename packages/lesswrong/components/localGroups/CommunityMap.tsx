@@ -1,24 +1,21 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import { PersonSVG } from './Icons'
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
-
-export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null) // API Key for the mapbox map and tile requests
-
-export const mapsHeight = 440
-const mapsWidth = "100vw"
+import { mapboxAPIKeySetting } from '../../lib/publicSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import PersonIcon from '@material-ui/icons/PersonPin';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
-    width: mapsWidth,
-    height: mapsHeight,
+    width: "100%",
+    height: 440,
     // We give this a negative margin to make sure that the map is flush with the top
     marginTop: -50,
     [theme.breakpoints.down('sm')]: {
@@ -67,15 +64,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, showHideMap = false, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showUsers, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms: PostsViewTerms,
   initialOpenWindows: Array<any>,
   center?: {lat: number, lng: number},
   zoom: number,
   classes: ClassesType,
+  className?: string,
   showUsers?: boolean,
   showHideMap?: boolean,
+  hideLegend?: boolean,
   petrovButton?: boolean,
 }) => {
   const { query } = useLocation()
@@ -99,9 +98,17 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   const [ viewport, setViewport ] = useState({
     latitude: center.lat,
     longitude: center.lng,
-    zoom: 2
+    zoom: zoom
   })
   
+  // when getting the location from the browser, we want to re-center the map
+  useEffect(() => {
+    setViewport({
+      latitude: center.lat,
+      longitude: center.lng,
+      zoom: zoom
+    })
+  }, [center, zoom])
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,
@@ -124,26 +131,29 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     limit: 500,
   })
 
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
       {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      <div className={classes.mapButtons}>
+      {!hideLegend && <div className={classes.mapButtons}>
         <Components.CommunityMapFilter 
           showHideMap={showHideMap} 
           toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
           toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
-          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
+          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} 
+          showIndividuals={showIndividuals}
           setShowMap={setShowMap}
         />
-      </div>
+      </div>}
     </React.Fragment>
-  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap])
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap, hideLegend])
 
   if (!showMap) return null
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, {[className]: className})}>
       <Helmet> 
         <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
       </Helmet>
@@ -151,21 +161,21 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => setViewport(viewport)}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >
         {renderedMarkers}
       </ReactMapGL>
-      {petrovButton && <Components.PetrovDayButton />}
+      {/*{petrovButton && <Components.PetrovDayButton />}*/}
   </div>
 }
 
 const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
   icon: {
-    height: 15,
-    width: 15,
-    fill: '#3f51b5',
+    height: 20,
+    width: 20,
+    fill: theme.palette.individual,
     opacity: 0.8
   }
 })
@@ -191,7 +201,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
           offsetTop={-20}
         >
           <span onClick={() => handleClick(user._id)}>
-            <PersonSVG className={classes.icon}/>
+            <PersonIcon className={classes.icon}/>
           </span>
         </Marker>
         {openWindows.includes(user._id) && 
@@ -260,4 +270,3 @@ declare global {
     PersonalMapLocationMarkers: typeof PersonalMapLocationMarkersTypes
   }
 }
-

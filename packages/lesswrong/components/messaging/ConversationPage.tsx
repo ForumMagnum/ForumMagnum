@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -39,7 +39,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 1000,
+    limit: 100000,
     enableTotal: false,
   });
   const { document: conversation, loading: loadingConversation } = useSingle({
@@ -56,6 +56,22 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
     collectionName: "Comments",
     fragmentName: 'CommentsList',
   });
+  
+  // Scroll to bottom when loading finishes. Note that this overlaps with the
+  // initialScroll:"bottom" setting in the route, which is handled by the
+  // ScrollToTop component, except that the ScrollToTop component does its thing
+  // on initial load, which may be while the messages (which make this page tall)
+  // are still loading.
+  // Also note, if you're refreshing (as opposed to navigating or opening a new
+  // tab), this can wind up fighting with the browser's scroll restoration (see
+  // client/scrollRestoration.ts).
+  const [scrolledToBottom, setScrolledToBottom] = useState(false);
+  useEffect(() => {
+    if (!loadingMessages && !scrolledToBottom) {
+      setScrolledToBottom(true);
+      setTimeout(()=>{window.scroll(0, document.body.scrollHeight)}, 0);
+    }
+  }, [loadingMessages,scrolledToBottom]);
 
   const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
   

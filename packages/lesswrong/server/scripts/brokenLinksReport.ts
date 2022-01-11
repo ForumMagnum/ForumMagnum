@@ -16,12 +16,12 @@ const baseUrl = "http://www.lesswrong.com";
 
 // Parse an HTML string and return an array of URLs of images it refers to in
 // <img> tags.
-function getImagesInHtml(html)
+function getImagesInHtml(html: string)
 {
   let images: Array<string> = [];
   
   let parser = new htmlparser2.Parser({
-    onopentag: function(name, attribs) {
+    onopentag: function(name: string, attribs: any) {
       if(name.toLowerCase() === 'img' && attribs.src) {
         images.push(attribs.src);
       }
@@ -35,12 +35,12 @@ function getImagesInHtml(html)
 
 // Parse an HTML string and return an array of URLs that it links to in <a>
 // tags.
-function getLinksInHtml(html)
+function getLinksInHtml(html: string)
 {
   let links: Array<string> = [];
   
   let parser = new htmlparser2.Parser({
-    onopentag: function(name, attribs) {
+    onopentag: function(name: string, attribs: any) {
       if(name.toLowerCase() === 'a' && attribs.href) {
         links.push(attribs.href);
       }
@@ -52,7 +52,7 @@ function getLinksInHtml(html)
   return links;
 }
 
-function imageIsOffsite(imageUrl)
+function imageIsOffsite(imageUrl: string)
 {
   const hostname = new URL(imageUrl, baseUrl).hostname;
   
@@ -118,8 +118,8 @@ const checkPost = async (post:DbPost) => {
 };
 
 Vulcan.findBrokenLinks = async (
-  startDate, endDate,
-  output
+  startDate: Date, endDate: Date,
+  output: string|((message: string)=>void)
 ) => {
   // TODO: Subdivide date range so we don't try to load all posts at once
   // TODO: Retry "broken" links to remove false positives from the list
@@ -131,7 +131,7 @@ Vulcan.findBrokenLinks = async (
     write = console.log;
   } else if(_.isString(output)) {
     let outputFile = fs.openSync(output, "a");
-    write = (str) => fs.writeSync(outputFile, str);
+    write = (str: string) => fs.writeSync(outputFile, str);
     onFinish = () => fs.closeSync(outputFile);
   } else {
     write = output;

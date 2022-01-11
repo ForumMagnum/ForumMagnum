@@ -23,7 +23,7 @@ defineQuery({
       finished: Date
       succeeded: Boolean
     }`,
-  fn: async (root, args, context: ResolverContext) => {
+  fn: async (root: void, args: void, context: ResolverContext) => {
     if (!context.currentUser || !context.currentUser.isAdmin)
       throw new Error("MigrationsDashboard graphQL API requires being logged in as an admin");
     
@@ -45,7 +45,7 @@ defineQuery({
   },
 });
 
-const makeMigrationStatus = (name, runsByMigration) => {
+const makeMigrationStatus = (name: string, runsByMigration) => {
   const runs = runsByMigration[name]?.map(run => ({
     name: run.name,
     started: new Date(run.started),

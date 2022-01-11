@@ -10,6 +10,8 @@ import { createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
 const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
 }
@@ -26,7 +28,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
   const { Loading, Typography, LWDialog } = Components
   
-  const [ mapsLoaded ] = useGoogleMaps("SetPersonalMapLocationDialog")
+  const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ mapText, setMapText ] = useState(mapMarkerText || bio)
@@ -35,6 +37,8 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   
   if (!currentUser)
     return null;
+    
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   return (
     <LWDialog
@@ -59,7 +63,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
           /> : <Loading/>}
         </div>
         <TextField
-            label="Description (Make sure to mention whether you want to organize events)"
+            label={`Description${isEAForum ? '' : ' (Make sure to mention whether you want to organize events)'}`}
             className={classes.modalTextField}
             value={mapText}
             onChange={e => setMapText(e.target.value)}

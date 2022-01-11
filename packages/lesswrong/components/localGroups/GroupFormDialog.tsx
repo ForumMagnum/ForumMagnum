@@ -90,16 +90,16 @@ const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({subm
   </div>
 })
 
-const GroupFormDialog =  ({ onClose, classes, documentId }: {
+const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
   onClose: ()=>void,
   classes: ClassesType,
   documentId: string,
+  isOnline?: boolean
 }) => {
   const { WrappedSmartForm, LWDialog } = Components
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();
-  
   return <LWDialog
     open={true}
     onClose={onClose}
@@ -113,7 +113,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId }: {
         formComponents={{
           FormSubmit: SubmitComponent
         }}
-        prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id]}} // If edit form, do not prefill organizerIds
+        prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id], isOnline: isOnline}} // If edit form, do not prefill any data
         successCallback={group => {
           onClose();
           if (documentId) {

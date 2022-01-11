@@ -12,11 +12,15 @@ import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
 
-import { getCollection, createMutator, updateMutator, deleteMutator, runQuery } from './vulcan-lib';
+import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, getCollectionsByName } from './vulcan-lib';
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from './akismet';
 import { capitalize } from '../lib/vulcan-lib/utils';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import Tags from '../lib/collections/tags/collection';
+import Revisions from '../lib/collections/revisions/collection';
+import { syncDocumentWithLatestRevision } from './editor/utils';
+import { createAdminContext } from './vulcan-lib/query';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -41,7 +45,7 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
 
 
 getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
-  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser?.isAdmin) {
+  if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
 });
@@ -52,12 +56,12 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
   }
 });
 
-const reverseVote = async (vote: DbVote) => {
+const reverseVote = async (vote: DbVote, context: ResolverContext) => {
   const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
-    await clearVotesServer({document, collection, user})
+    await clearVotesServer({document, collection, user, context})
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user);
@@ -70,8 +74,9 @@ export const nullifyVotesForUser = async (user: DbUser) => {
   }
 }
 
-const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
+const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<DbVoteableType>) => {
   const collectionName = capitalize(collection.collectionName);
+  const context = await createAdminContext();
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -80,13 +85,13 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection) => {
   for (let vote of votes) {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    await reverseVote(vote);
+    await reverseVote(vote, context);
   };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
+export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
   //eslint-disable-next-line no-console
   console.warn("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
@@ -179,10 +184,62 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser) {
 
     await commentReportPurgeAsSpam(comment);
   }
+  
+  if (deleteTags) {
+    await deleteUserTagsAndRevisions(user, deletingUser)
+  }
+
   //eslint-disable-next-line no-console
   console.info("Deleted n posts and m comments: ", posts.length, comments.length);
 }
 
+async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
+  const tags = await Tags.find({userId: user._id}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting tags: ", tags)
+  for (let tag of tags) {
+    if (!tag.deleted) {
+      try {
+        await updateMutator({
+          collection: Tags,
+          documentId: tag._id,
+          set: {deleted: true},
+          currentUser: deletingUser,
+          validate: false
+        })
+      } catch(err) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to delete tag")
+        // eslint-disable-next-line no-console
+        console.error(err)
+      }
+    }
+  }
+  
+  const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
+  // eslint-disable-next-line no-console
+  console.info("Deleting tag revisions: ", tagRevisions)
+  await Revisions.remove({userId: user._id})
+  // Revert revision documents
+  for (let revision of tagRevisions) {
+    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    const document = await collection.findOne({_id: revision.documentId})
+    if (document) {
+      await syncDocumentWithLatestRevision(
+        collection,
+        document,
+        revision.fieldName
+      )
+    }
+  }
+}
+
+/**
+ * Add user IP address to IP ban list for a day and remove their login tokens
+ *
+ * NB: We haven't tested the IP ban list in like 3 years and it should not be
+ * assumed to work.
+ */
 export async function userIPBanAndResetLoginTokens(user: DbUser) {
   // IP ban
   const query = `

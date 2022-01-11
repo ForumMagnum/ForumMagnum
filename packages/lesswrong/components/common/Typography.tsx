@@ -17,6 +17,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   subheading: theme.typography.subheading,
   body2: theme.typography.body2,
   body1: theme.typography.body1,
+  
+  gutterBottom: {
+    marginBottom: "0.35em",
+  },
 });
 
 type VariantString = "display4"|"display3"|"display2"|"display1"|"headline"|"title"|"subheading"|"body2"|"body1"
@@ -33,17 +37,18 @@ const variantToDefaultComponent: Record<VariantString, string> = {
   body1: 'p',
 };
 
-const Typography = ({children, variant, component, className, onClick, classes}: {
+const Typography = ({children, variant, component, className, onClick, gutterBottom=false, classes}: {
   children: React.ReactNode,
   variant: VariantString,
   component?: "div"|"span"|"label"|"aside",
   className?: string,
   onClick?: any,
+  gutterBottom?: boolean,
   classes: ClassesType,
 }) => {
   const Component: any = component || variantToDefaultComponent[variant] || "span";
   
-  return <Component className={classNames(classes.root, classes[variant], className)} onClick={onClick}>
+  return <Component className={classNames(classes.root, classes[variant], className, {[classes.gutterBottom]: gutterBottom})} onClick={onClick}>
     {children}
   </Component>
 }

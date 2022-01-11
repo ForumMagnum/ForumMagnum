@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import EmailPropTypes from '../PropTypes'
 import includeDataProps from '../includeDataProps'
 
-export default function Span(props) {
+export default function Span(props: any) {
   const lineHeight = props.lineHeight !== undefined ? props.lineHeight : props.fontSize
   return (
     <span

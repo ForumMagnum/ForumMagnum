@@ -4,12 +4,12 @@ import { sequenceGetAllPostIDs } from '../sequences/helpers';
 import toDictionary from '../../utils/toDictionary';
 import * as _ from 'underscore';
 
-export const collectionGetAllPostIDs = async (collectionID: string): Promise<Array<string>> => {
+export const collectionGetAllPostIDs = async (collectionID: string, context: ResolverContext): Promise<Array<string>> => {
   const books = await Books.find({collectionId: collectionID}).fetch();
   const sequenceIDs = _.flatten(books.map(book=>book.sequenceIds));
   
   const sequencePostsPairs = await Promise.all(
-    sequenceIDs.map(async seqID => [seqID, await sequenceGetAllPostIDs(seqID)])
+    sequenceIDs.map(async seqID => [seqID, await sequenceGetAllPostIDs(seqID, context)])
   );
   const postsBySequence = toDictionary(sequencePostsPairs, pair=>pair[0], pair=>pair[1]);
   

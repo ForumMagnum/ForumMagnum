@@ -32,7 +32,7 @@ class App extends PureComponent<AppProps,any> {
   subscribeLocationContext: RouterLocation|null = null
   navigationContext: any
   
-  constructor(props) {
+  constructor(props: AppProps) {
     super(props);
     if (props.currentUser) {
       void userIdentifiedCallback.runCallbacks({
@@ -85,7 +85,7 @@ class App extends PureComponent<AppProps,any> {
     };
   }
 
-  UNSAFE_componentWillUpdate(nextProps) {
+  UNSAFE_componentWillUpdate(nextProps: AppProps) {
     if (!this.props.currentUser && nextProps.currentUser) {
       void userIdentifiedCallback.runCallbacks({
         iterator: nextProps.currentUser,
@@ -160,12 +160,14 @@ class App extends PureComponent<AppProps,any> {
 
 //registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
-const AppComponent = registerComponent('App', App, {
+const AppComponent = registerComponent<ExternalProps>('App', App, {
   hocs: [
     withCurrentUser,
     withRouter
   ]
 });
+
+
 
 declare global {
   interface ComponentTypes {
@@ -173,4 +175,4 @@ declare global {
   }
 }
 
-export default App;
+export default App; 

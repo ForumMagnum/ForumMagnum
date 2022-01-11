@@ -14,40 +14,44 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   templateCommentId?: string,
   children: any
 }) => {
+  
+  const { history } = useNavigation();
   const { create: createConversation } = useCreate({
     collection: Conversations,
     fragmentName: 'newConversationFragment',
   });
-  const { history } = useNavigation();
-  const newConversation = useCallback(async () =>  {
-    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
-
-    const response = await createConversation({
-      data: {participantIds:[user._id, currentUser?._id], ...alignmentFields},
-    })
-    const conversationId = response.data.createConversation.data._id
-    const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
-    history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, currentUser, history, templateCommentId]);
-
+  
+  
   // Checks if unnamed conversation between the two users exists
   const terms: ConversationsViewTerms = {view: 'userUntitledConversations', userId: currentUser?._id};
-  const { results } = useMulti({  
+  const { results } = useMulti({
     terms,
     collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 1,
   });
-  function existingConversationCheck(){
+  
+  const newConversation = useCallback(async (search) =>  {
+    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+
+    const response = await createConversation({
+      data: {participantIds:[user._id, currentUser?._id], ...alignmentFields},
+    })
+    const conversationId = response.data.createConversation.data._id
+    history.push({pathname: `/inbox/${conversationId}`, ...search})
+  }, [createConversation, user, currentUser, history]);
+
+  const existingConversationCheck = () => {
     let conversationExists = false;
+    const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
     results?.forEach(conversation => {
       if (conversation.title === null && conversation.participants.some(participant => participant._id === user._id)){
-        history.push({pathname: `/inbox/${conversation._id}`})
+        history.push({pathname: `/inbox/${conversation._id}`, ...search})
         conversationExists = true;
       }
     })
-    conversationExists ? undefined : void newConversation();
+    conversationExists ? undefined : void newConversation(search);
   }
   
 

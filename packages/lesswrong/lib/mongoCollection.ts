@@ -7,6 +7,7 @@ export const setDatabaseConnection = (_client, _db) => {
   db = _db;
 }
 export const getDatabase = () => db;
+export const getMongoClient = () => client
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = () => {
   if (client) {
@@ -101,7 +102,7 @@ export class MongoCollection<T extends DbObject> {
     }
   }
   
-  find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>): FindResult<T> => {
+  find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
     return {
       fetch: async () => {
         const table = this.getTable();
@@ -128,11 +129,19 @@ export class MongoCollection<T extends DbObject> {
         return await table.findOne({_id: selector}, {
           ...options,
         });
-      } else {
+      } else if (selector) {
         return await table.findOne(removeUndefinedFields(selector), {
           ...options,
         });
+      } else {
+        return null;
       }
+    });
+  }
+  findOneArbitrary = async (): Promise<T|null> => {
+    const table = this.getTable();
+    return await wrapQuery(`${this.tableName}.findOneArbitrary()`, async () => {
+      return await table.findOne({});
     });
   }
   insert = async (doc, options) => {
@@ -223,4 +232,3 @@ export class MongoCollection<T extends DbObject> {
     },
   })
 }
-

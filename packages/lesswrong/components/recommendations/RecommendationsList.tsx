@@ -1,13 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useRecommendations } from './withRecommendations';
-import { Typography } from '@material-ui/core'
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const RecommendationsList = ({algorithm}: {
   algorithm: RecommendationsAlgorithm,
 }) => {
-  const { PostsItem2, PostsLoading } = Components;
+  const { PostsItem2, PostsLoading, Typography } = Components;
   const {recommendationsLoading, recommendations} = useRecommendations(algorithm);
 
   if (recommendationsLoading || !recommendations)
@@ -17,7 +16,7 @@ const RecommendationsList = ({algorithm}: {
     {recommendations.map(post =>
       <PostsItem2 post={post} key={post._id}/>)}
     {recommendations.length===0 &&
-      <Typography><small>There are no more recommendations left.</small></Typography>}
+      <Typography variant="body1"><small>There are no more recommendations left.</small></Typography>}
   </div>
 }
 

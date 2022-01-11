@@ -35,6 +35,9 @@ export const Messages: MessagesCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Messages'),
   mutations: getDefaultMutations('Messages', options),
+  // Don't log things related to Messages to LWEvents, to keep LWEvents relatively
+  // free of confidential stuff that admins shouldn't look at.
+  logChanges: false,
 });
 
 makeEditable({

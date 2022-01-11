@@ -3,6 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { GroupIconSVG } from './Icons'
 import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
+import StarIcon from '@material-ui/icons/Star';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
@@ -10,9 +12,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: 15,
     fill: "#588f27",
     opacity: 0.8
-  }
+  },
+  eaIcon: {
+    width: 20,
+    height: 20,
+    fill: theme.palette.group,
+    opacity: 0.8,
+  },
 }))
-
 
 const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   group: any,
@@ -29,6 +36,9 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   const { StyledMapPopup, GroupLinks } = Components
   const htmlBody = {__html: html};
 
+  const GroupIcon = () =>  forumTypeSetting.get() === 'EAForum' ? 
+    <StarIcon className={classes.eaIcon}/> : <GroupIconSVG className={classes.icon}/>;
+
   return <React.Fragment>
     <Marker
       latitude={lat}
@@ -37,7 +47,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
       offsetTop={-15}
     >
       <span onClick={() => handleMarkerClick(group._id)}>
-        <GroupIconSVG className={classes.icon}/>
+        <GroupIcon/>
       </span>
     </Marker>
     {infoOpen && 

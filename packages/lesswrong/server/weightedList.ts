@@ -15,7 +15,7 @@ export class WeightedList
   length: any
   hasData: any
   
-  constructor(initial) {
+  constructor(initial?: any) {
     this.weights = {};
     this.data = {};
     this.length = 0;
@@ -43,7 +43,7 @@ export class WeightedList
    * [k, w, d] for key, weight and data (data is optional) or an object with the 
    * values {'key': k, 'weight': w, 'data': d} where d is optional.
    */
-  push(element) {
+  push(element: any) {
     var key, weight, data;
 
     if (Array.isArray(element)) {
@@ -81,14 +81,14 @@ export class WeightedList
    * @param {number} weight the weight to assign to this key
    * @param {?Object} data any optional data associated wth this key
    */
-  _push_values(key, weight, data) {
+  _push_values(key: any, weight: number, data?: any) {
     //console.debug('k:', key, 'w:', weight, 'd:', data);
 
     if (this.weights[key]) {
       throw new Error('');
     }
     if (typeof weight !== typeof 1) {
-      throw new Error('Weight must be numeric (got ' + weight.toString() + ')');
+      throw new Error('Weight must be numeric (got ' + (weight as any).toString() + ')');
     }
     if (weight <= 0)  {
       throw new Error('Weight must be >= 0 (got ' + weight + ')');
@@ -110,7 +110,7 @@ export class WeightedList
    * @todo might be nice to have a version of this that would throw an error 
    *       on an unknown key.
    */
-  addWeight(key, weight) {
+  addWeight(key: any, weight: number) {
     this.weights[key] += weight;
   }
   
@@ -119,7 +119,7 @@ export class WeightedList
    * If andRemove is true (default false), remove the elements
    * from the list.  (This is what the pop() method does.)
    */
-  peek(n, andRemove?: any) {
+  peek(n: number, andRemove?: boolean) {
     if (typeof n === 'undefined') {
       n = 1;
     }
@@ -162,7 +162,7 @@ export class WeightedList
   /**
    * 
    */
-  pop(n) {
+  pop(n: number) {
     return this.peek(n, true);
   }
   
@@ -183,7 +183,7 @@ export class WeightedList
  * This is a javascript implementation of the algorithm described by 
  * Jason Orendorff here: http://stackoverflow.com/a/2149533/87990
  */
-function _HeapNode(this: any, weight, value, total) {
+function _HeapNode(this: any, weight: number, value: any, total: number) {
   this.weight = weight;
   this.value = value;
   this.total = total;  // Total weight of this node and its children
@@ -193,7 +193,7 @@ function _HeapNode(this: any, weight, value, total) {
  * classic binary heap. A node heap[i] has children at heap[i<<1] and at 
  * heap[(i<<1)+1]. Its parent is at h[i>>1]. Heap[0] is vacant.
  */
-function _WeightedHeap(this: any, items) {
+function _WeightedHeap(this: any, items: any) {
   this.heap = [null];   // Math is easier to read if we index array from 1
   
   // First put everything on the heap 

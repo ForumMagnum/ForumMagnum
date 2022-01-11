@@ -1,13 +1,13 @@
 
 name: Run Unit Tests
-on: push
+on: [push, pull_request]
 jobs:
   buildAndTest:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [15.x]
+        node-version: [14.x]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -20,6 +20,8 @@ jobs:
     - name: yarn install
       run: yarn install
 
+    - name: yarn run lint
+      run: yarn run lint
+
     - name: yarn run test-ci
       run: yarn run test-ci
-

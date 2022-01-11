@@ -3,14 +3,14 @@ import moment from 'moment';
 import { Link } from '../../lib/reactRouterWrapper';
 import without from 'lodash/without';
 
-const parseImageUrl = value => {
+const parseImageUrl = (value: string) => {
   const isImage = ['.png', '.jpg', '.gif'].indexOf(value.substr(-4)) !== -1 || ['.webp', '.jpeg'].indexOf(value.substr(-5)) !== -1;
   return isImage ?
     <img style={{ width: '100%', minWidth: 80, maxWidth: 200, display: 'block' }} src={value} alt={value} /> :
     parseUrl(value);
 };
 
-const parseUrl = value => {
+const parseUrl = (value: string) => {
   return value.slice(0,4) === 'http'
     ? <a href={value} target="_blank" rel="noopener noreferrer">
         <LimitedString string={value}/>
@@ -18,7 +18,7 @@ const parseUrl = value => {
     : <LimitedString string={value}/>;
 };
 
-const LimitedString = ({ string }) =>
+const LimitedString = ({ string }: { string: string }) =>
   <div>
     {string.indexOf(' ') === -1 && string.length > 30 ?
       <span title={string}>{string.substr(0, 30)}…</span> :
@@ -73,7 +73,7 @@ export const getFieldValue = (value?: any, typeName?: any) => {
   }
 };
 
-const getObject = object => {
+const getObject = (object: any) => {
 
   if (object.__typename === 'User') {
 

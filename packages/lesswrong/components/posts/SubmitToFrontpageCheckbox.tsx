@@ -5,14 +5,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-const forumDefaultCheckboxLabels = {
-  LessWrong: 'Moderators may promote to Frontpage',
-  AlignmentForum: 'Moderators may promote to Frontpage',
-  EAForum: 'Moderators may promote to Frontpage or Community'
-}
-
-const defaultCheckboxLabel = forumDefaultCheckboxLabels[forumTypeSetting.get()]
-
 const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
   <p className={classes.guidelines}>Things to aim for:</p>
@@ -47,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpage: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 300,
+    maxWidth: 200,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: "none",
@@ -107,7 +99,7 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
   }
 
   render() {
-    const { classes, label=defaultCheckboxLabel, tooltip } = this.props
+    const { classes, label='Moderators may promote to Frontpage', tooltip } = this.props
 
     const displayedTooltip = tooltip || defaultTooltip({classes})
 

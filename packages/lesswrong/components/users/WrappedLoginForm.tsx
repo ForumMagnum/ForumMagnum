@@ -6,9 +6,10 @@ import { gql, useMutation, DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
+import classnames from 'classnames'
+import { useLocation } from '../../lib/routeUtil';
 
-
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme, true),
     padding: 16,
@@ -50,7 +51,10 @@ const styles = theme => ({
   },
   oAuthBlock: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    '&.ea-forum': {
+      justifyContent: 'space-around'
+    }
   },
   oAuthComment: {
     textAlign: 'center',
@@ -60,7 +64,8 @@ const styles = theme => ({
   oAuthLink: {
     color: 'rgba(0,0,0,0.7) !important',
     fontSize: '0.9em',
-    padding: 6
+    padding: 6,
+    textTransform: 'uppercase'
   },
   toggle: {
     cursor: 'pointer',
@@ -106,10 +111,20 @@ const currentActionToButtonText : Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-const WrappedLoginForm = ({ startingState = "login", classes }: {
+type WrappedLoginFormProps = {
   startingState?: possibleActions,
   classes: ClassesType
-}) => {
+}
+
+const WrappedLoginForm = (props: WrappedLoginFormProps) => {
+  if (forumTypeSetting.get() === 'EAForum') {
+    return <WrappedLoginFormEA {...props} />
+  }
+  return <WrappedLoginFormDefault {...props} />
+}
+
+const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLoginFormProps) => {
+  const { pathname } = useLocation()
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
   const [username, setUsername] = useState<string | undefined>(undefined)
@@ -142,7 +157,12 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
       {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
       {["signup", "login"].includes(currentAction) && <>
         <input value={username} type="text" name="username" placeholder={currentAction === "signup" ? "username" : "username or email"} className={classes.input} onChange={event => setUsername(event.target.value)}/>
-        <input value={password} type="password" name="password" placeholder="create password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
+        <input
+          value={password} type="password" name="password"
+          placeholder={(currentAction==="signup") ? "create password" : "password"}
+          className={classes.input}
+          onChange={event => setPassword(event.target.value)}
+        />
       </>}
       <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
       
@@ -155,17 +175,28 @@ const WrappedLoginForm = ({ startingState = "login", classes }: {
         { currentAction === "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
         { currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span> }
       </div>
-      <div className={classes.oAuthComment}>...or continue with</div>
-      <div className={classes.oAuthBlock}>
-        <a className={classes.oAuthLink} href="/auth/facebook">FACEBOOK</a>
-        <a className={classes.oAuthLink} href="/auth/google">GOOGLE</a>
-        <a className={classes.oAuthLink} href="/auth/github">GITHUB</a>
-      </div>
-      {/* <a href="/auth/facebook"><FacebookIcon /></a>
-      <a href="/auth/github"><GithubIcon /></a> */}
+      {forumTypeSetting.get() !== 'EAForum' && <>
+        <div className={classes.oAuthComment}>...or continue with</div>
+        <div className={classes.oAuthBlock}>
+          <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
+          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
+          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+        </div>
+      </>}
       {error && <div className={classes.error}>{error.message}</div>}
     </form>
   </React.Fragment>;
+}
+
+const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
+  const { pathname } = useLocation()
+  
+  return <div className={classes.root}>
+    <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
+      <a className={classes.oAuthLink} href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
+      <a className={classes.oAuthLink} href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
+    </div>
+  </div>
 }
 
 const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, { styles });

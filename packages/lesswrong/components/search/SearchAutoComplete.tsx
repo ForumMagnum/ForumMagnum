@@ -58,6 +58,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     searchClient={getSearchClient()}
   >
     <div className={classes.autoComplete}>
+      { /* @ts-ignore */ }
       <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} renderInputComponent={renderInputComponent}/>
       <Configure hitsPerPage={hitsPerPage} />
     </div>
@@ -68,7 +69,11 @@ const AutocompleteTextbox = connectAutoComplete(
   ({
     // From connectAutoComplete HoC
     hits, currentRefinement, refine,
-    // FromSearchAutoComplete
+    // From SearchAutoComplete
+    // Extra props that DefinitelyTyped didn't annotate, but which we do pass
+    // (in the usage in SearchAutoComplete above). We could maybe eliminate the
+    // need for this ts-ignore by merging the functions.
+    // @ts-ignore
     onSuggestionSelected, placeholder, renderSuggestion, renderInputComponent
   }) => {
     return (

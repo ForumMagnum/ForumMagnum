@@ -12,11 +12,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
   classes: ClassesType,
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,
+  tag?: TagBasicInfo,
   showEdit: ()=>void,
   icon?: any,
 }) => {
@@ -41,8 +42,7 @@ const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
           setEverOpened(true);
         }}
       >
-        {icon ? icon : <MoreVertIcon
-          className={classes.icon}/>}
+        {icon ? icon : <MoreVertIcon className={classes.icon}/>}
       </span>
       <Menu
         onClick={event => {
@@ -56,6 +56,7 @@ const CommentsMenu = ({classes, className, comment, post, showEdit, icon}: {
           currentUser={currentUser}
           comment={comment}
           post={post}
+          tag={tag}
           showEdit={showEdit}
         />}
       </Menu>

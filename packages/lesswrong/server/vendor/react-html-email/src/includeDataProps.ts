@@ -1,7 +1,7 @@
-export default function (props) {
-  const dataProps = {}
+export default function (props: any) {
+  const dataProps: any = {}
 
-  Object.keys(props).forEach((key) => {
+  Object.keys(props).forEach((key: any) => {
     if (/^data-/.test(key)) {
       dataProps[key] = props[key]
     }

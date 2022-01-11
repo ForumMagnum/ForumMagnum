@@ -111,8 +111,12 @@ const SequencesPage = ({ documentId, classes }: {
     ContentItemBody, Typography, SectionButton,
   } = Components
   
-  if (document && document.isDeleted) return <h3>This sequence has been deleted</h3>
-  if (loading || !document) return <Loading />
+  if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
+  if (loading) return <Loading />
+  
+  if (!document) {
+    return <Components.Error404/>
+  }
   if (edit) return (
     <SequencesEditForm
       documentId={documentId}
@@ -125,6 +129,9 @@ const SequencesPage = ({ documentId, classes }: {
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
   const { html = "" } = document.contents || {}
 
+  if (!canEdit && document.draft)
+    throw new Error('This sequence is a draft and is not publicly visible')
+    
   return <div className={classes.root}>
     <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title}/>
     <div className={classes.banner}>
@@ -186,4 +193,3 @@ declare global {
     SequencesPage: typeof SequencesPageComponent
   }
 }
-

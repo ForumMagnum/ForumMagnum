@@ -29,16 +29,17 @@ interface CollectionBase<
   _simpleSchema: any
   
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, update: any}
-  checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null) => Promise<boolean>
+  checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
+  findOneArbitrary: () => Promise<T|null>
   // Return result is number of documents **matched** not affected
   //
   // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
   // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
   // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
   update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => void
+  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
   insert: (data: any, options?: any) => string
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
@@ -53,6 +54,7 @@ interface CollectionOptions {
   resolvers: any
   interfaces: Array<string>
   description: string
+  logChanges: boolean
 }
 
 interface FindResult<T> {
@@ -72,6 +74,7 @@ type ViewQueryAndOptions<
     sort?: MongoSort<T>
     limit?: number
     skip?: number
+    projection?: MongoProjection<T>
   }
 }
 
@@ -88,7 +91,7 @@ interface MergedViewQueryAndOptions<
 }
 
 type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Record<string,number>; //TODO
+type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
 type MongoModifier<T extends DbObject> = any; //TODO
 
 type MongoFindOptions<T extends DbObject> = any; //TODO
@@ -122,14 +125,17 @@ interface HasUserIdType {
 interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
+  extendedScore: any,
   voteCount: number
   af?: boolean
   afBaseScore?: number
+  afExtendedScore?: any,
   afVoteCount?: number
 }
 
 interface VoteableTypeClient extends VoteableType {
   currentUserVote: string|null
+  currentUserExtendedVote?: any,
 }
 
 interface DbVoteableType extends VoteableType, DbObject {
@@ -159,6 +165,7 @@ interface ResolverContext extends CollectionsByName {
   userId: string|null,
   currentUser: DbUser|null,
   locale: string,
+  isGreaterWrong: boolean,
   loaders: {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }

@@ -10,10 +10,10 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Users,
       filter: { legacyData: {$exists: true} },
-      callback: async (users) => {
+      callback: async (users: DbUser[]) => {
         let changes: Array<any> = [];
         for (let user of users) {
-          const legacyJoinDate = user.legacyData?.date && new Date(user.legacyData?.date);
+          const legacyJoinDate = (user as any).legacyData?.date && new Date((user as any).legacyData?.date);
           const lw2joinDate = user.createdAt;
           
           if (legacyJoinDate && lw2joinDate && legacyJoinDate<lw2joinDate) {

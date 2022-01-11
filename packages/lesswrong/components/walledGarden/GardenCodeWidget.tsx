@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { GardenCodes } from "../../lib/collections/gardencodes/collection";
-import {Button, TextField} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {commentBodyStyles} from "../../themes/stylePiping";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -10,7 +11,7 @@ import moment from 'moment';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 
-export const gardenForm = theme => ({
+export const gardenForm = (theme: ThemeType) => ({
   ...commentBodyStyles(theme, true),
   border: "solid 1px rgba(0,0,0,.2)",
   borderRadius: 3,
@@ -89,7 +90,7 @@ export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: str
 
   if (!open) return <Button className={classes.button} variant="outlined" onClick={() => setOpen(true)}>{label}</Button>
 
-  const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type"]
+  const fields = type === "friend" ? ["title", "startTime"] : ["title", "startTime", "contents", "type", "afOnly"]
 
   return <div className={classes.root} {...keyDown}>
     {!!currentCode

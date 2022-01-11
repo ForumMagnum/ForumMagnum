@@ -2,6 +2,7 @@ import { Comments } from "../../collections/comments";
 import { schemaDefaultValue } from '../../collectionUtils';
 import { forumTypeSetting } from "../../instanceSettings";
 import { addFieldsDict, arrayOfForeignKeysField, foreignKeyField } from '../../utils/schemaUtils';
+import GraphQLJSON from 'graphql-type-json';
 
 export const alignmentOptionsGroup = {
   order: 50,
@@ -30,6 +31,11 @@ addFieldsDict(Comments, {
     label: "Alignment Base Score",
     viewableBy: ['guests'],
   },
+  afExtendedScore: {
+    type: GraphQLJSON,
+    optional: true,
+    viewableBy: ['guests'],
+  },
 
   suggestForAlignmentUserIds: {
     ...arrayOfForeignKeysField({
@@ -39,11 +45,12 @@ addFieldsDict(Comments, {
       type: "User"
     }),
     viewableBy: ['members'],
-    editableBy: ['alignmentForum', 'alignmentForumAdmins'],
+    editableBy: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
     control: "UsersListEditor",
     group: alignmentOptionsGroup,
+    hidden: true
   },
   'suggestForAlignmentUserIds.$': {
     type: String,

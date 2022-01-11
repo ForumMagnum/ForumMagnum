@@ -4,17 +4,19 @@ import { convertFromHTML, convertToHTML } from 'draft-convert';
 export const htmlToDraft = convertFromHTML({
   htmlToEntity: (nodeName, node, createEntity) => {
     if (nodeName === 'img') {
+      const nodeImg = (node as HTMLImageElement);
       return createEntity(
         'IMAGE',
         'IMMUTABLE',
-        {src: node.src}
+        {src: nodeImg.src}
       )
     }
     if (nodeName === 'a') {
+      const nodeA = (node as HTMLAnchorElement);
       return createEntity(
         'LINK',
         'MUTABLE',
-        {url: node.href}
+        {url: nodeA.href}
       )
     }
     // if (nodeName === 'img') {
@@ -25,6 +27,11 @@ export const htmlToDraft = convertFromHTML({
     //   )
     // }
   },
+  // htmlToBlock is annotated by DefinitelyTyped as having only two arguments,
+  // but the third and fourth argument here (lastList, inBlock) are maaaaybe
+  // real. Nothing here breaks if they aren't real, and I don't feel like figuring
+  // it out, so:
+  // @ts-ignore
   htmlToBlock: (nodeName, node, lastList, inBlock) => {
     if ((nodeName === 'figure' && node.firstChild?.nodeName === 'IMG') || (nodeName === 'img' && inBlock !== 'atomic')) {
         return 'atomic';
@@ -84,11 +91,19 @@ export const draftToHTML = convertToHTML({
   },
   //eslint-disable-next-line react/display-name
   blockToHTML: (block) => {
+    // This uses some DraftJS internal structure, and DefinitelyTyped doesn't
+    // annotate it. (It does annotate a getType/getData/getText, but these
+    // annotations don't seem to actually match the version we're using.)
+    // Luckily, draftjs is unlikely to ever receive a major update that we need,
+    // so the internal structures will stay the same.
+    // @ts-ignore
     const type = block.type;
     if (type === 'atomic') {
-      if (block.data && block.data.mathjax && block.data.html) {
-        return `<div>${block.data.css ? `<style>${block.data.css}</style>` : ""}${block.data.html}</div>`
-      } else if (block.data && block.data.mathjax) {
+      // @ts-ignore
+      const data = block.data;
+      if (data && data.mathjax && data.html) {
+        return `<div>${data.css ? `<style>${data.css}</style>` : ""}${data.html}</div>`
+      } else if (data && data.mathjax) {
         return `<div class="draft-latex-placeholder-block"> &lt;refresh to render LaTeX&gt; </div>`
       } else {
         return {start: '<span>', end: '</span>'};
@@ -107,7 +122,9 @@ export const draftToHTML = convertToHTML({
      return <p className="spoiler-v2" /> // this is the second iteration of a spoiler-tag that we've implemented. Changing the name for backwards-and-forwards compatibility
     }
     if (type === 'unstyled') {
-      if (block.text === ' ' || block.text === '') return <br />;
+      // @ts-ignore
+      const text = block.text;
+      if (text === ' ' || text === '') return <br />;
       return <p />
     }
     //  return <span/>;

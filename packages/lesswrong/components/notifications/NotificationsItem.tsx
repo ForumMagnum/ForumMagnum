@@ -73,14 +73,16 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   const { LWPopper } = Components
 
   const renderPreview = () => {
-    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
-
+    if (notification.type == "postNominated") {
+      return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
+    }
     switch (notification.documentType) {
       case 'tagRel':
         return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
       case 'post':
-        return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
+        return <Card><PostsPreviewTooltipSingle postId={notification.documentId}/></Card>
       case 'comment':
         const postId = parsedPath?.params?._id
         if (!postId) return null
@@ -116,9 +118,12 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
             [classes.unread]: !(notification.createdAt < lastNotificationsCheck || clicked)
           }
         )}
-        onClick={(e) => {
+        onClick={(ev) => {
+          if (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey)
+            return;
+          
           // Do manual navigation since we also want to do a bunch of other stuff
-          e.preventDefault()
+          ev.preventDefault()
           history.push(notification.link)
 
           setClicked(true);

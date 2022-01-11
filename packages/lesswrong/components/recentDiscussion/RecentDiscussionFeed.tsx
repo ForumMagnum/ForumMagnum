@@ -3,6 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -34,7 +37,7 @@ const RecentDiscussionFeed = ({
     [setShowShortformFeed, showShortformFeed]
   );
   
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder } = Components
+  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder, RecentDiscussionMeetupsPoke } = Components
   
   const refetch = useCallback(() => {
     if (refetchRef.current)
@@ -106,6 +109,10 @@ const RecentDiscussionFeed = ({
             fragmentName: null,
             render: () => <RecentDiscussionSubscribeReminder/>
           },
+          meetupsPoke: {
+            fragmentName: null,
+            render: () => isEAForum ? null : <RecentDiscussionMeetupsPoke/>
+          },
         }}
       />
     </SingleColumnSection>
@@ -121,4 +128,3 @@ declare global {
     RecentDiscussionFeed: typeof RecentDiscussionFeedComponent,
   }
 }
-

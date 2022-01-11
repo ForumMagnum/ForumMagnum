@@ -1,5 +1,5 @@
 export default {
-    config: (conf) => {},
+    config: (conf: any) => {},
     start: () => {},
-    typeset: (conf) => ({html: "", css: ""})
+    typeset: (conf: any) => ({html: "", css: ""})
 }

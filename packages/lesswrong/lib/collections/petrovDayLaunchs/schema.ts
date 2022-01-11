@@ -19,6 +19,13 @@ const schema: SchemaType<DbPetrovDayLaunch> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
+  },
+  userId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
   }
 }
 

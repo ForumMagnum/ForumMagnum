@@ -42,7 +42,7 @@ export const Link = (props) => {
   return <HashLink {...props} onMouseDown={handleClick}/>
 }
 
-export const QueryLink = reactRouter.withRouter(({query, location, staticContext, merge=false, ...rest}) => {
+export const QueryLink: any = (reactRouter.withRouter as any)(({query, location, staticContext, merge=false, history, match, ...rest}) => {
   // Merge determines whether we do a shallow merge with the existing query parameters, or replace them completely
   const newSearchString = merge ? qs.stringify({...parseQuery(location), ...query}) : qs.stringify(query)
   return <reactRouterDom.Link

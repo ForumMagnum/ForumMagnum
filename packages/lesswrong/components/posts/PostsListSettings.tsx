@@ -1,15 +1,15 @@
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from '../hooks/useUpdateCurrentUser';
-import React, { Component } from 'react';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage'
+import { sortings as defaultSortings, timeframes as defaultTimeframes } from './AllPostsPage'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const FILTERS_ALL = {
@@ -65,6 +65,10 @@ const FILTERS_ALL = {
     questions: {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
+    },
+    events: {
+      label: "Events",
+      tooltip: "Events from around the world."
     },
   }
 }
@@ -152,6 +156,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
           // TODO: Can the query have an ordering that matches the column ordering?
           query={{ [type]: name }}
           merge
+          rel="nofollow"
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
@@ -172,26 +177,27 @@ const USER_SETTING_NAMES = {
   sortedBy: 'allPostsSorting',
   filter: 'allPostsFilter',
   showLowKarma: 'allPostsShowLowKarma',
+  showEvents: 'allPostsIncludeEvents'
 }
 
-interface ExternalProps {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=defaultSortings, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
   currentSorting: any,
   currentFilter: any,
   currentShowLowKarma: boolean,
+  currentIncludeEvents: boolean,
   timeframes?: any,
   sortings?: any,
   showTimeframe?: boolean,
-}
-interface PostsListSettingsProps extends ExternalProps, WithUserProps, WithUpdateCurrentUserProps, WithStylesProps {
-}
+  classes: ClassesType,
+}) => {
+  const { MetaInfo } = Components
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
 
-class PostsListSettings extends Component<PostsListSettingsProps> {
-
-  setSetting = (type, newSetting) => {
-    const { updateCurrentUser, currentUser, persistentSettings } = this.props
+  const setSetting = (type, newSetting) => {
     if (currentUser && persistentSettings) {
       void updateCurrentUser({
         [USER_SETTING_NAMES[type]]: newSetting,
@@ -199,21 +205,14 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
     }
   }
 
-  render () {
-    const {
-      classes, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma,
-      timeframes = defaultTimeframs, sortings = defaultSortings, showTimeframe
-    } = this.props
-    const { MetaInfo } = Components
-
-    return (
+  return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
         {showTimeframe && <SettingsColumn
           type={'timeframe'}
           title={'Timeframe:'}
           options={timeframes}
           currentOption={currentTimeframe}
-          setSetting={this.setSetting}
+          setSetting={setSetting}
           classes={classes}
         />}
 
@@ -222,7 +221,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
           title={'Sorted by:'}
           options={sortings}
           currentOption={currentSorting}
-          setSetting={this.setSetting}
+          setSetting={setSetting}
           classes={classes}
         />
 
@@ -231,37 +230,49 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
           title={'Filtered by:'}
           options={FILTERS}
           currentOption={currentFilter}
-          setSetting={this.setSetting}
+          setSetting={setSetting}
           classes={classes}
         />
 
-        <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>}>
-          <QueryLink
-            className={classes.checkboxGroup}
-            onClick={() => this.setSetting('showLowKarma', !currentShowLowKarma)}
-            query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
-            merge
-          >
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
+        <div>
+          <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+            <QueryLink
+              className={classes.checkboxGroup}
+              onClick={() => setSetting('showLowKarma', !currentShowLowKarma)}
+              query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+              merge
+              rel="nofollow"
+            >
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
-            <MetaInfo className={classes.checkboxLabel}>
-              Show Low Karma
-            </MetaInfo>
-          </QueryLink>
-        </Tooltip>
+              <MetaInfo className={classes.checkboxLabel}>
+                Show Low Karma
+              </MetaInfo>
+            </QueryLink>
+          </Tooltip>
+          
+          <Tooltip title={<div><div>By default, events are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+            <QueryLink
+              className={classes.checkboxGroup}
+              onClick={() => setSetting('showEvents', !currentIncludeEvents)}
+              query={{includeEvents: !currentIncludeEvents}}
+              merge
+              rel="nofollow"
+            >
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
+
+              <MetaInfo className={classes.checkboxLabel}>
+                Show Events
+              </MetaInfo>
+            </QueryLink>
+          </Tooltip>
+        </div>
       </div>
-    );
-  }
+  );
 };
 
-const PostsListSettingsComponent = registerComponent<ExternalProps>(
-  'PostsListSettings', PostsListSettings, {
-    styles,
-    hocs: [
-      withUser,
-      withUpdateCurrentUser
-    ]
-  }
+const PostsListSettingsComponent = registerComponent(
+  'PostsListSettings', PostsListSettings, { styles }
 );
 
 declare global {

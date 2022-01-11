@@ -6,12 +6,13 @@ import { performSubscriptionAction } from '../../lib/collections/subscriptions/m
 import moment from 'moment';
 import * as _ from 'underscore';
 
-Vulcan.populateNotifications = async ({username,
-  messageNotifications = 3,
-  postNotifications = 3,
-  commentNotifications = 3,
-  replyNotifications = 3 }) =>
-{
+Vulcan.populateNotifications = async ({username, messageNotifications = 3, postNotifications = 3, commentNotifications = 3, replyNotifications = 3}: {
+  username: string,
+  messageNotifications?: number,
+  postNotifications?: number,
+  commentNotifications?: number,
+  replyNotifications?: number
+}) => {
   const user = await Users.findOne({username});
   if (!user) throw Error(`Can't find user with username: ${username}`)
   const randomUser = await Users.findOne({_id: {$ne: user._id}});
@@ -34,7 +35,7 @@ Vulcan.populateNotifications = async ({username,
     _.times(postNotifications, () => createDummyPost(randomUser))
   }
   if (commentNotifications > 0) {
-    const post = await Posts.findOne(); // Grab random post
+    const post = await Posts.findOneArbitrary(); // Grab random post
     //eslint-disable-next-line no-console
     console.log("generating new comments...")
     try {
@@ -47,7 +48,7 @@ Vulcan.populateNotifications = async ({username,
 
   }
   if (replyNotifications > 0) {
-    const post = await Posts.findOne();
+    const post = await Posts.findOneArbitrary();
     //eslint-disable-next-line no-console
     console.log("generating new replies...")
     try {
@@ -71,7 +72,7 @@ function getLoremIpsumToken() {
 }
 
 // Generate a given number of characters of lorem ipsum.
-function makeLoremIpsum(length) {
+function makeLoremIpsum(length: number) {
   let result: Array<string> = [];
   let lengthSoFar = 0;
 
@@ -91,7 +92,7 @@ function makeLoremIpsum(length) {
 // of lorem ipsum, formatted like:
 //   <p>Lorem ipsum dolor sit ame</p>
 // This is strictly for making big/slow posts for test purposes.
-function makeLoremIpsumBody(numParagraphs, paragraphLength) {
+function makeLoremIpsumBody(numParagraphs: number, paragraphLength: number) {
   let result: Array<string> = [];
 
   for(var ii=0; ii<numParagraphs; ii++) {
@@ -156,7 +157,7 @@ function makeStyledBody() {
 }
 
 Vulcan.createStyledPost = async () => {
-  const user = await Users.findOne();
+  const user = await Users.findOneArbitrary();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -184,7 +185,7 @@ Vulcan.createStyledPost = async () => {
 }
 
 Vulcan.createStyledAFPost = async () => {
-  const user = await Users.findOne();
+  const user = await Users.findOneArbitrary();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -198,7 +199,7 @@ Vulcan.createStyledAFPost = async () => {
     },
     af: true,
     frontpageDate: new Date(),
-    curateDate: new Date(),
+    curatedDate: new Date(),
   })
 
   await createDummyComment(user, {
@@ -213,7 +214,7 @@ Vulcan.createStyledAFPost = async () => {
 }
 
 Vulcan.createStyledQuestion = async () => {
-  const user = await Users.findOne();
+  const user = await Users.findOneArbitrary();
   // Create a post
 
   const post = await createDummyPost(user, {
@@ -318,7 +319,7 @@ Vulcan.createBulkyTestPost = async ({
   if(username)
     user = await Users.findOne({username});
   else
-    user = await Users.findOne();
+    user = await Users.findOneArbitrary();
 
   // Create a post
   const body = "<p>This is a programmatically generated test post.</p>" +

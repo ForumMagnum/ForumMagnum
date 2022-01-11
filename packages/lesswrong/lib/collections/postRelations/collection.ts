@@ -6,7 +6,8 @@ export const PostRelations: PostRelationsCollection = createCollection({
   collectionName: 'PostRelations',
   typeName: 'PostRelation',
   schema,
-  resolvers: getDefaultResolvers('PostRelations')
+  resolvers: getDefaultResolvers('PostRelations'),
+  logChanges: true,
 });
 
 addUniversalFields({collection: PostRelations})

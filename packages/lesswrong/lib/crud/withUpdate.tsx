@@ -68,7 +68,7 @@ export const withUpdate = (options: {
     ${fragment}
   `;
 
-  const mutationWrapper = (Component) => (props) => (
+  const mutationWrapper = (Component: any) => (props: any) => (
     <Mutation mutation={query}>
       {(mutate, { data }) => (
         <Component
@@ -83,7 +83,7 @@ export const withUpdate = (options: {
   return compose(
     mutationWrapper,
     withHandlers({
-      [`update${typeName}`]: ({ mutate, ownProps }) => ({ selector, data }) => {
+      [`update${typeName}`]: ({ mutate, ownProps }: any) => ({ selector, data }: any) => {
         const extraVariables = getExtraVariables(ownProps, options.extraVariables)
         return mutate({
           variables: { selector, data, ...extraVariables },

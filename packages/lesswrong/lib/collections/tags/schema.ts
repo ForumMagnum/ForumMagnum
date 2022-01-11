@@ -2,10 +2,13 @@ import { schemaDefaultValue } from '../../collectionUtils'
 import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
+import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
+import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
+import { captureException } from '@sentry/core';
 
-const formGroups = {
+const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 20,
@@ -13,6 +16,19 @@ const formGroups = {
     startCollapsed: true,
   },
 };
+
+addGraphQLSchema(`
+  type TagContributor {
+    user: User
+    contributionScore: Int!
+    numCommits: Int!
+    voteCount: Int!
+  }
+  type TagContributorsList {
+    contributors: [TagContributor!]
+    totalCount: Int!
+  }
+`);
 
 export const schema: SchemaType<DbTag> = {
   createdAt: {
@@ -311,9 +327,53 @@ export const schema: SchemaType<DbTag> = {
     }
   }),
 
+  tableOfContents: resolverOnlyField({
+    type: Object,
+    viewableBy: ['guests'],
+    graphQLtype: GraphQLJSON,
+    graphqlArguments: 'version: String',
+    resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
+      try {
+        return await Utils.getToCforTag({document, version: args.version||null, context});
+      } catch(e) {
+        captureException(e);
+        return null;
+      }
+    }
+  }),
+  
+  htmlWithContributorAnnotations: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+    denormalized: true,
+  },
+  
+  // See resolver in tagResolvers.ts. Takes optional limit and version arguments.
+  // Returns a list of contributors and the total karma of their contributions
+  // (counting only up to the specified revision, if a revision is specified).
+  contributors: {
+    viewableBy: ['guests'],
+    type: "TagContributorsList",
+    optional: true,
+  },
+  
+  // Denormalized copy of contribution-stats, for the latest revision.
+  // Replaces contributionScores, which was the same denormalized thing but for
+  // contribution scores only, without number of commits and vote count, and
+  // which is no longer on the schema.
+  contributionStats: {
+    type: Object,
+    optional: true,
+    blackbox: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    denormalized: true,
+  },
 }
 
-export const wikiGradeDefinitions = {
+export const wikiGradeDefinitions: Partial<Record<number,string>> = {
   0: "Uncategorized",
   1: "Flagged",
   2: "Stub",

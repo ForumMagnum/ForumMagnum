@@ -58,17 +58,22 @@ async function constructAkismetReport({document, type = "post"}) {
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
-      comment_content : document.contents && document.contents.html, 
+      comment_content : document.contents?.html,
       is_test: isDevelopment
     }
 }
 
 async function checkForAkismetSpam({document, type = "post"}) {
   try {
+    if (document?.contents?.html?.indexOf("spam-test-string-123") >= 0) {
+      // eslint-disable-next-line no-console
+      console.log(`${type} contained Akismet spam filter test string; marking as spam.`);
+      return true;
+    }
     const akismetReport = await constructAkismetReport({document, type})
     const spam = await getAkismetClient().checkSpam(akismetReport)
     // eslint-disable-next-line no-console
-    console.log("Checked document for spam: ", akismetReport, "result: ", spam)
+    console.log("Checked document for spam: ", akismetReport, "result is spam: ", spam)
     return spam
   } catch (e) {
     // eslint-disable-next-line no-console
@@ -113,10 +118,11 @@ getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWi
           await updateMutator({
             collection: Comments,
             documentId: comment._id,
+            // NOTE: This mutation has no user attached. This interacts with commentsDeleteSendPMAsync so that the PM notification of a deleted comment appears to come from themself.
             set: {
               deleted: true,
               deletedDate: new Date(), 
-              deletedReason: "Your comment has been marked as spam by the Akismet spam integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
+              deletedReason: "Your comment has been marked as spam by the Akismet spam integration. We've sent you a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)"
             },
             validate: false,
           });

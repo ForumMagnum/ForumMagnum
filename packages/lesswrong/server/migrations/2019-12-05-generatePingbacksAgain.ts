@@ -18,7 +18,7 @@ registerMigration({
   }
 });
 
-const updatePingbacks = async (collectionName, fieldName) => {
+const updatePingbacks = async (collectionName: CollectionNameString, fieldName: string) => {
   const collection = getCollection(collectionName);
   // eslint-disable-next-line no-console
   console.log(`Updating pingbacks for ${collectionName}.${fieldName}`);
@@ -26,7 +26,7 @@ const updatePingbacks = async (collectionName, fieldName) => {
   await forEachDocumentBatchInCollection({
     collection: collection,
     batchSize: 1000,
-    callback: async (documents) => {
+    callback: async (documents: any[]) => {
       let updates: Array<any> = [];
       
       for (let document of documents) {

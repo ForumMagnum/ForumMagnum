@@ -83,7 +83,6 @@ import './collections/collections/collection';
 import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
-import './collections/reviewVotes/mutations'
 
 
 import './collections/localgroups/collection'
@@ -146,7 +145,9 @@ import './collections/comments'
 
 import './collections/petrovDayLaunchs'
 
-
+import './collections/featuredResources/collection'
+import './collections/featuredResources/views'
+import './collections/featuredResources/fragments'
 
 // Votes
 import './collections/votes';

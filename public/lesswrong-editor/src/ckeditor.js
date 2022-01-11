@@ -23,6 +23,7 @@ import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
+import CloudServicesPlugin from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Code from '@ckeditor/ckeditor5-basic-styles/src/code';
@@ -62,6 +63,8 @@ import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
+import Footnote from './ckeditor5-footnote/src/footnote';
+
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
@@ -107,6 +110,7 @@ const postEditorPlugins = [
 	ImageToolbar,
 	EasyImage,
 	ImageUpload,
+	CloudServicesPlugin,
 	ImageResize,
 	Italic,
 	Link,
@@ -130,7 +134,8 @@ const postEditorPlugins = [
 	Mathematics,
 	SanitizeTags,
 	Spoilers,
-	AutoLink
+	AutoLink,
+	Footnote,
 ];
 
 PostEditor.builtinPlugins = [
@@ -193,7 +198,8 @@ const postEditorConfig = {
 		'insertTable',
 		'horizontalLine',
 		'mathDisplay',
-		'mediaEmbed'
+		'mediaEmbed',
+		'footnote',
 	],
 	toolbar: [
 		'heading',
@@ -211,7 +217,8 @@ const postEditorConfig = {
 		'|',
 		'trackChanges',
 		'comment',
-		'math'
+		'math',
+		'footnote',
 	],
 	image: {
 		toolbar: [
@@ -255,6 +262,7 @@ CommentEditor.builtinPlugins = [
 	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
+	CloudServicesPlugin,
 	ImageResize,
 	Italic,
 	Link,
@@ -278,7 +286,8 @@ CommentEditor.builtinPlugins = [
 	Mathematics,
 	SanitizeTags,
 	Spoilers,
-	AutoLink
+	AutoLink,
+	Footnote,
 ];
 
 CommentEditor.defaultConfig = {
@@ -295,7 +304,8 @@ CommentEditor.defaultConfig = {
 		'bulletedList',
 		'numberedList',
 		'|',
-		'math'
+		'math',
+		'footnote'
 	],
 	image: {
 		toolbar: [

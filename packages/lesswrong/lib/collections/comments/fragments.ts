@@ -7,6 +7,7 @@ registerFragment(`
     tagId
     parentCommentId
     topLevelCommentId
+    descendentCount
     contents {
       html
       plaintextMainText
@@ -22,14 +23,18 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     voteCount
     af
     afDate
     moveToAlignmentUserId
     afBaseScore
+    afExtendedScore
     suggestForAlignmentUserIds
+    reviewForAlignmentUserId
     needsReview
     answer
     parentAnswerId
@@ -46,6 +51,7 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     directChildrenCount
+    votingSystem
   }
 `);
 
@@ -125,9 +131,12 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     afBaseScore
+    afExtendedScore
     voteCount
   }
 `);

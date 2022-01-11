@@ -35,7 +35,7 @@ registerMigration({
           }).fetch();
           
           // Extract author IDs from the voted-on documents.
-          let authorIdsByDocument = {};
+          let authorIdsByDocument: Record<string,string> = {};
           _.each(votedDocuments, doc => authorIdsByDocument[doc._id] = doc.userId);
           
           // Fill in authorId on the votes.

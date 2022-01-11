@@ -31,6 +31,7 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
       userId: terms.userId,
       isDeleted: false,
       draft: false,
+      hideFromAuthorPage: false
     },
     options: {
       sort: {
@@ -46,11 +47,12 @@ Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
-      isDeleted: false,
+      isDeleted: false
     },
     options: {
       sort: {
         drafts: -1,
+        hideFromAuthorPage: 1,
         userProfileOrder: 1,
         createdAt: -1
       }

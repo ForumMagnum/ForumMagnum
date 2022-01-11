@@ -1,6 +1,6 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { isAnyTest, onStartup, runAfterDelay, clearRunAfterDelay } from '../../../lib/executionEnvironment';
+import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
 import { MongoCollection } from '../../../lib/mongoCollection';
 
 // A package for running jobs synchronized across multiple processes
@@ -24,7 +24,7 @@ export const SyncedCron: any = {
     //mongo by hand
     collectionTTL: 172800
   },
-  config: function(opts) {
+  config: function(opts: any) {
     this.options = _.extend({}, this.options, opts);
   }
 }
@@ -67,7 +67,7 @@ function createLogger(prefix: string) {
   }
 }
 
-var log;
+var log: any;
 
 onStartup(function() {
   if (isAnyTest) return;
@@ -102,7 +102,7 @@ onStartup(function() {
   }
 });
 
-var scheduleEntry = function(entry) {
+var scheduleEntry = function(entry: any) {
   var schedule = entry.schedule(later.parse);
   entry._timer =
     SyncedCron._laterSetInterval(SyncedCron._entryWrapper(entry), schedule);
@@ -153,7 +153,7 @@ SyncedCron.start = function() {
 }
 
 // Return the next scheduled date of the first matching entry or undefined
-SyncedCron.nextScheduledAtDate = function(jobName) {
+SyncedCron.nextScheduledAtDate = function(jobName: string) {
   var entry = this._entries[jobName];
 
   if (entry)
@@ -161,7 +161,7 @@ SyncedCron.nextScheduledAtDate = function(jobName) {
 }
 
 // Remove and stop the entry referenced by jobName
-SyncedCron.remove = function(jobName) {
+SyncedCron.remove = function(jobName: string) {
   var entry = this._entries[jobName];
 
   if (entry) {
@@ -194,14 +194,14 @@ SyncedCron.stop = function() {
 
 // The meat of our logic. Checks if the specified has already run. If not,
 // records that it's running the job, runs it, and records the output
-SyncedCron._entryWrapper = function(entry) {
+SyncedCron._entryWrapper = function(entry: any) {
   var self = this;
 
-  return async function(intendedAt) {
+  return async function(intendedAt: Date) {
     intendedAt = new Date(intendedAt.getTime());
     intendedAt.setMilliseconds(0);
 
-    var jobHistory;
+    var jobHistory: any;
 
     if (entry.persist) {
       jobHistory = {
@@ -270,7 +270,7 @@ SyncedCron._reset = async function() {
 //   between multiple, potentially laggy and unsynced machines
 
 // From: https://github.com/bunkat/later/blob/master/src/core/setinterval.js
-SyncedCron._laterSetInterval = function(fn, sched) {
+SyncedCron._laterSetInterval = function(fn: any, sched: any) {
 
   var t = SyncedCron._laterSetTimeout(scheduleTimeout, sched),
       done = false;
@@ -279,7 +279,7 @@ SyncedCron._laterSetInterval = function(fn, sched) {
   * Executes the specified function and then sets the timeout for the next
   * interval.
   */
-  function scheduleTimeout(intendedAt) {
+  function scheduleTimeout(intendedAt: Date) {
     if(!done) {
       try {
         fn(intendedAt);
@@ -306,9 +306,10 @@ SyncedCron._laterSetInterval = function(fn, sched) {
 };
 
 // From: https://github.com/bunkat/later/blob/master/src/core/settimeout.js
-SyncedCron._laterSetTimeout = function(fn, sched) {
+SyncedCron._laterSetTimeout = function(fn: any, sched: any) {
 
-  var s = later.schedule(sched), t;
+  var s = later.schedule(sched)
+  var t: any;
   scheduleTimeout();
 
   /**
@@ -317,8 +318,9 @@ SyncedCron._laterSetTimeout = function(fn, sched) {
   * attempting to schedule the timeout again.
   */
   function scheduleTimeout() {
-    var now = Date.now(),
-        next = s.next(2, now);
+    var now = Date.now();
+    // @ts-ignore
+    var next: any = s.next(2, now);
 
     // don't schedlue another occurence if no more exist synced-cron#41
     if (! next[0])
@@ -334,10 +336,10 @@ SyncedCron._laterSetTimeout = function(fn, sched) {
     }
 
     if(diff < 2147483647) {
-      t = runAfterDelay(function() { fn(intendedAt); }, diff);
+      t = setTimeout(function() { fn(intendedAt); }, diff);
     }
     else {
-      t = runAfterDelay(scheduleTimeout, 2147483647);
+      t = setTimeout(scheduleTimeout, 2147483647);
     }
   }
 
@@ -347,7 +349,7 @@ SyncedCron._laterSetTimeout = function(fn, sched) {
     * Clears the timeout.
     */
     clear: function() {
-      clearRunAfterDelay(t);
+      clearTimeout(t);
     }
 
   };

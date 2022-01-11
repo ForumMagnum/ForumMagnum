@@ -1,8 +1,3 @@
-export const getGraphiqlConfig = currentConfig => ({
-  endpointURL: currentConfig.path,
-  passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
-});
-
 // LEGACY SUPPORT FOR GRAPHIQL
 // Code is taken from apollo 1.4 code and
 // @see https://github.com/eritikass/express-graphiql-middleware
@@ -40,7 +35,7 @@ function safeSerialize(data: any): string|null {
   return data ? JSON.stringify(data).replace(/\//g, '\\/') : null;
 }
 
-export function renderGraphiQL(data) {
+export function renderGraphiQL(data: any) {
   const endpointURL = data.endpointURL;
   const endpointWs = endpointURL.startsWith('ws://') || endpointURL.startsWith('wss://');
   const subscriptionsEndpoint = data.subscriptionsEndpoint;
@@ -225,11 +220,11 @@ export function renderGraphiQL(data) {
 
 /////////////////////////////
 // resolveGraphiqlString
-function isOptionsFunction(arg) {
+function isOptionsFunction(arg: any) {
   return typeof arg === 'function';
 }
 
-async function resolveGraphiQLOptions(options, ...args) {
+async function resolveGraphiQLOptions(options: any, ...args: any) {
   if (isOptionsFunction(options)) {
     try {
       return await options(...args);
@@ -241,7 +236,7 @@ async function resolveGraphiQLOptions(options, ...args) {
   }
 }
 
-function createGraphiQLParams(query) {
+function createGraphiQLParams(query: any) {
   const queryObject = query || {};
   return {
     query: queryObject.query || '',
@@ -250,7 +245,7 @@ function createGraphiQLParams(query) {
   };
 }
 
-function createGraphiQLData(params, options) {
+function createGraphiQLData(params: any, options: any) {
   return {
     endpointURL: options.endpointURL,
     subscriptionsEndpoint: options.subscriptionsEndpoint,
@@ -264,7 +259,7 @@ function createGraphiQLData(params, options) {
   };
 }
 
-async function resolveGraphiQLString(query, options, ...args) {
+async function resolveGraphiQLString(query: any, options: any, ...args: any) {
   const graphiqlParams = createGraphiQLParams(query);
   const graphiqlOptions = await resolveGraphiQLOptions(options, ...args);
   const graphiqlData = createGraphiQLData(graphiqlParams, graphiqlOptions);
@@ -285,8 +280,8 @@ async function resolveGraphiQLString(query, options, ...args) {
  * - (optional) result: the result of the query to pre-fill in the GraphiQL UI
  */
 
-export const graphiqlMiddleware = options => {
-  const graphiqlHandler = (req, res, next) => {
+export const graphiqlMiddleware = (options: any) => {
+  const graphiqlHandler = (req: any, res: any, next: any) => {
     const query = req.url && url.parse(req.url, true).query;
     resolveGraphiQLString(query, options, req).then(
       graphiqlString => {

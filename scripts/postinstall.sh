@@ -30,6 +30,11 @@ else
   exit 1
 fi
 
+if [ "$NODE_ENV" == "production" ]; then
+  echo "production run, skipping unnecessary checks"
+  exit 0
+fi
+
 echo -n "Checking for mongodb... "
 if which mongod >/dev/null; then
   mongod --version |head -1
@@ -76,4 +81,3 @@ if [ -e /proc/sys/fs/inotify/max_user_watches ]; then
 else
   echo 'N/A'
 fi
-

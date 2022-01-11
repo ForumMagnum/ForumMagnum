@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -7,7 +7,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    direction:"ltr",
   },
 
   // For the highlighted section only, disable the half-opacity-on-hover effect
@@ -64,7 +63,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   level2: {
     fontSize:"1.1rem",
     paddingLeft: 16,
-
   },
   level3: {
     fontSize:"1.1rem",
@@ -102,8 +100,8 @@ const TableOfContentsRow = ({
   indentLevel?: number,
   highlighted?: boolean,
   href: string,
-  onClick: any,
-  children: React.ReactNode,
+  onClick?: (ev: any)=>void,
+  children?: React.ReactNode,
   classes: ClassesType,
   title?: boolean,
   divider?: boolean,
@@ -111,17 +109,20 @@ const TableOfContentsRow = ({
 }) => {
   if (divider) return <div className={classes.divider} />
 
-  return <Components.Typography variant="body2"
+  return <div
     className={classNames(
       classes.root,
       levelToClassName(indentLevel, classes),
       { [classes.highlighted]: highlighted }
     )}
   >
-    <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title, [classes.highlightDot]: !answer})}>
+    <a href={href} onClick={onClick} className={classNames(classes.link, {
+      [classes.title]: title,
+      [classes.highlightDot]: !answer,
+    })}>
       {children}
     </a>
-  </Components.Typography>
+  </div>
 }
 
 const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow, {styles});

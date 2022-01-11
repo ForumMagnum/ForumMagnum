@@ -12,6 +12,7 @@ registerFragment(`
     endTime
     fbLink
     type
+    afOnly
     contents {
       ...RevisionDisplay
     }
@@ -30,6 +31,7 @@ registerFragment(`
     endTime
     fbLink
     type
+    afOnly
     contents {
       ...RevisionEdit
     }

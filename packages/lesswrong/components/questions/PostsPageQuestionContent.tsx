@@ -6,7 +6,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 const PostsPageQuestionContent = ({post, refetch}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  refetch: any,
+  refetch: ()=>void,
 }) => {
   const currentUser = useCurrentUser();
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components

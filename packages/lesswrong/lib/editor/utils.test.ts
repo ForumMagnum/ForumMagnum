@@ -78,7 +78,7 @@ describe("htmlToDraft -> draftToHtml roundtrip testing", () => {
   for (const t of tests) {
     it(t.description, () => {
       const draft = htmlToDraftServer(t.html)
-      const html = draftToHTML(draft)
+      const html = draftToHTML(convertFromRaw(draft))
       html.should.equal(t.html)
     })
   }

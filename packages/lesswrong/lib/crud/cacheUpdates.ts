@@ -3,9 +3,9 @@ import { getCollectionByTypeName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
 
-export const updateCacheAfterCreate = (typeName: string, client) => {
+export const updateCacheAfterCreate = (typeName: string, client: ApolloClient<any>) => {
   const mutationName = getCreateMutationName(typeName);
-  return (store, mutationResult) => {
+  return (store: ApolloCache<any>, mutationResult: any) => {
     const { data: { [mutationName]: {data: document} } } = mutationResult
     //updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName,  document })
     invalidateEachQueryThatWouldReturnDocument({client, store, typeName, document});;
@@ -14,7 +14,7 @@ export const updateCacheAfterCreate = (typeName: string, client) => {
 
 export const updateCacheAfterUpdate = (typeName: string) => {
   const mutationName = getUpdateMutationName(typeName);
-  return (store, mutationResult) => {
+  return (store: ApolloCache<any>, mutationResult: any) => {
     const { data: { [mutationName]: {data: document} } } = mutationResult
     updateEachQueryResultOfType({ func: handleUpdateMutation, store, typeName,  document })
   }
@@ -22,7 +22,7 @@ export const updateCacheAfterUpdate = (typeName: string) => {
 
 export const updateCacheAfterDelete = (typeName: string) => {
   const mutationName = getDeleteMutationName(typeName);
-  return (store, { data: { [mutationName]: {data: document} } }: any) => {
+  return (store: ApolloCache<any>, { data: { [mutationName]: {data: document} } }: any) => {
     updateEachQueryResultOfType({ func: handleDeleteMutation, store, typeName, document })
   }
 }

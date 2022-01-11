@@ -9,30 +9,77 @@ import { userIsAdmin, userCanDo } from '../../lib/vulcan-users/permissions';
 import { userTimeSinceLast } from '../../lib/vulcan-users/helpers';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
-import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
+let adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
+  {
+    username: "AdminTeam",
+    email: "forum@effectivealtruism.org"
+  } :
+  {
+    username: "LessWrong",
+    email: "lesswrong@lesswrong.com"
+  }
+
 const getLessWrongAccount = async () => {
-  let account = await Users.findOne({username: "LessWrong"});
+  let account = await Users.findOne({username: adminTeamUserData.username});
   if (!account) {
-    const userData = {
-      username: "LessWrong",
-      email: "lesswrong@lesswrong.com",
-    }
     const newAccount = await createMutator({
       collection: Users,
-      document: userData,
+      document: adminTeamUserData,
       validate: false,
     })
     return newAccount.data
   }
   return account;
 }
+
+// Return the IDs of all ancestors of the given comment (not including the provided
+// comment itself).
+const getCommentAncestorIds = async (comment: DbComment): Promise<string[]> => {
+  const ancestorIds: string[] = [];
+  
+  let currentComment: DbComment|null = comment;
+  while (currentComment?.parentCommentId) {
+    currentComment = await Comments.findOne({_id: currentComment.parentCommentId});
+    if (currentComment)
+      ancestorIds.push(currentComment._id);
+  }
+  
+  return ancestorIds;
+}
+
+// Return all comments in a subtree, given its root.
+export const getCommentSubtree = async (rootComment: DbComment, projection: any): Promise<any[]> => {
+  const comments: DbComment[] = [rootComment];
+  let visited = new Set<string>();
+  let unvisited: string[] = [rootComment._id];
+  
+  while(unvisited.length > 0) {
+    const childComments = await Comments.find({parentCommentId: {$in: unvisited}}, projection).fetch();
+    for (let commentId of unvisited)
+      visited.add(commentId);
+    unvisited = [];
+    
+    for (let childComment of childComments) {
+      if (!visited.has(childComment._id)) {
+        comments.push(childComment);
+        unvisited.push(childComment._id);
+      }
+    }
+  }
+  
+  return comments;
+}
+Globals.getCommentSubtree = getCommentSubtree;
+
 
 getCollectionHooks("Comments").newValidate.add(async function createShortformPost (comment: DbComment, currentUser: DbUser) {
   if (comment.shortform && !comment.postId) {
@@ -194,15 +241,15 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
   return comment;
 });
 
-export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser) {
-  if (currentUser._id !== comment.userId && comment.deleted && comment.contents && comment.contents.html) {
+export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser | undefined) {
+  if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents?.html) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
         ? (await Posts.findOne(comment.postId))?.title
         : null
       );
-    const moderatingUser = await Users.findOne(comment.deletedByUserId);
+    const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
     const lwAccount = await getLessWrongAccount();
 
     const conversationData = {
@@ -217,8 +264,8 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     });
 
     let firstMessageContents =
-        `One of your comments on "${onWhat}" has been removed by ${(moderatingUser && moderatingUser.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom, we will not see replies to this conversation.`
-    if (comment.deletedReason) {
+        `One of your comments on "${onWhat}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
+    if (comment.deletedReason && moderatingUser) {
       firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 
@@ -381,13 +428,27 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(async function updateTopLevelCommentLastCommentedAt (comment: DbComment) {
-  // TODO: Make this work for all parent comments. For now, this is just updating the lastSubthreadActivity of the top comment because that's where we're using it 
-  if (comment.topLevelCommentId) {
-    await Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
+getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
+  const ancestorIds: string[] = await getCommentAncestorIds(comment);
+  
+  await Comments.update({ _id: {$in: ancestorIds} }, {
+    $set: {lastSubthreadActivity: new Date()},
+    $inc: {descendentCount:1},
+  });
+  
+  return comment;
+});
+
+getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCommentCounts (comment, context) {
+  if (context.oldDocument.deleted !== context.newDocument.deleted) {
+    const ancestorIds: string[] = await getCommentAncestorIds(comment);
+    const increment = context.oldDocument.deleted ? 1 : -1;
+    await Comments.update({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
 });
 
-getCollectionHooks("Comments").createAfter.add(newDocumentMaybeTriggerReview)
-
+getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
+  await newDocumentMaybeTriggerReview(document);
+  return document;
+})

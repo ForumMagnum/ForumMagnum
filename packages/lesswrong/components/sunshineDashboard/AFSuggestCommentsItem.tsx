@@ -10,13 +10,26 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { defaultAFModeratorPMsTagSlug, afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
+
+
+const styles = (theme: ThemeType): JssStyles => ({
+  afSubmissionHeader: {
+    ...afSubmissionHeader(theme)
+  },
+  afSubmissionHeaderText: {
+    ...afSubmissionHeaderText(theme)
+  }
+})
 
 interface ExternalProps {
   comment: SuggestAlignmentComment,
 }
-interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
+interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithStylesProps {
   updateComment: WithUpdateFunction<CommentsCollection>,
 }
+
+
 
 class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 
@@ -32,9 +45,9 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
     })
   }
 
-  handleDisregardForAlignment = async () => {
+  handleDisregardForAlignment = () => {
     const { currentUser, comment, updateComment } = this.props
-    await updateComment({
+    void updateComment({
       selector: { _id: comment._id},
       data: {
         reviewForAlignmentUserId: currentUser!._id,
@@ -43,15 +56,22 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
   }
 
   render () {
-    const { comment, currentUser, hover, anchorEl, updateComment } = this.props
+    const { classes, comment, currentUser, hover, anchorEl, updateComment } = this.props
     if (!currentUser) return null;
 
     const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
+    const userHasSelfSuggested = comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId)
 
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="body2">
+            { userHasSelfSuggested && <div>
+              <span className={classes.afSubmissionHeaderText}>
+                AF Submission
+              </span>
+              <Components.SunshineSendMessageWithDefaults user={comment.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
+            </div>}
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>
               Commented on post: <strong>{ comment.post.title }</strong>
             </Link>}
@@ -85,6 +105,7 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
 }
 
 const AFSuggestCommentsItemComponent = registerComponent<ExternalProps>('AFSuggestCommentsItem', AFSuggestCommentsItem, {
+  styles,
   hocs: [
     withUpdate({
       collectionName: "Comments",

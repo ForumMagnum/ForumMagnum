@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import EmailPropTypes from '../PropTypes'
 
-export default function Box({ children, ...props }) {
+export default function Box({ children, ...props }: any) {
   return (
     <table {...props}>
       <tbody>

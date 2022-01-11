@@ -4,6 +4,7 @@ import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
+import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 
@@ -91,6 +92,10 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   return restrictedDocs;
 }
 
+/**
+ * This field is stored in the database as a string, but resolved as the
+ * referenced document
+ */
 export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
   resolverName: string,
@@ -152,9 +157,14 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 
 interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpecification<T> {
   resolver: (doc: T, args: any, context: ResolverContext) => any,
-  graphQLtype?: string|null,
+  graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
+
+/**
+ * This field is not stored in the database, but is filled in at query-time by
+ * our GraphQL API using the supplied resolver function.
+ */
 export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
@@ -173,35 +183,34 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
 
 // Given a collection and a fieldName=>fieldSchema dictionary, add fields to
 // the collection schema. If any of the fields mentioned are already present,
-// they will be shallow-merged. This is used for making parts of the schema
-// (in particular, resolvers, onCreate callbacks, etc) specific to server-side
-// code.
+// throws an error.
 export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
+  collection._simpleSchema = null;
+  
+  for (let key in fieldsDict) {
+    if (key in collection._schemaFields) {
+      throw new Error("Field already exists: "+key);
+    } else {
+      collection._schemaFields[key] = fieldsDict[key];
+    }
+  }
+}
+
+// Given a collection and a fieldName=>fieldSchema dictionary, add properties
+// to existing fields on the collection schema, by shallow merging them. If any
+// of the fields named don't already exist, throws an error. This is used for
+// making parts of the schema (in particular, resolvers, onCreate callbacks,
+// etc) specific to server-side code.
+export const augmentFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
   collection._simpleSchema = null;
   
   for (let key in fieldsDict) {
     if (key in collection._schemaFields) {
       collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
     } else {
-      collection._schemaFields[key] = fieldsDict[key];
+      throw new Error("Field does not exist: "+key);
     }
   }
-  
-  /*const schema = collection.simpleSchema()._schema;
-  const mergedSchema = {};
-  
-  // loop over fields and add them to schema (or extend existing fields)
-  for (let key in fieldsDict) {
-    if (key in schema)
-      mergedSchema[key] = {...schema[key], ...fieldsDict[key]};
-    else
-      mergedSchema[key] = fieldsDict[key];
-  }
-  
-
-  // add field schema to collection schema
-  const newSchema = collection.simpleSchema().extend(mergedSchema);
-  collection.simpleSchema = () => newSchema;*/
 }
 
 // For auto-generated database type definitions, provides a (string) definition
@@ -221,6 +230,11 @@ SimpleSchema.extendOptions(['getValue'])
 // get the automatically recompute the new denormalized value via
 // `Vulcan.recomputeDenormalizedValues` in the Meteor shell
 SimpleSchema.extendOptions(['canAutoDenormalize'])
+
+// Whether to log changes to this field to the LWEvents collection. If undefined
+// (neither true nor false), will be logged if the logChanges option is set on
+// the collection and the denormalized option is false.
+SimpleSchema.extendOptions(['logChanges'])
 
 
 // Helper function to add all the correct callbacks and metadata for a field

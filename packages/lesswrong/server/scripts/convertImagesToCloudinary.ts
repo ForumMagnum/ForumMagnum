@@ -43,7 +43,6 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
 // Images on domains not in this list will be mirrored on Cloudinary and have
 // their lines updated. (If you run the script. This doesn't (yet) auto-apply
 // to all posts.)
-// ea-forum-lookhere
 const imageUrlWhitelist = [
   "cloudinary.com",
   "res.cloudinary.com",

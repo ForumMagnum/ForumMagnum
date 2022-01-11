@@ -4,7 +4,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 
-interface OpenDialogContextType {
+export interface OpenDialogContextType {
   openDialog: ({componentName,componentProps}: {componentName: string, componentProps?: Record<string,any>}) => void,
   closeDialog: ()=>void,
 }

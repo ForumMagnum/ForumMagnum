@@ -49,7 +49,7 @@ function Alea(seed: string) {
   if (me.s2 < 0) { me.s2 += 1; }
 }
 
-function copy(f, t) {
+function copy(f: any, t: any) {
   t.c = f.c;
   t.s0 = f.s0;
   t.s1 = f.s1;
@@ -58,6 +58,7 @@ function copy(f, t) {
 }
 
 function impl(seed: string) {
+  // @ts-ignore
   var xg = new Alea(seed),
       prng = xg.next;
   prng.int32 = function() { return (xg.next() * 0x100000000) | 0; }
