@@ -86,6 +86,7 @@ export const postEditorConfig = {
 		toolbar: [
 			'imageTextAlternative',
 			'comment',
+			'toggleImageCaption',
 		],
 	},
 	heading: headingOptions,
