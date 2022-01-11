@@ -757,8 +757,10 @@ class Form extends Component<any,any> {
   }
   // check for browser closing
   checkBrowserClosing = () => {
-    //check for closing the browser with unsaved changes too
-    (window as any).onbeforeunload = this.handlePageLeave;
+    if (this.getWarnUnsavedChanges()) {
+      //check for closing the browser with unsaved changes too
+      (window as any).onbeforeunload = this.handlePageLeave;
+    }
   }
 
   /*
