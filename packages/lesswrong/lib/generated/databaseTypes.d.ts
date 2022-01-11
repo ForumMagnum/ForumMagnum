@@ -650,6 +650,7 @@ interface DbUser extends DbObject {
   profile: any /*{"definitions":[{"blackbox":true}]}*/
   services: any /*{"definitions":[{"blackbox":true}]}*/
   displayName: string
+  previousDisplayName: string
   email: string
   slug: string
   noindex: boolean
