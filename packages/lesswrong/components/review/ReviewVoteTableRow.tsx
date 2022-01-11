@@ -43,18 +43,32 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    flexWrap: "wrap"
+    [theme.breakpoints.down('xs')]: {
+      flexWrap: "wrap",
+    }
+  },
+  postVoteVotingPhase: {
+    flexWrap: "wrap",
   },
   post: {
     padding: 16,
     paddingTop: 10,
     paddingBottom: 8,
     paddingRight: 10,
-    maxWidth: "100%",
+    maxWidth: "calc(100% - 240px)",
     marginRight: "auto",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: "calc(100% - 100px)",
+      background: "white"
+    }
+  },
+  postVotingPhase: {
+    width: "100%"
   },
   reviews: {
-    width: "100%"
+    width: "100%",
+    position: "relative",
+    left: -6
   },
   expand: {
     display:"none",
@@ -98,8 +112,8 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.error.light
   },
   votes: {
+    backgroundColor: "#eee",
     padding: 10,
-    borderRadius:2,
     alignSelf: "stretch",
     display: "flex",
     alignItems: "center",
@@ -107,6 +121,9 @@ const styles = (theme: ThemeType) => ({
       padding: 7,
       width: "100%"
     }
+  },
+  votesVotingPhase: {
+    backgroundColor: "unset",
   },
   yourVote: {
     marginLeft: 6,
@@ -195,13 +212,13 @@ const ReviewVoteTableRow = (
       {showKarmaVotes && post.currentUserVote && <LWTooltip title={`You gave this post ${voteMap[post.currentUserVote]}`} placement="left" inlineBlock={false}>
           <div className={classNames(classes.userVote, classes[post.currentUserVote])}/>
         </LWTooltip>}
-      <div className={classes.postVote}>
-        <div className={classes.post}>
+      <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: getReviewPhase() === "VOTING"})}>
+        <div className={classNames(classes.post, {[classes.postVotingPhase]: getReviewPhase() === "VOTING"})}>
           <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
             <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
           </LWTooltip>
         </div>
-        <div className={classes.reviews}>
+        {getReviewPhase() === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
             singleLine
             placeholderCount={post.reviewCount}
@@ -212,7 +229,7 @@ const ReviewVoteTableRow = (
             }}
             post={post}
           />
-        </div>
+        </div>}
         <PostsItemComments
           small={false}
           commentCount={postGetCommentCount(post)}
@@ -245,7 +262,7 @@ const ReviewVoteTableRow = (
             <div className={classes.disabledVote}>Vote</div>
           </LWTooltip>}
         </div>}
-        {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classes.votes}>
+        {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
             <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
           <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
