@@ -420,6 +420,7 @@ interface DbPost extends DbObject {
   localStartTime: Date
   endTime: Date | null
   localEndTime: Date
+  joinEventLink: string
   onlineEvent: boolean
   globalEvent: boolean
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/

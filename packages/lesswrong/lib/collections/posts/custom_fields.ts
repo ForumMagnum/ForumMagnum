@@ -719,6 +719,20 @@ addFieldsDict(Posts, {
     type: Date,
     viewableBy: ['guests'],
   },
+  
+  joinEventLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    label: "Join Online Event Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
 
   onlineEvent: {
     type: Boolean,
