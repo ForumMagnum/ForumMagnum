@@ -5,9 +5,17 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { loadMoreSectionFooterStyles } from '../localGroups/LocalGroupsList';
+
+const styles = (theme: ThemeType): JssStyles => ({
+  loadMore: {
+    ...loadMoreSectionFooterStyles(theme)
+  }
+})
 
 // The Navigation for the Inbox components
-const InboxNavigation = ({terms, currentUser}: {
+const InboxNavigation = ({classes, terms, currentUser}: {
+  classes: ClassesType,
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
 }) => {
@@ -56,7 +64,7 @@ const InboxNavigation = ({terms, currentUser}: {
           loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{forumTypeSetting.get() !== "EAForum" && " Go and be free."}</Typography>
         }
         <SectionFooter>
-          <LoadMore {...loadMoreProps}/>
+          <LoadMore className={classes.loadMore} {...loadMoreProps}/>
           <SectionFooterCheckbox
             onClick={showArchiveCheckboxClick}
             value={showArchive}
@@ -67,7 +75,7 @@ const InboxNavigation = ({terms, currentUser}: {
   )
 }
 
-const InboxNavigationComponent = registerComponent('InboxNavigation', InboxNavigation);
+const InboxNavigationComponent = registerComponent('InboxNavigation', InboxNavigation, {styles});
 
 declare global {
   interface ComponentTypes {
