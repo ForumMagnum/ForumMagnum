@@ -606,7 +606,7 @@ const ReviewVotingPage = ({classes}: {
                 <ReviewVoteTableRow
                   post={post}
                   showKarmaVotes={showKarmaVotes}
-                dispatch={dispatchQualitativeVote}
+                  dispatch={dispatchQualitativeVote}
                   currentVote={currentVote}
                   dispatchQuadraticVote={dispatchQuadraticVote}
                   useQuadratic={useQuadratic}
