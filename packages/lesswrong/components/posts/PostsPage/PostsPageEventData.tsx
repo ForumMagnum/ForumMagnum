@@ -15,6 +15,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block',
     },
   },
+  onlineEventLocation: {
+    display: 'block',
+    maxWidth: 400,
+    color: theme.palette.primary.main,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+  },
   joinEventLink: {
     flex: 'none',
     margin: '0 24px',
@@ -34,21 +41,32 @@ const PostsPageEventData = ({classes, post}: {
     captureEvent("joinEventLinkClick")
   }
   
-  const { location, contactInfo, onlineEvent } = post
+  const { location, contactInfo, onlineEvent, joinEventLink } = post
   
-  const locationNode = onlineEvent ? (
-    <div className={classes.eventLocation}>Online Event</div>
-  ) : (location && <div className={classes.eventLocation}> {location} </div>);
+  // event location - for online events, attempt to show the meeting link
+  let locationNode = location && <div>{location}</div>
+  if (onlineEvent) {
+    locationNode = joinEventLink ? <a
+      className={classes.onlineEventLocation}
+      href={joinEventLink}
+      title={joinEventLink}
+      target="_blank" rel="noopener noreferrer">
+        {joinEventLink}
+    </a> : <div>Online Event</div>
+  }
   
-  // if the event is soon/now, make the "Join Event" button more prominent
+  // before the event starts, the "Join Event" button is disabled
   const inTenMinutes = moment().add(10, 'minutes')
-  const buttonVariant = post.startTime && moment(post.startTime).isBefore(inTenMinutes) ? 'contained' : 'outlined';
+  const beforeEvent = post.startTime && moment(post.startTime).isAfter(inTenMinutes)
   
-  // if the event is over, disable the "Join Event" button
+  // if the event is over, disable the "Join Event" button and show "Event Ended"
   const now = moment()
   const twoHoursAgo = moment().subtract(2, 'hours')
-  const eventEnded = (post.endTime && moment(post.endTime).isBefore(now)) ||
+  const afterEvent = (post.endTime && moment(post.endTime).isBefore(now)) ||
     (!post.endTime && post.startTime && moment(post.startTime).isBefore(twoHoursAgo))
+    
+  // if the event is soon/now, enable the "Join Event" button
+  const duringEvent = post.startTime && !beforeEvent && !afterEvent
   
   return <Components.Typography variant="body2" className={classes.metadata}>
       <div>
@@ -56,9 +74,9 @@ const PostsPageEventData = ({classes, post}: {
         { locationNode }
         { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
       </div>
-      {post.joinEventLink && (post.startTime || post.endTime) && <div className={classes.joinEventLink}>
-        <Button variant={buttonVariant} color="primary" href={post.joinEventLink} title={post.joinEventLink} disabled={!!eventEnded} onClick={handleClick} target="_blank" rel="noopener">
-          {eventEnded ? 'Event Ended' : 'Join Event'}
+      {post.joinEventLink && post.startTime && <div className={classes.joinEventLink}>
+        <Button variant="contained" color="primary" href={post.joinEventLink} disabled={!duringEvent} onClick={handleClick} target="_blank" rel="noopener noreferrer">
+          {afterEvent ? 'Event Ended' : 'Join Event'}
         </Button>
       </div>}
   </Components.Typography>
