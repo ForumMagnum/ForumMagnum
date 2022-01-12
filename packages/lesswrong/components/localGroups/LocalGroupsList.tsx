@@ -3,15 +3,19 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles'
 
+export const loadMoreSectionFooterStyles = theme => ({
+  flexGrow: 1,
+  textAlign: "left",
+  '&:after': {
+    content: "'' !important",
+    marginLeft: "0 !important",
+    marginRight: "0 !important",
+  }
+})
+
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   loadMore: {
-    flexGrow: 1,
-    textAlign: "left",
-    '&:after': {
-      content: "'' !important",
-      marginLeft: "0 !important",
-      marginRight: "0 !important",
-    }
+    ...loadMoreSectionFooterStyles(theme)
   },
   localGroups: {
     boxShadow: theme.boxShadow
