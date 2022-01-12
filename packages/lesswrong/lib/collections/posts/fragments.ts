@@ -68,6 +68,7 @@ registerFragment(`
     website
     contactInfo
     isEvent
+    eventImageId
     types
     groupId
 

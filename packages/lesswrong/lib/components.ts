@@ -513,6 +513,7 @@ importComponent("BestOfLessWrong", () => require('../components/sequences/BestOf
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
+importComponent("ImageUploadDefaultsDialog", () => require('../components/form-components/ImageUploadDefaultsDialog'));
 importComponent("SequencesListEditor", () => require('../components/form-components/SequencesListEditor'));
 importComponent("SequencesListEditorItem", () => require('../components/form-components/SequencesListEditorItem'));
 importComponent("SubmitButton", () => require('../components/form-components/SubmitButton'));

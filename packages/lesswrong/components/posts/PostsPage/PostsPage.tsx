@@ -38,16 +38,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     background: "white",
     position: "relative"
   },
-  headerImage: {
-    paddingBottom: 25,
-    width: '100vw',
-    objectFit: 'cover',
-    margin: "-50px -4px 0",
-    maxWidth: 690,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: -10,
+  headerImageContainer: {
+    paddingBottom: 20,
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
     },
-    aspectRatio: '16/9',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -12,
+      marginLeft: -4,
+      marginRight: -4,
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginTop: -10,
+    }
+  },
+  headerImage: {
+    width: '100vw',
+    maxWidth: 682,
   }
 })
 
@@ -84,7 +91,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount } = Components
+    AFUnreviewedCommentCount, CloudinaryImage2 } = Components
 
   useEffect(() => {
     recordPostView({
@@ -132,8 +139,14 @@ const PostsPage = ({post, refetch, classes}: {
         {/* Header/Title */}
         <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
           <div className={classes.centralColumn}>
-            <img className={classes.headerImage} src="https://lh3.googleusercontent.com/-gkowAwALihJjY99SyGJjHQDxr1KecV7UGL0x8plBH0SkaM3RSDFH8cMGy02bIvw24DZ94Gamp9gAgs_Uj3qt8tuwUYgM8zDyjnwGggiUdHHU5q-tJLq9xFSosXP2eLoSEQOCl2xGl0na_oFfLKty89k8joCde5Wbb7tBuT706M2B9HBNFfd7cvdHYFATv9Svd3C4hCOHgHjscjZ61rYW7leBPrP1KrW7Xuzpko6itfkfY6oMIUK7aR9aq8wFc4yQGUFOIb_32PCVLbVnb3XEx0BiwUHoK37U9FcxH5fEE2_8xYmXDuNizNbltyrHfic0CerDmUtzm5lyOb09O1epjhTEv0d7K47uGBfuJIvDTBe0mFoZzx-BFXWzedVKaz2k0CfTSlAEPAEndfBsOdKBkjov9Hk_UGC21YuY0QAka6ulSTNjfOhbdcvxZO8IXyXgzTlSWvEmmBMUeofy06gRmFHTBrZA8Q47yUBWU2KjF5Jmn0BnWOANSrdbaXuGlJR7kA3CN7mGLj6kYgjKpW5gCTdinIbTAkdiSfel0HZFZMvbOR99aWPLcBgW7O1rDvnrLNaTKQgoF1seeIht9ygZeopnK-cWqgOj5ZYlri7hDBaYLQH-Jnm8I1f7w9O5eptgfxxDDieyRR0L-r5vr39n2cgpR1cWvKZvXFC3ksPbSh_O2mJsX47mnc5vhPNfF3go-bkTgvJ6TTcL3eZOcPuAnu0=w1328-h1770-no?authuser=1"/>
             {commentId && <CommentPermalink documentId={commentId} post={post} />}
+            {post.eventImageId && <div className={classes.headerImageContainer}>
+              <CloudinaryImage2
+                publicId={post.eventImageId}
+                imgProps={{ar: '16:9', w: '682', q: 'auto:best'}}
+                className={classes.headerImage}
+              />
+            </div>}
             <PostsPagePostHeader post={post}/>
           </div>
         </div></AnalyticsContext>

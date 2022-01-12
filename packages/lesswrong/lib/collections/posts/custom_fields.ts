@@ -834,6 +834,18 @@ addFieldsDict(Posts, {
     regEx: SimpleSchema.RegEx.Url,
     tooltip: 'https://...'
   },
+  
+  eventImageId: {
+    type: String,
+    optional: true,
+    label: "Event Image",
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    control: "ImageUpload",
+    group: formGroups.event,
+    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
+  },
 
   types: {
     type: Array,
