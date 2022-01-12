@@ -297,7 +297,18 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
-    hidden: true,
+    order: 42,
+    group: formGroups.siteCustomizations,
+    label: "Theme Mode",
+    defaultValue: 'system',
+    control: "select",
+    form: {
+      options: [
+        {value:'system', label: 'Match system theme'},
+        {value:'light', label: 'Light mode'},
+        {value:'dark', label: 'Dark mode'},
+      ],
+    }
   },
   lastUsedTimezone: {
     type: String,
