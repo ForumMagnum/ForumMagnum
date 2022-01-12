@@ -265,7 +265,7 @@ const ReviewVoteTableRow = (
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
           {!currentUserIsAuthor && <div>{useQuadratic ?
             <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
-          <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
+            <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
           </div>}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>}
