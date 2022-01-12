@@ -1339,7 +1339,7 @@ ensureIndex(Posts,
   { name: "posts.positiveReviewVoteCount", }
 );
 
-// Nominations for the (≤)2020 review are determined by the number of votes
+// During the Final Voting phase, posts need at least one positive vote and at least one review to qualify
 Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
