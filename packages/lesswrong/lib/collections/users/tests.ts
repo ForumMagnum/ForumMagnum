@@ -5,6 +5,16 @@ testStartup();
 
 describe('updateUser – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
+  it("fails when user updates their displayName", async () => {
+    const user = await createDummyUser()
+    await userUpdateFieldFails({
+      user:user,
+      document:user,
+      fieldName:'displayName',
+      collectionType:'User',
+    })
+    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
+  });
   it("fails when user updates their createdAt", async () => {
     const user = await createDummyUser()
     await userUpdateFieldFails({
