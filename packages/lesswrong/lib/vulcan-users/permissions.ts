@@ -104,6 +104,20 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   }
 };
 
+
+export const userOverNKarmaFunc = (n: number) => {
+    return (user: UsersMinimumInfo|DbUser|null): boolean => {
+      if (!user) return false
+      return (user.karma > n)
+    }
+}
+
+export const userHasntChangedName = (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo|DbObject): boolean => {
+  if (!user) return false
+  return !user.previousDisplayName
+}
+  
+
 // Check if a user is an admin
 export const userIsAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {
   if (!user) return false;
