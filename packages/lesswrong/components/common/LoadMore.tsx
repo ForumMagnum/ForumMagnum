@@ -24,6 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   sectionFooterStyles: {
+    // This is an artifact of how SectionFooter is currently implemented, which should probably change.
     flexGrow: 1,
     textAlign: "left",
     '&:after': {
