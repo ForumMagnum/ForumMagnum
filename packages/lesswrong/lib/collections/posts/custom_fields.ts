@@ -839,6 +839,7 @@ addFieldsDict(Posts, {
   eventImageId: {
     type: String,
     optional: true,
+    hidden: !isEAForum,
     label: "Event Image",
     viewableBy: ['guests'],
     insertableBy: ['members'],

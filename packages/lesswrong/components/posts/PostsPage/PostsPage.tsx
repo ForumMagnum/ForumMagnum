@@ -9,6 +9,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
+import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 
 export const MAX_COLUMN_WIDTH = 720
@@ -39,7 +40,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative"
   },
   headerImageContainer: {
-    paddingBottom: 20,
+    paddingBottom: 15,
     [theme.breakpoints.up('md')]: {
       marginTop: -50,
     },
@@ -122,7 +123,10 @@ const PostsPage = ({post, refetch, classes}: {
   const ogUrl = postGetPageUrl(post, true) // open graph
   const canonicalUrl = post.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
-  const socialPreviewImageUrl = post.socialPreviewImageUrl
+  let socialPreviewImageUrl = post.socialPreviewImageUrl
+  if (post.isEvent && post.eventImageId) {
+    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
+  }
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn

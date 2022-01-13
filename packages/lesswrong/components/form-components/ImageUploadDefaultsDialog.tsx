@@ -1,12 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import classNames from 'classnames';
-import Button from '@material-ui/core/Button';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -21,21 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: '2px solid transparent',
     cursor: 'pointer',
     '&:hover': {
-      borderColor: "rgba(0,0,0, 0.35)",
-    },
-  },
-  imageSelected: {
-    borderColor: theme.palette.primary.main,
-    '&:hover': {
       borderColor: theme.palette.primary.main,
     },
-  },
-  // submitButton: {
-  //   color: theme.palette.primary.main,
-  //   textTransform: 'uppercase'
-  // },
-  actions: {
-    marginTop: 24
   },
 })
 
@@ -44,15 +26,47 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes }: {
   onClose: ()=>void,
   classes: ClassesType,
 }) => {
-  const [selectedImg, setSelectedImg] = useState('')
 
-  const { Typography, LWDialog, CloudinaryImage } = Components
+  const { LWDialog, CloudinaryImage } = Components
+  
+  const selectImg = (img) => {
+    onSelect(img)
+    onClose()
+  }
   
   const defaultImages = [
-    'Event/defaults/kaib61wcuwtsgmq6elrs', // autumn trail
     'Event/defaults/k7bdilxm08silijqdn2v', // sprout
+    'Event/defaults/fs5rgzbtdnbcdegiszbw', // butterfly
     'Event/defaults/ycj85pqkcvp8q91rqn87', // sheep
-    'Event/defaults/jbj2f5n9aygqn3wjalx3', // lake and mountains
+    'Event/defaults/xdabn2ulil3k4sxcaat1', // pigs
+    'Event/defaults/h4jbx7exu0ttrcopmvcy', // elephants
+    'Event/defaults/hlmllj77ln4nr69fn7jf', // birds
+    'Event/defaults/dic1sxm86xcvoavnhpnn', // wind farm & field
+    'Event/defaults/gumqg9zryaqirtldgast', // lake & mountains
+    'Event/defaults/ucbrkw7gdmacm4soorui', // clouds
+    'Event/defaults/kaib61wcuwtsgmq6elrs', // autumn trail
+    'Event/defaults/fg3ttihepxfss9ylun4f', // dog on hill
+    'Event/defaults/zhiyjstbfu1olxfbnuci', // camping picnic
+    'Event/defaults/astdsmglxtbcehnlo7g4', // group hike
+    'Event/defaults/gtst9i5zvxk9hulnwigm', // books & coffee
+    'Event/defaults/as81227r6jx8m4hydhb3', // bookshelf
+    'Event/defaults/dqknjubfjt2crsmdspsw', // veggies
+    'Event/defaults/cq99vatplysmhlv6drai', // virtual meeting
+    'Event/defaults/qvujytx4nomsrm3xu7on', // two people working
+    'Event/defaults/qdfqhekgmxtf2wbdbrq3', // desk with laptop & notebook
+    'Event/defaults/myksyxm0e1qszlbzzj9o', // post-its on wall
+    'Event/defaults/fsgbi942lcnepj7zylr5', // coffee hangout
+    'Event/defaults/dgjptfxhtomlt5s96wgn', // wine hangout
+    'Event/defaults/akwwm4hecuwypw5ixte0', // outdoor party
+    'Event/defaults/b8xpbqpegclnvc8x0taw', // sparkler
+    'Event/defaults/uqi9pobdxb9dxbpomep0', // cells
+    'Event/defaults/mtkocedjg5zx99ghkxnw', // pipette
+    'Event/defaults/s4pkf3kuhnigiov8effy', // coins
+    'Event/defaults/ijfeayyzhxixbrxzvmm5', // lightbulb
+    'Event/defaults/diddy0dxe7lfoxnwtlvq', // jellyfish
+    'Event/defaults/np7kecliyzhnlogyxelp', // pugsworth
+    'Event/defaults/ubobbqry5uowozmptjop', // earth
+    'Event/defaults/n33epog75uk7c1dgciod', // starry night
   ]
   
   return (
@@ -61,13 +75,12 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes }: {
       onClose={onClose}
     >
       <DialogTitle>
-        Choose between our default images
+        Select an Event Image
       </DialogTitle>
       <DialogContent>
         <div className={classes.images}>
           {...defaultImages.map((img) => {
-            const selectedClass = img === selectedImg && classes.imageSelected
-            return <div className={classNames(classes.image, selectedClass)} onClick={() => setSelectedImg(img)}>
+            return <div key={img} className={classes.image} onClick={() => selectImg(img)}>
               <CloudinaryImage
                 publicId={img}
                 width={240}
@@ -76,15 +89,6 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes }: {
             </div>
           })}
         </div>
-
-        <DialogActions className={classes.actions}>
-          <Button variant="contained" color="primary" className={classes.submitButton} onClick={() => {
-            onSelect(selectedImg)
-            onClose()
-          }}>
-            Save
-          </Button>
-        </DialogActions>
       </DialogContent>
     </LWDialog>
   )
