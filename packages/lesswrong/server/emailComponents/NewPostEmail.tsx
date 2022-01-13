@@ -57,9 +57,15 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
   if (!document) return null;
   
-  let eventLocation = document.joinEventLink || 'Online event'
-  if (document.isEvent && !document.onlineEvent) {
-    eventLocation = document.location
+  // event location - for online events, attempt to show the meeting link
+  let eventLocation: any = document.location
+  if (document.onlineEvent) {
+    eventLocation = document.joinEventLink ? <a
+      className={classes.onlineEventLocation}
+      href={document.joinEventLink}
+      target="_blank" rel="noopener noreferrer">
+        {document.joinEventLink}
+    </a> : "Online Event"
   }
 
   return (<React.Fragment>
