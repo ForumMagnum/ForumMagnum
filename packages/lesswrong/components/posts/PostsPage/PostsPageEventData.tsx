@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: 'none',
     margin: '0 24px',
     [theme.breakpoints.down('xs')]: {
-      margin: '20px 0 0',
+      margin: '20px 0 0 12px',
     },
   }
 })
