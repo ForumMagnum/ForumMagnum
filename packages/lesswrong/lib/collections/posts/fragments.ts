@@ -94,13 +94,10 @@ registerFragment(`
     shortform
     onlyVisibleToLoggedIn
 
-    nominationCount2018
-    reviewCount2018
-    nominationCount2019
-    reviewCount2019
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
+
     reviewVoteScoreAllKarma
     reviewVotesAllKarma
     reviewVoteScoreHighKarma
@@ -108,11 +105,24 @@ registerFragment(`
     reviewVoteScoreAF
     reviewVotesAF
 
+    reviewVoteScoreHighKarma2
+    reviewVotesHighKarma2
+    reviewVoteScoreAllKarma2
+    reviewVotesAllKarma2
+    reviewVoteScoreAF2
+    reviewVotesAF2
+
     group {
       _id
       name
       organizerIds
     }
+
+    # deprecated
+    nominationCount2018
+    reviewCount2018
+    nominationCount2019
+    reviewCount2019
   }
 `);
 
