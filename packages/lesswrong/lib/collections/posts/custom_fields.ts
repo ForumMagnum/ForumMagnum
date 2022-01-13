@@ -726,7 +726,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    editableBy: ['members'],
     label: "Join Online Event Link",
     control: "MuiTextField",
     optional: true,
