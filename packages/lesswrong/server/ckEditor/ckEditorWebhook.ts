@@ -77,9 +77,10 @@ async function handleCkEditorWebhook(message: any) {
       }
       const userDisconnectedPayload = payload as CkEditorUserDisconnected;
       const userId = userDisconnectedPayload?.user?.id;
-      const documentId = userDisconnectedPayload?.document?.id;
-      const documentContents = await fetchCkEditorCloudStorageDocument(documentId);
-      await saveDocumentRevision(userId, documentId, documentContents);
+      const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
+      const documentContents = await fetchCkEditorCloudStorageDocument(ckEditorDocumentId);
+      const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
+      await saveDocumentRevision(userId, postId, documentContents);
       break;
       
     case "storage.document.saved":
