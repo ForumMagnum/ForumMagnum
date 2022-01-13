@@ -92,6 +92,6 @@ export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProdu
 // FrontpageReviewWidget reads them at startup.
 export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
-export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-11")
-export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-01-26")
+export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
+export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-01")
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)

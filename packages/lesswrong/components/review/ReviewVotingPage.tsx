@@ -220,6 +220,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
+  },
+  postList: {
+    boxShadow: "0 1px 5px 0px rgba(0,0,0,.2)",
+    background: "white",
+    [theme.breakpoints.down('sm')]: {
+      boxShadow: "unset"
+    }
   }
 });
 
@@ -251,7 +258,7 @@ const ReviewVotingPage = ({classes}: {
 
   const { results, loading: postsLoading } = useMulti({
     terms: {
-      view: "reviewVoting",
+      view: getReviewPhase() === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
       limit: 600,
@@ -506,7 +513,7 @@ const ReviewVotingPage = ({classes}: {
                   {reviewedPosts?.length || 0} Reviewed Posts
                 </span>
                 </LWTooltip> 
-                ({sortedPosts.length} Nominated)
+                {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
               </div>
             }
             
@@ -585,7 +592,7 @@ const ReviewVotingPage = ({classes}: {
               </Select>
             </div>
           </div>
-          <Paper className={(postsLoading || loading) ? classes.postsLoading : ''}>
+          <div className={classNames({[classes.postList]: getReviewPhase() !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
                 postId: post._id,
@@ -607,7 +614,7 @@ const ReviewVotingPage = ({classes}: {
                 />
               </div>
             })}
-          </Paper>
+          </div>
         </div>
       </div>
     </div>
