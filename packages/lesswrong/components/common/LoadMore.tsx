@@ -22,6 +22,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 1
     }
+  },
+  sectionFooterStyles: {
+    flexGrow: 1,
+    textAlign: "left",
+    '&:after': {
+      content: "'' !important",
+      marginLeft: "0 !important",
+      marginRight: "0 !important",
+    }
   }
 })
 
@@ -29,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Load More button. The simplest way to use this is to take `loadMoreProps`
 // from the return value of `useMulti` and spread it into this component's
 // props.
-const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes }: {
+const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes, sectionFooterStyles }: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
@@ -45,6 +54,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   hideLoading?: boolean,
   hidden?: boolean,
   classes: ClassesType,
+  sectionFooterStyles?: boolean
 }) => {
   const { captureEvent } = useTracking()
 
@@ -65,7 +75,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   
   return (
     <a
-      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled})}
+      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled, [classes.sectionFooterStyles]: sectionFooterStyles})}
       href="#"
       onClick={handleClickLoadMore}
     >
