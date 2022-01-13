@@ -63,6 +63,7 @@ registerFragment(`
     endTime
     localStartTime
     localEndTime
+    joinEventLink
     facebookLink
     meetupLink
     website

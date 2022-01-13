@@ -56,6 +56,11 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   });
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
   if (!document) return null;
+  
+  let eventLocation = document.joinEventLink || 'Online event'
+  if (document.isEvent && !document.onlineEvent) {
+    eventLocation = document.location
+  }
 
   return (<React.Fragment>
     <div className={classes.heading}>
@@ -72,7 +77,7 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
         <EmailPostDate post={document}/>
       </div>
       {document.isEvent && <div className={classes.headingRow}>
-        {document.onlineEvent ? 'Online event' : document.location}
+        {eventLocation}
       </div>}
       {document.contactInfo && <div className={classes.headingRow}>
         Contact: {document.contactInfo}
