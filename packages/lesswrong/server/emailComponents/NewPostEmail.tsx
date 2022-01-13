@@ -58,7 +58,7 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   if (!document) return null;
   
   // event location - for online events, attempt to show the meeting link
-  let eventLocation: any = document.location
+  let eventLocation: string|JSX.Element = document.location
   if (document.onlineEvent) {
     eventLocation = document.joinEventLink ? <a
       className={classes.onlineEventLocation}

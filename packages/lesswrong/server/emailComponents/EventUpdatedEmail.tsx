@@ -53,7 +53,7 @@ const EventUpdatedEmail = ({postId, classes}: {
   const link = postGetPageUrl(post, true);
   
   // event location - for online events, attempt to show the meeting link
-  let eventLocation: any = post.location
+  let eventLocation: string|JSX.Element = post.location
   if (post.onlineEvent) {
     eventLocation = post.joinEventLink ? <a
       className={classes.onlineEventLocation}
