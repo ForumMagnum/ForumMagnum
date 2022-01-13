@@ -8,11 +8,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   images: {
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent: 'space-around'
+    justifyContent: 'space-evenly'
   },
   image: {
     padding: '5px 5px 2px',
-    margin: 10,
+    margin: 3,
     border: '2px solid transparent',
     cursor: 'pointer',
     '&:hover': {
@@ -34,37 +34,53 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes }: {
     onClose()
   }
   
+  // these are EA Forum-specific
   const defaultImages = [
-    'Event/defaults/k7bdilxm08silijqdn2v', // sprout
-    'Event/defaults/fs5rgzbtdnbcdegiszbw', // butterfly
-    'Event/defaults/ycj85pqkcvp8q91rqn87', // sheep
-    'Event/defaults/xdabn2ulil3k4sxcaat1', // pigs
-    'Event/defaults/h4jbx7exu0ttrcopmvcy', // elephants
-    'Event/defaults/hlmllj77ln4nr69fn7jf', // birds
-    'Event/defaults/dic1sxm86xcvoavnhpnn', // wind farm & field
-    'Event/defaults/gumqg9zryaqirtldgast', // lake & mountains
     'Event/defaults/ucbrkw7gdmacm4soorui', // clouds
+    'Event/defaults/k7bdilxm08silijqdn2v', // sprout
+    
     'Event/defaults/kaib61wcuwtsgmq6elrs', // autumn trail
-    'Event/defaults/fg3ttihepxfss9ylun4f', // dog on hill
-    'Event/defaults/zhiyjstbfu1olxfbnuci', // camping picnic
+    'Event/defaults/hlmllj77ln4nr69fn7jf', // birds
+    
     'Event/defaults/astdsmglxtbcehnlo7g4', // group hike
+    'Event/defaults/zhiyjstbfu1olxfbnuci', // group picnic
+    
+    'Event/defaults/fg3ttihepxfss9ylun4f', // dog on hill
+    'Event/defaults/dqknjubfjt2crsmdspsw', // veggies
+  
     'Event/defaults/gtst9i5zvxk9hulnwigm', // books & coffee
     'Event/defaults/as81227r6jx8m4hydhb3', // bookshelf
-    'Event/defaults/dqknjubfjt2crsmdspsw', // veggies
-    'Event/defaults/cq99vatplysmhlv6drai', // virtual meeting
-    'Event/defaults/qvujytx4nomsrm3xu7on', // two people working
+    
     'Event/defaults/qdfqhekgmxtf2wbdbrq3', // desk with laptop & notebook
+    'Event/defaults/y1bt55znqoc2lvec70wp', // code
+    
+    'Event/defaults/qvujytx4nomsrm3xu7on', // two people working
     'Event/defaults/myksyxm0e1qszlbzzj9o', // post-its on wall
+  
     'Event/defaults/fsgbi942lcnepj7zylr5', // coffee hangout
     'Event/defaults/dgjptfxhtomlt5s96wgn', // wine hangout
+  
     'Event/defaults/akwwm4hecuwypw5ixte0', // outdoor party
     'Event/defaults/b8xpbqpegclnvc8x0taw', // sparkler
+    
+    'Event/defaults/cq99vatplysmhlv6drai', // virtual meeting
+    'Event/defaults/fs5rgzbtdnbcdegiszbw', // butterfly
+    
+    'Event/defaults/h4jbx7exu0ttrcopmvcy', // elephants
+    'Event/defaults/ycj85pqkcvp8q91rqn87', // sheep
+    
+    'Event/defaults/np7kecliyzhnlogyxelp', // pugsworth
+    'Event/defaults/diddy0dxe7lfoxnwtlvq', // jellyfish
+  
     'Event/defaults/uqi9pobdxb9dxbpomep0', // cells
     'Event/defaults/mtkocedjg5zx99ghkxnw', // pipette
+  
     'Event/defaults/s4pkf3kuhnigiov8effy', // coins
     'Event/defaults/ijfeayyzhxixbrxzvmm5', // lightbulb
-    'Event/defaults/diddy0dxe7lfoxnwtlvq', // jellyfish
-    'Event/defaults/np7kecliyzhnlogyxelp', // pugsworth
+    
+    'Event/defaults/dic1sxm86xcvoavnhpnn', // wind farm & field
+    'Event/defaults/gumqg9zryaqirtldgast', // lake & mountains
+  
     'Event/defaults/ubobbqry5uowozmptjop', // earth
     'Event/defaults/n33epog75uk7c1dgciod', // starry night
   ]
