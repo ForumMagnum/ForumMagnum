@@ -331,6 +331,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly endTime: Date | null,
   readonly localStartTime: Date,
   readonly localEndTime: Date,
+  readonly joinEventLink: string,
   readonly facebookLink: string,
   readonly meetupLink: string,
   readonly website: string,
