@@ -15,6 +15,7 @@ import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } fr
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
+import { userOverNKarmaFunc } from "../../vulcan-users";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 function eaFrontpageDate (document: Partial<DbPost>) {
@@ -223,8 +224,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
     optional: true,
     label: "Co-Authors",
     control: "UsersListEditor",
@@ -718,6 +719,20 @@ addFieldsDict(Posts, {
   localEndTime: {
     type: Date,
     viewableBy: ['guests'],
+  },
+  
+  joinEventLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Join Online Event Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   onlineEvent: {
