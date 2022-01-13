@@ -137,7 +137,16 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
 }
 
 async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Promise<string> {
-  return await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
+  // First try getting the document from /collaborations, then from /documents.
+  // The former corresponds to a running CkEditor process on CkEditor's servers,
+  // the latter to data at rest in their cloud saving thing. The former will
+  // fail if the document has timed out and is no longer being actively edited;
+  // the latter will fail if there's a bundle version mismatch.
+  try {
+    return await fetchCkEditorRestAPI("GET", `/collaborations/${ckEditorId}`);
+  } catch(e) {
+    return await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
+  }
 }
 
 async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId}: {
@@ -188,7 +197,7 @@ async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Pr
     },
   });
   if (!response.ok) {
-    console.error(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}`); //eslint-disable-line no-console
+    throw new Error(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}`); //eslint-disable-line no-console
   }
   const responseBody = await response.text();
   return responseBody;
@@ -253,3 +262,12 @@ async function uploadEditorBundle(bundleVersion: string): Promise<void> {
   });
 }
 Globals.uploadEditorBundle = uploadEditorBundle;
+
+async function checkEditorBundle(bundleVersion: string): Promise<void> {
+  if (!bundleVersion)
+    throw new Error("Missing argument: bundleVersion");
+  
+  const result = await fetchCkEditorRestAPI("GET", `/editors/${bundleVersion}/exists`);
+  console.log(result);
+}
+Globals.checkEditorBundle = checkEditorBundle;
