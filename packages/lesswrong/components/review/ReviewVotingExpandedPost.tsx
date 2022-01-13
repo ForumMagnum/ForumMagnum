@@ -64,7 +64,7 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
     <div className={classes.comments}>
       <PingbacksList postId={newPost._id}/>
       <ReviewPostComments
-        title="Reviews"
+        title="Review"
         terms={{
           view: "reviews",
           reviewYear: REVIEW_YEAR, 
@@ -73,7 +73,7 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
         post={newPost}
       />
       <ReviewPostComments
-        title="Unread Comments"
+        title="Unread Comment"
         terms={{
           view: "postsItemComments", 
           postId: newPost._id,
