@@ -8,7 +8,24 @@ import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 import { CommentTreeOptions } from './commentTree';
-import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip';
+
+export const SINGLE_LINE_PADDING_TOP = 5
+
+export const singleLineStyles = theme => ({
+  display: "flex",
+  borderRadius: 3,
+  backgroundColor: "#f0f0f0",
+  '&:hover': {
+    backgroundColor: "#e0e0e0",
+  },
+  ...commentBodyStyles(theme),
+  marginTop: 0,
+  marginBottom: 0,
+  paddingLeft: theme.spacing.unit,
+  paddingRight: theme.spacing.unit,
+  color: "rgba(0,0,0,.6)",
+  whiteSpace: "nowrap",
+})
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,23 +33,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   commentInfo: {
-    display: "flex",
-    borderRadius: 3,
-    backgroundColor: "#f0f0f0",
-    '&:hover': {
-      backgroundColor: "#e0e0e0",
-    },
-    ...commentBodyStyles(theme),
-    marginTop: 0,
-    marginBottom: 0,
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
-    color: "rgba(0,0,0,.6)",
-    whiteSpace: "nowrap",
+    ...singleLineStyles(theme)
   },
   username: {
     display:"inline-block",
-    padding: 5,
+    padding: SINGLE_LINE_PADDING_TOP,
     '& a, & a:hover': {
       color: "rgba(0,0,0,.87)",
     },
@@ -50,17 +55,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"inline-block",
     textAlign: "center",
     width: 30,
-    paddingTop: 5,
-    paddingRight: 5,
+    paddingTop: SINGLE_LINE_PADDING_TOP,
+    paddingRight: SINGLE_LINE_PADDING_TOP,
   },
   date: {
     display:"inline-block",
-    padding: 5,
+    padding: SINGLE_LINE_PADDING_TOP,
     paddingRight: theme.spacing.unit,
     paddingLeft: theme.spacing.unit
   },
   truncatedHighlight: {
-    padding: 5,
+    padding: SINGLE_LINE_PADDING_TOP,
     ...commentBodyStyles(theme),
     flexGrow: 1,
     overflow: "hidden",

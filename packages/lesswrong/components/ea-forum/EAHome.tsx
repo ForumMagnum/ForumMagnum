@@ -20,13 +20,10 @@ const EAHome = () => {
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
   const shouldRenderEventBanner = showEventBannerSetting.get()
-  const shouldRenderEAHomeHandbook = showHandbookBannerSetting.get() && userHasEAHomeHandbook(currentUser)
   const shouldRenderSmallpox = showSmallpoxSetting.get()
 
   return (
     <React.Fragment>
-      {shouldRenderEAHomeHandbook && <EAHomeHandbook documentId={eaHomeSequenceIdSetting.get()}/>}
-      
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
       

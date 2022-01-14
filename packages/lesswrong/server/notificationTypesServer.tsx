@@ -14,13 +14,11 @@ import { userGetDisplayName } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
-import './emailComponents/EventInRadiusEmail';
+import './emailComponents/EventUpdatedEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
-import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
-import { post } from 'request';
 
 interface ServerNotificationType {
   name: string,
@@ -356,8 +354,7 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
     return `Event in your area updated: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    return <Components.EventInRadiusEmail
-      openingSentence="An event in your area has been updated"
+    return <Components.EventUpdatedEmail
       postId={notifications[0].documentId}
     />
   },

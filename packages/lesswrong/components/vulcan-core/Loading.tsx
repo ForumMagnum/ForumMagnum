@@ -1,5 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   spinner: {
@@ -44,9 +45,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const Loading = ({classes}: {classes: ClassesType}) => {
+const Loading = ({classes, className}: {classes: ClassesType, className?: string}) => {
   return (
-    <div className={`${classes.spinner}`}>
+    <div className={classNames(classes.spinner, className)}>
       <div className={classes.bounce1}></div>
       <div className={classes.bounce2}></div>
       <div className={classes.bounce3}></div>

@@ -43,6 +43,17 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
   }
 });
 
+getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
+  if (user.displayName !== oldUser.displayName) {
+    await updateMutator({
+      collection: Users,
+      documentId: user._id,
+      set: {previousDisplayName: oldUser.displayName},
+      currentUser: user,
+      validate: false,
+    });
+  }
+});
 
 getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
