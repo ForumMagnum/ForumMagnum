@@ -135,7 +135,7 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
   if (
     (
       !_.isEqual(newPost.mongoLocation, oldPost.mongoLocation) ||
-      (newPost.onlineEvent !== oldPost.onlineEvent) ||
+      (newPost.joinEventLink !== oldPost.joinEventLink) ||
       (newPost.startTime !== oldPost.startTime) || 
       (newPost.endTime !== oldPost.endTime)
     )

@@ -16,24 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   itemIsLoading: {
     opacity: .4,
   },
-  loading: {
-    '&&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
   posts: {
     boxShadow: theme.boxShadow
-  },
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left",
-    '&&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
   }
 })
 
@@ -196,7 +180,7 @@ const PostsList2 = ({
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        { (maybeMorePosts||loading) && <div className={classes.loadMore}>
+        { (maybeMorePosts||loading) && 
           <LoadMore
             {...loadMoreProps}
             loadMore={() => {
@@ -204,8 +188,9 @@ const PostsList2 = ({
               setHaveLoadedMore(true);
             }}
             hideLoading={dimWhenLoading || !showLoading}
+            sectionFooterStyles
           />
-        </div>}
+        }
         { children }
       </SectionFooter>}
     </div>
