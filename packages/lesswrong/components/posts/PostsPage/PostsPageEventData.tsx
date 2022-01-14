@@ -21,6 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     textOverflow: 'ellipsis',
     overflow: 'hidden',
+    whiteSpace: 'nowrap'
   },
   joinEventLink: {
     flex: 'none',

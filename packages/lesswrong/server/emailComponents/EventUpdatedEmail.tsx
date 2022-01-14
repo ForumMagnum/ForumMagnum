@@ -51,6 +51,17 @@ const EventUpdatedEmail = ({postId, classes}: {
   if (loading || !post) return null;
   
   const link = postGetPageUrl(post, true);
+  
+  // event location - for online events, attempt to show the meeting link
+  let eventLocation: string|JSX.Element = post.location
+  if (post.onlineEvent) {
+    eventLocation = post.joinEventLink ? <a
+      className={classes.onlineEventLocation}
+      href={post.joinEventLink}
+      target="_blank" rel="noopener noreferrer">
+        {post.joinEventLink}
+    </a> : "Online event"
+  }
     
   return <div className={classes.root}>
     <div className={classes.headingSection}>
@@ -67,7 +78,7 @@ const EventUpdatedEmail = ({postId, classes}: {
     </p>
     <p>
       <div className={classes.label}>Location</div>
-      <div className={classes.data}>{post.onlineEvent ? 'Online event' : post.location}</div>
+      <div className={classes.data}>{eventLocation}</div>
     </p>
   </div>
 }
