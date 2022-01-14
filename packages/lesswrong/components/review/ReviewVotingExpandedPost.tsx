@@ -1,6 +1,6 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -63,17 +63,17 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
 
     <div className={classes.comments}>
       <PingbacksList postId={newPost._id}/>
-      <ReviewPostComments
-        title="Reviews"
+      {(getReviewPhase() !== "VOTING") && <ReviewPostComments
+        title="Review"
         terms={{
           view: "reviews",
           reviewYear: REVIEW_YEAR, 
           postId: newPost._id
         }}
         post={newPost}
-      />
+      />}
       <ReviewPostComments
-        title="Unread Comments"
+        title="Unread Comment"
         terms={{
           view: "postsItemComments", 
           postId: newPost._id,
