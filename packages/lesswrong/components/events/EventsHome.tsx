@@ -17,6 +17,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { prettyEventDateTimes } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../common/withTimezone';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { geoSuggestStyles } from '../form-components/LocationFormComponent'
+import Geosuggest from 'react-geosuggest';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   highlightCard: {
@@ -207,15 +209,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       color: '#085d6c',
     }
   },
+  
+  geoSuggest: {
+    ...geoSuggestStyles(theme),
+  },
 }))
-
-interface ExternalProps {
-}
-interface EventsHomeProps extends ExternalProps, WithMessagesProps, WithLocationProps, WithDialogProps {
-}
-interface EventsHomeState {
-  currentUserLocation: any,
-}
 
 /**
  * Randomly assigns one of twelve images to the event based on its _id.
@@ -349,27 +347,27 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime } = Components
+  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading } = Components
 
-  const filters = {}
+  const filters: PostsViewTerms = {}
   if (placeFilter === 'in-person') {
     filters.onlineEvent = false
   } else if (placeFilter === 'online') {
     filters.onlineEvent = true
   }
   
-  console.log('currentUserLocation', currentUserLocation)
-  console.log('userLocation', userLocation)
-  const eventsListTerms = userLocation ? {
-    view: 'events', //'nearbyEvents',
+  const eventsListTerms: PostsViewTerms = userLocation ? {
+    view: 'nearbyEvents',
     lat: userLocation.lat,
     lng: userLocation.lng,
+    ...filters,
   } : {
     view: 'globalEvents',
+    ...filters,
   }
   
   const { results, loading, error, showLoadMore, loadMore } = useMulti({
-    terms: Object.assign(eventsListTerms, filters),
+    terms: eventsListTerms,
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
@@ -378,8 +376,6 @@ const EventsHome = ({classes}: {
     itemsPerPage: 6,
     skip: !userLocation && currentUserLocation.loading
   });
-  console.log('loading', loading)
-  console.log('results', results)
   
   let highlightedEvent: PostsList|null = null;
   if (results && results.length > 0) {
@@ -390,7 +386,6 @@ const EventsHome = ({classes}: {
     })
     if (!highlightedEvent) highlightedEvent = results[0]
   }
-  console.log('highlightedEvent', highlightedEvent)
   
   const cardBackground = highlightedEvent ? {
     backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.63), rgba(0, 87, 102, 0.63)), url(${randomEventImg(highlightedEvent._id)})`
@@ -430,6 +425,23 @@ const EventsHome = ({classes}: {
             Connect with people near you and around the world who are trying to find the best ways to help others. Learn, discuss, collaborate, or just hang out with like-minded people.
           </div>
           
+          <div className={classes.where}>
+            Showing events near {mapsLoaded
+              ? <div className={classes.geoSuggest}>
+                  <Geosuggest
+                    placeholder="Location"
+                    onSuggestSelect={(suggestion) => {
+                      if (suggestion?.location) {
+                        setUserLocation(suggestion.location);
+                      }
+                    }}
+                    initialValue={"" /*TODO*/}
+                  />
+                </div>
+              : <Loading/>
+            }
+          </div>
+          
           <div className={classes.filters}>
             <Select
               className={classes.filter}
@@ -445,9 +457,8 @@ const EventsHome = ({classes}: {
               return <Card key={event._id} className={classes.eventCard}>
                 <CardMedia
                   component="img"
-                  height="150"
                   image={randomEventImg(event._id)}
-                  style={{objectFit: 'cover', borderRadius: '4px 4px 0 0'}}
+                  style={{objectFit: 'cover', borderRadius: '4px 4px 0 0', height: "150px"}}
                 />
                 <CardContent className={classes.eventCardContent}>
                   <div className={classes.eventCardTitle} title={event.title}>
