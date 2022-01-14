@@ -302,12 +302,10 @@ const ReviewVotingPage = ({classes}: {
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
   let defaultSort = ""
-  console.log(getReviewPhase())
   if (getReviewPhase() === "REVIEWS") { 
     defaultSort = "needsReview"
   }
   if (getReviewPhase() === "VOTING") { defaultSort = "needsFinalVote"}
-  console.log(defaultSort)
 
   const [sortPosts, setSortPosts] = useState(defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
@@ -363,7 +361,6 @@ const ReviewVotingPage = ({classes}: {
         }
 
         if (sortPosts === "needsFinalVote") {
-          console.log(post1)
           const post1NotVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
           const post2NotVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
           if (post1NotVoted && !post2NotVoted) return -1
