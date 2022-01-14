@@ -22,8 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   expanded: {
     background: "white",
+    margin: "auto",
     marginBottom: 20,
-    padding: 16
+    padding: 16,
   },
   boxShadow: {
     boxShadow: "0 1px 5px rgb(0 0 0 / 10%)"
