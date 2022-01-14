@@ -90,7 +90,6 @@ const formPreviewSizeByImageType = {
   }
 }
 
-// class ImageUpload extends Component<any,any> {
 const ImageUpload = ({name, document, updateCurrentValues, clearField, label, classes}: {
   name: string,
   document: Object,
@@ -191,7 +190,10 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
       </Button>
       {(name === 'eventImageId') && <Button
         variant="outlined"
-        onClick={() => openDialog({componentName: "ImageUploadDefaultsDialog", componentProps: {onSelect: chooseDefaultImg}})}
+        onClick={() => openDialog({
+          componentName: "ImageUploadDefaultsDialog",
+          componentProps: {onSelect: chooseDefaultImg}
+        })}
         className={classes.chooseButton}
       >
         Choose from ours

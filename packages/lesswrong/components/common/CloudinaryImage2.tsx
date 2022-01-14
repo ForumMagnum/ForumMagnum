@@ -2,14 +2,15 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
+// see their documentation: https://cloudinary.com/documentation/transformation_reference
 export type CloudinaryPropsType = {
-  dpr?: string,
-  ar?: string,
-  w?: string,
-  h?: string,
-  c?: string,
-  g?: string,
-  q?: string
+  dpr?: string, // device pixel ratio
+  ar?: string,  // aspect ratio
+  w?: string,   // width
+  h?: string,   // height
+  c?: string,   // crop
+  g?: string,   // gravity
+  q?: string    // quality
 }
 
 function cloudinaryPropsToStr(props) {

@@ -96,12 +96,23 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes }: {
       <DialogContent>
         <div className={classes.images}>
           {...defaultImages.map((img) => {
-            return <div key={img} className={classes.image} onClick={() => selectImg(img)}>
-              <CloudinaryImage
-                publicId={img}
-                width={240}
-                height={135}
-              />
+            return <div key={img}
+              className={classes.image}
+              onClick={() => selectImg(img)}
+              onKeyDown={(e) => {
+                // pressing the "Enter" key selects the image
+                if (e.keyCode === 13) {
+                  e.preventDefault()
+                  selectImg(img)
+                }
+              }}
+              tabIndex={0}
+            >
+                <CloudinaryImage
+                  publicId={img}
+                  width={240}
+                  height={135}
+                />
             </div>
           })}
         </div>

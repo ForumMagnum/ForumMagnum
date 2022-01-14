@@ -857,7 +857,7 @@ addFieldsDict(Posts, {
     label: "Event Image",
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    editableBy: ['members'],
     control: "ImageUpload",
     group: formGroups.event,
     tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
