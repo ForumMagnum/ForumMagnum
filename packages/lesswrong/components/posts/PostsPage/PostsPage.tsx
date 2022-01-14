@@ -13,6 +13,36 @@ import { viewNames } from '../../comments/CommentsViews';
 
 export const MAX_COLUMN_WIDTH = 720
 
+const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [/crossposted/i, /epistemic status/i];
+
+/** TODO document */
+export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigationAndRevision) => {
+  if (post.contents?.plaintextDescription) {
+    // concatenate the first few paragraphs together up to some reasonable length
+    const firstFewPars = post.contents.plaintextDescription
+      // paragraphs in the plaintext description are separated by double-newlines
+      .split(/\n\n/)
+      // get rid of bullshit opening text ('epistemic status' or 'crossposted from' etc)
+      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)))
+      // concatenate paragraphs together with a delimiter, until they reach an
+      // acceptable length (target is 100-200 characters)
+      // this will return a longer description if one of the first couple of
+      // paragraphs is longer than 200
+      .reduce((acc, curr, i) => {
+        const concat = `${acc}${i > 0 ? ` • ` : ""}${curr}`;
+        if (acc.length < 40) return concat;
+        if (concat.length < 150) return concat;
+        return acc;
+      }, "");
+    return firstFewPars;
+  }
+  if (post.shortform)
+    return `A collection of shorter posts ${
+      post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""
+    }`;
+  return null;
+};
+
 // Also used in PostsCompareRevisions
 export const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -61,12 +91,6 @@ const PostsPage = ({post, refetch, classes}: {
     }
 
     return false;
-  }
-
-  const getPostDescription = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
-    if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
-    if (post.shortform) return `A collection of shorter posts ${post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ''}`
-    return null
   }
 
   const { query, params } = location;
