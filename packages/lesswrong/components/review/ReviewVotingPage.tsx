@@ -300,7 +300,16 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
-  const [sortPosts, setSortPosts] = useState("needsReview")
+
+  let defaultSort = ""
+  console.log(getReviewPhase())
+  if (getReviewPhase() === "REVIEWS") { 
+    defaultSort = "needsReview"
+  }
+  if (getReviewPhase() === "VOTING") { defaultSort = "needsFinalVote"}
+  console.log(defaultSort)
+
+  const [sortPosts, setSortPosts] = useState(defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
 
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
@@ -351,6 +360,14 @@ const ReviewVotingPage = ({classes}: {
           if (post2NeedsReview && !post1NeedsReview) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+        }
+
+        if (sortPosts === "needsFinalVote") {
+          console.log(post1)
+          const post1NotVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
+          const post2NotVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
+          if (post1NotVoted && !post2NotVoted) return -1
+          if (post2NotVoted && !post1NotVoted) return 1
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
@@ -586,9 +603,14 @@ const ReviewVotingPage = ({classes}: {
                 <MenuItem value={'reviewCount'}>
                   <span className={classes.sortBy}>Sort by</span> Review Count
                 </MenuItem>
-                <MenuItem value={'needsReview'}>
-                  <span className={classes.sortBy}>Sort by</span> Needs Review
-                </MenuItem>
+                {getReviewPhase() === "REVIEWS" && 
+                  <MenuItem value={'needsReview'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Review
+                  </MenuItem>}
+                {getReviewPhase() === "VOTING" && 
+                  <MenuItem value={'needsFinalVote'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Vote
+                  </MenuItem>}
               </Select>
             </div>
           </div>
