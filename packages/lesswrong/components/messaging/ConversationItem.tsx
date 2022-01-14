@@ -22,7 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   expanded: {
     background: "white",
-    margin: "auto",
     marginBottom: 20,
     padding: 16,
   },
