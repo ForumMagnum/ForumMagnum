@@ -67,7 +67,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
     captureEvent("loadMoreClicked")
   }
 
-  if (!hideLoading && loading || (networkStatus && queryIsUpdating(networkStatus))) {
+  if (!hideLoading && (loading || (networkStatus && queryIsUpdating(networkStatus)))) {
     return <Loading className={classNames(classes.loading, {[classes.sectionFooterStyles]: sectionFooterStyles})} />
   }
 
