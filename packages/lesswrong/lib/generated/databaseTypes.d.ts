@@ -420,6 +420,7 @@ interface DbPost extends DbObject {
   localStartTime: Date
   endTime: Date | null
   localEndTime: Date
+  eventRegistrationLink: string
   joinEventLink: string
   onlineEvent: boolean
   globalEvent: boolean
