@@ -337,7 +337,7 @@ const ReviewVotingPage = ({classes}: {
     if (!oldPosts) return
 
     const randomPermutation = generatePermutation(oldPosts.length, currentUser)
-    const newlySortedPosts = posts
+    const newlySortedPosts = oldPosts
       .map((post, i) => ([post, randomPermutation[i]] as const))
       .sort(([inputPost1, permuted1], [inputPost2, permuted2]) => {
         const post1 = sortReversed ? inputPost2 : inputPost1
