@@ -538,6 +538,7 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
+            {!postsResults && <div className={classes.postCount}>ERROR: Please Refresh</div>}
             {sortedPosts && 
               <div className={classes.postCount}>
                 <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
