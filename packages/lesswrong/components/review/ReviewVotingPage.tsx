@@ -303,6 +303,7 @@ const ReviewVotingPage = ({classes}: {
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
   if (postsError) {
+    // eslint-disable-next-line no-console
     console.error('Error loading posts', postsError);
   }
 
