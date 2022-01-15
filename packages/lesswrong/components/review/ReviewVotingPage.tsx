@@ -368,10 +368,14 @@ const ReviewVotingPage = ({classes}: {
         }
 
         if (sortPosts === "needsFinalVote") {
-          const post1NotVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
-          const post2NotVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
-          if (post1NotVoted && !post2NotVoted) return -1
-          if (post2NotVoted && !post1NotVoted) return 1
+          const post1NotReviewVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
+          const post2NotReviewVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
+          const post1NotKarmaVoted = post1.currentUserVote === null 
+          const post2NotKarmaVoted = post2.currentUserVote === null
+          if (post1NotReviewVoted && !post2NotReviewVoted) return -1
+          if (post2NotReviewVoted && !post1NotReviewVoted) return 1
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
           if (permuted1 < permuted2) return -1;
