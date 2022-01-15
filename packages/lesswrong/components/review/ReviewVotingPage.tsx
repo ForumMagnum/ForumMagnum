@@ -383,10 +383,10 @@ const ReviewVotingPage = ({classes}: {
           const post2NotKarmaVoted = post2.currentUserVote === null
           if (post1NotReviewVoted && !post2NotReviewVoted) return -1
           if (post2NotReviewVoted && !post1NotReviewVoted) return 1
-          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
-          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (permuted1 < permuted2) return -1;
           if (permuted1 > permuted2) return 1;
         }
@@ -543,7 +543,9 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
+
             {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>}
+
             {sortedPosts && 
               <div className={classes.postCount}>
                 <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
