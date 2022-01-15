@@ -550,11 +550,11 @@ const ReviewVotingPage = ({classes}: {
               </div>
             }
 
-            <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+            {!isEAForum && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
               <LWTooltip title={<div><p>You have {500 - voteTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
                 {voteTotal}/500
               </LWTooltip>
-            </div>
+            </div>}
             
             {/* Turned off for the Preliminary Voting phase */}
             {/* {getReviewPhase() === "VOTING" && <>
