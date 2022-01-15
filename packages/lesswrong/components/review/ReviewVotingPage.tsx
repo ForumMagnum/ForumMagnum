@@ -416,6 +416,11 @@ const ReviewVotingPage = ({classes}: {
   }, [currentUser, captureEvent, postsResults])
   
   const canInitialResort = !!postsResults
+
+  useEffect(() => {
+    setVoteTotal(getVoteTotal(postsResults))
+  }, [canInitialResort, postsResults])
+
   useEffect(() => {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
@@ -554,11 +559,11 @@ const ReviewVotingPage = ({classes}: {
                   </span>
                 </LWTooltip> 
                 {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
-                {(postsLoading || loading) && <Loading/>}
               </div>
             }
+            {(postsLoading || loading) && <Loading/>}
 
-            {!isEAForum && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+            {!isEAForum && voteTotal && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
               <LWTooltip title={<div><p>You have {500 - voteTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
                 {voteTotal}/500
               </LWTooltip>
