@@ -407,7 +407,6 @@ const ReviewVotingPage = ({classes}: {
       .map(([post, _]) => post)
     setSortedPosts(newlySortedPosts)
     setPostsHaveBeenSorted(true)
-    setVoteTotal(getVoteTotal(postsResults))
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }, [currentUser, captureEvent, postsResults])
   
