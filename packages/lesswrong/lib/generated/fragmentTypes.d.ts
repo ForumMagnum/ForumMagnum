@@ -436,6 +436,7 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 }
 
 interface PostsList extends PostsListBase { // fragment on Posts
+  readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
 }
 

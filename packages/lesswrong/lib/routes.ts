@@ -146,6 +146,13 @@ addRoute(
     background: "white"
   },
   {
+    name:'users.drafts',
+    path:'/drafts',
+    componentName: 'DraftsPage',
+    title: "Drafts & Unpublished",
+    background: "white"
+  },
+  {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
