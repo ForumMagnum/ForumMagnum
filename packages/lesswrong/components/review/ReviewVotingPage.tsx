@@ -414,7 +414,7 @@ const ReviewVotingPage = ({classes}: {
 
   useEffect(() => {
     setVoteTotal(getVoteTotal(postsResults))
-  }, [canInitialResort])
+  }, [canInitialResort, postsResults])
 
   useEffect(() => {
     reSortPosts(sortPosts, sortReversed)
