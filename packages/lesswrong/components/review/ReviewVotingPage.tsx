@@ -24,6 +24,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
+import { object } from 'underscore';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -367,6 +368,8 @@ const ReviewVotingPage = ({classes}: {
           if (post2NotVoted && !post1NotVoted) return 1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (permuted1 < permuted2) return -1;
+          if (permuted1 > permuted2) return 1;
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
