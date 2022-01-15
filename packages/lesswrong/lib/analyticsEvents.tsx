@@ -10,7 +10,7 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import * as _ from 'underscore';
 import moment from 'moment';
 
-const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
+const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "never");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
 
 addGraphQLSchema(`

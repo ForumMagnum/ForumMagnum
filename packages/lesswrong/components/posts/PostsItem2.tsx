@@ -1,7 +1,13 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount } from "../../lib/collections/posts/helpers";
+import {
+  postGetPageUrl,
+  postGetLastCommentedAt,
+  postGetLastCommentPromotedAt,
+  postGetCommentCount,
+  postCanDelete
+} from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -269,6 +275,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
+const archiveDraftTooltip = "Archive this draft (hide from list)"
+
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) => {
@@ -306,9 +314,13 @@ const PostsItem2 = ({
   // dismissRecommendation: If this is a Resume Reading suggestion, a callback
   // to dismiss it.
   dismissRecommendation,
+  draft,
+  // deleteDraft, if this is a draft, a callback to delete/archive it
+  toggleDeleteDraft,
   showBottomBorder=true,
   showQuestionTag=true,
   showDraftTag=true,
+  showPersonalIcon=true,
   showIcons=true,
   showPostedAt=true,
   defaultToShowUnreadComments=false,
@@ -323,7 +335,8 @@ const PostsItem2 = ({
   showReviewCount=false,
   hideAuthor=false,
   classes,
-  curatedIconLeft=false
+  curatedIconLeft=false,
+  strikethroughTitle=false,
 }: {
   post: PostsList,
   tagRel?: WithVoteTagRel|null,
@@ -334,9 +347,12 @@ const PostsItem2 = ({
   terms?: any,
   resumeReading?: any,
   dismissRecommendation?: any,
+  draft?: boolean
+  toggleDeleteDraft?: any,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
   showDraftTag?: boolean,
+  showPersonalIcon?: boolean
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -346,7 +362,8 @@ const PostsItem2 = ({
   showReviewCount?: boolean,
   hideAuthor?: boolean,
   classes: ClassesType,
-  curatedIconLeft?: boolean
+  curatedIconLeft?: boolean,
+  strikethroughTitle?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -406,6 +423,12 @@ const PostsItem2 = ({
       <CloseIcon onClick={() => dismissRecommendation()}/>
     </LWTooltip>
   )
+  
+  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) &&
+    <LWTooltip title={archiveDraftTooltip} placement="right">
+      <CloseIcon onClick={() => toggleDeleteDraft(post)}/>
+    </LWTooltip>
+  )
 
   const commentTerms: CommentsViewTerms = {
     view:"postsItemComments", 
@@ -455,7 +478,9 @@ const PostsItem2 = ({
                       sticky={isSticky(post, terms)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
+                      showPersonalIcon={showPersonalIcon}
                       curatedIconLeft={curatedIconLeft}
+                      strikethroughTitle={strikethroughTitle}
                     />
                   </AnalyticsTracker>
                 </span>
@@ -542,6 +567,7 @@ const PostsItem2 = ({
           {<div className={classes.actions}>
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
+            {archiveButton}
           </div>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
