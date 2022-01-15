@@ -259,7 +259,7 @@ const ReviewVoteTableRow = (
             <PostsItemReviewVote post={post} marginRight={false}/>
           </div>}
           {currentUserIsAuthor && <LWTooltip title="You can't vote on your own posts">
-            <div className={classes.disabledVote}>Vote</div>
+            <div className={classes.disabledVote}>Can't Vote</div>
           </LWTooltip>}
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
