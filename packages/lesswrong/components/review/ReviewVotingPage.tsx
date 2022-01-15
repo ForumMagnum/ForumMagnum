@@ -257,7 +257,7 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
 
-  const { results, loading: postsLoading } = useMulti({
+  const { results, loading: postsLoading, error: postsError } = useMulti({
     terms: {
       view: getReviewPhase() === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
@@ -301,6 +301,10 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+
+  if (postsError) {
+    console.error('Error loading posts', postsError);
+  }
 
   function getVoteTotal (posts) {
     return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
