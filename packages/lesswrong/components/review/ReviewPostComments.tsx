@@ -64,7 +64,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
       </div>}
       <SubSection>
         {loading && <div>
-            {placeholderArray.map((pl,i) => <div className={classes.singleLinePlaceholder} key={`placeholder${post._id}${new Date()}${pl}`}/>)}
+            {placeholderArray.map((pl,i) => <div className={classes.singleLinePlaceholder} key={`placeholder${post._id}${new Date()}${i}`}/>)}
           </div>}
         {singleLine ? <CommentsList
           treeOptions={{
