@@ -332,11 +332,12 @@ const ReviewVotingPage = ({classes}: {
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
-  const reSortPosts = useCallback((sortPosts, sortReversed) => {
-    if (!postsResults) return
+  const reSortPosts = useCallback((sortPosts, sortReversed, posts) => {
+    const oldPosts = postsResults || posts
+    if (!oldPosts) return
 
-    const randomPermutation = generatePermutation(postsResults.length, currentUser)
-    const newlySortedPosts = postsResults
+    const randomPermutation = generatePermutation(oldPosts.length, currentUser)
+    const newlySortedPosts = posts
       .map((post, i) => ([post, randomPermutation[i]] as const))
       .sort(([inputPost1, permuted1], [inputPost2, permuted2]) => {
         const post1 = sortReversed ? inputPost2 : inputPost1
@@ -380,7 +381,7 @@ const ReviewVotingPage = ({classes}: {
   
   const canInitialResort = !!postsResults
   useEffect(() => {
-    reSortPosts(sortPosts, sortReversed)
+    reSortPosts(sortPosts, sortReversed, sortedPosts)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
   
   const quadraticVotes = useMemo(
