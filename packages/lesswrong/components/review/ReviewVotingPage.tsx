@@ -133,20 +133,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   comments: {
   },
   voteTotal: {
-    ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    marginLeft: 10,
+    color: theme.palette.grey[600],
+    marginRight: "auto",
+    whiteSpace: "pre"
   },
   excessVotes: {
     color: theme.palette.error.main,
-    border: `solid 1px ${theme.palette.error.light}`,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 6,
-    paddingBottom: 6,
-    borderRadius: 3,
-    '&:hover': {
-      opacity: .5
-    }
+    // border: `solid 1px ${theme.palette.error.light}`,
+    // paddingLeft: 12,
+    // paddingRight: 12,
+    // paddingTop: 6,
+    // paddingBottom: 6,
+    // borderRadius: 3,
+    // '&:hover': {
+    //   opacity: .5
+    // }
   },
   message: {
     width: "100%",
@@ -274,10 +277,6 @@ const ReviewVotingPage = ({classes}: {
     fragmentName: 'UsersCurrent',
   });
 
-  const initialVoteCost = postsResults?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
-  const [voteCost, setVoteCost] = useState<number>(initialVoteCost)
-  console.log(voteCost)
-
   const [submitVote] = useMutation(gql`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
       submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
@@ -286,12 +285,7 @@ const ReviewVotingPage = ({classes}: {
     }
     ${getFragment("reviewVoteFragment")}
   `, {
-    update: (store, mutationResult) => {
-      const qualitativeScore = mutationResult.data.submitReviewVote.qualitativeScore
-      const cost = indexToTermsLookup[qualitativeScore || 0].cost
-      
-      console.log(qualitativeScore)
-      console.log("A", mutationResult)
+    update: (store, mutationResult) => {  
       updateEachQueryResultOfType({
         func: handleUpdateMutation,
         document: mutationResult.data.submitReviewVote,
@@ -307,6 +301,11 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+
+  function getVoteTotal (posts) {
+    return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
+  }
+  const [voteTotal, setVoteTotal] = useState<number>(getVoteTotal(postsResults))
 
   let defaultSort = ""
   if (getReviewPhase() === "REVIEWS") { 
@@ -403,7 +402,7 @@ const ReviewVotingPage = ({classes}: {
       .map(([post, _]) => post)
     setSortedPosts(newlySortedPosts)
     setPostsHaveBeenSorted(true)
-    
+    setVoteTotal(getVoteTotal(postsResults))
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }, [currentUser, captureEvent, postsResults])
   
@@ -412,23 +411,23 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
   
-  const quadraticVotes = useMemo(
-    () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
-      postId: post._id,
-      score: post.currentUserReviewVote,
-      type: 'QUADRATIC' as const
-    } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
-    [sortedPosts]
-  )
+  // const quadraticVotes = useMemo(
+  //   () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
+  //     postId: post._id,
+  //     score: post.currentUserReviewVote,
+  //     type: 'QUADRATIC' as const
+  //   } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
+  //   [sortedPosts]
+  // )
 
-  const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
-  const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
+  // const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
+  // const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
 
-  const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
-    if (!quadraticVotes) return
-    const voteAdjustment = -Math.trunc(voteAverage)
-    quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
-  }
+  // const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
+  //   if (!quadraticVotes) return
+  //   const voteAdjustment = -Math.trunc(voteAverage)
+  //   quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
+  // }
 
   const instructions = isEAForum ?
     <div className={classes.instructions}>
@@ -538,15 +537,20 @@ const ReviewVotingPage = ({classes}: {
             {sortedPosts && 
               <div className={classes.postCount}>
                 <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
-                <span className={classes.reviewedCount}>
-                  {reviewedPosts?.length || 0} Reviewed Posts
-                </span>
+                  <span className={classes.reviewedCount}>
+                    {reviewedPosts?.length || 0} Reviewed Posts
+                  </span>
                 </LWTooltip> 
                 {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
+                {(postsLoading || loading) && <Loading/>}
               </div>
             }
-            
-            {(postsLoading || loading) && <Loading/>}
+
+            <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+              <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
+                {voteTotal}/500
+              </LWTooltip>
+            </div>
             
             {/* Turned off for the Preliminary Voting phase */}
             {/* {getReviewPhase() === "VOTING" && <>
