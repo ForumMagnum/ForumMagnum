@@ -68,10 +68,10 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {loading && <div>
             {placeholderArray.map((pl,i) => <div
               className={classes.singleLinePlaceholder}
-              key={`placeholder${post._id}${new Date()}${i}`}>
-                Loading...
-              </div>
-            )}
+              key={`placeholder${post._id}${new Date()}${i}`}
+            >
+              Loading...
+            </div>)}
           </div>}
         {singleLine ? <CommentsList
           treeOptions={{
