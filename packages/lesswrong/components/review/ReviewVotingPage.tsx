@@ -293,6 +293,7 @@ const ReviewVotingPage = ({classes}: {
     }
   });
 
+  const [originalSortedPosts, setOriginalSortedPosts] = useState(postsResults)
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
@@ -381,8 +382,8 @@ const ReviewVotingPage = ({classes}: {
   
   const canInitialResort = !!postsResults
   useEffect(() => {
-    reSortPosts(sortPosts, sortReversed, sortedPosts)
-  }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
+    reSortPosts(sortPosts, sortReversed, originalSortedPosts)
+  }, [canInitialResort, reSortPosts, sortPosts, sortReversed, originalSortedPosts])
   
   const quadraticVotes = useMemo(
     () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
