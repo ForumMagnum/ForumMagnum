@@ -351,8 +351,13 @@ const ReviewVotingPage = ({classes}: {
           const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
           const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
 
+          const post1isCurrentUsers = post1.userId === currentUser?._id
+          const post2isCurrentUsers = post2.userId === currentUser?._id
+
           if (post1NeedsReview && !post2NeedsReview) return -1
           if (post2NeedsReview && !post1NeedsReview) return 1
+          if (post1isCurrentUsers && !post2isCurrentUsers) return -1
+          if (post2isCurrentUsers && !post1isCurrentUsers) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
         }
