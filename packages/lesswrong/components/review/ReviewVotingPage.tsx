@@ -365,6 +365,8 @@ const ReviewVotingPage = ({classes}: {
           const post2NotVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
           if (post1NotVoted && !post2NotVoted) return -1
           if (post2NotVoted && !post1NotVoted) return 1
+          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
