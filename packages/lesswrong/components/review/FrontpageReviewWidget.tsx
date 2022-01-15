@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
-import { currentUserCanVote, eligibleToNominate, getReviewPhase, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { userIsAdmin } from '../../lib/vulcan-users';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -183,7 +183,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
-  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, SingleLineReviewsList, LatestReview, PostsList2 } = Components
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, LatestReview, PostsList2 } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render

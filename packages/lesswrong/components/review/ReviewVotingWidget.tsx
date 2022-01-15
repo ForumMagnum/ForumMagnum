@@ -60,7 +60,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
   return <ErrorBoundary>
       <div className={classes.root}>
         {showTitle && <p>
-          Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={annualReviewAnnouncementPostPathSetting.get()}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
+          Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
         </p>}
         <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVoteScore={post.currentUserReviewVote}/>
       </div>

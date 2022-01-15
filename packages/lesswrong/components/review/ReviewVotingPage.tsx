@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import Button from '@material-ui/core/Button';
 import sumBy from 'lodash/sumBy'
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
-import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
@@ -24,6 +21,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
+import { indexToTermsLookup } from './ReviewVotingButtons';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -135,20 +133,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   comments: {
   },
   voteTotal: {
-    ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    marginLeft: 10,
+    color: theme.palette.grey[600],
+    marginRight: "auto",
+    whiteSpace: "pre"
   },
   excessVotes: {
     color: theme.palette.error.main,
-    border: `solid 1px ${theme.palette.error.light}`,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 6,
-    paddingBottom: 6,
-    borderRadius: 3,
-    '&:hover': {
-      opacity: .5
-    }
+    // border: `solid 1px ${theme.palette.error.light}`,
+    // paddingLeft: 12,
+    // paddingRight: 12,
+    // paddingTop: 6,
+    // paddingBottom: 6,
+    // borderRadius: 3,
+    // '&:hover': {
+    //   opacity: .5
+    // }
   },
   message: {
     width: "100%",
@@ -284,7 +285,7 @@ const ReviewVotingPage = ({classes}: {
     }
     ${getFragment("reviewVoteFragment")}
   `, {
-    update: (store, mutationResult) => {
+    update: (store, mutationResult) => {  
       updateEachQueryResultOfType({
         func: handleUpdateMutation,
         document: mutationResult.data.submitReviewVote,
@@ -300,7 +301,19 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
-  const [sortPosts, setSortPosts] = useState("needsReview")
+
+  function getVoteTotal (posts) {
+    return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
+  }
+  const [voteTotal, setVoteTotal] = useState<number>(getVoteTotal(postsResults))
+
+  let defaultSort = ""
+  if (getReviewPhase() === "REVIEWS") { 
+    defaultSort = "needsReview"
+  }
+  if (getReviewPhase() === "VOTING") { defaultSort = "needsFinalVote"}
+
+  const [sortPosts, setSortPosts] = useState(defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
 
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
@@ -347,10 +360,30 @@ const ReviewVotingPage = ({classes}: {
           const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
           const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
 
+          const post1isCurrentUsers = post1.userId === currentUser?._id
+          const post2isCurrentUsers = post2.userId === currentUser?._id
+
           if (post1NeedsReview && !post2NeedsReview) return -1
           if (post2NeedsReview && !post1NeedsReview) return 1
+          if (post1isCurrentUsers && !post2isCurrentUsers) return -1
+          if (post2isCurrentUsers && !post1isCurrentUsers) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+        }
+
+        if (sortPosts === "needsFinalVote") {
+          const post1NotReviewVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
+          const post2NotReviewVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
+          const post1NotKarmaVoted = post1.currentUserVote === null 
+          const post2NotKarmaVoted = post2.currentUserVote === null
+          if (post1NotReviewVoted && !post2NotReviewVoted) return -1
+          if (post2NotReviewVoted && !post1NotReviewVoted) return 1
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
+          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (permuted1 < permuted2) return -1;
+          if (permuted1 > permuted2) return 1;
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
@@ -374,7 +407,6 @@ const ReviewVotingPage = ({classes}: {
       .map(([post, _]) => post)
     setSortedPosts(newlySortedPosts)
     setPostsHaveBeenSorted(true)
-    
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }, [currentUser, captureEvent, postsResults])
   
@@ -383,24 +415,24 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
   
-  const quadraticVotes = useMemo(
-    () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
-      postId: post._id,
-      score: post.currentUserReviewVote,
-      type: 'QUADRATIC' as const
-    } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
-    [sortedPosts]
-  )
+  // const quadraticVotes = useMemo(
+  //   () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
+  //     postId: post._id,
+  //     score: post.currentUserReviewVote,
+  //     type: 'QUADRATIC' as const
+  //   } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
+  //   [sortedPosts]
+  // )
 
-  const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
-  const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
+  // const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
+  // const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
 
-  const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
-    if (!quadraticVotes) return
-    const voteAdjustment = -Math.trunc(voteAverage)
-    quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
-  }
-  
+  // const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
+  //   if (!quadraticVotes) return
+  //   const voteAdjustment = -Math.trunc(voteAverage)
+  //   quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
+  // }
+
   const instructions = isEAForum ?
     <div className={classes.instructions}>
       <p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
@@ -509,15 +541,20 @@ const ReviewVotingPage = ({classes}: {
             {sortedPosts && 
               <div className={classes.postCount}>
                 <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
-                <span className={classes.reviewedCount}>
-                  {reviewedPosts?.length || 0} Reviewed Posts
-                </span>
+                  <span className={classes.reviewedCount}>
+                    {reviewedPosts?.length || 0} Reviewed Posts
+                  </span>
                 </LWTooltip> 
                 {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
+                {(postsLoading || loading) && <Loading/>}
               </div>
             }
-            
-            {(postsLoading || loading) && <Loading/>}
+
+            {!isEAForum && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+              <LWTooltip title={<div><p>You have {500 - voteTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
+                {voteTotal}/500
+              </LWTooltip>
+            </div>}
             
             {/* Turned off for the Preliminary Voting phase */}
             {/* {getReviewPhase() === "VOTING" && <>
@@ -586,9 +623,14 @@ const ReviewVotingPage = ({classes}: {
                 <MenuItem value={'reviewCount'}>
                   <span className={classes.sortBy}>Sort by</span> Review Count
                 </MenuItem>
-                <MenuItem value={'needsReview'}>
-                  <span className={classes.sortBy}>Sort by</span> Needs Review
-                </MenuItem>
+                {getReviewPhase() === "REVIEWS" && 
+                  <MenuItem value={'needsReview'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Review
+                  </MenuItem>}
+                {getReviewPhase() === "VOTING" && 
+                  <MenuItem value={'needsFinalVote'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Vote
+                  </MenuItem>}
               </Select>
             </div>
           </div>

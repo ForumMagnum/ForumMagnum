@@ -1343,8 +1343,8 @@ ensureIndex(Posts,
 Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewCount: { $gte: 1},
-      positiveReviewVoteCount: { $gte: 1 },
+      reviewCount: { $gte: 1 },
+      positiveReviewVoteCount: { $gte: 1 }, // TODO: Ray thinks next year this should change to "has at least 4 points"
     },
     options: {
       // This sorts the posts deterministically, which is important for the
