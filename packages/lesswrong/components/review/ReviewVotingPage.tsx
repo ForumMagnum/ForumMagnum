@@ -21,6 +21,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
+import { indexToTermsLookup } from './ReviewVotingButtons';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -273,6 +274,10 @@ const ReviewVotingPage = ({classes}: {
     fragmentName: 'UsersCurrent',
   });
 
+  const initialVoteCost = postsResults?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
+  const [voteCost, setVoteCost] = useState<number>(initialVoteCost)
+  console.log(voteCost)
+
   const [submitVote] = useMutation(gql`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
       submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
@@ -282,6 +287,11 @@ const ReviewVotingPage = ({classes}: {
     ${getFragment("reviewVoteFragment")}
   `, {
     update: (store, mutationResult) => {
+      const qualitativeScore = mutationResult.data.submitReviewVote.qualitativeScore
+      const cost = indexToTermsLookup[qualitativeScore || 0].cost
+      
+      console.log(qualitativeScore)
+      console.log("A", mutationResult)
       updateEachQueryResultOfType({
         func: handleUpdateMutation,
         document: mutationResult.data.submitReviewVote,
@@ -415,7 +425,7 @@ const ReviewVotingPage = ({classes}: {
     const voteAdjustment = -Math.trunc(voteAverage)
     quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
   }
-  
+
   const instructions = isEAForum ?
     <div className={classes.instructions}>
       <p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
