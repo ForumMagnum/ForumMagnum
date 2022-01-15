@@ -52,14 +52,42 @@ const styles = (theme: ThemeType) => ({
 })
 
 export const indexToTermsLookup = {
-  0: {label: null, tooltip: null},
-  1: { label: "-9", tooltip: "Highly misleading, harmful, or unimportant."},
-  2: { label: "-4", tooltip: "Very misleading, harmful, or unimportant."},
-  3: { label: "-1", tooltip: "Misleading, harmful or unimportant"},
-  4: { label: "0", tooltip: "No strong opinion on this post"},
-  5: { label: "1", tooltip: "Good."},
-  6: { label: "4", tooltip: "Quite important."},
-  7: { label: "9", tooltip: "A crucial piece of intellectual work."},
+  0: {label: null, cost: 0, tooltip: null},
+  1: { label: "-9", cost: 45, tooltip: 
+    <div>
+      <p>Highly misleading, harmful, or unimportant.</p>
+      <p><em>Costs 45 points</em></p>
+    </div>},
+  2: { label: "-4", cost: 10, tooltip: 
+  <div>
+    <p>Very misleading, harmful, or unimportant.</p>
+    <p><em>Costs 10 points</em></p>
+  </div>},
+  3: { label: "-1", cost: 1, tooltip: 
+  <div>
+    <p>Misleading, harmful or unimportant.</p>
+    <p><em>Costs 1 point</em></p>
+  </div>},
+  4: { label: "0", cost: 0, tooltip: 
+  <div>
+    <p>No strong opinion on this post,</p>
+    <p><em>Costs 0 points</em></p>
+  </div>},
+  5: { label: "1", cost: 1, tooltip: 
+  <div>
+    <p>Good</p>
+    <p><em>Costs 1 point</em></p>
+  </div>},
+  6: { label: "4", cost: 10, tooltip: 
+  <div>
+    <p>Quite important</p>
+    <p><em>Costs 10 points</em></p>
+  </div>},
+  7: { label: "9", cost: 45, tooltip: 
+  <div>
+    <p>Extremely important</p>
+    <p><em>Costs 45 points</em></p>
+  </div>},
 }
 
 
