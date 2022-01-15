@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import Button from '@material-ui/core/Button';
 import sumBy from 'lodash/sumBy'
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
-import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
@@ -300,7 +297,14 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
-  const [sortPosts, setSortPosts] = useState("needsReview")
+
+  let defaultSort = ""
+  if (getReviewPhase() === "REVIEWS") { 
+    defaultSort = "needsReview"
+  }
+  if (getReviewPhase() === "VOTING") { defaultSort = "needsFinalVote"}
+
+  const [sortPosts, setSortPosts] = useState(defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
 
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
@@ -351,6 +355,21 @@ const ReviewVotingPage = ({classes}: {
           if (post2NeedsReview && !post1NeedsReview) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+        }
+
+        if (sortPosts === "needsFinalVote") {
+          const post1NotReviewVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
+          const post2NotReviewVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
+          const post1NotKarmaVoted = post1.currentUserVote === null 
+          const post2NotKarmaVoted = post2.currentUserVote === null
+          if (post1NotReviewVoted && !post2NotReviewVoted) return -1
+          if (post2NotReviewVoted && !post1NotReviewVoted) return 1
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
+          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (permuted1 < permuted2) return -1;
+          if (permuted1 > permuted2) return 1;
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
@@ -586,9 +605,14 @@ const ReviewVotingPage = ({classes}: {
                 <MenuItem value={'reviewCount'}>
                   <span className={classes.sortBy}>Sort by</span> Review Count
                 </MenuItem>
-                <MenuItem value={'needsReview'}>
-                  <span className={classes.sortBy}>Sort by</span> Needs Review
-                </MenuItem>
+                {getReviewPhase() === "REVIEWS" && 
+                  <MenuItem value={'needsReview'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Review
+                  </MenuItem>}
+                {getReviewPhase() === "VOTING" && 
+                  <MenuItem value={'needsFinalVote'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Vote
+                  </MenuItem>}
               </Select>
             </div>
           </div>
