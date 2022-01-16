@@ -257,7 +257,7 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
 
-  const { results, loading: postsLoading } = useMulti({
+  const { results, loading: postsLoading, error: postsError } = useMulti({
     terms: {
       view: getReviewPhase() === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
@@ -301,6 +301,11 @@ const ReviewVotingPage = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
+
+  if (postsError) {
+    // eslint-disable-next-line no-console
+    console.error('Error loading posts', postsError);
+  }
 
   function getVoteTotal (posts) {
     return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
@@ -378,10 +383,10 @@ const ReviewVotingPage = ({classes}: {
           const post2NotKarmaVoted = post2.currentUserVote === null
           if (post1NotReviewVoted && !post2NotReviewVoted) return -1
           if (post2NotReviewVoted && !post1NotReviewVoted) return 1
-          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
-          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
           if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (permuted1 < permuted2) return -1;
           if (permuted1 > permuted2) return 1;
         }
@@ -411,6 +416,11 @@ const ReviewVotingPage = ({classes}: {
   }, [currentUser, captureEvent, postsResults])
   
   const canInitialResort = !!postsResults
+
+  useEffect(() => {
+    setVoteTotal(getVoteTotal(postsResults))
+  }, [canInitialResort, postsResults])
+
   useEffect(() => {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
@@ -538,6 +548,9 @@ const ReviewVotingPage = ({classes}: {
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
+
+            {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>}
+
             {sortedPosts && 
               <div className={classes.postCount}>
                 <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
@@ -546,15 +559,15 @@ const ReviewVotingPage = ({classes}: {
                   </span>
                 </LWTooltip> 
                 {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
-                {(postsLoading || loading) && <Loading/>}
               </div>
             }
+            {(postsLoading || loading) && <Loading/>}
 
-            <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+            {!isEAForum && voteTotal && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
               <LWTooltip title={<div><p>You have {500 - voteTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
                 {voteTotal}/500
               </LWTooltip>
-            </div>
+            </div>}
             
             {/* Turned off for the Preliminary Voting phase */}
             {/* {getReviewPhase() === "VOTING" && <>

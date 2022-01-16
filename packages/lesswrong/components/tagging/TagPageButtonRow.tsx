@@ -145,7 +145,9 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
       className={classes.helpImprove}
       title={editTooltip}
     >
-      Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
+      <a onClick={handleEditClick}>
+        Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
+      </a>
     </LWTooltip>}
   </div>
 }
