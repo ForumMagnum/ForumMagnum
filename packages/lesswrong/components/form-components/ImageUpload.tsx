@@ -174,7 +174,6 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
     <div className={classes.root}>
       <Helmet>
         <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
-        <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'/>
       </Helmet>
       {imageId &&
         <Components.CloudinaryImage
