@@ -4,9 +4,10 @@ import { registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme) => ({
   icon: {
-    height: 18,
+    fontSize: "1.2em",
+    width: "1.5em",
     position: "relative",
-    top: 2, // seems to be necessary so that it lines up nicely with text, might revisit this if it looks weird next to other text sizes
+    top: ".1em", // seems to be necessary so that it lines up nicely with text, might revisit this if it looks weird next to other text sizes
     color: theme.palette.grey[500]
   }
 })
