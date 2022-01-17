@@ -65,6 +65,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
     {votesLoading && <Loading/>}
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
+      <br/>
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.count}>
           <b>Count</b>
@@ -127,6 +128,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
 
     <div>
       <Typography variant="display1">All Votes ({votes?.length})</Typography>
+      <br/>
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.date}>
           <b>Date</b>
