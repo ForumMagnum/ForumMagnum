@@ -20,7 +20,7 @@ const styles = theme => ({
     width: 200
   },
   count: {
-    width: 40,
+    width: 50,
     color: theme.palette.grey[400]
   },
   karma: {
@@ -67,7 +67,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       <Typography variant="display1">Users ({userRows.length})</Typography>
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.count}>
-          
+          <b>Count</b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
           <b>Votes</b>
