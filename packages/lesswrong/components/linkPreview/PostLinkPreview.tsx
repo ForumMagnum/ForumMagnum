@@ -315,7 +315,8 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
     footnoteMinusBacklink = footnoteHTML?.replace(/<a href="#fnref[a-zA-Z0-9]*">^<\/a>/g, '') || "";
     // Check whether the footnotehas nonempty contents
     footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
-  } catch(e) {}
+  // eslint-disable-next-line no-empty
+  } catch(e) { }
   
   return (
     <span {...eventHandlers}>
