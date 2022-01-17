@@ -183,7 +183,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
-  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, LatestReview, PostsList2, LWHelpIcon } = Components
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, LatestReview, PostsList2 } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -280,7 +280,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
         >
           <LWTooltip title={overviewTooltip} className={classes.hideOnMobile}>
             <Link to={reviewPostPath || ""}>
-              <SettingsButton showIcon={false} label={<div>How does the {REVIEW_NAME_IN_SITU} work? <LWHelpIcon/></div>}/>
+              <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
             </Link>
           </LWTooltip>
         </SectionTitle>
