@@ -19,6 +19,10 @@ const styles = theme => ({
   author: {
     width: 200
   },
+  count: {
+    width: 40,
+    color: theme.palette.grey[400]
+  },
   karma: {
     width: 100
   },
@@ -54,7 +58,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
 
   const userRows = sortBy(
     Object.entries(groupBy(votes, (vote) => vote.userId)),
-    obj => -(obj[1][0].user?.karma || 0)
+    obj => -(obj[1].length || 0)
   ) 
 
   return <div className={classes.root}>
@@ -62,7 +66,10 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
       <div className={classes.voteItem} >
-      <PostsItemMetaInfo className={classes.karma}>
+        <PostsItemMetaInfo className={classes.count}>
+          
+        </PostsItemMetaInfo>
+        <PostsItemMetaInfo className={classes.karma}>
           <b>Votes</b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
@@ -76,8 +83,11 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
         </PostsItemMetaInfo>
       </div>
       <p><i>Users with at least 1 vote</i></p>
-      {votes && userRows.map(userRow => {
+      {votes && userRows.map((userRow, i) => {
         return <div key={userRow[0]} className={classes.voteItem}>
+          <PostsItemMetaInfo className={classes.count}>
+            {i+1}
+          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {userRow[1].length}
           </PostsItemMetaInfo>
@@ -94,8 +104,11 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       })}
       <p><i>1000+ karma users</i></p>
       {usersLoading && <Loading/>}
-      {users && users.map(user => {
+      {users && users.map((user, i) => {
         return <div key={user._id} className={classes.voteItem}>
+          <PostsItemMetaInfo className={classes.count}>
+            {i+1}
+          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {user.reviewVoteCount}
           </PostsItemMetaInfo>
