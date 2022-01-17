@@ -99,7 +99,7 @@ const PostsPageEventData = ({classes, post}: {
         { locationNode }
         { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
       </div>
-      {joinEventLink && post.startTime && <div className={classes.eventCTA}>
+      {eventCTA && post.startTime && <div className={classes.eventCTA}>
         {eventCTA}
       </div>}
   </Components.Typography>
