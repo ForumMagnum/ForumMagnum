@@ -20,9 +20,9 @@ export function getReviewPhase(): ReviewPhase | void {
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
   // Add 1 day because the end dates are inclusive
-  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
-  const reviewEnd = moment.utc(annualReviewEnd.get())
+  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get()).add(1, "day")
+  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get()).add(1, "day")
+  const reviewEnd = moment.utc(annualReviewEnd.get()).add(1, "day")
   
   if (currentDate < reviewStart) return
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
