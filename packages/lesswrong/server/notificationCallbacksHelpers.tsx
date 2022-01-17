@@ -209,6 +209,7 @@ export const createNotification = async ({userId, notificationType, documentType
     message: await notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
     link: await getLink(notificationType, documentType, documentId, extraData),
+    extraData,
   }
 
   if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
