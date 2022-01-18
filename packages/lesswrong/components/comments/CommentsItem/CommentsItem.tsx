@@ -358,8 +358,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>
-            Update {REVIEW_NAME_IN_SITU} vote for this post. 
             <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
+              Update your {REVIEW_NAME_IN_SITU} vote for this post. 
               <LWHelpIcon/>
             </LWTooltip>
           </div>
