@@ -650,10 +650,7 @@ interface HighlightWithHash { // fragment on Posts
 }
 
 interface HighlightWithHash_contents { // fragment on Revisions
-  readonly _id: string,
   readonly htmlHighlightStartingAtHash: string,
-  readonly wordCount: number,
-  readonly version: string,
 }
 
 interface CommentsList { // fragment on Comments
