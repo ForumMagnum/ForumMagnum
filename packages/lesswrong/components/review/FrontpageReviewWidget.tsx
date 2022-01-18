@@ -361,7 +361,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
           >       
             {eligibleToNominate(currentUser) &&
               <Link to={"/reviews"} className={classes.actionButtonCTA}>
-                Review {REVIEW_YEAR} Posts
+                {activeRange === "REVIEWS" && <span>Review {REVIEW_YEAR} Posts</span>}
+                {activeRange === "VOTING" && <span>Cast Final Votes</span>}
               </Link>
             }
           </PostsList2>
