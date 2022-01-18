@@ -601,6 +601,8 @@ importComponent("AnalyticsTracker", () => require('../components/common/Analytic
 importComponent("AnalyticsInViewTracker", () => require('../components/common/AnalyticsInViewTracker'));
 importComponent("AnalyticsPageInitializer", () => require('../components/common/AnalyticsPageInitializer'));
 
+importComponent("LWHelpIcon", () => require('../components/common/LWHelpIcon'));
+
 // vulcan:ui-bootstrap
 importComponent("FormComponentCheckboxGroup", () => require('../components/vulcan-ui-bootstrap/forms/Checkboxgroup'));
 importComponent("FormComponentEmail", () => require('../components/vulcan-ui-bootstrap/forms/Email'));

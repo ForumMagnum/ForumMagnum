@@ -389,6 +389,11 @@ interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserExtendedVote: any,
 }
 
+interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
 interface PostsAuthors { // fragment on Posts
   readonly user: PostsAuthors_user|null,
   readonly coauthors: Array<UsersMinimumInfo>,
@@ -1849,6 +1854,7 @@ interface FragmentTypes {
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
+  PostsReviewVotingList: PostsReviewVotingList
   PostsAuthors: PostsAuthors
   PostsListBase: PostsListBase
   PostsList: PostsList
@@ -1991,6 +1997,7 @@ interface CollectionNamesByFragmentName {
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
+  PostsReviewVotingList: "Posts"
   PostsAuthors: "Posts"
   PostsListBase: "Posts"
   PostsList: "Posts"
