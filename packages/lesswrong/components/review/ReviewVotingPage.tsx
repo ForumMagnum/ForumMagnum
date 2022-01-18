@@ -263,7 +263,6 @@ const ReviewVotingPage = ({classes}: {
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
       limit: 600,
-      excludeContents: true,
     },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
