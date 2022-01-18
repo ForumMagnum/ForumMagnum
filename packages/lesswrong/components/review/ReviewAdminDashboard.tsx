@@ -6,8 +6,6 @@ import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-
-
 const styles = theme => ({
   root: {
     display: "flex",
@@ -19,10 +17,6 @@ const styles = theme => ({
   author: {
     width: 200
   },
-  count: {
-    width: 50,
-    color: theme.palette.grey[400]
-  },
   karma: {
     width: 100
   },
@@ -33,44 +27,36 @@ const styles = theme => ({
     width: 75
   }
 })
-
 const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
-
   const { results: votes, loading: votesLoading } = useMulti({
     terms: {view: "reviewVotesAdminDashboard", limit: 2000, year: REVIEW_YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
   })
-
   const { results: users, loading: usersLoading } = useMulti({
     terms: {view: "reviewAdminUsers", limit: 2000},
     collectionName: "Users",
     fragmentName: "UsersWithReviewInfo",
     fetchPolicy: 'network-only',
   })
-
   if (!userIsAdmin(currentUser)) {
     return <Error404/>
   }
 
   const userRows = sortBy(
     Object.entries(groupBy(votes, (vote) => vote.userId)),
-    obj => -(obj[1].length || 0)
+    obj => -(obj[1][0].user?.karma || 0)
   ) 
 
   return <div className={classes.root}>
     {votesLoading && <Loading/>}
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
-      <br/>
       <div className={classes.voteItem} >
-        <PostsItemMetaInfo className={classes.count}>
-          <b>Count</b>
-        </PostsItemMetaInfo>
-        <PostsItemMetaInfo className={classes.karma}>
+      <PostsItemMetaInfo className={classes.karma}>
           <b>Votes</b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
@@ -84,11 +70,8 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
         </PostsItemMetaInfo>
       </div>
       <p><i>Users with at least 1 vote</i></p>
-      {votes && userRows.map((userRow, i) => {
+      {votes && userRows.map(userRow => {
         return <div key={userRow[0]} className={classes.voteItem}>
-          <PostsItemMetaInfo className={classes.count}>
-            {i+1}
-          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {userRow[1].length}
           </PostsItemMetaInfo>
@@ -105,7 +88,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       })}
       <p><i>1000+ karma users</i></p>
       {usersLoading && <Loading/>}
-      {users && users.map((user, i) => {
+      {users && users.map(user => {
         return <div key={user._id} className={classes.voteItem}>
           <PostsItemMetaInfo className={classes.count}>
             {i+1}
