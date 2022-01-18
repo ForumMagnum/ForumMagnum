@@ -263,10 +263,9 @@ const ReviewVotingPage = ({classes}: {
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
       limit: 600,
-      excludeContents: true,
     },
     collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
+    fragmentName: 'PostsReviewVotingList',
     fetchPolicy: 'cache-and-network',
   });
   // useMulti is incorrectly typed
@@ -549,7 +548,8 @@ const ReviewVotingPage = ({classes}: {
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
 
-            {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>}
+            {/* TODO: Remove this if we haven't seen the error in awhile. I think I've fixed it but... model uncertainty */}
+            {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>} 
 
             {sortedPosts && 
               <div className={classes.postCount}>
