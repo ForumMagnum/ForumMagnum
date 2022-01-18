@@ -6,6 +6,8 @@ import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+
+
 const styles = theme => ({
   root: {
     display: "flex",
@@ -27,21 +29,25 @@ const styles = theme => ({
     width: 75
   }
 })
+
 const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
+
   const { results: votes, loading: votesLoading } = useMulti({
     terms: {view: "reviewVotesAdminDashboard", limit: 2000, year: REVIEW_YEAR+""},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
   })
+
   const { results: users, loading: usersLoading } = useMulti({
     terms: {view: "reviewAdminUsers", limit: 2000},
     collectionName: "Users",
     fragmentName: "UsersWithReviewInfo",
     fetchPolicy: 'network-only',
   })
+
   if (!userIsAdmin(currentUser)) {
     return <Error404/>
   }
@@ -90,9 +96,6 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       {usersLoading && <Loading/>}
       {users && users.map(user => {
         return <div key={user._id} className={classes.voteItem}>
-          <PostsItemMetaInfo className={classes.count}>
-            {i+1}
-          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {user.reviewVoteCount}
           </PostsItemMetaInfo>
@@ -111,7 +114,6 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
 
     <div>
       <Typography variant="display1">All Votes ({votes?.length})</Typography>
-      <br/>
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.date}>
           <b>Date</b>
