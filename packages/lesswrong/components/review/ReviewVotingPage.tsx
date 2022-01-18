@@ -548,7 +548,8 @@ const ReviewVotingPage = ({classes}: {
           <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
 
-            {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>}
+            {/* TODO: Remove this if we haven't seen the error in awhile. I think I've fixed it but... model uncertainty */}
+            {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>} 
 
             {sortedPosts && 
               <div className={classes.postCount}>
