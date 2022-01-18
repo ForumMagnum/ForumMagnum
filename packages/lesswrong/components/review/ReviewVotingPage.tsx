@@ -265,7 +265,7 @@ const ReviewVotingPage = ({classes}: {
       limit: 600,
     },
     collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
+    fragmentName: 'PostsReviewVotingList',
     fetchPolicy: 'cache-and-network',
   });
   // useMulti is incorrectly typed

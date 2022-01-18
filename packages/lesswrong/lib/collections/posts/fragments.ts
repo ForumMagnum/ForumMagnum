@@ -133,6 +133,14 @@ registerFragment(`
   }
 `)
 
+registerFragment(`
+  fragment PostsReviewVotingList on Post {
+    ...PostsListBase
+    currentUserVote
+    currentUserExtendedVote
+  }
+`)
+
 
 registerFragment(`
   fragment PostsAuthors on Post {
