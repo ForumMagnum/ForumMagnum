@@ -867,7 +867,7 @@ addFieldsDict(Posts, {
   eventImageId: {
     type: String,
     optional: true,
-    hidden: !isEAForum,
+    hidden: (props) => !props.eventForm || !isEAForum,
     label: "Event Image",
     viewableBy: ['guests'],
     insertableBy: ['members'],
