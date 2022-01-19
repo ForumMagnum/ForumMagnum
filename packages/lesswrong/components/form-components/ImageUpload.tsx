@@ -1,5 +1,5 @@
 /* global cloudinary */
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent } from '../../lib/vulcan-lib';
 import { Helmet } from 'react-helmet';
@@ -8,10 +8,12 @@ import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import forumThemeExport from '../../themes/forumTheme';
+import { useDialog } from '../common/withDialog';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
+const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,9 +30,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: "white",
   },
   imageIcon: {
+    fontSize: 18,
     marginRight: theme.spacing.unit
   },
+  chooseButton: {
+    marginLeft: 10
+  },
   removeButton: {
+    color: "rgba(0,0,0, 0.5)",
     marginLeft: 10
   }
 });
@@ -56,6 +63,12 @@ const cloudinaryArgsByImageType = {
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
+  eventImageId: {
+    minImageHeight: 270,
+    minImageWidth: 480,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
+  }
 }
 
 const formPreviewSizeByImageType = {
@@ -71,26 +84,22 @@ const formPreviewSizeByImageType = {
     width: 153,
     height: 80
   },
+  eventImageId: {
+    width: 320,
+    height: 180
+  }
 }
 
-class ImageUpload extends Component<any,any> {
-  constructor(props, context) {
-    super(props, context);
-    const fieldName = props.name;
-    let imageId = "";
-    if (props.document && props.document[fieldName]) {
-      imageId = props.document[fieldName];
-    }
-    this.state = {
-      imageId,
-    }
-    const addValues = context.updateCurrentValues;
-    const addToSuccessForm = context.addToSuccessForm;
-    addValues({[fieldName]: imageId});
-    addToSuccessForm((results) => this.setImageInfo({} ,""));
-  }
+const ImageUpload = ({name, document, updateCurrentValues, clearField, label, classes}: {
+  name: string,
+  document: Object,
+  updateCurrentValues: Function,
+  clearField: Function,
+  label: string,
+  classes: ClassesType
+}) => {
 
-  setImageInfo = (error, result) => {
+  const setImageInfo = (error, result) => {
     if (error) {
       throw new Error(error.statusText)
     }
@@ -101,18 +110,16 @@ class ImageUpload extends Component<any,any> {
     }
     const imageInfo = result.info
     if (imageInfo && imageInfo.public_id) {
-      this.setState({imageId: imageInfo.public_id});
-      const addValues = this.context.updateCurrentValues;
-      const fieldName = this.props.name;
-      addValues({[fieldName]: imageInfo.public_id})
+      setImageId(imageInfo.public_id)
+      updateCurrentValues({[name]: imageInfo.public_id})
     } else {
       //eslint-disable-next-line no-console
       console.error("Image Upload failed");
     }
   }
 
-  uploadWidget = () => {
-    const cloudinaryArgs = cloudinaryArgsByImageType[this.props.name]
+  const uploadWidget = () => {
+    const cloudinaryArgs = cloudinaryArgsByImageType[name]
     if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
     // @ts-ignore
     cloudinary.openUploadWidget({
@@ -139,47 +146,66 @@ class ImageUpload extends Component<any,any> {
         }
       },
       ...cloudinaryArgs
-    }, this.setImageInfo);
+    }, setImageInfo);
   }
   
-  removeImg = () => {
-    this.props.clearField();
-    this.setState({imageId: null});
+  const chooseDefaultImg = (newImageId) => {
+    setImageId(newImageId)
+    updateCurrentValues({[name]: newImageId})
   }
   
-  render(){
-    const { classes, name, label } = this.props;
-    const formPreviewSize = formPreviewSizeByImageType[name]
-    if (!formPreviewSize) throw new Error("Unsupported image upload type")
-    
-    return (
-      <div className={classes.root}>
-        <Helmet>
-          <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
-          <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'/>
-        </Helmet>
-        {this.state.imageId &&
-          <Components.CloudinaryImage
-            publicId={this.state.imageId}
-            {...formPreviewSize}
-          /> }
-        <Button
-          onClick={this.uploadWidget}
-          className={classNames("image-upload-button", classes.button)}
-        >
-          <ImageIcon className={classes.imageIcon}/>
-          {this.state.imageId ? `Replace ${label}` : `Upload ${label}`}
-        </Button>
-        {this.state.imageId && <Button
-          className={classes.removeButton}
-          title="Remove"
-          onClick={this.removeImg}
-        >
-          Remove {label}
-        </Button>}
-      </div>
-    );
+  const removeImg = () => {
+    clearField()
+    setImageId(null)
   }
+  
+  const { openDialog } = useDialog()
+  const [imageId, setImageId] = useState(() => {
+    if (document && document[name]) {
+      return document[name];
+    }
+    return ''
+  })
+  
+  const formPreviewSize = formPreviewSizeByImageType[name]
+  if (!formPreviewSize) throw new Error("Unsupported image upload type")
+  
+  return (
+    <div className={classes.root}>
+      <Helmet>
+        <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
+      </Helmet>
+      {imageId &&
+        <Components.CloudinaryImage
+          publicId={imageId}
+          {...formPreviewSize}
+        /> }
+      <Button
+        onClick={uploadWidget}
+        className={classNames("image-upload-button", classes.button)}
+      >
+        <ImageIcon className={classes.imageIcon}/>
+        {imageId ? `Replace ${label}` : `Upload ${label}`}
+      </Button>
+      {(name === 'eventImageId') && <Button
+        variant="outlined"
+        onClick={() => openDialog({
+          componentName: "ImageUploadDefaultsDialog",
+          componentProps: {onSelect: chooseDefaultImg}
+        })}
+        className={classes.chooseButton}
+      >
+        Choose from ours
+      </Button>}
+      {imageId && <Button
+        className={classes.removeButton}
+        title="Remove"
+        onClick={removeImg}
+      >
+        Remove
+      </Button>}
+    </div>
+  );
 };
 
 (ImageUpload as any).contextTypes = {
