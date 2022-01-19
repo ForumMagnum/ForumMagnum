@@ -51,8 +51,8 @@ const PostsPageTitle = ({classes, post}: {
         </Link>
       </Typography>}
       <Typography variant="display3" className={classes.root}>
-        {post.draft && <span className={classes.draft}>[Draft] </span>}
-        {post.title}
+        <Link to={postGetPageUrl(post)}>{post.draft && <span className={classes.draft}>[Draft] </span>}
+        {post.title}</Link>
       </Typography>
     </div>
   )
