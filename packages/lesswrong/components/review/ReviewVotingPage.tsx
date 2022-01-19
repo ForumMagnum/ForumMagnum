@@ -444,11 +444,7 @@ const ReviewVotingPage = ({classes}: {
 
   const instructions = isEAForum ?
     <div className={classes.instructions}>
-      <p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
-
-      <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
-
-      <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
+      <p>This is the Final Voting phase. During this phase, you'll read reviews, reconsider posts in the context of today, and cast or update your votes. At the end we'll have a final ordering of the Forum's favorite EA writings of all time.</p>
       
       <p><b>FAQ</b></p>
       
@@ -458,7 +454,7 @@ const ReviewVotingPage = ({classes}: {
 
           <p>Each of the voting buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. However, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than those of someone who used them more sparingly. On the "backend", we use a quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your votes.</p>
         </Card>}>
-          How exactly do the preliminary votes Work?
+          How exactly do the votes work?
         </LWTooltip>
       </p>
 

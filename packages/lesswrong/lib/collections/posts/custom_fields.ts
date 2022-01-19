@@ -721,6 +721,20 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
   },
   
+  eventRegistrationLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Event Registration Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
   joinEventLink: {
     type: String,
     hidden: (props) => !props.eventForm,
