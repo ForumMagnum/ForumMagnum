@@ -53,7 +53,7 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, classNa
     imageStyle.objectFit = objectFit
   }
   
-  Object.assign(cloudinaryProps, imgProps)
+  cloudinaryProps = {...cloudinaryProps, ...imgProps}
 
   const imageUrl = `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`;
 
