@@ -22,6 +22,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       right: 0
     }
+  },
+  presenceList: {
+    '& .ck-user__name': { //.CKPostEditor-presenceList .ck-user__name
+      color: 'red !important'
+    }
   }
 })
 
@@ -81,7 +86,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   const initData = typeof(data) === "string" ? data : ""
 
   return <div>
-    <div ref={presenceListRef} />
+    <div className={classes.presenceList} ref={presenceListRef} />
     
     <div ref={sidebarRef} className={classes.sidebar}/>
 
