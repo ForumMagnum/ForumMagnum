@@ -15,7 +15,7 @@ export const MAX_COLUMN_WIDTH = 720
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [/crossposted/i, /epistemic status/i];
 
-/** TODO document */
+/** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigationAndRevision) => {
   if (post.contents?.plaintextDescription) {
     // concatenate the first few paragraphs together up to some reasonable length

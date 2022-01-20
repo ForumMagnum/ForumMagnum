@@ -1,9 +1,11 @@
+/* eslint-disable no-console */
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
 import { Posts } from "../../lib/collections/posts";
 import Revisions from "../../lib/collections/revisions/collection";
 import { Vulcan } from "../vulcan-lib";
 
 
+/** For visually inspecting that our descriptions match the post content well */
 const run = async () => {
   const plaintextResolver = Revisions._schemaFields.plaintextDescription.resolveAs?.resolver
   console.log("running");
