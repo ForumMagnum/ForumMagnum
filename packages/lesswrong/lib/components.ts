@@ -231,6 +231,7 @@ importComponent("PostsEditPage", () => require('../components/posts/PostsEditPag
 importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
 importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
 importComponent("CollabEditorPermissionsNotices", () => require('../components/editor/CollabEditorPermissionsNotices'));
+importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));
 
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
