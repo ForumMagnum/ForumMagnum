@@ -142,7 +142,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -266,6 +266,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   }
 
   const displayReviewVoting = 
+    !hideReviewVoteButtons &&
     reviewIsActive() &&
     comment.reviewingForReview === REVIEW_YEAR+"" &&
     post &&
