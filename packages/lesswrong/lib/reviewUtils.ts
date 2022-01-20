@@ -46,7 +46,6 @@ export function eligibleToNominate (currentUser: UsersCurrent|null) {
 export function postEligibleForReview (post: PostsBase) {
   if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWForum && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
-  if (getReviewPhase() === "VOTING" && post.reviewCount < 1) return false
   return true
 }
 
