@@ -184,7 +184,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -216,7 +216,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
 
 
-    const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+    const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: user._id, limit: 5, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
@@ -229,6 +229,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
+    const currentIncludeDraftEvents = (query.includeDraftEvents === 'true')
+    const currentIncludeArchived = (query.includeArchived === 'true')
+    terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+    draftTerms.includeArchived = currentIncludeArchived
+    draftTerms.includeDraftEvents = currentIncludeDraftEvents
+    
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
@@ -293,15 +299,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
-            <SectionTitle title="My Drafts">
-              <Link to={"/newPost"}>
-                <SectionButton>
-                  <DescriptionIcon /> New Blog Post
-                </SectionButton>
-              </Link>
-            </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
+              {/*<Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>*/}
+              <Components.DraftsList terms={draftTerms}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList
@@ -337,6 +337,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
+          {/* Groups Section */
+            (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
+                view: 'userActiveGroups',
+                userId: user?._id,
+                limit: 300
+              }} heading="Organizer of" showNoResults={false} />
+          }
           {/* Wiki Section */}
           <SingleColumnSection>
             <SectionTitle title={"Wiki Contributions"}>

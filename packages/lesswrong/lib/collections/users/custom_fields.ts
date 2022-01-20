@@ -33,7 +33,14 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
-export const defaultNotificationTypeSettings = {
+export type NotificationTypeSettings = {
+  channel: "none"|"onsite"|"email"|"both",
+  batchingFrequency: "realtime"|"daily"|"weekly",
+  timeOfDayGMT: number,
+  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
+};
+
+export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   channel: "onsite",
   batchingFrequency: "realtime",
   timeOfDayGMT: 12,
@@ -692,6 +699,10 @@ addFieldsDict(Users, {
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationCommentsOnDraft: {
+    label: "Comments on unpublished draft posts I've shared",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPostsNominatedReview: {

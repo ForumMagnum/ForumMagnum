@@ -2,6 +2,7 @@ import React from 'react';
 import { getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { postGetPageUrl, prettyEventDateTimes } from '../../lib/collections/posts/helpers';
+import { useTimezone } from '../../components/common/withTimezone';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -45,6 +46,8 @@ const EventUpdatedEmail = ({postId, classes}: {
     collectionName: "Posts",
     fragmentName: "PostsBase",
   });
+  const { timezone, timezoneIsKnown } = useTimezone()
+  
   if (loading || !post) return null;
   
   const link = postGetPageUrl(post, true);
@@ -60,7 +63,7 @@ const EventUpdatedEmail = ({postId, classes}: {
     </div>
     <p>
       <div className={classes.label}>Date and Time</div>
-      <div className={classes.data}>{prettyEventDateTimes(post)}</div>
+      <div className={classes.data}>{prettyEventDateTimes(post, timezoneIsKnown ? timezone : undefined)}</div>
     </p>
     <p>
       <div className={classes.label}>Location</div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
+import { makeAbsolute } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -381,4 +382,31 @@ export const NewRSVPNotification = serverRegisterNotificationType({
       </p>
     </div>
   },
+});
+
+export const NewCommentOnDraftNotification = serverRegisterNotificationType({
+  name: "newCommentOnDraft",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const notification = notifications[0];
+    const { senderUserID, commentHtml } = notification.extraData;
+    const senderUser = await Users.findOne({_id: senderUserID});
+    const post = await Posts.findOne({_id: notification.documentId});
+    
+    return `${senderUser?.displayName} commented on ${post?.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const notification = notifications[0];
+    const { senderUserID, commentHtml } = notification.extraData;
+    const senderUser = await Users.findOne({_id: senderUserID});
+    const post = await Posts.findOne({_id: notification.documentId});
+    const postLink = makeAbsolute(`/editPost?postId=${notification.documentId}`);
+    
+    return <div>
+      <div>{senderUser?.displayName} commented on <a href={postLink}>{post?.title}</a>:</div>
+      <div>
+        <blockquote dangerouslySetInnerHTML={{__html: commentHtml}}/>
+      </div>
+    </div>
+  }
 });

@@ -13,7 +13,8 @@ import './server/rss-integration/callbacks';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
-import './server/ckEditorToken';
+import './server/ckEditor/ckEditorToken';
+import './server/ckEditor/ckEditorWebhook';
 
 // Scripts
 import './server/scripts/sscImport';

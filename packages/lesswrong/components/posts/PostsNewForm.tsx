@@ -145,10 +145,14 @@ const PostsNewForm = ({classes}: {
             collection={Posts}
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
-            successCallback={post => {
+            successCallback={(post, options) => {
               if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-              history.push({pathname: postGetPageUrl(post)})
-              flash({ messageString: "Post created.", type: 'success'});
+              if (options?.submitOptions?.redirectToEditor) {
+                history.push(`/editPost?postId=${post._id}`);
+              } else {
+                history.push({pathname: postGetPageUrl(post)})
+                flash({ messageString: "Post created.", type: 'success'});
+              }
             }}
             eventForm={eventForm}
             repeatErrors

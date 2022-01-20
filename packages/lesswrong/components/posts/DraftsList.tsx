@@ -1,17 +1,43 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React, { useCallback } from 'react';
+import React, {useCallback, useState} from 'react';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {useMulti} from "../../lib/crud/withMulti";
 import { useUpdate } from '../../lib/crud/withUpdate';
-// import { postCanDelete } from '../../lib/collections/posts/helpers';
+import {useLocation} from "../../lib/routeUtil";
+import {Link} from "../../lib/reactRouterWrapper";
+import DescriptionIcon from "@material-ui/icons/Description";
+import ListIcon from '@material-ui/icons/List';
 
-const DraftsList = ({showArchived=false, limit=50}: {
-  showArchived?: boolean,
-  limit?: number
+const styles = (theme: ThemeType): JssStyles => ({
+  draftsHeaderRow: {
+    display: 'flex'
+  },
+  newPostButton: {
+    marginRight: 20
+  },
+  draftsPageButton: {
+    marginRight: 20
+  }
+})
+
+export const sortings: Partial<Record<string,string>> = {
+  newest: "Most Recently Created",
+  lastModified: "Last Modified",
+  wordCountAscending: "Shortest First",
+  wordCountDescending: "Longest First",
+}
+
+const DraftsList = ({terms, showTitle=true, classes}: {
+  terms: PostsViewTerms,
+  showTitle?: boolean,
+  classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
   const { PostsItem2, Loading } = Components
+  
+  const { query } = useLocation();
+  const [showSettings, setShowSettings] = useState(false);
   
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
@@ -27,13 +53,8 @@ const DraftsList = ({showArchived=false, limit=50}: {
     // }
   }, [updatePost])
   
-  const { results, loading, error, loadMore, loadMoreProps } = useMulti({
-    terms: {
-      view: "all_drafts", 
-      userId: currentUser?._id,
-      limit, 
-      sortDrafts: currentUser?.sortDrafts || "modifiedAt" 
-    },
+  const { results, loading, loadMoreProps } = useMulti({
+    terms,
     collectionName: "Posts",
     fragmentName: 'PostsList',
     enableTotal: true,
@@ -44,9 +65,42 @@ const DraftsList = ({showArchived=false, limit=50}: {
   if (!currentUser) return null
   if (!results && loading) return <Loading />
   
+  const currentSorting = query.sortDraftsBy || query.view ||  "lastModified"
+  const currentIncludeEvents = (query.includeDraftEvents === 'true')
+  const currentIncludeArchived = (query.includeArchived === 'true')
+  terms.excludeEvents = !currentIncludeEvents 
+  
+  
   return <div>
+    <Components.SectionTitle title={showTitle ? "My Drafts" : ""}>
+      <div className={classes.draftsHeaderRow}>
+        <div className={classes.newPostButton}>
+          <Link to={"/newPost"}>
+            <Components.SectionButton>
+              <DescriptionIcon /> New Post
+            </Components.SectionButton>
+          </Link>
+        </div>
+        <div className={classes.draftsPageButton}>
+          <Link to={"/drafts"}>
+            <Components.SectionButton>
+              <ListIcon /> All Drafts
+            </Components.SectionButton>
+          </Link>
+        </div>
+        <div className={classes.settingsButton} onClick={() => setShowSettings(!showSettings)}>
+          <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+        </div>
+      </div>
+    </Components.SectionTitle>
+    {showSettings && <Components.DraftsListSettings
+      hidden={false}
+      currentSorting={currentSorting}
+      currentIncludeEvents={currentIncludeEvents}
+      currentIncludeArchived={currentIncludeArchived}
+      sortings={sortings}
+    />}
     {results
-      .filter((post: PostsList)=>{ return showArchived || !post.deletedDraft})
       .map((post: PostsList, i: number) =>
       <PostsItem2
         key={post._id} 
@@ -60,11 +114,12 @@ const DraftsList = ({showArchived=false, limit=50}: {
         strikethroughTitle={post.deletedDraft}
       />
     )}
+    <Components.LoadMore {...{...loadMoreProps, count: undefined, totalCount: undefined }}/>
   </div>
 }
 
 const DraftsListComponent = registerComponent('DraftsList', DraftsList, {
-  hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary], styles
 });
 
 declare global {

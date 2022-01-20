@@ -99,7 +99,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   }
   
   const editTooltip = <>
-    {numFlags && <>
+    {!!numFlags && <>
       <div>
         This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
         {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i+1) < tag.tagFlags?.length && ", "}</span>)}
@@ -145,7 +145,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
       className={classes.helpImprove}
       title={editTooltip}
     >
-      Help improve this page {numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
+      Help improve this page {!!numFlags && <>({numFlags} flag{numFlags > 1 ? "s" : ""})</>}
     </LWTooltip>}
   </div>
 }

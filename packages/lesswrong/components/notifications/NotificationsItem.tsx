@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
-  notification: any,
+  notification: NotificationsList,
   lastNotificationsCheck: any,
   currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
   classes: ClassesType,
@@ -71,28 +71,35 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   });
   const { history } = useNavigation();
   const { LWPopper } = Components
+  const notificationType = getNotificationTypeByName(notification.type);
 
   const renderPreview = () => {
     const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
-    if (notification.type == "postNominated") {
+
+    if (notificationType.onsiteHoverView) {
+      return <Card>
+        {notificationType.onsiteHoverView({notification})}
+      </Card>
+    } else if (notification.type == "postNominated") {
       return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
-    }
-    switch (notification.documentType) {
-      case 'tagRel':
-        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
-      case 'post':
-        return <Card><PostsPreviewTooltipSingle postId={notification.documentId}/></Card>
-      case 'comment':
-        const postId = parsedPath?.params?._id
-        if (!postId) return null
-        return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
-      case 'message':
-        return <Card>
-          <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
-        </Card>
-      default:
-        return null
+    } else {
+      switch (notification.documentType) {
+        case 'tagRel':
+          return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
+        case 'post':
+          return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
+        case 'comment':
+          const postId = parsedPath?.params?._id
+          if (!postId) return null
+          return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
+        case 'message':
+          return <Card>
+            <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
+          </Card>
+        default:
+          return null
+      }
     }
   }
 
@@ -151,7 +158,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         >
           <span className={classes.preview}>{renderPreview()}</span>
         </LWPopper>
-        {getNotificationTypeByName(notification.type).getIcon()}
+        {notificationType.getIcon()}
         <div className={classes.notificationLabel}>
           {renderMessage()}
         </div>

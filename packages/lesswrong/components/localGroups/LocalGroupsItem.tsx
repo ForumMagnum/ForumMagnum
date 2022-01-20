@@ -84,7 +84,7 @@ const LocalGroupsItem = ({group, classes}: {
 
   return (
     <div className={classes.root}>
-      <Link to={"groups/" + group._id}  className={classes.title}>{group.name}</Link>
+      <Link to={`/groups/${group._id}`}  className={classes.title}>{group.name}</Link>
       <div  className={classes.location}>
         <PostsItemMetaInfo>{ group.location }</PostsItemMetaInfo>
       </div>
