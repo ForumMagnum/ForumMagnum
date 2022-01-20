@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userGetLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import * as _ from 'underscore';
@@ -89,24 +90,42 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     maxWidth: 1200,
     margin: 'auto'
   },
+  sectionHeadingRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    maxWidth: 800,
+    margin: '50px auto 40px'
+  },
   sectionHeading: {
-    ...theme.typography.commentStyle,
-    textAlign: 'center',
+    // ...theme.typography.commentStyle,
+    flex: 'none',
+    textAlign: 'left',
     fontSize: 32,
-    marginTop: 50
+    margin: 0
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
-    maxWidth: 600,
-    textAlign: 'center',
+    // maxWidth: 600,
+    textAlign: 'left',
     fontSize: 14,
     lineHeight: '1.8em',
-    margin: 'auto'
+    // margin: 'auto'
+    marginLeft: 80
   },
   filters: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     marginTop: 20
+  },
+  where: {
+    ...theme.typography.commentStyle,
+    fontSize: 14,
+  },
+  geoSuggest: {
+    ...geoSuggestStyles(theme),
+    display: 'inline-block',
+    maxWidth: 200,
+    marginLeft: 6
   },
   filter: {
     marginLeft: 10
@@ -116,7 +135,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     gridTemplateColumns: 'repeat(3, auto)',
     gridGap: '20px',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: 16,
     [theme.breakpoints.down('md')]: {
       gridTemplateColumns: 'repeat(2, auto)',
     },
@@ -126,7 +145,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCard: {
     position: 'relative',
-    width: 400,
+    width: 388,
     height: 300,
     overflow: 'visible',
     [theme.breakpoints.down('xs')]: {
@@ -197,7 +216,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   loadMoreRow: {
-    padding: '0 4px',
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    marginTop: 20
   },
   loadMore: {
     ...theme.typography.commentStyle,
@@ -209,9 +231,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       color: '#085d6c',
     }
   },
-  
-  geoSuggest: {
-    ...geoSuggestStyles(theme),
+  eventNotificationsBtn: {
+    textTransform: 'none',
+    fontSize: 14
+  },
+  eventNotificationsIcon: {
+    fontSize: 18,
+    marginRight: 6
   },
 }))
 
@@ -347,7 +373,7 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading } = Components
+  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading, PostsItemTooltipWrapper } = Components
 
   const filters: PostsViewTerms = {}
   if (placeFilter === 'in-person') {
@@ -357,7 +383,7 @@ const EventsHome = ({classes}: {
   }
   
   const eventsListTerms: PostsViewTerms = userLocation ? {
-    view: 'nearbyEvents',
+    view: 'events',//'nearbyEvents',
     lat: userLocation.lat,
     lng: userLocation.lng,
     ...filters,
@@ -390,6 +416,13 @@ const EventsHome = ({classes}: {
   const cardBackground = highlightedEvent ? {
     backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.63), rgba(0, 87, 102, 0.63)), url(${randomEventImg(highlightedEvent._id)})`
   } : {}
+  
+  let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
+    Load More
+  </button>
+  if (loading && results) {
+    loadMoreButton = <CircularProgress size={16} />
+  }
 
 
   return (
@@ -420,29 +453,29 @@ const EventsHome = ({classes}: {
           </Card>
         </div>
         <div className={classes.section}>
-          <h1 className={classes.sectionHeading}>Events</h1>
-          <div className={classes.sectionDescription}>
-            Connect with people near you and around the world who are trying to find the best ways to help others. Learn, discuss, collaborate, or just hang out with like-minded people.
-          </div>
-          
-          <div className={classes.where}>
-            Showing events near {mapsLoaded
-              ? <div className={classes.geoSuggest}>
-                  <Geosuggest
-                    placeholder="Location"
-                    onSuggestSelect={(suggestion) => {
-                      if (suggestion?.location) {
-                        setUserLocation(suggestion.location);
-                      }
-                    }}
-                    initialValue={"" /*TODO*/}
-                  />
-                </div>
-              : <Loading/>
-            }
+          <div className={classes.sectionHeadingRow}>
+            <h1 className={classes.sectionHeading}>Events</h1>
+            <div className={classes.sectionDescription}>
+              Connect with people near you and around the world who are trying to find the best ways to help others. Learn, discuss, collaborate, or just hang out with like-minded people.
+            </div>
           </div>
           
           <div className={classes.filters}>
+            <div className={classes.where}>
+              Showing events near {mapsLoaded
+                && <div className={classes.geoSuggest}>
+                    <Geosuggest
+                      placeholder="Location"
+                      onSuggestSelect={(suggestion) => {
+                        if (suggestion?.location) {
+                          setUserLocation(suggestion.location);
+                        }
+                      }}
+                      initialValue={"" /*TODO*/}
+                    />
+                  </div>
+              }
+            </div>
             <Select
               className={classes.filter}
               value={placeFilter}
@@ -461,9 +494,14 @@ const EventsHome = ({classes}: {
                   style={{objectFit: 'cover', borderRadius: '4px 4px 0 0', height: "150px"}}
                 />
                 <CardContent className={classes.eventCardContent}>
-                  <div className={classes.eventCardTitle} title={event.title}>
-                    <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
-                  </div>
+                  <PostsItemTooltipWrapper
+                    post={event}
+                    className={''}
+                  >
+                    <div className={classes.eventCardTitle}>
+                      <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
+                    </div>
+                  </PostsItemTooltipWrapper>
                   <div className={classes.eventCardLocation}>{event.onlineEvent ? 'Online' : event.location?.split(',')[0]}</div>
                   {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
                     <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
@@ -479,11 +517,14 @@ const EventsHome = ({classes}: {
             }) : _.range(6).map((i) => {
               return <Card key={i} className={classes.eventCard}></Card>
             })}
-            {(showLoadMore || (loading && results)) && <div className={classes.loadMoreRow}>
-              {loading ? <CircularProgress size={16} /> : <button className={classes.loadMore} onClick={() => loadMore(null)}>
-                Load More
-              </button>}
-            </div>}
+          </div>
+          
+          <div className={classes.loadMoreRow}>
+            <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
+              <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
+              {currentUser?.nearbyEventsNotifications ? `Edit my event notification settings` : `Sign up for event notifications`}
+            </Button>
+            {loadMoreButton}
           </div>
           
         </div>
