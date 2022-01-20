@@ -179,6 +179,8 @@ const schema: SchemaType<DbUser> = {
     order: 20,
     group: formGroups.default,
     onCreate: ({ document: user }) => {
+      // TODO: This is probably not doing anything, because this logic is
+      // already handled by the authenticationMiddleware
       // look in a few places for the user email
       const facebookEmail: any = getNestedProperty(user, 'services.facebook.email');
       const githubEmail: any = getNestedProperty(user, 'services.github.email');

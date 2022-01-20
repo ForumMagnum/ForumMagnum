@@ -32,7 +32,7 @@ ensureIndex(Users, {"services.resume.loginTokens.when":1}, {sparse:1});
 ensureIndex(Users, {"services.email.verificationTokens.token":1}, {unique:true,sparse:1});
 ensureIndex(Users, {"services.password.reset.token":1}, {unique:true,sparse:1});
 ensureIndex(Users, {"services.password.reset.when":1}, {sparse:1});
-ensureIndex(Users, {"services.twitter.id":1}, {unique:true,sparse:1});
+ensureIndex(Users, {"services.auth0.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {"services.facebook.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {"services.google.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {karma:-1,_id:-1});
