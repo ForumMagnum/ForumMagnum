@@ -26,13 +26,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount }: {
+const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
   terms: CommentsViewTerms,
   classes: ClassesType,
   title?: string,
   post: PostsList,
   singleLine?: boolean,
-  placeholderCount?: number
+  placeholderCount?: number,
+  hideReviewVoteButtons?: boolean
+  singleLineCollapse?: boolean
 }) => {
   const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
   const { recordPostView } = useRecordPostView(post)
@@ -78,6 +80,8 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
             lastCommentId: lastCommentId,
             highlightDate: markedVisitedAt || post.lastVisitedAt,
             hideSingleLineMeta: true,
+            hideReviewVoteButtons: hideReviewVoteButtons,
+            singleLineCollapse: singleLineCollapse,
             enableHoverPreview: false,
             markAsRead: markAsRead,
             post: post,
