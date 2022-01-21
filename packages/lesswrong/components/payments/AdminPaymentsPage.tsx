@@ -15,13 +15,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, UsersNameDisplay } = Components
+  const { SingleColumnSection, SectionTitle, Loading, UsersNameDisplay, LoadMore } = Components
 
-  const { results, loading } = useMulti({
-    terms: {view: "usersWithPaymentInfo"},
+  const { results, loading, loadMoreProps } = useMulti({
+    terms: {view: "usersWithPaymentInfo", limit: 100},
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     fetchPolicy: 'cache-and-network',
+    enableTotal: true
   });
 
   const currentUser = useCurrentUser()
@@ -44,6 +45,7 @@ export const AdminPaymentsPage = ({classes}: {
           </TableRow>
         )}
       </Table>
+      <LoadMore {...loadMoreProps}/>
     </SingleColumnSection>
   </div>;
 }

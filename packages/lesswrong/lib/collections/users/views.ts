@@ -167,7 +167,7 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
     },
     options: {
       sort: {
-        karma: -1
+        displayName: 1
       }
     }
   }
