@@ -20,10 +20,14 @@ import { useTimezone } from '../common/withTimezone';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { geoSuggestStyles } from '../form-components/LocationFormComponent'
 import Geosuggest from 'react-geosuggest';
+import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   highlightCard: {
     position: 'relative',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     maxWidth: 800,
     height: 350,
     backgroundSize: 'cover',
@@ -32,10 +36,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     background: theme.palette.primary.main,
     textAlign: 'center',
     color: 'white',
+    borderRadius: 0,
     overflow: 'visible',
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
-      borderRadius: 0,
       marginLeft: -4,
       marginRight: -4,
     }
@@ -52,26 +56,47 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   highlightCardSpinner: {
     color: 'white'
   },
+  highlightedCardRow: {
+    marginTop: 13
+  },
   highlightedCardTitle: {
     ...theme.typography.headline,
-    display: 'flex',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    height: 110,
+    display: 'inline',
+    // alignItems: 'flex-end',
+    // justifyContent: 'center',
+    // height: 110,
+    background: 'black',
+    '-webkit-box-decoration-break': 'clone',
+    boxDecorationBreak: 'clone',
     fontSize: 36,
+    lineHeight: '1.4em',
     color: 'white',
+    padding: '0.5rem',
     marginBottom: 5,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 32,
+    }
   },
   highlightedCardGroup: {
     ...theme.typography.commentStyle,
+    display: 'inline',
+    background: 'black',
+    '-webkit-box-decoration-break': 'clone',
+    boxDecorationBreak: 'clone',
     fontSize: 14,
     fontStyle: 'italic',
+    padding: '0.5rem',
     marginBottom: 30,
   },
   highlightedCardDetail: {
     ...theme.typography.commentStyle,
+    display: 'inline',
+    background: 'black',
+    '-webkit-box-decoration-break': 'clone',
+    boxDecorationBreak: 'clone',
     fontSize: 18,
-    color: '#ccdee4',
+    color: '#b8d4de',//'#ccdee4',
+    padding: '0.5rem',
     marginBottom: 10
   },
   highlightedCardBtn: {
@@ -88,13 +113,21 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   section: {
     maxWidth: 1200,
-    margin: 'auto'
+    padding: 20,
+    margin: 'auto',
+    // [theme.breakpoints.down('xs')]: {
+    //   padding: 0
+    // }
   },
   sectionHeadingRow: {
     display: 'flex',
     justifyContent: 'space-between',
     maxWidth: 800,
-    margin: '50px auto 40px'
+    margin: '40px auto',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      margin: '30px auto',
+    }
   },
   sectionHeading: {
     // ...theme.typography.commentStyle,
@@ -110,16 +143,22 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 14,
     lineHeight: '1.8em',
     // margin: 'auto'
-    marginLeft: 80
+    marginLeft: 80,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 10,
+      marginLeft: 0
+    }
   },
   filters: {
+    gridColumnStart: 1,
+    gridColumnEnd: -1,
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 20
+    marginTop: 20,
   },
   where: {
     ...theme.typography.commentStyle,
-    fontSize: 14,
+    fontSize: 13,
   },
   geoSuggest: {
     ...geoSuggestStyles(theme),
@@ -128,29 +167,33 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginLeft: 6
   },
   filter: {
-    marginLeft: 10
+    marginLeft: 10,
+    '@media (max-width: 812px)': {
+      display: 'none',
+    }
   },
   eventCards: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, auto)',
+    gridTemplateColumns: 'repeat(3, 373px)',
     gridGap: '20px',
     justifyContent: 'center',
     marginTop: 16,
     [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(2, auto)',
+      gridTemplateColumns: 'repeat(2, 373px)',
     },
-    [theme.breakpoints.down('sm')]: {
+    '@media (max-width: 812px)': {
       gridTemplateColumns: 'auto',
     }
   },
   eventCard: {
     position: 'relative',
-    width: 388,
-    height: 300,
+    width: 373,
+    height: 354,
+    borderRadius: 0,
     overflow: 'visible',
     [theme.breakpoints.down('xs')]: {
-      width: 'auto',
-      height: 318
+      // width: 'auto',
+      height: 370
     }
   },
   eventCardContent: {
@@ -196,6 +239,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     gridArea: 'group',
     fontStyle: 'italic',
+    color: "rgba(0, 0, 0, 0.6)",
     fontSize: 14,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -216,10 +260,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   loadMoreRow: {
+    gridColumnStart: 1,
+    gridColumnEnd: -1,
     display: 'flex',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
-    marginTop: 20
   },
   loadMore: {
     ...theme.typography.commentStyle,
@@ -233,7 +278,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventNotificationsBtn: {
     textTransform: 'none',
-    fontSize: 14
+    fontSize: 14,
+    '@media (max-width: 812px)': {
+      display: 'none',
+    }
   },
   eventNotificationsIcon: {
     fontSize: 18,
@@ -254,29 +302,29 @@ const randomEventImg = (eventId) => {
 
   switch (num) {
     case 0:
-      return 'https://res.cloudinary.com/cea/image/upload/v1640298598/Banner/c4xfkjbyrkgzk67j8yhx.jpg'
+      return 'Banner/c4xfkjbyrkgzk67j8yhx'
     case 1:
-      return 'https://res.cloudinary.com/cea/image/upload/v1640294201/Banner/lm7in6trshkcnqgeybqr.jpg'
+      return 'Banner/lm7in6trshkcnqgeybqr'
     case 2:
-      return 'https://res.cloudinary.com/cea/image/upload/v1640127296/Banner/tpa8dburf2fpv7vkqw3h.jpg'
+      return 'Banner/tpa8dburf2fpv7vkqw3h'
     case 3:
-      return 'https://res.cloudinary.com/cea/image/upload/v1639983971/Banner/k1uurxviebati6mpaund.jpg'
+      return 'Banner/k1uurxviebati6mpaund'
     case 4:
-      return 'https://res.cloudinary.com/cea/image/upload/v1640018933/Banner/mngmri7qblzit9jigof4.jpg'
+      return 'Banner/mngmri7qblzit9jigof4'
     case 5:
-      return 'https://res.cloudinary.com/cea/image/upload/v1640842793/Banner/rpeoujevvhdhulgevv3u.jpg'
+      return 'Banner/rpeoujevvhdhulgevv3u'
     case 6:
-      return 'https://res.cloudinary.com/cea/image/upload/v1640802869/Banner/vxquzxthtaiha6r5lzbq.jpg'
+      return 'Banner/vxquzxthtaiha6r5lzbq'
     case 7:
-      return 'https://res.cloudinary.com/cea/image/upload/v1636673830/Banner/rp0ywuja8mflliboqoxb.jpg'
+      return 'Banner/rp0ywuja8mflliboqoxb'
     case 8:
-      return 'https://res.cloudinary.com/cea/image/upload/v1636794829/Banner/yvfw6msbycjpz7wncawu.jpg'
+      return 'Banner/yvfw6msbycjpz7wncawu'
     case 9:
-      return 'https://res.cloudinary.com/cea/image/upload/v1627712634/Banner/rpsvlou1aci2rpz0zpfs.jpg'
+      return 'Banner/rpsvlou1aci2rpz0zpfs'
     case 10:
-      return 'https://res.cloudinary.com/cea/image/upload/v1619611867/Banner/jouhj45hrkkfkhinknbg.jpg'
-    case 11:
-      return 'https://res.cloudinary.com/cea/image/upload/v1608560660/Banner/qfffq3yggslcyttsonxq.jpg'
+      return 'Banner/jouhj45hrkkfkhinknbg'
+    default:
+      return 'Banner/qfffq3yggslcyttsonxq'
   }
 }
 
@@ -373,7 +421,7 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading, PostsItemTooltipWrapper } = Components
+  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading, PostsItemTooltipWrapper, CloudinaryImage2 } = Components
 
   const filters: PostsViewTerms = {}
   if (placeFilter === 'in-person') {
@@ -413,8 +461,11 @@ const EventsHome = ({classes}: {
     if (!highlightedEvent) highlightedEvent = results[0]
   }
   
+  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+  // const highlightedEventImg = highlightedEvent ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/Event/defaults/k7bdilxm08silijqdn2v` : ''
+  const highlightedEventImg = highlightedEvent ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${highlightedEvent.eventImageId || randomEventImg(highlightedEvent._id)}` : ''
   const cardBackground = highlightedEvent ? {
-    backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.63), rgba(0, 87, 102, 0.63)), url(${randomEventImg(highlightedEvent._id)})`
+    backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.5)), url(${highlightedEventImg})`
   } : {}
   
   let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
@@ -434,14 +485,20 @@ const EventsHome = ({classes}: {
               <h1 className={classes.highlightedCardTitle}>
                 <Link to={`/events/${highlightedEvent._id}/${highlightedEvent.slug}`}>{highlightedEvent.title}</Link>
               </h1>
-              {highlightedEvent.group && <div className={classes.highlightedCardGroup}>
-                <Link to={`/groups/${highlightedEvent.group._id}`}>{highlightedEvent.group.name}</Link>
+              {highlightedEvent.group && <div className={classes.highlightedCardRow}>
+                <span className={classes.highlightedCardGroup}>
+                  <Link to={`/groups/${highlightedEvent.group._id}`}>{highlightedEvent.group.name}</Link>
+                </span>
               </div>}
-              <div className={classes.highlightedCardDetail}>
-                {prettyEventDateTimes(highlightedEvent, timezone, true)}
+              <div className={classes.highlightedCardRow}>
+                <span className={classes.highlightedCardDetail}>
+                  {prettyEventDateTimes(highlightedEvent, timezone, true)}
+                </span>
               </div>
-              <div className={classes.highlightedCardDetail}>
-                {highlightedEvent.onlineEvent ? 'Online event' : highlightedEvent.location?.split(',')[0]}
+              <div className={classes.highlightedCardRow}>
+                <span className={classes.highlightedCardDetail}>
+                  {highlightedEvent.onlineEvent ? 'Online event' : highlightedEvent.location?.split(',')[0]}
+                </span>
               </div>
               {/* <Button variant="contained" className={classes.highlightedCardBtn}>RSVP</Button> */}
               <div className={classes.highlightedCardAddToCal}>
@@ -459,40 +516,37 @@ const EventsHome = ({classes}: {
               Connect with people near you and around the world who are trying to find the best ways to help others. Learn, discuss, collaborate, or just hang out with like-minded people.
             </div>
           </div>
-          
-          <div className={classes.filters}>
-            <div className={classes.where}>
-              Showing events near {mapsLoaded
-                && <div className={classes.geoSuggest}>
-                    <Geosuggest
-                      placeholder="Location"
-                      onSuggestSelect={(suggestion) => {
-                        if (suggestion?.location) {
-                          setUserLocation(suggestion.location);
-                        }
-                      }}
-                      initialValue={"" /*TODO*/}
-                    />
-                  </div>
-              }
-            </div>
-            <Select
-              className={classes.filter}
-              value={placeFilter}
-              onChange={(e) => setPlaceFilter(e.target.value)}>
-                <MenuItem key="all" value="all">In-person and online</MenuItem>
-                <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
-                <MenuItem key="online" value="online">Online only</MenuItem>
-            </Select>
-          </div>
+
           <div className={classes.eventCards}>
+            <div className={classes.filters}>
+              <div className={classes.where}>
+                Showing events near {mapsLoaded
+                  && <div className={classes.geoSuggest}>
+                      <Geosuggest
+                        placeholder="Location"
+                        onSuggestSelect={(suggestion) => {
+                          if (suggestion?.location) {
+                            setUserLocation(suggestion.location);
+                          }
+                        }}
+                        initialValue={"" /*TODO*/}
+                      />
+                    </div>
+                }
+              </div>
+              <Select
+                className={classes.filter}
+                value={placeFilter}
+                onChange={(e) => setPlaceFilter(e.target.value)}>
+                  <MenuItem key="all" value="all">In-person and online</MenuItem>
+                  <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
+                  <MenuItem key="online" value="online">Online only</MenuItem>
+              </Select>
+            </div>
+
             {results ? results.map(event => {
               return <Card key={event._id} className={classes.eventCard}>
-                <CardMedia
-                  component="img"
-                  image={randomEventImg(event._id)}
-                  style={{objectFit: 'cover', borderRadius: '4px 4px 0 0', height: "150px"}}
-                />
+                <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || randomEventImg(event._id)} />
                 <CardContent className={classes.eventCardContent}>
                   <PostsItemTooltipWrapper
                     post={event}
@@ -517,14 +571,14 @@ const EventsHome = ({classes}: {
             }) : _.range(6).map((i) => {
               return <Card key={i} className={classes.eventCard}></Card>
             })}
-          </div>
-          
-          <div className={classes.loadMoreRow}>
-            <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
-              <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
-              {currentUser?.nearbyEventsNotifications ? `Edit my event notification settings` : `Sign up for event notifications`}
-            </Button>
-            {loadMoreButton}
+            
+            <div className={classes.loadMoreRow}>
+              <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
+                <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
+                {currentUser?.nearbyEventsNotifications ? `Edit my event notification settings` : `Sign up for event notifications`}
+              </Button>
+              {loadMoreButton}
+            </div>
           </div>
           
         </div>
