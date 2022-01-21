@@ -9,6 +9,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
+import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 
 export const MAX_COLUMN_WIDTH = 720
@@ -38,6 +39,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
     background: "white",
     position: "relative"
   },
+  headerImageContainer: {
+    paddingBottom: 15,
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -12,
+      marginLeft: -4,
+      marginRight: -4,
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginTop: -10,
+    }
+  },
+  headerImage: {
+    width: '100vw',
+    maxWidth: 682,
+  }
 })
 
 const PostsPage = ({post, refetch, classes}: {
@@ -73,7 +92,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount } = Components
+    AFUnreviewedCommentCount, CloudinaryImage2 } = Components
 
   useEffect(() => {
     recordPostView({
@@ -104,7 +123,10 @@ const PostsPage = ({post, refetch, classes}: {
   const ogUrl = postGetPageUrl(post, true) // open graph
   const canonicalUrl = post.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
-  const socialPreviewImageUrl = post.socialPreviewImageUrl
+  let socialPreviewImageUrl = post.socialPreviewImageUrl
+  if (post.isEvent && post.eventImageId) {
+    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
+  }
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
@@ -122,6 +144,13 @@ const PostsPage = ({post, refetch, classes}: {
         <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
           <div className={classes.centralColumn}>
             {commentId && <CommentPermalink documentId={commentId} post={post} />}
+            {post.eventImageId && <div className={classes.headerImageContainer}>
+              <CloudinaryImage2
+                publicId={post.eventImageId}
+                imgProps={{ar: '16:9', w: '682', q: 'auto:best'}}
+                className={classes.headerImage}
+              />
+            </div>}
             <PostsPagePostHeader post={post}/>
           </div>
         </div></AnalyticsContext>

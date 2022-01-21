@@ -221,6 +221,8 @@ const ReviewVoteTableRow = (
         {getReviewPhase() === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
             singleLine
+            hideReviewVoteButtons
+            singleLineCollapse
             placeholderCount={post.reviewCount}
             terms={{
               view: "reviews",
