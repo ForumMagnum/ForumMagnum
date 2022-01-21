@@ -17,17 +17,16 @@ export const AdminPaymentsPage = ({classes}: {
 }) => {
   const { SingleColumnSection, SectionTitle, Loading, UsersNameDisplay } = Components
 
-  const currentUser = useCurrentUser()
-
-  if (!currentUser?.isAdmin) return null
-
   const { results, loading } = useMulti({
     terms: {view: "usersWithPaymentInfo"},
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     fetchPolicy: 'cache-and-network',
   });
-    
+
+  const currentUser = useCurrentUser()
+  if (!currentUser?.isAdmin) return null
+
   return <div className={classes.root}>
     <SingleColumnSection>
       <SectionTitle title="Payment Admin"/>
