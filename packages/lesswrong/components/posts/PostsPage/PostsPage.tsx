@@ -13,7 +13,7 @@ import { viewNames } from '../../comments/CommentsViews';
 
 export const MAX_COLUMN_WIDTH = 720
 
-const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [/crossposted/i, /epistemic status/i];
+const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [/cross-? ?posted/i, /epistemic status/i];
 
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigationAndRevision) => {
@@ -34,6 +34,9 @@ export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigati
         if (concat.length < 150) return concat;
         return acc;
       }, "");
+    if (firstFewPars.length > 200) {
+      return firstFewPars.slice(0, 199).trim() + "…";
+    }
     return firstFewPars;
   }
   if (post.shortform)
