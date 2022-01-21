@@ -33,6 +33,11 @@ export const AdminPaymentsPage = ({classes}: {
       <SectionTitle title="Payment Admin"/>
       {loading && <Loading/>}
       <Table>
+        <TableRow>
+          <TableCell><b>Username</b></TableCell>
+          <TableCell><b>Payment Email</b></TableCell>
+          <TableCell><b>Payment Info</b></TableCell>
+        </TableRow>
         {results?.map(user => <TableRow key={user._id}>
             <TableCell><UsersNameDisplay user={user}/></TableCell>
             <TableCell>{user.paymentEmail}</TableCell>
