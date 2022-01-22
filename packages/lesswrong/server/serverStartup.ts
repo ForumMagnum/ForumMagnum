@@ -15,7 +15,7 @@ import fs from 'fs';
 async function serverStartup() {
   // eslint-disable-next-line no-console
   console.log("Starting server");
-
+  
   const isTTY = process.stdout.isTTY;
   const CSI = "\x1b[";
   const blue = isTTY ? `${CSI}34m` : "";
@@ -27,8 +27,8 @@ async function serverStartup() {
     
     // Uncomment to add stacktraces to every console.log, for debugging where
     // mysterious output came from.
-    // var stack = new Error().stack
-    // log(stack)
+    //var stack = new Error().stack
+    //log(stack)
   });
   
   const commandLineArguments = getCommandLineArguments();

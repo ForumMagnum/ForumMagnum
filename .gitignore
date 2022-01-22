@@ -7,8 +7,6 @@ npm-debug.log
 providers_secret.js
 *.sublime-project
 
-.env
-
 *.sublime-workspace
 codekit-config.json
 
@@ -19,7 +17,7 @@ config.rb
 dump/
 dump/*
 
-# settings*.json
+settings*.json
 
 .idea
 .tern-project

@@ -15,6 +15,4 @@ COPY scripts/postinstall.sh scripts/postinstall.sh
 RUN yarn install && yarn cache clean
 COPY . .
 EXPOSE 8080
-EXPOSE 3000
-EXPOSE 3001
 CMD [ "yarn", "run", "production" ]

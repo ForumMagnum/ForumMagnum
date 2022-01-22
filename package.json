@@ -143,7 +143,6 @@
     "crypto-js": "^3.1.9-1",
     "dataloader": "^1.4.0",
     "deepmerge": "^1.2.0",
-    "dotenv": "^10.0.0",
     "draft-convert": "^2.1.2",
     "draft-js": "^0.10.4",
     "draft-js-alignment-plugin": "2.0.6",
