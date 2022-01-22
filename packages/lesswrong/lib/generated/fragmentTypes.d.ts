@@ -1704,6 +1704,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
+  readonly beta: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
