@@ -1,12 +1,15 @@
 {
   "public": {
-    "forumType": "LessWrong",
+    "forumType": "ProgressForum",
     "title": "Progress Studies",
     "tagline": "A community forum for Progress Studies",
     "logoUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_png/LessWrong_Logo_skglnw.svg",
     "siteNameWithArticle": "Progress Studies",
     "siteUrl": "https://ajroberts0417-forummagnum.zeet.app",
-    "aboutPostId": "dummyId",
+    "aboutPostId": "meprtWN2THTqPX4gq",
+    "contactPostId": "meprtWN2THTqPX4gq",
+    "faqPostId": "meprtWN2THTqPX4gq",
+    "introPostId": "meprtWN2THTqPX4gq",
     "faviconUrl": "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
     "forumSettings": {
       "headerTitle": "PROGRESS STUDIES",

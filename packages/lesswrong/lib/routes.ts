@@ -710,7 +710,37 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "Meta",
       ...metaSubtitle
     },
-  ]
+  ],
+  default: [
+    {
+      name:'home',
+      path:'/',
+      componentName: 'Home2',
+      sunshineSidebar: true //TODO: remove this in production?
+    },
+    {
+      name:'about',
+      path:'/about',
+      componentName: 'PostsSingleRoute',
+      _id: aboutPostIdSetting.get()
+    },
+    {
+      name: 'faq',
+      path: '/faq',
+      componentName: 'PostsSingleRoute',
+      _id: faqPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'contact',
+      path:'/contact',
+      componentName: 'PostsSingleRoute',
+      _id: contactPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      background: postBackground
+    },
+  ],
 })
 
 addRoute(...forumSpecificRoutes)
