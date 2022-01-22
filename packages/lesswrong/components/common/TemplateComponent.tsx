@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const TemplateComponent = ({classes}: {
   classes: ClassesType,
 }) => {
+  // eslint-disable-next-line no-empty-pattern
   const { } = Components
   return <div className={classes.root}>
 
