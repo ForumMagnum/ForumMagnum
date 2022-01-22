@@ -35,15 +35,18 @@ export const AdminPaymentsPage = ({classes}: {
       <Table>
         <TableRow>
           <TableCell><b>Username</b></TableCell>
+          <TableCell><b>Contact Email</b></TableCell>
           <TableCell><b>Payment Email</b></TableCell>
           <TableCell><b>Payment Info</b></TableCell>
         </TableRow>
-        {results?.map(user => <TableRow key={user._id}>
-            <TableCell><UsersNameDisplay user={user}/></TableCell>
-            <TableCell>{user.paymentEmail}</TableCell>
-            <TableCell>{user.paymentInfo}</TableCell>
+        {results?.map(user => {
+          return <TableRow key={user._id}>
+              <TableCell><UsersNameDisplay user={user}/></TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.paymentEmail}</TableCell>
+              <TableCell>{user.paymentInfo}</TableCell>
           </TableRow>
-        )}
+        })}
       </Table>
       <LoadMore {...loadMoreProps}/>
     </SingleColumnSection>
