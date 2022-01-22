@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -10,8 +10,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const TemplateComponent = ({classes}: {
   classes: ClassesType,
 }) => {
-  // eslint-disable-next-line no-empty-pattern
-  const { } = Components
   return <div className={classes.root}>
 
   </div>;
