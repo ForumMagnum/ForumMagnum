@@ -721,6 +721,20 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
   },
   
+  eventRegistrationLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Event Registration Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
   joinEventLink: {
     type: String,
     hidden: (props) => !props.eventForm,
@@ -848,6 +862,19 @@ addFieldsDict(Posts, {
     group: formGroups.event,
     regEx: SimpleSchema.RegEx.Url,
     tooltip: 'https://...'
+  },
+  
+  eventImageId: {
+    type: String,
+    optional: true,
+    hidden: (props) => !props.eventForm || !isEAForum,
+    label: "Event Image",
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: "ImageUpload",
+    group: formGroups.event,
+    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
   },
 
   types: {

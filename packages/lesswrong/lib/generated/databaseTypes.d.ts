@@ -420,6 +420,7 @@ interface DbPost extends DbObject {
   localStartTime: Date
   endTime: Date | null
   localEndTime: Date
+  eventRegistrationLink: string
   joinEventLink: string
   onlineEvent: boolean
   globalEvent: boolean
@@ -430,6 +431,7 @@ interface DbPost extends DbObject {
   facebookLink: string
   meetupLink: string
   website: string
+  eventImageId: string
   types: Array<string>
   metaSticky: boolean
   shareWithUsers: Array<string>
