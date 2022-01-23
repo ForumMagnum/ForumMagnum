@@ -30,7 +30,7 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
     case 'EAForum':
       return <div className={classes.warningText}>
         You've been flagged by our spam detection system. Please{' '}
-        <Link className={classes.link} to="/contact">contact us</Link> to active posting and commenting privileges on your accout.
+        <Link className={classes.link} to="/contact">contact us</Link> to activate posting and commenting privileges on your account.
       </div>
     case 'AlignmentForum':
     case 'LessWrong':

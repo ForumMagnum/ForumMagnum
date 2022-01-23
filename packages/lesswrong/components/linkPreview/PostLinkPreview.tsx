@@ -297,9 +297,27 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
     href,
     onsite
   });
-  // grab contents of linked footnote if it exists, while removes the backlink anchor tag.
-  const footnoteHTML = document.querySelector(href)?.innerHTML?.replace(/<a[^>]*href="#fnref.*?\/a>/g, '');
-  const footnoteContentsNonempty = Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
+  
+  let footnoteContentsNonempty = false;
+  let footnoteMinusBacklink = "";
+  
+  // Get the contents of the linked footnote.
+  // This has a try-catch-ignore around it because the link doesn't necessarily
+  // make a valid CSS selector; eg there are some posts in the DB with internal
+  // links to anchors like "#fn:1" which will crash this because it has a ':' in
+  // it.
+  try {
+    // Grab contents of linked footnote if it exists
+    const footnoteHTML = document.querySelector(href)?.innerHTML;
+    // Remove the backlink anchor tag. Note that this regex is deliberately very narrow;
+    // a more permissive regex would introduce risk of XSS, since we're not re-validating
+    // after this transform.
+    footnoteMinusBacklink = footnoteHTML?.replace(/<a href="#fnref[a-zA-Z0-9]*">^<\/a>/g, '') || "";
+    // Check whether the footnotehas nonempty contents
+    footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
+  // eslint-disable-next-line no-empty
+  } catch(e) { }
+  
   return (
     <span {...eventHandlers}>
       {footnoteContentsNonempty && <LWPopper
@@ -315,7 +333,7 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
       >
         <Card>
           <div className={classes.hovercard}>
-            <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+            <div dangerouslySetInnerHTML={{__html: footnoteMinusBacklink || ""}} />
           </div>
         </Card>
       </LWPopper>}

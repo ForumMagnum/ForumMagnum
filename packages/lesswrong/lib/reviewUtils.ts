@@ -19,9 +19,10 @@ export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 export function getReviewPhase(): ReviewPhase | void {
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
-  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
-  const reviewEnd = moment.utc(annualReviewEnd.get())
+  // Add 1 day because the end dates are inclusive
+  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get()).add(1, "day")
+  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get()).add(1, "day")
+  const reviewEnd = moment.utc(annualReviewEnd.get()).add(1, "day")
   
   if (currentDate < reviewStart) return
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
@@ -45,7 +46,6 @@ export function eligibleToNominate (currentUser: UsersCurrent|null) {
 export function postEligibleForReview (post: PostsBase) {
   if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWForum && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
-  if (getReviewPhase() === "VOTING" && post.reviewCount < 1) return false
   return true
 }
 

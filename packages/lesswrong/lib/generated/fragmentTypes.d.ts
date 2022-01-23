@@ -331,11 +331,14 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly endTime: Date | null,
   readonly localStartTime: Date,
   readonly localEndTime: Date,
+  readonly eventRegistrationLink: string,
+  readonly joinEventLink: string,
   readonly facebookLink: string,
   readonly meetupLink: string,
   readonly website: string,
   readonly contactInfo: string,
   readonly isEvent: boolean,
+  readonly eventImageId: string,
   readonly types: Array<string>,
   readonly groupId: string,
   readonly reviewedByUserId: string,
@@ -384,6 +387,11 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
+interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
 }
@@ -1848,6 +1856,7 @@ interface FragmentTypes {
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
+  PostsReviewVotingList: PostsReviewVotingList
   PostsAuthors: PostsAuthors
   PostsListBase: PostsListBase
   PostsList: PostsList
@@ -1990,6 +1999,7 @@ interface CollectionNamesByFragmentName {
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
+  PostsReviewVotingList: "Posts"
   PostsAuthors: "Posts"
   PostsListBase: "Posts"
   PostsList: "Posts"
