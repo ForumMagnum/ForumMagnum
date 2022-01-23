@@ -3,12 +3,12 @@ import StyleValidator from './StyleValidator'
 
 export const styleValidator = new StyleValidator()
 
-export function configStyleValidator(config) {
+export function configStyleValidator(config: any) {
   styleValidator.setConfig(config)
 }
 
 export default {
-  style(props, propName, componentName, ...rest) {
+  style(props: any, propName: any, componentName: any, ...rest: any) {
     if (props[propName] == null) {
       return undefined
     }

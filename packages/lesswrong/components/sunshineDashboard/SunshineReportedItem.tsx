@@ -1,23 +1,29 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
-import withHover from '../common/withHover'
+import { useUpdate } from '../../lib/crud/withUpdate';
+import React from 'react';
+import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import DoneIcon from '@material-ui/icons/Done';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
-interface ExternalProps {
+const SunshineReportedItem = ({report, updateReport}: {
   report: any,
   updateReport: WithUpdateFunction<ReportsCollection>,
-}
-interface SunshineReportedItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updateComment: WithUpdateFunction<CommentsCollection>,
-  updatePost: WithUpdateFunction<PostsCollection>,
-}
-class SunshineReportedItem extends Component<SunshineReportedItemProps> {
-  handleReview = () => {
-    const { currentUser, report, updateReport } = this.props
+}) => {
+  const currentUser = useCurrentUser();
+  const { hover, anchorEl, eventHandlers } = useHover();
+  const { mutate: updateComment } = useUpdate({
+    collectionName: "Comments",
+    fragmentName: 'CommentsListWithParentMetadata',
+  });
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+  });
+  
+  const handleReview = () => {
     void updateReport({
       selector: {_id: report._id},
       data: {
@@ -28,14 +34,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     })
   }
 
-  handleDelete = () => {
-    const {
-      currentUser,
-      report,
-      updateComment,
-      updatePost,
-      updateReport,
-    } = this.props
+  const handleDelete = () => {
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
         void updateComment({
@@ -64,15 +63,14 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
     }
   }
 
-  render () {
-    const { report, hover, anchorEl } = this.props
-    const comment = report.comment
-    const post = report.post
-    const { SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography, SunshineCommentsItemOverview } = Components
+  const comment = report.comment
+  const post = report.post
+  const { SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography, SunshineCommentsItemOverview } = Components
 
-    if (!post) return null;
+  if (!post) return null;
 
-    return (
+  return (
+    <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
@@ -80,6 +78,7 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
+                tag: comment.tag || undefined,
                 showPostTitle: true,
               }}
               comment={comment}
@@ -96,33 +95,21 @@ class SunshineReportedItem extends Component<SunshineReportedItemProps> {
           <em>"{ report.description }"</em> – {report.user && report.user.displayName}, <FormatDate date={report.createdAt}/>
         </SidebarInfo>
         {hover && <SidebarActionMenu>
-          <SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
+          <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
             <DoneIcon/>
           </SidebarAction>
-          <SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
+          <SidebarAction title={`Spam${forumTypeSetting.get() === 'EAForum' ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
             <DeleteIcon/>
           </SidebarAction>
         </SidebarActionMenu>
         }
       </SunshineListItem>
-    )
-  }
+    </span>
+  );
 }
 
-const SunshineReportedItemComponent = registerComponent<ExternalProps>('SunshineReportedItem', SunshineReportedItem, {
-  hocs: [
-    withUpdate({
-      collectionName: "Comments",
-      fragmentName: 'CommentsListWithParentMetadata',
-    }),
-    withUpdate({
-      collectionName: "Posts",
-      fragmentName: 'PostsList',
-    }),
-    withUser,
-    withHover(),
-    withErrorBoundary
-  ]
+const SunshineReportedItemComponent = registerComponent('SunshineReportedItem', SunshineReportedItem, {
+  hocs: [withErrorBoundary]
 });
 
 declare global {
@@ -130,4 +117,3 @@ declare global {
     SunshineReportedItem: typeof SunshineReportedItemComponent
   }
 }
-

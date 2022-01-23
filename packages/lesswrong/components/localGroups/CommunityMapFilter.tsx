@@ -10,12 +10,17 @@ import Divider from '@material-ui/core/Divider';
 import VisibilityIcon from '@material-ui/icons/VisibilityOff';
 import EmailIcon from '@material-ui/icons/Email';
 import AddIcon from '@material-ui/icons/Add';
+import RoomIcon from '@material-ui/icons/Room';
+import StarIcon from '@material-ui/icons/Star';
+import PersonPinIcon from '@material-ui/icons/PersonPin';
 import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
 
@@ -101,8 +106,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'rgba(0,0,0,0.05)'
   },
   buttonIcon: {
-    width: '1.2em',
-    height: '1.2em'
+    width: '1.2rem',
+    height: '1.2rem',
+  },
+  eaButtonIcon: {
+    width: '1.7rem',
+    height: '1.7rem',
   },
   actionIcon: {
     width: '0.7em',
@@ -160,7 +169,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   mobileFilterActive: {
-    fill: 'rgba(0,0,0,0.3)'
+    opacity: 0.3
   },
   bottomDivider: {
     [theme.breakpoints.down('sm')]: {
@@ -235,12 +244,19 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
-
+  
   render() {
     const { classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals, history } = this.props;
   
+    const isEAForum = forumTypeSetting.get() === 'EAForum';
+    const GroupIcon = () => isEAForum ? <StarIcon className={classes.eaButtonIcon}/> : <GroupIconSVG className={classes.buttonIcon}/>;
+    const EventIcon = () => isEAForum ? <RoomIcon className={classes.eaButtonIcon}/> : <ArrowSVG className={classes.buttonIcon}/>;
+    const PersonIcon = () => isEAForum ? <PersonPinIcon className={classes.eaButtonIcon}/> : <PersonSVG className={classes.buttonIcon}/>;
+
+    const isAdmin = userIsAdmin(currentUser);
+
     return <Paper>
-        <div className={classes.filters}>
+        {!isEAForum && <div className={classes.filters}>
           {availableFilters.map((value, i) => {
             const checked = this.state.filters.includes(value)
             return <span 
@@ -253,64 +269,60 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
               </span>
             </span>
           })}
-        </div>
+        </div>}
         <Divider className={classNames(classes.divider, classes.topDivider)} />
         <div className={classes.actions}>
           <div 
             className={classes.filterSection} 
           >
             <span className={classes.desktopFilter}>
-              <GroupIconSVG className={classes.buttonIcon} /> 
+              <GroupIcon/> 
             </span>
             <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showGroups})} onClick={toggleGroups}>
-              <GroupIconSVG className={classes.buttonIcon} /> 
+              <GroupIcon/>
             </span>
             <span className={classes.buttonText}>Groups</span>
             <span className={classes.actionContainer}>
-              <Tooltip title="Create New Group">
+              {(!isEAForum || isAdmin) && <Tooltip title="Create New Group">
                 <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)} />
-              </ Tooltip>
+              </ Tooltip>}
               <Tooltip title="Hide groups from map">
                 <VisibilityIcon 
                   onClick={toggleGroups}
                   className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showGroups})} 
                 />
               </Tooltip>
-              
             </span>
           </div>
           <div 
-            className={classes.filterSection}
-            
-          >
+            className={classes.filterSection}>
             <span className={classes.desktopFilter}>
-              <ArrowSVG className={classes.buttonIcon} /> 
+              <EventIcon/> 
             </span>
             <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showEvents})} onClick={toggleEvents}>
-              <ArrowSVG className={classes.buttonIcon} /> 
+              <EventIcon/>
             </span>
             <span className={classes.buttonText}> Events </span>
             <span className={classes.actionContainer}>
-              <Tooltip title="Create New Event">
+              {currentUser && <Tooltip title="Create New Event">
                 <AddIcon className={classNames(classes.actionIcon, classes.addIcon)} onClick={() => history.push({ pathname: '/newPost', search: `?eventForm=true`})}/>
-              </Tooltip>
+              </Tooltip>}
               <Tooltip title="Hide events from map">
                 <VisibilityIcon 
                   onClick={toggleEvents}
                   className={classNames(classes.actionIcon, classes.visibilityIcon, {[classes.checkedVisibilityIcon]: !showEvents})} 
                 />
               </Tooltip>
-              
             </span>
           </div>
           <div
             className={classes.filterSection}
           >
             <span className={classes.desktopFilter}>
-              <PersonSVG className={classes.buttonIcon} /> 
+              <PersonIcon />
             </span>
             <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showIndividuals})} onClick={toggleIndividuals}>
-              <PersonSVG className={classes.buttonIcon} /> 
+              <PersonIcon />
             </span>
             <span className={classes.buttonText}> Individuals </span>
             <span className={classes.actionContainer}>

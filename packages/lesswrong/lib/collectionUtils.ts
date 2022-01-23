@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { isServer, isAnyTest, runAfterDelay } from './executionEnvironment';
+import { isServer, isAnyTest } from './executionEnvironment';
 import * as _ from 'underscore';
 import { addFieldsDict } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
@@ -35,6 +35,15 @@ SimpleSchema.extendOptions([ 'foreignKey' ]);
 // nullable: In a schema entry, this boolean indicates whether the type system
 // should treat this field as nullable 
 SimpleSchema.extendOptions([ 'nullable' ]);
+
+declare module "simpl-schema" {
+  interface SchemaDefinition {
+    canAutofillDefault?: boolean
+    denormalized?: boolean
+    foreignKey?: CollectionNameString | {collection:CollectionNameString,field:string}
+    nullable?: boolean
+  }
+}
 
 export const expectedIndexes: Partial<Record<CollectionNameString,Array<any>>> = {};
 
@@ -111,7 +120,7 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
     if (isAnyTest) {
       await buildIndex();
     } else {
-      runAfterDelay(buildIndex, 15000);
+      setTimeout(buildIndex, 15000);
     }
   }
 }

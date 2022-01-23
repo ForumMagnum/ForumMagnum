@@ -79,7 +79,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
+export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
 
 export const useGoogleMaps = (identifier, libraries = ['places']) => {
   const [ mapsLoaded, setMapsLoaded ] = useState((typeof window !== 'undefined') ? (window as any).google : null)
@@ -100,7 +100,7 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
     }
   }
   if (!mapsLoaded) return [ mapsLoaded ]
-  else return [ mapsLoaded, (window as any)?.google ]
+  else return [ mapsLoaded, (window as any)?.google?.maps ]
 }
 
 
@@ -111,7 +111,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
   classes: ClassesType,
 }) => {
   const location = document?.location || ""
-  const [ mapsLoaded ] = useGoogleMaps("LocationFormComponent")
+  const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
   useEffect(() => {
     updateCurrentValues({
       location: (document && document.location) || "",
@@ -119,6 +119,16 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  
+  const handleCheckClear = (value) => {
+    // clear location fields if the user deletes the input text
+    if (value === '') {
+      updateCurrentValues({
+        location: null,
+        googleLocation: null,
+      })
+    }
+  }
 
   const handleSuggestSelect = (suggestion) => {
     if (suggestion && suggestion.gmaps) {
@@ -134,6 +144,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
     return <div className={classes.root}>
       <Geosuggest
         placeholder="Location"
+        onChange={handleCheckClear}
         onSuggestSelect={handleSuggestSelect}
         initialValue={location}
       />

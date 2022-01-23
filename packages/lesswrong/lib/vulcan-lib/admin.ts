@@ -1,6 +1,6 @@
 let AdminColumns: Array<any> = [];
 
-export const addAdminColumn = columnOrColumns => {
+export const addAdminColumn = (columnOrColumns: any) => {
   if (Array.isArray(columnOrColumns)) {
     AdminColumns = AdminColumns.concat(columnOrColumns);
   } else {

@@ -5,7 +5,7 @@ import Box from './Box'
 import Item from './Item'
 
 // inspired by http://htmlemailboilerplate.com
-export default function Email(props) {
+export default function Email(props: any) {
   const htmlTagProps: any = {
     lang: props.lang,
     xmlns: "http://www.w3.org/1999/xhtml"

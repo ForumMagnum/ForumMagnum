@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, {useState} from 'react';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
@@ -22,6 +22,8 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,17 +62,27 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   color?: string,
   classes: ClassesType
 }) => {
-  const [open,setOpen] = useState(false);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const { LWPopper, LWTooltip, ThemePickerMenu } = Components
 
   if (!currentUser) return null;
+  if (currentUser.usernameUnset) {
+    return <div className={classes.root}>
+      <Button href='/logout' classes={{root: classes.userButtonRoot}}>
+        <span className={classes.userButtonContents} style={{ color: color }}>
+          LOG OUT
+        </span>
+      </Button>
+    </div>
+  }
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-
+  
+  
+  
   return (
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -96,22 +108,24 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
           placement="bottom-start"
         >
           <Paper>
-            {showNewButtons &&
+            <div onClick={(ev) => {
+              if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
+                ev.preventDefault()
+              }
+            }}>
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
                 New Question
               </MenuItem>
-            }
-            {showNewButtons && <Link to={`/newPost`}>
+              <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>
-            }
-            {showNewButtons &&
-              <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-                New Shortform
-              </MenuItem>
-            }
+            </div>
+            {showNewButtons && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
+               New Shortform
+            </MenuItem> }
             {showNewButtons && <Divider/>}
-            {showNewButtons && <Link to={`/newPost?eventForm=true`}>
+            {showNewButtons &&
+              <Link to={`/newPost?eventForm=true`}>
                 <MenuItem>New Event</MenuItem>
               </Link>
             }
@@ -120,7 +134,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
                 <MenuItem>New Sequence</MenuItem>
               </Link>
             }
-            {showNewButtons && <Divider/>}
+            <Divider/>
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }

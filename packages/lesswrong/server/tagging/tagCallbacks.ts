@@ -5,6 +5,7 @@ import Users from '../../lib/collections/users/collection';
 import { voteCallbacks } from '../../lib/voting/vote';
 import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
+import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 
 function isValidTagName(name: string) {
   return true;
@@ -99,3 +100,20 @@ function voteUpdatePostDenormalizedTags({newDocument: tagRel, vote}: {
 
 voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);
 voteCallbacks.castVoteAsync.add(voteUpdatePostDenormalizedTags);
+
+async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
+  if (vote.collectionName !== "Revisions") return;
+  if (votedRevision.collectionName !== "Tags") return;
+  
+  const tag = await Tags.findOne({_id: votedRevision.documentId});
+  if (!tag) return;
+  await updateDenormalizedContributorsList(tag);
+}
+
+voteCallbacks.castVoteAsync.add(async ({newDocument: revision, vote}: {newDocument: DbRevision, vote: DbVote}) => {
+  await recomputeContributorScoresFor(revision, vote);
+});
+
+voteCallbacks.cancelAsync.add(async ({newDocument: revision, vote}: {newDocument: DbRevision, vote: DbVote}) => {
+  await recomputeContributorScoresFor(revision, vote);
+});

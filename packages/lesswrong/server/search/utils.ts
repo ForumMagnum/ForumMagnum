@@ -20,7 +20,7 @@ import { asyncFilter } from '../../lib/utils/asyncUtils';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
-export interface AlgoliaIndexedCollection<T extends DbObject> extends CollectionBase<T> {
+export interface AlgoliaIndexedCollection<T extends AlgoliaIndexedDbObject> extends CollectionBase<T, AlgoliaIndexCollectionName> {
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
@@ -36,7 +36,7 @@ Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|n
     _id: comment._id,
     userId: comment.userId,
     baseScore: comment.baseScore,
-    isDeleted: comment.isDeleted,
+    isDeleted: comment.deleted,
     retracted: comment.retracted,
     deleted: comment.deleted,
     spam: comment.spam,
@@ -171,7 +171,11 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
       postBatch.push(_.clone({
         ...algoliaMetaInfo,
         objectID: post._id + "_" + paragraphCounter,
-        body: paragraph,
+        
+        // Algolia limits text to 20 KB. They don't say what encoding they use though. 
+        // Some random tests seem to imply that they use UTF-8, which means between 1 and 4 bytes per character.
+        // So limit to 18,000 characters under the assumption that we have ~1.1 bytes/character.
+        body: paragraph.slice(0, 18000),
       }));
     })
   } else {
@@ -501,7 +505,7 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   }
   let algoliaIndex = client.initIndex(getAlgoliaIndexName(collection.collectionName as AlgoliaIndexCollectionName));
   
-  let totalErrors = [];
+  let totalErrors: any[] = [];
   
   await algoliaIndexDocumentBatch({
     documents,
@@ -587,7 +591,7 @@ export async function algoliaIndexDocumentBatch<T extends AlgoliaIndexedDbObject
 }
 
 
-export async function subsetOfIdsAlgoliaShouldntIndex<T extends DbObject>(collection: AlgoliaIndexedCollection<T>, ids: Array<string>) {
+export async function subsetOfIdsAlgoliaShouldntIndex<T extends AlgoliaIndexedDbObject>(collection: AlgoliaIndexedCollection<T>, ids: Array<string>) {
   // Filter out duplicates
   const sortedIds = _.clone(ids).sort();
   const uniqueIds = _.uniq(sortedIds, true);

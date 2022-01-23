@@ -1,11 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withMessages } from '../common/withMessages';
-import React, { PureComponent } from 'react';
+import React, {useState} from 'react';
 import classNames from 'classnames';
-import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useCurrentUser } from "../common/withUser";
+import { useDialog } from "../common/withDialog";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,32 +72,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
-  post: PostsBase,
-  refetch: any,
-}
-interface NewAnswerCommentQuestionFormProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
-}
-interface NewAnswerCommentQuestionFormState {
-  selection: string,
-  formFocus: boolean,
-}
+const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
+  post: PostsDetails,
+  refetch: ()=>void,
+  classes: ClassesType,
+}) => {
+  const [selection, setSelection] = useState("answer");
+  const [formFocus, setFormFocus] = useState(false);
+  const currentUser = useCurrentUser()
+  const { openDialog } = useDialog()
+  const { NewAnswerForm, CommentsNewForm, NewRelatedQuestionForm } = Components
 
-class NewAnswerCommentQuestionForm extends PureComponent<NewAnswerCommentQuestionFormProps,NewAnswerCommentQuestionFormState> {
-  state: NewAnswerCommentQuestionFormState = {
-    selection: "answer",
-    formFocus: false
+  const toggleFormFocus = () => {
+    setFormFocus(!formFocus);
   }
 
-  toggleFormFocus = () => {
-    this.setState((prevState) => ({formFocus: !prevState.formFocus}))
-  }
-
-  getNewForm = () => {
-    const { post, refetch } = this.props
-    const { selection } = this.state
-    const { NewAnswerForm, CommentsNewForm, NewRelatedQuestionForm } = Components
-
+  const getNewForm = () => {
     switch(selection) {
       case "answer":
         return <NewAnswerForm post={post} />
@@ -110,59 +101,49 @@ class NewAnswerCommentQuestionForm extends PureComponent<NewAnswerCommentQuestio
     }
   }
 
-  render () {
-    const { classes } = this.props
-    const { selection, formFocus } = this.state
-
-    return (
-        <div className={classes.root}>
-          <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
-          <div className={classes.form}>
-            <div className={classes.chooseResponseType}>
-              <Tooltip title="Write an answer or partial-answer to the question (i.e. something that gives the question author more information, or helps others to do so)">
-                <div onClick={()=>this.setState({selection: "answer"})}
-                  className={classNames(classes.responseType, {[classes.selected]: selection === "answer"})}
-                >
-                  New Answer
-                </div>
-              </Tooltip>
-              <Tooltip title="Help break down this question into easier sub-questions, or explore new questions building off of it.">
-                <div onClick={()=>this.setState({selection: "question"})}
-                  className={classNames(classes.responseType, {[classes.selected]: selection === "question"})}>
-                  Ask Related Question
-                </div>
-              </Tooltip>
-              <Tooltip title="Discuss the question or ask clarifying questions">
-                <div onClick={()=>this.setState({selection: "comment"})}
-                  className={classNames(classes.responseType, {[classes.selected]: selection === "comment"})}>
-                  New Comment
-                </div>
-              </Tooltip>
-              <div className={classes.toggleFocus} onClick={this.toggleFormFocus}>
-                {formFocus ?
-                  <Tooltip title="Exit focus mode">
-                    <FullscreenExitIcon />
-                  </Tooltip>
-                  :
-                  <Tooltip title="Enter focus mode">
-                    <FullscreenIcon />
-                  </Tooltip>
-                  }
-              </div>
-            </div>
-            <div className={classes.responseForm}>
-              { this.getNewForm() }
-            </div>
+  return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog)}>
+    <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
+    <div className={classes.form}>
+      <div className={classes.chooseResponseType}>
+        <Tooltip title="Write an answer or partial-answer to the question (i.e. something that gives the question author more information, or helps others to do so)">
+          <div onClick={()=>setSelection("answer")}
+            className={classNames(classes.responseType, {[classes.selected]: selection === "answer"})}
+          >
+            New Answer
           </div>
+        </Tooltip>
+        <Tooltip title="Help break down this question into easier sub-questions, or explore new questions building off of it.">
+          <div onClick={()=>setSelection("question")}
+            className={classNames(classes.responseType, {[classes.selected]: selection === "question"})}>
+            Ask Related Question
+          </div>
+        </Tooltip>
+        <Tooltip title="Discuss the question or ask clarifying questions">
+          <div onClick={()=>setSelection("comment")}
+            className={classNames(classes.responseType, {[classes.selected]: selection === "comment"})}>
+            New Comment
+          </div>
+        </Tooltip>
+        <div className={classes.toggleFocus} onClick={toggleFormFocus}>
+          {formFocus ?
+            <Tooltip title="Exit focus mode">
+              <FullscreenExitIcon />
+            </Tooltip>
+            :
+            <Tooltip title="Enter focus mode">
+              <FullscreenIcon />
+            </Tooltip>
+            }
+        </div>
       </div>
-    )
-  }
+      <div className={classes.responseForm}>
+        {getNewForm()}
+      </div>
+    </div>
+  </div>
 }
 
-const NewAnswerCommentQuestionFormComponent = registerComponent<ExternalProps>('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {
-  styles,
-  hocs: [withMessages, withUser]
-});
+const NewAnswerCommentQuestionFormComponent = registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
 
 declare global {
   interface ComponentTypes {

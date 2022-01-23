@@ -49,7 +49,7 @@ const allLinksRangeString = `'All Links'!1:1000`
 
 const coronaVirusResolvers = {
   Query: {
-    async CoronaVirusData(root, args, context: ResolverContext) {
+    async CoronaVirusData(root: void, args: {}, context: ResolverContext) {
         const rawCoronavirusData:any = await getDataFromSpreadsheet(coronaVirusSheetId, allLinksRangeString)
         const processedData = JSON.parse(rawCoronavirusData)
         const [ headerRow, ...otherRows ] = processedData.values

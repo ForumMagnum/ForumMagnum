@@ -15,6 +15,8 @@ import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import type { ForumTypeString } from '../../../lib/instanceSettings';
+import { communityPath } from '../../../lib/routes';
+import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -40,7 +42,34 @@ import type { ForumTypeString } from '../../../lib/instanceSettings';
 //   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
-type MenuTab = any;
+
+type MenuTabDivider = {
+  id: string
+  divider: true
+  showOnCompressed?: boolean
+}
+
+type MenuTabCustomComponent = {
+  id: string
+  customComponentName: string
+}
+
+export type MenuTabRegular = {
+  id: string
+  title: string
+  mobileTitle?: string
+  link: string
+  icon?: React.ReactNode
+  iconComponent?: any // I tried
+  compressedIconComponent?: any
+  tooltip?: React.ReactNode
+  showOnMobileStandalone?: boolean
+  showOnCompressed?: boolean
+  subItem?: boolean
+}
+
+type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
+
 export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
   LessWrong: [
     {
@@ -97,10 +126,16 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
       subItem: true,
     }, {
+      id: 'bestoflesswrong',
+      title: 'Best Of',
+      link: '/bestoflesswrong',
+      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
+      subItem: true,
+    }, {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
-      link: '/community',
+      link: communityPath,
       icon: communityGlobeIcon,
       tooltip: 'Find a meetup near you.',
       showOnMobileStandalone: true,
@@ -134,6 +169,11 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
         <div>• Pose and resolve confusions.</div>
       </div>,
       subItem: true
+    }, {
+      id: 'contact',
+      title: 'Contact Us',
+      link: '/contact',
+      subItem: true,
     }, {
       id: 'about',
       title: 'About',
@@ -220,44 +260,52 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'tags',
-      title: 'Tags',
-      mobileTitle: 'Tags',
+      id: 'wiki',
+      title: 'Wiki',
+      mobileTitle: 'Wiki',
       link: '/tags/all',
       iconComponent: LocalOffer,
-      tooltip: 'See posts tagged by their subject matter',
+      tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'sequences',
-      title: 'Sequences',
-      link: '/sequences',
+      id: 'library',
+      title: 'Library',
+      link: '/library',
       iconComponent: LocalLibrary,
-      tooltip: "Collections of posts building on a common theme",
+      tooltip: "Core reading, and sequences of posts building on a common theme",
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    // TODO: Once we get two sequences we want to share, add subitems
-    // }, {
-    //   id: 'fellowship-reading',
-    //   title: 'Fellowship Reading',
-    //   link: '/TODO:',
-    //   tooltip: "TODO: James is cool",
-    //   subItem: true,
-    // }, {
-    //   id: 'motivation',
-    //   title: 'Motivation',
-    //   link: '/TODO:',
-    //   tooltip: "TODO: Aaron's cool",
-    //   subItem: true,
     }, {
-      id: 'groups',
-      title: 'EA Groups',
-      mobileTitle: 'EA Groups',
-      link: 'https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage',
+      id: 'handbook',
+      title: 'The EA Handbook',
+      link: '/handbook',
+      tooltip: "To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.",
+      subItem: true,
+    }, {
+      id: 'replacing-guilt',
+      title: 'Replacing Guilt',
+      link: '/s/a2LBRPLhvwB83DSGq',
+      tooltip: "Nate Soares writes about replacing guilt with other feelings, exercising self-compassion, and developing confidence — so that we can create a better world.",
+      subItem: true,
+    }, {
+      id: 'most-important-century',
+      title: 'Most Important Century',
+      link: '/s/isENJuPdB3fhjWYHd',
+      tooltip: `Holden Karnofsky argues that there's a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
+      subItem: true,
+    }, {
+      id: 'events',
+      title: 'Community and Events',
+      mobileTitle: 'Events',
+      link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See EA groups in your area',
+      tooltip: 'See EA groups and events in your area',
       showOnMobileStandalone: true,
       showOnCompressed: true
+    }, {
+      id: 'eventsList',
+      customComponentName: "EventsList",
     }, {
       id: 'divider',
       divider: true,

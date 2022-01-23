@@ -26,15 +26,16 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
   title: React.ReactNode,
   classes: ClassesType,
 }) => {
-  const { SubscribedItem, SectionTitle, Loading } = Components;
+  const { SubscribedItem, SectionTitle, Loading, LoadMore } = Components;
   const currentUser = useCurrentUser();
   
-  const { results, loading } = useMulti({
+  const { results, loading, loadMoreProps, showLoadMore } = useMulti({
     terms: {
       view: "subscriptionsOfType",
       userId: currentUser?._id,
       collectionName: collectionName,
       subscriptionType: subscriptionType,
+      limit: 50
     },
     collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
@@ -61,6 +62,7 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
     {results.length===0 && <div className={classes.subscribedItem}>
       {noSubscriptionsMessage}
     </div>}
+    {showLoadMore && <LoadMore {...loadMoreProps} />}
   </div>
 }
 
@@ -79,7 +81,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   renderDocument: (document: any)=>ReactNode,
   classes: ClassesType,
 }) => {
-  const { Loading, SubscribeTo } = Components;
+  const { Loading, NotifyMeButton } = Components;
   const { document, loading } = useSingle({
     documentId: subscription.documentId,
     collectionName, fragmentName,
@@ -92,7 +94,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
     <div className={classes.subscribedItemDescription}>
     {renderDocument(document)}
     </div>
-    <SubscribeTo
+    <NotifyMeButton
       document={document}
       subscriptionType={subscription.type}
       subscribeMessage="Resubscribe"
@@ -145,8 +147,8 @@ const ViewSubscriptionsPage = ({classes}: {
       title="Subscribed to Comment Replies"
       collectionName="Comments"
       subscriptionType="newReplies"
-      fragmentName="ShortformComments"
-      renderDocument={(comment: ShortformComments) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, commentId: comment?._id, permalink: true})}>
+      fragmentName="CommentsListWithParentMetadata"
+      renderDocument={(comment: CommentsListWithParentMetadata) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, tagSlug: comment?.tag?.slug, commentId: comment?._id, permalink: true})}>
         author: {comment?.user?.displayName} post: {comment?.post?.title}
       </Link>}
       noSubscriptionsMessage="You are not subscribed to any comment replies."

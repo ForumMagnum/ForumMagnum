@@ -9,11 +9,29 @@ import { createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
+  topSection: {
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    }
+  },
+  imageContainer: {
+    height: 200,
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -4,
+      marginRight: -4,
+    }
+  },
   groupInfo: {
-    ...sectionFooterLeftStyles
+    ...sectionFooterLeftStyles,
+    alignItems: 'baseline'
   },
   groupName: {
     ...theme.typography.headerStyle,
@@ -25,9 +43,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit * 2
   },
   leftAction: {
-    [theme.breakpoints.down('xs')]: {
-      textAlign: 'left'
-    }
+    alignSelf: "center",
   },
   groupLocation: {
     ...theme.typography.body2,
@@ -39,7 +55,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: "inline-block",
   },
   groupDescription: {
-    marginBottom: "30px",
+    marginBottom: 20,
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
     }
@@ -47,6 +63,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   groupDescriptionBody: {
     ...postBodyStyles(theme),
     padding: theme.spacing.unit,
+  },
+  eventPostsHeadline: {
+    marginTop: 20
+  },
+  mapContainer: {
+    height: 200,
+    marginTop: 50,
+    marginLeft: 'auto',
+    marginRight: 'auto'
   }
 }));
 
@@ -56,8 +81,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
+  const {
+    HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2,
+    Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
+    Error404, CloudinaryImage
+  } = Components
 
   const { document: group, loading } = useSingle({
     collectionName: "Localgroups",
@@ -70,19 +98,49 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   const { html = ""} = group.contents || {}
   const htmlBody = {__html: html}
+  const isAdmin = userIsAdmin(currentUser);
+  const isGroupAdmin = currentUser && group.organizerIds.includes(currentUser._id);
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  
+  // by default, we try to show the map at the top if the group has a location
+  let topSection = group.googleLocation ? <CommunityMapWrapper
+    className={classes.imageContainer}
+    terms={{view: "events", groupId: groupId}}
+    groupQueryTerms={{view: "single", groupId: groupId}}
+    hideLegend={true}
+    mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+  /> : <div className={classes.topSection}></div>;
+  let bottomSection;
+  // if the group has a banner image, show that at the top instead, and move the map to the bottom
+  if (group.bannerImageId) {
+    topSection = <div className={classes.imageContainer}>
+      <CloudinaryImage
+        publicId={group.bannerImageId}
+        width="auto"
+        height={200}
+      />
+    </div>
+    bottomSection = group.googleLocation && <CommunityMapWrapper
+      className={classes.mapContainer}
+      terms={{view: "events", groupId: groupId}}
+      groupQueryTerms={{view: "single", groupId: groupId}}
+      hideLegend={true}
+      mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+    />
+  }
 
-  const { googleLocation: { geometry: { location } }} = group;
   return (
     <div className={classes.root}>
-      <CommunityMapWrapper
-        terms={{view: "events", groupId: groupId}}
-        groupQueryTerms={{view: "single", groupId: groupId}}
-        mapOptions={{zoom:11, center: location, initialOpenWindows:[groupId]}}
+      <HeadTags
+        title={group.name}
+        description={group.contents?.plaintextDescription}
+        image={group.bannerImageId && `https://res.cloudinary.com/cea/image/upload/v1640139083/${group.bannerImageId}.jpg`}
       />
+      {topSection}
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>
-            <SubscribeTo
+            <NotifyMeButton
               showIcon
               document={group}
               subscribeMessage="Subscribe to group"
@@ -94,34 +152,42 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           <div className={classes.groupSubtitle}>
             <SectionFooter>
               <span className={classes.groupInfo}>
-                <div className={classes.groupLocation}>{group.location}</div>
+                <div className={classes.groupLocation}>{group.isOnline ? 'Online Group' : group.location}</div>
                 <div className={classes.groupLinks}><GroupLinks document={group} /></div>
               </span>
               {Posts.options.mutations.new.check(currentUser) &&
-                <React.Fragment>
-                  <SectionButton>
-                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
-                      New event
-                    </Link>
-                  </SectionButton>
-                  <SectionButton>
-                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({groupId})}`}} className={classes.leftAction}>
-                      New group post
-                    </Link>
-                  </SectionButton>
-                </React.Fragment>}
-              {Localgroups.options.mutations.edit.check(currentUser, group) && 
+                (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
+                  <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
+                    New event
+                  </Link>
+                </SectionButton>}
+              {Localgroups.options.mutations.edit.check(currentUser, group) &&
+               (!isEAForum || isAdmin || isGroupAdmin ) && 
                 <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
             </SectionFooter>
           </div>
-          <ContentItemBody
+          {group.contents && <ContentItemBody
             dangerouslySetInnerHTML={htmlBody}
             className={classes.groupDescriptionBody}
             description={`group ${groupId}`}
-          />
+          />}
         </div>
-        <PostsList2 terms={{view: 'groupPosts', groupId: groupId}} />
+        
+        <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
+        
+        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
+          Upcoming Events
+        </Components.Typography>
+        <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
+        <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+        
+        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
+          Past Events
+        </Components.Typography>
+        <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
+        
+        {bottomSection}
       </SingleColumnSection>
     </div>
   )
@@ -134,4 +200,3 @@ declare global {
     LocalGroupPage: typeof LocalGroupPageComponent
   }
 }
-

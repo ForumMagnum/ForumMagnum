@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es2015", "dom"],
+    "lib": ["es2019", "dom"],
     "noImplicitAny": false,
     "noImplicitThis": true,
     "strictNullChecks": true,
@@ -16,7 +16,8 @@
     "skipLibCheck": true
   },
   "include": [
-    "packages/lesswrong"
+    "packages/lesswrong",
+    "cypress"
   ],
   "exclude": [
     "node_modules",

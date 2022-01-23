@@ -1,6 +1,7 @@
-
 const maxSmallish = "@media screen and (max-width: 715px)";
 const maxTiny = "@media screen and (max-width: 400px)";
+
+export const commentsNodeRootMarginBottom = 17
 
 const clearStyle = (theme: ThemeType): JssStyles => ({
   html: {
@@ -14,7 +15,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   },
   body: {
     margin: 0,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: theme.palette.background.default,
     
     "@media print": {
       backgroundColor: "white",
@@ -80,12 +81,14 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
   ".thoughtSaverFrame": {
     width: "100%",
     height: "500px",
+    border: "none",
+    borderRadius: 5
   },
 });
 
 const commentsStyle = (theme: ThemeType): JssStyles => ({
   ".comments-node-root": {
-    marginBottom: "1.3em",
+    marginBottom: commentsNodeRootMarginBottom,
   
     [maxSmallish]: {
       marginBottom: 10,

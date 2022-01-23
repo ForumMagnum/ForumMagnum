@@ -4,6 +4,7 @@ import Slide from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
+import { communityPath } from '../../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,7 +39,7 @@ const NavigationStandalone = ({sidebarHidden, classes}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   const { location } = useLocation();
 
-  const background = ["/community"].includes(location.pathname)
+  const background = location.pathname === communityPath;
 
   return <div className={classes.root}>
     <div className={classNames(classes.sidebar, {[classes.background]: background})}>

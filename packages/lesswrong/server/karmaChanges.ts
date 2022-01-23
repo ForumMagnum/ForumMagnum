@@ -92,18 +92,6 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
     ]
   ).toArray()
   
-  const tagIdsReferenced = new Set<string>();
-  for (let changedComment of changedComments) {
-    if (changedComment.tagId)
-      tagIdsReferenced.add(changedComment.tagId);
-  }
-  const tagIdToSlug = await mapTagIdsToSlugs([...tagIdsReferenced.keys()], context)
-  for (let changedComment of changedComments) {
-    if (changedComment.tagId) {
-      changedComment.tagSlug = tagIdToSlug[changedComment.tagId];
-    }
-  }
-  
   let changedPosts = await Votes.aggregate(
     [
       ...karmaChangesInCollectionPipeline("Posts"),
@@ -130,7 +118,50 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
   
-  let totalChange = sumBy(changedPosts, (doc: any)=>doc.scoreChange) + sumBy(changedComments, (doc: any)=>doc.scoreChange);
+  let changedTagRevisions = await Votes.aggregate(
+    [
+      ...karmaChangesInCollectionPipeline("Revisions"),
+      
+      {$lookup: {
+        from: "revisions",
+        localField: "_id",
+        foreignField: "_id",
+        as: "revision"
+      }},
+      {$project: {
+        _id:1,
+        scoreChange:1,
+        tagId: {$arrayElemAt: ["$revision.documentId",0]},
+      }},
+    ]
+  ).toArray();
+  
+  // Fill in tag references
+  const tagIdsReferenced = new Set<string>();
+  for (let changedComment of changedComments) {
+    if (changedComment.tagId)
+      tagIdsReferenced.add(changedComment.tagId);
+  }
+  for (let changedTagRevision of changedTagRevisions) {
+    tagIdsReferenced.add(changedTagRevision.tagId);
+  }
+  
+  const tagIdToMetadata = await mapTagIdsToMetadata([...tagIdsReferenced.keys()], context)
+  for (let changedComment of changedComments) {
+    if (changedComment.tagId) {
+      changedComment.tagSlug = tagIdToMetadata[changedComment.tagId].slug;
+    }
+  }
+  for (let changedRevision of changedTagRevisions) {
+    changedRevision.tagSlug = tagIdToMetadata[changedRevision.tagId].slug;
+    changedRevision.tagName = tagIdToMetadata[changedRevision.tagId].name;
+  }
+  
+  
+  let totalChange =
+      sumBy(changedPosts, (doc: any)=>doc.scoreChange)
+    + sumBy(changedComments, (doc: any)=>doc.scoreChange)
+    + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange);
   
   return {
     totalChange,
@@ -139,17 +170,22 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
     endDate,
     posts: changedPosts,
     comments: changedComments,
+    tagRevisions: changedTagRevisions,
   };
 }
 
-const mapTagIdsToSlugs = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,string>> => {
-  const mapping: Record<string,string> = {};
+const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,{slug:string, name:string}>> => {
+  const mapping: Record<string,{slug: string, name: string}> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {
     const tag = context
       ? await context.loaders.Tags.load(tagId)
       : await Tags.findOne(tagId)
-    if (tag?.slug)
-      mapping[tagId] = tag.slug;
+    if (tag?.slug) {
+      mapping[tagId] = {
+        slug: tag.slug,
+        name: tag.name
+      };
+    }
   }));
   return mapping;
 }

@@ -2,9 +2,15 @@ import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 
+type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string)=>void) => Promise<void>;
+type CollectionCustomValidator<T extends DbObject> = {
+  name: string,
+  validateBatch: CollectionCustomValidatorFunction<T>
+}
+
 // customValidators: Mapping from collection name to array of
 // {validatorName,validateBatch} tuples.
-let customValidators = {};
+let customValidators: Partial<Record<CollectionNameString, CollectionCustomValidator<any>[]>> = {};
 
 // Register a function as a validator which can be run over data in the
 // database, which will be run when validateDatabase is run (but not run
@@ -14,11 +20,15 @@ let customValidators = {};
 //   Takes an array of documents and a function for recording errors, returns
 //   nothing. recordError takes a field name and an error description, and
 //   groups errors together to be printed with counts.
-export function registerCollectionValidator({collection, name, validateBatch})
+export function registerCollectionValidator<T extends DbObject>({collection, name, validateBatch}: {
+  collection: CollectionBase<T>,
+  name: string,
+  validateBatch: CollectionCustomValidatorFunction<T>
+})
 {
   if (!(collection.collectionName in customValidators))
     customValidators[collection.collectionName] = [];
-  customValidators[collection.collectionName].push({name, validateBatch});
+  customValidators[collection.collectionName]!.push({name, validateBatch});
 }
 
 // Validate a collection against its attached schema. Checks that _id is always

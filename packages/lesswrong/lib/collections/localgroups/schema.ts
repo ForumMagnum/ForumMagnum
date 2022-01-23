@@ -1,6 +1,10 @@
+import SimpleSchema from 'simpl-schema';
 import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { forumTypeSetting } from '../../instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
 
 const schema: SchemaType<DbLocalgroup> = {
   createdAt: {
@@ -16,8 +20,8 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     order:10,
     insertableBy: ['members'],
-    control: "MuiInput",
-    label: "Local Group Name"
+    control: "MuiTextField",
+    label: "Group Name"
   },
 
   organizerIds: {
@@ -64,22 +68,35 @@ const schema: SchemaType<DbLocalgroup> = {
     form: {
       options: localGroupTypeFormOptions
     },
+    hidden: isEAForum,
   },
 
   'types.$': {
     type: String,
     optional: true,
   },
+  
+  isOnline: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "This is an online group",
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
 
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],
     hidden: true,
+    optional: true,
     blackbox: true,
     ...denormalizedField({
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (localgroup) => {
         if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation)
+        return null
       }
     }),
   },
@@ -92,6 +109,8 @@ const schema: SchemaType<DbLocalgroup> = {
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
+    hidden: data => data.document.isOnline,
+    optional: true,
   },
 
   location: {
@@ -100,6 +119,7 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     insertableBy: ['members'],
     hidden: true,
+    optional: true,
   },
 
   contactInfo: {
@@ -108,18 +128,44 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Contact Info",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
   },
 
-  facebookLink: {
+  facebookLink: { // FB Group link
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook group",
-    control: "MuiInput",
+    label: "Facebook Group",
+    control: "MuiTextField",
     optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/groups/...'
+  },
+  
+  facebookPageLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Facebook Page",
+    control: "MuiTextField",
+    optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/...'
+  },
+  
+  meetupLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Meetup.com Group",
+    control: "MuiTextField",
+    optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
   },
 
   website: {
@@ -127,8 +173,10 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   inactive: {
@@ -139,7 +187,19 @@ const schema: SchemaType<DbLocalgroup> = {
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
-  }
+  },
+  
+  // Cloudinary image id for the banner image (high resolution)
+  bannerImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    label: "Banner Image",
+    control: "ImageUpload",
+    tooltip: "Minimum 200x600 px"
+  },
 };
 
 export default schema;

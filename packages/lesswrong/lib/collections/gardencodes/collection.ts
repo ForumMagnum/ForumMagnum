@@ -8,7 +8,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
 
-function generateCode(length) {
+function generateCode(length: number) {
   let result = '';
   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   var charactersLength = characters.length;
@@ -145,6 +145,17 @@ const schema: SchemaType<DbGardenCode> = {
     ...schemaDefaultValue(false),
     order: 35
   },
+  afOnly: {
+    type: Boolean,
+    label: "Limit attendance to AI Alignment Forum members",
+    viewableBy: ['guests'],
+    insertableBy: ['alignmentForum'],
+    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true, 
+    ...schemaDefaultValue(false),
+    order: 36,
+    control: 'checkbox'
+  }
 
   // validOnlyWithHost: {
   //   type: Boolean,
@@ -182,7 +193,8 @@ export const GardenCodes: GardenCodesCollection = createCollection({
   typeName: 'GardenCode',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
-  mutations: getDefaultMutations('GardenCodes') //, options),
+  mutations: getDefaultMutations('GardenCodes'), //, options),
+  logChanges: true,
 });
 
 addUniversalFields({collection: GardenCodes})

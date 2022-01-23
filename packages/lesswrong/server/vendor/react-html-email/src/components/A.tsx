@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import EmailPropTypes from '../PropTypes'
 import includeDataProps from '../includeDataProps'
 
-export default function A(props) {
+export default function A(props: any) {
   return (
     <a
       {...includeDataProps(props)}

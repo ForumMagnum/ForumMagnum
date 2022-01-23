@@ -6,6 +6,9 @@ import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
+import { PartialDeep } from 'type-fest'
+import { asyncForeachSequential } from '../lib/utils/asyncUtils';
+import Localgroups from '../lib/collections/localgroups/collection';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -155,17 +158,23 @@ export const createDefaultUser = async() => {
   }
 }
 
-export const createDummyPost = async (user?: any, data?: any) => {
-  const defaultUser = await createDefaultUser();
+// Posts can be created pretty flexibly
+type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {postedAt?: Date | number}
+
+export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
+  let user_ = user || await createDefaultUser()
   const defaultData = {
-    userId: (user && user._id) ? user._id : defaultUser._id,
+    userId: user_._id,
     title: randomId(),
   }
   const postData = {...defaultData, ...data};
   const newPostResponse = await createMutator({
     collection: Posts,
-    document: postData,
-    currentUser: user || defaultUser,
+    // Not the best, createMutator should probably be more flexible about what
+    // it accepts, as long as validate is false
+    document: postData as DbPost,
+    // As long as user has a _id it should be fine
+    currentUser: user_ as DbUser,
     validate: false,
   });
   return newPostResponse.data
@@ -176,7 +185,8 @@ export const createDummyUser = async (data?: any) => {
   const defaultData = {
     username: testUsername,
     email: testUsername + "@test.lesserwrong.com",
-    reviewedByUserId: "fakeuserid" // TODO: make this user_id correspond to something real that would hold up if we had proper validation
+    reviewedByUserId: "fakeuserid", // TODO: make this user_id correspond to something real that would hold up if we had proper validation
+    previousDisplayName: randomId()
   }
   const userData = {...defaultData, ...data};
   const newUserResponse = await createMutator({
@@ -242,15 +252,28 @@ export const createDummyMessage = async (user: any, data?: any) => {
   return newMessageResponse.data
 }
 
+export const createDummyLocalgroup = async (data?: any) => {
+  let defaultData = {
+    name: randomId()
+  }
+  const groupData = {...defaultData, ...data};
+  const groupResponse = await createMutator({
+    collection: Localgroups,
+    document: groupData,
+    validate: false,
+  });
+  return groupResponse.data
+}
+
 export const clearDatabase = async () => {
-  (await Users.find().fetch()).forEach((i)=>{
-    Users.remove(i._id)
+  await asyncForeachSequential(await Users.find().fetch(), async (i) => {
+    await Users.remove(i._id)
   });
-  (await Posts.find().fetch()).forEach((i)=>{
-    Posts.remove(i._id)
+  await asyncForeachSequential(await Posts.find().fetch(), async (i) => {
+    await Posts.remove(i._id)
   });
-  (await Comments.find().fetch()).forEach((i)=>{
-    Posts.remove(i._id)
+  await asyncForeachSequential(await Comments.find().fetch(), async (i) => {
+    await Comments.remove(i._id)
   });
 }
 
@@ -259,7 +282,7 @@ export const clearDatabase = async () => {
 // Copied from here: https://stackoverflow.com/a/11233515/8083739
 
 // Jim's note: This will not work on objects that contain arrays that contain objects
-function stringifyObject(obj_from_json: {}): string {
+function stringifyObject(obj_from_json: any): string {
   if(typeof obj_from_json !== "object" || Array.isArray(obj_from_json) || obj_from_json instanceof Date){
       // not an object or is a Date, stringify using native function
       return JSON.stringify(obj_from_json);
@@ -268,7 +291,7 @@ function stringifyObject(obj_from_json: {}): string {
   // but without quotes around the keys.
   let props = Object
       .keys(obj_from_json)
-      .map(key => `${key}:${stringifyObject(obj_from_json[key])}`)
+      .map((key: any) => `${key}:${stringifyObject(obj_from_json[key])}`)
       .join(",");
   return `{${props}}`;
 }

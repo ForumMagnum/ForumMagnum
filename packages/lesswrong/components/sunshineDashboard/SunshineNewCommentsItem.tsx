@@ -1,36 +1,41 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
-import withHover from '../common/withHover'
+import { useHover } from '../common/withHover'
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
-interface ExternalProps {
-  comment: CommentsListWithParentMetadata,
-}
-interface SunshineNewCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
+interface SunshineNewCommentsItemProps extends WithHoverProps {
   updateComment: any,
 }
 
-class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
-  handleReview = () => {
-    const { currentUser, comment, updateComment } = this.props
-    updateComment({
+const SunshineNewCommentsItem = ({comment}: {
+  comment: CommentsListWithParentMetadata
+}) => {
+  const currentUser = useCurrentUser();
+  const { hover, anchorEl, eventHandlers } = useHover();
+  const { mutate: updateComment } = useUpdate({
+    collectionName: 'Comments',
+    fragmentName: 'CommentsListWithParentMetadata',
+  });
+  
+  const handleReview = () => {
+    void updateComment({
       selector: {_id: comment._id},
       data: {reviewedByUserId : currentUser!._id}
     })
   }
 
-  handleDelete = () => {
-    const { currentUser, comment, updateComment } = this.props
+  const handleDelete = () => {
     if (confirm("Are you sure you want to immediately delete this comment?")) {
       window.open(userGetProfileUrl(comment.user), '_blank');
-      updateComment({
+      void updateComment({
         selector: {_id: comment._id},
         data: {
           deleted: true,
@@ -42,9 +47,8 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
     }
   }
 
-  render () {
-    const { comment, hover, anchorEl } = this.props
-    return (
+  return (
+    <span {...eventHandlers}>
         <Components.SunshineListItem hover={hover}>
           <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
             <Components.Typography variant="body2">
@@ -56,26 +60,20 @@ class SunshineNewCommentsItem extends Component<SunshineNewCommentsItemProps> {
           </Components.SidebarHoverOver>
           <Components.SunshineCommentsItemOverview comment={comment}/>
             {hover && <Components.SidebarActionMenu>
-              <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
+              <Components.SidebarAction title="Mark as Reviewed" onClick={handleReview}>
                 <DoneIcon/>
               </Components.SidebarAction>
-              <Components.SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
+              <Components.SidebarAction title={`Spam${forumTypeSetting.get() === 'EAForum' ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
                 <ClearIcon/>
               </Components.SidebarAction>
             </Components.SidebarActionMenu>}
         </Components.SunshineListItem>
-    )
-  }
+    </span>
+  )
 }
 
-const SunshineNewCommentsItemComponent = registerComponent<ExternalProps>('SunshineNewCommentsItem', SunshineNewCommentsItem, {
-  hocs: [
-    withUpdate({
-      collectionName: 'Comments',
-      fragmentName: 'CommentsListWithParentMetadata',
-    }),
-    withUser, withHover(), withErrorBoundary
-  ]
+const SunshineNewCommentsItemComponent = registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, {
+  hocs: [withErrorBoundary]
 });
 
 declare global {
@@ -83,4 +81,3 @@ declare global {
     SunshineNewCommentsItem: typeof SunshineNewCommentsItemComponent
   }
 }
-

@@ -2,7 +2,8 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { userGetProfileUrl } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
+import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
+import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 
 ///////////////////////////////////////
@@ -49,31 +50,30 @@ const ownsOrIsAdmin = (user: DbUser|null, document: any) => {
  * @type {Object}
  */
 const schema: SchemaType<DbUser> = {
-  _id: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-  },
   username: {
     type: String,
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['members'],
+    hidden: true,
     onInsert: user => {
-      if (
-        !user.username &&
-        user.services &&
-        user.services.twitter &&
-        user.services.twitter.screenName
-      ) {
+      if (!user.username && user.services?.twitter?.screenName) {
         return user.services.twitter.screenName;
       }
     },
   },
+  // Emails (not to be confused with email). This field belongs to Meteor's
+  // accounts system; we should never write it, but we do need to read it to find
+  // out whether a user's email address is verified.
+  // FIXME: Update this comment
   emails: {
     type: Array,
     optional: true,
+    hidden: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    
+    // FIXME
     // This is dead code and doesn't actually run, but we do have to implement something like this in a post Meteor world
     onCreate: ({document: user}) => {
     
@@ -96,6 +96,7 @@ const schema: SchemaType<DbUser> = {
     regEx: SimpleSchema.RegEx.Email,
     optional: true,
   },
+  // NB: Not used on the EA Forum
   'emails.$.verified': {
     type: Boolean,
     optional: true,
@@ -103,7 +104,7 @@ const schema: SchemaType<DbUser> = {
   createdAt: {
     type: Date,
     optional: true,
-    canRead: ['admins'],
+    canRead: ["guests"],
     onCreate: () => {
       return new Date();
     },
@@ -137,20 +138,32 @@ const schema: SchemaType<DbUser> = {
     blackbox: true,
     canRead: ownsOrIsAdmin
   },
-  /**
-    The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
-  */
+  // The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
+  // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
     type: String,
     optional: true,
     input: 'text',
-    canCreate: ['members'],
-    canUpdate: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins', userHasntChangedName],
+    canCreate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     order: 10,
     onCreate: ({ document: user }) => {
       return user.displayName || createDisplayName(user);
     },
+    group: formGroups.default,
+  },
+  /**
+   Used for tracking changes of displayName
+   */
+  previousDisplayName: {
+    type: String,
+    optional: true,
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    order: 11,
+    group: formGroups.default,
   },
   /**
     The user's email. Modifiable.
@@ -161,9 +174,10 @@ const schema: SchemaType<DbUser> = {
     regEx: SimpleSchema.RegEx.Email,
     input: 'text',
     canCreate: ['members'],
-    canUpdate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ownsOrIsAdmin,
     order: 20,
+    group: formGroups.default,
     onCreate: ({ document: user }) => {
       // look in a few places for the user email
       const facebookEmail: any = getNestedProperty(user, 'services.facebook.email');
@@ -179,21 +193,44 @@ const schema: SchemaType<DbUser> = {
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
-  /**
-    The user's profile URL slug // TODO: change this when displayName changes
-  */
+  // The user's profile URL slug // TODO: change this when displayName changes
+  // Unique user slug for URLs, copied over from Vulcan-Accounts
   slug: {
     type: String,
     optional: true,
     canRead: ['guests'],
+    canUpdate: ['admins'],
     order: 40,
+    group: formGroups.adminOptions,
+    
     onCreate: async ({ document: user }) => {
       // create a basic slug from display name and then modify it if this slugs already exists;
       const displayName = createDisplayName(user);
       const basicSlug = slugify(displayName);
       return await Utils.getUnusedSlugByCollectionName('Users', basicSlug);
     },
+    onUpdate: async ({data, oldDocument}) => {
+      if (data.slug && data.slug !== oldDocument.slug) {
+        const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
+        if (slugIsUsed) {
+          throw Error(`Specified slug is already used: ${data.slug}`)
+        }
+      }
+    }
   },
+  
+  noindex: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    order: 48,
+    group: formGroups.adminOptions,
+    label: "No Index",
+    tooltip: "Hide this user's profile from search engines",
+  },
+  
   /**
     Groups
   */
@@ -202,7 +239,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     control: 'checkboxgroup',
     canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canUpdate: ['alignmentForumAdmins', 'admins'],
     canRead: ['guests'],
     group: adminGroup,
     form: {
@@ -266,13 +303,23 @@ const schema: SchemaType<DbUser> = {
     optional: true, 
     canRead: ['guests'],
   },
+  
   theme: {
     type: String,
     optional: true, 
-    canCreate: ownsOrIsAdmin,
+    canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
     hidden: true,
+  },
+  
+  lastUsedTimezone: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: [userOwns],
+    canUpdate: [userOwns],
   },
 };
 

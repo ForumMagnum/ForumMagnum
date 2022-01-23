@@ -11,7 +11,7 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,
-      callback: async (posts) => {
+      callback: async (posts: DbPost[]) => {
         // eslint-disable-next-line no-console
         console.log("Migrating post batch");
         await Promise.all(posts.map(post => updatePostDenormalizedTags(post._id)));

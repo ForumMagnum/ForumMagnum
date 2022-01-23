@@ -52,7 +52,10 @@ const PostsItemDate = ({post, classes}: {
       </span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
-        <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
+        {moment(post.startTime).format("YYYY")===moment().format("YYYY")
+          ? <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
+          : <FormatDate date={post.startTime} format={"YYYY MMM Do"} tooltip={false}/>
+        }
       </PostsItem2MetaInfo>
     </LWTooltip>
   }

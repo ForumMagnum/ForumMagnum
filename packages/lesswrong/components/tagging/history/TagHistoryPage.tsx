@@ -2,23 +2,23 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
+import { tagGetUrl } from '../../../lib/collections/tags/helpers';
+import { Link } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   feed: {
     ...theme.typography.body2,
-  },
-  singleLineEvent: {
-    margin: 8,
   },
 });
 
 const TagHistoryPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { params } = useLocation();
+  const { params, query } = useLocation();
   const { slug } = params;
+  const focusedUser: string = query.user;
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagHistoryFragment");
-  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost } = Components;
+  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent } = Components;
   
   if (loadingTag || !tag) {
     return <SingleColumnSection>
@@ -27,7 +27,7 @@ const TagHistoryPage = ({classes}: {
   }
   
   return <SingleColumnSection>
-    <h1>{tag.name}</h1>
+    <Link to={tagGetUrl(tag)}><h1>{tag.name}</h1></Link>
     <div className={classes.feed}>
     <MixedTypeFeed
       pageSize={50}
@@ -36,24 +36,26 @@ const TagHistoryPage = ({classes}: {
         tagId: "String!",
       }}
       resolverArgsValues={{
-        tagId: tag?._id
+        tagId: tag._id
       }}
       sortKeyType="Date"
       renderers={{
         tagCreated: {
           fragmentName: "TagHistoryFragment",
-          render: (creation: TagHistoryFragment) => <div className={classes.singleLineEvent}>
+          render: (creation: TagHistoryFragment) => <SingleLineFeedEvent>
             Created by <UsersName user={creation.user}/> at <FormatDate date={creation.createdAt}/>
-          </div>,
+          </SingleLineFeedEvent>,
         },
         tagRevision: {
           fragmentName: "RevisionHistoryEntry",
           render: (revision: RevisionHistoryEntry) => <div>
             <TagRevisionItem
               tag={tag}
+              collapsed={!!focusedUser && focusedUser!==revision.user?.slug}
               revision={revision}
               headingStyle={"abridged"}
               documentId={tag._id}
+              showDiscussionLink={false}
             />
           </div>,
         },
@@ -63,18 +65,18 @@ const TagHistoryPage = ({classes}: {
             if (!application.post)
               return null;
             
-            return <div className={classes.singleLineEvent}>
+            return <SingleLineFeedEvent>
               Applied to <LinkToPost post={application.post}/>
               {" by "}
               <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
-            </div>
+            </SingleLineFeedEvent>
           }
         },
         tagDiscussionComment: {
           fragmentName: "CommentsList",
           render: (comment: CommentsList) => <div>
             <CommentsNode
-              treeOptions={{}}
+              treeOptions={{ tag }}
               comment={comment}
               loadChildrenSeparately={true}
             />

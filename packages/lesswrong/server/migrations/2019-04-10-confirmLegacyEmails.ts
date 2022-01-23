@@ -10,13 +10,13 @@ registerMigration({
     await forEachDocumentBatchInCollection({
       collection: Users,
       batchSize: 1000,
-      callback: (users) => {
+      callback: (users: DbUser[]) => {
         let updates: Array<any> = [];
         
         for(let user of users)
         {
           // If the user is not a legacy user, no change
-          if (!user || !user.legacy || !user.legacyData)
+          if (!user || !user.legacy || !(user as any).legacyData)
             continue;
           
           // Because all emails were verified on import, if the email address
@@ -32,7 +32,7 @@ registerMigration({
             continue;
           
           // If the email address matches legacyData.emailAddress, set its verified flag to legacyData.email_validated.
-          const legacyData = user.legacyData;
+          const legacyData = (user as any).legacyData;
           for (let i=0; i<user.emails.length; i++) {
             if (legacyData.email
               && user.emails && user.emails[i].address === legacyData.email)

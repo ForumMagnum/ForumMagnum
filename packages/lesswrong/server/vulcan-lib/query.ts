@@ -3,12 +3,12 @@
 Run a GraphQL request from the server with the proper context
 
 */
-import { graphql } from 'graphql';
+import { graphql, GraphQLError } from 'graphql';
 import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { getCollectionsByName, generateDataLoaders } from './apollo-server/context';
 
-function writeGraphQLErrorToStderr(errors)
+function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
   // eslint-disable-next-line no-console
   console.error(`runQuery error: ${errors[0].message}`);
@@ -17,7 +17,7 @@ function writeGraphQLErrorToStderr(errors)
 }
 
 let onGraphQLError = writeGraphQLErrorToStderr;
-export function setOnGraphQLError(fn)
+export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[])=>void)|null)
 {
   if (fn)
     onGraphQLError = fn;
@@ -47,6 +47,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     currentUser: null,
     headers: null,
     locale: localeSetting.get(),
+    isGreaterWrong: false,
     ...getCollectionsByName(),
     ...generateDataLoaders(),
     ...options,

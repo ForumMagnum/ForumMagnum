@@ -1,14 +1,16 @@
-# What's LessWrong2?
+# Forum Magnum
 
-LessWrong2 is a clean-slate overhaul of the [LessWrong](https://lesswrong.com) discussion platform.
+Forum Magnum is the codebase powering [LessWrong](https://lesswrong.com) and the
+[Effective Altruism Forum](https://forum.effectivealtruism.org).
 
-The old LessWrong was [famously](http://www.telescopeapp.org/blog/using-telescope-as-a-reddit-alternative/) one of the only successful extensions of the reddit codebase (forked circa 2008). While reddit's code served us as a stable platform while our community was in its initial stages, it has become hard to extend because of its age, complexity and monolithic design.
+The team behind LessWrong created this codebase in 2017 as a rewrite of the
+original version of LessWrong, which was a difficult-to-maintain fork of reddit.
 
 ## Technologies
 
-Lesswrong2 is built on top of a number major open-source libraries.
+Forum Magnum is built on top of a number major open-source libraries.
 
-1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably.
+1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
 
 2. [Typescript](https://www.typescriptlang.org/) is the programming language we're using. It's like Javascript, but with type annotations. We're gradually moving from un-annotated Javascript towards having annotations on everything, and any new code should have type annotations when it's added.
 
@@ -25,7 +27,7 @@ Lesswrong2 is built on top of a number major open-source libraries.
 ### Requirements
 
   * MacOS or Linux
-    * Known to work on MacOS 10.14 and Ubuntu 18.04, should work on others
+    * Known to work on MacOS 10.15 and Ubuntu 18.04, should work on others
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
@@ -34,54 +36,30 @@ Lesswrong2 is built on top of a number major open-source libraries.
 
 Clone our repo:
 
-    git clone https://github.com/LessWrong2/Lesswrong2
+```
+git clone git@github.com:centre-for-effective-altruism/EAForum.git
+```
+
+(CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
-    cd Lesswrong2
-    yarn install
+```
+cd ForumMagnum
+yarn install
+```
 
 Start the development server:
 
-    yarn start
+```
+yarn [start|ea-start]
+```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
-If it is NOT working, there is most likely some issues with your `yarn install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself.
+It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA: this doesn't apply to you, your database is shared with other developers.]
 
-It will start out with an empty database. (This means that some of the hardcoded links on the frontpage, such as Eliezer’s Sequences or the Codex, will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins.
-
-## Contributing
-
-### What Contributions Are Helpful?
-
-The most *reliably* helpful thing would be to tackle outstanding issues that have been tagged on [github](https://github.com/LessWrong2/Lesswrong2/issues).
-
-In particular, you can filter them by the tag “[good first issue](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%2200.+Good+First+Issue%22).” (Some of these might require some explanation, but I expect I can explain them fairly easily to a new contributor)
-
-There are [also issues tagged “help wanted.”](https://github.com/LessWrong2/Lesswrong2/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) These are issues that might be a bit complex, but which don’t require much context or understanding of our longterm goals or philosophy to implement.
-
-#### Creating Issues
-
-You can create a new issue. If so, please leave it untagged for the time being (so that admins can quickly look for untagged issues, and sort through them)
-
-*Bugs* – If you run into a bug, the most helpful thing to do is to search for related keywords in the issue tracker. If you can’t find anything relevant, create a new issue. Try to provide as specific information as possible (your browser, exact links to the post or page where you had the issue, information on how to replicate the bug if you can)
-
-*Feature Requests* – Feature requests will often need to undergo some discussion to get refined into something executable, and may sometimes need to be split into sub-features.
-
-Features tend to cluster into either “things that are pretty straightforward and we almost certainly want to do” and “things that we have weird conceptual philosophical opinions about that may sometimes be hard to explain succinctly.” (An upcoming post will go into some of this).
-
-After you’ve posted a feature, an admin will tag it (If it’s been a week and we haven’t done so, feel free to bug us about it. We’re still adapting to the role of “open source facilitators” so we may drup things a bit)
-
-#### Creating a Branch
-
-If you are creating a branch for an existing issue, use this naming schema: branchTitle[issueNumber]. For example, if addressing this issue, your branch might be defaultSettingsFix425.
-
-Once you create the branch, please comment on the issue so that people know someone is working on it.
-
-If you’re creating a branch for an issue that *hasn’t* been created yet, first create an issue for it.
-
-(Disclaimer: this is a different practice than what the full-time developers of the site are currently doing, which means we’ll probably fail at it a bunch, and for commits that take less than a day we may just skip it for momentum reasons. It seems most important for open source contributors to stick to it to maintain sanity as more people work on the codebase)
+## Documentation
 
 ### Read the Docs
 
@@ -109,25 +87,49 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
   There are [multiple ways of creating a ReactJS component](https://themeteorchef.com/blog/understanding-react-component-types). New components should be functional components, using hooks and ideally minimizing usage of higher-order components. Ideally, each component does one (relatively) simple thing and does it well, with smart components and dumb components separated out. In practice, we haven’t done a great job with this. (Scope creep turns what were once simple components into increasingly complex monstrosities that we should really refactor but haven’t gotten around to it).
 
   We use Vulcan’s `registerComponent` function to add them as children to a central “Components” table.
+  
+* **Smart Forms** - Vulcan also allows us to automatically generate simple forms to create and edit Documents (in the Mongo sense of the word Document, any instance of a Collection). This functionality is called Smart Forms.
 
+  You can create an `EditFoo` page, which renders `WrappedSmartForm`, which then automagically creates a form for you. We use this to edit just about every Document in the codebase. How does it know what type of input you want though? This is the interesting part. You define the way you want to edit fields in the collection schema. So in Posts you have (selected examples):
+
+  - Sticky
+      - Because it's admin-only, it doesn't show up unless it's edited by an admin.
+      - It's control is `'checkbox'`, which makes it editable by a simple checkbox.
+      - It's grouped among admin options, so it appears with the other admin options
+  - Title
+      - It's control is `'EditTitle'`, which means the Smart Form will look in Components for an EditTitle component, and then use that as the UI for modifying the Title.
+      
 * **useFoo (React Hooks)** - We make heavy use of [React hooks](https://reactjs.org/docs/hooks-intro.html) for querying data, managing state, and accessing shared data like the current user.
 
 * **withFoo (Higher Order Components)** – Higher-order components exist as alternatives for most hooks, and are sometimes used because class-components cannot use hooks. However, these are deprecated and we are migrating towards only using hooks.
 
 * **Fragments** – GraphQL queries are made using fragments, which describe the fields from a given database object you want to fetch information on. There’s a common failure mode where someone forgets to update a fragment with new fields, and then the site breaks the next time a component attempts to use information from the new field.
 
+* **makeEditable** - To add a long text field to a schema, use `makeEditable`. It add the correct control component, and creates the necessary callbacks to sync it with the Revisions table.
+
+* **Configuration and Secrets** We store most configuration and secrets in the
+  database, not in environment variables like you might expect. See
+  `packages/lesswrong/server/databaseSettings.ts` for more.
+
+* **Logging** - If there's a part of the codebase you often want to see debug
+  logging for, you can create a specific debug logger for that section by using
+  `loggerConstructor(scope)`. You can then enable or disable that logger by
+  setting the public database setting `debuggers` to include your scope, or by
+  setting the instance setting `instanceDebuggers`. See
+  `packages/lesswrong/lib/utils/logging.ts` for more.
+
+* **Collection callbacks** - One important thing to know when diving into the
+  codebase is how much logic is done by callbacks. Collections have hooks on
+  them where we add callbacks that react to CRUD operations. They can fire
+  before or after the operation. The running of these callbacks is found in
+  `packages/lesswrong/server/vulcan-lib/mutators.ts`.
+
 ### Development Tips
 
-#### Iteration
-* Prefer `_.range(n).forEach(i => my_function())` over `for (var i=0; i<n; i++)...`
-* If the body of a for loop performs a stateful action (i.e. modifies a variable outside the scope of the for body), use `forEach`. Else, use `map`.
-* Use underscore.js when possible.
-
-#### Style guide
-
-* [Syntax rules](https://github.com/Khan/style-guides/blob/master/style/javascript.md#syntax)
-* [Comments and documentation](https://github.com/Khan/style-guides/blob/master/style/javascript.md#comments-and-documentation)
-* [ES6 rules](https://github.com/Khan/style-guides/blob/master/style/javascript.md#es67-rules)
+When developing, we make good use of project-wide search. One benefit of a
+monorepo codebase at a non-megacorp is that we can get good results just by
+searching for `hiddenRelatedQuestion` to find exactly how that database field is
+used.
 
 ### Debugging
 
@@ -136,6 +138,35 @@ Eventually, it’ll be helpful to have a good understanding of each of those tec
 * Use `console.warn(variable)` when you want to see the stacktrace of `variable`
 * Add the [react dev tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension to chrome, and switch to the "React" tab after pressing Ctrl+Shift+J. You can see the react component tree. Once you click on a component in the tree, you will have access to it in the console as the variable `$r`. For example, you can check the props or state using `$r.props` or `$r.state`.
 * If you think a previous commit broke your feature, use [git's builtin debugging tools](https://git-scm.com/book/en/v2/Git-Tools-Debugging-with-Git)
-* If you fix a bug, **write a test for it**.
-* For debugging server-side code, start the server with `npm run debug` instead of `npm run start`. Then open Chrome to chrome://inspect, and click "Open dedicated DevTools for Node". The server will have stopped at an instance of the `debugger` keyword during startup.
-* When server-side debugging, everything works except for setting breakpoints in the GUI, which is broken by a Chrome bug: https://bugs.chromium.org/p/chromium/issues/detail?id=844070 . Until they fix it, you can work around this by installing NiM, https://chrome.google.com/webstore/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj, in which breakpoints work but profiling doesn't.
+* (Note: currently aspirational): If you fix a bug, **write a test for it**.
+* If you're trying to debug an email problem, you might want to know about `forcePendingEvents`.
+
+## Testing
+
+We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+
+### Cypress
+
+* To run Cypress tests locally, first run `yarn ea-start-testing-db`, then in a separate terminal run either `yarn ea-cypress-run` for a CLI version, or `yarn ea-cypress-open` for a GUI version. To run specific tests in the CLI, you can use the `-s <glob-file-pattern>` option.
+* Test database instance settings for Cypress are stored under `./settings-test.json`.
+* For the basics of writing Cypress tests, see [Writing your first test](https://docs.cypress.io/guides/getting-started/writing-your-first-test#Step-2-Query-for-an-element). Primarily you'll use `cy.get()` to find elements via CSS selectors, `cy.contains()` to find elements via text contents, `cy.click()` and `cy.type()` for input, and `cy.should()` for assertions. Feel free to steal from existing tests in `./cypress/integration/`.
+* Add custom commands under `./cypress/support/commands.js`, and access them via `cy.commandName()`.
+* Seed data for tests is stored under `./cypress/fixtures`, and can be accessed using `cy.fixture('<filepath>')`. See [here](https://docs.cypress.io/api/commands/fixture) for more.
+* To execute code in a node context, you can create a [task](https://docs.cypress.io/api/commands/task#Syntax) under `./cypress/plugins/index.js`. Tasks are executed using `cy.task('<task-name>', args)`.
+
+### Where to branch off of
+
+Branch off of `master` and submit to `master`. Deploys occur when `master` is
+merged into `ea-deploy` and `lw-deploy`.
+
+## EA Forum-Specific
+
+### \[CEA-Specific] Local Dev Database
+
+The local development database is actually hosted on MongoDB cloud like staging
+and production. There's no reason to host your own database. It's also shared
+with other developers, which means if someone adds a feature which requires
+manual database work, there's no need for you to also do that manual work.
+
+The test user admin credentials are in 1password. You're also welcome to create
+your own admin user.

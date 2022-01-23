@@ -1,15 +1,15 @@
+import { gql, useQuery } from '@apollo/client';
+import Card from '@material-ui/core/Card';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
-import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
+import { looksLikeDbIdString } from '../../lib/routeUtil';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { commentBodyStyles, metaculusBackground, postHighlightStyles } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
-import { useQuery, gql } from '@apollo/client';
-import Card from '@material-ui/core/Card';
-import { looksLikeDbIdString } from '../../lib/routeUtil';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import { postHighlightStyles, metaculusBackground, commentBodyStyles } from '../../themes/stylePiping';
+import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -26,6 +26,8 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
 
     documentId: postID,
   });
+
+  if (!post) return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;
 
   return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
@@ -45,6 +47,7 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
   });
+  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
   return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
@@ -112,6 +115,8 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
 
     documentId: postId,
   });
+
+  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
   return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
 }
@@ -192,6 +197,8 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
 }) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
+  
+  const hash = (href.indexOf("#")>=0) ? (href.split("#")[1]) : null;
 
   if (!post) {
     return <span {...eventHandlers}>
@@ -211,7 +218,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
           }
         }}
       >
-        <PostsPreviewTooltip post={post} />
+        <PostsPreviewTooltip post={post} hash={hash} />
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} smooth/>
     </span>
@@ -259,6 +266,85 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
 }
 const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
   styles,
+});
+
+const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
+  hovercard: {
+    padding: `${theme.spacing.unit*3}px ${theme.spacing.unit*2}px ${theme.spacing.unit*2}px`,
+    ...theme.typography.body2,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[800],
+    maxWidth: 500,
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
+})
+
+const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  onsite?: boolean,
+  id?: string,
+  rel?: string
+}) => {
+  const { LWPopper } = Components
+  const { eventHandlers, hover, anchorEl } = useHover({
+    pageElementContext: "linkPreview",
+    hoverPreviewType: "DefaultPreview",
+    href,
+    onsite
+  });
+  
+  let footnoteContentsNonempty = false;
+  let footnoteMinusBacklink = "";
+  
+  // Get the contents of the linked footnote.
+  // This has a try-catch-ignore around it because the link doesn't necessarily
+  // make a valid CSS selector; eg there are some posts in the DB with internal
+  // links to anchors like "#fn:1" which will crash this because it has a ':' in
+  // it.
+  try {
+    // Grab contents of linked footnote if it exists
+    const footnoteHTML = document.querySelector(href)?.innerHTML;
+    // Remove the backlink anchor tag. Note that this regex is deliberately very narrow;
+    // a more permissive regex would introduce risk of XSS, since we're not re-validating
+    // after this transform.
+    footnoteMinusBacklink = footnoteHTML?.replace(/<a href="#fnref[a-zA-Z0-9]*">^<\/a>/g, '') || "";
+    // Check whether the footnotehas nonempty contents
+    footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
+  // eslint-disable-next-line no-empty
+  } catch(e) { }
+  
+  return (
+    <span {...eventHandlers}>
+      {footnoteContentsNonempty && <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="bottom-start"
+        modifiers={{
+          flip: {
+            behavior: ["bottom-start", "top-end", "bottom-start"],
+            boundariesElement: 'viewport'
+          }
+        }}
+      >
+        <Card>
+          <div className={classes.hovercard}>
+            <div dangerouslySetInnerHTML={{__html: footnoteMinusBacklink || ""}} />
+          </div>
+        </Card>
+      </LWPopper>}
+
+      <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+    </span>
+  );
+}
+
+const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
+  styles: footnotePreviewStyles,
 });
 
 const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
@@ -543,13 +629,12 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
       }
     }
   `, {
-    ssr: true
+    ssr: true,
+    skip: !arbitalSlug,
   });
 
   if (!arbitalSlug || loading) {
-    return <a href={href}>
-      <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
-    </a>  
+    return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
   }
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
@@ -563,7 +648,7 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
-            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}}/>
+            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
           </div>
         </Card>
       </LWPopper>
@@ -590,6 +675,7 @@ declare global {
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
+    FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
   }
 }

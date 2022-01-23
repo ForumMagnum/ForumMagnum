@@ -16,7 +16,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const LoginPopup = ({onClose, classes}) => {
+const LoginPopup = ({onClose, classes}: {
+  onClose: ()=>void,
+  classes: ClassesType,
+}) => {
   const { LWDialog } = Components;
   return (
     <LWDialog

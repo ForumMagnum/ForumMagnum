@@ -9,6 +9,7 @@ export const Books: BooksCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Books'),
   mutations: getDefaultMutations('Books'),
+  logChanges: true,
 });
 
 makeEditable({

@@ -15,7 +15,7 @@ const maxPostsPer24HoursSetting = new DatabasePublicSetting<number>('forum.maxPo
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
   if (!post.draft) {
-    await enforcePostRateLimit(currentUser);
+    await enforcePostRateLimit(currentUser!);
   }
   
   return validationErrors;
@@ -24,7 +24,7 @@ getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit 
 getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
   // Only undrafting is rate limited, not other edits
   if (oldDocument.draft && !newDocument.draft) {
-    await enforcePostRateLimit(currentUser);
+    await enforcePostRateLimit(currentUser!);
   }
   
   return validationErrors;
@@ -32,7 +32,7 @@ getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLi
 
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.
-async function enforcePostRateLimit (user) {
+async function enforcePostRateLimit (user: DbUser) {
   // Admins and Sunshines aren't rate-limited
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit"))
     return;

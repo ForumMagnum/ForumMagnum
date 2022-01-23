@@ -74,12 +74,12 @@ describe('userIsAllowedToComment --', () => {
   //})
   it('returns true if passed a user AND post does NOT contain bannedUserIds OR user', async () => {
     const user = await createDummyUser()
-    const post = await createDummyPost({userId:undefined})
+    const post = await createDummyPost()
     expect(userIsAllowedToComment(user, post, null)).to.equal(true)
   })
   it('returns true if passed a user AND post contains bannedUserIds but NOT user', async () => {
     const user = await createDummyUser()
-    const post = await createDummyPost({bannedUserIds:[user._id], userId: undefined})
+    const post = await createDummyPost(null, {bannedUserIds:[user._id]})
     expect(userIsAllowedToComment(user, post, null)).to.equal(true)
   })
   it('returns false if passed a user AND post contains bannedUserIds BUT post-user is NOT in trustLevel1', async () => {
@@ -453,7 +453,7 @@ describe('userCanModeratePost --', ()=> {
 describe('userCanEditUsersBannedUserIds --', ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
-    const user = await Users.findOne()
+    const user = await Users.findOneArbitrary()
     if (!user) throw Error("Can't find any user")
     expect(userCanEditUsersBannedUserIds(null, user)).to.be.false;
   })

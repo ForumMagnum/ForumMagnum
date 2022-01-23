@@ -35,6 +35,7 @@ export const Chapters: ChaptersCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Chapters'),
   mutations: getDefaultMutations('Chapters', options),
+  logChanges: true,
 })
 
 makeEditable({

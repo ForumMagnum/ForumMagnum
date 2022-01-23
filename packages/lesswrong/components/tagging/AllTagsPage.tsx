@@ -9,6 +9,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -46,7 +47,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     float: "right",
     marginRight: 5,
     color: theme.palette.grey[600],
-  }
+  },
+  addTagButton: {
+    verticalAlign: "middle",
+  },
 })
 
 
@@ -57,7 +61,6 @@ const AllTagsPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { tag } = useTagBySlug("portal", "TagFragment");
   const [ editing, setEditing ] = useState(false)
-  // Type hack because MenuItem is too narrowly typed and doesn't properly take into account props-forwarding
 
   const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody } = Components;
 
@@ -66,18 +69,23 @@ const AllTagsPage = ({classes}: {
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title="Concepts Portal">
+            <SectionTitle title={forumTypeSetting.get() === 'EAForum' ? 'EA Forum Wiki' : 'Concepts Portal'}>
               <SectionButton>
-                <AddBoxIcon/>
-                {currentUser ? 
-                  <Link to="/tag/create">New Tag</Link> :
-                  <a onClick={(ev) => {
-                    openDialog({
-                      componentName: "LoginPopup",
-                      componentProps: {}
-                    });
-                    ev.preventDefault();
-                  }}>New Tag</a>
+                {currentUser
+                  ? <Link to="/tag/create">
+                      <AddBoxIcon className={classes.addTagButton}/>
+                      New Tag
+                    </Link>
+                  : <a onClick={(ev) => {
+                      openDialog({
+                        componentName: "LoginPopup",
+                        componentProps: {}
+                      });
+                      ev.preventDefault();
+                    }}>
+                      <AddBoxIcon className={classes.addTagButton}/>
+                      New Tag
+                    </a>
                 }
               </SectionButton>
             </SectionTitle>

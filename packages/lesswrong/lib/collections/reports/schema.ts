@@ -81,7 +81,7 @@ const schema: SchemaType<DbReport> = {
     optional: true,
     type: Date,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
   },
   // Only set when report is closed. Indicates whether content is spam or not.
   markedAsSpam: {

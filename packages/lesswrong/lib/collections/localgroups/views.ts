@@ -27,6 +27,17 @@ Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
   };
 });
 
+Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
+  return {
+    selector: {
+      organizerIds: terms.userId,
+      inactive: false
+    },
+    options: {sort: {name: 1}}
+  };
+});
+ensureIndex(Localgroups, { organizerIds: 1, inactive: 1, name: 1 });
+
 Localgroups.addView("userInactiveGroups", function (terms: LocalgroupsViewTerms) {
   return {
     selector: {
@@ -39,10 +50,10 @@ ensureIndex(Localgroups, { organizerIds: 1, inactive: 1 });
 
 Localgroups.addView("all", function (terms: LocalgroupsViewTerms) {
   return {
-    options: {sort: {createdAt: -1}}
+    options: {sort: {name: 1}}
   };
 });
-ensureIndex(Localgroups, { createdAt: -1 });
+ensureIndex(Localgroups, { inactive: 1, name: 1 });
 
 Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
   return {
@@ -72,3 +83,11 @@ Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
     options: {sort: {createdAt: -1}}
   };
 });
+
+Localgroups.addView("online", function () {
+  return {
+    selector: {isOnline: true},
+    options: {sort: {name: 1}}
+  };
+});
+ensureIndex(Localgroups, { isOnline: 1, name: 1 });

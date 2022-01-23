@@ -10,6 +10,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
+import PencilIcon from '@material-ui/icons/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -103,7 +104,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
-  
+
   const currentUser = useCurrentUser();
   const {loading, results} = useMulti({
     terms,
@@ -123,7 +124,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const renderMeta = () => {
     const document = getUserFromResults(results)
     if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = document;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -167,14 +168,23 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </Components.MetaInfo>
           </span>
         </Tooltip>
+
+        <Tooltip title={`${tagRevisionCount||0} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
+          <span className={classes.userMetaInfo}>
+            <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <Components.MetaInfo>
+              { tagRevisionCount||0 }
+            </Components.MetaInfo>
+          </span>
+        </Tooltip>
       </div>
   }
 
   const { query } = useLocation();
-  
+
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -208,6 +218,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
+    const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
@@ -217,15 +228,19 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
-    
+    const currentIncludeEvents = (query.includeEvents === 'true')
+    terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
+    
+    const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
           description={metaDescription}
-          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0}
+          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
         />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
@@ -250,7 +265,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton>}
-              { currentUser && currentUser._id !== user._id && <SubscribeTo
+              { currentUser && currentUser._id !== user._id && <NotifyMeButton
                 document={user}
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
@@ -295,6 +310,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
               showNoResults={false}
             />}
           </SingleColumnSection> }
+          {/* AF Submissions Section */}
+          {ownPage && nonAFMember && <SingleColumnSection>
+            <Components.LWTooltip inlineBlock={false} title="Your posts are pending approval to the Alignment Forum and are only visible to you on the Forum. 
+            They are visible to everyone on LessWrong.">
+              <SectionTitle title="My Submissions"/>
+            </Components.LWTooltip>
+            <Components.PostsList2 hideAuthor showDraftTag={false} terms={afSubmissionTerms}/>
+          </SingleColumnSection>
+          }
           {/* Posts Section */}
           <SingleColumnSection>
             <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
@@ -307,15 +331,40 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentSorting={currentSorting}
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
+              currentIncludeEvents={currentIncludeEvents}
               sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
               <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
-
+          {/* Groups Section */
+            (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
+                view: 'userActiveGroups',
+                userId: user?._id,
+                limit: 300
+              }} heading="Organizer of" showNoResults={false} />
+          }
+          {/* Wiki Section */}
+          <SingleColumnSection>
+            <SectionTitle title={"Wiki Contributions"}>
+            </SectionTitle>
+            <AnalyticsContext listContext={"userPageWiki"}>
+              <TagEditsByUser
+                userId={user._id}
+                limit={10}
+              />
+            </AnalyticsContext>
+          </SingleColumnSection>
           {/* Comments Sections */}
           <AnalyticsContext pageSectionContext="commentsSection">
+            {ownPage && nonAFMember && <SingleColumnSection>
+              <Components.LWTooltip inlineBlock={false } title="Your comments are pending approval to the Alignment Forum and are only visible to you on the Forum. 
+              They are visible to everyone on LessWrong.">
+                <SectionTitle title={"Comment Submissions"} />
+              </Components.LWTooltip>
+              <Components.RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
+            </SingleColumnSection>}
             <SingleColumnSection>
               <Link to={`${userGetProfileUrl(user)}/replies`}>
                 <SectionTitle title={"Comments"} />
@@ -327,7 +376,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     )
   }
-  
+
   return render();
 }
 

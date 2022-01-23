@@ -58,6 +58,7 @@ export const createCollection = <
   collection?: any,
   resolvers?: any,
   mutations?: any,
+  logChanges?: boolean,
 }): any => {
   const {
     typeName,

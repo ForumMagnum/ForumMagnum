@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,7 +78,10 @@ const UsersEditForm = ({terms, classes}: {
   return (
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}>Edit Account</Typography>
-      {isCurrentUser && <Button
+      {/* TODO(EA): Need to add a management API call to get the reset password
+          link, but for now users can reset their password from the login
+          screen */}
+      {isCurrentUser && forumTypeSetting.get() !== 'EAForum' && <Button
         color="secondary"
         variant="outlined"
         className={classes.resetButton}

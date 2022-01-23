@@ -5,60 +5,15 @@ import { makeEditable } from '../../editor/make_editable';
 import { getDefaultFilterSettings } from '../../filterSettings';
 import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
-import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
+import { formGroups } from './formGroups';
+import { REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
-export const formGroups = {
-  default: {
-    name: "default",
-    order: 0,
-    paddingStyle: true
-  },
-  moderationGroup: {
-    order:60,
-    name: "moderation",
-    label: "Moderation & Moderation Guidelines",
-  },
-  siteCustomizations: {
-    order: 1,
-    label: "Site Customizations",
-    name: "siteCustomizations"
-  },
-  banUser: {
-    order:50,
-    name: "banUser",
-    label: "Ban & Purge User",
-    startCollapsed: true,
-  },
-  notifications: {
-    order: 10,
-    name: "notifications",
-    label: "Notifications"
-  },
-  emails: {
-    order: 15,
-    name: "emails",
-    label: "Emails"
-  },
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
-  },
-  truncationOptions: {
-    name: "truncationOptions",
-    order: 9,
-    label: "Comment Truncation Options",
-    startCollapsed: false,
-  },
-}
-
 export const karmaChangeNotifierDefaultSettings = {
   // One of the string keys in karmaNotificationTimingChocies
   updateFrequency: "daily",
@@ -137,10 +92,10 @@ const notificationTypeSettingsField = (overrideSettings?: any) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings",
-  canRead: [userOwns, 'admins'],
-  canUpdate: [userOwns, 'admins'],
-  canCreate: [userOwns, 'admins'],
+  control: "NotificationTypeSettings" as keyof ComponentTypes,
+  canRead: [userOwns, 'admins'] as FieldPermissions,
+  canUpdate: [userOwns, 'admins'] as FieldPermissions,
+  canCreate: ['members', 'admins'] as FieldCreatePermissions,
   ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
@@ -176,25 +131,7 @@ const partiallyReadSequenceItem = new SimpleSchema({
 });
 
 addFieldsDict(Users, {
-  createdAt: {
-    type: Date,
-    onInsert: (user: DbUser, currentUser: DbUser) => {
-      return user.createdAt || new Date();
-    },
-    canRead: ["guests"]
-  },
-
-  // Emails (not to be confused with email). This field belongs to Meteor's
-  // accounts system; we should never write it, but we do need to read it to find
-  // out whether a user's email address is verified.
-  emails: {
-    hidden: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
-  },
-  'emails.$': {
-    type: Object,
-  },
-
+  // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
     type: Date,
     optional: true,
@@ -202,7 +139,10 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // EA Forum does not care about email verification
+    canUpdate: forumTypeSetting.get() === 'EAForum' ?
+      [] :
+      [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -212,7 +152,7 @@ addFieldsDict(Users, {
     optional: true,
     defaultValue: false,
     hidden: true,
-    canRead: ['guests'],
+    canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
@@ -291,7 +231,7 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     label: "Activate Markdown Editor"
   },
-  
+
   hideElicitPredictions: {
     order: 80,
     type: Boolean,
@@ -303,19 +243,26 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     label: "Hide other users' Elicit predictions until I have predicted myself",
   },
-
-  email: {
-    order: 20,
-    group: formGroups.default,
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-  },
   
+  hideAFNonMemberInitialWarning: {
+    order: 90,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: [userOwns],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() !== 'AlignmentForum',
+    label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
+  },
+
   hideNavigationSidebar: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   currentFrontpageFilter: {
@@ -323,7 +270,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   frontpageFilterSettings: {
@@ -333,7 +280,7 @@ addFieldsDict(Users, {
     hidden: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     ...schemaDefaultValue(getDefaultFilterSettings),
   },
   allPostsTimeframe: {
@@ -341,7 +288,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   allPostsFilter: {
@@ -349,7 +296,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   allPostsSorting: {
@@ -358,14 +305,22 @@ addFieldsDict(Users, {
     hidden: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
   },
   allPostsShowLowKarma: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
+    hidden: true,
+  },
+  allPostsIncludeEvents: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
     hidden: true,
   },
   allPostsOpenSettings: {
@@ -373,7 +328,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
   },
   lastNotificationsCheck: {
@@ -381,8 +336,9 @@ addFieldsDict(Users, {
     optional: true,
     canRead: userOwns,
     canUpdate: userOwns,
-    canCreate: userOwns,
+    canCreate: 'guests',
     hidden: true,
+    logChanges: false,
   },
 
   // Bio (Markdown version)
@@ -457,7 +413,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
-    label: "I'm happy for LW site moderators to help enforce my policy",
+    label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -496,7 +452,7 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     canRead: ['guests'],
     canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-    canCreate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
     control: 'UsersListEditor'
@@ -513,7 +469,7 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     canRead: ['guests'],
     canUpdate: [userOwnsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
-    canCreate: [userOwnsAndInGroup('canModeratePersonal'), 'sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
     control: 'UsersListEditor',
@@ -723,9 +679,23 @@ addFieldsDict(Users, {
     label: "Draft shared with me",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationAlignmentSubmissionApproved: {
+    label: "Alignment Forum submission approvals",
+    hidden: forumTypeSetting.get() === 'EAForum',
+    ...notificationTypeSettingsField({ channel: "both"})
+  },
   notificationEventInRadius: {
     label: "New Events in my notification radius",
     hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationRSVPs: {
+    label: "New RSVP responses to my events",
+    hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationPostsNominatedReview: {
+    label: "Nominations of my posts for the annual LessWrong Review",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -736,8 +706,8 @@ addFieldsDict(Users, {
     optional: true,
     control: "KarmaChangeNotifierSettings",
     canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
-    canCreate: [userOwns, 'admins', 'sunshineRegiment'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['guests'],
     ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
   },
 
@@ -746,9 +716,10 @@ addFieldsDict(Users, {
     hidden: true,
     type: Date,
     optional: true,
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
+    logChanges: false,
   },
 
   // If, the last time you opened the karma-change notifier, you saw more than
@@ -758,9 +729,10 @@ addFieldsDict(Users, {
     hidden: true,
     type: Date,
     optional: true,
-    canCreate: [userOwns, 'admins'],
+    canCreate: ['guests'],
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
+    logChanges: false,
   },
 
   // Email settings
@@ -775,6 +747,18 @@ addFieldsDict(Users, {
     hidden: ['AlignmentForum', 'EAForum'].includes(forumTypeSetting.get()),
     canRead: ['members'],
   },
+  // Not reusing curated, because we might actually use that as well
+  subscribedToDigest: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.emails,
+    label: "Subscribe to the EA Forum Digest emails",
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: ['members'],
+    ...schemaDefaultValue(false)
+  },
   unsubscribeFromAll: {
     type: Boolean,
     optional: true,
@@ -784,7 +768,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
   },
-  
+
   hideSubscribePoke: {
     type: Boolean,
     optional: true,
@@ -794,16 +778,15 @@ addFieldsDict(Users, {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
-
-  // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
-  displayName: {
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
-    group: formGroups.default,
-  },
-
-  username: {
-    hidden: true
+  
+  hideMeetupsPoke: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
   },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
@@ -860,6 +843,7 @@ addFieldsDict(Users, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (user) => {
         if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
+        return null
       }
     }),
   },
@@ -1009,12 +993,25 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageBookAd: {
+    // this was for the 2018 book, no longer relevant
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
+  hideFrontpageBook2019Ad: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    order: 46,
+    order: 47,
     hidden: forumTypeSetting.get() === "EAForum",
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
@@ -1067,7 +1064,7 @@ addFieldsDict(Users, {
       nullable: true,
     }),
     optional: true,
-    canRead: ['sunshineRegiment', 'admins'],
+    canRead: ['sunshineRegiment', 'admins', 'guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
@@ -1108,7 +1105,9 @@ addFieldsDict(Users, {
       else if (isReviewed && karma>=20) return 1.0;
       else if (isReviewed && karma>=0) return 0.9;
       else if (isReviewed) return 0.8;
-      else if (signUpReCaptchaRating>=0) {
+      else if (signUpReCaptchaRating !== null && 
+              signUpReCaptchaRating !== undefined && 
+              signUpReCaptchaRating>=0) {
         // Rescale recaptcha ratings to [0,.8]
         return signUpReCaptchaRating * 0.8;
       } else {
@@ -1231,7 +1230,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
-  
+
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1293,6 +1292,25 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVoteCount:resolverOnlyField({
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    resolver: async (document, args, context: ResolverContext) => {
+      const { ReviewVotes } = context;
+      const voteCount = await ReviewVotes.find({
+        userId: document._id,
+        year: REVIEW_YEAR+""
+      }).count();
+      return voteCount
+    }
+  }),
+  reviewVotesQuadratic2020: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
   petrovPressedButtonDate: {
     type: Date,
     optional: true,
@@ -1326,29 +1344,6 @@ addFieldsDict(Users, {
     type: Number,
     optional: true,
     canRead: ['guests'],
-  },
-  // Unique user slug for URLs, copied over from Vulcan-Accounts
-  slug: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    group: formGroups.adminOptions,
-    order: 40,
-    onInsert: async (user: DbInsertion<DbUser>) => {
-      // create a basic slug from display name and then modify it if this slugs already exists;
-      const displayName = createDisplayName(user);
-      const basicSlug = slugify(displayName);
-      return await Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
-    },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.slug && data.slug !== oldDocument.slug) {
-        const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
-        if (slugIsUsed) {
-          throw Error(`Specified slug is already used: ${data.slug}`)
-        }
-      }
-    }
   },
   oldSlugs: {
     type: Array,
@@ -1436,6 +1431,19 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     ...schemaDefaultValue(0)
   },
+
+  tagRevisionCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "tagRevisionCount",
+      collectionName: "Users",
+      foreignCollectionName: "Revisions",
+      foreignTypeName: "revision",
+      foreignFieldName: "userId",
+      filterFn: revision => revision.collectionName === "Tags"
+    }),
+    canRead: ['guests']
+  },
+
   abTestKey: {
     type: String,
     optional: true,
@@ -1471,7 +1479,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional:true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() === "EAForum",
   },
@@ -1488,6 +1496,29 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     hidden: true,
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+  usernameUnset: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    hidden: true,
+    canUpdate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
+  paymentEmail: {
+    // by default means "paypal email", unless something else is specified in paymentInfo
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+  paymentInfo: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
   },
 });
 
@@ -1510,14 +1541,3 @@ makeEditable({
 })
 
 addUniversalFields({collection: Users})
-
-// Copied over utility function from Vulcan
-const createDisplayName = (user: DbInsertion<DbUser>): string=> {
-  const profileName = getNestedProperty(user, 'profile.name');
-  const linkedinFirstName = getNestedProperty(user, 'services.linkedin.firstName');
-  if (profileName) return profileName;
-  if (linkedinFirstName) return `${linkedinFirstName} ${getNestedProperty(user, 'services.linkedin.lastName')}`;
-  if (user.username) return user.username;
-  if (user.email) return user.email.slice(0, user.email.indexOf('@'));
-  return "[missing username]";
-}

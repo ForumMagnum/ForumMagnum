@@ -5,17 +5,23 @@ import Users from '../../lib/collections/users/collection';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
 import { updateMutator } from '../vulcan-lib/mutators';
 
-let emailTokenTypesByName = {};
+let emailTokenTypesByName: Partial<Record<string,EmailTokenType>> = {};
 
 export class EmailTokenType
 {
   name: string
-  onUseAction: any
+  onUseAction: (user: DbUser, params: any, args: any)=>any
   resultComponentName: string
   reusable: boolean
   path: string
   
-  constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }) {
+  constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }: {
+    name: string,
+    onUseAction: (user: DbUser, params: any, args: any)=>any,
+    resultComponentName: keyof ComponentTypes,
+    reusable?: boolean,
+    path?: string,
+  }) {
     if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
     if (name in emailTokenTypesByName)
@@ -29,7 +35,7 @@ export class EmailTokenType
     emailTokenTypesByName[name] = this;
   }
   
-  generateToken = async (userId) => {
+  generateToken = async (userId: string) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = randomSecret();
@@ -42,7 +48,7 @@ export class EmailTokenType
     return token;
   }
   
-  generateLink = async (userId) => {
+  generateLink = async (userId: string) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = await this.generateToken(userId);
@@ -50,8 +56,9 @@ export class EmailTokenType
     return `${prefix}/${this.path}/${token}`;
   }
   
-  handleToken = async (token, args) => {
+  handleToken = async (token: DbEmailTokens, args: any) => {
     const user = await Users.findOne({_id: token.userId});
+    if (!user) throw new Error(`Invalid userId on email token ${token._id}`);
     const actionResult = await this.onUseAction(user, token.params, args);
     return {
       componentName: this.resultComponentName,
@@ -60,16 +67,15 @@ export class EmailTokenType
   }
 }
 
-async function getAndValidateToken(token) {
+async function getAndValidateToken(token: string): Promise<{tokenObj: DbEmailTokens, tokenType: EmailTokenType}> {
   const results = await EmailTokens.find({ token }).fetch();
   if (results.length != 1)
     throw new Error("Invalid email token");
   const tokenObj = results[0];
   
-  if (!(tokenObj.tokenType in emailTokenTypesByName))
-    throw new Error("Email token has invalid type");
-  
   const tokenType = emailTokenTypesByName[tokenObj.tokenType];
+  if (!tokenType)
+    throw new Error("Email token has invalid type");
   
   if (tokenObj.usedAt && !tokenType.reusable)
     throw new Error("This email link has already been used.");
@@ -81,7 +87,7 @@ addGraphQLMutation('useEmailToken(token: String, args: JSON): JSON');
 addGraphQLQuery('getTokenParams(token: String): JSON');
 addGraphQLResolvers({
   Mutation: {
-    async useEmailToken(root, {token, args}, context: ResolverContext) {
+    async useEmailToken(root: void, {token, args}: {token: string, args: any}, context: ResolverContext) {
       try {
         const { tokenObj, tokenType } = await getAndValidateToken(token)
 
@@ -112,7 +118,7 @@ addGraphQLResolvers({
 
 export const UnsubscribeAllToken = new EmailTokenType({
   name: "unsubscribeAll",
-  onUseAction: async (user) => {
+  onUseAction: async (user: DbUser) => {
     await updateMutator({ // FIXME: Doesn't actually do the thing
       collection: Users,
       documentId: user._id,

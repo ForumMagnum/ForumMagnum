@@ -100,7 +100,7 @@ const ModerationGuidelinesBox = ({classes, post}: {
     fragmentName: "PostsList",
   });
   
-  if (!post)
+  if (!post || !postWithDetails)
     return null
   if (loading)
     return <Components.Loading/>

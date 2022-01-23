@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import withUser from '../common/withUser';
 import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
+import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
@@ -257,6 +258,8 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
+        if (linkIsExcludedFromPreview(href))
+          continue;
         const id = linkTag.getAttribute("id");
         const rel = linkTag.getAttribute("rel")
         const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel}/>

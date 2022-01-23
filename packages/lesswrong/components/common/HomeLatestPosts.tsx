@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
-import { getDefaultFilterSettings } from '../../lib/filterSettings';
+import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
@@ -38,18 +37,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
 
-const useFilterSettings = (currentUser: UsersCurrent|null) => {
-  const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : getDefaultFilterSettings();
-
-  return useState(defaultSettings);
-}
-
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
-  const updateCurrentUser = useUpdateCurrentUser();
 
-  const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
+  const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
   const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
@@ -95,12 +87,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               </div>
               <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
                 <TagFilterSettings
-                  filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                    setFilterSettings(newSettings)
-                    void updateCurrentUser({
-                      frontpageFilterSettings: newSettings
-                    });
-                  }}
+                  filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
                 />
               </span>
           </AnalyticsContext>
@@ -117,7 +104,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
               showFinalBottomBorder={true}
             />
           </AnalyticsContext>
-          <PostsList2 terms={recentPostsTerms}>
+          <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore={true}>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
           </PostsList2>
         </AnalyticsContext>

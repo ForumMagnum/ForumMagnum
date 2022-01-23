@@ -1,12 +1,11 @@
 import { Components, registerComponent } from '../lib/vulcan-lib';
-import { withUpdateCurrentUser, WithUpdateCurrentUserProps } from './hooks/useUpdateCurrentUser';
+import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
-import { randomId } from '../lib/random';
 
 import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -21,10 +20,11 @@ import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../lib/globalStyles';
+import type { ToCData, ToCSection } from '../server/tableOfContents';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
-const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1601103600000)
-const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1601190000000)
+const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
+const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 1641231428737)
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -32,11 +32,11 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 16
 // like to include
 const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex',
+    'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex', 'bestoflesswrong',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaSequencesHome'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaLibrary'],
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -113,17 +113,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 interface ExternalProps {
-  currentUser: UsersCurrent,
+  currentUser: UsersCurrent | null,
   messages: any,
   children?: React.ReactNode,
 }
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateCurrentUserProps {
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
   cookies: any,
   theme: ThemeType,
+  updateUser: any,
 }
 interface LayoutState {
   timezone: string,
-  toc: any,
+  toc: {title: string|null, sections?: ToCSection[]}|null,
   postsRead: Record<string,boolean>,
   tagsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
@@ -148,12 +149,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
   }
 
-  setToC = (document, sectionData) => {
-    if (document) {
+  setToC = (title: string|null, sectionData: ToCData|null) => {
+    if (title) {
       this.setState({
         toc: {
-          document: document,
-          sections: sectionData && sectionData.sections
+          title: title,
+          sections: sectionData?.sections
         }
       });
     } else {
@@ -164,11 +165,14 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   toggleStandaloneNavigation = () => {
-    const { updateCurrentUser, currentUser } = this.props
+    const { updateUser, currentUser } = this.props
     this.setState(prevState => {
       if (currentUser) {
-        void updateCurrentUser({
-          hideNavigationSidebar: !prevState.hideNavigationSidebar
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            hideNavigationSidebar: !prevState.hideNavigationSidebar
+          }
         })
       }
       return {
@@ -177,24 +181,19 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     })
   }
 
-  getUniqueClientId = () => {
-    const { currentUser, cookies } = this.props
-
-    if (currentUser) return currentUser._id
-
-    const cookieId = cookies.get('clientId')
-    if (cookieId) return cookieId
-
-    const newId = randomId()
-    cookies.set('clientId', newId)
-    return newId
-  }
-
   componentDidMount() {
-    const { cookies } = this.props;
+    const { updateUser, currentUser, cookies } = this.props;
     const newTimezone = moment.tz.guess();
-    if(this.state.timezone !== newTimezone) {
+    if(this.state.timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
       cookies.set('timezone', newTimezone);
+      if (currentUser) {
+        void updateUser({
+          selector: {_id: currentUser._id},
+          data: {
+            lastUsedTimezone: newTimezone,
+          }
+        })
+      }
       this.setState({
         timezone: newTimezone
       });
@@ -204,7 +203,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
-    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper } = Components
+    const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
 
     const showIntercom = (currentUser: UsersCurrent|null) => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -246,11 +245,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const afterTime = petrovAfterTime.get()
 
     const renderPetrovDay = 
-      currentRoute?.name == "home"
-      && forumTypeSetting.get() === "LessWrong"
+      currentRoute?.name === "home"
+      && ['LessWrong', 'EAForum'].includes(forumTypeSetting.get())
       && beforeTime < currentTime.valueOf() && currentTime.valueOf() < afterTime
-
-    
+      
     return (
       <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
@@ -314,7 +312,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
+                    {currentUser?.usernameUnset
+                      ? <NewUserCompleteProfile />
+                      : children
+                    }
                   </ErrorBoundary>
                   <Footer />
                 </div>
@@ -338,7 +339,10 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
     withLocation, withCookies,
-    withUpdateCurrentUser,
+    withUpdate({
+      collectionName: "Users",
+      fragmentName: 'UsersCurrent',
+    }),
     withTheme()
   ]}
 );

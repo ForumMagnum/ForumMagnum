@@ -181,6 +181,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
                   nestingLevel={updatedNestingLevel}
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
+                  showDescendentCount={loadChildrenSeparately}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
@@ -193,13 +194,14 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
               toggleCollapse={toggleCollapse}
               key={comment._id}
               scrollIntoView={scrollIntoView}
+              setSingleLine={setSingleLine}
               { ...passedThroughItemProps}
             />
         }
       </div>}
 
       {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-        <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+        <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
           <Components.CommentsNode
@@ -217,7 +219,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
 
       {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">
-          <div className={classes.parentScroll} onClick={() => scrollIntoView}/>
+          <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
           <RepliesToCommentList
             parentCommentId={comment._id}
             post={post as PostsBase}

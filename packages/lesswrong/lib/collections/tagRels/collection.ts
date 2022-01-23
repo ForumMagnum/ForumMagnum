@@ -3,6 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
+import GraphQLJSON from 'graphql-type-json';
 
 const schema: SchemaType<DbTagRel> = {
   createdAt: {
@@ -60,6 +61,11 @@ const schema: SchemaType<DbTagRel> = {
     viewableBy: ['guests'],
   },
 
+  afExtendedScore: {
+    type: GraphQLJSON,
+    optional: true,
+    viewableBy: ['guests'],
+  },
 };
 
 export const TagRels: TagRelsCollection = createCollection({
@@ -90,6 +96,8 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 }
 
 addUniversalFields({collection: TagRels})
-makeVoteable(TagRels);
+makeVoteable(TagRels, {
+  timeDecayScoresCronjob: true,
+});
 
 export default TagRels;

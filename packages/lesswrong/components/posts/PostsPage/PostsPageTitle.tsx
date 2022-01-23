@@ -3,17 +3,24 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
+
+export const postPageTitleStyles = theme => ({
+  ...theme.typography.display3,
+  ...theme.typography.postStyle,
+  ...theme.typography.headerStyle,
+  marginTop: 0,
+  marginLeft: 0,
+  marginBottom: forumTypeSetting.get() === 'EAForum' ? theme.spacing.unit : 0,
+  color: theme.palette.text.primary,
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '2.5rem',
+  },
+})
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...theme.typography.display3,
-    ...theme.typography.postStyle,
-    ...theme.typography.headerStyle,
-    margin: "0 !important",
-    color: theme.palette.text.primary,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '2.5rem',
-    }
+    ...postPageTitleStyles(theme)
   },
   draft: {
     color: theme.palette.grey[500]
@@ -35,7 +42,7 @@ const PostsPageTitle = ({classes, post}: {
     <div>
       {post.question && !parentPost && <Typography variant="title">
         <Link to="/questions" className={classes.question}>
-          [ Question ] 
+          [ Question ]
         </Link>
       </Typography>}
       {post.question && parentPost && <Typography variant="title">

@@ -31,7 +31,8 @@ export const Localgroups: LocalgroupsCollection = createCollection({
   typeName: 'Localgroup',
   schema,
   resolvers: getDefaultResolvers('Localgroups'),
-  mutations: getDefaultMutations('Localgroups', options)
+  mutations: getDefaultMutations('Localgroups', options),
+  logChanges: true,
 });
 
 makeEditable({

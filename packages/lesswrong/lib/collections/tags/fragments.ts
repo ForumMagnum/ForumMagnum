@@ -109,7 +109,7 @@ registerFragment(`
     tagFlagsIds
     tagFlags {
       ...TagFlagFragment
-    } 
+    }
   }
 `);
 
@@ -119,7 +119,59 @@ registerFragment(`
     tagFlagsIds
     tagFlags {
       ...TagFlagFragment
-    } 
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
+    contributors(limit: $contributorsLimit) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        numCommits
+        voteCount
+      }
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagPageWithRevisionFragment on Tag {
+    ...TagWithFlagsAndRevisionFragment
+    tableOfContents(version: $version)
+    contributors(limit: $contributorsLimit, version: $version) {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        numCommits
+        voteCount
+      }
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagFullContributorsList on Tag {
+    contributors {
+      totalCount
+      contributors {
+        user {
+          ...UsersMinimumInfo
+        }
+        contributionScore
+        numCommits
+        voteCount
+      }
+    }
   }
 `);
 

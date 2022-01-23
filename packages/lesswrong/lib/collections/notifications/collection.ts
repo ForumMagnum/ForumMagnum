@@ -27,6 +27,7 @@ export const Notifications: NotificationsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Notifications'),
   mutations: getDefaultMutations('Notifications', options),
+  logChanges: false,
 });
 
 addUniversalFields({collection: Notifications})

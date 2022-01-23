@@ -3,7 +3,9 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
-import { ArrowSVG } from './Icons'
+import { ArrowSVG } from './Icons';
+import RoomIcon from '@material-ui/icons/Room';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
@@ -11,7 +13,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 15,
     fill: '#2b6a99',
     opacity: 0.8
-  }
+  },
+  eaIcon: {
+    width: 20,
+    height: 20,
+    fill: theme.palette.event,
+    opacity: 0.8,
+  },
 }))
 
 const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
@@ -29,6 +37,10 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   
   const htmlBody = {__html: htmlHighlight};
 
+  const EventIcon = () => forumTypeSetting.get() === 'EAForum' ? 
+    <RoomIcon className={classes.eaIcon}/> : 
+    <ArrowSVG className={classes.icon}/>;
+
   return <React.Fragment>
     <Marker
       latitude={lat}
@@ -37,7 +49,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
       offsetTop={-25}
     >
       <span onClick={() => handleMarkerClick(event._id)}>
-        <ArrowSVG className={classes.icon}/>
+        <EventIcon/>
       </span>
     </Marker>
     {infoOpen && 

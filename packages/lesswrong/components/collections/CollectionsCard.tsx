@@ -106,7 +106,7 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
         </Typography>
       </div>
       <div className={classes.media}>
-        <CloudinaryImage publicId={collection.imageId} />
+        <CloudinaryImage publicId={collection.imageId} width={307} height={86} />
       </div>
     </div>
   </LinkCard>

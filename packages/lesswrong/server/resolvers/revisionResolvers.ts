@@ -3,17 +3,20 @@ import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
-import { addFieldsDict } from '../../lib/utils/schemaUtils'
+import { htmlStartingAtHash } from '../extractHighlights';
+import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 
-function domBuilder(html) {
+function domBuilder(html: string) {
   const jsdom = new JSDOM(html)
   const document = jsdom.window.document;
   const bodyEl = document.body; // implicitly created
@@ -21,21 +24,35 @@ function domBuilder(html) {
 }
 
 
-export function htmlToDraftServer(...args) {
+export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
   const jsdom = new JSDOM();
   const globalHTMLElement = jsdom.window.HTMLElement;
   (global as any).HTMLElement = globalHTMLElement;
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
   (global as any).document = jsdom.window.document
-  const result = htmlToDraft(...args)
+  
+  // On the server have to pass in a JS-DOM implementation to make htmlToDraft work
+  //
+  // The DefinitelyTyped annotation of htmlToDraft, which comes from convertFromHTML
+  // in the draft-convert library, is wrong. This actually takes optional second and
+  // third arguments, the second being options, and the third being a DOMBuilder
+  // (verified by quick source-dive into draft-convert).
+  // @ts-ignore
+  const result = htmlToDraft(html, {}, domBuilder)
+  
   // We do however at least remove it right afterwards
   delete (global as any).document
   delete (global as any).HTMLElement
-  return result
+  
+  // convertToRaw wants a Draft.ContentState, but htmlToDraft produced a
+  // Draft.Model.ImmutableData.ContentState. AFAICT this is the DefinitelyTyped
+  // people not being careful with the const plague, not a real issue.
+  // @ts-ignore
+  return convertToRaw(result)
 }
 
-export function dataToDraftJS(data, type) {
+export function dataToDraftJS(data: any, type: string) {
   if (data===undefined || data===null) return null;
 
   switch (type) {
@@ -43,18 +60,15 @@ export function dataToDraftJS(data, type) {
       return data
     }
     case "html": {
-      const draftJSContentState = htmlToDraftServer(data, {}, domBuilder)
-      return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
+      return htmlToDraftServer(data)
     }
     case "ckEditorMarkup": {
       // CK Editor markup is just html with extra tags, so we just remove them and then handle it as html
-      const draftJSContentState = htmlToDraftServer(sanitize(data), {}, domBuilder)
-      return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
+      return htmlToDraftServer(sanitize(data))
     }
     case "markdown": {
       const html = markdownToHtmlNoLaTeX(data)
-      const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
-      return convertToRaw(draftJSContentState)
+      return htmlToDraftServer(html)
     }
     default: {
       throw new Error(`Unrecognized type: ${type}`);
@@ -62,7 +76,7 @@ export function dataToDraftJS(data, type) {
   }
 }
 
-addFieldsDict(Revisions, {
+augmentFieldsDict(Revisions, {
   markdown: {
     type: String,
     resolveAs: {
@@ -91,6 +105,26 @@ addFieldsDict(Revisions, {
       resolver: ({html}) => highlightFromHTML(html)
     }
   },
+  htmlHighlightStartingAtHash: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      arguments: 'hash: String',
+      resolver: async (revision: DbRevision, args: {hash: string}, context: ResolverContext): Promise<string> => {
+        const {hash} = args;
+        const rawHtml = revision?.html;
+        
+        // Process the HTML through the table of contents generator (which has
+        // the byproduct of marking section headers with anchors)
+        const toc = extractTableOfContents(rawHtml);
+        const html = toc?.html || rawHtml;
+        
+        const startingFromHash = htmlStartingAtHash(html, hash);
+        const highlight = highlightFromHTML(startingFromHash);
+        return highlight;
+      },
+    }
+  },
   plaintextDescription: {
     type: String,
     resolveAs: {
@@ -99,7 +133,7 @@ addFieldsDict(Revisions, {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToText
-          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true})
+          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true, wordwrap: false })
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }

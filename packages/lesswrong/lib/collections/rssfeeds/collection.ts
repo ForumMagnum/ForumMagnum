@@ -29,6 +29,7 @@ export const RSSFeeds: RSSFeedsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('RSSFeeds'),
   mutations: getDefaultMutations('RSSFeeds', options),
+  logChanges: true,
 });
 
 addUniversalFields({collection: RSSFeeds})

@@ -47,7 +47,7 @@ const PostsListEditorSearchHit = ({hit, classes}: {
         <PostsPreviewTooltipSingle postId={post._id} postsList/>
       </LWPopper>
       <div>
-        <PostsTitle post={post as unknown as PostsBase} isLink={false}/>
+        <PostsTitle post={post as unknown as PostsListBase} isLink={false}/>
       </div>
       {post.authorDisplayName && <MetaInfo>
         {post.authorDisplayName}

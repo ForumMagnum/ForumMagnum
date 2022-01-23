@@ -1,5 +1,5 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
-import { userOwns } from '../../vulcan-users/permissions';
+import { schemaDefaultValue } from '../../collectionUtils'
 
 const schema: SchemaType<DbMessage> = {
   userId: {
@@ -11,8 +11,9 @@ const schema: SchemaType<DbMessage> = {
       nullable: true
     }),
     viewableBy: ['members'],
-    insertableBy: userOwns,
+    insertableBy: ['admins'],
     optional: true,
+    hidden: true,
   },
   createdAt: {
     optional: true,
@@ -31,6 +32,13 @@ const schema: SchemaType<DbMessage> = {
     viewableBy: ['members'],
     insertableBy: ['members'],
     hidden: true,
+  },
+  noEmail: {
+    optional: true,
+    type: Boolean,
+    viewableBy: ['admins'],
+    insertableBy: ['admins'],
+    ...schemaDefaultValue(false)
   }
 };
 

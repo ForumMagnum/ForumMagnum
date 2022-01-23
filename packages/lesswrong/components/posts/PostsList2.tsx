@@ -16,24 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   itemIsLoading: {
     opacity: .4,
   },
-  loading: {
-    '&&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
   posts: {
     boxShadow: theme.boxShadow
-  },
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left",
-    '&&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
   }
 })
 
@@ -59,6 +43,7 @@ const PostsList2 = ({
   topLoading = false,
   showLoading = true,
   showLoadMore = true,
+  alwaysShowLoadMore = false,
   showNoResults = true,
   hideLastUnread = false,
   showPostedAt = true,
@@ -82,6 +67,7 @@ const PostsList2 = ({
   topLoading?: boolean,
   showLoading?: boolean,
   showLoadMore?: boolean,
+  alwaysShowLoadMore?: boolean,
   showNoResults?: boolean,
   hideLastUnread?: boolean,
   showPostedAt?: boolean,
@@ -115,6 +101,7 @@ const PostsList2 = ({
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     itemsPerPage: itemsPerPage,
+    alwaysShowLoadMore,
     ...tagVariables
   });
 
@@ -153,7 +140,7 @@ const PostsList2 = ({
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results?.length && (results.length >= limit))
+  const maybeMorePosts = !!(results?.length && (results.length >= limit)) || alwaysShowLoadMore;
 
   let orderedResults = results
   if (defaultToShowUnreadComments) {
@@ -193,7 +180,7 @@ const PostsList2 = ({
         })}
       </div>
       {showLoadMore && <SectionFooter>
-        { (maybeMorePosts||loading) && <div className={classes.loadMore}>
+        { (maybeMorePosts||loading) && 
           <LoadMore
             {...loadMoreProps}
             loadMore={() => {
@@ -201,8 +188,9 @@ const PostsList2 = ({
               setHaveLoadedMore(true);
             }}
             hideLoading={dimWhenLoading || !showLoading}
+            sectionFooterStyles
           />
-        </div>}
+        }
         { children }
       </SectionFooter>}
     </div>

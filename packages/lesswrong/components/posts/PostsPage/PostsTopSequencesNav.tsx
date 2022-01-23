@@ -1,11 +1,12 @@
-import React, { PureComponent } from 'react';
+import React, {useCallback} from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { withNavigation } from '../../../lib/routeUtil';
-import withGlobalKeydown from '../../common/withGlobalKeydown';
+import { useNavigation } from '../../../lib/routeUtil';
+import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { useCurrentUser } from '../../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,21 +25,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
-}
-interface PostsTopSequencesNavProps extends ExternalProps, WithNavigationProps, WithGlobalKeydownProps, WithStylesProps {
-}
+  classes: ClassesType,
+}) => {
+  const { history } = useNavigation();
+  const currentUser = useCurrentUser();
 
-class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
-{
-  componentDidMount() {
-    this.props.addKeydownListener(this.handleKey);
-  }
-
-  handleKey = (ev) => {
-    const { history, post } = this.props;
-
+  const handleKey = useCallback((ev) => {
     // Only if Shift and no other modifiers
     if (ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       // Check the targe of the event; we don't want to navigate if you're
@@ -56,36 +50,38 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
         }
       }
     }
+  }, [post, history]);
+  useGlobalKeydown(handleKey);
+
+  if (!post?.sequence)
+    return null;
+
+  if (post.sequence.draft && (!currentUser || currentUser._id!=post.sequence.userId) && !currentUser?.isAdmin) {
+    return null;
   }
+  
+  return (
+    <div className={classes.root}>
+      <Components.SequencesNavigationLink
+        post={post.prevPost}
+        direction="left" />
 
-  render() {
-    const { post, classes } = this.props;
-
-    if (!post?.sequence)
-      return null;
-
-    return (
-      <div className={classes.root}>
-        <Components.SequencesNavigationLink
-          post={post.prevPost}
-          direction="left" />
-
-        <div className={classes.title}>
-          <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
-        </div>
-
-        <Components.SequencesNavigationLink
-          post={post.nextPost}
-          direction="right" />
+      <div className={classes.title}>
+        {post.sequence.draft && "[Draft] "}
+        <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
       </div>
-    )
-  }
+
+      <Components.SequencesNavigationLink
+        post={post.nextPost}
+        direction="right" />
+    </div>
+  )
 }
 
-const PostsTopSequencesNavComponent = registerComponent<ExternalProps>(
+const PostsTopSequencesNavComponent = registerComponent(
   'PostsTopSequencesNav', PostsTopSequencesNav, {
     styles,
-    hocs: [withNavigation, withGlobalKeydown, withErrorBoundary]
+    hocs: [withErrorBoundary]
   }
 );
 

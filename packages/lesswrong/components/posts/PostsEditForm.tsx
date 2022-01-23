@@ -7,6 +7,10 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
+import { useDialog } from "../common/withDialog";
+import {useCurrentUser} from "../common/withUser";
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
@@ -21,21 +25,31 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     collectionName: "Posts",
     fragmentName: 'PostsPage',
   });
+  const { openDialog } = useDialog();
+  const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
         saveDraftLabel={isDraft ? "Save as draft" : "Move to Drafts"}
+        feedbackLabel={"Get Feedback"}
         {...props}
       />
     </div>
   }
+  
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SuggestAlignmentPost',
+  })
 
+  
   return (
     <div className={classes.postForm}>
+      <HeadTags title={document?.title} />
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}
@@ -43,6 +57,8 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           queryFragment={getFragment('PostsEdit')}
           mutationFragment={getFragment('PostsEdit')}
           successCallback={post => {
+            const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
+            if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
             flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             history.push({pathname: postGetPageUrl(post)});
           }}

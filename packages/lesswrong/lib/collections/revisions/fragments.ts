@@ -41,6 +41,13 @@ registerFragment(`
     editedAt
     commitMessage
     userId
+    
+    score
+    baseScore
+    extendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -48,6 +55,9 @@ registerFragment(`
   fragment RevisionMetadataWithChangeMetrics on Revision {
     ...RevisionMetadata
     changeMetrics
+    user {
+      ...UsersMinimumInfo
+    }
   }
 `);
 
@@ -68,5 +78,18 @@ registerFragment(`
     tag {
       ...TagBasicInfo
     }
+  }
+`);
+
+registerFragment(`
+  fragment WithVoteRevision on Revision {
+    __typename
+    _id
+    currentUserVote
+    currentUserExtendedVote
+    baseScore
+    extendedScore
+    score
+    voteCount
   }
 `);

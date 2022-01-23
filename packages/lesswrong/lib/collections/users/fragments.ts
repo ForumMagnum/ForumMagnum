@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    previousDisplayName
     fullName
     karma
     afKarma
@@ -19,6 +20,7 @@ registerFragment(`
     afPostCount
     afCommentCount
     spamRiskScore
+    tagRevisionCount
   }
 `);
 
@@ -53,7 +55,11 @@ registerFragment(`
     petrovPressedButtonDate
     sortDrafts
     reenableDraftJs
+    ...SunshineUsersList
     ...SharedUserBooleans
+    noindex
+    paymentEmail
+    paymentInfo
   }
 `);
 
@@ -77,6 +83,7 @@ registerFragment(`
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
+    allPostsIncludeEvents
     allPostsOpenSettings
     lastNotificationsCheck
     bannedUserIds
@@ -89,6 +96,7 @@ registerFragment(`
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
+    hideAFNonMemberInitialWarning
     commentSorting
     location
     googleLocation
@@ -103,10 +111,12 @@ registerFragment(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
+    subscribedToDigest
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
     hideSubscribePoke
+    hideMeetupsPoke
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
@@ -120,15 +130,17 @@ registerFragment(`
     bookmarkedPosts {
       ...PostsList
     }
-    
+
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     reviewVotesQuadratic2019
+    reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     abTestKey
     abTestOverrides
@@ -138,6 +150,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    lastUsedTimezone
     ...SharedUserBooleans
   }
 `);
@@ -163,6 +176,13 @@ registerFragment(`
         description
         postId
         tagSlug
+      }
+      tagRevisions {
+        _id
+        scoreChange
+        tagId
+        tagSlug
+        tagName
       }
     }
   }
@@ -211,6 +231,7 @@ registerFragment(`
     hideWalledGardenUI
     walledGardenPortalOnboarded
     taggingDashboardCollapsed
+    usernameUnset
   }
 `)
 
@@ -242,17 +263,20 @@ registerFragment(`
     # UI Settings
     markDownPostEditor
     hideElicitPredictions
+    hideAFNonMemberInitialWarning
     hideIntercom
     commentSorting
     currentFrontpageFilter
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    beta
 
     # Emails
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    subscribedToDigest
     unsubscribeFromAll
 
     # Moderation
@@ -300,10 +324,15 @@ registerFragment(`
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe
+    notificationAlignmentSubmissionApproved
+    notificationEventInRadius
+    notificationRSVPs
+    notificationPostsNominatedReview
 
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     deleted
   }
@@ -323,3 +352,11 @@ registerFragment(`
     karma
   }
 `);
+
+registerFragment(`
+  fragment UsersWithReviewInfo on User {
+    ...UsersMinimumInfo
+    reviewVoteCount
+    email
+  }
+`)

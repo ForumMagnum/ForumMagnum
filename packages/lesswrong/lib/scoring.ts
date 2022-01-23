@@ -11,16 +11,6 @@ export const FRONTPAGE_BONUS = frontpageBonusSetting;
 export const CURATED_BONUS = curatedBonusSetting;
 
 
-export const recalculateBaseScore = async (document: VoteableType) => {
-  const votes = await Votes.find(
-    {
-      documentId: document._id,
-      cancelled: false
-    }
-  ).fetch() || [];
-  return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
-}
-
 // NB: If you want to change this algorithm, make sure to also change the
 // timeDecayExpr function below
 export const recalculateScore = (item: VoteableType) => {

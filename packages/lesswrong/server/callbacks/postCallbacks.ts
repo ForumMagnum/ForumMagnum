@@ -9,7 +9,8 @@ import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
 import { getCollectionHooks } from '../mutationCallbacks';
-import { postsUndraftNotification } from '../notificationCallbacks';
+import { postPublishedCallback } from '../notificationCallbacks';
+import moment from 'moment';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -18,12 +19,6 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
     data = postsSetPostedAt(data);
   }
   return data;
-});
-
-getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
-  if (!newPost.draft && oldPost.draft) {
-    void postsUndraftNotification(newPost);
-  }
 });
 
 // set postedAt when a post is moved out of drafts
@@ -73,6 +68,12 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
  var postAuthor = await Users.findOne(post.userId);
  const votedPost = postAuthor && await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost} as DbPost;
+});
+
+getCollectionHooks("Posts").createAfter.add((post: DbPost) => {
+  if (!post.authorIsUnreviewed && !post.draft) {
+    void postPublishedCallback.runCallbacksAsync([post]);
+  }
 });
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewUserApprovedStatus (post) {
@@ -145,18 +146,35 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-export async function newDocumentMaybeTriggerReview (document) {
+export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment) {
   const author = await Users.findOne(document.userId);
-  if (author && (!author.reviewedByUserId || author.sunshineSnoozed) && !document.draft) {
+  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
     await Users.update({_id:author._id}, {$set:{needsReview: true}})
   }
   return document
 }
-getCollectionHooks("Posts").newAfter.add(newDocumentMaybeTriggerReview);
+
+getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
+  if (!document.draft) {
+    await newDocumentMaybeTriggerReview(document);
+  }
+  return document;
+});
 
 getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
-  if (!newPost.draft && oldPost.draft) {
+  // ignore draft posts
+  if (newPost.draft) return
+
+  // Is this a post being undrafted?
+  if (oldPost.draft) {
     await newDocumentMaybeTriggerReview(newPost)
+  }
+  
+  // if the post author is already approved and the post is getting undrafted,
+  // or the post author is getting approved,
+  // then we consider this "publishing" the post
+  if ((oldPost.draft && !newPost.authorIsUnreviewed) || (oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed)) {
+    await postPublishedCallback.runCallbacksAsync([newPost]);
   }
 });
 
@@ -199,3 +217,28 @@ async function oldPostsLastCommentedAt (post: DbPost) {
 }
 
 getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
+
+
+getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
+  // If the post has an end time but no start time, move the time given to the startTime
+  // slot, and leave the end time blank
+  if (post?.endTime && !post?.startTime) {
+    return {
+      ...post,
+      startTime: post.endTime,
+      endTime: null,
+    };
+  }
+  
+  // If both start time and end time are given but they're swapped, swap them to
+  // the right order
+  if (post.startTime && post.endTime && moment(post.startTime).isAfter(post.endTime)) {
+    return {
+      ...post,
+      startTime: post.endTime,
+      endTime: post.startTime,
+    };
+  }
+  
+  return post;
+});

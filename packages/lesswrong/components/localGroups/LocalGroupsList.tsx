@@ -4,58 +4,54 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left",
-    '&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
   localGroups: {
     boxShadow: theme.boxShadow
   }
 }))
 
-const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}: {
+const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}: {
   terms: LocalgroupsViewTerms,
   children?: React.ReactNode,
   classes: ClassesType,
   showNoResults?: boolean,
-  showLoadMore?: boolean,
-  showLoading?: boolean,
-  dimWhenLoading?: boolean,
+  heading?: string,
 }) => {
-  const { results, count, loadMore, totalCount, loading, loadingMore } = useMulti({
+  const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
   });
-  const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore } = Components
+  const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore, SingleColumnSection, SectionTitle } = Components
+
+  const MaybeTitleWrapper = ({children}) => heading ?
+    <SingleColumnSection>
+      <SectionTitle title={heading} />
+      {children}
+    </SingleColumnSection> :
+    children;
 
   if (!results && loading) return <Loading />
-  if ((results && !results.length) && showNoResults) return <PostsNoResults />
 
-  return <div>
+  // if we are given a section title/heading,
+  // then we can make sure to hide it when showNoResults is false and there are no results to show
+  if (!results || !results.length) {
+    return showNoResults ? 
+      <MaybeTitleWrapper><PostsNoResults /></MaybeTitleWrapper> :
+      null
+  }
+
+  return <MaybeTitleWrapper>
+    <div>
       <div className={classes.localGroups}>
-        {results && results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}
+        {results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}
       </div>
       <SectionFooter>
-        {(showLoadMore) &&
-          <div className={classes.loadMore}>
-            <LoadMore
-              loadMore={loadMore}
-              count={count}
-              totalCount={totalCount}
-            />
-            { !dimWhenLoading && showLoading && loadingMore && <Loading />}
-          </div>
-        }
+        <LoadMore {...loadMoreProps} sectionFooterStyles/>
         { children }
       </SectionFooter>
     </div>
+  </MaybeTitleWrapper>;
 }
 
 const LocalGroupsListComponent = registerComponent('LocalGroupsList', LocalGroupsList, {styles})

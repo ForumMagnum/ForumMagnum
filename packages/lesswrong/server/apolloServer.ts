@@ -7,12 +7,11 @@ import { renderWithCache } from './vulcan-lib/apollo-ssr/renderPage';
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
-import getVoyagerConfig from './vulcan-lib/apollo-server/voyager';
-import { graphiqlMiddleware, getGraphiqlConfig } from './vulcan-lib/apollo-server/graphiql';
+import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { computeContextFromReq } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -25,14 +24,17 @@ import path from 'path'
 import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
-import { addAuthMiddlewares } from './authenticationMiddlewares';
-import { addSentryMiddlewares } from './logging';
+import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
+import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import fs from 'fs';
 import crypto from 'crypto';
+import expressSession from 'express-session';
+import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
+import { getMongoClient } from '../lib/mongoCollection';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -61,12 +63,45 @@ const getClientBundle = () => {
   return clientBundle;
 }
 
+class ApolloServerLogging {
+  requestDidStart(context: any) {
+    const {request} = context;
+    const {operationName, query, variables} = request;
+    logGraphqlQueryStarted(operationName, query, variables);
+    
+    return {
+      willSendResponse(props) {
+        logGraphqlQueryFinished(operationName, query);
+      }
+    };
+  }
+}
+
 export function startWebserver() {
   const addMiddleware = (...args) => app.use(...args);
   const config = { path: '/graphql' };
+  const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+  // Required for passport-auth0, and for login redirects
+  if (expressSessionSecret) {
+    const store = MongoStore.create({
+      client: getMongoClient()
+    })
+    app.use(expressSession({
+      secret: expressSessionSecret,
+      resave: false,
+      saveUninitialized: false,
+      store,
+      cookie: {
+        // NB: Although the Set-Cookie HTTP header takes seconds,
+        // express-session wants milliseconds for some reason
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10
+      }
+    }))
+  }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
+  app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
   app.use(pickerMiddleware);
 
   addStripeMiddleware(addMiddleware);
@@ -81,7 +116,7 @@ export function startWebserver() {
   // given options contains the schema
   const apolloServer = new ApolloServer({
     // graphql playground (replacement to graphiql), available on the app path
-    playground: getPlaygroundConfig(config),
+    playground: getPlaygroundConfig(config.path),
     introspection: true,
     debug: isDevelopment,
     
@@ -97,7 +132,13 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: ({ req, res }) => computeContextFromReq(req, res),
+    context: async ({ req, res }) => {
+      const user = await getUserFromReq(req);
+      const context = await computeContextFromUser(user, req, res);
+      configureSentryScope(context);
+      return context;
+    },
+    plugins: [new ApolloServerLogging()]
   });
 
   app.use('/graphql', bodyParser.json({ limit: '50mb' }));
@@ -137,9 +178,14 @@ export function startWebserver() {
   app.use(express.static(path.join(__dirname, '../../../public')))
   
   // Voyager is a GraphQL schema visual explorer
-  app.use("/graphql-voyager", voyagerMiddleware(getVoyagerConfig(config)));
+  app.use("/graphql-voyager", voyagerMiddleware({
+    endpointUrl: config.path,
+  }));
   // Setup GraphiQL
-  app.use("/graphiql", graphiqlMiddleware(getGraphiqlConfig(config)));
+  app.use("/graphiql", graphiqlMiddleware({
+    endpointURL: config.path,
+    passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
+  }));
   
 
   app.get('*', async (request, response) => {
@@ -180,9 +226,9 @@ export function startWebserver() {
   // Start Server
   const port = process.env.PORT || 3000
   const env = process.env.NODE_ENV || 'production'
-  app.listen({ port }, () => {
+  const server = app.listen({ port }, () => {
     // eslint-disable-next-line no-console
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
+  server.keepAliveTimeout = 120000;
 }
-

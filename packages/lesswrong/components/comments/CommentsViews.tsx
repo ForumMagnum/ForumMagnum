@@ -1,11 +1,11 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, { Component } from 'react';
-import { withLocation, withNavigation } from '../../lib/routeUtil';
+import React, { useState } from 'react';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -29,87 +29,66 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+const CommentsViews = ({post, classes}: {
   post?: PostsDetails,
-}
-interface CommentsViewsProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
-}
-interface CommentsViewsState {
-  anchorEl: any,
-}
+  classes: ClassesType,
+}) => {
+  const [anchorEl,setAnchorEl] = useState<any>(null);
+  const currentUser = useCurrentUser();
+  const { history } = useNavigation();
+  const location = useLocation();
+  const { query } = location;
 
-class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
-  constructor(props: CommentsViewsProps) {
-    super(props);
-    this.state = {
-      anchorEl: null,
-    }
-  }
-
-  handleClick = (event: React.MouseEvent) => {
-    this.setState({ anchorEl: event.currentTarget });
+  const handleClick = (event: React.MouseEvent) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  handleViewClick = (view: string) => {
-    const { post } = this.props;
-    const { history, location } = this.props; // From withNavigation, withLocation
+  const handleViewClick = (view: string) => {
     const { query } = location;
     const currentQuery = _.isEmpty(query) ? {view: 'postCommentsTop'} : query
-    this.setState({ anchorEl: null })
+    setAnchorEl(null);
     const newQuery = {...currentQuery, view: view, postId: post ? post._id : undefined}
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
   };
 
-  handleClose = () => {
-    this.setState({ anchorEl: null })
+  const handleClose = () => {
+    setAnchorEl(null);
   }
 
-  render() {
-    const { currentUser, classes, post } = this.props
-    const { query } = this.props.location;
-    const { anchorEl } = this.state
-    const commentsTopView: CommentsViewName = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
-    let views: Array<CommentsViewName> = [commentsTopView, "postCommentsNew", "postCommentsOld"]
-    const adminViews: Array<CommentsViewName> = ["postCommentsDeleted"]
-    const afViews: Array<CommentsViewName> = ["postLWComments"]
-    const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
+  const commentsTopView: CommentsViewName = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
+  let views: Array<CommentsViewName> = [commentsTopView, "postCommentsNew", "postCommentsOld"]
+  const adminViews: Array<CommentsViewName> = ["postCommentsDeleted"]
+  const afViews: Array<CommentsViewName> = ["postLWComments"]
+  const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
 
-    if (userCanDo(currentUser, "comments.softRemove.all")) {
-      views = views.concat(adminViews);
-    }
+  if (userCanDo(currentUser, "comments.softRemove.all")) {
+    views = views.concat(adminViews);
+  }
 
-    const af = forumTypeSetting.get() === 'AlignmentForum'
-    if (af) {
-      views = views.concat(afViews);
-    }
+  const af = forumTypeSetting.get() === 'AlignmentForum'
+  if (af) {
+    views = views.concat(afViews);
+  }
 
-    return (
-      <div className={classes.root}>
-        <a className={classes.link} onClick={this.handleClick}>
-          {viewNames[currentView]}
-        </a>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={this.handleClose}
-        >
-          {views.map((view: string) => {
-            return(
-              <MenuItem
-                key={view}
-                onClick={() => this.handleViewClick(view)}
-              >
-                {viewNames[view]}
-              </MenuItem>)})}
-        </Menu>
-      </div>
-  )}
+  return <div className={classes.root}>
+    <a className={classes.link} onClick={handleClick}>
+      {viewNames[currentView]}
+    </a>
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleClose}
+    >
+      {views.map((view: string) => {
+        return <MenuItem key={view} onClick={() => handleViewClick(view)} >
+          {viewNames[view]}
+        </MenuItem>
+      })}
+    </Menu>
+  </div>
 };
 
-const CommentsViewsComponent = registerComponent<ExternalProps>('CommentsViews', CommentsViews, {
-  styles,
-  hocs: [withLocation, withNavigation, withUser],
-});
+const CommentsViewsComponent = registerComponent('CommentsViews', CommentsViews, {styles});
 
 declare global {
   interface ComponentTypes {

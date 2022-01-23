@@ -28,6 +28,8 @@ export const zIndexes = {
   singleLineCommentMeta: 2,
   postItemTitle: 2,
   sidebarHoverOver: 2,
+  sidebarActionMenu: 2,
+  commentPermalinkIcon: 2,
   reviewVotingMenu: 3,
   singleLineCommentHover: 3,
   questionPageWhitescreen: 3,
@@ -44,7 +46,7 @@ export const zIndexes = {
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
-  tagCTAPopup: 9999,
+  afNonMemberPopup: 9999,
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,

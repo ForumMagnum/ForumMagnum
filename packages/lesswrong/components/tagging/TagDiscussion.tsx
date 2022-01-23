@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -10,6 +11,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxHeight: 600,
     overflowY: "auto",
     padding: 6
+  },
+  loading: {
+    padding: 20,
+    height: 100,
   },
   seeAll: {
     ...theme.typography.body2,
@@ -39,11 +44,12 @@ const TagDiscussion = ({classes, tag}: {
   });
 
   if (!tag) return null
+  if (loading) return <div  className={classNames(classes.root, classes.loading)} ><Loading /></div>
+  if (results?.length === 0) return null
   
   const nestedComments = results && unflattenComments(results);
   
   return <div className={classes.root}>
-    {!results && loading && <Loading/>}
     {results && <CommentsList
       treeOptions={{
         tag: tag,

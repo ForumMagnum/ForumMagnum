@@ -48,6 +48,7 @@ const UserCommentsReplies = ({ classes }) => {
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,
+                tag: comment.tag || undefined,
                 showPostTitle: true,
               }}
               comment={comment}

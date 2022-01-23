@@ -1,11 +1,12 @@
 branch-defaults:
-  devel:
+  lw-devel:
     environment: LessestWrong
-    group_suffix: null
+  ea-dev:
+    environment: EAForum-Staging-2
 global:
-  application_name: LessWrongExpress
+  # Use deploy.sh to change this to the correct application name
+  application_name: APPLICATION_NAME
   branch: null
-  default_ec2_keyname: LessWrong-Express-SSH
   default_platform: Docker
   default_region: us-east-1
   include_git_submodules: true

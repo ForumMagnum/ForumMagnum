@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
@@ -74,21 +74,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-interface ExternalProps {
-  closeSearch: any,
-  currentQuery: string
-}
-interface SearchBarResultsProps extends ExternalProps, WithStylesProps{
-}
+const SearchBarResults = ({closeSearch, currentQuery, classes}: {
+  closeSearch: ()=>void,
+  currentQuery: string,
+  classes: ClassesType
+}) => {
+  const { PostsSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit, Typography } = Components
 
-class SearchBarResults extends Component<SearchBarResultsProps> {
-
-  render() {
-    const { classes, closeSearch, currentQuery } = this.props
-    const { PostsSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit, Typography } = Components
-
-    return <div className={classes.root}>
-      <div className={classes.searchResults}>
+  return <div className={classes.root}>
+    <div className={classes.searchResults}>
         <CurrentRefinements />
         <Components.ErrorBoundary>
           <div className={classes.searchList}>
@@ -140,14 +134,12 @@ class SearchBarResults extends Component<SearchBarResultsProps> {
         </Components.ErrorBoundary>
     </div>
   </div>
-  }
 }
 
-const SearchBarResultsComponent = registerComponent<ExternalProps>("SearchBarResults", SearchBarResults, {styles});
+const SearchBarResultsComponent = registerComponent("SearchBarResults", SearchBarResults, {styles});
 
 declare global {
   interface ComponentTypes {
     SearchBarResults: typeof SearchBarResultsComponent
   }
 }
-

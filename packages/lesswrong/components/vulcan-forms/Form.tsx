@@ -8,7 +8,6 @@ This component expects:
 
 - collection
 - currentUser
-- client (Apollo client)
 
 ### New Form:
 
@@ -83,7 +82,7 @@ const getInitialStateFromProps = nextProps => {
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
     : getSimpleSchema(collection);
-  const convertedSchema = convertSchema(schema)!;
+  const convertedSchema = convertSchema(schema as any)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
   const defaultValues =
@@ -116,7 +115,7 @@ const getInitialStateFromProps = nextProps => {
     // convert SimpleSchema schema into JSON object
     schema: convertedSchema,
     // Also store all field schemas (including nested schemas) in a flat structure
-    flatSchema: convertSchema(schema, true),
+    flatSchema: convertSchema(schema as any, true),
     // the initial document passed as props
     initialDocument,
     // initialize the current document to be the same as the initial document
@@ -135,7 +134,10 @@ const getInitialStateFromProps = nextProps => {
 
 */
 
-class SmartForm extends Component<any,any> {
+/**
+ * Note: Only use this through WrappedSmartForm
+ */
+class Form extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -298,8 +300,6 @@ class SmartForm extends Component<any,any> {
 
     // sort by order
     groups = _.sortBy(groups, 'order');
-
-    // console.log(groups);
 
     return groups;
   };
@@ -1064,7 +1064,7 @@ class SmartForm extends Component<any,any> {
   }
 }
 
-(SmartForm as any).propTypes = {
+(Form as any).propTypes = {
   // main options
   collection: PropTypes.object.isRequired,
   collectionName: PropTypes.string.isRequired,
@@ -1095,21 +1095,20 @@ class SmartForm extends Component<any,any> {
   ...callbackProps,
 
   currentUser: PropTypes.object,
-  client: PropTypes.object
 };
 
-(SmartForm as any).defaultProps = {
+(Form as any).defaultProps = {
   layout: 'horizontal',
   prefilledProps: {},
   repeatErrors: false,
   showRemove: true
 };
 
-(SmartForm as any).contextTypes = {
+(Form as any).contextTypes = {
   intl: intlShape
 };
 
-(SmartForm as any).childContextTypes = {
+(Form as any).childContextTypes = {
   addToDeletedValues: PropTypes.func,
   deletedValues: PropTypes.array,
   addToSubmitForm: PropTypes.func,
@@ -1129,7 +1128,7 @@ class SmartForm extends Component<any,any> {
   currentValues: PropTypes.object
 };
 
-const FormComponent = registerComponent("Form", SmartForm, {
+const FormComponent = registerComponent("Form", Form, {
   hocs: [withCollectionProps]
 });
 

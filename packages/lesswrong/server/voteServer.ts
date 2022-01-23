@@ -2,52 +2,56 @@ import { Connectors } from './vulcan-lib/connectors';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
+import { recalculateScore } from '../lib/scoring';
 import { voteTypes } from '../lib/voting/voteTypes';
-import { createVote, voteCallbacks, VoteDocTuple } from '../lib/voting/vote';
+import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
+import { getVotingSystemForDocument } from '../lib/voting/votingSystems';
 import { algoliaExportById } from './search/utils';
+import { createAnonymousContext } from './vulcan-lib/query';
 import moment from 'moment';
 import { randomId } from '../lib/random';
 import * as _ from 'underscore';
+import sumBy from 'lodash/sumBy'
+import uniq from 'lodash/uniq';
+import keyBy from 'lodash/keyBy';
 
 
 // Test if a user has voted on the server
-const hasVotedServer = async ({ document, voteType, user }: {
+const getExistingVote = async ({ document, user }: {
   document: DbVoteableType,
-  voteType: string,
   user: DbUser,
 }) => {
   const vote = await Connectors.get(Votes, {
     documentId: document._id,
-    userId: user._id, voteType,
+    userId: user._id,
     cancelled: false,
   }, {}, true);
   return vote;
 }
 
 // Add a vote of a specific type on the server
-const addVoteServer = async ({ document, collection, voteType, user, voteId }: {
+const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
   collection: CollectionBase<DbVoteableType>,
   voteType: string,
+  extendedVote: any,
   user: DbUser,
   voteId: string,
+  context: ResolverContext,
 }): Promise<VoteDocTuple> => {
-  const newDocument = _.clone(document);
-
   // create vote and insert it
-  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
+  const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, extendedVote, user, voteId });
   const {data: vote} = await createMutator({
     collection: Votes,
     document: partialVote,
     validate: false,
   });
 
-  // LESSWRONG – recalculateBaseScore
-  newDocument.baseScore = await recalculateBaseScore(newDocument)
-  newDocument.score = recalculateScore(newDocument);
-  newDocument.voteCount++;
-
+  let newDocument = {
+    ...document,
+    ...(await recalculateDocumentScores(document, context)),
+  }
+  
   // update document score & set item as active
   await Connectors.update(collection,
     {_id: document._id},
@@ -55,7 +59,8 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId }: {
       $set: {
         inactive: false,
         baseScore: newDocument.baseScore,
-        score: newDocument.score
+        score: newDocument.score,
+        extendedScore: newDocument.extendedScore,
       },
     },
     {}, true
@@ -64,20 +69,58 @@ const addVoteServer = async ({ document, collection, voteType, user, voteId }: {
   return {newDocument, vote};
 }
 
+// Create new vote object
+export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
+  document: VoteableType,
+  collectionName: CollectionNameString,
+  voteType: string,
+  extendedVote: any,
+  user: DbUser|UsersCurrent,
+  voteId?: string,
+}): Partial<DbVote> => {
+  if (!document.userId)
+    throw new Error("Voted-on document does not have an author userId?");
+  
+  return {
+    // when creating a vote from the server, voteId can sometimes be undefined
+    ...(voteId ? {_id:voteId} : undefined),
+    
+    documentId: document._id,
+    collectionName,
+    userId: user._id,
+    voteType: voteType,
+    extendedVoteType: extendedVote,
+    power: getVotePower({user, voteType, document}),
+    votedAt: new Date(),
+    authorId: document.userId,
+    cancelled: false,
+    documentIsAf: !!(document.af),
+  }
+};
+
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection }: {
+export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
   document: DbVoteableType,
   user: DbUser,
-  collection: CollectionBase<DbVoteableType>
+  collection: CollectionBase<DbVoteableType>,
+  // If true, clears all votes except the latest (ie, only clears duplicate
+  // votes). If false, clears all votes (including the latest).
+  excludeLatest?: boolean,
+  context: ResolverContext,
 }) => {
-  const newDocument = _.clone(document);
+  let newDocument = _.clone(document);
   const votes = await Connectors.find(Votes, {
     documentId: document._id,
     userId: user._id,
     cancelled: false,
   });
   if (votes.length) {
+    const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
     for (let vote of votes) {
+      if (excludeLatest && vote._id === latestVoteId) {
+        continue;
+      }
+      
       // Cancel the existing votes
       await updateMutator({
         collection: Votes,
@@ -111,63 +154,76 @@ export const clearVotesServer = async ({ document, user, collection }: {
         [{newDocument, vote}, collection, user]
       );
     }
+    const newScores = await recalculateDocumentScores(document, context);
     await Connectors.update(collection,
       {_id: document._id},
       {
-        $set: {baseScore: await recalculateBaseScore(document) },
+        $set: {...newScores },
       },
       {}, true
     );
-    newDocument.baseScore = await recalculateBaseScore(newDocument);
-    newDocument.score = recalculateScore(newDocument);
-    newDocument.voteCount -= votes.length;
+    newDocument = {
+      ...newDocument,
+      ...newScores,
+    };
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = randomId(), user, toggleIfAlreadyVoted = true }: {
+export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, context }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: string,
+  extendedVote?: any,
   collection: CollectionBase<DbVoteableType>,
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
+  context?: ResolverContext,
 }) => {
+  if (!context)
+    context = await createAnonymousContext();
+
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
 
   if (!document) throw new Error("Error casting vote: Document not found.");
   
-  const voteOptions = {document, collection, voteType, user, voteId };
-
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
-  if (!userCanDo(user, collectionVoteType)) {
+  if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
-  if (!voteTypes[voteType]) throw new Error("Invalid vote type");
+  if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
-  const existingVote = await hasVotedServer({document, voteType, user});
+  if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
+    throw new Error("Revisions are only voteable if they're revisions of tags");
+  
+  const existingVote = await getExistingVote({document, user});
 
-  if (existingVote) {
+  if (existingVote && existingVote.voteType === voteType && !extendedVote) {
     if (toggleIfAlreadyVoted) {
-      document = await clearVotesServer(voteOptions)
+      document = await clearVotesServer({document, user, collection, context})
     }
   } else {
     await checkRateLimit({ document, collection, voteType, user });
 
-    document = await clearVotesServer(voteOptions)
-
-    let voteDocTuple: VoteDocTuple = await addVoteServer({...voteOptions, document}); //Make sure to pass the new document to addVoteServer
+    let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
     voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
       iterator: voteDocTuple,
       properties: [collection, user]
     });
     document = voteDocTuple.newDocument;
+    
+    document = await clearVotesServer({
+      document, user, collection,
+      excludeLatest: true,
+      context
+    })
+    
     void voteCallbacks.castVoteAsync.runCallbacksAsync(
       [voteDocTuple, collection, user]
     );
@@ -187,9 +243,9 @@ const getVotingRateLimits = async (user: DbUser|null) => {
     }
   }
   return {
-    perDay: 100,
-    perHour: 30,
-    perUserPerDay: 30,
+    perDay: 200,
+    perHour: 100,
+    perUserPerDay: 100,
   };
 }
 
@@ -231,4 +287,34 @@ const checkRateLimit = async ({ document, collection, voteType, user }: {
   if (votesOnThisAuthor.length >= rateLimits.perUserPerDay) {
     throw new Error("Voting rate limit exceeded: too many votes today on content by this author");
   }
+}
+
+export const recalculateDocumentScores = async (document: VoteableType, context: ResolverContext) => {
+  const votes = await Votes.find(
+    {
+      documentId: document._id,
+      cancelled: false
+    }
+  ).fetch() || [];
+  
+  const userIdsThatVoted = uniq(votes.map(v=>v.userId));
+  const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
+  const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
+  
+  const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
+
+  const votingSystem = await getVotingSystemForDocument(document, context);
+  const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
+  
+  const baseScore = sumBy(votes, v=>v.power)
+  const afBaseScore = sumBy(afVotes, v=>v.afPower)
+  
+  return {
+    baseScore, afBaseScore,
+    voteCount: votes.length,
+    afVoteCount: afVotes.length,
+    extendedScore: await votingSystem.computeExtendedScore(votes, context),
+    afExtendedScore: await votingSystem.computeExtendedScore(afVotes, context),
+    score: recalculateScore({...document, baseScore})
+  };
 }

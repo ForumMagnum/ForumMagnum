@@ -1,13 +1,14 @@
-import { Client } from 'intercom-client';
+import { Client as IntercomClient } from 'intercom-client';
 import { DatabaseServerSetting } from './databaseSettings';
 
 // Initiate Intercom on the server
 const intercomTokenSetting = new DatabaseServerSetting<string | null>("intercomToken", null)
 
-let intercomClient: any = null;
+let intercomClient: IntercomClient | null = null;
 export const getIntercomClient = () => {
-  if (!intercomClient && intercomTokenSetting.get()) {
-    intercomClient =  new Client({ token: intercomTokenSetting.get() })
+  const intercomToken = intercomTokenSetting.get();
+  if (!intercomClient && intercomToken) {
+    intercomClient =  new IntercomClient({ token: intercomToken })
   }
   return intercomClient;
 }

@@ -9,6 +9,7 @@ import { isProduction, onStartup } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import type { OpenEvent } from 'ws';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
@@ -207,7 +208,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   // eslint-disable-next-line no-console
   console.log(`Connecting to websocket server ${websocketServerUrl}`);
   const socket = new WebSocket(websocketServerUrl);
-  socket.on('open', function (data) {
+  socket.on('open', function (data: OpenEvent) {
     socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
       event: "init",
@@ -290,8 +291,8 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   }
 }
 
-function stringToArrayBuffer(string) {
-  var binary_string = Buffer.from(string).toString(`binary`);
+function stringToArrayBuffer(str: string) {
+  var binary_string = Buffer.from(str).toString(`binary`);
   var len = binary_string.length;
   var bytes = new Uint8Array(len);
   for (var i = 0; i <= len; i++) {

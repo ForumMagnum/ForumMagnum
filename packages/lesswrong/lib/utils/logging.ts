@@ -42,7 +42,7 @@ export const loggerConstructor = (scope: string): Logger => {
     // cache-refreshing features
     if (scopeIsActive(scope)) {
       let formattedArgs = args
-      if (Meteor.isServer) {
+      if (util?.inspect) {
         // Full-depth object logging
         formattedArgs = args.map(a => typeof a === 'object' ? util.inspect(a, false, null) : a)
       }

@@ -3,18 +3,29 @@ import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './ins
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 
-const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
+
+const isEAForum = forumTypeSetting.get() === 'EAForum';
+export const communityPath = '/community';
+const communitySectionName = isEAForum ? 'Community and Events' : 'Community';
+
+const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
+
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
+const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
+const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
-const contactPostIdSetting = new PublicInstanceSetting<string | null>('contactPostId', null, "optional")
+const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
+const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
+const eaHandbookPostIdSetting = new PublicInstanceSetting<string | null>('eaHandbookPostId', null, "optional")
 
 async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument|null> {
   if (!postId)
@@ -182,7 +193,8 @@ addRoute(
     path: '/inbox/:_id',
     componentName: 'ConversationWrapper',
     title: "Private Conversation",
-    background: "white"
+    background: "white",
+    initialScroll: "bottom",
   },
 
   {
@@ -199,6 +211,12 @@ addRoute(
     background: "white"
   },
   {
+    name: 'postAnalytics',
+    path: '/postAnalytics',
+    componentName: 'PostsAnalyticsPage',
+    background: "white"
+  },
+  {
     name: 'collaboratePost',
     path: '/collaborateOnPost',
     componentName: 'PostCollaborationEditor',
@@ -208,7 +226,20 @@ addRoute(
   {
     name:'reviewVoting',
     path: '/reviewVoting',
-    componentName: "ReviewVotingPage"
+    redirect: () => `/reviewVoting/2020`,
+  },
+  // {
+  //   name:'reviewVoting2019',
+  //   path: '/reviewVoting/2019',
+  //   title: "Voting 2019 Review",
+  //   componentName: "ReviewVotingPage2019"
+  // },
+  {
+    name:'reviewVoting2020',
+    path: '/reviewVoting/2020',
+    title: "Voting 2020 Review",
+    componentName: "ReviewVotingPage",
+    ...reviewSubtitle
   },
 
   // Sequences
@@ -291,8 +322,8 @@ addRoute(
     name: 'tagHistory',
     path: '/tag/:slug/history',
     componentName: 'TagHistoryPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
+    titleComponentName: 'TagHistoryPageTitle',
+    subtitleComponentName: 'TagHistoryPageTitle',
   },
   {
     name: 'tagEdit',
@@ -310,10 +341,15 @@ addRoute(
     background: "white"
   },
   {
+    name: 'randomTag',
+    path: '/tags/random',
+    componentName: 'RandomTagPage',
+  },
+  {
     name: 'allTags',
     path: '/tags/all',
     componentName: 'AllTagsPage',
-    title: "Concepts Portal",
+    title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
   },
   {
     name: "Concepts",
@@ -343,7 +379,13 @@ addRoute(
     componentName: 'SearchPage',
     title: 'Search',
     background: "white"
-  }
+  },
+  {
+    name: 'votesByYear',
+    path: '/votesByYear/:year',
+    componentName: 'UserSuggestNominations',
+    title: "Your Past Votes"
+  },
 );
 
 onStartup(() => {
@@ -410,6 +452,13 @@ if (forumTypeSetting.get() !== 'EAForum') {
 if (forumTypeSetting.get() === 'LessWrong') {
   addRoute(
     {
+      name: 'bestoflesswrong',
+      path: '/bestoflesswrong',
+      componentName: 'BestOfLessWrong',
+      title: "Best of LessWrong",
+      ...bestoflwSubtitle,
+    },
+    {
       name: 'HPMOR',
       path: '/hpmor',
       componentName: 'HPMOR',
@@ -456,6 +505,25 @@ if (forumTypeSetting.get() === 'LessWrong') {
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'bookLanding',
+      path: '/books',
+      redirect: () => `/books/2018`,
+    },
+    {
+      name: 'book2018Landing',
+      path: '/books/2018',
+      componentName: 'Book2018Landing',
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
+    },
+    {
+      name: 'book2019Landing',
+      path: '/books/2019',
+      componentName: 'Book2019Landing',
+      title: "Books: Engines of Cognition",
+      background: "white"
+    },
   );
 }
 
@@ -491,16 +559,16 @@ if (hasEventsSetting.get()) {
 
     {
       name: 'CommunityHome',
-      path: '/community',
+      path: communityPath,
       componentName: 'CommunityHome',
-      title: "Community",
+      title: communitySectionName,
       ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
       path: '/meetups',
       componentName: 'CommunityHome',
-      title: "Community"
+      title: communitySectionName,
     },
 
     {
@@ -514,12 +582,14 @@ if (hasEventsSetting.get()) {
       name:'Localgroups.single',
       path: '/groups/:groupId',
       componentName: 'LocalGroupSingle',
+      titleComponentName: 'LocalgroupPageTitle',
       ...communitySubtitle
     },
     {
       name:'events.single',
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
+      titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
@@ -535,6 +605,16 @@ if (hasEventsSetting.get()) {
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
   );
+
+  if(isEAForum) {
+    addRoute(
+      {
+        name: "communityRedirect",
+        path:'/groupsAndEvents',
+        redirect: () => '/community'
+      }
+    );
+  }
 }
 
 addRoute(
@@ -610,6 +690,11 @@ addRoute(
     noIndex: true
   },
   {
+    name: 'moderatorComments',
+    path: '/moderatorComments',
+    componentName: 'ModeratorComments',
+  },
+  {
     name: 'emailHistory',
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
@@ -625,7 +710,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  }
+  },
 );
 
 addRoute(
@@ -647,13 +732,22 @@ switch (forumTypeSetting.get()) {
       {
         name:'alignment.home',
         path:'/',
-        componentName: 'AlignmentForumHome'
+        componentName: 'AlignmentForumHome',
+        sunshineSidebar: true //TODO: remove this in production?
       },
       {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
         _id: aboutPostIdSetting.get()
+      },
+      {
+        name: 'faq',
+        path: '/faq',
+        componentName: 'PostsSingleRoute',
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+        background: postBackground
       },
       {
         name: 'Meta',
@@ -681,6 +775,14 @@ switch (forumTypeSetting.get()) {
         background: postBackground
       },
       {
+        name:'handbook',
+        path:'/handbook',
+        componentName: 'PostsSingleRoute',
+        _id: eaHandbookPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, eaHandbookPostIdSetting.get()),
+        background: postBackground
+      },
+      {
         name: 'intro',
         path: '/intro',
         componentName: 'PostsSingleRoute',
@@ -699,17 +801,17 @@ switch (forumTypeSetting.get()) {
       {
         name: 'Community',
         path: '/meta',
-        redirect: () => `/tags/community`,
-      },
-      {
-        name: 'eaSequencesHome',
-        path: '/sequences',
-        componentName: 'EASequencesHome'
+        redirect: () => `/tag/community`,
       },
       {
         name: 'eaSequencesRedirect',
+        path: '/sequences',
+        redirect: () => '/library'
+      },
+      {
+        name: 'eaLibrary',
         path: '/library',
-        redirect: () => '/sequences'
+        componentName: 'EASequencesHome'
       },
       {
         name: "TagsAll",
@@ -736,11 +838,19 @@ switch (forumTypeSetting.get()) {
         background: postBackground
       },
       {
+        name: 'contact',
+        path:'/contact',
+        componentName: 'PostsSingleRoute',
+        _id: contactPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+        background: postBackground
+      },
+      {
         name: 'faq',
         path: '/faq',
         componentName: 'PostsSingleRoute',
-        _id:"2rWKkWuPrgTMpLRbp",
-        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
+        _id: faqPostIdSetting.get(),
+        getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
         background: postBackground
       },
       {
@@ -767,7 +877,56 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
-      title: "COVID-19 Link Database"
+      title: "COVID-19 Link Database",
+    },
+    {
+      name: 'nominations2018-old',
+      path: '/nominations2018',
+      redirect: () => `/nominations/2018`,
+    },
+    {
+      name: 'nominations2018',
+      path: '/nominations/2018',
+      componentName: 'Nominations2018',
+      title: "2018 Nominations",
+    },
+    {
+      name: 'nominations2019-old',
+      path: '/nominations2019',
+      redirect: () => `/nominations/2019`,
+    },
+    {
+      name: 'nominations2019',
+      path: '/nominations/2019',
+      componentName: 'Nominations2019',
+      title: "2019 Nominations",
+    },
+    {
+      name: 'userReviews',
+      path:'/users/:slug/reviews',
+      redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
+    },
+    {
+      name: 'reviews2018-old',
+      path: '/reviews2018',
+      redirect: () => `/reviews/2018`,
+    },
+    {
+      name: 'reviews2018',
+      path: '/reviews/2018',
+      componentName: 'Reviews2018',
+      title: "2018 Reviews",
+    },
+    {
+      name: 'reviews2019-old',
+      path: '/reviews2019',
+      redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviews2019',
+      path: '/reviews/2019',
+      componentName: 'Reviews2019',
+      title: "2019 Reviews",
     }
   )
 }
@@ -808,20 +967,13 @@ addRoute(
     componentName: 'PasswordResetPage',
   },
   {
-    name: 'nominations2018',
-    path: '/nominations2018',
-    componentName: 'Nominations2018',
-    title: "2018 Nominations",
-  },
-  {
     name: 'nominations',
     path: '/nominations',
-    componentName: 'Nominations2019',
-    title: "2019 Nominations",
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
-    name: 'userReviews',
-    path:'/users/:slug/reviews',
+    name: 'userReviewsByYear',
+    path:'/users/:slug/reviews/:year',
     componentName: 'UserReviews',
     title: "User Reviews",
   },
@@ -832,22 +984,19 @@ addRoute(
     title: "User Comment Replies",
   },
   {
-    name: 'reviews2018',
-    path: '/reviews2018',
-    componentName: 'Reviews2018',
-    title: "2018 Reviews",
-  },
-  {
     name: 'reviews',
     path: '/reviews',
-    componentName: 'Reviews2019',
-    title: "2019 Reviews",
+    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
-    name: 'bookLanding',
-    path: '/books',
-    componentName: 'BookLanding',
-    title: "A Map that Reflects the Territory",
-    background: "white"
+    name: 'reviews-2020',
+    path: '/reviews/2020',
+    redirect: () => `/reviewVoting/2020`,
   },
+  {
+    name: 'reviewAdmin',
+    path: '/reviewAdmin',
+    componentName: 'ReviewAdminDashboard',
+    title: "Review Admin Dashboard",
+  }
 );

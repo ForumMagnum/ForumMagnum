@@ -2,14 +2,37 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
-import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  commentsIconSmall: {
+    width: 20,
+    fontSize: 11,
+    top: 4,
+    height: 24,
+    position: "relative",
+    
+    "& .MuiSvgIcon-root": {
+      height: "100%",
+    },
+    '& div': {
+      marginTop: -2,
+    }
+  },
+  commentsIconLarge: {
+    width: 48,
+    height: 24,
+    cursor: "pointer",
+    position: "relative",
+    flexShrink: 0,
+    top: 2,
+    '& div': {
+      marginTop: -3,
+    }
+  },
   commentCount: {
     position:"absolute",
     right:"50%",
     top:"50%",
-    marginTop:-3,
     transform:"translate(50%, -50%)",
     color:"white",
     fontVariantNumeric:"lining-nums",
@@ -34,22 +57,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsItemComments = ({ classes, post, onClick, unreadComments, newPromotedComments, className }: {
+const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+  commentCount: number,
+  small: boolean,
+  onClick?: ()=>void,
+  unreadComments: boolean,
+  newPromotedComments: boolean,
   classes: ClassesType,
-  post: PostsBase,
-  onClick: any,
-  unreadComments: any,
-  newPromotedComments: any,
-  className?: string,
 }) => {
-  let commentCount = postGetCommentCount(post)
-
   let unreadCommentsClass =  classes.noUnreadComments
   if (unreadComments) { unreadCommentsClass = classes.unreadComments }
   if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }
 
   return (
-    <div className={className} onClick={onClick}>
+    <div className={small ? classes.commentsIconSmall : classes.commentsIconLarge} onClick={onClick}>
       <CommentIcon className={classNames(classes.commentCountIcon, unreadCommentsClass)}/>
       <div className={classes.commentCount}>
         { commentCount }

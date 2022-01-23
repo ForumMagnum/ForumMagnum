@@ -6,6 +6,7 @@ import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { isMobile } from '../../lib/utils/isMobile'
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -23,7 +24,11 @@ export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription
   });
 }
 
-const linkIsExcludedFromPreview = (url: string): boolean => {
+export const linkIsExcludedFromPreview = (url: string): boolean => {
+  // Don't try to preview special JS links
+  if (!url || url==="#" || url==="")
+    return true;
+  
   // Don't try to preview links that go directly to images. The usual use case
   // for such links is an image where you click for a larger version.
   return !!(url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif'));
@@ -57,6 +62,9 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel }
 
   // Within-page relative link?
   if (href.startsWith("#")) {
+    if(href.startsWith("#fn") && !href.startsWith("#fnref") && !isMobile()){
+      return <Components.FootnotePreview href={href} innerHTML={innerHTML} id={id} rel={rel}/>
+    }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel} />
   }
 

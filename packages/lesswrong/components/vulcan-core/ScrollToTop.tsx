@@ -4,13 +4,18 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
 export default function ScrollToTop() {
-  const { pathname } = useSubscribedLocation();
+  const { pathname, currentRoute } = useSubscribedLocation();
   const didMountRef = useRef(false)
+  
   useEffect(() => {
     if (didMountRef.current) {
-      window.scrollTo(0, 0);
+      if (currentRoute?.initialScroll == "bottom") {
+        window.scrollTo(0, document.body.scrollHeight);
+      } else {
+        window.scrollTo(0, 0);
+      }
     } else didMountRef.current = true
-  }, [pathname])
+  }, [pathname, currentRoute?.initialScroll])
 
   return null;
 }

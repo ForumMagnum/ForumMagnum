@@ -45,7 +45,16 @@ const elicitAPIUrl = "https://forecast.elicit.org/api/v1"
 const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 // const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 
-async function getPredictionsFromElicit(questionId: string) {
+async function getPredictionsFromElicit(questionId: string): Promise<null|Array<{
+  id: string,
+  prediction: number,
+  createdAt: string,
+  notes: string,
+  creator: any,
+  sourceUrl: string,
+  sourceId: string,
+  binaryQuestionId: string
+}>> {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?${encode({
     user_most_recent: "true",
     expand: "creator",
@@ -111,7 +120,7 @@ async function cancelElicitPrediction(questionId: string, user: DbUser) {
 
 async function getElicitQuestionWithPredictions(questionId: string) {
   const elicitData: any = await getPredictionDataFromElicit(questionId)
-  const predictions: any = await getPredictionsFromElicit(questionId)
+  const predictions = await getPredictionsFromElicit(questionId)
   if (!elicitData || !predictions) return {}
   const { title, notes, resolvesBy, resolution } = elicitData
   const processedPredictions = predictions.map(({
@@ -158,12 +167,12 @@ onStartup(() => {
         })
       },
       Query: {
-        async ElicitBlockData(root, { questionId }, context: ResolverContext) {
+        async ElicitBlockData(root: void, {questionId}: {questionId: string}, context: ResolverContext) {
           return await getElicitQuestionWithPredictions(questionId)
         }
       },
       Mutation: {
-        async MakeElicitPrediction(root, { questionId, prediction }, { currentUser }: ResolverContext) {
+        async MakeElicitPrediction(root: void, {questionId, prediction}: {questionId: string, prediction: number}, { currentUser }: ResolverContext) {
           if (!currentUser) throw Error("Can only make elicit prediction when logged in")
           if (prediction) {
             const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)

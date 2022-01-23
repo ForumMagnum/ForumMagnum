@@ -14,7 +14,7 @@ registerMigration({
       await forEachDocumentBatchInCollection({
         collection: getCollection(collectionName),
         batchSize: 1000,
-        callback: async (documents) => {
+        callback: async (documents: DbObject[]) => {
           // eslint-disable-next-line no-console
           console.log(`Migrating a batch of ${documents.length} documents`);
           await Revisions.update(

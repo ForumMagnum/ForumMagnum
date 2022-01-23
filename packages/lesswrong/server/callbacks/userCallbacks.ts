@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { updateMutator } from '../vulcan-lib/mutators';
@@ -10,10 +12,15 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
+import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
+import { forumTypeSetting } from "../../lib/instanceSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpAPIKeySetting } from "../../server/serverSettings";
+import { userGetLocation } from "../../lib/collections/users/helpers";
+import { captureException } from "@sentry/core";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
-import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
@@ -106,7 +113,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
-  if (!isAnyTest) {
+  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
     void sendVerificationEmail(user);
     
     if (user.emailSubscribedToCurated) {
@@ -193,4 +200,92 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     }
   }
   return modifier;
+});
+
+getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
+  if (
+    isAnyTest ||
+    forumTypeSetting.get() !== 'EAForum' ||
+    newUser.subscribedToDigest === oldUser.subscribedToDigest
+  ) {
+    return;
+  }
+
+  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+  const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
+  if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
+    return;
+  }
+  if (!newUser.email) {
+    captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
+    return;
+  }
+  const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
+  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
+  
+  const emailHash = md5(newUser.email.toLowerCase());
+
+  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      email_address: newUser.email,
+      email_type: 'html', 
+      ...(known && {location: {
+        latitude,
+        longitude,
+      }}),
+      merge_fields: {
+        FNAME: newUser.displayName,
+      },
+      status,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `API_KEY ${mailchimpAPIKey}`,
+    },
+  }).catch(e => {
+    captureException(e);
+    // eslint-disable-next-line no-console
+    console.log(e);
+  });
+});
+
+/**
+ * This callback adds all new users to an audience in Mailchimp which will be used for a forthcoming
+ * (as of 2021-08-11) drip campaign.
+ */
+getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudience(user: DbUser) {
+  if (isAnyTest || forumTypeSetting.get() !== 'EAForum') {
+    return;
+  }
+  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+  const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
+  if (!mailchimpAPIKey || !mailchimpEAForumListId) {
+    return;
+  }
+  if (!user.email) {
+    captureException(new Error(`Subscription to EA Forum audience failed: no email for user ${user.displayName}`))
+    return;
+  }
+  const { lat: latitude, lng: longitude, known } = userGetLocation(user);
+  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email_address: user.email,
+      email_type: 'html', 
+      ...(known && {location: {
+        latitude,
+        longitude,
+      }}),
+      status: "subscribed",
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `API_KEY ${mailchimpAPIKey}`,
+    },
+  }).catch(e => {
+    captureException(e);
+    // eslint-disable-next-line no-console
+    console.log(e);
+  });
 });

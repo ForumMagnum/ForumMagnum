@@ -7,7 +7,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { getUserFromReq, computeContextFromUser } from '../apollo-server/context';
+import { getUserFromReq, computeContextFromUser, configureSentryScope } from '../apollo-server/context';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
@@ -24,7 +24,10 @@ import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, ThemeOptions } from '../../../themes/themeNames';
+import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
+
+const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
 type RenderTimings = {
   totalTime: number
@@ -132,6 +135,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   clientId: string,
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
+  configureSentryScope(requestContext);
+  
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);
@@ -199,8 +204,14 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   };
   
   // eslint-disable-next-line no-console
-  if (timings.totalTime > 3000) {
-    captureException(new Error("SSR time above 3 seconds"));
+  const slowSSRWarnThreshold = slowSSRWarnThresholdSetting.get();
+  if (timings.totalTime > slowSSRWarnThreshold) {
+    captureException(new Error(`SSR time above ${slowSSRWarnThreshold}ms`), {
+      extra: {
+        url: getPathFromReq(req),
+        ssrTime: timings.totalTime,
+      }
+    });
   }
   
   return {

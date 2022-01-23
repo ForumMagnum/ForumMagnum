@@ -10,6 +10,7 @@ const Reports: ReportsCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers('Reports'),
   mutations: getDefaultMutations('Reports'),
+  logChanges: true,
 });
 
 addUniversalFields({collection: Reports})

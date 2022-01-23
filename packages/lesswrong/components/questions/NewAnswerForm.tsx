@@ -2,10 +2,13 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import { useDialog } from '../common/withDialog';
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 
 const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
@@ -29,12 +32,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const NewAnswerForm = ({post, classes}: {
-  post: PostsBase,
+  post: PostsDetails,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  const {mutate: updateComment} = useUpdate({
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+  });
+  
   const SubmitComponent = ({submitLabel = "Submit"}) => {
-    const { openDialog } = useDialog();
     return <div className={classes.submit}>
       <Button
         type="submit"
@@ -59,15 +67,15 @@ const NewAnswerForm = ({post, classes}: {
     answer: true,
     af: commentDefaultToAlignment(currentUser, post),
   }
-  const { SmartForm } = Components
+  const { FormWrapper } = Components
   
-  if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
+  if (currentUser && !userIsAllowedToComment(currentUser, post, post.user)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
   
   return (
     <div className={classes.answersForm}>
-      <SmartForm
+      <FormWrapper
         collection={Comments}
         formComponents={{
           FormSubmit: SubmitComponent,
@@ -78,6 +86,9 @@ const NewAnswerForm = ({post, classes}: {
         alignmentForumPost={post.af}
         layout="elementOnly"
         addFields={currentUser?[]:["contents"]}
+        successCallback={(comment: CommentsList, { form }: { form: any }) => {
+          afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment})
+        }}
       />
     </div>
   )

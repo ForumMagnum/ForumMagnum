@@ -23,7 +23,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, classes}: {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {}
   const [expanded, setExpanded] = useState(false);
   const {document: expandedDocument, loading} = useSingle({
-    skip: !expanded,
+    skip: !expanded && !!post.contents,
     documentId: post._id,
     collectionName: "Posts",
     fetchPolicy: "cache-first",
@@ -66,4 +66,3 @@ declare global {
     PostsHighlight: typeof PostsHighlightComponent
   }
 }
-
