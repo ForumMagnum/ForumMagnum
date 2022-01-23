@@ -11,6 +11,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
+import classNames from 'classnames';
 
 export const MAX_COLUMN_WIDTH = 720
 
@@ -72,6 +73,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     background: "white",
     position: "relative"
   },
+  // these marginTops are necessary to make sure the image is flush with the header,
+  // since the page layout has different paddingTop values for different widths
   headerImageContainer: {
     paddingBottom: 15,
     [theme.breakpoints.up('md')]: {
@@ -84,6 +87,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('xs')]: {
       marginTop: -10,
+    }
+  },
+  // if there is a comment above the image,
+  // then we DON'T want to account for those paddingTop values
+  headerImageContainerWithComment: {
+    [theme.breakpoints.up('md')]: {
+      marginTop: 10,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 10,
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 10,
     }
   },
   headerImage: {
@@ -171,7 +187,7 @@ const PostsPage = ({post, refetch, classes}: {
         <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
           <div className={classes.centralColumn}>
             {commentId && <CommentPermalink documentId={commentId} post={post} />}
-            {post.eventImageId && <div className={classes.headerImageContainer}>
+            {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
               <CloudinaryImage2
                 publicId={post.eventImageId}
                 imgProps={{ar: '16:9', w: '682', q: 'auto:best'}}
