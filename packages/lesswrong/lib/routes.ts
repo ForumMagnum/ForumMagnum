@@ -1,11 +1,10 @@
 import { Posts } from './collections/posts/collection';
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
-import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
+import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
-import { Route } from './vulcan-lib/routes';
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -597,7 +596,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "Books: Engines of Cognition",
       background: "white"
     },
-    // TODO: (Need to ask LW) Does anyone visit these on the Alignment Forum?
     {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
@@ -709,6 +707,90 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'Meta',
       title: "Meta",
       ...metaSubtitle
+    },
+    // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database",
+    },
+    {
+      name: 'nominations2018-old',
+      path: '/nominations2018',
+      redirect: () => `/nominations/2018`,
+    },
+    {
+      name: 'nominations2018',
+      path: '/nominations/2018',
+      componentName: 'Nominations2018',
+      title: "2018 Nominations",
+    },
+    {
+      name: 'nominations2019-old',
+      path: '/nominations2019',
+      redirect: () => `/nominations/2019`,
+    },
+    {
+      name: 'nominations2019',
+      path: '/nominations/2019',
+      componentName: 'Nominations2019',
+      title: "2019 Nominations",
+    },
+    {
+      name: 'userReviews',
+      path:'/users/:slug/reviews',
+      redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
+    },
+    {
+      name: 'reviews2018-old',
+      path: '/reviews2018',
+      redirect: () => `/reviews/2018`,
+    },
+    {
+      name: 'reviews2018',
+      path: '/reviews/2018',
+      componentName: 'Reviews2018',
+      title: "2018 Reviews",
+    },
+    {
+      name: 'reviews2019-old',
+      path: '/reviews2019',
+      redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviews2019',
+      path: '/reviews/2019',
+      componentName: 'Reviews2019',
+      title: "2019 Reviews",
+    },
+    {
+      name: 'sequencesHome',
+      path: '/library',
+      componentName: 'SequencesHome',
+      title: "The Library"
+    },
+    {
+      name: 'Sequences',
+      path: '/sequences',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z"
+    },
+    {
+      name: 'Rationality',
+      path: '/rationality',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z",
+      ...rationalitySubtitle
+    },
+    {
+      name: 'Rationality.posts.single',
+      path: '/rationality/:slug',
+      componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
+      ...rationalitySubtitle,
+      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
     },
   ]
 })
