@@ -80,7 +80,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
     "& .form-submit": {
       textAlign: "right",
-    }
+    },
+    
+    "& .form-input.input-url": {
+      margin: 0,
+    },
+    "& .form-input.input-contents": {
+      marginTop: 0,
+    },
   },
   formSubmit: {
     display: "flex",

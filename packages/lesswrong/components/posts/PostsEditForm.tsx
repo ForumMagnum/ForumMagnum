@@ -34,7 +34,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
-        saveDraftLabel={isDraft ? "Save as draft" : "Move to Drafts"}
+        saveDraftLabel={isDraft ? "Preview" : "Move to Drafts"}
         feedbackLabel={"Get Feedback"}
         {...props}
       />

@@ -1,10 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
+import type { CollaborationMode } from './EditorTopBar';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -65,7 +66,9 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   collaboration?: boolean,
   classes: ClassesType,
 }) => {
+  const { EditorTopBar } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
+  const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>("Editing");
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -73,38 +76,65 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     setLayoutReady(true)
   }, [])
 
+  const editorRef = useRef<any>(null)
   const sidebarRef = useRef(null)
   const presenceListRef = useRef(null)
 
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
+  
+  const changeCollaborationMode = (mode: CollaborationMode) => {
+    const editor = editorRef.current?.editor;
+    if (editor) {
+      switch(mode) {
+        case "Viewing":
+          editor.isReadOnly = true;
+          editor.commands.get('trackChanges').value = false;
+          break;
+        case "Commenting":
+          editor.isReadOnly = false;
+          editor.commands.get('trackChanges').value = true;
+          break;
+        case "Editing":
+          editor.isReadOnly = false;
+          editor.commands.get('trackChanges').value = false;
+          break;
+      }
+    }
+    setCollaborationMode(mode);
+  }
 
   return <div>
-    <div ref={presenceListRef} />
+    <EditorTopBar
+      presenceListRef={presenceListRef}
+      collaborationMode={collaborationMode}
+      setCollaborationMode={changeCollaborationMode}
+    />
     
     <div ref={sidebarRef} className={classes.sidebar}/>
 
     {layoutReady && <CKEditor
+      ref={editorRef}
       onChange={onChange}
-      editor={ collaboration ? PostEditorCollaboration : PostEditor }
+      editor={collaboration ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={ editor => {
-          if (collaboration) {
-            // Uncomment this line and the import above to activate the CKEDItor debugger
-            // CKEditorInspector.attach(editor)
+      onInit={editor => {
+        if (collaboration) {
+          // Uncomment this line and the import above to activate the CKEDItor debugger
+          // CKEditorInspector.attach(editor)
 
-            // We listen to the current window size to determine how to show comments
-            window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
-            // We then call the method once to determine the current window size
-            refreshDisplayMode(editor, sidebarRef.current);
-          }
-          if (onInit) onInit(editor)
-      } }
+          // We listen to the current window size to determine how to show comments
+          window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
+          // We then call the method once to determine the current window size
+          refreshDisplayMode(editor, sidebarRef.current);
+        }
+        if (onInit) onInit(editor)
+      }}
       config={{
         autosave: {
           save (editor) {
-            return onSave && onSave( editor.getData() )
+            return onSave && onSave(editor.getData())
           }
         },
         cloudServices: ckEditorCloudConfigured ? {

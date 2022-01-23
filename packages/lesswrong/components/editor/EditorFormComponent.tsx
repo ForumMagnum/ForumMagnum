@@ -173,10 +173,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         value={contents} setValue={wrappedSetContents}
       />
     }
-    <Components.LocalStorageCheck
+    {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
-    />
+    />}
     <Components.Editor
       ref={editorRef}
       _classes={classes}
