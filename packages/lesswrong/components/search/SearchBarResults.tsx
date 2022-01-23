@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   seeAll: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
   },
   header: {
     cursor: "pointer",

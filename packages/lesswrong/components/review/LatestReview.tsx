@@ -25,7 +25,7 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   title: {
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 })
 

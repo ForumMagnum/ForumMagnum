@@ -6,7 +6,7 @@ import { useDialog } from '../common/withDialog';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
   },
 });
 

@@ -53,10 +53,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   ctaButton: {
     borderRadius: 'unset',
     minWidth: '50%',
-    background: theme.palette.primary.main,
+    background: 'var(--color-primary)',
     color: 'white',
     '&:hover': {
-      background: theme.palette.primary.main,
+      background: 'var(--color-primary)',
     },
   }
 }));

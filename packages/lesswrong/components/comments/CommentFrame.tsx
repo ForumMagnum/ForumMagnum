@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&&': {
       borderLeft: `solid 5px ${theme.palette.secondary.light}`,
       '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}`
+        borderLeft: `solid 5px ${'var(--color-secondary)'}`
       },
     }
   },
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   promoted: {
-    border: `solid 1px ${theme.palette.lwTertiary.main}`,
+    border: 'solid 1px var(--color-tertiary)',
   }
 });
 
@@ -178,4 +178,3 @@ declare global {
     CommentFrame: typeof CommentFrameComponent,
   }
 }
-

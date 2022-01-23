@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:after': {}
   },
   count: {
-    color: theme.palette.secondary.main, // grey[500],
+    color: 'var(--color-secondary)', // grey[500],
     fontSize: ".9em",
     position: "relative",
     marginLeft: 3,

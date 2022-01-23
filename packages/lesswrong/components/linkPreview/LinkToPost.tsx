@@ -8,7 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 const styles = (theme: ThemeType): JssStyles => ({
   link: {
     ...linkStyle(theme),
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
   },
 });
 

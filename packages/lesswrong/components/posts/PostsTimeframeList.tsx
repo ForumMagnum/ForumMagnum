@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loadMore: {
     ...theme.typography.postStyle,
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 })
 

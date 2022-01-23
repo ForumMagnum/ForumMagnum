@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     marginLeft: 6,
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 })
 

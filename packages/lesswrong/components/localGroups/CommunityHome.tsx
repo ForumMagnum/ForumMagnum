@@ -17,7 +17,7 @@ import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     "& + &": {
       marginTop: theme.spacing.unit,
     },

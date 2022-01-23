@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     fontSize: "1rem",
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit*1.5,
     cursor: "pointer",
@@ -62,4 +62,3 @@ declare global {
     ReviewPostButton: typeof ReviewPostButtonComponent
   }
 }
-

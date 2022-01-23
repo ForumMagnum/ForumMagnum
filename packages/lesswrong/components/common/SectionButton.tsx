@@ -5,7 +5,7 @@ import classNames from 'classnames'
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     display: "flex",
     alignItems: "center",
     '& svg': {

@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     flexGrow: 1,
-    color: theme.palette.lwTertiary.dark
+    color: 'var(--color-tertiary-dark)'
   },
   wrap: {
     whiteSpace: "unset",
@@ -99,4 +99,3 @@ declare global {
     TagSmallPostLink: typeof TagSmallPostLinkComponent
   }
 }
-

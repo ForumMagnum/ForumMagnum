@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600]
   },
   loadMore: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     textAlign: 'right'
   },
   loadingMore: {
@@ -151,4 +151,3 @@ declare global {
     AnswerCommentsList: typeof AnswerCommentsListComponent
   }
 }
-

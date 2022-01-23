@@ -154,7 +154,7 @@ export const linkStyle = (theme: ThemeType) => ({
   '&:after': {
     content: '"°"',
     marginLeft: 1,
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
   }
 })
 
@@ -277,7 +277,7 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[800],
     maxWidth: 500,
     '& a': {
-      color: theme.palette.primary.main,
+      color: 'var(--color-primary)',
     },
   },
 })

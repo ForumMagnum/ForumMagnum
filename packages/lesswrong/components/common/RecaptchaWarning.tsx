@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2
   },
   link: {
-    color: theme.palette.primary.light
+    color: 'var(--color-primary-light)'
   }
 })
 

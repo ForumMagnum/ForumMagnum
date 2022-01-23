@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   selectMenu: {
     cursor: "pointer",
     paddingLeft: 4,
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   },
   icon: {
     verticalAlign: "middle",

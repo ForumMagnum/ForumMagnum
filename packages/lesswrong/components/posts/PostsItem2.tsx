@@ -200,7 +200,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 1,
     },
     "& a": {
-      color: theme.palette.primary.main,
+      color: 'var(--color-primary)',
     },
   },
   sequenceImage: {

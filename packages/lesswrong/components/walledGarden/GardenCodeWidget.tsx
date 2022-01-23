@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "flex-end"
   },
   submitButton: {
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 })
 
@@ -147,4 +147,3 @@ declare global {
     GardenCodeWidget: typeof GardenCodeWidgetComponent
   }
 }
-

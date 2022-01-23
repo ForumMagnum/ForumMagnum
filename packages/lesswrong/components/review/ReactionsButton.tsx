@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
     color: 'white',
     backgroundColor: theme.palette.primary.dark,
     '&:hover': {
-      backgroundColor: theme.palette.primary.main
+      backgroundColor: 'var(--color-primary)'
     }
   },
   textEntryOpen: {

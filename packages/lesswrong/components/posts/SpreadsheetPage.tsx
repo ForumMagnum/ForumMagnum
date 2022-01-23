@@ -258,7 +258,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 25,
     paddingRight: 25,
     fontWeight: 600,
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     cursor: "pointer",
     textAlign: "center",
     [theme.breakpoints.down('sm')]: {
@@ -367,7 +367,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   selectedRow: {
     '& $leftFixed0': {
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: 'var(--color-primary)',
       color: 'white'
     }
   }

@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
     ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     marginTop: 6,
     marginBottom: 2
   },

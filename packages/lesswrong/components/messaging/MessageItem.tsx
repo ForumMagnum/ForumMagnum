@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   messageBody: {
     '& a': {
-      color: theme.palette.primary.light
+      color: 'var(--color-primary-light)'
     }
   }
 })
@@ -82,4 +82,3 @@ declare global {
     MessageItem: typeof MessageItemComponent
   }
 }
-

@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 4,
     paddingBottom: 4,
     ...theme.typography.body2,
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   },
   marginRight: {
     marginRight: 10

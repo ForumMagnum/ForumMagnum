@@ -11,7 +11,7 @@ import './EmailFooterRecommendations';
 const styles = (theme: ThemeType): JssStyles => ({
   heading: {
     textAlign: "center",
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     marginBottom: 30
   },
   headingRow: {

@@ -58,7 +58,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     },
-    color: theme.palette.lwTertiary.main
+    color: 'var(--color-tertiary)'
   },
 }))
 
@@ -135,4 +135,3 @@ declare global {
     GroupFormDialog: typeof GroupFormDialogComponent
   }
 }
-

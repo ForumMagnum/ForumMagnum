@@ -12,10 +12,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 4
   },
   learnMore: {
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   },
   cta: {
-    background: theme.palette.primary.main,
+    background: 'var(--color-primary)',
     opacity: .7,
     color: "white",
     paddingTop: 6,

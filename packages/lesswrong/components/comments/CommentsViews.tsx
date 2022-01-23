@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline'
   },
   link: {
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
   }
 })
 
@@ -95,4 +95,3 @@ declare global {
     CommentsViews: typeof CommentsViewsComponent,
   }
 }
-

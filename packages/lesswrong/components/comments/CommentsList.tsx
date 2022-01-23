@@ -10,7 +10,7 @@ import type { CommentTreeOptions } from './commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
-    color: theme.palette.lwTertiary.main
+    color: 'var(--color-tertiary)'
   },
 })
 
@@ -102,4 +102,3 @@ declare global {
     CommentsList: typeof CommentsListComponent,
   }
 }
-

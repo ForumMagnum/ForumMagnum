@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: theme.spacing.unit*6
   },
   reviewButton: {
-    border: `solid 1px ${theme.palette.primary.main}`,
+    border: `solid 1px ${'var(--color-primary)'}`,
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
     paddingTop: theme.spacing.unit,

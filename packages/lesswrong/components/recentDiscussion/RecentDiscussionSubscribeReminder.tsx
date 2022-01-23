@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   subscribeButton: {
     margin: "18px auto 0",
     display: "block",
-    background: theme.palette.primary.main,
+    background: 'var(--color-primary)',
     color: "white",
     fontSize: 15
   },

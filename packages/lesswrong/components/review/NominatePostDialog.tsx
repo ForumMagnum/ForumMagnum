@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center"
   },
   link: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     display: "block",
     marginTop: 10
   },
@@ -92,4 +92,3 @@ declare global {
     NominatePostDialog: typeof NominatePostDialogComponent
   }
 }
-

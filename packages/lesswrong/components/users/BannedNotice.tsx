@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '100%',
     padding: 32,
     '& a': {
-      color: theme.palette.primary.main,
+      color: 'var(--color-primary)',
     },
   },
 });

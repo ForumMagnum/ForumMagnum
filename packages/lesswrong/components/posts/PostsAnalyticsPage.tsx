@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   viewingNotice: {
     marginTop: theme.spacing.unit * 4,
     '& a': {
-      color: theme.palette.primary.main,
+      color: 'var(--color-primary)',
     },
   },
   // TODO: right now on lw-master, gutterBottom exists on the Typography class,
@@ -91,7 +91,7 @@ function PostsAnalyticsGraphs (
       type="monotone"
       dataKey="uniqueClientViews"
       name="Views by unique devices"
-      stroke={theme.palette.primary.main}
+      stroke={'var(--color-primary)'}
       dot={false}
       activeDot={{ r: 8 }}
     />

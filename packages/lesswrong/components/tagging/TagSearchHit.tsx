@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[900],
     '&:hover': {
-      color: theme.palette.lwTertiary.main
+      color: 'var(--color-tertiary)'
     }
   },
   card: {
@@ -65,4 +65,3 @@ declare global {
     TagSearchHit: typeof TagSearchHitComponent
   }
 }
-

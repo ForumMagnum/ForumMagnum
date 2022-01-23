@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: "auto"
   },
   allTagsBarColor: {
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   },
   personalLink: {
     color: theme.palette.grey[600]
@@ -159,4 +159,3 @@ declare global {
     TagProgressBar: typeof TagProgressBarComponent
   }
 }
-

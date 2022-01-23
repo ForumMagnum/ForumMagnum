@@ -27,7 +27,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
     marginLeft: -4
   },
   submitButton: {
-    color: theme.palette.secondary.main,
+    color: 'var(--color-secondary)',
     textTransform: 'uppercase'
   },
   actions: {
@@ -230,4 +230,3 @@ declare global {
     EventNotificationsDialog: typeof EventNotificationsDialogComponent
   }
 }
-

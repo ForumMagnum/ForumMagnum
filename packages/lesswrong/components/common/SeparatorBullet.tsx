@@ -5,7 +5,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginLeft: 10,
     marginRight: 10,
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 })
 const SeparatorBullet = ({classes}: {

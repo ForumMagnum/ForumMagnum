@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '0.9rem'
   },
   gainedPoints: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
   },
   zeroPoints: {
   },

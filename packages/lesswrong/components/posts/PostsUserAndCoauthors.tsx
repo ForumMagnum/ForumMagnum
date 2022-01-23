@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 2,
   },
   new: {
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 });
 

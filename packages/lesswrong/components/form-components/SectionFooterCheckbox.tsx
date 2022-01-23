@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   checkbox: {
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     padding: "2px 8px 0 0",
     '& svg': {
       height: "1.3rem",
@@ -27,12 +27,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   checked: {
     '&&': {
-      color: theme.palette.lwTertiary.main,
+      color: 'var(--color-tertiary)',
     }
   },
   label: {
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main
+    color: 'var(--color-tertiary)'
   },
   disabled: {
     cursor: "default",

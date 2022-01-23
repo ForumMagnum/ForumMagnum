@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 4
   },
   learnMore: {
-    color: theme.palette.lwTertiary.main
+    color: 'var(--color-tertiary)'
   }
 })
 
@@ -92,4 +92,3 @@ declare global {
     FrontpageNominationPhase: typeof FrontpageNominationPhaseComponent
   }
 }
-

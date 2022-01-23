@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   submitButton: {
-    color: theme.palette.secondary.main,
+    color: 'var(--color-secondary)',
   },
   cancelButton: {
     flexGrow:1,

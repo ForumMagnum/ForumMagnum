@@ -97,10 +97,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   histogramBucketCurrentUser: {
     '& $sliceColoredArea': {
-      backgroundColor: theme.palette.primary.main
+      backgroundColor: 'var(--color-primary)'
     },
     '&:hover $sliceColoredArea': {
-      backgroundColor: theme.palette.primary.main
+      backgroundColor: 'var(--color-primary)'
     },
     '&:hover $histogramSliceCurrentUser $sliceColoredArea': {
       backgroundColor: theme.palette.primary.dark

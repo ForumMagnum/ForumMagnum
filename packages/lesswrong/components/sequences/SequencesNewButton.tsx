@@ -5,7 +5,7 @@ import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
 const styles = (theme: ThemeType): JssStyles => ({
   newSequence: {
-    color: theme.palette.primary.light
+    color: 'var(--color-primary-light)'
   }
 });
 
@@ -28,4 +28,3 @@ declare global {
     SequencesNewButton: typeof SequencesNewButtonComponent
   }
 }
-

@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: .5,
       background: "none"
     },
-    color: theme.palette.lwTertiary.main
+    color: 'var(--color-tertiary)'
   },
   cancelButton: {
     color: theme.palette.grey[400]

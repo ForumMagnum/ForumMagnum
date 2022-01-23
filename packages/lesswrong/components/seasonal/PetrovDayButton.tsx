@@ -115,7 +115,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   link: {
     marginTop: theme.spacing.unit*1.5,
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 })
 
@@ -279,4 +279,3 @@ declare global {
     PetrovDayButton: typeof PetrovDayButtonComponent
   }
 }
-

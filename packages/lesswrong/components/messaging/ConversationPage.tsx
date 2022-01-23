@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position:"relative",
   },
   backButton: {
-    color: theme.palette.lwTertiary.main
+    color: 'var(--color-tertiary)'
   }
 })
 
@@ -122,4 +122,3 @@ declare global {
     ConversationPage: typeof ConversationPageComponent
   }
 }
-

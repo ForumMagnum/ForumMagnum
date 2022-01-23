@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: 'rgba(0,0,0,0.7)',
     textAlign: "justify",
     '& a': {
-      color: theme.palette.primary.main
+      color: 'var(--color-primary)'
     }
   },
 

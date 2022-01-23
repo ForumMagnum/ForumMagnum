@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center"
   },
   icon: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     marginRight: 8  
   }
 })
@@ -33,4 +33,3 @@ declare global {
     PomodoroWidget: typeof PomodoroWidgetComponent
   }
 }
-

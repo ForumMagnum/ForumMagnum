@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 16
   },
   goToLWButton: {
-    color: theme.palette.secondary.main,
+    color: 'var(--color-secondary)',
   },
   stayHereButton: {
    color: theme.palette.grey[600]

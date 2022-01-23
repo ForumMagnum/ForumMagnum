@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     textAlign: "right",
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     marginRight: 10
   },
 })

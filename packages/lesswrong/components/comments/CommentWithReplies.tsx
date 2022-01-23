@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 4,
     paddingLeft: 12,
     ...theme.typography.body2,
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     display: "block",
     fontSize: 14,
   },
@@ -91,4 +91,3 @@ declare global {
     CommentWithReplies: typeof CommentWithRepliesComponent,
   }
 }
-

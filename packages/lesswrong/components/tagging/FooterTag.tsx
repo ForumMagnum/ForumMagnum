@@ -30,7 +30,7 @@ const newTagStyle = (theme: ThemeType): JssStyles => ({
   marginBottom: 8,
   borderRadius: 4,
   boxShadow: '1px 2px 5px rgba(0,0,0,.2)',
-  color: theme.palette.primary.main,
+  color: 'var(--color-primary)',
   fontSize: 15
 })
 

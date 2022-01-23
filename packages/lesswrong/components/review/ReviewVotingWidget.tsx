@@ -17,7 +17,7 @@ const styles = (theme) => ({
     color: theme.palette.grey[800],
     padding: theme.spacing.unit,
     '& a': {
-      color: theme.palette.primary.main
+      color: 'var(--color-primary)'
     }
   }
 })

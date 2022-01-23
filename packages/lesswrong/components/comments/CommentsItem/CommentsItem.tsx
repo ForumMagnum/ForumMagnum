@@ -95,7 +95,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 10,
   },
   metaNotice: {
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     fontStyle: "italic",
     fontSize: "1rem",
     marginBottom: theme.spacing.unit,

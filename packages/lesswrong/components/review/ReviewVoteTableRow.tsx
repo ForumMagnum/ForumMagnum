@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.primary.dark
   },
   smallUpvote: {
-    background: theme.palette.primary.light
+    background: 'var(--color-primary-light)'
   },
   bigDownvote: {
     background: theme.palette.error.dark

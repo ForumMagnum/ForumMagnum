@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit,
     marginRight: theme.spacing.unit/2,
     marginLeft: theme.spacing.unit/2,
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     flexWrap: "wrap",
     ...separatorBulletStyles(theme)
   }

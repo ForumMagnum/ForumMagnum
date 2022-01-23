@@ -52,6 +52,29 @@ const palette = {
   event: '#0C869B',
   group: '#538747',
   individual: '#BF577D',
+  
+  darkMode: {
+    primary: {
+      main: '#0c869b',
+      light: '#00b2be',
+    },
+    secondary: {
+      main: '#0c869b',
+    },
+    lwTertiary: {
+      main: "#137283",
+      dark: "#137283",
+    },
+    error: {
+      main: deepOrange[900]
+    },
+    background: {
+      default: '#020202'
+    },
+    event: '#0C869B',
+    group: '#538747',
+    individual: '#BF577D',
+  }
 }
 
 const basicText = {

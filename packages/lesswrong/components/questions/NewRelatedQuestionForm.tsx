@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     },
-    color: theme.palette.secondary.main,
+    color: 'var(--color-secondary)',
     float: "right"
   },
   formSubmit: {

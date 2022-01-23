@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loadMore: {
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     display: "inline-block",
     lineHeight: "1.5rem",
     flexGrow: 1,

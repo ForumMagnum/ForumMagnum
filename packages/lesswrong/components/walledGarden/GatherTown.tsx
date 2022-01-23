@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: "flex",
     '& a': {
-      color: theme.palette.primary.main
+      color: 'var(--color-primary)'
     },
     alignItems: "center",
     position: 'relative',
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0
   },
   onlineDot: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     width: '0.5em',
     height: '0.5em',
     position: 'relative',

@@ -44,7 +44,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    background: theme.palette.primary.main,
+    background: 'var(--color-primary)',
     opacity: .5,
   },
   overImage: {

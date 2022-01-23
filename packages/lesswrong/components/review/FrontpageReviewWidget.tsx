@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   timeRemaining: {
   },
   learnMore: {
-    color: theme.palette.lwTertiary.main
+    color: 'var(--color-tertiary)'
   },
   subtitle: {
     width: "100%",
@@ -54,14 +54,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: isEAForum ? theme.palette.primary.main : 'rgba(127, 175, 131, 0.5)'
+    backgroundColor: isEAForum ? 'var(--color-primary)' : 'rgba(127, 175, 131, 0.5)'
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: isEAForum ? theme.palette.lwTertiary.main : 'rgba(127, 175, 131, 0.7)'
+    backgroundColor: isEAForum ? 'var(--color-tertiary)' : 'rgba(127, 175, 131, 0.7)'
   },
   nominationDate: {},
   actionButtonRow: {
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8
   },
   actionButtonCTA: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: 'var(--color-primary)',
     paddingTop: 6,
     paddingBottom: 6,
     paddingLeft: 12,

@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.secondary,
   },
   button: {
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
   },
   newComment: {
     border: `solid 1px ${theme.palette.commentBorderGrey}`,
@@ -197,4 +197,3 @@ declare global {
     CommentsListSection: typeof CommentsListSectionComponent,
   }
 }
-

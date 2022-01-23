@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 0
   },
   headingLink: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     textDecoration: "none",
   },
   groupName: {

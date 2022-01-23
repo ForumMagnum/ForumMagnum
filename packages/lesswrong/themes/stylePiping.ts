@@ -233,7 +233,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
     paddingRight: '0.07em'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     '& u': {
       textDecoration: "none"
     }
@@ -542,7 +542,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main
+        '--ck-color-comment-count': 'var(--color-primary)'
       } 
     }
   }

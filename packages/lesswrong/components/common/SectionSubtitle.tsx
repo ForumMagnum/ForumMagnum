@@ -7,7 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     fontSize: "1rem",
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     display: "inline-block",
     lineHeight: "1rem",
     marginBottom: 8

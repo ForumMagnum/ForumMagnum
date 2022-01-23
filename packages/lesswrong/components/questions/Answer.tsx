@@ -95,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'right'
   },
   promoted: {
-    border: `solid 2px ${theme.palette.lwTertiary.main}`,
+    border: `solid 2px ${'var(--color-tertiary)'}`,
   },
   metaNotice: {
     ...commentsItemStyles(theme).metaNotice,
@@ -205,4 +205,3 @@ declare global {
     Answer: typeof AnswerComponent
   }
 }
-

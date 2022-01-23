@@ -201,7 +201,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-around",
   },
   cta: {
-    background: theme.palette.primary.light,
+    background: 'var(--color-primary-light)',
     color: "white",
     display: "block",
     paddingTop: 16,
@@ -216,7 +216,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.3rem",
   },
   ctaDisabled: {
-    background: theme.palette.primary.light,
+    background: 'var(--color-primary-light)',
     opacity: .5,
     filter: "saturation(.5)",
     color: "white",
@@ -243,7 +243,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     fontWeight: "1rem",
     marginTop: 8,
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   }
 })
 

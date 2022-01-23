@@ -44,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   userInfo: {
     display: "flex",
     flexWrap: "wrap",
-    color: theme.palette.lwTertiary.main,
+    color: 'var(--color-tertiary)',
     marginTop: 8,
     ...separatorBulletStyles(theme)
   },
@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...postBodyStyles(theme)
   },
   primaryColor: {
-    color: theme.palette.primary.light
+    color: 'var(--color-primary-light)'
   },
   title: {
     cursor: "pointer"

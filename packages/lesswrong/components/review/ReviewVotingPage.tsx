@@ -176,7 +176,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...commentBodyStyles(theme)
   },
   faqQuestion: {
-    color: theme.palette.primary.main
+    color: 'var(--color-primary)'
   },
   postCount: {
     ...theme.typography.commentStyle,
@@ -186,7 +186,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "pre"
   },
   reviewedCount: {
-    color: theme.palette.primary.main,
+    color: 'var(--color-primary)',
     cursor: "pointer",
     marginRight: 8
   },
