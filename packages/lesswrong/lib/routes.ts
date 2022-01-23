@@ -524,6 +524,16 @@ if (forumTypeSetting.get() === 'LessWrong') {
       title: "Books: Engines of Cognition",
       background: "white"
     },
+    {
+      name: 'paymentsAdmin',
+      path: '/payments/admin',
+      componentName: 'AdminPaymentsPage'
+    },
+    {
+      name: 'payments',
+      path: '/payments',
+      redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
   );
 }
 
@@ -710,17 +720,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  },
-  {
-    name: 'paymentsAdmin',
-    path: '/payments/admin',
-    componentName: 'AdminPaymentsPage'
-  },
-  {
-    name: 'payments',
-    path: '/payments',
-    redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
-  },
+  }
 );
 
 addRoute(
