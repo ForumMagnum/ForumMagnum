@@ -382,19 +382,18 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", (terms: PostsViewTerms) => {
-  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : { isEvent: false };
+  const selector = forumTypeSetting.get() === 'EAForum' ? filters.nonSticky : { isEvent: false, curatedDate: viewFieldNullOrMissing };
   return {
     selector,
     options: {sort: setStickies(sortings.magic, terms)},
   };
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ score:-1, isEvent: 1 }),
+  augmentForDefaultView({ score:-1, isEvent: 1, curatedDate: 1 }),
   {
     name: "posts.score",
   }
 );
-
 
 // Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
 ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
