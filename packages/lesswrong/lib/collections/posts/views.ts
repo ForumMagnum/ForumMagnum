@@ -879,13 +879,6 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
-  // make sure that, by default, events are not global
-  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
-  if (terms.globalEvent === false) {
-    globalEventSelector = {$or: [
-      {globalEvent: false}, {globalEvent: {$exists: false}}
-    ]}
-  }
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
   if (terms.onlineEvent === false) {
@@ -896,21 +889,21 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
 
   let query: any = {
     selector: {
-      location: {$exists: true},
       groupId: null,
       isEvent: true,
       $and: [
-        timeSelector, globalEventSelector, onlineEventSelector
+        timeSelector, onlineEventSelector
       ],
-      mongoLocation: {
-        $near: {
-          $geometry: {
-               type: "Point" ,
-               coordinates: [ terms.lng, terms.lat ]
-          },
-          $maxDistance: 240000 // only show in-person events within 150 miles
+      $or: [
+        {
+          mongoLocation: {
+            $geoWithin: {
+              $centerSphere: [ [ terms.lng, terms.lat ], 150/3963.2 ] // only show in-person events within 150 miles
+            }
+          }
         },
-      }
+        {globalEvent: true} // also include events that are open to everyone around the world
+      ]
     },
     options: {
       sort: {

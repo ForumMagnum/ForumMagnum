@@ -23,95 +23,6 @@ import Geosuggest from 'react-geosuggest';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
-  highlightCard: {
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    maxWidth: 800,
-    height: 350,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundColor: "rgba(0, 87, 102, 0.63)",
-    background: theme.palette.primary.main,
-    textAlign: 'center',
-    color: 'white',
-    borderRadius: 0,
-    overflow: 'visible',
-    margin: 'auto',
-    [theme.breakpoints.down('xs')]: {
-      marginLeft: -4,
-      marginRight: -4,
-    }
-  },
-  highlightCardContent: {
-    overflow: 'visible'
-  },
-  highlightCardSpinnerContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%'
-  },
-  highlightCardSpinner: {
-    color: 'white'
-  },
-  highlightedCardRow: {
-    marginTop: 9
-  },
-  highlightedCardTitle: {
-    ...theme.typography.headline,
-    display: 'inline',
-    // alignItems: 'flex-end',
-    // justifyContent: 'center',
-    // height: 110,
-    background: 'black',
-    '-webkit-box-decoration-break': 'clone',
-    boxDecorationBreak: 'clone',
-    fontSize: 36,
-    lineHeight: '1.4em',
-    color: 'white',
-    padding: '0.5rem',
-    marginBottom: 5,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: 32,
-    }
-  },
-  highlightedCardGroup: {
-    ...theme.typography.commentStyle,
-    display: 'inline',
-    background: 'black',
-    '-webkit-box-decoration-break': 'clone',
-    boxDecorationBreak: 'clone',
-    fontSize: 14,
-    fontStyle: 'italic',
-    padding: '0.5rem',
-    marginBottom: 30,
-  },
-  highlightedCardDetail: {
-    ...theme.typography.commentStyle,
-    display: 'inline',
-    background: 'black',
-    '-webkit-box-decoration-break': 'clone',
-    boxDecorationBreak: 'clone',
-    fontSize: 18,
-    lineHeight: '1.4em',
-    color: '#b8d4de',//'#ccdee4',
-    padding: '0.5rem',
-    marginBottom: 10
-  },
-  highlightedCardBtn: {
-    backgroundColor: 'white'
-  },
-  highlightedCardAddToCal: {
-    ...theme.typography.commentStyle,
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    }
-  },
   section: {
     maxWidth: 1200,
     padding: 20,
@@ -457,7 +368,7 @@ const EventsHome = ({classes}: {
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading, PostsItemTooltipWrapper, CloudinaryImage2 } = Components
+  const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading, PostsItemTooltipWrapper, CloudinaryImage2, HighlightedEventCard } = Components
 
   const filters: PostsViewTerms = {}
   if (placeFilter === 'in-person') {
@@ -487,7 +398,7 @@ const EventsHome = ({classes}: {
     skip: !userLocation && currentUserLocation.loading
   });
   
-  let highlightedEvent: PostsList|null = null;
+  let highlightedEvent: PostsList|undefined;
   if (results && results.length > 0) {
     results.forEach(result => {
       if (!highlightedEvent && !result.onlineEvent) {
@@ -497,13 +408,6 @@ const EventsHome = ({classes}: {
     if (!highlightedEvent) highlightedEvent = results[0]
   }
   
-  const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
-  // const highlightedEventImg = highlightedEvent ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/Event/defaults/k7bdilxm08silijqdn2v` : ''
-  const highlightedEventImg = highlightedEvent ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${highlightedEvent.eventImageId || randomEventImg(highlightedEvent._id)}` : ''
-  const cardBackground = highlightedEvent ? {
-    backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.5)), url(${highlightedEventImg})`
-  } : {}
-  
   let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
     Load More
   </button>
@@ -511,40 +415,11 @@ const EventsHome = ({classes}: {
     loadMoreButton = <CircularProgress size={16} />
   }
 
-
   return (
     <>
       <AnalyticsContext pageContext="EventsHome">
         <div>
-          <Card className={classes.highlightCard} style={cardBackground}>
-            {highlightedEvent ? <CardContent className={classes.highlightCardContent}>
-              <div>
-                <span className={classes.highlightedCardDetail}>
-                  {prettyEventDateTimes(highlightedEvent, timezone, true)}
-                </span>
-              </div>
-              <div className={classes.highlightedCardRow}>
-                <h1 className={classes.highlightedCardTitle}>
-                  <Link to={`/events/${highlightedEvent._id}/${highlightedEvent.slug}`}>{highlightedEvent.title}</Link>
-                </h1>
-              </div>
-              <div className={classes.highlightedCardRow}>
-                <span className={classes.highlightedCardDetail}>
-                  {getEventLocation(highlightedEvent)}
-                </span>
-              </div>
-              {/* {highlightedEvent.group && <div className={classes.highlightedCardRow}>
-                <span className={classes.highlightedCardGroup}>
-                  <Link to={`/groups/${highlightedEvent.group._id}`}>{highlightedEvent.group.name}</Link>
-                </span>
-              </div>} */}
-              <div className={classes.highlightedCardAddToCal}>
-                <AddToCalendarIcon post={highlightedEvent} hideTooltip hidePlusIcon />
-              </div>
-            </CardContent> : <div className={classes.highlightCardSpinnerContainer}>
-              <CircularProgress className={classes.highlightCardSpinner}/>
-            </div>}
-          </Card>
+          <HighlightedEventCard event={highlightedEvent} loading={loading} />
         </div>
         <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
@@ -587,7 +462,8 @@ const EventsHome = ({classes}: {
 
             {results ? results.map(event => {
               return <Card key={event._id} className={classes.eventCard}>
-                <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || randomEventImg(event._id)} />
+                {/* <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || randomEventImg(event._id)} /> */}
+                <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || 'Banner/yeldubyolqpl3vqqy0m6'} />
                 <CardContent className={classes.eventCardContent}>
                   <div className={classes.eventCardTime}>
                     {prettyEventDateTimes(event, timezone, true)}
