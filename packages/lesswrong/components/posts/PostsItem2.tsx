@@ -496,7 +496,7 @@ const PostsItem2 = ({
                       sticky={isSticky(post, terms)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
-                      showPersonalIcon={showPersonalIcon}
+                      ...{showPersonalIcon ? {showPersonalIcon} : {}}
                       curatedIconLeft={curatedIconLeft}
                       strikethroughTitle={strikethroughTitle}
                     />
