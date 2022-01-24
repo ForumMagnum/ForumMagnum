@@ -292,3 +292,16 @@ export function checkForMemoryLeaks() {
     console.log(`Possible memory leak: pageCacheContentsBytes=${pageCacheContentsBytes}`);
   }
 }
+
+export function printInFlightRequests() {
+  let inProgressRenderKeys: string[] = [];
+  for (let cacheKey of Object.keys(inProgressRenders)) {
+    for (let render of inProgressRenders[cacheKey]) {
+      inProgressRenderKeys.push(render.cacheKey);
+    }
+  }
+  if (inProgressRenderKeys.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log(`In progress: ${inProgressRenderKeys.join(", ")}`);
+  }
+}

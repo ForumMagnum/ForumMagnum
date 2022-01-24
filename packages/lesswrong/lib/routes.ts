@@ -514,15 +514,26 @@ if (forumTypeSetting.get() === 'LessWrong') {
       name: 'book2018Landing',
       path: '/books/2018',
       componentName: 'Book2018Landing',
-      title: "Books: A Map that Reflects the Territory"
-    }
-    // {
-    //   name: 'book2019Landing',
-    //   path: '/books/2019',
-    //   componentName: 'Book2019Landing',
-    //   title: "Books: Engines of Cognition",
-    //   background: "white"
-    // },
+      title: "Books: A Map that Reflects the Territory",
+      background: "white"
+    },
+    {
+      name: 'book2019Landing',
+      path: '/books/2019',
+      componentName: 'Book2019Landing',
+      title: "Books: Engines of Cognition",
+      background: "white"
+    },
+    {
+      name: 'paymentsAdmin',
+      path: '/payments/admin',
+      componentName: 'AdminPaymentsPage'
+    },
+    {
+      name: 'payments',
+      path: '/payments',
+      redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
   );
 }
 
@@ -581,12 +592,14 @@ if (hasEventsSetting.get()) {
       name:'Localgroups.single',
       path: '/groups/:groupId',
       componentName: 'LocalGroupSingle',
+      titleComponentName: 'LocalgroupPageTitle',
       ...communitySubtitle
     },
     {
       name:'events.single',
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
+      titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
@@ -707,7 +720,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  },
+  }
 );
 
 addRoute(
@@ -924,7 +937,7 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       path: '/reviews/2019',
       componentName: 'Reviews2019',
       title: "2019 Reviews",
-    }
+    },
   )
 }
 
@@ -990,4 +1003,10 @@ addRoute(
     path: '/reviews/2020',
     redirect: () => `/reviewVoting/2020`,
   },
+  {
+    name: 'reviewAdmin',
+    path: '/reviewAdmin',
+    componentName: 'ReviewAdminDashboard',
+    title: "Review Admin Dashboard",
+  }
 );

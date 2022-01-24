@@ -15,6 +15,7 @@ import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } fr
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
+import { userOverNKarmaFunc } from "../../vulcan-users";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 function eaFrontpageDate (document: Partial<DbPost>) {
@@ -223,8 +224,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
     optional: true,
     label: "Co-Authors",
     control: "UsersListEditor",
@@ -297,7 +298,8 @@ addFieldsDict(Posts, {
       // work out of the box with the id-resolver generators
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
     },
   },
@@ -639,8 +641,11 @@ addFieldsDict(Posts, {
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
-    hidden: true,
+    order: 1,
+    control: 'SelectLocalgroup',
+    label: 'Group',
     group: formGroups.event,
+    hidden: (props) => !props.eventForm,
   },
 
   isEvent: {
@@ -690,6 +695,7 @@ addFieldsDict(Posts, {
     label: "Start Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localStartTime: {
@@ -707,11 +713,40 @@ addFieldsDict(Posts, {
     label: "End Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localEndTime: {
     type: Date,
     viewableBy: ['guests'],
+  },
+  
+  eventRegistrationLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Event Registration Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
+  joinEventLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Join Online Event Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   onlineEvent: {
@@ -749,6 +784,7 @@ addFieldsDict(Posts, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (post) => {
         if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation)
+        return null
       }
     }),
   },
@@ -826,6 +862,19 @@ addFieldsDict(Posts, {
     group: formGroups.event,
     regEx: SimpleSchema.RegEx.Url,
     tooltip: 'https://...'
+  },
+  
+  eventImageId: {
+    type: String,
+    optional: true,
+    hidden: (props) => !props.eventForm || !isEAForum,
+    label: "Event Image",
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: "ImageUpload",
+    group: formGroups.event,
+    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
   },
 
   types: {

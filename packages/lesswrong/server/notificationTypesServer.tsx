@@ -14,11 +14,11 @@ import { userGetDisplayName } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
-import './emailComponents/EventInRadiusEmail';
+import './emailComponents/EventUpdatedEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
-import { responseToText } from '../components/posts/PostsPage/RSVPForm';
+import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 
 interface ServerNotificationType {
   name: string,
@@ -74,11 +74,11 @@ export const NewEventNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post to generate subject-line for: ${notifications}`)
-    return post.title;
+    return `New event: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
-    return <Components.NewPostEmail documentId={postId}/>
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -92,9 +92,21 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
-    return <Components.NewPostEmail documentId={postId}/>
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
+
+export const NominatedPostNotification = serverRegisterNotificationType({
+  name: "postNominated",
+  canCombineEmails: false,
+  emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    return `Your post was nominated for the ${REVIEW_NAME_TITLE}`
+  },
+  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    return <Components.PostNominatedEmail documentId={postId} />
+  }
+})
 
 export const NewShortformNotification = serverRegisterNotificationType({
   name: "newShortform",
@@ -325,13 +337,11 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `A new event has been created in your area: ${post.title}`;
+    return `New event in your area: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    return <Components.EventInRadiusEmail
-      openingSentence="A new event has been created in your area"
-      postId={notifications[0].documentId}
-    />
+    const postId = notifications[0].documentId;
+    return <Components.NewPostEmail documentId={postId} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
   },
 });
 
@@ -341,11 +351,10 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     let post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    return `An event in your area has been edited: ${post.title}`;
+    return `Event in your area updated: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    return <Components.EventInRadiusEmail
-      openingSentence="An event in your area has been edited"
+    return <Components.EventUpdatedEmail
       postId={notifications[0].documentId}
     />
   },

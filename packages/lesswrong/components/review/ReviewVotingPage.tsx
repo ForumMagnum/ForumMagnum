@@ -1,28 +1,27 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Button from '@material-ui/core/Button';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import sumBy from 'lodash/sumBy'
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
-import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import CachedIcon from '@material-ui/icons/Cached';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { currentUserCanVote, getReviewPhase, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { annualReviewAnnouncementPostPathSetting, annualReviewStart } from '../../lib/publicSettings';
-import moment from 'moment';
+import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
+import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
+import { indexToTermsLookup } from './ReviewVotingButtons';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -38,7 +37,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     "... leftColumn ... rightColumn ..."
     `,
     paddingBottom: 175,
-    alignItems: "start"
+    alignItems: "start",
+    [theme.breakpoints.down('sm')]: {
+      display: "block"
+    }
   },
   instructions: {
     ...theme.typography.body2,
@@ -46,7 +48,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     marginBottom: 24,
     background: "white",
-    boxShadow: theme.boxShadow
+    boxShadow: theme.boxShadow,
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   leftColumn: {
     gridArea: "leftColumn",
@@ -57,13 +62,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 24,
     paddingRight: 36,
     [theme.breakpoints.down('sm')]: {
-      display: "none"
+      gridArea: "unset",
+      paddingLeft: 0,
+      paddingRight: 0,
+      overflow: "unset",
+      height: "unset",
+      position: "unset"
     }
   },
   rightColumn: {
     gridArea: "rightColumn",
     [theme.breakpoints.down('sm')]: {
-      display: "none"
+      gridArea: "unset"
     },
   },
   result: {
@@ -81,7 +91,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 175,
   },
   widget: {
-    marginBottom: 32,
+    marginBottom: 32
   },
   menu: {
     position: "sticky",
@@ -93,7 +103,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.reviewVotingMenu,
     padding: theme.spacing.unit,
     background: "#ddd",
-    borderBottom: "solid 1px rgba(0,0,0,.15)"
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
+    flexWrap: "wrap"
   },
   menuIcon: {
     marginLeft: theme.spacing.unit
@@ -122,20 +133,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   comments: {
   },
   voteTotal: {
-    ...theme.typography.body2,
     ...theme.typography.commentStyle,
+    marginLeft: 10,
+    color: theme.palette.grey[600],
+    marginRight: "auto",
+    whiteSpace: "pre"
   },
   excessVotes: {
     color: theme.palette.error.main,
-    border: `solid 1px ${theme.palette.error.light}`,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 6,
-    paddingBottom: 6,
-    borderRadius: 3,
-    '&:hover': {
-      opacity: .5
-    }
+    // border: `solid 1px ${theme.palette.error.light}`,
+    // paddingLeft: 12,
+    // paddingRight: 12,
+    // paddingTop: 6,
+    // paddingBottom: 6,
+    // borderRadius: 3,
+    // '&:hover': {
+    //   opacity: .5
+    // }
   },
   message: {
     width: "100%",
@@ -167,14 +181,59 @@ const styles = (theme: ThemeType): JssStyles => ({
   postCount: {
     ...theme.typography.commentStyle,
     marginLeft: 10,
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    marginRight: "auto",
+    whiteSpace: "pre"
+  },
+  reviewedCount: {
+    color: theme.palette.primary.main,
+    cursor: "pointer",
+    marginRight: 8
+  },
+  sortingOptions: {
+    whiteSpace: "pre",
+    display: "flex",
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 12,
+      paddingLeft: 4
+    }
+  },
+  postsLoading: {
+    opacity: .4,
+  },
+  sortBy: {
+    color: theme.palette.grey[600],
+    marginRight: 3
+  },
+  sortArrow: {
+    cursor: "pointer",
+    padding: 4,
+    borderRadius: 3,
+    marginRight: 6,
+    border: "solid 1px rgba(0,0,0,.2)",
+    "&:hover": {
+      background: "rgba(0,0,0,.2)",
+    }
+  },
+  votingTitle: {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    }
+  },
+  postList: {
+    boxShadow: "0 1px 5px 0px rgba(0,0,0,.2)",
+    background: "white",
+    [theme.breakpoints.down('sm')]: {
+      boxShadow: "unset"
+    }
   }
 });
 
-export type ReviewVote = {_id: string, postId: string, score: number, type?: string}
-export type quadraticVote = ReviewVote & {type: "quadratic"}
-export type qualitativeVote = ReviewVote & {type: "qualitative", score: 0|1|2|3|4}
-
+export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
+export type SyntheticQualitativeVote = {postId: string, score: number, type: 'QUALITATIVE'}
+export type SyntheticQuadraticVote = {postId: string, score: number, type: 'QUADRATIC'}
 
 const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
   const seed = user?._id || "";
@@ -198,29 +257,20 @@ const ReviewVotingPage = ({classes}: {
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   
 
-  const { results: posts, loading: postsLoading } = useMulti({
+  const { results, loading: postsLoading, error: postsError } = useMulti({
     terms: {
-      view: "reviewVoting",
+      view: getReviewPhase() === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
       before: `${REVIEW_YEAR+1}-01-01`,
       ...(isEAForum ? {} : {after: `${REVIEW_YEAR}-01-01`}),
-      limit: 600
+      limit: 600,
     },
     collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
-    // network-only is to fix a bug that occurred when a user nominated a post
-    // and then visited this page. The inconsistent state caused an error
-    fetchPolicy: 'network-only',
+    fragmentName: 'PostsReviewVotingList',
+    fetchPolicy: 'cache-and-network',
   });
+  // useMulti is incorrectly typed
+  const postsResults = results as PostsListWithVotes[] | null;
   
-  const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 600, userId: currentUser?._id, year: REVIEW_YEAR+""},
-    collectionName: "ReviewVotes",
-    fragmentName: "reviewVoteFragment",
-    // network-only is to fix a bug that occurred when a user nominated a post
-    // and then visited this page. The inconsistent state caused an error
-    fetchPolicy: 'network-only',
-  })
-
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersCurrent',
@@ -234,7 +284,7 @@ const ReviewVotingPage = ({classes}: {
     }
     ${getFragment("reviewVoteFragment")}
   `, {
-    update: (store, mutationResult) => {
+    update: (store, mutationResult) => {  
       updateEachQueryResultOfType({
         func: handleUpdateMutation,
         document: mutationResult.data.submitReviewVote,
@@ -243,14 +293,33 @@ const ReviewVotingPage = ({classes}: {
     }
   });
 
+  const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
   const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
+  const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
 
-  const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
-  
+  if (postsError) {
+    // eslint-disable-next-line no-console
+    console.error('Error loading posts', postsError);
+  }
+
+  function getVoteTotal (posts) {
+    return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
+  }
+  const [voteTotal, setVoteTotal] = useState<number>(getVoteTotal(postsResults))
+
+  let defaultSort = ""
+  if (getReviewPhase() === "REVIEWS") { 
+    defaultSort = "needsReview"
+  }
+  if (getReviewPhase() === "VOTING") { defaultSort = "needsFinalVote"}
+
+  const [sortPosts, setSortPosts] = useState(defaultSort)
+  const [sortReversed, setSortReversed] = useState(false)
+
   const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
     if (!newUseQuadratic) {
       if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
@@ -267,81 +336,115 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
-    _id: string|null,
-    postId: string,
-    score: number
-  }) => {
+  const dispatchQualitativeVote = useCallback(async ({postId, score}: SyntheticQualitativeVote) => {
     return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
   }, [submitVote]);
 
-  const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
-  const dispatchQuadraticVote = async ({_id, postId, change, set}: {
-    _id?: string|null,
-    postId: string,
-    change?: number,
-    set?: number
-  }) => {
-    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+  // TODO: This is untested in 2021
+  const dispatchQuadraticVote = async ({postId, change, set}: QuadraticVoteUpdate) => {
     await submitVote({
       variables: {postId, quadraticChange: change, newQuadraticScore: set, year: REVIEW_YEAR+"", dummy: false},
-      optimisticResponse: _id && {
-        __typename: "Mutation",
-        submitReviewVote: {
-          __typename: "ReviewVote",
-          ...existingVote,
-          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
-        }
-      }
     })
   }
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
-  const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
-  const reSortPosts = () => {
-    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
-    captureEvent(undefined, {eventSubType: "postsResorted"})
-  }
+  const reSortPosts = useCallback((sortPosts, sortReversed) => {
+    if (!postsResults) return
 
-  // Re-sort in response to changes. (But we don't need to re-sort in response
-  // to everything exhaustively)
-  useEffect(() => {
-    if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
+    const randomPermutation = generatePermutation(postsResults.length, currentUser)
+    const newlySortedPosts = postsResults
+      .map((post, i) => ([post, randomPermutation[i]] as const))
+      .sort(([inputPost1, permuted1], [inputPost2, permuted2]) => {
+        const post1 = sortReversed ? inputPost2 : inputPost1
+        const post2 = sortReversed ? inputPost1 : inputPost2
 
-  if (!currentUserCanVote(currentUser)) {
-    return (
-      <div className={classes.message}>
-        {isEAForum ?
-          `Only users regerested before ${moment.utc(annualReviewStart.get()).format('MMM Do')} can vote in the ${REVIEW_NAME_IN_SITU}` :
-          `Only users registered before ${REVIEW_YEAR} can vote in the ${REVIEW_NAME_IN_SITU}`
+        if (sortPosts === "needsReview") {
+          // This prioritizes posts with no reviews, which you highly upvoted
+          const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
+          const post2NeedsReview = post2.reviewCount === 0 && post2.reviewVoteScoreHighKarma > 4
+
+          const post1isCurrentUsers = post1.userId === currentUser?._id
+          const post2isCurrentUsers = post2.userId === currentUser?._id
+
+          if (post1NeedsReview && !post2NeedsReview) return -1
+          if (post2NeedsReview && !post1NeedsReview) return 1
+          if (post1isCurrentUsers && !post2isCurrentUsers) return -1
+          if (post2isCurrentUsers && !post1isCurrentUsers) return 1
+          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
         }
-      </div>
-    )
-  }
 
-  const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
-  
-  // TODO: Redundancy here due to merge
-  const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0
-  const voteAverage = posts?.length > 0 ? voteSum/posts?.length : 0
+        if (sortPosts === "needsFinalVote") {
+          const post1NotReviewVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
+          const post2NotReviewVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
+          const post1NotKarmaVoted = post1.currentUserVote === null 
+          const post2NotKarmaVoted = post2.currentUserVote === null
+          if (post1NotReviewVoted && !post2NotReviewVoted) return -1
+          if (post2NotReviewVoted && !post1NotReviewVoted) return 1
+          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
+          if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
+          if (permuted1 < permuted2) return -1;
+          if (permuted1 > permuted2) return 1;
+        }
 
-  const renormalizeVotes = (quadraticVotes:quadraticVote[], voteAverage: number) => {
-    const voteAdjustment = -Math.trunc(voteAverage)
-    quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
-  }
+        if (post1[sortPosts] > post2[sortPosts]) return -1
+        if (post1[sortPosts] < post2[sortPosts]) return 1
+
+        if (post1.reviewVoteScoreHighKarma > post2.reviewVoteScoreHighKarma ) return -1
+        if (post1.reviewVoteScoreHighKarma < post2.reviewVoteScoreHighKarma ) return 1
+
+        // TODO: figure out why commenting this out makes it sort correctly.
+
+        const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
+        const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
+        if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
+        if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
+        if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+        if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+        if (permuted1 < permuted2) return -1;
+        if (permuted1 > permuted2) return 1;
+        return 0
+      })
+      .map(([post, _]) => post)
+    setSortedPosts(newlySortedPosts)
+    setPostsHaveBeenSorted(true)
+    captureEvent(undefined, {eventSubType: "postsResorted"})
+  }, [currentUser, captureEvent, postsResults])
   
+  const canInitialResort = !!postsResults
+
+  useEffect(() => {
+    setVoteTotal(getVoteTotal(postsResults))
+  }, [canInitialResort, postsResults])
+
+  useEffect(() => {
+    reSortPosts(sortPosts, sortReversed)
+  }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
+  
+  // const quadraticVotes = useMemo(
+  //   () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
+  //     postId: post._id,
+  //     score: post.currentUserReviewVote,
+  //     type: 'QUADRATIC' as const
+  //   } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
+  //   [sortedPosts]
+  // )
+
+  // const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
+  // const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
+
+  // const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
+  //   if (!quadraticVotes) return
+  //   const voteAdjustment = -Math.trunc(voteAverage)
+  //   quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
+  // }
+
   const instructions = isEAForum ?
     <div className={classes.instructions}>
-      <p><b>Welcome to the {REVIEW_NAME_IN_SITU} dashboard.</b></p>
-
-      <p>We begin with Preliminary Voting. Posts with at least one positive vote will appear in the public list to the right. You are encouraged to vote on as many posts as you have an opinion on.</p>
-      
-      <p>At the end of the Preliminary Voting phase, the EA Forum team will publish a ranked list of the results. This will help you decide how to spend attention during the Review phase. You may want to focus on high-ranking posts, or those which seem undervalued or controversial.</p>
-
-      <p>During Preliminary Voting, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p>
+      <p>This is the Final Voting phase. During this phase, you'll read reviews, reconsider posts in the context of today, and cast or update your votes. At the end we'll have a final ordering of the Forum's favorite EA writings of all time.</p>
       
       <p><b>FAQ</b></p>
       
@@ -351,7 +454,7 @@ const ReviewVotingPage = ({classes}: {
 
           <p>Each of the voting buttons corresponds to a relative strength: 1x, 4x, or 9x. One of your "9" votes is 9x as powerful as one of your "1" votes. However, voting power is normalized so that everyone ends up with roughly the same amount of influence. If you mark every post you like as a "9", your "9" votes will end up weaker than those of someone who used them more sparingly. On the "backend", we use a quadratic voting system, giving you a fixed number of points and attempting to allocate them to match the relative strengths of your votes.</p>
         </Card>}>
-          How exactly do the preliminary votes Work?
+          How exactly do the votes work?
         </LWTooltip>
       </p>
 
@@ -366,7 +469,7 @@ const ReviewVotingPage = ({classes}: {
       <p>If you have any trouble, please <Link to="/contact">contact the Forum team</Link>, or leave a comment on <Link to={annualReviewAnnouncementPostPathSetting.get()}>this post</Link>.</p>
     </div> :
     <div className={classes.instructions}>
-      <p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
+      {getReviewPhase() === "NOMINATIONS" && <><p>During the <em>Preliminary Voting Phase</em>, eligible users are encouraged to:</p>
       <ul>
         <li>
           Vote on posts that represent important intellectual progress.
@@ -375,7 +478,14 @@ const ReviewVotingPage = ({classes}: {
       </ul> 
       <p>Posts with at least one positive vote will appear on this page, to the right. Posts with at least one review are sorted to the top, to make them easier to vote on.</p>
 
-      <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p>
+      <p>At the end of the Preliminary Voting phase, the LessWrong team will publish a ranked list of the results. This will help inform how to spend attention during <em>the Review Phase</em>. High-ranking, undervalued or controversial posts can get additional focus.</p></>}
+
+
+      {getReviewPhase() === "REVIEWS"  && <><p><b>Posts need at least 1 Review to enter the Final Voting Phase</b></p>
+
+      <p>This is the Review Phase. Posts with one nomation will appear in the public list to the right. Please write reviews of whatever posts you have opinions about.</p>
+
+      <p>If you wish to adjust your votes, you can sort posts into seven categories (roughly "super strong downvote" to "super strong upvote"). During the Final Voting phase, you'll have the opportunity to fine-tune those votes using our quadratic voting system; see <a href="https://lesswrong.com/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this LessWrong post</a> for details.</p></>}
 
       <p><b>FAQ</b></p>
 
@@ -403,15 +513,13 @@ const ReviewVotingPage = ({classes}: {
       </p>
     </div>
 
+  const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
-      {/* TODO(Review) link to list of nominated posts */}
-      <div className={classNames(classes.hideOnDesktop, classes.message)}>
-        Voting is not available on small screens. You can still vote on individual posts, however.
-      </div>
       <div className={classes.grid}>
-      <div className={classes.leftColumn}>
+        <div className={classes.leftColumn}>
           {!expandedPost && <div>
             <div className={classes.widget}>
               <FrontpageReviewWidget showFrontpageItems={false}/>
@@ -433,112 +541,136 @@ const ReviewVotingPage = ({classes}: {
           <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
         </div>
         <div className={classes.rightColumn}>
+          <div className={classes.votingTitle}>Voting</div>
           <div className={classes.menu}>
-            {posts && <div className={classes.postCount}>{posts.length} Nominated Posts</div>}
+
+            {/* TODO: Remove this if we haven't seen the error in awhile. I think I've fixed it but... model uncertainty */}
+            {!postsResults && !postsLoading && <div className={classes.postCount}>ERROR: Please Refresh</div>} 
+
+            {sortedPosts && 
+              <div className={classes.postCount}>
+                <LWTooltip title="Posts need at least 1 review to enter the Final Voting Phase">
+                  <span className={classes.reviewedCount}>
+                    {reviewedPosts?.length || 0} Reviewed Posts
+                  </span>
+                </LWTooltip> 
+                {getReviewPhase() !== "VOTING" && <>({sortedPosts.length} Nominated)</>}
+              </div>
+            }
+            {(postsLoading || loading) && <Loading/>}
+
+            {!isEAForum && voteTotal && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+              <LWTooltip title={<div><p>You have {500 - voteTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
+                {voteTotal}/500
+              </LWTooltip>
+            </div>}
             
             {/* Turned off for the Preliminary Voting phase */}
-            {getReviewPhase() !== "NOMINATIONS" && <>
+            {/* {getReviewPhase() === "VOTING" && <>
               {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic voting, you cannot go back to default voting without losing your quadratic data.">
                 <Button className={classes.convert} onClick={async () => {
-                    setLoading(true)
-                    await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
-                    handleSetUseQuadratic(true)
-                    captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:true})
-                    setLoading(false)
+                  setLoading(true)
+                  await Promise.all(votesToQuadraticVotes(sortedPosts).map(dispatchQuadraticVote))
+                  handleSetUseQuadratic(true)
+                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:true})
+                  setLoading(false)
                 }}>
                   Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} />
                 </Button>
               </LWTooltip>}
               {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
                 <Button className={classes.convert} onClick={async () => {
-                    handleSetUseQuadratic(false)
-                    captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
+                  handleSetUseQuadratic(false)
+                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
                 }}>
                   <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
                 </Button>
               </LWTooltip>}
               {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
-                  <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
-                    {voteTotal}/500
-                  </div>
+                <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+                  {voteTotal}/500
+                </div>
               </LWTooltip>}
-              {useQuadratic && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
-                  <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
-                  <p>If the average of your votes is above 1 or below -1, you are always better off shifting all of your votes by 1 to move closer to an average of 0.</p></div>}>
-                  <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
-                    Avg: {(voteSum / posts.length).toFixed(2)}
-                  </div>
+              {useQuadratic && sortedPosts && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
+                <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
+                <p>If the average of your votes is above 1 or below -1, you are always better off shifting all of your votes by 1 to move closer to an average of 0.</p></div>}>
+                <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
+                  Avg: {(voteTotal / sortedPosts.length).toFixed(2)}
+                </div>
               </LWTooltip>}
-            </>}
-            <LWTooltip title="Sorts the list of posts by vote strength">
-              <Button onClick={reSortPosts}>
-                Re-Sort <CachedIcon className={classes.menuIcon} />
-              </Button>
-            </LWTooltip>
+            </>} */}
+            <div className={classes.sortingOptions}>
+              <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
+                <div onClick={() => { 
+                  setSortReversed(!sortReversed); 
+                }}>
+                  {sortReversed ? <ArrowUpwardIcon className={classes.sortArrow} />
+                    : <ArrowDownwardIcon className={classes.sortArrow}  />
+                  }
+                </div>
+              </LWTooltip>
+              <Select
+                value={sortPosts}
+                onChange={(e)=>{setSortPosts(e.target.value)}}
+                disableUnderline
+                >
+                <MenuItem value={'lastCommentedAt'}>
+                  <span className={classes.sortBy}>Sort by</span> Last Commented
+                </MenuItem>
+                <MenuItem value={'reviewVoteScoreHighKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Vote Total (1000+ Karma Users)
+                </MenuItem>
+                <MenuItem value={'reviewVoteScoreAllKarma'}>
+                  <span className={classes.sortBy}>Sort by</span> Vote Total (All Users)
+                </MenuItem>
+                {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
+                  <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
+                </MenuItem>}
+                <MenuItem value={'currentUserReviewVote'}>
+                  <span className={classes.sortBy}>Sort by</span> Your Vote
+                </MenuItem>
+                <MenuItem value={'reviewCount'}>
+                  <span className={classes.sortBy}>Sort by</span> Review Count
+                </MenuItem>
+                {getReviewPhase() === "REVIEWS" && 
+                  <MenuItem value={'needsReview'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Review
+                  </MenuItem>}
+                {getReviewPhase() === "VOTING" && 
+                  <MenuItem value={'needsFinalVote'}>
+                    <span className={classes.sortBy}>Sort by</span> Needs Vote
+                  </MenuItem>}
+              </Select>
+            </div>
           </div>
-          {(postsLoading || dbVotesLoading || loading) ?
-            <Loading /> :
-            <Paper>
-              {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
-                  const currentQualitativeVote = votes.find(vote => vote.postId === post._id)
-                  const currentQuadraticVote = quadraticVotes.find(vote => vote.postId === post._id)
-    
-                  return <div key={post._id} onClick={()=>{
-                    setExpandedPost(post)
-                    captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
-                  >
-                    <ReviewVoteTableRow
-                      post={post}
-                      showKarmaVotes={showKarmaVotes}
-                      dispatch={dispatchQualitativeVote}
-                      currentQualitativeVote={currentQualitativeVote||null}
-                      currentQuadraticVote={currentQuadraticVote||null}
-                      dispatchQuadraticVote={dispatchQuadraticVote}
-                      useQuadratic={useQuadratic}
-                      expandedPostId={expandedPost?._id}
-                    />
-                  </div>
-                })}
-            </Paper>
-          }
+          <div className={classNames({[classes.postList]: getReviewPhase() !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
+            {postsHaveBeenSorted && sortedPosts?.map((post) => {
+              const currentVote = post.currentUserReviewVote !== null ? {
+                postId: post._id,
+                score: post.currentUserReviewVote,
+                type: useQuadratic ? "QUADRATIC" : "QUALITATIVE" as "QUALITATIVE" | "QUADRATIC"
+              } : null
+              return <div key={post._id} onClick={()=>{
+                setExpandedPost(post)
+                captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+              >
+                <ReviewVoteTableRow
+                  post={post}
+                  showKarmaVotes={showKarmaVotes}
+                  dispatch={dispatchQualitativeVote}
+                  currentVote={currentVote}
+                  dispatchQuadraticVote={dispatchQuadraticVote}
+                  useQuadratic={useQuadratic}
+                  expandedPostId={expandedPost?._id}
+                />
+              </div>
+            })}
+          </div>
         </div>
       </div>
     </div>
     </AnalyticsContext>
   );
-}
-
-function getPostOrder(posts: Array<PostsList> | null, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> | null {
-  const randomPermutation = generatePermutation(posts?.length || 0, currentUser);
-  const result = posts?.map(
-    (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
-      const voteForPost = votes.find(vote => vote.postId === post._id)
-      const  voteScore = voteForPost ? voteForPost.score : 1;
-      return [post, voteForPost, voteScore, i, randomPermutation[i]]
-    })
-    .sort(([post1, vote1, voteScore1, i1, permuted1], [post2, vote2, voteScore2, i2, permuted2]) => {
-      const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
-      const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
-      if (reviewedNotVoted1 && !reviewedNotVoted2) return 1;
-      if (!reviewedNotVoted1 && reviewedNotVoted2) return -1;
-      if (voteScore1 < voteScore2) return -1;
-      if (voteScore1 > voteScore2) return 1;
-      if (permuted1 < permuted2) return -1;
-      if (permuted1 > permuted2) return 1;
-      else return 0;
-    })
-    .reverse()
-    .map(([post,vote,voteScore,originalIndex,permuted], sortedIndex) => [sortedIndex, originalIndex])
-  return result as Array<[number,number]>;
-}
-
-function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] {
-  const newArray = array.map((value, i) => {
-    const newIndex = order.get(i)
-    if (typeof newIndex !== 'number') throw Error(`Can't find value for key: ${i}`)
-    return array[newIndex]
-  })
-  return newArray
 }
 
 const qualitativeScoreScaling = {
@@ -553,11 +685,26 @@ const qualitativeScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: string, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
-  const sumScaled = sumBy(votes, vote => Math.abs(qualitativeScoreScaling[vote ? vote.score : 1]) || 0)
-  return createPostVoteTuples(posts, votes).map(([post, vote]) => {
-    if (vote) {
-      const newScore = computeQuadraticVoteScore(vote.score, sumScaled)
+
+type QuadraticVoteUpdate = {
+  postId: string,
+  change?: number,
+  set?: number,
+  previousValue?: number
+}
+
+const votesToQuadraticVotes = (posts: PostsListWithVotes[] | null): QuadraticVoteUpdate[] => {
+  if (!posts) {
+    throw new Error("Cannot convert votes to quadratic votes without posts")
+  }
+  const sumScaled = sumBy(posts, post => Math.abs(qualitativeScoreScaling[post.currentUserReviewVote || DEFAULT_QUALITATIVE_VOTE]) || 0)
+  return posts.map(post => {
+    if (post.currentUserReviewVote) {
+      const newScore = computeQuadraticVoteScore(
+        // DB stores it as number, sadly
+        post.currentUserReviewVote as keyof typeof qualitativeScoreScaling,
+        sumScaled
+      )
       return {postId: post._id, set: newScore}
     } else {
       return {postId: post._id, set: 0}
@@ -565,7 +712,7 @@ const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: s
   })
 }
 
-const computeQuadraticVoteScore = (qualitativeScore: 0|1|2|3|4, totalCost: number) => {
+const computeQuadraticVoteScore = (qualitativeScore: keyof typeof qualitativeScoreScaling, totalCost: number) => {
   const scaledScore = qualitativeScoreScaling[qualitativeScore]
   const scaledCost = scaledScore * Math.min(VOTE_BUDGET/totalCost, MAX_SCALING)
   const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(Math.abs(scaledCost)))
@@ -581,19 +728,8 @@ const sumOf1ToN = (x:number) => {
   return absX*(absX+1)/2
 }
 
-const computeTotalCost = (votes: ReviewVote[]) => {
+const computeTotalCost = (votes: SyntheticQuadraticVote[]) => {
   return sumBy(votes, ({score}) => sumOf1ToN(score))
-}
-
-const computeTotalVote = (votes: ReviewVote[]) => {
-  return sumBy(votes, ({score}) => score)
-}
-
-function createPostVoteTuples<K extends HasIdType,T extends ReviewVote> (posts: K[], votes: T[]):[K, T | undefined][] {
-  return posts.map(post => {
-    const voteForPost = votes.find(vote => vote.postId === post._id)
-    return [post, voteForPost]
-  })
 }
 
 const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});

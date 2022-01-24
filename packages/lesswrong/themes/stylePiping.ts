@@ -132,6 +132,38 @@ const hrStyles = {
   }
 }
 
+const footnoteStyles = () => ({
+  '& .footnote-section': {
+    counterReset: "footnote-counter",
+  },
+  '& .footnote-item': {
+    listStyle: "none",
+    counterIncrement: "footnote-counter",
+    marginLeft: "0.5em",
+  },
+  '& .footnote-item > *': {
+    verticalAlign: "text-top",
+  },
+  '& .footnote-back-link': {
+    position: "relative",
+    top: "-0.2em",
+  },
+  '& .footnotes .footnote-back-link > sup': {
+    marginRight: 0,
+  },
+ '& .footnote-item::before': {
+    content: "counter(footnote-counter) '. '",
+    display: "inline-block",
+    position: "relative",
+    right: "0.2em",
+  },
+ '& .footnote-content': {
+    display: "inline-block",
+    padding: "0 0.3em",
+    width: '95%',
+  },
+});
+
 const baseBodyStyles = (theme: ThemeType) => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -235,6 +267,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(),
     ...youtubePreviewStyles(),
+    ...footnoteStyles(),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,

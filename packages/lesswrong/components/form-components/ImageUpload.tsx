@@ -1,5 +1,5 @@
 /* global cloudinary */
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent } from '../../lib/vulcan-lib';
 import { Helmet } from 'react-helmet';
@@ -7,10 +7,13 @@ import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+import forumThemeExport from '../../themes/forumTheme';
+import { useDialog } from '../common/withDialog';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
+const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,31 +30,45 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: "white",
   },
   imageIcon: {
+    fontSize: 18,
     marginRight: theme.spacing.unit
   },
+  chooseButton: {
+    marginLeft: 10
+  },
+  removeButton: {
+    color: "rgba(0,0,0, 0.5)",
+    marginLeft: 10
+  }
 });
 
 const cloudinaryArgsByImageType = {
   gridImageId: {
-    min_image_height: 80,
-    min_image_width: 203,
-    cropping_aspect_ratio: 2.5375,
-    upload_preset: cloudinaryUploadPresetGridImageSetting.get(),
+    minImageHeight: 80,
+    minImageWidth: 203,
+    croppingAspectRatio: 2.5375,
+    uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
   },
   bannerImageId: {
-    min_image_height: 380,
-    min_image_width: 1600,
-    cropping_aspect_ratio: 2.5375,
-    cropping_default_selection_ratio: 3,
-    upload_preset: cloudinaryUploadPresetBannerSetting.get(),
+    minImageHeight: 200,
+    minImageWidth: 600,
+    croppingAspectRatio: 2.5375,
+    croppingDefaultSelectionRatio: 1,
+    uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
   socialPreviewImageId: {
-    min_image_height: 400,
-    min_image_width: 700,
-    cropping_aspect_ratio: 1.91,
-    cropping_default_selection_ratio: 3,
-    upload_preset: cloudinaryUploadPresetSocialPreviewSetting.get(),
+    minImageHeight: 400,
+    minImageWidth: 700,
+    croppingAspectRatio: 1.91,
+    croppingDefaultSelectionRatio: 1,
+    uploadPreset: cloudinaryUploadPresetSocialPreviewSetting.get(),
   },
+  eventImageId: {
+    minImageHeight: 270,
+    minImageWidth: 480,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetEventImageSetting.get()
+  }
 }
 
 const formPreviewSizeByImageType = {
@@ -67,76 +84,128 @@ const formPreviewSizeByImageType = {
     width: 153,
     height: 80
   },
+  eventImageId: {
+    width: 320,
+    height: 180
+  }
 }
 
-class ImageUpload extends Component<any,any> {
-  constructor(props, context) {
-    super(props, context);
-    const fieldName = props.name;
-    let imageId = "";
-    if (props.document && props.document[fieldName]) {
-      imageId = props.document[fieldName];
-    }
-    this.state = {
-      imageId,
-    }
-    const addValues = context.updateCurrentValues;
-    const addToSuccessForm = context.addToSuccessForm;
-    addValues({[fieldName]: imageId});
-    addToSuccessForm((results) => this.setImageInfo({} ,""));
-  }
+const ImageUpload = ({name, document, updateCurrentValues, clearField, label, classes}: {
+  name: string,
+  document: Object,
+  updateCurrentValues: Function,
+  clearField: Function,
+  label: string,
+  classes: ClassesType
+}) => {
 
-  setImageInfo = (error, imageInfo) => {
-    if (imageInfo && imageInfo[0] && imageInfo[0].public_id ) {
-      this.setState({imageId: imageInfo[0].public_id});
-      const addValues = this.context.updateCurrentValues;
-      const fieldName = this.props.name;
-      addValues({[fieldName]: imageInfo[0].public_id})
+  const setImageInfo = (error, result) => {
+    if (error) {
+      throw new Error(error.statusText)
+    }
+    // currently we ignore all events other than a successful upload -
+    // see list here: https://cloudinary.com/documentation/upload_widget_reference#events
+    if (result.event !== 'success') {
+      return
+    }
+    const imageInfo = result.info
+    if (imageInfo && imageInfo.public_id) {
+      setImageId(imageInfo.public_id)
+      updateCurrentValues({[name]: imageInfo.public_id})
     } else {
       //eslint-disable-next-line no-console
       console.error("Image Upload failed");
     }
   }
 
-  uploadWidget = () => {
-    const cloudinaryArgs = cloudinaryArgsByImageType[this.props.name]
+  const uploadWidget = () => {
+    const cloudinaryArgs = cloudinaryArgsByImageType[name]
     if (!cloudinaryArgs) throw new Error("Unsupported image upload type")
     // @ts-ignore
     cloudinary.openUploadWidget({
-      cropping: "server",
-      cloud_name: cloudinaryCloudNameSetting.get(),
+      multiple: false,
+      sources: ['local', 'url', 'camera', 'facebook', 'instagram', 'google_drive'],
+      cropping: true,
+      cloudName: cloudinaryCloudNameSetting.get(),
       theme: 'minimal',
-      cropping_validate_dimension: true,
-      cropping_show_dimensions: true,
+      croppingValidateDimensions: true,
+      croppingShowDimensions: true,
+      styles: {
+        palette: {
+            tabIcon: forumThemeExport.palette.primary.main,
+            link: forumThemeExport.palette.primary.main,
+            action: forumThemeExport.palette.primary.main,
+            textDark: "#212121",
+        },
+        fonts: {
+            default: null,
+            "'Merriweather', serif": {
+                url: "https://fonts.googleapis.com/css?family=Merriweather",
+                active: true
+            }
+        }
+      },
       ...cloudinaryArgs
-    }, this.setImageInfo);
+    }, setImageInfo);
   }
-  render(){
-    const { classes, name, label } = this.props;
-    const formPreviewSize = formPreviewSizeByImageType[name]
-    if (!formPreviewSize) throw new Error("Unsupported image upload type")
-    
-    return (
-      <div className={classes.root}>
-        <Helmet>
-          <script src="https://widget.cloudinary.com/global/all.js" type="text/javascript"/>
-          <script src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'/>
-        </Helmet>
-        {this.state.imageId &&
-          <Components.CloudinaryImage
-            publicId={this.state.imageId}
-            {...formPreviewSize}
-          /> }
-        <Button
-          onClick={this.uploadWidget}
-          className={classNames("image-upload-button", classes.button)}
-        >
-          <ImageIcon className={classes.imageIcon}/>
-          {this.state.imageId ? `Replace ${label}` : `Upload ${label}`}
-        </Button>
-      </div>
-    );
+  
+  const chooseDefaultImg = (newImageId) => {
+    setImageId(newImageId)
+    updateCurrentValues({[name]: newImageId})
   }
+  
+  const removeImg = () => {
+    clearField()
+    setImageId(null)
+  }
+  
+  const { openDialog } = useDialog()
+  const [imageId, setImageId] = useState(() => {
+    if (document && document[name]) {
+      return document[name];
+    }
+    return ''
+  })
+  
+  const formPreviewSize = formPreviewSizeByImageType[name]
+  if (!formPreviewSize) throw new Error("Unsupported image upload type")
+  
+  return (
+    <div className={classes.root}>
+      <Helmet>
+        <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
+      </Helmet>
+      {imageId &&
+        <Components.CloudinaryImage
+          publicId={imageId}
+          {...formPreviewSize}
+        /> }
+      <Button
+        onClick={uploadWidget}
+        className={classNames("image-upload-button", classes.button)}
+      >
+        <ImageIcon className={classes.imageIcon}/>
+        {imageId ? `Replace ${label}` : `Upload ${label}`}
+      </Button>
+      {(name === 'eventImageId') && <Button
+        variant="outlined"
+        onClick={() => openDialog({
+          componentName: "ImageUploadDefaultsDialog",
+          componentProps: {onSelect: chooseDefaultImg}
+        })}
+        className={classes.chooseButton}
+      >
+        Choose from ours
+      </Button>}
+      {imageId && <Button
+        className={classes.removeButton}
+        title="Remove"
+        onClick={removeImg}
+      >
+        Remove
+      </Button>}
+    </div>
+  );
 };
 
 (ImageUpload as any).contextTypes = {

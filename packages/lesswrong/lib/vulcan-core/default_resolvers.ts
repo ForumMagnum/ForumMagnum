@@ -40,7 +40,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const collection = getCollection(collectionName);
 
         // get selector and options from terms and perform Mongo query
-        const parameters = await collection.getParameters(terms, {}, context);
+        const parameters = collection.getParameters(terms, {}, context);
         
         const docs: Array<T> = await queryFromViewParameters(collection, terms, parameters);
         
@@ -155,12 +155,12 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
 }
 
 const queryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
+  const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   const options = {
     ...parameters.options,
     skip: terms.offset,
   };
-
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
@@ -182,6 +182,7 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     if (parameters.options.limit) {
       pipeline.push({ $limit: parameters.options.limit });
     }
+    logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
     return await Utils.Connectors.find(collection, selector, options);

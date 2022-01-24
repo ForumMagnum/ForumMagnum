@@ -96,6 +96,7 @@ const schema: SchemaType<DbLocalgroup> = {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (localgroup) => {
         if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation)
+        return null
       }
     }),
   },
@@ -186,7 +187,19 @@ const schema: SchemaType<DbLocalgroup> = {
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
-  }
+  },
+  
+  // Cloudinary image id for the banner image (high resolution)
+  bannerImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    label: "Banner Image",
+    control: "ImageUpload",
+    tooltip: "Minimum 200x600 px"
+  },
 };
 
 export default schema;

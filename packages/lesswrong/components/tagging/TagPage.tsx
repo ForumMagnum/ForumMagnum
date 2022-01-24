@@ -1,18 +1,20 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
-import { useTagBySlug } from './useTag';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser';
-import { tagBodyStyles } from '../../themes/stylePiping'
+import { useApolloClient } from "@apollo/client";
+import classNames from 'classnames';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { truncate } from '../../lib/editor/ellipsize';
+import { userHasNewTagSubscriptions } from "../../lib/betas";
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
-import { EditTagForm } from './EditTagPage';
+import { truncate } from '../../lib/editor/ellipsize';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { tagBodyStyles } from '../../themes/stylePiping';
+import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
-import classNames from 'classnames';
-import { useApolloClient } from "@apollo/client";
+import { EditTagForm } from './EditTagPage';
+import { useTagBySlug } from './useTag';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -37,12 +39,40 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 12,
   },
+  titleRow: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'flex',
+      justifyContent: 'space-between',
+    }
+  },
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
     fontWeight: 600,
     fontVariant: "small-caps"
+  },
+  notifyMeButton: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 6,
+    },
+  },
+  nonMobileButtonRow: {
+    [theme.breakpoints.down('xs')]: {
+      // Ensure this takes priority over the properties in TagPageButtonRow
+      display: 'none !important',
+    },
+  },
+  mobileButtonRow: {
+    [theme.breakpoints.up('sm')]: {
+      display: 'none !important',
+    },
+  },
+  editMenu: {
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 16,
+      marginBottom: 8,
+    },
   },
   wikiSection: {
     paddingTop: 5,
@@ -92,7 +122,9 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList } = Components;
+  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect,
+    HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn,
+    TableOfContents, TableOfContentsRow, TagContributorsList, SubscribeButton } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -220,25 +252,35 @@ const TagPage = ({classes}: {
           : null
       }
       header={<div className={classNames(classes.header,classes.centralColumn)}>
-        <div>
-          {query.flagId && <span>
-            <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-              <TagFlagItem 
-                itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-                documentId={query.flagId}
-              />
-            </Link>
-            {nextTag && <span onClick={() => setEditing(true)}><Link
-              className={classes.nextLink}
-              to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
-                Next Tag ({nextTag.name})
-            </Link></span>}
-          </span>}
+        {query.flagId && <span>
+          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+            <TagFlagItem 
+              itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+              documentId={query.flagId}
+            />
+          </Link>
+          {nextTag && <span onClick={() => setEditing(true)}><Link
+            className={classes.nextLink}
+            to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+              Next Tag ({nextTag.name})
+          </Link></span>}
+        </span>}
+        <div className={classes.titleRow}>
           <Typography variant="display3" className={classes.title}>
             {tag.name}
           </Typography>
+          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+          {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
+            <SubscribeButton
+              tag={tag}
+              className={classes.notifyMeButton}
+              subscribeMessage="Subscribe"
+              unsubscribeMessage="Unsubscribe"
+              subscriptionType={subscriptionTypes.newTagPosts}
+            />
+          }
         </div>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} />
+        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
       </div>}
     >
       <div className={classNames(classes.wikiSection,classes.centralColumn)}>

@@ -12,6 +12,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -105,10 +106,22 @@ export const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: "block",
     color: theme.palette.grey[600]
+  },
+  reviewVotingButtons: {
+    borderTop: "solid 1px rgba(0,0,0,.2)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 6,
+  },
+  updateVoteMessage: {
+    ...theme.typography.body2,
+    ...theme.typography.smallText,
+    color: theme.palette.grey[600]
   }
 })
 
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, parentAnswerId, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, parentAnswerId, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -118,6 +131,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentCommentId?: string,
   scrollIntoView?: ()=>void,
   toggleCollapse?: ()=>void,
+  setSingleLine?: (boolean)=>void,
   truncated: boolean,
   parentAnswerId?: string|undefined,
   classes: ClassesType,
@@ -128,7 +142,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -245,11 +259,19 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
   }
   
-  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle } = Components
+  const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget, LWHelpIcon } = Components
 
   if (!comment) {
     return null;
   }
+
+  const displayReviewVoting = 
+    !hideReviewVoteButtons &&
+    reviewIsActive() &&
+    comment.reviewingForReview === REVIEW_YEAR+"" &&
+    post &&
+    currentUser?._id !== post.userId &&
+    eligibleToNominate(currentUser)
   
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -297,6 +319,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               [<span>{collapsed ? "+" : "-"}</span>]
             </a>
             }
+            {singleLineCollapse && <a className={classes.collapse} onClick={() => 
+              setSingleLine && setSingleLine(true)}>
+              [<span>{collapsed ? "+" : "-"}</span>]
+            </a>
+            }
             <CommentUserName comment={comment} className={classes.username}/>
             <CommentsItemDate
               comment={comment} post={post} tag={tag}
@@ -330,6 +357,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           {renderBodyOrEditor()}
           {!comment.deleted && !collapsed && renderCommentBottom()}
         </div>
+        {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
+          <div className={classes.updateVoteMessage}>
+            <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
+              Update your {REVIEW_NAME_IN_SITU} vote for this post. 
+              <LWHelpIcon/>
+            </LWTooltip>
+          </div>
+          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+        </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
     </AnalyticsContext>

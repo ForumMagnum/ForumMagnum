@@ -43,7 +43,7 @@ const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
 const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
-const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
+export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
 
 // Cute hack
 const reviewPostIdSetting = {

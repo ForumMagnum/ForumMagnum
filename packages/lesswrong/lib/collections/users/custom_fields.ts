@@ -11,6 +11,7 @@ import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
+import { REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -693,6 +694,10 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationPostsNominatedReview: {
+    label: "Nominations of my posts for the annual LessWrong Review",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
@@ -838,6 +843,7 @@ addFieldsDict(Users, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (user) => {
         if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
+        return null
       }
     }),
   },
@@ -987,12 +993,25 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageBookAd: {
+    // this was for the 2018 book, no longer relevant
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
+  hideFrontpageBook2019Ad: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    order: 46,
+    order: 47,
     hidden: forumTypeSetting.get() === "EAForum",
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
@@ -1273,6 +1292,18 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVoteCount:resolverOnlyField({
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    resolver: async (document, args, context: ResolverContext) => {
+      const { ReviewVotes } = context;
+      const voteCount = await ReviewVotes.find({
+        userId: document._id,
+        year: REVIEW_YEAR+""
+      }).count();
+      return voteCount
+    }
+  }),
   reviewVotesQuadratic2020: {
     type: Boolean,
     optional: true,
@@ -1473,7 +1504,22 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
-  }
+  },
+  paymentEmail: {
+    // by default means "paypal email", unless something else is specified in paymentInfo
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+  paymentInfo: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+  },
 });
 
 makeEditable({

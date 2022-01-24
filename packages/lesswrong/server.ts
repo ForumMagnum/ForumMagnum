@@ -44,6 +44,7 @@ import './server/scripts/recomputeDenormalized';
 import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
+import "./server/scripts/testPostDescription";
 import './server/migrations';
 import './server/migrations/migrationsDashboardGraphql';
 
@@ -68,6 +69,7 @@ import './server/updateScores';
 import './server/siteAdminMetadata';
 import './server/callbacks';
 import './server/notificationCallbacks';
+import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
 import './server/emails/emailTokens';

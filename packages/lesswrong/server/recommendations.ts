@@ -74,8 +74,18 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
     }
   }
   if (algorithm.reviewReviews) {
+    if (isEAForum) {
+      return {
+        postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
+        positiveReviewVoteCount: {$gte: 1}, // EA-forum look here
+      }
+    }
     return {
-      [algorithm.reviewReviews === 2018 ? "nominationCount2018" : "nominationCount2019"]: {$gte: 2}
+      postedAt: {
+        $gt: new Date(`${algorithm.reviewReviews}-01-01`),
+        $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
+      },
+      positiveReviewVoteCount: {$gte: 1},
     }
   }
   if (algorithm.reviewNominations) {
@@ -83,6 +93,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
       return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}
     }
     return {
+      isEvent: false,
       postedAt: {$gt: new Date(`${algorithm.reviewNominations}-01-01`), $lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)},
       meta: false
     }

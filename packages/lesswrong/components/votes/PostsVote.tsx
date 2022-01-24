@@ -43,7 +43,7 @@ const PostsVote = ({ post, classes }: {
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts");
-  const {VoteButton, Typography} = Components;
+  const {OverallVoteButton, Typography} = Components;
 
   return (
       <div className={classes.voteBlock}>
@@ -53,10 +53,10 @@ const PostsVote = ({ post, classes }: {
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.upvote}>
-            <VoteButton
+            <OverallVoteButton
               orientation="up"
               color="secondary"
-              voteType="Upvote"
+              upOrDown="Upvote"
               {...voteProps}
             />
           </div>
@@ -93,10 +93,10 @@ const PostsVote = ({ post, classes }: {
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.downvote}>
-            <VoteButton
+            <OverallVoteButton
               orientation="down"
               color="error"
-              voteType="Downvote"
+              upOrDown="Downvote"
               {...voteProps}
             />
           </div>
