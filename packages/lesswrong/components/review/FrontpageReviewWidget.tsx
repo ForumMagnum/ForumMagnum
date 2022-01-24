@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
-import { currentUserCanVote, eligibleToNominate, getReviewPhase, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewPhase, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_NAME_TITLE, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { userIsAdmin } from '../../lib/vulcan-users';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -183,7 +183,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: ClassesType, showFrontpageItems?: boolean}) => {
-  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, SingleLineReviewsList, LatestReview, PostsList2 } = Components
+  const { SectionTitle, SettingsButton, RecommendationsList, LWTooltip, LatestReview, PostsList2 } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -359,9 +359,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             itemsPerPage: 10
            }}
           >       
-            {activeRange === 'REVIEWS' && eligibleToNominate(currentUser) &&
+            {eligibleToNominate(currentUser) &&
               <Link to={"/reviews"} className={classes.actionButtonCTA}>
-                Review {REVIEW_YEAR} Posts
+                {activeRange === "REVIEWS" && <span>Review {REVIEW_YEAR} Posts</span>}
+                {activeRange === "VOTING" && <span>Cast Final Votes</span>}
               </Link>
             }
           </PostsList2>
@@ -372,13 +373,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             {allPhaseButtons}
           </div>}
         </AnalyticsContext>}
-
-        {activeRange === 'VOTING' && currentUserCanVote(currentUser) && <div className={classes.actionButtonRow}>
-          {allPhaseButtons}
-          {showFrontpageItems && <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
-            Vote on {REVIEW_YEAR} Posts
-          </Link>}
-        </div>}
       </div>
     </AnalyticsContext>
   )

@@ -336,6 +336,7 @@ importComponent("CommentPermalink", () => require('../components/comments/Commen
 importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
 importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
+importComponent("RecentDiscussionTagRevisionItem", () => require('../components/recentDiscussion/RecentDiscussionTagRevisionItem'))
 importComponent("RecentDiscussionSubscribeReminder", () => require('../components/recentDiscussion/RecentDiscussionSubscribeReminder'));
 importComponent("RecentDiscussionMeetupsPoke", () => require('../components/recentDiscussion/RecentDiscussionMeetupsPoke'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
@@ -514,6 +515,7 @@ importComponent("BestOfLessWrong", () => require('../components/sequences/BestOf
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
+importComponent("ImageUploadDefaultsDialog", () => require('../components/form-components/ImageUploadDefaultsDialog'));
 importComponent("SequencesListEditor", () => require('../components/form-components/SequencesListEditor'));
 importComponent("SequencesListEditorItem", () => require('../components/form-components/SequencesListEditorItem'));
 importComponent("SubmitButton", () => require('../components/form-components/SubmitButton'));
@@ -602,6 +604,8 @@ importComponent("AnalyticsTracker", () => require('../components/common/Analytic
 importComponent("AnalyticsInViewTracker", () => require('../components/common/AnalyticsInViewTracker'));
 importComponent("AnalyticsPageInitializer", () => require('../components/common/AnalyticsPageInitializer'));
 
+importComponent("LWHelpIcon", () => require('../components/common/LWHelpIcon'));
+
 // vulcan:ui-bootstrap
 importComponent("FormComponentCheckboxGroup", () => require('../components/vulcan-ui-bootstrap/forms/Checkboxgroup'));
 importComponent("FormComponentEmail", () => require('../components/vulcan-ui-bootstrap/forms/Email'));
@@ -621,4 +625,3 @@ importComponent("BookAnimation", () => require('../components/books/BookAnimatio
 importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
-

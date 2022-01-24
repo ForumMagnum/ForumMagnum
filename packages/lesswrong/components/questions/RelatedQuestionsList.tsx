@@ -13,25 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: "auto"
     }
   },
-  itemIsLoading: {
-    opacity: .4,
-  },
-  loading: {
-    '&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
-  loadMore: {
-    flexGrow: 1,
-    textAlign: "left",
-    '&:after': {
-      content: "''",
-      marginLeft: 0,
-      marginRight: 0,
-    }
-  },
   header: {
     ...theme.typography.body2,
     marginTop: theme.spacing.unit*2,

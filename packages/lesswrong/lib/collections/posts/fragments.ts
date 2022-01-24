@@ -63,11 +63,14 @@ registerFragment(`
     endTime
     localStartTime
     localEndTime
+    eventRegistrationLink
+    joinEventLink
     facebookLink
     meetupLink
     website
     contactInfo
     isEvent
+    eventImageId
     types
     groupId
 
@@ -127,6 +130,14 @@ registerFragment(`
 registerFragment(`
   fragment PostsListWithVotes on Post {
     ...PostsList
+    currentUserVote
+    currentUserExtendedVote
+  }
+`)
+
+registerFragment(`
+  fragment PostsReviewVotingList on Post {
+    ...PostsListBase
     currentUserVote
     currentUserExtendedVote
   }

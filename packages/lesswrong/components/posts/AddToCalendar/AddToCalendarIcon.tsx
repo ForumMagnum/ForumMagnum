@@ -57,7 +57,7 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
         event={{
           name: post.title,
           details: eventDetails,
-          location: post.location,
+          location: post.onlineEvent ? post.joinEventLink : post.location,
           startsAt: moment(post.startTime).format(),
           endsAt: endTime.format()
         }}>

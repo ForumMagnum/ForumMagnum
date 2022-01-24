@@ -31,7 +31,6 @@ export const userHasNewTagSubscriptions =  isEAForum ? optInOnly : disabled
 export const userHasThemePicker = adminOnly
 
 // Shipped Features
-export const userHasCkEditor = shippedFeature;
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
 export const userCanUseTags = shippedFeature;

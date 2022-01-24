@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily
   },
   root: {
-    marginBottom: 10, 
+    marginBottom: 5, 
     marginTop: 10
   }
 })
@@ -36,7 +36,7 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
     fragmentName: 'localGroupsHomeFragment',
   });
   if (document) {
-    return <div className={inRecentDiscussion ? {} : classes.root}>
+    return <div className={inRecentDiscussion ? '' : classes.root}>
       <div className={inRecentDiscussion ? classNames(classes.title, classes.sansSerif) : classes.title}>
         {post?.group && <Link to={'/groups/' + post.group._id }>{ document.name }</Link>}
       </div>
