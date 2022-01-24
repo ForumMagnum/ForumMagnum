@@ -28,9 +28,10 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({terms, showTitle=true, classes}: {
+const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}: {
   terms: PostsViewTerms,
-  showTitle?: boolean,
+  title?: string,
+  showAllDraftsLink?: boolean,
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -72,7 +73,7 @@ const DraftsList = ({terms, showTitle=true, classes}: {
   
   
   return <div>
-    <Components.SectionTitle title={showTitle ? "My Drafts" : ""}>
+    <Components.SectionTitle title={title}>
       <div className={classes.draftsHeaderRow}>
         <div className={classes.newPostButton}>
           <Link to={"/newPost"}>
@@ -81,13 +82,13 @@ const DraftsList = ({terms, showTitle=true, classes}: {
             </Components.SectionButton>
           </Link>
         </div>
-        <div className={classes.draftsPageButton}>
+        {showAllDraftsLink && <div className={classes.draftsPageButton}>
           <Link to={"/drafts"}>
             <Components.SectionButton>
               <ListIcon /> All Drafts
             </Components.SectionButton>
           </Link>
-        </div>
+        </div>}
         <div className={classes.settingsButton} onClick={() => setShowSettings(!showSettings)}>
           <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>

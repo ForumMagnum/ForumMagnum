@@ -11,11 +11,6 @@ import Checkbox from "@material-ui/core/Checkbox";
 import {useLocation} from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  titleRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
   checkbox: {
     padding: "1px 12px 0 0"
   },
@@ -48,10 +43,7 @@ const DraftsPage = ({classes}) => {
   
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>
-      <div className={classes.titleRow}>
-        <SectionTitle title="Drafts & Unpublished Posts"/>
-      </div>
-      <DraftsList terms={draftTerms} showTitle={false}/>
+      <DraftsList terms={draftTerms} title={"Drafts & Unpublished Posts"} showAllDraftsLink={false}/>
     </AnalyticsContext>
   </SingleColumnSection>
 }
