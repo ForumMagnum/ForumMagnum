@@ -4,7 +4,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
-import { augmentFieldsDict, accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
@@ -28,6 +28,7 @@ addGraphQLSchema(`
     lastCommentedAt: Date
     added: Int
     removed: Int
+    users: [User!]
   }
 `);
 
@@ -58,6 +59,11 @@ addGraphQLResolvers({
         tagId: {$exists: true, $ne: null},
       }).fetch();
       
+      const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])
+      const usersAll = await context.loaders.Users.loadMany(userIds)
+      const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
+      const usersById = keyBy(users, u => u._id);
+      
       // Get the tags themselves
       const tagIds = _.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]);
       const tagsUnfiltered = await context.loaders.Tags.loadMany(tagIds);
@@ -66,6 +72,8 @@ addGraphQLResolvers({
       return tags.map(tag => {
         const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
         const relevantRootComments = _.filter(rootComments, c=>c.tagId===tag._id);
+        const relevantUsersIds = _.uniq([...relevantRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]);
+        const relevantUsers = _.map(relevantUsersIds, userId=>usersById[userId]);
         
         return {
           tag,
@@ -76,6 +84,7 @@ addGraphQLResolvers({
           lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
           added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
           removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
+          users: relevantUsers,
         };
       });
     },
@@ -277,4 +286,3 @@ export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
   }});
   return html;
 }
-
