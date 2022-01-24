@@ -57,7 +57,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: 'white'
   },
   highlightedCardRow: {
-    marginTop: 13
+    marginTop: 9
   },
   highlightedCardTitle: {
     ...theme.typography.headline,
@@ -95,6 +95,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     '-webkit-box-decoration-break': 'clone',
     boxDecorationBreak: 'clone',
     fontSize: 18,
+    lineHeight: '1.4em',
     color: '#b8d4de',//'#ccdee4',
     padding: '0.5rem',
     marginBottom: 10
@@ -133,7 +134,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     // ...theme.typography.commentStyle,
     flex: 'none',
     textAlign: 'left',
-    fontSize: 32,
+    fontSize: 34,
     margin: 0
   },
   sectionDescription: {
@@ -188,7 +189,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCard: {
     position: 'relative',
     width: 373,
-    height: 354,
+    height: 374,
     borderRadius: 0,
     overflow: 'visible',
     [theme.breakpoints.down('xs')]: {
@@ -197,24 +198,32 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   eventCardContent: {
-    height: 150,
-    display: 'grid',
-    gridTemplateAreas: `
-      "title location"
-      "group ."
-      "time tag"
-    `,
-    gridGap: '8px',
-    gridTemplateRows: '60px 18px 18px',
-    alignItems: 'baseline',
-    [theme.breakpoints.down('xs')]: {
-      gridTemplateAreas: `
-      "title"
-      "group"
-      "time"
-      "location"
-    `,
-    }
+    position: 'relative',
+    height: 170,
+    // display: 'grid',
+    // gridTemplateAreas: `
+    //   "time ."
+    //   "title ."
+    //   "location ."
+    //   "group tag"
+    // `,
+    // gridGap: '8px',
+    // gridTemplateRows: '18px 60px 18px 18px',
+    // alignItems: 'baseline',
+    // [theme.breakpoints.down('xs')]: {
+    //   gridTemplateAreas: `
+    //   "time"
+    //   "title"
+    //   "location"
+    //   "group"
+    // `,
+    // }
+  },
+  eventCardTime: {
+    ...theme.typography.commentStyle,
+    gridArea: 'time',
+    fontSize: 14,
+    color: theme.palette.primary.main
   },
   eventCardTitle: {
     ...theme.typography.headline,
@@ -224,36 +233,42 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
+    marginTop: 8,
     marginBottom: 0
   },
   eventCardLocation: {
     ...theme.typography.commentStyle,
     gridArea: 'location',
-    textAlign: 'right',
+    // textAlign: 'right',
+    color: "rgba(0, 0, 0, 0.7)",
     fontSize: 14,
-    [theme.breakpoints.down('xs')]: {
-      textAlign: 'left'
-    }
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    marginTop: 10,
+    // [theme.breakpoints.down('xs')]: {
+    //   textAlign: 'left'
+    // }
   },
   eventCardGroup: {
     ...theme.typography.commentStyle,
     gridArea: 'group',
+    maxWidth: 290,
     fontStyle: 'italic',
-    color: "rgba(0, 0, 0, 0.6)",
+    color: "rgba(0, 0, 0, 0.5)",
     fontSize: 14,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    overflow: 'hidden'
-  },
-  eventCardTime: {
-    ...theme.typography.commentStyle,
-    gridArea: 'time',
-    fontSize: 14,
+    overflow: 'hidden',
+    marginTop: 10,
   },
   eventCardTag: {
     ...theme.typography.commentStyle,
+    position: 'absolute',
+    bottom: 22,
+    right: 22,
     gridArea: 'tag',
-    textAlign: 'right',
+    // textAlign: 'right',
     fontSize: 14,
     [theme.breakpoints.down('xs')]: {
       display: 'none'
@@ -337,6 +352,18 @@ const EventsHome = ({classes}: {
   const { timezone } = useTimezone()
   
   const [userLocation, setUserLocation] = useState(() => {
+    if (currentUser) {
+      if (!currentUser.mongoLocation) return null
+
+      console.log('mongolocation', currentUser.mongoLocation)
+      return {
+        lat: currentUser.mongoLocation.coordinates[1],
+        lng: currentUser.mongoLocation.coordinates[0],
+        known: true,
+        label: currentUser.location
+      }
+    }
+    
     const ls = getBrowserLocalStorage()
     if (!ls) return null
     try {
@@ -348,11 +375,6 @@ const EventsHome = ({classes}: {
     }
   })
   const [placeFilter, setPlaceFilter] = useState('all')
-  // const [events, setEvents] = useState(null)
-  
-  // useEffect(() => {
-  //   setEvents()
-  // }, [])
   
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -366,19 +388,8 @@ const EventsHome = ({classes}: {
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
   const updateUserLocation = async ({lat, lng, known}) => {
-    if (!userLocation) {
-      setUserLocation({lat, lng, known})
-    }
     
-    const ls = getBrowserLocalStorage()
-    try {
-      ls?.setItem('userlocation', JSON.stringify({lat, lng, known}))
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.warn(e);
-    }
-    
-    if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
+    if (mapsLoaded && !geocodeError && !userLocation && known) {
       try {
         // get a list of matching Google locations for the current lat/lng
         const geocoder = new googleMaps.Geocoder();
@@ -388,14 +399,9 @@ const EventsHome = ({classes}: {
         const results = geocodingResponse?.results;
         
         if (results?.length) {
+          console.log('results', results)
           const location = pickBestReverseGeocodingResult(results)
-          void updateUser({
-            selector: {_id: currentUser._id},
-            data: {
-              location: location?.formatted_address,
-              googleLocation: location
-            }
-          })
+          saveUserLocation({lat, lng, known, gmaps: location})
         }
       } catch (e) {
         setGeocodeError(true)
@@ -414,11 +420,41 @@ const EventsHome = ({classes}: {
       }
     });
   }, [currentUserLocation, currentUser]);
+  
+  const saveUserLocation = ({lat, lng, known, gmaps}) => {
+    // save it in the page state
+    setUserLocation({lat, lng, known, label: gmaps.formatted_address})
+
+    if (currentUser) {
+      // save it on the user level
+      void updateUser({
+        selector: {_id: currentUser._id},
+        data: {
+          location: gmaps.formatted_address,
+          googleLocation: gmaps
+        }
+      })
+    } else {
+      // save it in local storage
+      const ls = getBrowserLocalStorage()
+      try {
+        ls?.setItem('userlocation', JSON.stringify({lat, lng, known, label: gmaps.formatted_address}))
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.warn(e);
+      }
+    }
+  }
 
   const openEventNotificationsForm = () => {
     openDialog({
       componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
     });
+  }
+  
+  const getEventLocation = (event) => {
+    if (event.onlineEvent) return 'Online'
+    return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
   const { SingleColumnSection, SectionTitle, SectionFooter, Typography, SectionButton, AddToCalendarIcon, EventTime, Loading, PostsItemTooltipWrapper, CloudinaryImage2 } = Components
@@ -431,7 +467,7 @@ const EventsHome = ({classes}: {
   }
   
   const eventsListTerms: PostsViewTerms = userLocation ? {
-    view: 'events',//'nearbyEvents',
+    view: 'nearbyEvents',
     lat: userLocation.lat,
     lng: userLocation.lng,
     ...filters,
@@ -482,25 +518,26 @@ const EventsHome = ({classes}: {
         <div>
           <Card className={classes.highlightCard} style={cardBackground}>
             {highlightedEvent ? <CardContent className={classes.highlightCardContent}>
-              <h1 className={classes.highlightedCardTitle}>
-                <Link to={`/events/${highlightedEvent._id}/${highlightedEvent.slug}`}>{highlightedEvent.title}</Link>
-              </h1>
-              {highlightedEvent.group && <div className={classes.highlightedCardRow}>
-                <span className={classes.highlightedCardGroup}>
-                  <Link to={`/groups/${highlightedEvent.group._id}`}>{highlightedEvent.group.name}</Link>
-                </span>
-              </div>}
-              <div className={classes.highlightedCardRow}>
+              <div>
                 <span className={classes.highlightedCardDetail}>
                   {prettyEventDateTimes(highlightedEvent, timezone, true)}
                 </span>
               </div>
               <div className={classes.highlightedCardRow}>
+                <h1 className={classes.highlightedCardTitle}>
+                  <Link to={`/events/${highlightedEvent._id}/${highlightedEvent.slug}`}>{highlightedEvent.title}</Link>
+                </h1>
+              </div>
+              <div className={classes.highlightedCardRow}>
                 <span className={classes.highlightedCardDetail}>
-                  {highlightedEvent.onlineEvent ? 'Online event' : highlightedEvent.location?.split(',')[0]}
+                  {getEventLocation(highlightedEvent)}
                 </span>
               </div>
-              {/* <Button variant="contained" className={classes.highlightedCardBtn}>RSVP</Button> */}
+              {/* {highlightedEvent.group && <div className={classes.highlightedCardRow}>
+                <span className={classes.highlightedCardGroup}>
+                  <Link to={`/groups/${highlightedEvent.group._id}`}>{highlightedEvent.group.name}</Link>
+                </span>
+              </div>} */}
               <div className={classes.highlightedCardAddToCal}>
                 <AddToCalendarIcon post={highlightedEvent} hideTooltip hidePlusIcon />
               </div>
@@ -526,10 +563,14 @@ const EventsHome = ({classes}: {
                         placeholder="Location"
                         onSuggestSelect={(suggestion) => {
                           if (suggestion?.location) {
-                            setUserLocation(suggestion.location);
+                            saveUserLocation({
+                              ...suggestion.location,
+                              known: true,
+                              gmaps: suggestion.gmaps
+                            })
                           }
                         }}
-                        initialValue={"" /*TODO*/}
+                        initialValue={userLocation?.label}
                       />
                     </div>
                 }
@@ -548,6 +589,9 @@ const EventsHome = ({classes}: {
               return <Card key={event._id} className={classes.eventCard}>
                 <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || randomEventImg(event._id)} />
                 <CardContent className={classes.eventCardContent}>
+                  <div className={classes.eventCardTime}>
+                    {prettyEventDateTimes(event, timezone, true)}
+                  </div>
                   <PostsItemTooltipWrapper
                     post={event}
                     className={''}
@@ -556,13 +600,10 @@ const EventsHome = ({classes}: {
                       <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
                     </div>
                   </PostsItemTooltipWrapper>
-                  <div className={classes.eventCardLocation}>{event.onlineEvent ? 'Online' : event.location?.split(',')[0]}</div>
+                  <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
                   {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
                     <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
                   </div>}
-                  <div className={classes.eventCardTime}>
-                    {prettyEventDateTimes(event, timezone, true)}
-                  </div>
                   <div className={classes.eventCardTag}>
                     <AddToCalendarIcon post={event} />
                   </div>
