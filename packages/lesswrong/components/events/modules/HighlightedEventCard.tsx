@@ -173,9 +173,9 @@ const HighlightedEventCard = ({event, loading, classes}: {
               <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
             </span>
           </div>} */}
-          <div className={classes.addToCal}>
+          {/* <div className={classes.addToCal}>
             <AddToCalendarIcon post={event} hideTooltip hidePlusIcon />
-          </div>
+          </div> */}
         </CardContent>
       </Card>
   )

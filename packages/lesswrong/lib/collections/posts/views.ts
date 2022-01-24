@@ -853,12 +853,22 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
+  
+  let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
+  if (terms.onlineEvent === false) {
+    onlineEventSelector = {$or: [
+      {onlineEvent: false}, {onlineEvent: {$exists: false}}
+    ]}
+  }
+  
   let query = {
     selector: {
       globalEvent: true,
       isEvent: true,
       groupId: null,
-      ...timeSelector,
+      $and: [
+        timeSelector, onlineEventSelector
+      ],
     },
     options: {
       sort: {
