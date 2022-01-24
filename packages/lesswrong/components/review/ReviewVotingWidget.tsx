@@ -2,14 +2,12 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
-import { useMulti } from '../../lib/crud/withMulti';
-import { REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
+import { eligibleToNominate, REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { ReviewVote } from './ReviewVotingPage';
 import { Link } from '../../lib/reactRouterWrapper';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { overviewTooltip } from './FrontpageReviewWidget';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme) => ({
   root: {
@@ -24,18 +22,11 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, post: PostsBase, title?: React.ReactNode, setNewVote?: (newVote:number)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:number)=>void}) => {
 
-  const { ReviewVotingButtons, ErrorBoundary, Loading, LWTooltip } = Components
-
+  const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
+  
   const currentUser = useCurrentUser()
-
-  const { results: votes, loading: voteLoading, error: voteLoadingError } = useMulti({
-    terms: {view: "reviewVotesForPostAndUser", limit: 1, userId: currentUser?._id, postId: post._id},
-    collectionName: "ReviewVotes",
-    fragmentName: "reviewVoteFragment",
-    fetchPolicy: 'cache-and-network',
-  })
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
   const [submitVote] = useMutation(gql`
@@ -64,20 +55,14 @@ const ReviewVotingWidget = ({classes, post, setNewVote}: {classes:ClassesType, p
     return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
   }, [submitVote, setNewVote]);
 
-  if (voteLoadingError) return <div>{voteLoadingError.message}</div>
-  const vote = votes?.length ? {
-    _id: votes[0]._id, 
-    postId: votes[0].postId, 
-    score: votes[0].qualitativeScore, 
-    type: "qualitative"
-  } as ReviewVote : null
+  if (!eligibleToNominate(currentUser)) return null
 
   return <ErrorBoundary>
       <div className={classes.root}>
-        <p>
-          Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={annualReviewAnnouncementPostPathSetting.get()}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
-        </p>
-        {voteLoading ? <Loading/> : <ReviewVotingButtons postId={post._id} dispatch={dispatchQualitativeVote} voteForCurrentPost={vote}/>}
+        {showTitle && <p>
+          Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
+        </p>}
+        <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVoteScore={post.currentUserReviewVote}/>
       </div>
     </ErrorBoundary>
 }

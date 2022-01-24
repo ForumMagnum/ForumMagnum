@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    previousDisplayName
     fullName
     karma
     afKarma
@@ -57,6 +58,8 @@ registerFragment(`
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
+    paymentEmail
+    paymentInfo
   }
 `);
 
@@ -137,6 +140,7 @@ registerFragment(`
     reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     abTestKey
     abTestOverrides
@@ -266,6 +270,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    beta
 
     # Emails
     email
@@ -322,10 +327,12 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationPostsNominatedReview
 
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     deleted
   }
@@ -345,3 +352,11 @@ registerFragment(`
     karma
   }
 `);
+
+registerFragment(`
+  fragment UsersWithReviewInfo on User {
+    ...UsersMinimumInfo
+    reviewVoteCount
+    email
+  }
+`)

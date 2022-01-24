@@ -74,6 +74,7 @@ type ViewQueryAndOptions<
     sort?: MongoSort<T>
     limit?: number
     skip?: number
+    projection?: MongoProjection<T>
   }
 }
 
@@ -90,7 +91,7 @@ interface MergedViewQueryAndOptions<
 }
 
 type MongoSelector<T extends DbObject> = any; //TODO
-type MongoProjection<T extends DbObject> = Record<string,number>; //TODO
+type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0|1>>;
 type MongoModifier<T extends DbObject> = any; //TODO
 
 type MongoFindOptions<T extends DbObject> = any; //TODO
@@ -124,14 +125,17 @@ interface HasUserIdType {
 interface VoteableType extends HasIdType, HasUserIdType {
   score: number
   baseScore: number
+  extendedScore: any,
   voteCount: number
   af?: boolean
   afBaseScore?: number
+  afExtendedScore?: any,
   afVoteCount?: number
 }
 
 interface VoteableTypeClient extends VoteableType {
   currentUserVote: string|null
+  currentUserExtendedVote?: any,
 }
 
 interface DbVoteableType extends VoteableType, DbObject {

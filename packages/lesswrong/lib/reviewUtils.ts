@@ -19,9 +19,10 @@ export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 export function getReviewPhase(): ReviewPhase | void {
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
-  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
-  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
-  const reviewEnd = moment.utc(annualReviewEnd.get())
+  // Add 1 day because the end dates are inclusive
+  const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get()).add(1, "day")
+  const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get()).add(1, "day")
+  const reviewEnd = moment.utc(annualReviewEnd.get()).add(1, "day")
   
   if (currentDate < reviewStart) return
   if (currentDate < nominationsPhaseEnd) return "NOMINATIONS"
@@ -48,9 +49,15 @@ export function postEligibleForReview (post: PostsBase) {
   return true
 }
 
+export function postIsVoteable (post: PostsBase) {
+  return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount > 0
+}
+
+
 export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
   if (!eligibleToNominate(currentUser)) return false
   if (post.userId === currentUser!._id) return false
+  if (!postIsVoteable(post)) return false
   return (postEligibleForReview(post))
 }
 

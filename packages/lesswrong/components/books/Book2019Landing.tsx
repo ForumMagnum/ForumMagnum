@@ -33,10 +33,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridTemplateAreas: `
       "title title title title title"
       "text1 text1 text1 bookCheckout bookCheckout"
-      "bookStack bookStack text2 text2 text2"
+      "spread1 spread1 spread1 spread1 spread1"
+      "spread1half spread1half spread1half spread1half spread1half"
+      "bookStack bookStack bookStack text2 text2"
+      "spread2 spread2 spread2 spread2 spread2"
       "failure failure failure molochNoWon molochNoWon"
       "failure failure failure psycholinguist psycholinguist"
-      "header2 header2 header2 header2 header2"
       "reframing reframing reframing reframing reframing"
     `,
     [theme.breakpoints.down('xs')]: {
@@ -75,7 +77,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       position: "unset",
       top: "unset"
-    }
+    },
+    paddingLeft: 50
+  },
+  spread1: {
+    gridArea: "spread1"
+  },
+  spread1half: {
+    gridArea: "spread1half"
+  },
+  spread2: {
+    gridArea: "spread2",
+  },
+  videocontainer: {
+    maxWidth: "960px",
+    overflow: "hidden"
+  },
+  video: {
+    width: "962px",
+    position: "relative",
+    left: -1
   },
   header2: {
     gridArea: "header2",
@@ -97,7 +118,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "text1"
   },
   text2: {
-    gridArea: "text2"
+    gridArea: "text2",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center"
   },
   essaysBy: {
     alignItems: "flex-end",
@@ -117,8 +141,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bookCheckoutBackground: {
     background: "white",
-    height: 170,
-    paddingTop: 20,
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     }
@@ -147,7 +169,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: "15px",
   },
   body: {
-    ...postBodyStyles(theme)
+    ...postBodyStyles(theme),
+    marginBottom: 50,
+    marginLeft: 50
   },
   mainQuoteAuthor: {
     gridArea: "mainQuoteAuthor",
@@ -186,8 +210,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 12,
     borderRadius: 5,
     textTransform: "uppercase",
-    marginTop: 16,
+    marginTop: 8,
     marginBottom: 16,
+    width: 200,
+    fontSize: "1.3rem",
+  },
+  ctaDisabled: {
+    background: theme.palette.primary.light,
+    opacity: .5,
+    filter: "saturation(.5)",
+    color: "white",
+    display: "block",
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderRadius: 5,
+    textTransform: "uppercase",
+    marginTop: 8,
+    marginBottom: 16,
+    width: 200,
+    cursor: "pointer",
     fontSize: "1.3rem",
   },
   availabilityNotice: {
@@ -220,7 +263,7 @@ const HiddenQuote = ({classes}: ClassesType) => {
 const Book2019Landing = ({classes}: {
   classes: ClassesType,
 }) => {
-  const {Book2019Animation, HeadTags} = Components;
+  const {Book2019Animation, HeadTags, LWTooltip} = Components;
 
   return (
     <div>
@@ -244,15 +287,20 @@ const Book2019Landing = ({classes}: {
         </div>
         <div className={classes.bookCheckout}>
           <div className={classes.bookCheckoutBackground}>
-            <div className={classes.price}>
-              $34 for the four book set
-            </div>
             <a className={classes.cta} onClick={() => {
               captureEvent("2019BookAmazonClicked")
-              window.open("https://smile.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507?sa-no-redirect=1")
+              window.open("https://smile.amazon.com/dp/1736128515?ref=myi_title_dp&sa-no-redirect=1")
             }}>
-              Buy Now (TODO))
+              Amazon US ($30)
             </a>
+            <LWTooltip title="Not available yet">
+              <span className={classes.ctaDisabled} onClick={() => {
+                captureEvent("2019BookAmazonClicked")
+                window.open("https://smile.amazon.co.uk/Map-that-Reflects-Territory-LessWrong/dp/1736128507?sa-no-redirect=1")
+              }}>
+                Amazon UK (£25)
+              </span>
+            </LWTooltip>
             <div className={classes.ctaSmallText}>
               <div className={classes.availabilityNotice}>
                   Limited Stock
@@ -264,25 +312,31 @@ const Book2019Landing = ({classes}: {
           </div>
         </div>
         <div className={classNames(classes.body, classes.text1)}>
-          A series of books featuring writing from <strong>Scott Alexander, Eliezer Yudkowsky, Wei Dai</strong>, Abram Demski, Alexander Turner, Ben Hoffman, Ben Pace, Buck Shlegeris, Chris Van Merwijk, Duncan Sabien, Elizabeth Van Nostrand, Evan Hubringer, Finan Adamson, Hazard, Jacob Falkovich, Jacob Lagerros, Jai Dhyani, Jeff Kaufman, Jeffrey Ladish, Joar Skalse, John S. Wentworth, Kaj Sotala, Lauren Lee, Logan Smith, Megan Crawford, Nostalgebraist, Oliver Habryka, Paul Christiano, P.J. Eby, Raymond Arnold, Rohin M. Shah, Ruben Bloom, Said Achmiz, Scott Garrabrant, Vaniver, Vladimir Mikulik, Zack M. Davis, and Zvi Mowshowitz. 
+          <p>{lw()} is a community blog devoted to refining the art of human rationality. This book set is a collection of our best essays from 2019, as determined by our <Link to="/posts/kdGSTBj3NA2Go3XaE/2019-review-voting-results">Annual Review</Link>.</p>
+          <p>It contains over 50 essays, packaged into a beautiful set of 4 books, which form the latest addition to the LessWrong canon.is a community blog devoted to refining the art of human rationality.</p>
         </div>
-         <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/books-stack_hpbzu7.jpg" />
+        <img className={classes.spread1} src="https://39669.cdn.cke-cs.com/rQvD3VnunXZu34m86e5f/images/740b9c8f623b83765762da9ed63ca0e26d9b622da0c60db1.jpg/w_2800" />
+        <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639200627/risks-from-learned-optimization_yk7hpc.jpg" />
         <div className={classNames(classes.body, classes.text2)}>
-          {lw()} is a community blog devoted to refining the art of human rationality.
-            This is a collection of our best essays from 2018, as determined <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results">by our 2018 Review</Link>. It contains over 40 redesigned graphs,
-            packaged into a beautiful set of 5 books with each book small enough to fit in your pocket.
+          <h2>Machine Learning Art</h2>
+          <p>The cover designs and interior artwork were generated using machine learning, a system called VQGAN+CLIP.</p>
+
+          <p>Based on a starting image and a text prompt, the system attempts to transform the starting image into what it expects to find on the internet connected with the text of the prompt. Below is an animation showing roughly how the process works.</p>
+          
+          <p>The base image was the cover of last year's LessWrong books, using the Mississippi River, and the text prompt for the first book was. <i>The Engines of Cognition by Alex Hillkurtz | System of Gears | Aquarelle | Greek Architecture | Blue on White Color Palette | Trending on Artstation</i>. The text prompt for each essay used the title of the essay.</p>
         </div>
-        <img className={classes.failure} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
+        <div className={classes.spread2}>
+          <div className={classes.videocontainer}>
+            <video loop muted className={classes.video} autoPlay>
+              <source src="https://res.cloudinary.com/lesswrong-2-0/video/upload/v1639001843/StraightOn_Compilation2_1_g7t4fy.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+        {/* <img className={classes.failure} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/failure-splash_fdo2so.jpg"/>
         <img className={classes.molochNoWon} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/moloch-hasnt-won_ndkkdu.jpg"/>
         <img className={classes.psycholinguist} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/human-psycholinguistics_tyrpqk.jpg"/>
-        <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637102237/books-stack_hpbzu7.jpg" />
 
-
-        <div className={classNames(classes.header, classes.header2)}>
-          Header, more significant text
-        </div>
-
-        <img className={classes.reframing} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637284917/reframing-superintelligence_rx8gjx.png"/>
+        <img className={classes.reframing} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1637284917/reframing-superintelligence_rx8gjx.png"/> */}
         </div>
     </div>
   )

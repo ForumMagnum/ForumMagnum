@@ -5,6 +5,8 @@ import classNames from 'classnames';
 
 export const HIGHLIGHT_DURATION = 3
 
+export const CONDENSED_MARGIN_BOTTOM = 4
+
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: `solid 1px ${theme.palette.commentBorderGrey}`,
@@ -56,13 +58,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: "none",
     borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
     '&.comments-node-root':{
-      marginBottom: 4,
+      marginBottom: CONDENSED_MARGIN_BOTTOM,
       borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
     }
   },
   condensed: {
     '&.comments-node-root':{
-      marginBottom: 4,
+      marginBottom: CONDENSED_MARGIN_BOTTOM,
     }
   },
   shortformTop: {

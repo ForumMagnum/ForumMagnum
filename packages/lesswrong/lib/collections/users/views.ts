@@ -147,6 +147,32 @@ Users.addView("usersMapLocations", function () {
 })
 ensureIndex(Users, {mapLocationSet: 1})
 
+Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      karma: {$gte: 1000},
+    },
+    options: {
+      sort: {
+        karma: -1
+      }
+    }
+  }
+})
+
+Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
+    },
+    options: {
+      sort: {
+        displayName: 1
+      }
+    }
+  }
+})
+
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",

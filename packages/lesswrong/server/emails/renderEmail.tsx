@@ -155,7 +155,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // Use the user's last-used timezone, which is the timezone of their browser
   // the last time they visited the site. Potentially null, if they haven't
   // visited since before that feature was implemented.
-  const timezone = user?.lastUsedTimezone || moment.tz.guess();
+  const timezone = user?.lastUsedTimezone || null
   
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
