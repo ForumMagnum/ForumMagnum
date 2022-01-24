@@ -192,9 +192,17 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
   // context.
   const sheetsRegistry = context.sheetsRegistry;
+  const defaultStylesheet = getMergedStylesheet({name: "default", forumThemeOverride: {}});
+  const darkStylesheet = getMergedStylesheet({name: "dark", forumThemeOverride: {}});
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet(themeOptions).url}">`
+    +'<style>'
+    +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
+    +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
+    +'</style>'
+    //`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet(themeOptions).url}">`
+    //+`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${defaultStylesheet.url}" media="screen and (prefers-color-scheme: light)">`
+    //+`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${darkStylesheet.url}" media="screen and (prefers-color-scheme: dark)">`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {

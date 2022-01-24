@@ -67,8 +67,8 @@ const ThemePickerMenu = ({children, classes}: {
   
   const submenu = <Paper>
     {themeMetadata.map((themeMetadata: ThemeMetadata) =>
-      <MenuItem key={themeMetadata.name} onClick={(ev) => {
-        setTheme({
+      <MenuItem key={themeMetadata.name} onClick={async (ev) => {
+        await setTheme({
           ...currentThemeOptions,
           name: themeMetadata.name
         })
@@ -84,8 +84,8 @@ const ThemePickerMenu = ({children, classes}: {
     <Divider/>
     
     {allForumTypes.map((forumType: ForumTypeString) =>
-      <MenuItem key={forumType} onClick={(ev) => {
-        setTheme({
+      <MenuItem key={forumType} onClick={async (ev) => {
+        await setTheme({
           ...currentThemeOptions,
           forumThemeOverride: {
             ...currentThemeOptions.forumThemeOverride,
