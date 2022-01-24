@@ -6,25 +6,6 @@ const maxTiny = "@media screen and (max-width: 400px)";
 export const commentsNodeRootMarginBottom = 17
 
 const clearStyle = (theme: ThemeType): JssStyles => ({
-  ':root': {
-    '--color-primary': theme.palette.primary.main,
-    '--color-primary-light': theme.palette.primary.light,
-    '--color-secondary': theme.palette.secondary.main,
-    '--color-tertiary': theme.palette.lwTertiary.main,
-    '--color-tertiary-dark': theme.palette.lwTertiary.dark,
-    '--color-background': theme.palette.background.default,
-  },
-  '@media (prefers-color-scheme: dark)': {
-    ':root': {
-      // TODO;
-      '--color-primary': theme.palette.darkMode.primary.main,
-      '--color-primary-light': theme.palette.darkMode.primary.light,
-      '--color-secondary': theme.palette.darkMode.secondary.main,
-      '--color-tertiary': theme.palette.darkMode.lwTertiary.main,
-      '--color-tertiary-dark': theme.palette.darkMode.lwTertiary.dark,
-      '--color-background': theme.palette.darkMode.background.default,
-    }
-  },
   html: {
     fontSize: 13,
     boxSizing: "border-box",
@@ -64,6 +45,29 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
 });
 
 const globalStyle = (theme: ThemeType): JssStyles => ({
+  ':root': {
+    '--color-primary': theme.palette.primary.main,
+    '--color-primary-light': theme.palette.primary.light,
+    '--color-secondary': theme.palette.secondary.main,
+    '--color-tertiary': theme.palette.lwTertiary.main,
+    '--color-tertiary-dark': theme.palette.lwTertiary.dark,
+    '--color-background': theme.palette.background.default,
+    '--color-background-pure': theme.palette.background.pure,
+    '--color-grey-high-contrast': theme.palette.greys.highContrast,
+  },
+  '@media (prefers-color-scheme: dark)': {
+    ':root': {
+      // TODO;
+      '--color-primary': theme.palette.darkMode.primary.main,
+      '--color-primary-light': theme.palette.darkMode.primary.light,
+      '--color-secondary': theme.palette.darkMode.secondary.main,
+      '--color-tertiary': theme.palette.darkMode.lwTertiary.main,
+      '--color-tertiary-dark': theme.palette.darkMode.lwTertiary.dark,
+      '--color-background': theme.palette.darkMode.background.default,
+      '--color-background-pure': theme.palette.darkMode.background.pure,
+      '--color-grey-high-contrast': theme.palette.darkMode.greys.highContrast,
+    }
+  },
   ".message.error": {
     color: "#E04E4B",
   },

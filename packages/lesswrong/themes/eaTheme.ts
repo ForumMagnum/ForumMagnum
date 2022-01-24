@@ -47,7 +47,11 @@ const palette = {
     main: deepOrange[900]
   },
   background: {
-    default: '#f6f8f9'
+    default: '#f6f8f9',
+    pure: '#ffffff',
+  },
+  greys: {
+    highContrast: grey[800],
   },
   event: '#0C869B',
   group: '#538747',
@@ -69,7 +73,11 @@ const palette = {
       main: deepOrange[900]
     },
     background: {
-      default: '#020202'
+      default: '#202020',
+      pure: '#000000',
+    },
+    greys: {
+      highContrast: grey[200],
     },
     event: '#0C869B',
     group: '#538747',
@@ -78,7 +86,7 @@ const palette = {
 }
 
 const basicText = {
-  color: grey[900],
+  color: 'var(--color-grey-high-contrast)',
   // use ems (not rems) to preserve relative height even if font-size is changed
   lineHeight: '1.75em',
   fontWeight: 400,
@@ -129,14 +137,14 @@ const theme = createLWTheme({
       fontFamily: titleStack
     },
     title: {
-      color: grey[800],
+      color: 'var(--color-grey-high-contrast)',
       fontFamily: titleStack,
       fontWeight: 500,
       marginBottom: 5,
     },
     // used by h3
     display0: {
-      color: grey[800],
+      color: 'var(--color-grey-high-contrast)',
       fontFamily: titleStack,
       fontWeight: 500,
       fontSize: '1.6rem',
@@ -144,7 +152,7 @@ const theme = createLWTheme({
     },
     // used by h2
     display1: {
-      color: grey[800],
+      color: 'var(--color-grey-high-contrast)',
       fontFamily: titleStack,
       fontWeight: 500,
       fontSize: '2rem',
@@ -152,7 +160,7 @@ const theme = createLWTheme({
     },
     // used by h1
     display2: {
-      color: grey[800],
+      color: 'var(--color-grey-high-contrast)',
       fontFamily: titleStack,
       fontWeight: 500,
       fontSize: '2.4rem',
@@ -160,7 +168,7 @@ const theme = createLWTheme({
     },
     // used by page title
     display3: {
-      color: grey[800],
+      color: 'var(--color-grey-high-contrast)',
       fontFamily: titleStack,
       fontWeight: 500,
       lineHeight: '1.25em'
@@ -172,7 +180,7 @@ const theme = createLWTheme({
   overrides: {
     MuiAppBar: {
       colorDefault: {
-        backgroundColor: "white",
+        backgroundColor: 'var(--color-background-pure)',
       }
     },
     MuiTooltip: {
@@ -259,7 +267,7 @@ const theme = createLWTheme({
         opacity: 1,
       },
       navText: {
-        color: grey[800]
+        color: 'var(--color-grey-high-contrast)',
       }
     },
     TabNavigationFooterItem: {
@@ -274,7 +282,7 @@ const theme = createLWTheme({
     },
     TabNavigationMenuSubItem: {
       root: {
-        color: grey[800]
+        color: 'var(--color-grey-high-contrast)',
       }
     },
     PostsPageTitle: {
@@ -322,11 +330,11 @@ const theme = createLWTheme({
     },
     ContentType: {
       root: {
-        color: grey[800],
+        color: 'var(--color-grey-high-contrast)',
         fontWeight: 600
       },
       icon: {
-        color: grey[800]
+        color: 'var(--color-grey-high-contrast)',
       }
     },
     MuiSnackbarContent: {
