@@ -33,13 +33,16 @@ export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigati
       .reduce((acc, curr, i) => {
         const concat = `${acc}${i > 0 ? ` • ` : ""}${curr}`;
         if (acc.length < 40) return concat;
-        if (concat.length < 150) return concat;
+        // If we have room, concatenate the next paragraph. The statelessness of
+        // this reducer makes it hard to tell if this is the next paragraph, so
+        // we cut it off at the second paragraph.
+        if (concat.length < 150 && i <= 1) return concat;
         return acc;
       }, "");
-    if (firstFewPars.length > 200) {
+    if (firstFewPars.length > 198) {
       return firstFewPars.slice(0, 199).trim() + "…";
     }
-    return firstFewPars;
+    return firstFewPars + " …";
   }
   if (post.shortform)
     return `A collection of shorter posts ${
