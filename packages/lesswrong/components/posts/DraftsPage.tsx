@@ -8,13 +8,9 @@ import Tooltip from "@material-ui/core/Tooltip";
 import {QueryLink} from "../../lib/reactRouterWrapper";
 import {DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD} from "../../lib/collections/posts/views";
 import Checkbox from "@material-ui/core/Checkbox";
+import {useLocation} from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  titleRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
   checkbox: {
     padding: "1px 12px 0 0"
   },
@@ -30,27 +26,24 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const DraftsPage = ({classes}) => {
-  const {SingleColumnSection, SectionTitle, DraftsList, MetaInfo, LWTooltip} = Components
+  const {SingleColumnSection, SectionTitle, DraftsList } = Components
   
   const currentUser = useCurrentUser()
-  const {continueReading} = useContinueReading();
+  const { query } = useLocation();
   const [showArchived, setShowArchived] = useState(false)
   
   if (!currentUser) return <span>You must sign in to view bookmarked posts.</span>
   
+  const currentIncludeDraftEvents = (query.includeDraftEvents === 'true')
+  const currentIncludeArchived = (query.includeArchived === 'true')
+  
+  const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: currentUser._id, limit: 50, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+  draftTerms.includeArchived = currentIncludeArchived
+  draftTerms.includeDraftEvents = currentIncludeDraftEvents
   
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>
-      <div className={classes.titleRow}>
-        <SectionTitle title="Drafts & Unpublished Posts"/>
-        <LWTooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={showArchived} onClick={()=>{setShowArchived(!showArchived)}}/>
-            <MetaInfo className={classes.checkboxLabel}>
-              Show Archived Posts
-            </MetaInfo>
-        </LWTooltip>
-      </div>
-      <DraftsList showArchived={showArchived}/>
+      <DraftsList terms={draftTerms} title={"Drafts & Unpublished Posts"} showAllDraftsLink={false}/>
     </AnalyticsContext>
   </SingleColumnSection>
 }
