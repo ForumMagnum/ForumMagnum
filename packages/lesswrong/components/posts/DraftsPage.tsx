@@ -32,7 +32,7 @@ const DraftsPage = ({classes}) => {
   const { query } = useLocation();
   const [showArchived, setShowArchived] = useState(false)
   
-  if (!currentUser) return <span>You must sign in to view bookmarked posts.</span>
+  if (!currentUser) return <span>You must sign in to view your drafts.</span>
   
   const currentIncludeDraftEvents = (query.includeDraftEvents === 'true')
   const currentIncludeArchived = (query.includeArchived === 'true')
