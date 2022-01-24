@@ -619,6 +619,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
   },
 
+  // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
@@ -670,7 +671,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
   },
 
-
+  // the second batch of reviewVoteScore/reviewVotes fields is for storing the final results of the reviewVoting (so it is easier to tell which posts changed position during the review)
   reviewVoteScoreHighKarma2: {
     type: Number, 
     optional: true,
