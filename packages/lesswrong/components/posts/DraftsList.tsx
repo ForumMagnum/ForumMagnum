@@ -129,5 +129,3 @@ declare global {
   }
 }
 
-
-//TODO: A spinner or something while posts are being deleted?
