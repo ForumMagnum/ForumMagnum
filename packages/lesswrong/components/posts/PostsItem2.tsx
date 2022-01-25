@@ -1,13 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import {
-  postGetPageUrl,
-  postGetLastCommentedAt,
-  postGetLastCommentPromotedAt,
-  postGetCommentCount,
-  postCanDelete
-} from "../../lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount, postCanDelete } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -366,7 +360,7 @@ const PostsItem2 = ({
   resumeReading?: any,
   dismissRecommendation?: any,
   draft?: boolean
-  toggleDeleteDraft?: any,
+  toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
   showDraftTag?: boolean,
@@ -442,9 +436,9 @@ const PostsItem2 = ({
     </LWTooltip>
   )
   
-  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) &&
+  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) && 
     <LWTooltip title={archiveDraftTooltip} placement="right">
-      <ArchiveIcon onClick={() => toggleDeleteDraft(post)}/>
+      <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
     </LWTooltip>
   )
 
@@ -496,7 +490,7 @@ const PostsItem2 = ({
                       sticky={isSticky(post, terms)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
-                      ...{showPersonalIcon ? {showPersonalIcon} : {}}
+                      {...(showPersonalIcon ? {showPersonalIcon} : {})}
                       curatedIconLeft={curatedIconLeft}
                       strikethroughTitle={strikethroughTitle}
                     />
