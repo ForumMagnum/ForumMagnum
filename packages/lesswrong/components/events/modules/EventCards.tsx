@@ -115,7 +115,7 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
   const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2 } = Components
   
   // while the data is loading, show some placeholder empty cards
-  if (loading) {
+  if (loading && !events?.length) {
     return numDefaultCards ? <>
       {_.range(numDefaultCards).map((i) => {
         return <Card key={i} className={classes.eventCard}></Card>
@@ -151,10 +151,7 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
           <div className={classes.eventCardTime}>
             {prettyEventDateTimes(event, timezone, true)}
           </div>
-          <PostsItemTooltipWrapper
-            post={event}
-            className={''}
-          >
+          <PostsItemTooltipWrapper post={event}>
             <div className={classes.eventCardTitle}>
               <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
             </div>

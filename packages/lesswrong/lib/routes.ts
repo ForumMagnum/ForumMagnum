@@ -8,7 +8,7 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 export const communityPath = '/community';
-const communitySectionName = isEAForum ? 'Community and Events' : 'Community';
+const communitySectionName = 'Community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
