@@ -524,6 +524,16 @@ if (forumTypeSetting.get() === 'LessWrong') {
       title: "Books: Engines of Cognition",
       background: "white"
     },
+    {
+      name: 'paymentsAdmin',
+      path: '/payments/admin',
+      componentName: 'AdminPaymentsPage'
+    },
+    {
+      name: 'payments',
+      path: '/payments',
+      redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
   );
 }
 
@@ -718,7 +728,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  },
+  }
 );
 
 addRoute(
@@ -935,7 +945,7 @@ if (['AlignmentForum', 'LessWrong'].includes(forumTypeSetting.get())) {
       path: '/reviews/2019',
       componentName: 'Reviews2019',
       title: "2019 Reviews",
-    }
+    },
   )
 }
 

@@ -23,7 +23,6 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
     return (
       <Components.CommentsListSection
         comments={nestedComments}
-        lastEvent={post.lastVisitedAt}
         loadMoreComments={loadMore}
         totalComments={totalCount as number}
         commentCount={(results && results.length) || 0}
