@@ -9,14 +9,13 @@ import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
-import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
-import { geoSuggestStyles } from '../form-components/LocationFormComponent'
 import Geosuggest from 'react-geosuggest';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -130,8 +129,6 @@ const EventsHome = ({classes}: {
   const [userLocation, setUserLocation] = useState(() => {
     if (currentUser) {
       if (!currentUser.mongoLocation) return null
-
-      console.log('mongolocation', currentUser.mongoLocation)
       return {
         lat: currentUser.mongoLocation.coordinates[1],
         lng: currentUser.mongoLocation.coordinates[0],
@@ -175,7 +172,6 @@ const EventsHome = ({classes}: {
         const results = geocodingResponse?.results;
         
         if (results?.length) {
-          console.log('results', results)
           const location = pickBestReverseGeocodingResult(results)
           saveUserLocation({lat, lng, known, gmaps: location})
         }

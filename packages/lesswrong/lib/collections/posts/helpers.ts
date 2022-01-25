@@ -7,7 +7,6 @@ import { postStatuses, postStatusLabels } from './constants';
 import { cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
-import { replace } from 'lodash';
 
 
 // EXAMPLE-FORUM Helpers
@@ -209,7 +208,7 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
  * 
  * @param {(PostsBase|DbPost)} post - The event to be checked.
  * @param {string} [timezone] - (Optional) Convert datetimes to this timezone.
- * @param {string} [dense] - (Optional) Use the denser format.
+ * @param {string} [dense] - (Optional) Exclude the day of the week.
  * @returns {string} The formatted event datetimes.
  */
 export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, dense?: boolean): string => {

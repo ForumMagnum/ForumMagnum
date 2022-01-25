@@ -78,7 +78,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    marginTop: 10,
+    marginTop: 8,
   },
   eventCardGroup: {
     ...theme.typography.commentStyle,
@@ -95,8 +95,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardTag: {
     ...theme.typography.commentStyle,
     position: 'absolute',
-    bottom: 22,
-    right: 22,
+    bottom: 20,
+    right: 20,
     gridArea: 'tag',
     fontSize: 14,
     [theme.breakpoints.down('xs')]: {
