@@ -343,7 +343,9 @@ const ReviewVotingPage = ({classes}: {
 
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
-    const existingVote = _id ? postsResults?.find(post => post.currentUserReviewVote?._id === _id) : null
+    
+    const existingVote = _id ? postsResults?.find(post => post.currentUserReviewVote?._id === _id)?.currentUserReviewVote : null
+
     return await submitVote({
       variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false},
       optimisticResponse: {
