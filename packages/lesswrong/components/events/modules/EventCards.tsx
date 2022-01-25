@@ -7,6 +7,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_EVENT_IMG } from './HighlightedEventCard';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -131,10 +132,19 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
   }
   
   if (!events?.length) {
+    // link to the Community page when there are no events to show
+    let communityName = 'Community'
+    if (forumTypeSetting.get() === 'EAForum') {
+      communityName = 'EA Community'
+    } else if (forumTypeSetting.get() === 'LessWrong') {
+      communityName = 'LessWrong Community'
+    }
     return <div className={classes.noResults}>
       <div className={classes.noResultsText}>No upcoming events matching your search</div>
       <div className={classes.noResultsCTA}>
-        <Link to={'/community'} className={classes.communityLink}>Explore the EA Community</Link>
+        <Link to={'/community'} className={classes.communityLink}>
+          Explore the {communityName}
+        </Link>
       </div>
     </div>
   }
@@ -142,7 +152,9 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
   return <>
     {events.map(event => {
       return <Card key={event._id} className={classes.eventCard}>
-        <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || DEFAULT_EVENT_IMG} />
+        <Link to={`/events/${event._id}/${event.slug}`}>
+          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || DEFAULT_EVENT_IMG} />
+        </Link>
         <CardContent className={classes.eventCardContent}>
           <div className={classes.eventCardTime}>
             {prettyEventDateTimes(event, timezone, true)}

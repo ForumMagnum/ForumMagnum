@@ -126,7 +126,7 @@ const EventsHome = ({classes}: {
   
   // this is the actual location used for the events query -
   // to make the page load faster, we try to use a saved location
-  const [userLocation, setUserLocation] = useState(() => {
+  const [queryLocation, setQueryLocation] = useState(() => {
     if (currentUser) {
       if (!currentUser.mongoLocation) return null
       return {
@@ -136,7 +136,7 @@ const EventsHome = ({classes}: {
         label: currentUser.location
       }
     }
-    // if the user isn't logged in, save it in local storage instead
+    // if the user isn't logged in, see if we saved it in local storage
     const ls = getBrowserLocalStorage()
     if (!ls) return null
     try {
@@ -161,8 +161,8 @@ const EventsHome = ({classes}: {
   // save it accordingly
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
-  const updateUserLocation = async ({lat, lng, known}) => {
-    if (mapsLoaded && !geocodeError && !userLocation && known) {
+  const saveBrowserLocationForUser = async ({lat, lng, known}) => {
+    if (mapsLoaded && !geocodeError && !queryLocation && known) {
       try {
         // get a list of matching Google locations for the current lat/lng
         const geocoder = new googleMaps.Geocoder();
@@ -184,7 +184,7 @@ const EventsHome = ({classes}: {
   }
 
   // this gets the location from the current user settings or from the user's browser
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, updateUserLocation));
+  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, saveBrowserLocationForUser));
   
   useEffect(() => {
     userGetLocation(currentUser, (newLocation) => {
@@ -197,7 +197,7 @@ const EventsHome = ({classes}: {
   
   const saveUserLocation = ({lat, lng, known, gmaps}) => {
     // save it in the page state
-    setUserLocation({lat, lng, known, label: gmaps.formatted_address})
+    setQueryLocation({lat, lng, known, label: gmaps.formatted_address})
 
     if (currentUser) {
       // save it on the user document
@@ -235,10 +235,10 @@ const EventsHome = ({classes}: {
     filters.onlineEvent = true
   }
   
-  const eventsListTerms: PostsViewTerms = userLocation ? {
+  const eventsListTerms: PostsViewTerms = queryLocation ? {
     view: 'nearbyEvents',
-    lat: userLocation.lat,
-    lng: userLocation.lng,
+    lat: queryLocation.lat,
+    lng: queryLocation.lng,
     ...filters,
   } : {
     view: 'globalEvents',
@@ -253,17 +253,25 @@ const EventsHome = ({classes}: {
     nextFetchPolicy: "cache-first",
     limit: 12,
     itemsPerPage: 12,
-    skip: !userLocation && currentUserLocation.loading
+    skip: !queryLocation && currentUserLocation.loading
   });
   
-  // we attempt to show the next in-person event near you as the highlighted event
+  // we try to highlight the event most relevant to you
   let highlightedEvent: PostsList|undefined;
   if (results && results.length > 0) {
+    // first, try to find the next in-person event near you
     results.forEach(result => {
       if (!highlightedEvent && !result.onlineEvent) {
         highlightedEvent = result
       }
     })
+    // if none, then try to find the next "local" online event near you
+    results.forEach(result => {
+      if (!highlightedEvent && !result.globalEvent) {
+        highlightedEvent = result
+      }
+    })
+    // otherwise, just show the first event in the list
     if (!highlightedEvent) highlightedEvent = results[0]
   }
   
@@ -285,7 +293,8 @@ const EventsHome = ({classes}: {
           <div className={classes.sectionHeadingRow}>
             <h1 className={classes.sectionHeading}>Events</h1>
             <div className={classes.sectionDescription}>
-              Connect with people near you and around the world who are trying to find the best ways to help others. Learn, discuss, collaborate, or just hang out with like-minded people.
+              Connect with people near you and around the world who are trying to find the best ways to help others.
+              Learn, discuss, or just hang out with like-minded people.
             </div>
           </div>
 
@@ -305,7 +314,7 @@ const EventsHome = ({classes}: {
                             })
                           }
                         }}
-                        initialValue={userLocation?.label}
+                        initialValue={queryLocation?.label}
                       />
                     </div>
                 }
@@ -325,7 +334,7 @@ const EventsHome = ({classes}: {
             <div className={classes.loadMoreRow}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
                 <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
-                {currentUser?.nearbyEventsNotifications ? `Edit my event notification settings` : `Sign up for event notifications`}
+                {currentUser?.nearbyEventsNotifications ? `Edit my notification settings` : `Sign up for notifications`}
               </Button>
               {loadMoreButton}
             </div>

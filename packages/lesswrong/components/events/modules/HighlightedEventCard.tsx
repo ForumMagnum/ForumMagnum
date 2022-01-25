@@ -8,6 +8,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { useTracking } from '../../../lib/analyticsEvents';
 
 // space pic for events with no img
 export const DEFAULT_EVENT_IMG = 'Banner/yeldubyolqpl3vqqy0m6'
@@ -22,7 +23,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 350,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    backgroundColor: "rgba(0, 87, 102, 0.63)",
     background: theme.palette.primary.main,
     textAlign: 'center',
     color: 'white',
@@ -83,7 +83,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     boxDecorationBreak: 'clone',
     fontSize: 18,
     lineHeight: '1.4em',
-    color: '#b8d4de',//'#ccdee4',
+    color: "#d4d4d4",
     padding: '0.5rem',
     marginBottom: 10
   },
@@ -106,6 +106,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone()
+  const { captureEvent } = useTracking()
   
   const getEventLocation = (event: PostsList): string => {
     if (event.onlineEvent) return 'Online'
@@ -113,9 +114,10 @@ const HighlightedEventCard = ({event, loading, classes}: {
   }
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+  // the default img and color here should probably be forum-dependent
   const eventImg = event?.eventImageId || DEFAULT_EVENT_IMG
   const cardBackground = {
-    backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.5)), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${eventImg})`
+    backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.6), rgba(0, 87, 102, 0.6)), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${eventImg})`
   }
   
   if (loading) {
@@ -133,7 +135,9 @@ const HighlightedEventCard = ({event, loading, classes}: {
         <CardContent className={classes.content}>
           <div>
             <h1 className={classes.title}>
-              <a href="https://www.eaglobal.org/">Effective Altruism Global</a>
+              <a href="https://www.eaglobal.org/" onClick={() => captureEvent('highlightedEventClicked')}>
+                Effective Altruism Global
+              </a>
             </h1>
           </div>
           <div className={classes.row}>
@@ -156,7 +160,9 @@ const HighlightedEventCard = ({event, loading, classes}: {
           </div>
           <div className={classes.row}>
             <h1 className={classes.title}>
-              <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
+              <Link to={`/events/${event._id}/${event.slug}`} onClick={() => captureEvent('highlightedEventClicked')}>
+                {event.title}
+              </Link>
             </h1>
           </div>
           <div className={classes.row}>
