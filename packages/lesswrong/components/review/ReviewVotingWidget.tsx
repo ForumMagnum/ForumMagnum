@@ -61,7 +61,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     _id: post.currentUserReviewVote._id,
     postId: post._id,
     score: post.currentUserReviewVote.qualitativeScore || 0,
-    type: "QUALITATIVE" as "QUALITATIVE"
+    type: "QUALITATIVE" as const
   } : null
 
   return <ErrorBoundary>

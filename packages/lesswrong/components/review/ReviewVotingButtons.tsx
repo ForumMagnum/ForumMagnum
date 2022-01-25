@@ -8,7 +8,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate } from '../../lib/reviewUtils';
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
-import { round } from 'lodash';
+import round from 'lodash/round';
 
 const downvoteColor = "rgba(125,70,70, .87)"
 const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.palette.primary.main : "rgba(70,125,70, .87)"

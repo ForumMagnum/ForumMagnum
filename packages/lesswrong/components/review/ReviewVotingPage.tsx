@@ -354,7 +354,7 @@ const ReviewVotingPage = ({classes}: {
         }
       }
     })
-  }, [submitVote]);
+  }, [submitVote, postsResults]);
 
   // // 
   // const dispatchQuadraticVote = async ({_id, postId, change, set, reactions}: {
@@ -563,6 +563,8 @@ const ReviewVotingPage = ({classes}: {
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 
+  const costTotalTooltip = costTotal > 500 ? <div>You have spent more than 500 points. Your vote strength will be reduced to account for this.</div> : <div>You have {500 - costTotal} points remaining before your vote-weight begins to reduce.</div>
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -608,7 +610,7 @@ const ReviewVotingPage = ({classes}: {
             {(postsLoading || loading) && <Loading/>}
 
             {!isEAForum && costTotal && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
-              <LWTooltip title={<div><p>You have {500 - costTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
+              <LWTooltip title={costTotalTooltip}>
                 {costTotal}/500
               </LWTooltip>
             </div>}
@@ -697,7 +699,7 @@ const ReviewVotingPage = ({classes}: {
                 _id: post.currentUserReviewVote._id,
                 postId: post._id,
                 score: post.currentUserReviewVote.qualitativeScore,
-                type: "QUALITATIVE" as "QUALITATIVE" 
+                type: "QUALITATIVE" as const
               } : null
               return <div key={post._id} onClick={()=>{
                 setExpandedPost(post)
