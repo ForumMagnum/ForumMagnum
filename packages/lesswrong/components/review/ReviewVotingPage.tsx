@@ -21,7 +21,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
-import { indexToTermsLookup } from './ReviewVotingButtons';
+import { getCostData } from './ReviewVotingButtons';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -132,7 +132,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   comments: {
   },
-  voteTotal: {
+  costTotal: {
     ...theme.typography.commentStyle,
     marginLeft: 10,
     color: theme.palette.grey[600],
@@ -270,7 +270,6 @@ const ReviewVotingPage = ({classes}: {
   });
   // useMulti is incorrectly typed
   const postsResults = results as PostsListWithVotes[] | null;
-  postsResults?.forEach(post=>{if (post.title === "Most Prisoner's Dilemmas are Stag Hunts; Most Stag Hunts are Schelling Problems") { console.log(post.title, post.currentUserReviewVote?.qualitativeScore)}})
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -307,10 +306,10 @@ const ReviewVotingPage = ({classes}: {
     console.error('Error loading posts', postsError);
   }
 
-  function getVoteTotal (posts) {
-    return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0)
+  function getCostTotal (posts) {
+    return posts?.map(post=>getCostData({})[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0)
   }
-  const [voteTotal, setVoteTotal] = useState<number>(getVoteTotal(postsResults))
+  const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))
 
   let defaultSort = ""
   if (getReviewPhase() === "REVIEWS") { 
@@ -466,7 +465,7 @@ const ReviewVotingPage = ({classes}: {
   const canInitialResort = !!postsResults
 
   useEffect(() => {
-    setVoteTotal(getVoteTotal(postsResults))
+    setCostTotal(getCostTotal(postsResults))
   }, [canInitialResort, postsResults])
 
   useEffect(() => {
@@ -608,9 +607,9 @@ const ReviewVotingPage = ({classes}: {
             }
             {(postsLoading || loading) && <Loading/>}
 
-            {!isEAForum && voteTotal && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
-              <LWTooltip title={<div><p>You have {500 - voteTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
-                {voteTotal}/500
+            {!isEAForum && costTotal && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
+              <LWTooltip title={<div><p>You have {500 - costTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
+                {costTotal}/500
               </LWTooltip>
             </div>}
             
@@ -706,11 +705,10 @@ const ReviewVotingPage = ({classes}: {
               >
                 <ReviewVoteTableRow
                   post={post}
+                  costTotal={costTotal}
                   showKarmaVotes={showKarmaVotes}
                   dispatch={dispatchQualitativeVote}
                   currentVote={currentVote}
-                  dispatchQuadraticVote={dispatchQuadraticVote}
-                  useQuadratic={useQuadratic}
                   expandedPostId={expandedPost?._id}
                 />
               </div>

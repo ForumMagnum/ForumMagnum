@@ -170,12 +170,11 @@ const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
 }
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentVote, showKarmaVotes }: {
+  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes }: {
     post: PostsListWithVotes,
+    costTotal?: number,
     dispatch: React.Dispatch<SyntheticQualitativeVote>,
-    dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
-    useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId?: string|null,
     currentVote: SyntheticQualitativeVote|null,
@@ -265,7 +264,7 @@ const ReviewVoteTableRow = (
           </LWTooltip>}
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
-          {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVote={currentVote} />}
+          {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>}
 
