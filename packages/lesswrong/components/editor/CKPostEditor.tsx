@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       right: 0
     }
-  }
+  },
 })
 
 const refreshDisplayMode = ( editor, sidebarElement ) => {

@@ -19,7 +19,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& .ck-presence-list": {
       marginBottom: "0 !important",
     },
-  },
+    
+    '& .ck-user': { //.CKPostEditor-presenceList .ck-user__name
+      backgroundColor: 'unset !important',
+      borderRadius: '0% !important'
+    },
+    '& .ck-user__name': { //.CKPostEditor-presenceList .ck-user__name
+      color: 'unset !important',
+      fontFamily: theme.typography.commentStyle.fontFamily + '!important',
+      fontSize: '1.2rem'
+    }
+  }
   collabModeSelect: {
   },
   saveStatus: {
