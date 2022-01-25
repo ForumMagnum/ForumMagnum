@@ -270,7 +270,7 @@ const ReviewVotingPage = ({classes}: {
   });
   // useMulti is incorrectly typed
   const postsResults = results as PostsListWithVotes[] | null;
-  postsResults?.forEach(post=>{if (post.title === "Nuclear war is unlikely to cause human extinction") { console.log(post.title, post.currentUserReviewVote?.qualitativeScore)}})
+  postsResults?.forEach(post=>{if (post.title === "Most Prisoner's Dilemmas are Stag Hunts; Most Stag Hunts are Schelling Problems") { console.log(post.title, post.currentUserReviewVote?.qualitativeScore)}})
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
