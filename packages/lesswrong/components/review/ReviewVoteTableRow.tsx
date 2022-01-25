@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
@@ -172,13 +172,13 @@ const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
 const ReviewVoteTableRow = (
   { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentVote, showKarmaVotes }: {
     post: PostsListWithVotes,
-    dispatch: React.Dispatch<SyntheticReviewVote>,
+    dispatch: React.Dispatch<SyntheticQualitativeVote>,
     dispatchQuadraticVote: any,
     showKarmaVotes: boolean,
     useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId?: string|null,
-    currentVote: SyntheticReviewVote|null,
+    currentVote: SyntheticQualitativeVote|null,
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
@@ -265,10 +265,7 @@ const ReviewVoteTableRow = (
           </LWTooltip>}
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
-          {!currentUserIsAuthor && <div>{useQuadratic ?
-            <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
-            <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
-          </div>}
+          {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVote={currentVote} />}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>}
 

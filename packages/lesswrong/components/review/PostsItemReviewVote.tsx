@@ -78,7 +78,7 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
 
   if (!canNominate(currentUser, post)) return null
 
-  const voteIndex = newVote || post.currentUserReviewVote
+  const voteIndex = newVote || post.currentUserReviewVote?.qualitativeScore || 0
   const displayVote = indexToTermsLookup[voteIndex]?.label
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
