@@ -46,9 +46,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 374,
     borderRadius: 0,
     overflow: 'visible',
-    [theme.breakpoints.down('xs')]: {
-      height: 370
-    }
   },
   eventCardContent: {
     position: 'relative',
@@ -56,13 +53,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
-    gridArea: 'time',
     fontSize: 14,
     color: theme.palette.primary.main
   },
   eventCardTitle: {
     ...theme.typography.headline,
-    gridArea: 'title',
     fontSize: 20,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
@@ -73,7 +68,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardLocation: {
     ...theme.typography.commentStyle,
-    gridArea: 'location',
     color: "rgba(0, 0, 0, 0.7)",
     fontSize: 14,
     textOverflow: 'ellipsis',
@@ -83,7 +77,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardGroup: {
     ...theme.typography.commentStyle,
-    gridArea: 'group',
     maxWidth: 290,
     fontStyle: 'italic',
     color: "rgba(0, 0, 0, 0.5)",
@@ -93,12 +86,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginTop: 10,
   },
-  eventCardTag: {
+  addToCal: {
     ...theme.typography.commentStyle,
     position: 'absolute',
     bottom: 20,
     right: 20,
-    gridArea: 'tag',
     fontSize: 14,
     [theme.breakpoints.down('xs')]: {
       display: 'none'
@@ -109,8 +101,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 const EventCards = ({events, loading, numDefaultCards, classes}: {
   events?: PostsList[],
-  loading: boolean,
-  numDefaultCards: number,
+  loading?: boolean,
+  numDefaultCards?: number,
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone()
@@ -124,11 +116,11 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
   
   // while the data is loading, show some placeholder empty cards
   if (loading) {
-    return <>
+    return numDefaultCards ? <>
       {_.range(numDefaultCards).map((i) => {
         return <Card key={i} className={classes.eventCard}></Card>
       })}
-    </>
+    </> : null
   }
   
   if (!events?.length) {
@@ -171,7 +163,7 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
           {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
             <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
           </div>}
-          <div className={classes.eventCardTag}>
+          <div className={classes.addToCal}>
             <AddToCalendarIcon post={event} />
           </div>
         </CardContent>

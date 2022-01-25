@@ -15,7 +15,6 @@ export const DEFAULT_EVENT_IMG = 'Banner/yeldubyolqpl3vqqy0m6'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
-    position: 'relative',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -27,7 +26,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'center',
     color: 'white',
     borderRadius: 0,
-    overflow: 'visible',
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
       marginLeft: -4,

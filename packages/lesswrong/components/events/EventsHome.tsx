@@ -128,7 +128,7 @@ const EventsHome = ({classes}: {
   // to make the page load faster, we try to use a saved location
   const [queryLocation, setQueryLocation] = useState(() => {
     if (currentUser) {
-      if (!currentUser.mongoLocation) return null
+      if (!currentUser.mongoLocation || !currentUser.location) return null
       return {
         lat: currentUser.mongoLocation.coordinates[1],
         lng: currentUser.mongoLocation.coordinates[0],
