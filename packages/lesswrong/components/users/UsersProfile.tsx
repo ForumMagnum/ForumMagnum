@@ -300,7 +300,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              {/*<Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>*/}
               <Components.DraftsList terms={draftTerms}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>

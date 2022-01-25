@@ -645,7 +645,7 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
       authorIsUnreviewed: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
       isEvent: false,
-      deletedDraft: false //viewFieldAllowAny
+      deletedDraft: false
     },
     options: {
       sort: {}
