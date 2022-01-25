@@ -28,6 +28,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   question: {
     color: theme.palette.grey[600],
     display: "block",
+  },
+  link: {
+    '&:hover': {
+      opacity: "unset"
+    }
   }
 })
 
@@ -51,8 +56,8 @@ const PostsPageTitle = ({classes, post}: {
         </Link>
       </Typography>}
       <Typography variant="display3" className={classes.root}>
-        {post.draft && <span className={classes.draft}>[Draft] </span>}
-        {post.title}
+        <Link to={postGetPageUrl(post)} className={classes.link}>{post.draft && <span className={classes.draft}>[Draft] </span>}
+        {post.title}</Link>
       </Typography>
     </div>
   )

@@ -11,6 +11,7 @@ import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
+import * as _ from 'underscore';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -61,8 +62,7 @@ interface CommentsListSectionState {
   anchorEl: any,
 }
 
-const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
-  lastEvent?: any,
+const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -77,14 +77,9 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const [highlightDate,setHighlightDate] = useState(
-    (lastEvent?.properties?.createdAt
-      && new Date(lastEvent.properties.createdAt))
-    || (post?.lastVisitedAt &&
-      new Date(post.lastVisitedAt))
-    || new Date()
-  );
+  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
+  const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.item.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     setAnchorEl(event.currentTarget);
@@ -124,8 +119,11 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
         component='span'
         className={classes.inline}
       >
-        Highlighting new comments since <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate}/>
+        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new comments since `}
+        {highlightDate && !newCommentsSinceDate && "No new comments since "}
+        {!highlightDate && "Click to highlight new comments since: "}
+        <a className={classes.button} onClick={handleClick}>
+          <Components.CalendarDate date={highlightDate || new Date()}/>
         </a>
         <Menu
           anchorEl={anchorEl}
