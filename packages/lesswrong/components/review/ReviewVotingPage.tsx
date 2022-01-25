@@ -232,7 +232,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
-export type SyntheticQualitativeVote = {postId: string, score: number, type: 'QUALITATIVE'}
+export type SyntheticQualitativeVote = {_id: string, postId: string, score: number, type: 'QUALITATIVE'}
 export type SyntheticQuadraticVote = {postId: string, score: number, type: 'QUADRATIC'}
 
 const generatePermutation = (count: number, user: UsersCurrent|null): Array<number> => {
@@ -270,6 +270,7 @@ const ReviewVotingPage = ({classes}: {
   });
   // useMulti is incorrectly typed
   const postsResults = results as PostsListWithVotes[] | null;
+  postsResults?.forEach(post=>{if (post.title === "Nuclear war is unlikely to cause human extinction") { console.log(post.title, post.currentUserReviewVote?.qualitativeScore)}})
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -307,7 +308,7 @@ const ReviewVotingPage = ({classes}: {
   }
 
   function getVoteTotal (posts) {
-    return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
+    return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote?.qualitativeScore || 0].cost).reduce((a,b)=>a+b, 0)
   }
   const [voteTotal, setVoteTotal] = useState<number>(getVoteTotal(postsResults))
 
@@ -336,9 +337,49 @@ const ReviewVotingPage = ({classes}: {
     });
   }
 
-  const dispatchQualitativeVote = useCallback(async ({postId, score}: SyntheticQualitativeVote) => {
-    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
+  // const dispatchQualitativeVote = useCallback(async ({postId, score}: SyntheticQualitativeVote) => {
+  //   return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
+  // }, [submitVote]);
+
+
+
+  const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
+    const existingVote = _id ? postsResults?.find(post => post.currentUserReviewVote?._id === _id) : null
+    return await submitVote({
+      variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false},
+      optimisticResponse: {
+        submitReviewVote: {
+          __typename: "ReviewVote",
+          ...existingVote,
+          qualitativeScore: score
+        }
+      }
+    })
   }, [submitVote]);
+
+  // // 
+  // const dispatchQuadraticVote = async ({_id, postId, change, set, reactions}: {
+  //   _id?: string|null,
+  //   postId: string,
+  //   change?: number,
+  //   set?: number,
+  //   reactions?: string[],
+  // }) => {
+  //   const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+  //   const newReactions = reactions || existingVote?.reactions || []
+  //   await submitVote({
+  //     variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions, dummy: false},
+  //     optimisticResponse: _id && {
+  //       __typename: "Mutation",
+  //       submitReviewVote: {
+  //         __typename: "ReviewVote",
+  //         ...existingVote,
+  //         quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0)),
+  //         reactions: newReactions
+  //       }
+  //     }
+  //   })
+  // }
 
   // TODO: This is untested in 2021
   const dispatchQuadraticVote = async ({postId, change, set}: QuadraticVoteUpdate) => {
@@ -359,6 +400,9 @@ const ReviewVotingPage = ({classes}: {
         const post1 = sortReversed ? inputPost2 : inputPost1
         const post2 = sortReversed ? inputPost1 : inputPost2
 
+        const post1Score = post1.currentUserReviewVote?.qualitativeScore
+        const post2Score = post2.currentUserReviewVote?.qualitativeScore
+
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
           const post1NeedsReview = post1.reviewCount === 0 && post1.reviewVoteScoreHighKarma > 4
@@ -371,23 +415,28 @@ const ReviewVotingPage = ({classes}: {
           if (post2NeedsReview && !post1NeedsReview) return 1
           if (post1isCurrentUsers && !post2isCurrentUsers) return -1
           if (post2isCurrentUsers && !post1isCurrentUsers) return 1
-          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
-          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
+          if (post1Score > post2Score) return -1
+          if (post1Score < post2Score) return 1
         }
 
         if (sortPosts === "needsFinalVote") {
-          const post1NotReviewVoted = post1.currentUserReviewVote === null && post1.userId !== currentUser?._id
-          const post2NotReviewVoted = post2.currentUserReviewVote === null && post2.userId !== currentUser?._id
+          const post1NotReviewVoted = post1Score === null && post1.userId !== currentUser?._id
+          const post2NotReviewVoted = !post2Score && post2.userId !== currentUser?._id
           const post1NotKarmaVoted = post1.currentUserVote === null 
           const post2NotKarmaVoted = post2.currentUserVote === null
           if (post1NotReviewVoted && !post2NotReviewVoted) return -1
           if (post2NotReviewVoted && !post1NotReviewVoted) return 1
-          if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
-          if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+          if (post1Score < post2Score) return 1
+          if (post1Score > post2Score) return -1
           if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
           if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
           if (permuted1 < permuted2) return -1;
           if (permuted1 > permuted2) return 1;
+        }
+
+        if (sortPosts === "currentUserReviewVote") {
+          if (post1Score > post2Score) return -1
+          if (post2Score < post1Score) return 1
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
@@ -398,12 +447,12 @@ const ReviewVotingPage = ({classes}: {
 
         // TODO: figure out why commenting this out makes it sort correctly.
 
-        const reviewedNotVoted1 = post1.reviewCount > 0 && !post1.currentUserReviewVote
-        const reviewedNotVoted2 = post2.reviewCount > 0 && !post2.currentUserReviewVote
+        const reviewedNotVoted1 = post1.reviewCount > 0 && !post1Score
+        const reviewedNotVoted2 = post2.reviewCount > 0 && !post2Score
         if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
         if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
-        if (post1.currentUserReviewVote < post2.currentUserReviewVote) return 1
-        if (post1.currentUserReviewVote > post2.currentUserReviewVote) return -1
+        if (post1Score < post2Score) return 1
+        if (post1Score > post2Score) return -1
         if (permuted1 < permuted2) return -1;
         if (permuted1 > permuted2) return 1;
         return 0
@@ -424,23 +473,23 @@ const ReviewVotingPage = ({classes}: {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
   
-  // const quadraticVotes = useMemo(
-  //   () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
-  //     postId: post._id,
-  //     score: post.currentUserReviewVote,
-  //     type: 'QUADRATIC' as const
-  //   } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
-  //   [sortedPosts]
-  // )
+  const quadraticVotes = useMemo(
+    () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
+      postId: post._id,
+      score: post.currentUserReviewVote,
+      type: 'QUADRATIC' as const
+    } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
+    [sortedPosts]
+  )
 
-  // const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
-  // const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
+  const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
+  const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
 
-  // const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
-  //   if (!quadraticVotes) return
-  //   const voteAdjustment = -Math.trunc(voteAverage)
-  //   quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
-  // }
+  const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
+    if (!quadraticVotes) return
+    const voteAdjustment = -Math.trunc(voteAverage)
+    quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
+  }
 
   const instructions = isEAForum ?
     <div className={classes.instructions}>
@@ -646,9 +695,10 @@ const ReviewVotingPage = ({classes}: {
           <div className={classNames({[classes.postList]: getReviewPhase() !== "VOTING", [classes.postLoading]: postsLoading || loading})}>
             {postsHaveBeenSorted && sortedPosts?.map((post) => {
               const currentVote = post.currentUserReviewVote !== null ? {
+                _id: post.currentUserReviewVote._id,
                 postId: post._id,
-                score: post.currentUserReviewVote,
-                type: useQuadratic ? "QUADRATIC" : "QUALITATIVE" as "QUALITATIVE" | "QUADRATIC"
+                score: post.currentUserReviewVote.qualitativeScore,
+                type: "QUALITATIVE" as "QUALITATIVE" 
               } : null
               return <div key={post._id} onClick={()=>{
                 setExpandedPost(post)
@@ -697,13 +747,13 @@ const votesToQuadraticVotes = (posts: PostsListWithVotes[] | null): QuadraticVot
   if (!posts) {
     throw new Error("Cannot convert votes to quadratic votes without posts")
   }
-  const sumScaled = sumBy(posts, post => Math.abs(qualitativeScoreScaling[post.currentUserReviewVote || DEFAULT_QUALITATIVE_VOTE]) || 0)
+  const sumScaled = sumBy(posts, post => Math.abs(qualitativeScoreScaling[post.currentUserReviewVote?.qualitativeScore || DEFAULT_QUALITATIVE_VOTE]) || 0)
   return posts.map(post => {
-    if (post.currentUserReviewVote) {
+    if (post.currentUserReviewVote?.qualitativeScore) {
       const newScore = computeQuadraticVoteScore(
         // DB stores it as number, sadly
-        post.currentUserReviewVote as keyof typeof qualitativeScoreScaling,
-        sumScaled
+        post.currentUserReviewVote.qualitativeScore as keyof typeof qualitativeScoreScaling,
+        sumScaled 
       )
       return {postId: post._id, set: newScore}
     } else {

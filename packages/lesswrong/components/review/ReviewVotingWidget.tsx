@@ -57,12 +57,19 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
 
   if (!eligibleToNominate(currentUser)) return null
 
+  const currentUserVote = post.currentUserReviewVote !== null ? {
+    _id: post.currentUserReviewVote._id,
+    postId: post._id,
+    score: post.currentUserReviewVote.qualitativeScore || 0,
+    type: "QUALITATIVE" as "QUALITATIVE"
+  } : null
+
   return <ErrorBoundary>
       <div className={classes.root}>
         {showTitle && <p>
           Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
         </p>}
-        <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVoteScore={post.currentUserReviewVote}/>
+        <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVote={currentUserVote}/>
       </div>
     </ErrorBoundary>
 }
