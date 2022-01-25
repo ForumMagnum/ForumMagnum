@@ -3,25 +3,28 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import { Card, CardContent } from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
+import { DEFAULT_EVENT_IMG } from './HighlightedEventCard';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
     ...theme.typography.commentStyle,
-    gridColumn: '1 / 3',
-    fontSize: 16,
+    gridColumn: '1 / 4',
+    textAlign: 'center',
+    fontSize: 18,
   },
   noResultsText: {
-    color: "rgba(0, 0, 0, 0.6)",
     marginTop: 10
   },
   noResultsCTA: {
+    fontSize: 14,
     marginTop: 20
   },
   communityLink: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
   },
   eventCards: {
     display: 'grid',
@@ -43,31 +46,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     borderRadius: 0,
     overflow: 'visible',
     [theme.breakpoints.down('xs')]: {
-      // width: 'auto',
       height: 370
     }
   },
   eventCardContent: {
     position: 'relative',
     height: 170,
-    // display: 'grid',
-    // gridTemplateAreas: `
-    //   "time ."
-    //   "title ."
-    //   "location ."
-    //   "group tag"
-    // `,
-    // gridGap: '8px',
-    // gridTemplateRows: '18px 60px 18px 18px',
-    // alignItems: 'baseline',
-    // [theme.breakpoints.down('xs')]: {
-    //   gridTemplateAreas: `
-    //   "time"
-    //   "title"
-    //   "location"
-    //   "group"
-    // `,
-    // }
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
@@ -89,16 +73,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardLocation: {
     ...theme.typography.commentStyle,
     gridArea: 'location',
-    // textAlign: 'right',
     color: "rgba(0, 0, 0, 0.7)",
     fontSize: 14,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     marginTop: 10,
-    // [theme.breakpoints.down('xs')]: {
-    //   textAlign: 'left'
-    // }
   },
   eventCardGroup: {
     ...theme.typography.commentStyle,
@@ -118,7 +98,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     bottom: 22,
     right: 22,
     gridArea: 'tag',
-    // textAlign: 'right',
     fontSize: 14,
     [theme.breakpoints.down('xs')]: {
       display: 'none'
@@ -126,44 +105,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
-/**
- * Randomly assigns one of twelve images to the event based on its _id.
- * 
- * @param eventId - _id of the event/post
- * @returns img url
- */
-const randomEventImg = (eventId) => {
-  const num = _.range(eventId.length).reduce((prev, next) => {
-    return prev + eventId.charCodeAt(next)
-  }, 0) % 12
-
-  switch (num) {
-    case 0:
-      return 'Banner/c4xfkjbyrkgzk67j8yhx'
-    case 1:
-      return 'Banner/lm7in6trshkcnqgeybqr'
-    case 2:
-      return 'Banner/tpa8dburf2fpv7vkqw3h'
-    case 3:
-      return 'Banner/k1uurxviebati6mpaund'
-    case 4:
-      return 'Banner/mngmri7qblzit9jigof4'
-    case 5:
-      return 'Banner/rpeoujevvhdhulgevv3u'
-    case 6:
-      return 'Banner/vxquzxthtaiha6r5lzbq'
-    case 7:
-      return 'Banner/rp0ywuja8mflliboqoxb'
-    case 8:
-      return 'Banner/yvfw6msbycjpz7wncawu'
-    case 9:
-      return 'Banner/rpsvlou1aci2rpz0zpfs'
-    case 10:
-      return 'Banner/jouhj45hrkkfkhinknbg'
-    default:
-      return 'Banner/qfffq3yggslcyttsonxq'
-  }
-}
 
 const EventCards = ({events, loading, numDefaultCards, classes}: {
   events?: PostsList[],
@@ -173,13 +114,14 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
 }) => {
   const { timezone } = useTimezone()
   
-  const getEventLocation = (event) => {
+  const getEventLocation = (event: PostsList): string => {
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
   const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2 } = Components
   
+  // while the data is loading, show some placeholder empty cards
   if (loading) {
     return <>
       {_.range(numDefaultCards).map((i) => {
@@ -190,9 +132,9 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
   
   if (!events?.length) {
     return <div className={classes.noResults}>
-      <div className={classes.noResultsText}>No matching results</div>
+      <div className={classes.noResultsText}>No upcoming events matching your search</div>
       <div className={classes.noResultsCTA}>
-        Why not <Link to={'/community'} className={classes.communityLink}>explore the EA Community</Link>?
+        <Link to={'/community'} className={classes.communityLink}>Explore the EA Community</Link>
       </div>
     </div>
   }
@@ -200,7 +142,7 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
   return <>
     {events.map(event => {
       return <Card key={event._id} className={classes.eventCard}>
-        <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || 'Banner/yeldubyolqpl3vqqy0m6'} />
+        <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || DEFAULT_EVENT_IMG} />
         <CardContent className={classes.eventCardContent}>
           <div className={classes.eventCardTime}>
             {prettyEventDateTimes(event, timezone, true)}

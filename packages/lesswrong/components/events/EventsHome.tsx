@@ -7,11 +7,13 @@ import * as _ from 'underscore';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
-import { Button, CircularProgress, Select, MenuItem } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { geoSuggestStyles } from '../form-components/LocationFormComponent'
@@ -22,9 +24,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     maxWidth: 1200,
     padding: 20,
     margin: 'auto',
-    // [theme.breakpoints.down('xs')]: {
-    //   padding: 0
-    // }
   },
   sectionHeadingRow: {
     display: 'flex',
@@ -37,7 +36,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   sectionHeading: {
-    // ...theme.typography.commentStyle,
     flex: 'none',
     textAlign: 'left',
     fontSize: 34,
@@ -45,11 +43,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
-    // maxWidth: 600,
     textAlign: 'left',
     fontSize: 14,
     lineHeight: '1.8em',
-    // margin: 'auto'
     marginLeft: 80,
     [theme.breakpoints.down('sm')]: {
       marginTop: 10,
@@ -129,6 +125,8 @@ const EventsHome = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   
+  // this is the actual location used for the events query -
+  // to make the page load faster, we try to use a saved location
   const [userLocation, setUserLocation] = useState(() => {
     if (currentUser) {
       if (!currentUser.mongoLocation) return null
@@ -141,7 +139,7 @@ const EventsHome = ({classes}: {
         label: currentUser.location
       }
     }
-    
+    // if the user isn't logged in, save it in local storage instead
     const ls = getBrowserLocalStorage()
     if (!ls) return null
     try {
@@ -152,21 +150,21 @@ const EventsHome = ({classes}: {
       return null
     }
   })
-  const [placeFilter, setPlaceFilter] = useState('all')
   
+  // in-person, online, or all
+  const [modeFilter, setModeFilter] = useState('all')
+
+  // used to set the user's location if they did not already have one
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersProfile',
   });
   
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
-  
-  // if the current user provides their browser location and they do not yet have a location in their user settings,
-  // assign their browser location to their user settings location
+  // if the current user provides their browser location and we don't have a location saved for them,
+  // save it accordingly
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
   const updateUserLocation = async ({lat, lng, known}) => {
-    
     if (mapsLoaded && !geocodeError && !userLocation && known) {
       try {
         // get a list of matching Google locations for the current lat/lng
@@ -189,6 +187,7 @@ const EventsHome = ({classes}: {
     }
   }
 
+  // this gets the location from the current user settings or from the user's browser
   const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, updateUserLocation));
   
   useEffect(() => {
@@ -198,13 +197,14 @@ const EventsHome = ({classes}: {
       }
     });
   }, [currentUserLocation, currentUser]);
+
   
   const saveUserLocation = ({lat, lng, known, gmaps}) => {
     // save it in the page state
     setUserLocation({lat, lng, known, label: gmaps.formatted_address})
 
     if (currentUser) {
-      // save it on the user level
+      // save it on the user document
       void updateUser({
         selector: {_id: currentUser._id},
         data: {
@@ -233,9 +233,9 @@ const EventsHome = ({classes}: {
   const { HighlightedEventCard, EventCards } = Components
 
   const filters: PostsViewTerms = {}
-  if (placeFilter === 'in-person') {
+  if (modeFilter === 'in-person') {
     filters.onlineEvent = false
-  } else if (placeFilter === 'online') {
+  } else if (modeFilter === 'online') {
     filters.onlineEvent = true
   }
   
@@ -260,6 +260,7 @@ const EventsHome = ({classes}: {
     skip: !userLocation && currentUserLocation.loading
   });
   
+  // we attempt to show the next in-person event near you as the highlighted event
   let highlightedEvent: PostsList|undefined;
   if (results && results.length > 0) {
     results.forEach(result => {
@@ -283,6 +284,7 @@ const EventsHome = ({classes}: {
         <div>
           <HighlightedEventCard event={highlightedEvent} loading={loading} />
         </div>
+
         <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <h1 className={classes.sectionHeading}>Events</h1>
@@ -314,8 +316,8 @@ const EventsHome = ({classes}: {
               </div>
               <Select
                 className={classes.filter}
-                value={placeFilter}
-                onChange={(e) => setPlaceFilter(e.target.value)}>
+                value={modeFilter}
+                onChange={(e) => setModeFilter(e.target.value)}>
                   <MenuItem key="all" value="all">In-person and online</MenuItem>
                   <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                   <MenuItem key="online" value="online">Online only</MenuItem>

@@ -1,11 +1,16 @@
 import React from 'react';
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles';
-import { Card, CardContent, CircularProgress } from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+
+// space pic for events with no img
+export const DEFAULT_EVENT_IMG = 'Banner/yeldubyolqpl3vqqy0m6'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -42,14 +47,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: 'white'
   },
   row: {
-    marginTop: 9
+    marginTop: 8
   },
   title: {
     ...theme.typography.headline,
     display: 'inline',
-    // alignItems: 'flex-end',
-    // justifyContent: 'center',
-    // height: 110,
     background: 'black',
     '-webkit-box-decoration-break': 'clone',
     boxDecorationBreak: 'clone',
@@ -105,21 +107,15 @@ const HighlightedEventCard = ({event, loading, classes}: {
 }) => {
   const { timezone } = useTimezone()
   
-  const getEventLocation = (event) => {
+  const getEventLocation = (event: PostsList): string => {
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { AddToCalendarIcon } = Components
-  
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
-  // const highlightedEventImg = event ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/Event/defaults/k7bdilxm08silijqdn2v` : ''
-  // const highlightedEventImg = event ? `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${event.eventImageId || randomEventImg(event._id)}` : ''
-  const highlightedEventImg = event?.eventImageId ?
-    `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${event.eventImageId}` :
-    `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/Banner/yeldubyolqpl3vqqy0m6`
+  const eventImg = event?.eventImageId || DEFAULT_EVENT_IMG
   const cardBackground = {
-    backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.5)), url(${highlightedEventImg})`
+    backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.5)), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${eventImg})`
   }
   
   if (loading) {
@@ -168,14 +164,6 @@ const HighlightedEventCard = ({event, loading, classes}: {
               {getEventLocation(event)}
             </span>
           </div>
-          {/* {event.group && <div className={classes.row}>
-            <span className={classes.group}>
-              <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
-            </span>
-          </div>} */}
-          {/* <div className={classes.addToCal}>
-            <AddToCalendarIcon post={event} hideTooltip hidePlusIcon />
-          </div> */}
         </CardContent>
       </Card>
   )
