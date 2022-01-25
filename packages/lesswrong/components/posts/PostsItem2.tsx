@@ -1,24 +1,18 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import {
-  postGetPageUrl,
-  postGetLastCommentedAt,
-  postGetLastCommentPromotedAt,
-  postGetCommentCount,
-  postCanDelete
-} from "../../lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount, postCanDelete } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { forumTitleSetting } from '../../lib/instanceSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -32,6 +26,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       width: "100%"
     },
     '&:hover $actions': {
+      opacity: .2,
+    },
+    '&:hover $archiveButton': {
       opacity: .2,
     }
   },
@@ -147,6 +144,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     top: 0,
     right: -MENU_WIDTH - 6,
+    width: MENU_WIDTH,
+    height: "100%",
+    cursor: "pointer",
+    alignItems: "center",
+    justifyContent: "center",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
+  archiveButton: {
+    opacity: 0,
+    display: "flex",
+    position: "absolute",
+    top: 1,
+    right: -3*MENU_WIDTH,
     width: MENU_WIDTH,
     height: "100%",
     cursor: "pointer",
@@ -348,7 +360,7 @@ const PostsItem2 = ({
   resumeReading?: any,
   dismissRecommendation?: any,
   draft?: boolean
-  toggleDeleteDraft?: any,
+  toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
   showDraftTag?: boolean,
@@ -424,9 +436,9 @@ const PostsItem2 = ({
     </LWTooltip>
   )
   
-  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) &&
+  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) && 
     <LWTooltip title={archiveDraftTooltip} placement="right">
-      <CloseIcon onClick={() => toggleDeleteDraft(post)}/>
+      <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
     </LWTooltip>
   )
 
@@ -478,7 +490,7 @@ const PostsItem2 = ({
                       sticky={isSticky(post, terms)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
-                      ...{showPersonalIcon ? {showPersonalIcon} : {}}
+                      {...(showPersonalIcon ? {showPersonalIcon} : {})}
                       curatedIconLeft={curatedIconLeft}
                       strikethroughTitle={strikethroughTitle}
                     />
@@ -567,6 +579,8 @@ const PostsItem2 = ({
           {<div className={classes.actions}>
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
+          </div>}
+          {<div className={classes.archiveButton}>
             {archiveButton}
           </div>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
