@@ -24,8 +24,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   presenceList: {
+    '& .ck-user': { //.CKPostEditor-presenceList .ck-user__name
+      backgroundColor: theme.palette.grey[400] + '!important',
+      borderRadius: '0% !important'
+    },
     '& .ck-user__name': { //.CKPostEditor-presenceList .ck-user__name
-      color: 'red !important'
+      color: theme.palette.backgroundColor + '!important',
+      fontFamily: theme.typography.commentStyle.fontFamily + '!important',
+      fontSize: '1.2rem'
     }
   }
 })
