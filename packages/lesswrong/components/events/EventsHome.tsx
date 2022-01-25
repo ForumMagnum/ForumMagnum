@@ -251,8 +251,8 @@ const EventsHome = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 6,
-    itemsPerPage: 6,
+    limit: 12,
+    itemsPerPage: 12,
     skip: !userLocation && currentUserLocation.loading
   });
   

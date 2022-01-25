@@ -146,7 +146,7 @@ const CommunityHome = ({classes}: {
       view: 'events',
       filters: filters,
     }
-    const title = forumTypeSetting.get() === 'EAForum' ? 'Community and Events' : 'Welcome to the Community Section';
+    const title = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Welcome to the Community Section';
     const WelcomeText = () => (isEAForum ?
     <Typography variant="body2" className={classes.welcomeText}>
       <p>
@@ -154,7 +154,7 @@ const CommunityHome = ({classes}: {
         and other users who have added themselves to the map (purple person icons).
       </p>
       <p>
-        This page is being trialed with a handful of EA groups, so the map isn't yet fully populated. For more, visit
+        Not all groups have been added to this page yet. For more, visit
         the <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>.
       </p>
     </Typography> : 
