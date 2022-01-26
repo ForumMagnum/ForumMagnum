@@ -7,7 +7,7 @@ import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
 addGraphQLResolvers({
   Mutation: {
     // TODO:(Review) doc
-    submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string, year: string, dummy: boolean, reactions: string[] }, context: ResolverContext) => {
+    submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string, year: string, dummy: boolean, reactions: string[] }, context: ResolverContext): Promise<DbPost> =>  {
       const { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment, year, dummy, reactions } = args;
       const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to submit a review vote");
@@ -27,7 +27,9 @@ addGraphQLResolvers({
           validate: false,
           currentUser,
         });
-        return newVote.data;
+        const newPost = await Posts.findOne({_id:postId})
+        if (!newPost) throw Error("Can't find post corresponding to Review Vote")
+        return newPost
       } else {
         // TODO:(Review) this could potentially introduce a race condition where
         // the user does two increments in a row and the second read happens
@@ -53,6 +55,7 @@ addGraphQLResolvers({
           currentUser,
         })
         const newPost = await Posts.findOne({_id:postId})
+        if (!newPost) throw Error("Can't find post corresponding to Review Vote")
         return newPost 
       }
     }

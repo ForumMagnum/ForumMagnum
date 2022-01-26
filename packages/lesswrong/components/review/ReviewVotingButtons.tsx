@@ -117,7 +117,11 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
   const [isDefaultVote, setIsDefaultVote] = useState(!currentUserVote?.score)
 
   const createClickHandler = (index:number) => {
-    return () => {
+    return (e:React.MouseEvent) => {
+      // We don't want to change the currently focused post when clicking
+      // on the vote buttons, so we stop the event here
+      e.preventDefault()
+      e.stopPropagation()
       setSelection(index)
       setIsDefaultVote(false)
       dispatch({_id: currentUserVote?._id, postId: post._id, score: index})

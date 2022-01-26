@@ -22,6 +22,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { getCostData } from './ReviewVotingButtons';
+import { randomId } from '../../lib/random';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -283,15 +284,7 @@ const ReviewVotingPage = ({classes}: {
       }
     }
     ${getFragment("PostsReviewVotingList")} 
-  `, {
-    update: (store, mutationResult) => {  
-      updateEachQueryResultOfType({
-        func: handleUpdateMutation,
-        document: mutationResult.data.submitReviewVote,
-        store, typeName: "Post",
-      });
-    }
-  });
+  `);
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
@@ -342,20 +335,21 @@ const ReviewVotingPage = ({classes}: {
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
-    const post = _id ? postsResults?.find(post => post?.currentUserReviewVote?._id === _id) : null
+    const post = postsResults?.find(post => post._id === postId)
+    const newPost = {
+      __typename: "Post",
+      ...post,
+      currentUserReviewVote: {
+        __typename: "ReviewVote",
+        _id: _id || randomId(),
+        qualitativeScore: score
+      }
+    }
 
     return await submitVote({
       variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false},
       optimisticResponse: {
-        submitReviewVote: {
-          __typename: "Post",
-          ...post,
-          currentUserReviewVote: {
-            __typename: "ReviewVote",
-            _id: _id,
-            qualitativeScore: score
-          }
-        }
+        submitReviewVote: newPost
       }
     })
   }, [submitVote, postsResults]);
@@ -464,7 +458,8 @@ const ReviewVotingPage = ({classes}: {
     setSortedPosts(newlySortedPosts)
     setPostsHaveBeenSorted(true)
     captureEvent(undefined, {eventSubType: "postsResorted"})
-  }, [currentUser, captureEvent, postsResults])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser, captureEvent])
   
   const canInitialResort = !!postsResults
 
