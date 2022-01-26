@@ -14,14 +14,13 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
-import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
-import { getCostData } from './ReviewVotingButtons';
 import { randomId } from '../../lib/random';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
@@ -271,11 +270,6 @@ const ReviewVotingPage = ({classes}: {
   });
   // useMulti is incorrectly typed
   const postsResults = results as PostsListWithVotes[] | null;
-  
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
 
   const [submitVote] = useMutation(gql`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
@@ -287,7 +281,6 @@ const ReviewVotingPage = ({classes}: {
   `);
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
-  const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser[userVotesAreQuadraticField] : false)
   const [loading, setLoading] = useState(false)
   const [sortReviews, setSortReviews ] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
@@ -313,26 +306,6 @@ const ReviewVotingPage = ({classes}: {
   const [sortPosts, setSortPosts] = useState(defaultSort)
   const [sortReversed, setSortReversed] = useState(false)
 
-  const handleSetUseQuadratic = (newUseQuadratic: boolean) => {
-    if (!newUseQuadratic) {
-      if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
-        return
-      }
-    }
-
-    setUseQuadratic(newUseQuadratic)
-    void updateUser({
-      selector: {_id: currentUser?._id},
-      data: {
-        [userVotesAreQuadraticField]: newUseQuadratic,
-      }
-    });
-  }
-
-  // const dispatchQualitativeVote = useCallback(async ({postId, score}: SyntheticQualitativeVote) => {
-  //   return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
-  // }, [submitVote]);
-
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
     const post = postsResults?.find(post => post._id === postId)
@@ -353,37 +326,6 @@ const ReviewVotingPage = ({classes}: {
       }
     })
   }, [submitVote, postsResults]);
-
-  // // 
-  // const dispatchQuadraticVote = async ({_id, postId, change, set, reactions}: {
-  //   _id?: string|null,
-  //   postId: string,
-  //   change?: number,
-  //   set?: number,
-  //   reactions?: string[],
-  // }) => {
-  //   const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
-  //   const newReactions = reactions || existingVote?.reactions || []
-  //   await submitVote({
-  //     variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions, dummy: false},
-  //     optimisticResponse: _id && {
-  //       __typename: "Mutation",
-  //       submitReviewVote: {
-  //         __typename: "ReviewVote",
-  //         ...existingVote,
-  //         quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0)),
-  //         reactions: newReactions
-  //       }
-  //     }
-  //   })
-  // }
-
-  // TODO: This is untested in 2021
-  const dispatchQuadraticVote = async ({postId, change, set}: QuadraticVoteUpdate) => {
-    await submitVote({
-      variables: {postId, quadraticChange: change, newQuadraticScore: set, year: REVIEW_YEAR+"", dummy: false},
-    })
-  }
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
@@ -470,24 +412,6 @@ const ReviewVotingPage = ({classes}: {
   useEffect(() => {
     reSortPosts(sortPosts, sortReversed)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed])
-  
-  // const quadraticVotes = useMemo(
-  //   () => sortedPosts?.map(post => (post.currentUserReviewVote !== null ? {
-  //     postId: post._id,
-  //     score: post.currentUserReviewVote,
-  //     type: 'QUADRATIC' as const
-  //   } : null)).filter(Boolean) as SyntheticQuadraticVote[], // nulls are filtered out
-  //   [sortedPosts]
-  // )
-
-  // const voteTotal = (useQuadratic && quadraticVotes) ? computeTotalCost(quadraticVotes) : 0
-  // const voteAverage = (sortedPosts && sortedPosts.length > 0) ? voteTotal/sortedPosts.length : 0
-
-  // const renormalizeVotes = (quadraticVotes: SyntheticQuadraticVote[] | undefined, voteAverage: number) => {
-  //   if (!quadraticVotes) return
-  //   const voteAdjustment = -Math.trunc(voteAverage)
-  //   quadraticVotes.forEach(vote => dispatchQuadraticVote({...vote, change: voteAdjustment, set: undefined }))
-  // }
 
   const instructions = isEAForum ?
     <div className={classes.instructions}>
@@ -614,40 +538,6 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>
             </div>}
             
-            {/* Turned off for the Preliminary Voting phase */}
-            {/* {getReviewPhase() === "VOTING" && <>
-              {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic voting, you cannot go back to default voting without losing your quadratic data.">
-                <Button className={classes.convert} onClick={async () => {
-                  setLoading(true)
-                  await Promise.all(votesToQuadraticVotes(sortedPosts).map(dispatchQuadraticVote))
-                  handleSetUseQuadratic(true)
-                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:true})
-                  setLoading(false)
-                }}>
-                  Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} />
-                </Button>
-              </LWTooltip>}
-              {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
-                <Button className={classes.convert} onClick={async () => {
-                  handleSetUseQuadratic(false)
-                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
-                }}>
-                  <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
-                </Button>
-              </LWTooltip>}
-              {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
-                <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
-                  {voteTotal}/500
-                </div>
-              </LWTooltip>}
-              {useQuadratic && sortedPosts && Math.abs(voteAverage) > 1 && <LWTooltip title={<div>
-                <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
-                <p>If the average of your votes is above 1 or below -1, you are always better off shifting all of your votes by 1 to move closer to an average of 0.</p></div>}>
-                <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
-                  Avg: {(voteTotal / sortedPosts.length).toFixed(2)}
-                </div>
-              </LWTooltip>}
-            </>} */}
             <div className={classes.sortingOptions}>
               <LWTooltip title={`Sorted by ${sortReversed ? "Ascending" : "Descending"}`}>
                 <div onClick={() => { 
@@ -720,65 +610,6 @@ const ReviewVotingPage = ({classes}: {
     </div>
     </AnalyticsContext>
   );
-}
-
-const qualitativeScoreScaling = {
-  1: -45, // 9
-  2: -10, // 4
-  3: -1, // 1
-  4: 0,
-  5: 1, // 1
-  6: 10, // 4
-  7: 45 // 9
-}
-
-const VOTE_BUDGET = 500
-const MAX_SCALING = 6
-
-type QuadraticVoteUpdate = {
-  postId: string,
-  change?: number,
-  set?: number,
-  previousValue?: number
-}
-
-const votesToQuadraticVotes = (posts: PostsListWithVotes[] | null): QuadraticVoteUpdate[] => {
-  if (!posts) {
-    throw new Error("Cannot convert votes to quadratic votes without posts")
-  }
-  const sumScaled = sumBy(posts, post => Math.abs(qualitativeScoreScaling[post.currentUserReviewVote?.qualitativeScore || DEFAULT_QUALITATIVE_VOTE]) || 0)
-  return posts.map(post => {
-    if (post.currentUserReviewVote?.qualitativeScore) {
-      const newScore = computeQuadraticVoteScore(
-        // DB stores it as number, sadly
-        post.currentUserReviewVote.qualitativeScore as keyof typeof qualitativeScoreScaling,
-        sumScaled 
-      )
-      return {postId: post._id, set: newScore}
-    } else {
-      return {postId: post._id, set: 0}
-    }
-  })
-}
-
-const computeQuadraticVoteScore = (qualitativeScore: keyof typeof qualitativeScoreScaling, totalCost: number) => {
-  const scaledScore = qualitativeScoreScaling[qualitativeScore]
-  const scaledCost = scaledScore * Math.min(VOTE_BUDGET/totalCost, MAX_SCALING)
-  const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(Math.abs(scaledCost)))
-  return newScore
-}
-
-const inverseSumOf1ToN = (x:number) => {
-  return Math.sign(x)*(1/2 * (Math.sqrt((8 * Math.abs(x)) + 1) - 1))
-}
-
-const sumOf1ToN = (x:number) => {
-  const absX = Math.abs(x)
-  return absX*(absX+1)/2
-}
-
-const computeTotalCost = (votes: SyntheticQuadraticVote[]) => {
-  return sumBy(votes, ({score}) => sumOf1ToN(score))
 }
 
 const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});

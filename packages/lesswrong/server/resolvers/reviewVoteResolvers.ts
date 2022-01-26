@@ -6,7 +6,9 @@ import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
 
 addGraphQLResolvers({
   Mutation: {
-    // TODO:(Review) doc
+
+    // This mutation returns a post, with the reviewVote included as a field, so that we can get a fast-response-time on the list of ReviewVoteTableRows in ReviewVotingPage.
+    
     submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string, year: string, dummy: boolean, reactions: string[] }, context: ResolverContext): Promise<DbPost> =>  {
       const { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment, year, dummy, reactions } = args;
       const { currentUser } = context;

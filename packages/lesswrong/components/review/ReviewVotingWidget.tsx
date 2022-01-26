@@ -30,21 +30,13 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean, $reactions: [String]) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy, reactions: $reactions) {
-        ...reviewVoteFragment
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
+        ...PostsReviewVotingList
       }
     }
-    ${getFragment("reviewVoteFragment")}
-  `, {
-    update: (store, mutationResult) => {
-      updateEachQueryResultOfType({
-        func: handleUpdateMutation,
-        document: mutationResult.data.submitReviewVote,
-        store, typeName: "ReviewVote",
-      });
-    }
-  });
+    ${getFragment("PostsReviewVotingList")} 
+  `);
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
     _id: string|null,

@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
-import { getCostData } from './ReviewVotingButtons';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
-import { canNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
