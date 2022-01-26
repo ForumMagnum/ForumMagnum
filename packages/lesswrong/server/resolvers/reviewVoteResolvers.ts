@@ -33,7 +33,7 @@ addGraphQLResolvers({
         // the user does two increments in a row and the second read happens
         // before the first write, leading to the discarding of the first
         // increment. We should consider adding an increment option to
-        // updateMutator
+        // updateMutator 
         const finalQuadraticScore = typeof newQuadraticScore !== 'undefined' ?
           newQuadraticScore :
           existingVote.quadraticScore + (quadraticChange || 0)
@@ -58,4 +58,4 @@ addGraphQLResolvers({
     }
   }
 });
-addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, newQuadraticScore: Int, comment: String, year: String, dummy: Boolean, reactions: [String]): ReviewVote');
+addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, newQuadraticScore: Int, comment: String, year: String, dummy: Boolean, reactions: [String]): Post');

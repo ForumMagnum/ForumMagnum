@@ -279,16 +279,16 @@ const ReviewVotingPage = ({classes}: {
   const [submitVote] = useMutation(gql`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
       submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
-        ...reviewVoteFragment
+        ...PostsReviewVotingList
       }
     }
-    ${getFragment("reviewVoteFragment")}
+    ${getFragment("PostsReviewVotingList")} 
   `, {
     update: (store, mutationResult) => {  
       updateEachQueryResultOfType({
         func: handleUpdateMutation,
         document: mutationResult.data.submitReviewVote,
-        store, typeName: "ReviewVote",
+        store, typeName: "Post",
       });
     }
   });
@@ -351,6 +351,7 @@ const ReviewVotingPage = ({classes}: {
           __typename: "Post",
           ...post,
           currentUserReviewVote: {
+            __typename: "ReviewVote",
             _id: _id,
             qualitativeScore: score
           }
