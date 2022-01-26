@@ -21,7 +21,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Card from '@material-ui/core/Card';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
-import { indexToTermsLookup } from './ReviewVotingButtons';
+import { getReviewVoteCostData } from './ReviewVotingButtons';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -132,7 +132,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   comments: {
   },
-  voteTotal: {
+  costTotal: {
     ...theme.typography.commentStyle,
     marginLeft: 10,
     color: theme.palette.grey[600],
@@ -306,10 +306,10 @@ const ReviewVotingPage = ({classes}: {
     console.error('Error loading posts', postsError);
   }
 
-  function getVoteTotal (posts) {
-    return posts?.map(post=>indexToTermsLookup[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
+  function getCostTotal (posts) {
+    return posts?.map(post=>getReviewVoteCostData({costTotal:500})[post.currentUserReviewVote || 0].cost).reduce((a,b)=>a+b, 0)
   }
-  const [voteTotal, setVoteTotal] = useState<number>(getVoteTotal(postsResults))
+  const [costTotal, setCostTotal] = useState<number>(getCostTotal(postsResults))
 
   let defaultSort = ""
   if (getReviewPhase() === "REVIEWS") { 
@@ -417,7 +417,7 @@ const ReviewVotingPage = ({classes}: {
   const canInitialResort = !!postsResults
 
   useEffect(() => {
-    setVoteTotal(getVoteTotal(postsResults))
+    setCostTotal(getCostTotal(postsResults))
   }, [canInitialResort, postsResults])
 
   useEffect(() => {
@@ -515,6 +515,8 @@ const ReviewVotingPage = ({classes}: {
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 
+  const costTotalTooltip = costTotal > 500 ? <div>You have spent more than 500 points. Your vote strength will be reduced to account for this.</div> : <div>You have {500 - costTotal} points remaining before your vote-weight begins to reduce.</div>
+
   return (
     <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
@@ -559,9 +561,9 @@ const ReviewVotingPage = ({classes}: {
             }
             {(postsLoading || loading) && <Loading/>}
 
-            {!isEAForum && voteTotal && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
-              <LWTooltip title={<div><p>You have {500 - voteTotal} points remaining</p><p><em>The vote budget feature is only partially complete. Requires page refresh and doesn't yet do any rebalancing if you overspend.</em></p></div>}>
-                {voteTotal}/500
+            {!isEAForum && costTotal && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
+              <LWTooltip title={costTotalTooltip}>
+                {costTotal}/500
               </LWTooltip>
             </div>}
             
@@ -659,8 +661,7 @@ const ReviewVotingPage = ({classes}: {
                   showKarmaVotes={showKarmaVotes}
                   dispatch={dispatchQualitativeVote}
                   currentVote={currentVote}
-                  dispatchQuadraticVote={dispatchQuadraticVote}
-                  useQuadratic={useQuadratic}
+                  costTotal={costTotal}
                   expandedPostId={expandedPost?._id}
                 />
               </div>

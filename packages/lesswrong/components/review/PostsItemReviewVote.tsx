@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
-import { indexToTermsLookup } from './ReviewVotingButtons';
+import { getReviewVoteCostData } from './ReviewVotingButtons';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { canNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import classNames from 'classnames';
@@ -79,7 +79,7 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
   if (!canNominate(currentUser, post)) return null
 
   const voteIndex = newVote || post.currentUserReviewVote
-  const displayVote = indexToTermsLookup[voteIndex]?.label
+  const displayVote = getReviewVoteCostData({})[voteIndex]?.label
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
   return <div onMouseLeave={() => setAnchorEl(null)}>
