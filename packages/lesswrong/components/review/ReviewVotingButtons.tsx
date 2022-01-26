@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block",
     border: "solid 1px rgba(0,0,0,.1)",
     borderRadius: 3,
-    width: 24,
+    width: 26,
     textAlign: "center",
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
