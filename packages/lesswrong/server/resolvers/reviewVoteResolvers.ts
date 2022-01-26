@@ -52,8 +52,8 @@ addGraphQLResolvers({
           validate: false,
           currentUser,
         })
-        const newVote = await ReviewVotes.findOne({_id: existingVote._id})
-        return newVote;
+        const newPost = await Posts.findOne({_id:postId})
+        return newPost 
       }
     }
   }

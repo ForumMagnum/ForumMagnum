@@ -340,19 +340,20 @@ const ReviewVotingPage = ({classes}: {
   //   return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false}})
   // }, [submitVote]);
 
-
-
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
-    const existingVote = _id ? postsResults?.find(post => post.currentUserReviewVote?._id === _id)?.currentUserReviewVote : null
+    const post = _id ? postsResults?.find(post => post.currentUserReviewVote?._id === _id) : null
 
     return await submitVote({
       variables: {postId, qualitativeScore: score, year: REVIEW_YEAR+"", dummy: false},
       optimisticResponse: {
         submitReviewVote: {
-          __typename: "ReviewVote",
-          ...existingVote,
-          qualitativeScore: score
+          __typename: "Post",
+          ...post,
+          currentUserReviewVote: {
+            _id: _id,
+            qualitativeScore: score
+          }
         }
       }
     })
@@ -590,7 +591,7 @@ const ReviewVotingPage = ({classes}: {
             </SectionTitle>
             <RecentComments terms={{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: sortReviews}} truncated/>
           </div>}
-          <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/>
+          {/* <ReviewVotingExpandedPost key={expandedPost?._id} post={expandedPost}/> */}
         </div>
         <div className={classes.rightColumn}>
           <div className={classes.votingTitle}>Voting</div>
