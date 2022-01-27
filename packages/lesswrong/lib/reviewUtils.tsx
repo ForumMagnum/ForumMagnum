@@ -83,43 +83,43 @@ const getLabelFromCost = (cost) => {
 
 export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
   const divider = costTotal > 500 ? costTotal/500 : 1
-  const dividerWarning = divider && <div>Your vote is downweighted because you spent 500+ points</div>
+  const overSpentWarning = (divider !== 1) ? <div>Your vote is downweighted because you spent 500+ points</div> : null
   return ({
     0: {label: null, cost: 0, tooltip: null},
     1: { label: `-${getLabelFromCost(45/divider)}`, cost: 45, tooltip: 
       <div>
         <p>Highly misleading, harmful, or unimportant.</p>
-        <p><em>Costs 45 points{dividerWarning}</em></p>
+        <p><em>Costs 45 points{overSpentWarning}</em></p>
       </div>},
     2: { label: `-${getLabelFromCost(10/divider)}`, cost: 10, tooltip: 
     <div>
       <p>Very misleading, harmful, or unimportant.</p>
-      <p><em>Costs 10 points{dividerWarning}</em></p>
+      <p><em>Costs 10 points{overSpentWarning}</em></p>
     </div>},
     3: { label: `-${getLabelFromCost(1/divider)}`, cost: 1, tooltip: 
     <div>
       <p>Misleading, harmful or unimportant.</p>
-      <p><em>Costs 1 point{dividerWarning}</em></p>
+      <p><em>Costs 1 point{overSpentWarning}</em></p>
     </div>},
     4: { label: `0`, cost: 0, tooltip: 
     <div>
       <p>No strong opinion on this post,</p>
-      <p><em>Costs 0 points{dividerWarning}</em></p>
+      <p><em>Costs 0 points{overSpentWarning}</em></p>
     </div>},
     5: { label: `${getLabelFromCost(1/divider)}`, cost: 1, tooltip: 
     <div>
       <p>Good</p>
-      <p><em>Costs 1 point{dividerWarning}</em></p>
+      <p><em>Costs 1 point{overSpentWarning}</em></p>
     </div>},
     6: { label: `${getLabelFromCost(10/divider)}`, cost: 10, tooltip: 
     <div>
       <p>Quite important</p>
-      <p><em>Costs 10 points{dividerWarning}</em></p>
+      <p><em>Costs 10 points{overSpentWarning}</em></p>
     </div>},
     7: { label: `${getLabelFromCost(45/divider)}`, cost: 45, tooltip: 
     <div>
       <p>Extremely important</p>
-      <p><em>Costs 45 points{dividerWarning}</em></p>
+      <p><em>Costs 45 points{overSpentWarning}</em></p>
     </div>},
   })
 }
