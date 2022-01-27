@@ -2,17 +2,18 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import { Posts } from '../../lib/collections/posts/collection';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import moment from 'moment'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 export const LOW_KARMA_THRESHOLD = 5
 
 const dateFormat = 'YYYY-MM-DD'
-const launchDateByForum = {
+const launchDateByForum: ForumOptions<string> = {
   LessWrong: 'TODO', // lw-look-here
   AlignmentForum: "Don't",
-  EAForum: '2014-09-10'
+  EAForum: '2014-09-10',
+  default: "ahhhhh",
 }
-const launchDate = launchDateByForum[forumTypeSetting.get()]
+const launchDate = forumSelect(launchDateByForum)
 
 export function makeLowKarmaSelector (karmaThreshold: number): MongoSelector<DbPost> {
   return {

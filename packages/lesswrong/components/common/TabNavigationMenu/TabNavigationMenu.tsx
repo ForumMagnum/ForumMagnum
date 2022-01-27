@@ -6,7 +6,7 @@ import { iconWidth } from './TabNavigationItem'
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -39,7 +39,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
-          {menuTabs[forumTypeSetting.get()].map(tab => {
+          {forumSelect(menuTabs).map(tab => {
             if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
             }

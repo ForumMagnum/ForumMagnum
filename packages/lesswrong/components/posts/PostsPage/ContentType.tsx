@@ -7,6 +7,7 @@ import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { forumTypeSetting, ForumTypeString, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
+import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,7 +38,7 @@ interface ContentTypeSettings {
   Icon: any,
 }
 
-export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,ContentTypeSettings>> = {
+export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSettings>> = {
   LessWrong: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
@@ -208,6 +209,66 @@ export const contentTypes: Record<ForumTypeString,Record<ContentTypeString,Conte
       Icon: TagIcon,
       linkTarget: '/tags/all',
     },
+  },
+  default: {
+    frontpage: {
+      tooltipTitle: 'Frontpage Post',
+      tooltipBody: <React.Fragment>
+        <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
+        <ul>
+          <li>Usefulness, novelty, relevance</li>
+          <li>Timeless content (minimizing reference to current events)</li>
+          <li>Aiming to explain, rather than persuade</li>
+        </ul>
+      </React.Fragment>,
+      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts", // TODO
+      Icon: HomeIcon
+    },
+    personal: {
+      tooltipTitle: 'Personal Blogpost',
+      tooltipBody: <React.Fragment>
+        <div><b>Personal Blogpost</b></div><br/>
+        <div>
+          Members can write whatever they want on their personal blog. Personal
+          blogposts are a good fit for:
+        </div>
+        <ul>
+          <li>Niche topics</li>
+          <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
+          <li>Topics that are difficult to discuss rationally</li>
+          <li>Personal ramblings</li>
+        </ul>
+      </React.Fragment>,
+      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
+      Icon: PersonIcon
+    },
+    curated: {
+      tooltipTitle: 'Curated Post',
+      tooltipBody: <div>
+        The best 2-3 posts each week, selected by the moderation team. Curated
+        posts are featured at the top of the front page and emailed to subscribers.
+      </div>,
+      linkTarget: curatedUrl,
+      Icon: StarIcon,
+    },
+    shortform: {
+      tooltipTitle: 'Shortform',
+      tooltipBody: <div>
+        Writing that is short in length, or written in a short amount of time.
+        Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
+      </div>,
+      linkTarget: "/shortform",
+      Icon: SubjectIcon
+    },
+    tags: {
+      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipBody: <div>
+        Tag and wiki pages, which organize LessWrong posts and concepts in a more
+        durable format.
+      </div>,
+      Icon: TagIcon,
+      linkTarget: '/tags/all',
+    },
   }
 }
 
@@ -221,7 +282,7 @@ const ContentType = ({classes, type, label}: {
   }
   const { LWTooltip, Typography } = Components
 
-  const contentData = contentTypes[forumTypeSetting.get()][type]
+  const contentData = forumSelect(contentTypes)[type]
   return <Typography variant="body1" component="span" className={classes.root}>
     <LWTooltip title={<React.Fragment>
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
