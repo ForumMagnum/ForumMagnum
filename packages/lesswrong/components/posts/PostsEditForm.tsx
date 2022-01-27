@@ -11,6 +11,8 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import {userHasCkCollaboration} from "../../lib/betas";
+import {testServerSetting} from "../../lib/instanceSettings";
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
@@ -45,7 +47,16 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
-
+  
+  console.log({testServer: testServerSetting.get()})
+  
+  // if (!testServerSetting.get() && userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers) {
+    if (userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers) {
+    return <div>
+      This post has experimental collaborative editing enabled. It can only be edited on the development server.
+      {`https://www.lessestwrong.com/posts/${document._id}`}
+    </div>
+  }
   
   return (
     <div className={classes.postForm}>
