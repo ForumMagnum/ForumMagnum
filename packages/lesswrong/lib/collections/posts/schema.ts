@@ -830,9 +830,10 @@ const schema: SchemaType<DbPost> = {
   },
 
   currentUserReviewVote: resolverOnlyField({
-    type: Number,
+    type: "ReviewVote",
+    graphQLtype: "ReviewVote",
     viewableBy: ['members'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<number|null> => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewVote|null> => {
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -843,7 +844,8 @@ const schema: SchemaType<DbPost> = {
         "postId", post._id
       );
       if (!votes.length) return null;
-      return votes[0].qualitativeScore;
+      const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
+      return vote;
     }
   }),
   

@@ -10,9 +10,11 @@ import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { sortings as defaultSortings, timeframes as defaultTimeframes } from './AllPostsPage'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
-const FILTERS_ALL = {
+type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
+
+const FILTERS_ALL: ForumOptions<Partial<Record<Filters, {label: string, tooltip: string}>>> = {
   "AlignmentForum": {
     all: {
       label: "All Posts",
@@ -70,9 +72,28 @@ const FILTERS_ALL = {
       label: "Events",
       tooltip: "Events from around the world."
     },
+  },
+  "default": {
+    all: {
+      label: "All Posts",
+      tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
+    },
+    frontpage: {
+      label: "Frontpage",
+      tooltip: "Posts about research and other work in high-impact cause areas."
+    },
+    questions: {
+      label: "Questions",
+      tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
+    },
+    events: {
+      label: "Events",
+      tooltip: "Events from around the world."
+    },
   }
 }
-const FILTERS = FILTERS_ALL[forumTypeSetting.get()]
+
+const FILTERS = forumSelect(FILTERS_ALL)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

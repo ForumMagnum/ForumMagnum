@@ -10,7 +10,10 @@ registerFragment(`
     draft
     hideCommentKarma
     af
-    currentUserReviewVote
+    currentUserReviewVote {
+      _id
+      qualitativeScore
+    }
     userId
   }
 `);
