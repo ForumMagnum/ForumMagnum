@@ -60,7 +60,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   mapbox: {
     flex: 'none',
     width: 300,
+    marginLeft: 10,
     [theme.breakpoints.down('xs')]: {
+      marginLeft: 0,
       marginTop: 20
     },
   },
