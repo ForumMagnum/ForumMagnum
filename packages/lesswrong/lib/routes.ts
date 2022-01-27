@@ -597,6 +597,16 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: "white"
     },
     {
+      name: 'paymentsAdmin',
+      path: '/payments/admin',
+      componentName: 'AdminPaymentsPage'
+    },
+    {
+      name: 'payments',
+      path: '/payments',
+      redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
+    {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
@@ -1000,7 +1010,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  },
+  }
 );
 
 addRoute(
