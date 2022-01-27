@@ -3,9 +3,10 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
+import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
-import type { CollaborationMode } from './EditorTopBar';
+import { CollaborationMode } from './EditorTopBar';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -53,7 +54,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }: {
+const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel }: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
@@ -63,12 +64,26 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   userId?: string,
   formType?: "new"|"edit",
   onInit?: any,
-  collaboration?: boolean,
+  // Whether this is the contents field of a collaboratively-edited post
+  isCollaborative?: boolean,
+  // If this is the contents field of a collaboratively-edited post, the access level the
+  // logged in user has. Otherwise undefined.
+  accessLevel?: CollaborativeEditingAccessLevel,
   classes: ClassesType,
 }) => {
   const { EditorTopBar } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
-  const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>("Editing");
+  const getInitialCollaborationMode = () => {
+    if (!isCollaborative) return "Editing";
+    if (accessLevelCan(accessLevel, "edit"))
+      return "Editing";
+    else if (accessLevelCan(accessLevel, "comment"))
+      return "Commenting";
+    else
+        return "Viewing";
+  }
+  const initialCollaborationMode = getInitialCollaborationMode()
+  const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -76,7 +91,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     setLayoutReady(true)
   }, [])
 
-  const editorRef = useRef<any>(null)
+  const editorRef = useRef<CKEditor>(null)
   const sidebarRef = useRef(null)
   const presenceListRef = useRef(null)
 
@@ -84,43 +99,47 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
   
+  const applyCollabModeToCkEditor = (editor: any, mode: CollaborationMode) => {
+    switch(mode) {
+      case "Viewing":
+        editor.isReadOnly = true;
+        editor.commands.get('trackChanges').value = false;
+        break;
+      case "Commenting":
+        editor.isReadOnly = false;
+        editor.commands.get('trackChanges').value = true;
+        break;
+      case "Editing":
+        editor.isReadOnly = false;
+        editor.commands.get('trackChanges').value = false;
+        break;
+    }
+  }
   const changeCollaborationMode = (mode: CollaborationMode) => {
     const editor = editorRef.current?.editor;
     if (editor) {
-      switch(mode) {
-        case "Viewing":
-          editor.isReadOnly = true;
-          editor.commands.get('trackChanges').value = false;
-          break;
-        case "Commenting":
-          editor.isReadOnly = false;
-          editor.commands.get('trackChanges').value = true;
-          break;
-        case "Editing":
-          editor.isReadOnly = false;
-          editor.commands.get('trackChanges').value = false;
-          break;
-      }
+      applyCollabModeToCkEditor(editor, mode);
     }
     setCollaborationMode(mode);
   }
 
   return <div>
-    <EditorTopBar
+    {isCollaborative && <EditorTopBar
+      accessLevel={accessLevel||"none"}
       presenceListRef={presenceListRef}
       collaborationMode={collaborationMode}
       setCollaborationMode={changeCollaborationMode}
-    />
+    />}
     
     <div ref={sidebarRef} className={classes.sidebar}/>
 
     {layoutReady && <CKEditor
       ref={editorRef}
       onChange={onChange}
-      editor={collaboration ? PostEditorCollaboration : PostEditor}
+      editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
       onInit={editor => {
-        if (collaboration) {
+        if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEDItor debugger
           // CKEditorInspector.attach(editor)
 
@@ -128,6 +147,8 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
           // We then call the method once to determine the current window size
           refreshDisplayMode(editor, sidebarRef.current);
+          
+          applyCollabModeToCkEditor(editor, collaborationMode);
         }
         if (onInit) onInit(editor)
       }}

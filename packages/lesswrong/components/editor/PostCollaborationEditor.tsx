@@ -7,6 +7,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
+import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -88,7 +89,8 @@ const PostCollaborationEditor = ({ classes }: {
           fieldName="contents"
           formType="edit"
           userId={currentUser?._id}
-          collaboration
+          isCollaborative={true}
+          accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
         />
       </NoSSR>
     </div>

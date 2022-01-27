@@ -13,6 +13,7 @@ import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable'
 import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -168,7 +169,15 @@ interface EditorProps {
   collectionName: CollectionNameString,
   fieldName: string,
   initialEditorType: EditorTypeString,
+  
+  // Whether to use the CkEditor collaborative editor, ie, this is the
+  // contents field of a shared post.
   isCollaborative: boolean,
+  
+  // If isCollaborative is set, the access level the user should have
+  // with CkEditor. Otherwise ignored.
+  accessLevel?: CollaborativeEditingAccessLevel,
+  
   value: EditorContents,
   onChange: (change: EditorChangeEvent)=>void,
   placeholder?: string,
@@ -399,25 +408,20 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
-  renderPlaceholder = (showPlaceholder, collaboration) => {
+  renderPlaceholder = (showPlaceholder, isCollaborative) => {
     const { _classes: classes, placeholder } = this.props
 
     if (showPlaceholder) {
-      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
+      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: isCollaborative})}>
         { placeholder }
       </div>
     }
   }
-
-  isDocumentCollaborative = () => {
-    return this.props.isCollaborative;
-  }
   
-
   renderCkEditor = (contents: EditorContents) => {
     const { ckEditorReference } = this.state
     const ckEditorValue = contents.value;
-    const { documentId, collectionName, fieldName, currentUser, commentEditor, formType } = this.props
+    const { documentId, collectionName, fieldName, currentUser, commentEditor, formType, isCollaborative } = this.props
     const { Loading } = Components
     const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
     const value = ckEditorValue || ckEditorReference?.getData()
@@ -452,13 +456,16 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
 
-      const collaboration = this.isDocumentCollaborative()
       const showPlaceholder = isBlank({type: "ckEditorMarkup", value});
 
       return <div className={this.getHeightClass()}>
-        { this.renderPlaceholder(showPlaceholder, collaboration)}
-        { collaboration
-          ? <Components.CKPostEditor key="ck-collaborate" { ...editorProps } collaboration />
+        { this.renderPlaceholder(showPlaceholder, isCollaborative)}
+        { isCollaborative
+          ? <Components.CKPostEditor key="ck-collaborate"
+              {...editorProps}
+              isCollaborative={true}
+              accessLevel={this.props.accessLevel}
+            />
           : <CKEditor key="ck-default" { ...editorProps } />}
       </div>
     }

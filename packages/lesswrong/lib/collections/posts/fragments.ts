@@ -380,6 +380,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsDetails
+    myEditorAccess
     version
     coauthorUserIds
     moderationGuidelines {

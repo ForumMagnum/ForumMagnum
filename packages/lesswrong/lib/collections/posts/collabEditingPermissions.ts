@@ -14,6 +14,18 @@ export function strongerAccessLevel(a: CollaborativeEditingAccessLevel|null, b: 
   return "none";
 }
 
+export function accessLevelCan(accessLevel: CollaborativeEditingAccessLevel, operation: "read"|"comment"|"edit") {
+  if (accessLevel === "edit") {
+    return true;
+  } else if (accessLevel === "comment") {
+    return operation==="read" || operation==="comment";
+  } else if (accessLevel === "read") {
+    return operation==="read";
+  } else if (accessLevel === "none") {
+    return false;
+  }
+}
+
 export async function getCollaborativeEditorAccess({formType, post, user, useAdminPowers}: {
   formType: "new"|"edit",
   post: DbPost|null,

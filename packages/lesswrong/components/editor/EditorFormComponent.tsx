@@ -103,7 +103,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     if (autosave) {
       throttledSaveBackup(contents);
     }
-  }, [throttledSaveBackup, updateCurrentValues, fieldName]);
+  }, [throttledSaveBackup, updateCurrentValues, fieldName, isCollabEditor]);
   
   useEffect(() => {
     const unloadEventListener = (ev) => {
@@ -187,6 +187,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       fieldName={fieldName}
       initialEditorType={initialEditorType}
       isCollaborative={isCollabEditor}
+      accessLevel={document?.myEditorAccess}
       value={contents}
       onChange={wrappedSetContents}
       placeholder={actualPlaceholder}

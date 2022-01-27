@@ -1,5 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontFamily: theme.typography.commentStyle.fontFamily + '!important',
       fontSize: '1.2rem'
     }
-  }
+  },
   collabModeSelect: {
   },
   saveStatus: {
@@ -38,8 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing";
 
-const EditorTopBar = ({presenceListRef, collaborationMode, setCollaborationMode, classes}: {
+const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setCollaborationMode, classes}: {
   presenceListRef: any,
+  accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
   setCollaborationMode: (mode: CollaborationMode)=>void,
   classes: ClassesType
@@ -57,11 +59,19 @@ const EditorTopBar = ({presenceListRef, collaborationMode, setCollaborationMode,
         setCollaborationMode(newMode);
       }}
     >
-      {availableModes.map((mode, i) =>
-        <MenuItem value={mode} key={i}>
-          {mode}
-        </MenuItem>
-      )}
+      <MenuItem value="Viewing" key="Viewing">
+        Viewing
+      </MenuItem>
+      <MenuItem value="Commenting" key="Commenting"
+        disabled={!accessLevelCan(accessLevel, "comment")}
+      >
+        Commenting
+      </MenuItem>
+      <MenuItem value="Editing" key="Editing"
+        disabled={!accessLevelCan(accessLevel, "edit")}
+      >
+        Editing
+      </MenuItem>
     </Select>
     
     <Button className={classes.saveStatus}>
