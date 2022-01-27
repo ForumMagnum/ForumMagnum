@@ -202,7 +202,6 @@ const PostsPage = ({post, refetch, classes}: {
       <div className={classes.centralColumn}>
         {/* Body */}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
         <div className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">

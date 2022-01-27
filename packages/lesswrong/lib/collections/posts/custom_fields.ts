@@ -647,6 +647,27 @@ addFieldsDict(Posts, {
     group: formGroups.event,
     hidden: (props) => !props.eventForm,
   },
+  
+  eventType: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    hidden: (props) => !props.eventForm,
+    control: 'select',
+    group: formGroups.event,
+    optional: true,
+    order: 2,
+    form: {
+      options: [
+        {value: 'presentation', label: 'Presentation'},
+        {value: 'discussion', label: 'Discussion'},
+        {value: 'workshop', label: 'Workshop'},
+        {value: 'social', label: 'Social'},
+        {value: 'coworking', label: 'Coworking'},
+      ]
+    },
+  },
 
   isEvent: {
     type: Boolean,

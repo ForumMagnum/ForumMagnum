@@ -413,6 +413,7 @@ interface DbPost extends DbObject {
   commentsLocked: boolean
   organizerIds: Array<string>
   groupId: string
+  eventType: string
   isEvent: boolean
   reviewedByUserId: string
   reviewForCuratedUserId: string

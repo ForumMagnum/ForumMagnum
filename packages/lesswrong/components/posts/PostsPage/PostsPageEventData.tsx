@@ -1,5 +1,10 @@
 import Button from '@material-ui/core/Button';
-import OpenInNew from '@material-ui/icons/OpenInNew';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import WebIcon from '@material-ui/icons/Web';
+import ForumIcon from '@material-ui/icons/Forum';
+import CreateIcon from '@material-ui/icons/Create';
+import PeopleIcon from '@material-ui/icons/People';
+import LaptopIcon from '@material-ui/icons/LaptopMac';
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -24,7 +29,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap'
   },
-  eventCTA: {
+  eventType: {
+    ...theme.typography.commentStyle,
+    display: 'flex',
+    alignItems: 'center',
+    color: "rgba(0,0,0,0.3)",
+    fontSize: 12,
+    letterSpacing: 0.2,
+    marginTop: 12
+  },
+  eventTypeIcon: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  inPersonEventCTA: {
+    marginTop: 20
+  },
+  onlineEventCTA: {
     flex: 'none',
     margin: '0 24px',
     [theme.breakpoints.down('xs')]: {
@@ -35,19 +56,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 15,
     marginTop: -4,
     marginLeft: 6
-  }
+  },
+  mapbox: {
+    flex: 'none',
+    width: 300,
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 20
+    },
+  },
 })
 
 const PostsPageEventData = ({classes, post}: {
   classes: ClassesType,
-  post: PostsBase,
+  post: PostsList,
 }) => {
   const {captureEvent} = useTracking()
   
-  const { location, contactInfo, onlineEvent, eventRegistrationLink, joinEventLink } = post
+  const { location, contactInfo, onlineEvent, eventRegistrationLink, joinEventLink, eventType } = post
   
   // event location - for online events, attempt to show the meeting link
-  let locationNode = location && <div>{location}</div>
+  let locationNode = location && <div>
+    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}>
+      {location}
+    </a>
+  </div>
   if (onlineEvent) {
     locationNode = joinEventLink ? <a
       className={classes.onlineEventLocation}
@@ -56,6 +88,36 @@ const PostsPageEventData = ({classes, post}: {
       target="_blank" rel="noopener noreferrer">
         {joinEventLink}
     </a> : <div>Online Event</div>
+  }
+  
+  // if this event was labelled with an event type, display it
+  let eventTypeNode;
+  switch (eventType) {
+    case 'presentation':
+      eventTypeNode = <div className={classes.eventType}>
+        <WebIcon className={classes.eventTypeIcon} /> PRESENTATION
+      </div>
+      break;
+    case 'discussion':
+      eventTypeNode = <div className={classes.eventType}>
+        <ForumIcon className={classes.eventTypeIcon} /> DISCUSSION
+      </div>
+      break;
+    case 'workshop':
+      eventTypeNode = <div className={classes.eventType}>
+        <CreateIcon className={classes.eventTypeIcon} /> WORKSHOP
+      </div>
+      break;
+    case 'social':
+      eventTypeNode = <div className={classes.eventType}>
+        <PeopleIcon className={classes.eventTypeIcon} /> SOCIAL
+      </div>
+      break;
+    case 'coworking':
+      eventTypeNode = <div className={classes.eventType}>
+        <LaptopIcon className={classes.eventTypeIcon} /> COWORKING
+      </div>
+      break;
   }
   
   // determine if it's currently before, during, or after the event
@@ -77,7 +139,7 @@ const PostsPageEventData = ({classes, post}: {
   // if the event has a registration link, display that instead
   if (beforeEvent && eventRegistrationLink) {
     eventCTA = <Button variant="contained" color="primary" href={eventRegistrationLink} onClick={() => captureEvent("eventRegistrationLinkClick")} target="_blank" rel="noopener noreferrer">
-      Register <OpenInNew className={classes.registerBtnIcon} />
+      Register <OpenInNewIcon className={classes.registerBtnIcon} />
     </Button>
   }
   // if the event is soon/now, enable the "Join Event" button
@@ -98,9 +160,16 @@ const PostsPageEventData = ({classes, post}: {
         <Components.EventTime post={post} dense={false} />
         { locationNode }
         { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
+        { eventTypeNode }
+        {eventCTA && post.startTime && !post.onlineEvent && <div className={classes.inPersonEventCTA}>
+          {eventCTA}
+        </div>}
       </div>
-      {eventCTA && post.startTime && <div className={classes.eventCTA}>
+      {eventCTA && post.startTime && post.onlineEvent && <div className={classes.onlineEventCTA}>
         {eventCTA}
+      </div>}
+      {!post.onlineEvent && <div className={classes.mapbox}>
+        <Components.SmallMapPreview post={post} />
       </div>}
   </Components.Typography>
 }
