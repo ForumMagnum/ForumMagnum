@@ -859,8 +859,11 @@ class Form extends Component<any,any> {
 
   */
   formKeyDown = event => {
+    //Ctrl+Enter or Cmd+Enter submits the form
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-      void this.submitForm();
+      if (!this.props.noSubmitOnCmdEnter) {
+        void this.submitForm();
+      }
     }
   };
 
@@ -1112,6 +1115,7 @@ class Form extends Component<any,any> {
   cancelLabel: PropTypes.node,
   revertLabel: PropTypes.node,
   repeatErrors: PropTypes.bool,
+  noSubmitOnCmdEnter: PropTypes.bool,
   warnUnsavedChanges: PropTypes.bool,
   formComponents: PropTypes.object,
 
@@ -1125,6 +1129,7 @@ class Form extends Component<any,any> {
   layout: 'horizontal',
   prefilledProps: {},
   repeatErrors: false,
+  noSubmitOnCmdEnter: false,
   showRemove: true
 };
 

@@ -163,6 +163,7 @@ const PostsNewForm = ({classes}: {
             }}
             eventForm={eventForm}
             repeatErrors
+            noSubmitOnCmdEnter
             formComponents={{
               FormSubmit: NewPostsSubmit
             }}

@@ -98,6 +98,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
             version: 'String'
           }}
           version="draft"
+          noSubmitOnCmdEnter
           repeatErrors
         />
       </NoSsr>
