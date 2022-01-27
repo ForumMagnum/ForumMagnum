@@ -1,10 +1,10 @@
 import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useContext } from 'react';
-import { forumTypeSetting } from './instanceSettings';
 import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
 import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
+import { ForumOptions, forumSelect } from './forumTypeUtils';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -139,7 +139,7 @@ const LwAfDomainWhitelist: Array<string> = [
   "localhost:8300"
 ]
 
-const forumDomainWhitelist: Record<string, Array<string>> = {
+const forumDomainWhitelist: ForumOptions<Array<string>> = {
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
   EAForum: [
@@ -148,10 +148,14 @@ const forumDomainWhitelist: Record<string, Array<string>> = {
     'ea.greaterwrong.com',
     'localhost:3000',
     'localhost:8300'
-  ]
+  ],
+  default: [
+    'localhost:3000',
+    'localhost:8300',
+  ],
 }
 
-const domainWhitelist: Array<string> = forumDomainWhitelist[forumTypeSetting.get()]
+const domainWhitelist: Array<string> = forumSelect(forumDomainWhitelist)
 
 export const hostIsOnsite = (host: string): boolean => {
   let isOnsite = false

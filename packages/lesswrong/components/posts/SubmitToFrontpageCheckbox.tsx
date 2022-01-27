@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
@@ -21,13 +21,14 @@ const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className
   </ul>
 </div>
 
-const forumDefaultTooltip = {
+const forumDefaultTooltip: ForumOptions<(classes?: ClassesType) => JSX.Element | string> = {
   LessWrong: defaultTooltipLWAF,
   AlignmentForum: defaultTooltipLWAF,
-  EAForum: () => "Uncheck this box if you want your post to stay on your personal blog."
+  EAForum: () => "Uncheck this box if you want your post to stay on your personal blog.",
+  default: () => "Uncheck this box if you want your post to stay on your personal blog."
 }
 
-const defaultTooltip = forumDefaultTooltip[forumTypeSetting.get()]
+const defaultTooltip = forumSelect(forumDefaultTooltip)
 
 const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpageWrapper: {

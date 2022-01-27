@@ -5,13 +5,13 @@ import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -109,7 +109,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
     }
   }
   
-  const contentTypeInfo = contentTypes[forumTypeSetting.get()];
+  const contentTypeInfo = forumSelect(contentTypes);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
