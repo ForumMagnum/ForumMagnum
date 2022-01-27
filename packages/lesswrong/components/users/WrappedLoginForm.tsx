@@ -12,6 +12,7 @@ import { useLocation } from '../../lib/routeUtil';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme, true),
+    wordBreak: "normal",
     padding: 16,
     marginTop: 0,
     marginBottom: 0,

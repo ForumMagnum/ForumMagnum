@@ -35,9 +35,13 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
         lastCommentedAt
         added
         removed
+        users {
+          ...UsersMinimumInfo
+        }
       }
     }
     ${fragmentTextForQuery('TagBasicInfo')}
+    ${fragmentTextForQuery('UsersMinimumInfo')}
   `, {
     variables: {
       before, after,
@@ -73,6 +77,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
       tag={tagUpdates.tag}
       revisionIds={tagUpdates.revisionIds}
       commentIds={tagUpdates.commentIds}
+      users={tagUpdates.users}
       commentCount={tagUpdates.commentCount}
       changeMetrics={{added: tagUpdates.added, removed: tagUpdates.removed}}
     />)}

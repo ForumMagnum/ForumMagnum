@@ -74,19 +74,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: "rgba(0, 0, 0, .4)",
     margin: "-8px 0 8px 8px",
   },
+  usernames: {
+    marginRight: 16,
+    
+    maxWidth: 310,
+    textOverflow: "ellipsis",
+    overflowX: "hidden",
+    textAlign: "right",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 160
+    },
+  },
 });
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, changeMetrics, lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, lastRevisedAt, classes}: {
   tag: TagBasicInfo,
   revisionIds: string[],
   commentCount?: number,
   commentIds?: string[],
+  users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
   classes: ClassesType,
   lastRevisedAt?: Date
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo } = Components;
+  const { ChangeMetricsDisplay, PostsItemComments, AllPostsPageTagRevisionItem, CommentById, LWTooltip, PostsItem2MetaInfo, UsersName } = Components;
   
   return <div className={classes.root} >
     <div className={classes.metadata} onClick={ev => setExpanded(!expanded)}>
@@ -102,6 +114,15 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, chang
           </LWTooltip>
         : null
       }
+      
+      {users && users?.length > 0 && <div className={classes.usernames}>
+        <PostsItem2MetaInfo>
+          <UsersName user={users[0]}/>
+          {users.length > 1 && users.slice(1).map(user =>
+            <span key={user._id}>, <UsersName user={user}/></span>
+          )}
+        </PostsItem2MetaInfo>
+      </div>}
 
       {(changeMetrics.added>0 || changeMetrics.removed>0) && <div className={classes.changeMetrics}>
         <ChangeMetricsDisplay changeMetrics={changeMetrics}/>
