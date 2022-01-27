@@ -6,8 +6,10 @@ import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
 
 addGraphQLResolvers({
   Mutation: {
-    // TODO:(Review) doc
-    submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string, year: string, dummy: boolean, reactions: string[] }, context: ResolverContext) => {
+
+    // This mutation returns a post, with the reviewVote included as a field, so that we can get a fast-response-time on the list of ReviewVoteTableRows in ReviewVotingPage.
+    
+    submitReviewVote: async (root: void, args: { postId: string, qualitativeScore: number, quadraticChange: number, newQuadraticScore: number, comment: string, year: string, dummy: boolean, reactions: string[] }, context: ResolverContext): Promise<DbPost> =>  {
       const { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment, year, dummy, reactions } = args;
       const { currentUser } = context;
       if (!currentUser) throw new Error("You must be logged in to submit a review vote");
@@ -27,13 +29,15 @@ addGraphQLResolvers({
           validate: false,
           currentUser,
         });
-        return newVote.data;
+        const newPost = await Posts.findOne({_id:postId})
+        if (!newPost) throw Error("Can't find post corresponding to Review Vote")
+        return newPost
       } else {
         // TODO:(Review) this could potentially introduce a race condition where
         // the user does two increments in a row and the second read happens
         // before the first write, leading to the discarding of the first
         // increment. We should consider adding an increment option to
-        // updateMutator
+        // updateMutator 
         const finalQuadraticScore = typeof newQuadraticScore !== 'undefined' ?
           newQuadraticScore :
           existingVote.quadraticScore + (quadraticChange || 0)
@@ -52,10 +56,11 @@ addGraphQLResolvers({
           validate: false,
           currentUser,
         })
-        const newVote = await ReviewVotes.findOne({_id: existingVote._id})
-        return newVote;
+        const newPost = await Posts.findOne({_id:postId})
+        if (!newPost) throw Error("Can't find post corresponding to Review Vote")
+        return newPost 
       }
     }
   }
 });
-addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, newQuadraticScore: Int, comment: String, year: String, dummy: Boolean, reactions: [String]): ReviewVote');
+addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, newQuadraticScore: Int, comment: String, year: String, dummy: Boolean, reactions: [String]): Post');
