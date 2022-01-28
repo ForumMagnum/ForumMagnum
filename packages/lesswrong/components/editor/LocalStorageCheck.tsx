@@ -17,14 +17,22 @@ const styles = (theme: ThemeType): JssStyles => ({
 type RestorableState = {
   savedDocument: SerializedEditorContents,
 }
+const restorableStateHasMetadata = (savedState) => {
+  return typeof savedState === "object"
+}
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
   
   for (let editorType of editors) {
     const savedState = getLocalStorageHandlers(editorType).get();
     if (savedState) {
+      if (restorableStateHasMetadata(savedState)) {
+        return {
+          savedDocument: savedState,
+        }
+      }
       return {
-        savedDocument: savedState,
+        savedDocument: {type: editorType, value: savedState}
       }
     }
   }

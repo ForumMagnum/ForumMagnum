@@ -12,6 +12,7 @@ import fetch from 'node-fetch';
 import crypto from 'crypto';
 import fs from 'fs';
 import * as _ from 'underscore';
+import moment from 'moment';
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -174,7 +175,7 @@ async function saveOrUpdateDocumentRevision(postId: string, html: string) {
     )
   } else {
     const post = await Posts.findOne(postId);
-    const userId = post.userId;
+    const userId = post!.userId;
     // Create a new rev
     await saveDocumentRevision(userId, postId, html);
   }

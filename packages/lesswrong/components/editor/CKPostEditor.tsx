@@ -74,7 +74,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   const { EditorTopBar } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
-    if (!isCollaborative) return "Editing";
+    if (!isCollaborative || !accessLevel) return "Editing";
     if (accessLevelCan(accessLevel, "edit"))
       return "Editing";
     else if (accessLevelCan(accessLevel, "comment"))
