@@ -149,6 +149,8 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           refreshDisplayMode(editor, sidebarRef.current);
           
           applyCollabModeToCkEditor(editor, collaborationMode);
+          
+          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
         }
         if (onInit) onInit(editor)
       }}

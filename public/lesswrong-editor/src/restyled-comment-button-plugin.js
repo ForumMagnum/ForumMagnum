@@ -14,6 +14,8 @@ export default class RestyledCommentButton extends Plugin {
         icon: commentIcon,
         tooltip: true,
         withText: true,
+        keystroke: 'CTRL+ALT+M',
+        withKeystroke: true
       });
       
       // Callback executed once the image is clicked.
