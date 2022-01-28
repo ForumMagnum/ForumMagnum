@@ -50,7 +50,6 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   function isCollaborative(post): boolean {
     if (!post) return false;
     if (!post._id) return false;
-    // if (fieldName !== "contents") return false;
     if (post?.shareWithUsers) return true;
     if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
       return true;
