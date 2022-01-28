@@ -1,10 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
@@ -20,12 +18,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     maxWidth: 800,
     height: 350,
-    backgroundSize: 'cover',
     backgroundPosition: 'center',
     background: theme.palette.primary.main,
     textAlign: 'center',
     color: 'white',
     borderRadius: 0,
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
       marginLeft: -4,
@@ -33,7 +31,24 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   content: {
-    overflow: 'visible'
+    position: 'relative',
+    background: 'inherit',
+    padding: '10px 20px',
+    overflow: 'visible',
+    '&::before': {
+      content: "''",
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'inherit',
+      filter: 'blur(12px)',
+    }
+  },
+  text: {
+    position: 'relative',
+    zIndex: 1,
   },
   spinnerContainer: {
     display: 'flex',
@@ -42,48 +57,31 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: '100%'
   },
   spinner: {
-    color: 'white'
+    "& div": {
+      backgroundColor: 'white',
+    }
   },
   row: {
     marginTop: 8
   },
   title: {
     ...theme.typography.headline,
-    display: 'inline',
-    background: 'black',
-    '-webkit-box-decoration-break': 'clone',
-    boxDecorationBreak: 'clone',
     fontSize: 36,
-    lineHeight: '1.4em',
     color: 'white',
-    padding: '0.5rem',
-    marginBottom: 5,
+    marginTop: 0,
+    marginBottom: 10,
     [theme.breakpoints.down('sm')]: {
       fontSize: 32,
     }
   },
-  group: {
-    ...theme.typography.commentStyle,
-    display: 'inline',
-    background: 'black',
-    '-webkit-box-decoration-break': 'clone',
-    boxDecorationBreak: 'clone',
-    fontSize: 14,
-    fontStyle: 'italic',
-    padding: '0.5rem',
-    marginBottom: 30,
-  },
   detail: {
     ...theme.typography.commentStyle,
-    display: 'inline',
-    background: 'black',
-    '-webkit-box-decoration-break': 'clone',
-    boxDecorationBreak: 'clone',
     fontSize: 18,
     lineHeight: '1.4em',
-    color: "#d4d4d4",
-    padding: '0.5rem',
-    marginBottom: 10
+    marginBottom: 8,
+    '&:last-of-type': {
+      marginBottom: 0
+    }
   },
   addToCal: {
     ...theme.typography.commentStyle,
@@ -111,6 +109,8 @@ const HighlightedEventCard = ({event, loading, classes}: {
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
+  const { Loading } = Components
+  
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
   const eventImg = event?.eventImageId || DEFAULT_EVENT_IMG
@@ -121,7 +121,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
   if (loading) {
     return <Card className={classes.root}>
       <div className={classes.spinnerContainer}>
-        <CircularProgress className={classes.spinner}/>
+        <Loading white />
       </div>
     </Card>
   }
@@ -130,46 +130,40 @@ const HighlightedEventCard = ({event, loading, classes}: {
   if (!event) {
     return (
       <Card className={classes.root} style={cardBackground}>
-        <CardContent className={classes.content}>
-          <div>
+        <div className={classes.content}>
+          <div className={classes.text}>
             <h1 className={classes.title}>
               <a href="https://www.eaglobal.org/" onClick={() => captureEvent('highlightedEventClicked')}>
                 Effective Altruism Global
               </a>
             </h1>
-          </div>
-          <div className={classes.row}>
-            <span className={classes.detail}>
+            <div className={classes.detail}>
               Conferences in various locations
-            </span>
+            </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     )
   }
 
   return (
-      <Card className={classes.root} style={cardBackground}>
-        <CardContent className={classes.content}>
-          <div>
-            <span className={classes.detail}>
-              {prettyEventDateTimes(event, timezone, true)}
-            </span>
+    <Card className={classes.root} style={cardBackground}>
+      <div className={classes.content}>
+        <div className={classes.text}>
+          <div className={classes.detail}>
+            {prettyEventDateTimes(event, timezone, true)}
           </div>
-          <div className={classes.row}>
-            <h1 className={classes.title}>
-              <Link to={`/events/${event._id}/${event.slug}`} onClick={() => captureEvent('highlightedEventClicked')}>
-                {event.title}
-              </Link>
-            </h1>
+          <h1 className={classes.title}>
+            <Link to={`/events/${event._id}/${event.slug}`} onClick={() => captureEvent('highlightedEventClicked')}>
+              {event.title}
+            </Link>
+          </h1>
+          <div className={classes.detail}>
+            {getEventLocation(event)}
           </div>
-          <div className={classes.row}>
-            <span className={classes.detail}>
-              {getEventLocation(event)}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+    </Card>
   )
 }
 

@@ -11,7 +11,6 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -93,6 +92,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+    alignItems: 'center'
   },
   loadMore: {
     ...theme.typography.commentStyle,
@@ -143,7 +143,7 @@ const EventsHome = ({classes}: {
       return JSON.parse(ls.getItem('userlocation'))
     } catch(e) {
       // eslint-disable-next-line no-console
-      console.warn(e);
+      console.error(e);
       return null
     }
   })
@@ -215,7 +215,7 @@ const EventsHome = ({classes}: {
         ls?.setItem('userlocation', JSON.stringify({lat, lng, known, label: gmaps.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
-        console.warn(e);
+        console.error(e);
       }
     }
   }
@@ -226,7 +226,7 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { HighlightedEventCard, EventCards } = Components
+  const { HighlightedEventCard, EventCards, Loading } = Components
 
   const filters: PostsViewTerms = {}
   if (modeFilter === 'in-person') {
@@ -251,8 +251,8 @@ const EventsHome = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 12,
-    itemsPerPage: 12,
+    limit: 3,
+    itemsPerPage: 3,
     skip: !queryLocation && currentUserLocation.loading
   });
   
@@ -279,70 +279,68 @@ const EventsHome = ({classes}: {
     Load More
   </button>
   if (loading && results?.length) {
-    loadMoreButton = <CircularProgress size={16} />
+    loadMoreButton = <div><Loading /></div>
   }
 
   return (
-    <>
-      <AnalyticsContext pageContext="EventsHome">
-        <div>
-          <HighlightedEventCard event={highlightedEvent} loading={loading} />
+    <AnalyticsContext pageContext="EventsHome">
+      <div>
+        <HighlightedEventCard event={highlightedEvent} loading={loading} />
+      </div>
+
+      <div className={classes.section}>
+        <div className={classes.sectionHeadingRow}>
+          <h1 className={classes.sectionHeading}>Events</h1>
+          <div className={classes.sectionDescription}>
+            Connect with people near you and around the world who are trying to find the best ways to help others.
+            Learn, discuss, or just hang out with like-minded people.
+          </div>
         </div>
 
-        <div className={classes.section}>
-          <div className={classes.sectionHeadingRow}>
-            <h1 className={classes.sectionHeading}>Events</h1>
-            <div className={classes.sectionDescription}>
-              Connect with people near you and around the world who are trying to find the best ways to help others.
-              Learn, discuss, or just hang out with like-minded people.
+        <div className={classes.eventCards}>
+          <div className={classes.filters}>
+            <div className={classes.where}>
+              Showing events near {mapsLoaded
+                && <div className={classes.geoSuggest}>
+                    <Geosuggest
+                      placeholder="Location"
+                      onSuggestSelect={(suggestion) => {
+                        if (suggestion?.location) {
+                          saveUserLocation({
+                            ...suggestion.location,
+                            known: true,
+                            gmaps: suggestion.gmaps
+                          })
+                        }
+                      }}
+                      initialValue={queryLocation?.label}
+                    />
+                  </div>
+              }
             </div>
+            <Select
+              className={classes.filter}
+              value={modeFilter}
+              onChange={(e) => setModeFilter(e.target.value)}>
+                <MenuItem key="all" value="all">In-person and online</MenuItem>
+                <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
+                <MenuItem key="online" value="online">Online only</MenuItem>
+            </Select>
           </div>
 
-          <div className={classes.eventCards}>
-            <div className={classes.filters}>
-              <div className={classes.where}>
-                Showing events near {mapsLoaded
-                  && <div className={classes.geoSuggest}>
-                      <Geosuggest
-                        placeholder="Location"
-                        onSuggestSelect={(suggestion) => {
-                          if (suggestion?.location) {
-                            saveUserLocation({
-                              ...suggestion.location,
-                              known: true,
-                              gmaps: suggestion.gmaps
-                            })
-                          }
-                        }}
-                        initialValue={queryLocation?.label}
-                      />
-                    </div>
-                }
-              </div>
-              <Select
-                className={classes.filter}
-                value={modeFilter}
-                onChange={(e) => setModeFilter(e.target.value)}>
-                  <MenuItem key="all" value="all">In-person and online</MenuItem>
-                  <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
-                  <MenuItem key="online" value="online">Online only</MenuItem>
-              </Select>
-            </div>
-
-            <EventCards events={results} loading={loading} numDefaultCards={6} />
-            
-            <div className={classes.loadMoreRow}>
-              <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
-                <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
-                {currentUser?.nearbyEventsNotifications ? `Edit my notification settings` : `Sign up for notifications`}
-              </Button>
-              {loadMoreButton}
-            </div>
-          </div>
+          <EventCards events={results} loading={loading} numDefaultCards={6} />
           
+          <div className={classes.loadMoreRow}>
+            <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
+              <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
+              {currentUser?.nearbyEventsNotifications ? `Edit my notification settings` : `Sign up for notifications`}
+            </Button>
+            {loadMoreButton}
+          </div>
         </div>
-      </AnalyticsContext>
-    </>
+        
+      </div>
+    </AnalyticsContext>
   )
 }
 

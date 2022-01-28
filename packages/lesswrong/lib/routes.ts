@@ -7,11 +7,9 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 
 
-const isEAForum = forumTypeSetting.get() === 'EAForum';
 export const communityPath = '/community';
-const communitySectionName = 'Community';
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
@@ -879,14 +877,14 @@ if (hasEventsSetting.get()) {
       name: 'CommunityHome',
       path: communityPath,
       componentName: 'CommunityHome',
-      title: communitySectionName,
+      title: 'Community',
       ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
       path: '/meetups',
       componentName: 'CommunityHome',
-      title: communitySectionName,
+      title: 'Community',
     },
 
     {
@@ -909,7 +907,8 @@ if (hasEventsSetting.get()) {
       componentName: 'PostsSingle',
       titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
-      ...communitySubtitle,
+      subtitle: 'Events',
+      subtitleLink: '/events',
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
       background: postBackground
     },
