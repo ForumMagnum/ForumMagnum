@@ -11,7 +11,6 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import {userHasCkCollaboration} from "../../lib/betas";
 import {testServerSetting} from "../../lib/instanceSettings";
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
@@ -48,15 +47,27 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     fragmentName: 'SuggestAlignmentPost',
   })
   
-  console.log({testServer: testServerSetting.get()})
-  
-  // if (!testServerSetting.get() && userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers) {
-    if (userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers) {
-    return <div>
-      This post has experimental collaborative editing enabled. It can only be edited on the development server.
-      {`https://www.lessestwrong.com/posts/${document._id}`}
-    </div>
+  function isCollaborative(post): boolean {
+    if (!post) return false;
+    if (!post._id) return false;
+    // if (fieldName !== "contents") return false;
+    if (post?.shareWithUsers) return true;
+    if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+      return true;
+    return false;
   }
+  
+  
+  if (!testServerSetting.get() && isCollaborative(document)) {
+    return <Components.SingleColumnSection>
+      <p>This post has experimental collaborative editing enabled.</p>
+      <p>It can only be edited on the development server.</p>
+      <a className={classes.collaborativeRedirectLink} href={`https://www.lessestwrong.com/editPost?postId=${document?._id}`}>
+        <h1>EDIT THE POST HERE</h1>
+      </a>     
+    </Components.SingleColumnSection>
+  }
+      
   
   return (
     <div className={classes.postForm}>

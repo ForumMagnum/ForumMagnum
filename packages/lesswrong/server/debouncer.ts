@@ -282,6 +282,7 @@ export const forcePendingEvents = async (upToDate=null) => {
     // Keep checking for more events to handle so long as one was handled.
   } while (eventToHandle);
 }
+
 Vulcan.forcePendingEvents = forcePendingEvents;
 
 if (!testServerSetting.get()) {
@@ -294,3 +295,4 @@ if (!testServerSetting.get()) {
     }
   });
 }
+

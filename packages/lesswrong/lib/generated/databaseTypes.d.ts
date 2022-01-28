@@ -434,6 +434,7 @@ interface DbPost extends DbObject {
   eventImageId: string
   types: Array<string>
   metaSticky: boolean
+  sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
   shareWithUsers: Array<string>
   commentSortOrder: string
   hideAuthor: boolean
