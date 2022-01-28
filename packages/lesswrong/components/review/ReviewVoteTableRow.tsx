@@ -157,6 +157,9 @@ const styles = (theme: ThemeType) => ({
     ...voteTextStyling(theme),
     color: theme.palette.grey[500],
     cursor: "default"
+  },
+  commentsCount: {
+    paddingBottom: 8
   }
 });
 
@@ -191,10 +194,9 @@ const ReviewVoteTableRow = (
     setMarkedVisitedAt(new Date()) 
   }
 
-  if (!currentUser) return null;
   const expanded = expandedPostId === post._id
 
-  const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
+  const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
   const voteMap = {
     'bigDownvote': 'a strong downvote',
@@ -231,12 +233,14 @@ const ReviewVoteTableRow = (
             post={post}
           />
         </div>}
-        <PostsItemComments
-          small={false}
-          commentCount={postGetCommentCount(post)}
-          unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
-          newPromotedComments={false}
-        />
+        <div className={classes.commentsCount}>
+          <PostsItemComments
+            small={false}
+            commentCount={postGetCommentCount(post)}
+            unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
+            newPromotedComments={false}
+          />
+        </div>
         {getReviewPhase() !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
             { post.reviewCount }
