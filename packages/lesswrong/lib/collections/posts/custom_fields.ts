@@ -931,6 +931,7 @@ addFieldsDict(Posts, {
     label: "Sharing Settings",
     group: formGroups.title,
     blackbox: true,
+    hidden: true,
   },
   
   shareWithUsers: {
