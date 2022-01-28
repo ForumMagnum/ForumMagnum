@@ -329,6 +329,8 @@ const ReviewVotingPage = ({classes}: {
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
+  const canInitialResort = !!postsResults
+
   const reSortPosts = useCallback((sortPosts, sortReversed) => {
     if (!postsResults) return
 
@@ -401,10 +403,8 @@ const ReviewVotingPage = ({classes}: {
     setPostsHaveBeenSorted(true)
     captureEvent(undefined, {eventSubType: "postsResorted"})
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, captureEvent])
+  }, [currentUser, captureEvent, canInitialResort])
   
-  const canInitialResort = !!postsResults
-
   useEffect(() => {
     setCostTotal(getCostTotal(postsResults))
   }, [canInitialResort, postsResults])
