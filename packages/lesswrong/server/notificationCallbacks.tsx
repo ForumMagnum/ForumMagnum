@@ -324,7 +324,7 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
   }
 }
 
-// TODO: in practice this was sending out notifications in a confusing way (some people getting notified late into the review). This might just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on. But I don't have time to think about it right now. Turning it off for now (-- Raymond Jan 2022) 
+// TODO: Make sure this notification is working properly, and re-enable it. In practice this was sending out notifications in a confusing way (some people getting notified late into the review). This might just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on. But I don't have time to think about it right now. Turning it off for now (-- Raymond Jan 2022) 
 
 // getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
 //   const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
