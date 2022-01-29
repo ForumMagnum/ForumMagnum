@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Input from '@material-ui/core/Input';
 import { useCurrentUser } from '../common/withUser';
-import { commentBodyStyles } from '../../themes/stylePiping';
+import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping';
 import { useTracking } from '../../lib/analyticsEvents';
 import classNames from 'classnames';
 import { postIsReviewWinner } from '../../lib/reviewUtils';
+import { Link } from '../../lib/reactRouterWrapper';
+import Card from '@material-ui/core/Card';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,24 +35,27 @@ const styles = (theme: ThemeType): JssStyles => ({
       '-moz-appearance': "none"
     }
   },
+  bestOfLessWrong: {
+    ...postBodyStyles(theme),
+  },
   button: {
-    border: `solid 1px ${theme.palette.primary.main}`,
+    border: `solid 1px ${theme.palette.grey[500]}`,
     borderRadius: 3,
     display: "inline-block",
     margin: "auto"
   },
   buttonTitle: {
-    color: theme.palette.primary.main,
     textTransform: "uppercase",
     ...theme.typography.smallText,
+    color: theme.palette.grey[600],
     padding: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
     cursor: "pointer"
   },
   form: {
-    padding: 20,
-    paddingBottom: 12,
+    padding: 10,
+    paddingBottom: 0,
     display: "flex",
     flexDirection: "column"
   },
@@ -76,6 +81,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 12,
     color: theme.palette.grey[500]
   },
+  preview: {
+    padding: 20,
+    width: 500,
+    ...postBodyStyles(theme),
+    fontSize: theme.typography.body2.fontSize,
+  }
 });
 
 export const PostsPageDonationButton = ({classes, post, message}: {
@@ -83,6 +94,8 @@ export const PostsPageDonationButton = ({classes, post, message}: {
   post: PostsDetails,
   message?: string
 }) => {
+
+  const { LWTooltip } = Components
 
   const [donationAmount, setDonationAmount] = useState<number|string>("")
 
@@ -102,15 +115,24 @@ export const PostsPageDonationButton = ({classes, post, message}: {
     captureEvent("donateToBestOfLessWrongAuthorBegunDonation")
   }
 
-  if (!postIsReviewWinner(post)) return null
+  // if (!postIsReviewWinner(post)) return null
 
   return <div className={classes.root}>
-          <p>
-            Best of LessWrong 2020
+          <p className={classes.bestOfLessWrong}>
+            <LWTooltip tooltip={false} title={<Card className={classes.preview}>
+              <h3>Best of LessWrong 2020: Voting Results</h3>
+              <p>After two months of reviewing and voting, the results for the top posts of 2020 are in. Winning posts will be aggregated into the <Link to="/bestoflesswrong">Best of LessWrong sequences</Link>, and given tip jars where people can donate to show their support.</p>
+              <p>The winners are...</p>
+              <p><em>*drumroll*...</em></p>
+            </Card>}>
+              <Link to={"/posts/WHoukwqEYvz2AGtwY/best-of-lesswrong-2020-voting-results"}>
+                Best of LessWrong 2020
+              </Link>
+            </LWTooltip>
           </p>
           <span className={classes.button}>
             <div className={classes.buttonTitle} onClick={handleShowForm}>
-              Donate to support {(post.coauthors?.length > 0) ? "these authors" : "this author"}
+              Tip {(post.coauthors?.length > 0) ? "authors" : "author"}
             </div>
             {showForm && <div className={classes.form}>
               <Input 
@@ -137,7 +159,7 @@ export const PostsPageDonationButton = ({classes, post, message}: {
             
           </span>
           {showForm && <div className={classes.finePrint}>
-            <div>Donations are <em>not</em> tax deductible</div>
+            <div>Donations are <em>NOT</em> tax deductible</div>
             {(post.coauthors?.length > 0) && <div>
               Donations are split evenly between coauthors
             </div>}
