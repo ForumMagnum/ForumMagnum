@@ -183,7 +183,7 @@ const ReviewVoteTableRow = (
     currentVote: SyntheticQualitativeVote|null,
   }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments, DonationButton } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
 
   const currentUser = useCurrentUser()
 
@@ -271,7 +271,6 @@ const ReviewVoteTableRow = (
           {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>}
-        <DonationButton post={post}/>
       </div>
     </div>
   </AnalyticsContext>

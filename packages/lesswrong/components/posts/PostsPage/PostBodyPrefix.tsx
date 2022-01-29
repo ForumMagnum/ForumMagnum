@@ -49,7 +49,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton } = Components;
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, PostsPageDonationButton } = Components;
   const currentUser = useCurrentUser();
 
   return <>
@@ -59,6 +59,8 @@ const PostBodyPrefix = ({post, query, classes}: {
         <div className={classes.reviewButton}>Review</div>
       </LWTooltip>}/>
     </div>}
+
+    <PostsPageDonationButton post={post} />
 
     <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />
