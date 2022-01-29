@@ -532,7 +532,7 @@ const ReviewVotingPage = ({classes}: {
             }
             {(postsLoading || loading) && <Loading/>}
 
-            {!isEAForum && costTotal && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
+            {!isEAForum && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
               <LWTooltip title={costTotalTooltip}>
                 {costTotal}/500
               </LWTooltip>
