@@ -164,6 +164,9 @@ import './components';
 // PostRelation
 import './collections/postRelations';
 
+// Payments
+// import './collections/payments';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/custom_fields';
