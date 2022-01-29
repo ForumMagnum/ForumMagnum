@@ -324,15 +324,17 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
   }
 }
 
-getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
-  const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
-  if (post && post.positiveReviewVoteCount > 1) {
-    const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
-    if (!notifications.length) {
-      await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
-    }
-  }
-})
+// TODO: in practice this was sending out notifications in a confusing way (some people getting notified late into the review). This might just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on. But I don't have time to think about it right now. Turning it off for now (-- Raymond Jan 2022)
+
+// getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
+//   const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
+//   if (post && post.positiveReviewVoteCount > 1) {
+//     const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
+//     if (!notifications.length) {
+//       await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
+//     }
+//   }
+// })
 
 // add new comment notification callback on comment submit
 getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
