@@ -55,6 +55,9 @@ export function postIsVoteable (post: PostsBase) {
   return getReviewPhase() === "NOMINATIONS" || post.positiveReviewVoteCount > 0
 }
 
+export function postIsReviewWinner (post: PostsBase) {
+  return false // this will be updated with real function later
+}
 
 export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
   if (!eligibleToNominate(currentUser)) return false
