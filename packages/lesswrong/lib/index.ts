@@ -165,7 +165,9 @@ import './components';
 import './collections/postRelations';
 
 // Payments
-// import './collections/payments';
+import './collections/payments/collection';
+import './collections/payments/fragments';
+import './collections/payments/schema'; 
 
 // Alignment Forum
 import './alignment-forum/permissions';

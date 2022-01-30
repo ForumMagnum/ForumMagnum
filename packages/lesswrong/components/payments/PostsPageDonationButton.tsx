@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { postIsReviewWinner } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import Card from '@material-ui/core/Card';
+import { useCreate } from '../../lib/crud/withCreate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -66,7 +67,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     padding: 10,
     backgroundColor: "unset",
-    marginTop: 5
+    marginTop: 5,
+    cursor: "pointer"
   },
   cancel: {
     padding: 10,
@@ -83,6 +85,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   preview: {
     padding: 20,
+    paddingRight: 30,
     width: 500,
     ...postBodyStyles(theme),
     fontSize: theme.typography.body2.fontSize,
@@ -97,21 +100,38 @@ export const PostsPageDonationButton = ({classes, post, message}: {
 
   const { LWTooltip } = Components
 
-  const [donationAmount, setDonationAmount] = useState<number|string>("")
+  const [donationAmount, setDonationAmount] = useState<number>(25)
 
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser()  
   const [showForm, setShowForm] = useState<boolean>(false)
 
-  // limit donations to less than 1
-  const finalDonationAmount = donationAmount < 15000 ? (donationAmount || 0) : 14999
+  const {create: createPayment} = useCreate({
+    collectionName: "Payments",
+    fragmentName: "PaymentMinimumInfo",
+    ignoreResults: true,
+  });
+
+  const authors = [post.user, ...post.coauthors]
 
   const handleShowForm = () => {
     captureEvent("donateToBestOfLessWrongAuthorClicked")
     setShowForm(true)
   }
 
-  const registerDonation = () => {
+  const registerDonation = async () => {
+    authors.forEach(author => {
+      if (typeof(donationAmount) === "number") {
+        void createPayment({
+          data: {
+            userId: currentUser?._id,
+            amount: donationAmount / authors.length,
+            recipientUserId: author?._id
+          },
+        })
+      }
+    })
+
     captureEvent("donateToBestOfLessWrongAuthorBegunDonation")
   }
 
@@ -132,7 +152,7 @@ export const PostsPageDonationButton = ({classes, post, message}: {
           </p>
           <span className={classes.button}>
             <div className={classes.buttonTitle} onClick={handleShowForm}>
-              Tip {(post.coauthors?.length > 0) ? "authors" : "author"}
+              Tip {(post.coauthors.length > 0) ? "authors" : "author"}
             </div>
             {showForm && <div className={classes.form}>
               <Input 
@@ -140,10 +160,10 @@ export const PostsPageDonationButton = ({classes, post, message}: {
                 className={classes.input} 
                 value={donationAmount}
                 placeholder="Enter amount"
-                onChange={(e) => setDonationAmount(parseInt(e.target.value) || "")}
+                onChange={(e) => setDonationAmount(parseInt(e.target.value))}
               />  
               <form action="https://www.paypal.com/donate" method="post" target="_blank">
-                <input type="hidden" name="amount" value={finalDonationAmount} />
+                <input type="hidden" name="amount" value={donationAmount} />
                 <input type="hidden" name="no_recurring" value="1" />
                 <input type="hidden" name="item_name" value={`${currentUser?.displayName || "Anonymous"} is donating to support ${post.title} for the Best of LessWrong prize`} />
                 <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />

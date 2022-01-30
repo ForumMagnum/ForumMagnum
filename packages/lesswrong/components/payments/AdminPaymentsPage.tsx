@@ -15,12 +15,20 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, UsersNameDisplay, LoadMore } = Components
+  const { SingleColumnSection, SectionTitle, Loading, UsersNameDisplay, LoadMore, ErrorBoundary } = Components
 
-  const { results, loading, loadMoreProps } = useMulti({
-    terms: {view: "usersWithPaymentInfo", limit: 100},
+  const { results: userResults, loading: usersLoading, loadMoreProps: usersLoadMore } = useMulti({
+    terms: {view: "usersWithPaymentInfo", limit: 10},
     collectionName: "Users",
     fragmentName: 'UsersProfile',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true
+  });
+
+  const { results: paymentResults, loading: paymentsLoading, loadMoreProps: paymentsLoadMore } = useMulti({
+    terms: {limit: 10},
+    collectionName: "Payments",
+    fragmentName: 'PaymentBase',
     fetchPolicy: 'cache-and-network',
     enableTotal: true
   });
@@ -28,10 +36,11 @@ export const AdminPaymentsPage = ({classes}: {
   const currentUser = useCurrentUser()
   if (!currentUser?.isAdmin) return null
 
-  return <div className={classes.root}>
+  return <ErrorBoundary>
+  <div className={classes.root}>
     <SingleColumnSection>
-      <SectionTitle title="Payment Admin"/>
-      {loading && <Loading/>}
+      <SectionTitle title="User Payment Info"/>
+      {usersLoading && <Loading/>}
       <Table>
         <TableRow>
           <TableCell><b>Username</b></TableCell>
@@ -39,18 +48,44 @@ export const AdminPaymentsPage = ({classes}: {
           <TableCell><b>Payment Email</b></TableCell>
           <TableCell><b>Payment Info</b></TableCell>
         </TableRow>
-        {results?.map(user => {
-          return <TableRow key={user._id}>
-              <TableCell><UsersNameDisplay user={user}/></TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.paymentEmail}</TableCell>
-              <TableCell>{user.paymentInfo}</TableCell>
+        {userResults?.map(user => <TableRow key={user._id}>
+            <TableCell><UsersNameDisplay user={user}/></TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>{user.paymentEmail}</TableCell>
+            <TableCell>{user.paymentInfo}</TableCell>
+          </TableRow>
+        )}
+      </Table>
+      <LoadMore {...usersLoadMore}/>
+    </SingleColumnSection>
+    <SingleColumnSection>
+      <SectionTitle title="Payments"/>
+      {paymentsLoading && <Loading/>}
+      <Table>
+        <TableRow>
+          <TableCell><b>User</b></TableCell>
+          <TableCell><b>Recipient</b></TableCell>
+          <TableCell><b>Amount</b></TableCell>
+          <TableCell><b>Contact Email</b></TableCell>
+          <TableCell><b>Payment Email</b></TableCell>
+          <TableCell><b>Payment Info</b></TableCell>
+        </TableRow>
+        {paymentResults?.map(payment => {
+          return <TableRow key={payment._id}>
+            <TableCell>{payment.user ? <UsersNameDisplay user={payment.user}/> : "Anonymous" }</TableCell>
+            <TableCell><UsersNameDisplay user={payment.recipientUser}/></TableCell>
+            <TableCell>{payment.amount}</TableCell>
+            <TableCell>{payment.recipientUser?.email}</TableCell>
+            <TableCell>{payment.recipientUser?.paymentEmail}</TableCell>
+            <TableCell>{payment.recipientUser?.paymentInfo}</TableCell> 
           </TableRow>
         })}
       </Table>
-      <LoadMore {...loadMoreProps}/>
+      <LoadMore {...paymentsLoadMore}/>
     </SingleColumnSection>
-  </div>;
+    </div>;
+  </ErrorBoundary>
+
 }
 
 const AdminPaymentsPageComponent = registerComponent('AdminPaymentsPage', AdminPaymentsPage, {styles});

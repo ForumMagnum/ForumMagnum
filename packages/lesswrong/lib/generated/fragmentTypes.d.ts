@@ -1830,6 +1830,40 @@ interface UserVotes { // fragment on Votes
   readonly collectionName: string,
 }
 
+interface PaymentsDefaultFragment { // fragment on Payments
+  readonly userId: string,
+  readonly recipientUserId: string,
+  readonly createdAt: Date,
+  readonly amount: number,
+  readonly recipientContactEmail: string,
+  readonly recipientPaymentEmail: string,
+  readonly recipientPaymentInfo: string,
+}
+
+interface PaymentMinimumInfo { // fragment on Payments
+  readonly _id: string,
+  readonly userId: string,
+  readonly recipientUserId: string,
+  readonly createdAt: Date,
+  readonly amount: number,
+}
+
+interface PaymentBase { // fragment on Payments
+  readonly _id: string,
+  readonly userId: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly recipientUserId: string,
+  readonly recipientUser: PaymentBase_recipientUser|null,
+  readonly createdAt: Date,
+  readonly amount: number,
+}
+
+interface PaymentBase_recipientUser extends UsersMinimumInfo { // fragment on Users
+  readonly email: string,
+  readonly paymentEmail: string,
+  readonly paymentInfo: string,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -1981,6 +2015,9 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
+  PaymentsDefaultFragment: PaymentsDefaultFragment
+  PaymentMinimumInfo: PaymentMinimumInfo
+  PaymentBase: PaymentBase
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -2124,8 +2161,11 @@ interface CollectionNamesByFragmentName {
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
+  PaymentsDefaultFragment: "Payments"
+  PaymentMinimumInfo: "Payments"
+  PaymentBase: "Payments"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"Payments"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 

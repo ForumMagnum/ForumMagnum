@@ -299,6 +299,20 @@ interface DbNotification extends DbObject {
   waitingForBatch: boolean
 }
 
+interface PaymentsCollection extends CollectionBase<DbPayment, "Payments"> {
+}
+
+interface DbPayment extends DbObject {
+  __collectionName?: "Payments"
+  userId: string
+  recipientUserId: string
+  createdAt: Date
+  amount: number
+  recipientContactEmail: string
+  recipientPaymentEmail: string
+  recipientPaymentInfo: string
+}
+
 interface PetrovDayLaunchsCollection extends CollectionBase<DbPetrovDayLaunch, "PetrovDayLaunchs"> {
 }
 
@@ -831,6 +845,7 @@ interface CollectionsByName {
   Messages: MessagesCollection
   Migrations: MigrationsCollection
   Notifications: NotificationsCollection
+  Payments: PaymentsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
@@ -866,6 +881,7 @@ interface ObjectsByCollectionName {
   Messages: DbMessage
   Migrations: DbMigration
   Notifications: DbNotification
+  Payments: DbPayment
   PetrovDayLaunchs: DbPetrovDayLaunch
   PostRelations: DbPostRelation
   Posts: DbPost
