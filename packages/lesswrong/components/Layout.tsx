@@ -21,6 +21,7 @@ import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicS
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { globalStyles } from '../lib/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
+import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 1631226712000)
@@ -30,13 +31,14 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 16
 //
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
-const standaloneNavMenuRouteNames: Record<string,string[]> = {
+const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex', 'bestoflesswrong',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform', 'eaLibrary'],
+  'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -230,7 +232,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
     const currentRoute = location.currentRoute
     const standaloneNavigation = !currentRoute ||
-      standaloneNavMenuRouteNames[forumTypeSetting.get()]
+      forumSelect(standaloneNavMenuRouteNames)
         .includes(currentRoute?.name)
         
     const shouldUseGridLayout = standaloneNavigation

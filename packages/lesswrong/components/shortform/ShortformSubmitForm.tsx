@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const forumHintText = {
+const forumHintText: ForumOptions<JSX.Element> = {
   LessWrong: <div>
     <div>Write your thoughts here! What have you been thinking about?</div>
     <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
@@ -23,6 +23,10 @@ const forumHintText = {
     <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
   </div>,
   EAForum: <div>
+    <div>Write your brief or quickly written post here.</div>
+    <div>Exploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.</div>
+  </div>,
+  default: <div>
     <div>Write your brief or quickly written post here.</div>
     <div>Exploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.</div>
   </div>
@@ -43,7 +47,7 @@ const ShortformSubmitForm = ({ successCallback, classes }: {
         successCallback={successCallback}
         type="comment"
         formProps={{
-          editorHintText: forumHintText[forumTypeSetting.get()]
+          editorHintText: forumSelect(forumHintText)
         }}
       />
     </div>
