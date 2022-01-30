@@ -5,10 +5,6 @@ import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/
 import { onStartup } from './executionEnvironment';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
-<<<<<<< HEAD
-import { Route } from './vulcan-lib/routes';
-=======
->>>>>>> cde4286716bbd16885ffa3f0569054d5d7330864
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
