@@ -190,7 +190,7 @@ const EventsHome = ({classes}: {
   useEffect(() => {
     // if we've gotten a location from the browser, save it
     if (!queryLocation && !currentUserLocation.loading && currentUserLocation.known) {
-      saveBrowserLocationForUser(currentUserLocation)
+      void saveBrowserLocationForUser(currentUserLocation)
     }
   }, [queryLocation, currentUserLocation])
 

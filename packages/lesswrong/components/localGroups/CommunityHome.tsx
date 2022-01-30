@@ -90,9 +90,9 @@ const CommunityHome = ({classes}: {
   useEffect(() => {
     // if we've gotten a location from the browser, save it
     if (isEAForum && currentUser && !currentUser.location && !currentUserLocation.loading && currentUserLocation.known) {
-      updateUserLocation(currentUserLocation)
+      void updateUserLocation(currentUserLocation)
     }
-  }, [currentUserLocation])
+  }, [isEAForum, currentUser, currentUserLocation])
 
   const openSetPersonalLocationForm = () => {
     openDialog({

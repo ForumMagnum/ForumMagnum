@@ -345,7 +345,6 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
   useEffect(() => {
     // if we don't yet have a location for the user and we're on the browser,
     // try to get the browser location
-    console.log('useeffect')
     if (
       !(currentUserLat && currentUserLng) &&
       !isServer &&
@@ -354,9 +353,7 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
       navigator &&
       navigator.geolocation
     ) {
-      console.log('checking browser location')
       navigator.geolocation.getCurrentPosition((position) => {
-        console.log('got browser location')
         if (position && position.coords) {
           const navigatorLat = position.coords.latitude
           const navigatorLng = position.coords.longitude
@@ -370,7 +367,7 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
       }
     )
     }
-  }, [])
+  }, [currentUserLat, currentUserLng, placeholderLat, placeholderLng])
   
   return location
 }
