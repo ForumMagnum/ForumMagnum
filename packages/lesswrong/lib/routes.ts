@@ -602,6 +602,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'AdminPaymentsPage'
     },
     {
+      name: 'userPaymentsInfo',
+      path: '/payments/info',
+      componentName: 'EditPaymentInfo'
+    },
+    {
       name: 'payments',
       path: '/payments',
       redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url

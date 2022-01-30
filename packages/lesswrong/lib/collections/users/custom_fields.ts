@@ -1511,14 +1511,14 @@ addFieldsDict(Users, {
     optional: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
-    group: formGroups.adminOptions,
+    group: formGroups.paymentInfo,
   },
   paymentInfo: {
     type: String,
     optional: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
-    group: formGroups.adminOptions,
+    group: formGroups.paymentInfo,
   },
 });
 
