@@ -25,14 +25,6 @@ export const AdminPaymentsPage = ({classes}: {
     enableTotal: true
   });
 
-  const { results: paymentResults, loading: paymentsLoading, loadMoreProps: paymentsLoadMore } = useMulti({
-    terms: {limit: 10},
-    collectionName: "Payments",
-    fragmentName: 'PaymentBase',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true
-  });
-
   const currentUser = useCurrentUser()
   if (!currentUser?.isAdmin) return null
 
@@ -57,31 +49,6 @@ export const AdminPaymentsPage = ({classes}: {
         )}
       </Table>
       <LoadMore {...usersLoadMore}/>
-    </SingleColumnSection>
-    <SingleColumnSection>
-      <SectionTitle title="Payments"/>
-      {paymentsLoading && <Loading/>}
-      <Table>
-        <TableRow>
-          <TableCell><b>User</b></TableCell>
-          <TableCell><b>Recipient</b></TableCell>
-          <TableCell><b>Amount</b></TableCell>
-          <TableCell><b>Contact Email</b></TableCell>
-          <TableCell><b>Payment Email</b></TableCell>
-          <TableCell><b>Payment Info</b></TableCell>
-        </TableRow>
-        {paymentResults?.map(payment => {
-          return <TableRow key={payment._id}>
-            <TableCell>{payment.user ? <UsersNameDisplay user={payment.user}/> : "Anonymous" }</TableCell>
-            <TableCell><UsersNameDisplay user={payment.recipientUser}/></TableCell>
-            <TableCell>{payment.amount}</TableCell>
-            <TableCell>{payment.recipientUser?.email}</TableCell>
-            <TableCell>{payment.recipientUser?.paymentEmail}</TableCell>
-            <TableCell>{payment.recipientUser?.paymentInfo}</TableCell> 
-          </TableRow>
-        })}
-      </Table>
-      <LoadMore {...paymentsLoadMore}/>
     </SingleColumnSection>
     </div>;
   </ErrorBoundary>
