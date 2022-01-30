@@ -16,9 +16,9 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import { taggedPostMessage } from '../lib/notificationTypes';
-import { forumTypeSetting } from '../lib/instanceSettings';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
+import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 
 interface ServerNotificationType {
   name: string,
@@ -219,10 +219,11 @@ export const NewUserNotification = serverRegisterNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => null,
 });
 
-const newMessageEmails: Partial<Record<string,string>> = {
-  EAForum: 'forum-noreply@effectivealtruism.org'
+const newMessageEmails: ForumOptions<string | null> = {
+  EAForum: 'forum-noreply@effectivealtruism.org',
+  default: null,
 }
-const forumNewMessageEmail = newMessageEmails[forumTypeSetting.get()]
+const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
 
 export const NewMessageNotification = serverRegisterNotificationType({
   name: "newMessage",

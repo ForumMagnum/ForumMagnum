@@ -290,8 +290,13 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
-  readonly currentUserReviewVote: number,
+  readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
   readonly userId: string,
+}
+
+interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
+  readonly _id: string,
+  readonly qualitativeScore: number,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -305,6 +310,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly shareWithUsers: Array<string>,
+  readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,

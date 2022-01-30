@@ -1,3 +1,5 @@
+import React from 'react';
+import round from "lodash/round"
 import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from "./publicSettings"
@@ -33,6 +35,7 @@ export function getReviewPhase(): ReviewPhase | void {
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
+  if (!(isLWForum || isEAForum)) return false
   return !!getReviewPhase()
 }
 
@@ -66,4 +69,65 @@ export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (isLWForum && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
   return true
+}
+
+const getPointsFromCost = (cost) => {
+  // the formula to quadratic cost from a number of points is (n^2 + n)/2
+  // this uses the inverse of that formula to take in a cost and output a number of points
+  return (-1 + Math.sqrt((8 * cost)+1)) / 2
+}
+
+const getLabelFromCost = (cost) => {
+  // rounds the points to 1 decimal for easier reading
+  return round(getPointsFromCost(cost), 1)
+}
+
+export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
+  const divider = costTotal > 500 ? costTotal/500 : 1
+  const overSpentWarning = (divider !== 1) ? <div><em>Your vote is downweighted because you spent 500+ points</em></div> : null
+  return ({
+    0: {label: null, cost: 0, tooltip: null},
+    1: { label: `-${getLabelFromCost(45/divider)}`, cost: 45, tooltip: 
+      <div>
+        <p>Highly misleading, harmful, or unimportant.</p>
+        <div><em>Costs 45 points</em></div>
+        {overSpentWarning}
+      </div>},
+    2: { label: `-${getLabelFromCost(10/divider)}`, cost: 10, tooltip: 
+    <div>
+      <p>Very misleading, harmful, or unimportant.</p>
+      <div><em>Costs 10 points</em></div>
+      {overSpentWarning}
+    </div>},
+    3: { label: `-${getLabelFromCost(1/divider)}`, cost: 1, tooltip: 
+    <div>
+      <p>Misleading, harmful or unimportant.</p>
+      <div><em>Costs 1 point</em></div>
+      {overSpentWarning}
+    </div>},
+    4: { label: `0`, cost: 0, tooltip: 
+    <div>
+      <p>No strong opinion on this post,</p>
+      <div><em>Costs 0 points</em></div>
+      {overSpentWarning}
+    </div>},
+    5: { label: `${getLabelFromCost(1/divider)}`, cost: 1, tooltip: 
+    <div>
+      <p>Good</p>
+      <div><em>Costs 1 point</em></div>
+      {overSpentWarning}
+    </div>},
+    6: { label: `${getLabelFromCost(10/divider)}`, cost: 10, tooltip: 
+    <div>
+      <p>Quite important</p>
+      <div><em>Costs 10 points</em></div>
+      {overSpentWarning}
+    </div>},
+    7: { label: `${getLabelFromCost(45/divider)}`, cost: 45, tooltip: 
+    <div>
+      <p>Extremely important</p>
+      <div><em>Costs 45 points</em></div>
+      {overSpentWarning}
+    </div>},
+  })
 }

@@ -1,11 +1,10 @@
 import { Posts } from './collections/posts/collection';
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
-import { addRoute, PingbackDocument, RouterLocation } from './vulcan-lib/routes';
+import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
-import { Route } from './vulcan-lib/routes';
 
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -597,7 +596,16 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "Books: Engines of Cognition",
       background: "white"
     },
-    // TODO: (Need to ask LW) Does anyone visit these on the Alignment Forum?
+    {
+      name: 'paymentsAdmin',
+      path: '/payments/admin',
+      componentName: 'AdminPaymentsPage'
+    },
+    {
+      name: 'payments',
+      path: '/payments',
+      redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
     {
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
@@ -710,7 +718,121 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "Meta",
       ...metaSubtitle
     },
-  ]
+    // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
+    {
+      name:'coronavirus.link.db',
+      path:'/coronavirus-link-database',
+      componentName: 'SpreadsheetPage',
+      title: "COVID-19 Link Database",
+    },
+    {
+      name: 'nominations2018-old',
+      path: '/nominations2018',
+      redirect: () => `/nominations/2018`,
+    },
+    {
+      name: 'nominations2018',
+      path: '/nominations/2018',
+      componentName: 'Nominations2018',
+      title: "2018 Nominations",
+    },
+    {
+      name: 'nominations2019-old',
+      path: '/nominations2019',
+      redirect: () => `/nominations/2019`,
+    },
+    {
+      name: 'nominations2019',
+      path: '/nominations/2019',
+      componentName: 'Nominations2019',
+      title: "2019 Nominations",
+    },
+    {
+      name: 'userReviews',
+      path:'/users/:slug/reviews',
+      redirect: (location) => `/users/${location.params.slug}/reviews/2019`,
+    },
+    {
+      name: 'reviews2018-old',
+      path: '/reviews2018',
+      redirect: () => `/reviews/2018`,
+    },
+    {
+      name: 'reviews2018',
+      path: '/reviews/2018',
+      componentName: 'Reviews2018',
+      title: "2018 Reviews",
+    },
+    {
+      name: 'reviews2019-old',
+      path: '/reviews2019',
+      redirect: () => `/reviews/2019`,
+    },
+    {
+      name: 'reviews2019',
+      path: '/reviews/2019',
+      componentName: 'Reviews2019',
+      title: "2019 Reviews",
+    },
+    {
+      name: 'sequencesHome',
+      path: '/library',
+      componentName: 'SequencesHome',
+      title: "The Library"
+    },
+    {
+      name: 'Sequences',
+      path: '/sequences',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z"
+    },
+    {
+      name: 'Rationality',
+      path: '/rationality',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z",
+      ...rationalitySubtitle
+    },
+    {
+      name: 'Rationality.posts.single',
+      path: '/rationality/:slug',
+      componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
+      ...rationalitySubtitle,
+      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+      background: postBackground
+    },
+  ],
+  default: [
+    {
+      name:'home',
+      path:'/',
+      componentName: 'Home2',
+      sunshineSidebar: true //TODO: remove this in production?
+    },
+    {
+      name:'about',
+      path:'/about',
+      componentName: 'PostsSingleRoute',
+      _id: aboutPostIdSetting.get()
+    },
+    {
+      name: 'faq',
+      path: '/faq',
+      componentName: 'PostsSingleRoute',
+      _id: faqPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'contact',
+      path:'/contact',
+      componentName: 'PostsSingleRoute',
+      _id: contactPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      background: postBackground
+    },
+  ],
 })
 
 addRoute(...forumSpecificRoutes)
@@ -888,7 +1010,7 @@ addRoute(
     componentName: "TaggingDashboard",
     title: "Tagging Dashboard",
     ...taggingDashboardSubtitle
-  },
+  }
 );
 
 addRoute(
