@@ -1,7 +1,7 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import React, { useState, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userGetLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import { useLocation } from '../../lib/routeUtil';
@@ -83,16 +83,16 @@ const CommunityHome = ({classes}: {
       }
     }
   }
-
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, updateUserLocation));
   
+  // this gets the location from the current user settings or from the user's browser
+  const currentUserLocation = useUserLocation(currentUser)
+
   useEffect(() => {
-    userGetLocation(currentUser, (newLocation) => {
-      if (!_.isEqual(currentUserLocation, newLocation)) {
-        setCurrentUserLocation(newLocation);
-      }
-    });
-  }, [currentUserLocation, currentUser]);
+    // if we've gotten a location from the browser, save it
+    if (isEAForum && currentUser && !currentUser.location && !currentUserLocation.loading && currentUserLocation.known) {
+      updateUserLocation(currentUserLocation)
+    }
+  }, [currentUserLocation])
 
   const openSetPersonalLocationForm = () => {
     openDialog({

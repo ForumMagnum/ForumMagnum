@@ -1,6 +1,6 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import React, { useState, useEffect } from 'react';
-import { userGetLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
@@ -162,9 +162,10 @@ const EventsHome = ({classes}: {
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
   const saveBrowserLocationForUser = async ({lat, lng, known}) => {
+    // we need Google Maps to be loaded before we can call the Geocoder
     if (mapsLoaded && !geocodeError && !queryLocation && known) {
       try {
-        // get a list of matching Google locations for the current lat/lng
+        // get a list of matching Google locations for the current lat/lng (reverse geocoding)
         const geocoder = new googleMaps.Geocoder();
         const geocodingResponse = await geocoder.geocode({
           location: {lat, lng}
@@ -184,15 +185,14 @@ const EventsHome = ({classes}: {
   }
 
   // this gets the location from the current user settings or from the user's browser
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, saveBrowserLocationForUser));
+  const currentUserLocation = useUserLocation(currentUser)
   
   useEffect(() => {
-    userGetLocation(currentUser, (newLocation) => {
-      if (!_.isEqual(currentUserLocation, newLocation)) {
-        setCurrentUserLocation(newLocation);
-      }
-    });
-  }, [currentUserLocation, currentUser]);
+    // if we've gotten a location from the browser, save it
+    if (!queryLocation && !currentUserLocation.loading && currentUserLocation.known) {
+      saveBrowserLocationForUser(currentUserLocation)
+    }
+  }, [queryLocation, currentUserLocation])
 
   
   const saveUserLocation = ({lat, lng, known, gmaps}) => {
@@ -251,8 +251,8 @@ const EventsHome = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 3,
-    itemsPerPage: 3,
+    limit: 12,
+    itemsPerPage: 6,
     skip: !queryLocation && currentUserLocation.loading
   });
   

@@ -146,7 +146,9 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
     {events.map(event => {
       return <Card key={event._id} className={classes.eventCard}>
         <Link to={`/events/${event._id}/${event.slug}`}>
-          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId || DEFAULT_EVENT_IMG} />
+          {event.eventImageId ?
+            <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
+            <img src={DEFAULT_EVENT_IMG} style={{height: 200, width: 373}} />}
         </Link>
         <CardContent className={classes.eventCardContent}>
           <div className={classes.eventCardTime}>
