@@ -37,6 +37,12 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Admin Options",
     startCollapsed: true,
   },
+  paymentInfo: {
+    name: "paymentInfo",
+    label: "Prize/Payment Info",
+    order: 35,
+    startCollapsed: false,
+  },
   truncationOptions: {
     name: "truncationOptions",
     order: 9,
