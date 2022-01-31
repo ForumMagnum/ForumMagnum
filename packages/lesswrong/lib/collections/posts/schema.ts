@@ -671,54 +671,54 @@ const schema: SchemaType<DbPost> = {
     optional: true,
   },
 
-  // the second batch of reviewVoteScore/reviewVotes fields is for storing the final results of the reviewVoting (so it is easier to tell which posts changed position during the review)
-  reviewVoteScoreHighKarma2: {
+  // the final review scores for each post, at the end of the review.
+  finalReviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
   },
-  reviewVotesHighKarma2: {
+  finalReviewVotesHighKarma: {
     type: Array,
     optional: true,
     defaultValue: [],
     canRead: ['guests']
   },
-  'reviewVotesHighKarma2.$': {
+  'finalReviewVotesHighKarma.$': {
     type: Number,
     optional: true,
   },
 
-  reviewVoteScoreAllKarma2: {
+  finalReviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
   },
-  reviewVotesAllKarma2: {
+  finalReviewVotesAllKarma: {
     type: Array,
     optional: true,
     defaultValue: [],
     canRead: ['guests']
   },
-  'reviewVotesAllKarma2.$': {
+  'finalReviewVotesAllKarma.$': {
     type: Number,
     optional: true,
   },
 
-  reviewVoteScoreAF2: {
+  finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,
     defaultValue: 0,
     canRead: ['guests']
   },
-  reviewVotesAF2: {
+  finalReviewVotesAF: {
     type: Array,
     optional: true,
     defaultValue: [],
     canRead: ['guests']
   },
-  'reviewVotesAF2.$': {
+  'finalReviewVotesAF.$': {
     type: Number,
     optional: true,
   },

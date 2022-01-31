@@ -112,12 +112,12 @@ registerFragment(`
     reviewVoteScoreAF
     reviewVotesAF
 
-    reviewVoteScoreHighKarma2
-    reviewVotesHighKarma2
-    reviewVoteScoreAllKarma2
-    reviewVotesAllKarma2
-    reviewVoteScoreAF2
-    reviewVotesAF2
+    finalReviewVoteScoreHighKarma
+    finalReviewVotesHighKarma
+    finalReviewVoteScoreAllKarma
+    finalReviewVotesAllKarma
+    finalReviewVoteScoreAF
+    finalReviewVotesAF
 
     group {
       _id
