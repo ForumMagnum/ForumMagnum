@@ -603,7 +603,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     },
     {
       name: 'userPaymentsInfo',
-      path: '/payments/info',
+      path: '/payments/account',
       componentName: 'EditPaymentInfo'
     },
     {
