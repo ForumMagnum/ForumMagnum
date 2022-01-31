@@ -30,21 +30,13 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean, $reactions: [String]) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy, reactions: $reactions) {
-        ...reviewVoteFragment
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
+        ...PostsReviewVotingList
       }
     }
-    ${getFragment("reviewVoteFragment")}
-  `, {
-    update: (store, mutationResult) => {
-      updateEachQueryResultOfType({
-        func: handleUpdateMutation,
-        document: mutationResult.data.submitReviewVote,
-        store, typeName: "ReviewVote",
-      });
-    }
-  });
+    ${getFragment("PostsReviewVotingList")} 
+  `);
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
     _id: string|null,
@@ -57,12 +49,19 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
 
   if (!eligibleToNominate(currentUser)) return null
 
+  const currentUserVote = post.currentUserReviewVote !== null ? {
+    _id: post.currentUserReviewVote._id,
+    postId: post._id,
+    score: post.currentUserReviewVote.qualitativeScore || 0,
+    type: "QUALITATIVE" as const
+  } : null
+
   return <ErrorBoundary>
       <div className={classes.root}>
         {showTitle && <p>
           Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
         </p>}
-        <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVoteScore={post.currentUserReviewVote}/>
+        <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVote={currentUserVote}/>
       </div>
     </ErrorBoundary>
 }

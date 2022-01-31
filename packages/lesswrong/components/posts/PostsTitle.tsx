@@ -121,7 +121,8 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
-  const shouldRenderEventsTag = pathname !== communityPath;
+  const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
+    !pathname.includes('/events') && !pathname.includes('/groups');
 
   const url = postLink || postGetPageUrl(post)
   

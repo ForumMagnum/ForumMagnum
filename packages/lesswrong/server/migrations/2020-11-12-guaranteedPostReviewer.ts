@@ -12,17 +12,18 @@
  */
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import Posts from '../../lib/collections/posts/collection';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { postStatuses } from '../../lib/collections/posts/constants';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 // TODO: LessWrong, you'll want to set this
 // lw-look-here
-const defaultReviewerByForum = {
+const defaultReviewerByForum: ForumOptions<string | null> = {
   LessWrong: "XtphY3uYHwruKqDyG",
   AlignmentForum: null,            // Shoudn't be necessary to set
   EAForum: '9qZsZAzbC2zxsPHzN',    // JP
+  default: null,
 }
-const defaultReviewer = defaultReviewerByForum[forumTypeSetting.get()]
+const defaultReviewer = forumSelect(defaultReviewerByForum)
 
 registerMigration({
   name: "guaranteedPostReviewer",
