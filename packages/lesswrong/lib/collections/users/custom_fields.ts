@@ -1506,19 +1506,22 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
   paymentEmail: {
-    // by default means "paypal email", unless something else is specified in paymentInfo
     type: String,
     optional: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
-    canUpdate: ['admins'],
-    group: formGroups.adminOptions,
+    canUpdate: [userOwns, 'admins'],
+    label: "Payment Contact Email",
+    tooltip: "An email you'll definitely check where you can receive information about receiving payments",
+    group: formGroups.paymentInfo,
   },
   paymentInfo: {
     type: String,
     optional: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
-    canUpdate: ['admins'],
-    group: formGroups.adminOptions,
+    canUpdate: [userOwns, 'admins'],
+    label: "Paypal Info",
+    tooltip: "Your PayPal account info, for sending small payments",
+    group: formGroups.paymentInfo,
   },
 });
 
