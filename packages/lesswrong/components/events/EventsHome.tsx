@@ -157,9 +157,20 @@ const EventsHome = ({classes}: {
     fragmentName: 'UsersProfile',
   });
   
-  const saveUserLocation = ({lat, lng, known, gmaps}) => {
+  /**
+   * Given a location, update the page query to use that location,
+   * then save it to the user's settings (if they are logged in)
+   * or to the browser's local storage (if they are logged out).
+   *
+   * @param {Object} location - The location to save for the user.
+   * @param {number} location.lat - The location's latitude.
+   * @param {number} location.lng - The location's longitude.
+   * @param {Object} location.gmaps - The Google Maps location data.
+   * @param {string} location.gmaps.formatted_address - The user-facing address.
+   */
+  const saveUserLocation = ({lat, lng, gmaps}) => {
     // save it in the page state
-    setQueryLocation({lat, lng, known, label: gmaps.formatted_address})
+    setQueryLocation({lat, lng, known: true, label: gmaps.formatted_address})
 
     if (currentUser) {
       // save it on the user document
@@ -174,7 +185,7 @@ const EventsHome = ({classes}: {
       // save it in local storage
       const ls = getBrowserLocalStorage()
       try {
-        ls?.setItem('userlocation', JSON.stringify({lat, lng, known, label: gmaps.formatted_address}))
+        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -199,7 +210,7 @@ const EventsHome = ({classes}: {
         
         if (results?.length) {
           const location = pickBestReverseGeocodingResult(results)
-          saveUserLocation({lat, lng, known, gmaps: location})
+          saveUserLocation({lat, lng, gmaps: location})
         }
       } catch (e) {
         setGeocodeError(true)
@@ -308,7 +319,6 @@ const EventsHome = ({classes}: {
                         if (suggestion?.location) {
                           saveUserLocation({
                             ...suggestion.location,
-                            known: true,
                             gmaps: suggestion.gmaps
                           })
                         }
