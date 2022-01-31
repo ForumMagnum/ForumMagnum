@@ -26,9 +26,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   sectionHeadingRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    maxWidth: 800,
+    maxWidth: 700,
     margin: '40px auto',
-    [theme.breakpoints.down('sm')]: {
+    '@media (max-width: 812px)': {
       flexDirection: 'column',
       margin: '30px auto',
     }
@@ -44,8 +44,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'left',
     fontSize: 14,
     lineHeight: '1.8em',
-    marginLeft: 80,
-    [theme.breakpoints.down('sm')]: {
+    marginLeft: 60,
+    '@media (max-width: 812px)': {
       marginTop: 10,
       marginLeft: 0
     }
@@ -55,7 +55,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     gridColumnEnd: -1,
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 10,
   },
   where: {
     ...theme.typography.commentStyle,
@@ -303,8 +303,8 @@ const EventsHome = ({classes}: {
         <div className={classes.sectionHeadingRow}>
           <h1 className={classes.sectionHeading}>Events</h1>
           <div className={classes.sectionDescription}>
-            Connect with people near you and around the world who are trying to find the best ways to help others.
-            Learn, discuss, or just hang out with like-minded people.
+            Join people from around the world for discussions, talks, and other events on how we can tackle
+            the world's biggest problems.
           </div>
         </div>
 

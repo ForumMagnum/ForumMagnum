@@ -32,7 +32,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     gridTemplateColumns: 'repeat(3, 373px)',
     gridGap: '20px',
     justifyContent: 'center',
-    marginTop: 16,
     [theme.breakpoints.down('md')]: {
       gridTemplateColumns: 'repeat(2, 373px)',
     },
