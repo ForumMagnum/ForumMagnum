@@ -367,7 +367,9 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
       }
     )
     }
-  }, [currentUserLat, currentUserLng, placeholderLat, placeholderLng])
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   
   return location
 }

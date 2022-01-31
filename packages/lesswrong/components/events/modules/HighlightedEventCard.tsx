@@ -9,7 +9,7 @@ import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
 
 // space pic for events with no img
-export const DEFAULT_EVENT_IMG = 'https://res.cloudinary.com/cea/image/upload/v1640136525/Banner/yeldubyolqpl3vqqy0m6.jpg'
+export const DEFAULT_EVENT_IMG = 'https://res.cloudinary.com/cea/image/upload/w_800/Banner/yeldubyolqpl3vqqy0m6.jpg'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
