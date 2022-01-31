@@ -121,11 +121,11 @@ registerMigration({
     <input type="hidden" name="cmd" value="_s-xclick" />
     <input type="hidden" name="item_name" value='For ${getAuthor(post)}, author of "${post.title}"' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />
-    <input type="submit" value="Donate" border="0" name="submit" title="Donate to author ${getAuthor(post)} via PayPal" alt="Donate with PayPal button" style="background:${primaryColor}; opacity:.8; color:white; font-weight:600; border-radius:6px; padding:8px; font-size:12px; cursor: pointer;"/>
+    <input type="submit" value="Donate" border="0" name="submit" title="Donate to author ${getAuthor(post)} via PayPal" alt="Donate with PayPal button" class="donate-button"/>
     <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
     </form>`
 
-    const postRow = (post, i) => `<tr>
+    const postTableRow = (post, i) => `<tr>
         <td class="item-count">${i}</td>
         <td>
           <div class="title-row">
@@ -140,6 +140,18 @@ registerMigration({
         <td>${donateButton(post)}</td>
       </tr>`
 
+    const postTop15 = (post, i) =>  {
+      if (!post) return null
+      if (i > 14) return null 
+
+      return `<li>
+        <a href="/posts/${post._id}/${post.slug}">
+          <b>${post.title}</b>
+        </a> by ${getAuthor(post)}.
+      </li>
+      `
+    }
+    
     const html = `<div>
         <style>
           .item-count {
@@ -150,7 +162,7 @@ registerMigration({
             color: #999
           }
           td {
-            border:none;
+            border:none !important;
           }
           table {
             border:none !important;
@@ -171,14 +183,27 @@ registerMigration({
             align-items:center;
             margin-left:15px;
           }
+          .donate-button {
+            background:${primaryColor}; 
+            opacity:.8; 
+            color:white; 
+            font-weight:600; 
+            border-radius:6px; 
+            padding:8px; 
+            font-size:12px; 
+            cursor: pointer;
+          }
           .title-row {
             display:flex;
             justify-content:space-between;
             flex-wrap:wrap;
           }
         </style>
-        <table style="border:none;">
-          ${finalPosts.map((post, i) => postRow(post, i)).join("")}
+        <ol>
+          ${finalPosts.map((post, i) => postTop15(post, i)).join("")}
+        </ol>
+        <table>
+          ${finalPosts.map((post, i) => postTableRow(post, i)).join("")}
         </table>
       </div>`
     console.log(html)
