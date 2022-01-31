@@ -119,7 +119,7 @@ registerMigration({
 
     const donateButton = (post) => `<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
     <input type="hidden" name="cmd" value="_s-xclick" />
-    <input type="hidden" name="item_name" value='For ${getAuthor(post)}, author of "${post.title}"' />
+    <input type="hidden" name="item_name" value='For ${getAuthor(post)}, author of "${post.title}" (NOT TAX DEDUCTIBLE)' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />
     <input type="submit" value="Donate" border="0" name="submit" title="Donate to author ${getAuthor(post)} via PayPal" alt="Donate with PayPal button" class="donate-button"/>
     <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
