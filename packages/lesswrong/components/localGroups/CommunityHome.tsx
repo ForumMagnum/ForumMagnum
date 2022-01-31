@@ -1,5 +1,5 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -52,11 +52,14 @@ const CommunityHome = ({classes}: {
   
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
+  // this gets the location from the current user settings or from the user's browser
+  const currentUserLocation = useUserLocation(currentUser)
+  
   // if the current user provides their browser location and they do not yet have a location in their user settings,
   // assign their browser location to their user settings location
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
-  const updateUserLocation = async ({lat, lng, known}) => {
+  const updateUserLocation = useCallback(async ({lat, lng, known}) => {
     if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
       try {
         // get a list of matching Google locations for the current lat/lng
@@ -82,17 +85,14 @@ const CommunityHome = ({classes}: {
         console.error(e?.message)
       }
     }
-  }
-  
-  // this gets the location from the current user settings or from the user's browser
-  const currentUserLocation = useUserLocation(currentUser)
+  }, [isEAForum, mapsLoaded, googleMaps, geocodeError, currentUser, updateUser])
 
   useEffect(() => {
     // if we've gotten a location from the browser, save it
     if (isEAForum && currentUser && !currentUser.location && !currentUserLocation.loading && currentUserLocation.known) {
       void updateUserLocation(currentUserLocation)
     }
-  }, [isEAForum, currentUser, currentUserLocation])
+  }, [isEAForum, currentUser, currentUserLocation, updateUserLocation])
 
   const openSetPersonalLocationForm = () => {
     openDialog({

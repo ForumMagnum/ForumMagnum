@@ -1,5 +1,5 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
@@ -157,45 +157,7 @@ const EventsHome = ({classes}: {
     fragmentName: 'UsersProfile',
   });
   
-  // if the current user provides their browser location and we don't have a location saved for them,
-  // save it accordingly
-  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
-  const [geocodeError, setGeocodeError] = useState(false)
-  const saveBrowserLocationForUser = async ({lat, lng, known}) => {
-    // we need Google Maps to be loaded before we can call the Geocoder
-    if (mapsLoaded && !geocodeError && !queryLocation && known) {
-      try {
-        // get a list of matching Google locations for the current lat/lng (reverse geocoding)
-        const geocoder = new googleMaps.Geocoder();
-        const geocodingResponse = await geocoder.geocode({
-          location: {lat, lng}
-        });
-        const results = geocodingResponse?.results;
-        
-        if (results?.length) {
-          const location = pickBestReverseGeocodingResult(results)
-          saveUserLocation({lat, lng, known, gmaps: location})
-        }
-      } catch (e) {
-        setGeocodeError(true)
-        // eslint-disable-next-line no-console
-        console.error(e?.message)
-      }
-    }
-  }
-
-  // this gets the location from the current user settings or from the user's browser
-  const currentUserLocation = useUserLocation(currentUser)
-  
-  useEffect(() => {
-    // if we've gotten a location from the browser, save it
-    if (!queryLocation && !currentUserLocation.loading && currentUserLocation.known) {
-      void saveBrowserLocationForUser(currentUserLocation)
-    }
-  }, [queryLocation, currentUserLocation])
-
-  
-  const saveUserLocation = ({lat, lng, known, gmaps}) => {
+  const saveUserLocation = useCallback(({lat, lng, known, gmaps}) => {
     // save it in the page state
     setQueryLocation({lat, lng, known, label: gmaps.formatted_address})
 
@@ -218,7 +180,44 @@ const EventsHome = ({classes}: {
         console.error(e);
       }
     }
-  }
+  }, [currentUser, updateUser])
+  
+  // if the current user provides their browser location and we don't have a location saved for them,
+  // save it accordingly
+  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
+  const [geocodeError, setGeocodeError] = useState(false)
+  const saveBrowserLocationForUser = useCallback(async ({lat, lng, known}) => {
+    // we need Google Maps to be loaded before we can call the Geocoder
+    if (mapsLoaded && !geocodeError && !queryLocation && known) {
+      try {
+        // get a list of matching Google locations for the current lat/lng (reverse geocoding)
+        const geocoder = new googleMaps.Geocoder();
+        const geocodingResponse = await geocoder.geocode({
+          location: {lat, lng}
+        });
+        const results = geocodingResponse?.results;
+        
+        if (results?.length) {
+          const location = pickBestReverseGeocodingResult(results)
+          saveUserLocation({lat, lng, known, gmaps: location})
+        }
+      } catch (e) {
+        setGeocodeError(true)
+        // eslint-disable-next-line no-console
+        console.error(e?.message)
+      }
+    }
+  }, [mapsLoaded, googleMaps, geocodeError, queryLocation, saveUserLocation])
+
+  // this gets the location from the current user settings or from the user's browser
+  const currentUserLocation = useUserLocation(currentUser)
+  
+  useEffect(() => {
+    // if we've gotten a location from the browser, save it
+    if (!queryLocation && !currentUserLocation.loading && currentUserLocation.known) {
+      void saveBrowserLocationForUser(currentUserLocation)
+    }
+  }, [queryLocation, currentUserLocation, saveBrowserLocationForUser])
 
   const openEventNotificationsForm = () => {
     openDialog({
