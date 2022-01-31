@@ -363,7 +363,10 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
            }}
           >       
             <div>
-              <span className={classes.timeRemaining}>{voteEndDate.fromNow()} remaining</span>
+              {/* If there's less than a day remaining, show the remaining time */}
+              {voteEndDate.diff(new Date()) < (24 * 3600 * 1000) && <span className={classes.timeRemaining}>
+                {voteEndDate.fromNow()} remaining
+              </span>}
               {eligibleToNominate(currentUser) &&
               <Link to={"/reviews"} className={classes.actionButtonCTA}>
                 {activeRange === "REVIEWS" && <span>Review {REVIEW_YEAR} Posts</span>}
