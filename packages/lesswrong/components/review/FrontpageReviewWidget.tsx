@@ -14,8 +14,6 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  timeRemaining: {
-  },
   learnMore: {
     color: theme.palette.lwTertiary.main
   },
@@ -111,6 +109,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('md')]: {
       display: 'none'
     }
+  },
+  timeRemaining: {
+    ...theme.typography.commentStyle,
+    fontSize: 14,
+    color: theme.palette.grey[500]
   }
 })
 
@@ -359,12 +362,15 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             itemsPerPage: 10
            }}
           >       
-            {eligibleToNominate(currentUser) &&
+            <div>
+              <span className={classes.timeRemaining}>{voteEndDate.fromNow()} remaining</span>
+              {eligibleToNominate(currentUser) &&
               <Link to={"/reviews"} className={classes.actionButtonCTA}>
                 {activeRange === "REVIEWS" && <span>Review {REVIEW_YEAR} Posts</span>}
                 {activeRange === "VOTING" && <span>Cast Final Votes</span>}
               </Link>
-            }
+              }
+            </div>
           </PostsList2>
         </AnalyticsContext>}
 
