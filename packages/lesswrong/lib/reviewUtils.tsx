@@ -118,7 +118,7 @@ export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
         </div>
     },
     4: { 
-      label: `0`, 
+      value: 0, 
       cost: 0, 
       tooltip: 
         <div>

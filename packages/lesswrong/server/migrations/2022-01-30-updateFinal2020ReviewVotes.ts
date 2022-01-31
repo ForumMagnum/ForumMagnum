@@ -4,6 +4,7 @@ import { getCostData, REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
+import { type } from 'os';
 
 
 const voteMap = {
@@ -90,32 +91,42 @@ registerMigration({
       }
     }
 
-    const finalPosts = Object.entries(postsHighKarmaUsers).map(post => [post[0], [post[1].reduce(x,y => x+7, 0)]])
-    // console.log(postsHighKarmaUsers.map(post=>)
+    console.log(postsHighKarmaUsers)
 
-    // const finalPosts = groupBy(postsHighKarmaUsers, post => post.userId)
+    
 
-    let html = "" 
-
-
-
+    // console.log("Updating all karma...")
     // for (let postId in postsAllUsers) {
     //   await Posts.update({_id:postId}, {$set: { 
     //     finalReviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
     //     finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
     //   }})
     // }
+
+    // console.log("Updating high karma...")
     // for (let postId in postsHighKarmaUsers) {
     //   await Posts.update({_id:postId}, {$set: { 
     //     finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
     //     finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
     //   }})
     // }
+
+    // console.log("Updating AF...")
     // for (let postId in postsAFUsers) {
     //   await Posts.update({_id:postId}, {$set: { 
     //     finalReviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
     //     finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
     //    }})
     // }
+
+    const finalPosts = await Posts.find({reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}}, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch()
+
+    finalPosts.forEach((post, i) => {
+      console.log(i, post.title)
+      console.log(post.createdAt)
+      console.log(post.finalReviewVoteScoreHighKarma)
+      console.log(post.finalReviewVotesHighKarma)
+      console.log(" ")
+    })
   },
 });
