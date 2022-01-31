@@ -9,7 +9,8 @@ import { getWithLoader } from '../../loaders';
 import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
+import { userOwns } from '../../vulcan-users/permissions';
+import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
@@ -721,6 +722,20 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
   },
   
+  eventRegistrationLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Event Registration Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
   joinEventLink: {
     type: String,
     hidden: (props) => !props.eventForm,
@@ -849,6 +864,19 @@ addFieldsDict(Posts, {
     regEx: SimpleSchema.RegEx.Url,
     tooltip: 'https://...'
   },
+  
+  eventImageId: {
+    type: String,
+    optional: true,
+    hidden: (props) => !props.eventForm || !isEAForum,
+    label: "Event Image",
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: "ImageUpload",
+    group: formGroups.event,
+    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
+  },
 
   types: {
     type: Array,
@@ -893,6 +921,19 @@ addFieldsDict(Posts, {
     }
   },
 
+  sharingSettings: {
+    type: Object,
+    order: 16,
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    editableBy: [userOwns, 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    label: "Sharing Settings",
+    group: formGroups.title,
+    blackbox: true,
+    hidden: true,
+  },
+  
   shareWithUsers: {
     type: Array,
     order: 15,

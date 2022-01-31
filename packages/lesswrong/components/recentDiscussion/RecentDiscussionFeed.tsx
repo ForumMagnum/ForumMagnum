@@ -37,7 +37,7 @@ const RecentDiscussionFeed = ({
     [setShowShortformFeed, showShortformFeed]
   );
   
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder, RecentDiscussionMeetupsPoke } = Components
+  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, RecentDiscussionTagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder, RecentDiscussionMeetupsPoke } = Components
   
   const refetch = useCallback(() => {
     if (refetchRef.current)
@@ -97,7 +97,7 @@ const RecentDiscussionFeed = ({
           tagRevised: {
             fragmentName: "RevisionTagFragment",
             render: (revision: RevisionTagFragment) => <div>
-              {revision.tag && <TagRevisionItem
+              {revision.tag && <RecentDiscussionTagRevisionItem
                 tag={revision.tag}
                 revision={revision}
                 headingStyle="full"

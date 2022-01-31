@@ -1,13 +1,13 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import type { FilterSettings, FilterMode } from '../../lib/filterSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -55,7 +55,7 @@ const lwafPersonalBlogpostInfo = {
   </div>
 }
 
-const personalBlogpostInfo = {
+const personalBlogpostInfo: ForumOptions<{name: string, tooltip: JSX.Element}> = {
   LessWrong: lwafPersonalBlogpostInfo,
   AlignmentForum: lwafPersonalBlogpostInfo,
   EAForum: {
@@ -65,11 +65,19 @@ const personalBlogpostInfo = {
         By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively. Personal posts get to have looser standards of relevance, and may include topics that could lead to more emotive or heated discussion (e.g. politics), which are generally excluded from Frontpage.
       </div>
     </div>
-  }
+  },
+  default: {
+    name: 'Personal',
+    tooltip: <div>
+      <div>
+        By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively. Personal posts get to have looser standards of relevance, and may include topics that could lead to more emotive or heated discussion (e.g. politics), which are generally excluded from Frontpage.
+      </div>
+    </div>
+  },
 }
 
-const personalBlogpostName = personalBlogpostInfo[forumTypeSetting.get()].name
-const personalBlogpostTooltip = personalBlogpostInfo[forumTypeSetting.get()].tooltip
+const personalBlogpostName = forumSelect(personalBlogpostInfo).name
+const personalBlogpostTooltip = forumSelect(personalBlogpostInfo).tooltip
 
 /**
  * Adjust the weighting the frontpage gives to posts with the given tags
