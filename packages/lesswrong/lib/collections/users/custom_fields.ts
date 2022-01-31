@@ -1519,7 +1519,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'admins'],
-    label: "Paypal Info",
+    label: "PayPal Info",
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
   },
