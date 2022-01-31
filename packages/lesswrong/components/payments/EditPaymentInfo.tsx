@@ -9,23 +9,28 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
+    maxWidth: 600,
+    margin: "auto"
+  },
+  info: {
+    marginTop: 25,
+    marginBottom: 25
   }
 });
 
 export const EditPaymentInfo = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Error404 } = Components
+  const { SectionTitle, Error404 } = Components
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
   const { history } = useNavigation();
   
   if (!currentUser) return <Error404/>
   return <div className={classes.root}>
-    <SingleColumnSection>
       <SectionTitle title={`Edit Payment for ${currentUser.displayName}`}/>
-      <div>
+      <div className={classes.info}>
         <p>To be eligible for prizes and donations through LessWrong, you need a <a href="https://paypal.com/">PayPal account</a>, and to enter your associated PayPal email/info here.</p>
         <p>If you receive more than $600 in a year, you'll need to be entered into Center for Applied Rationality's payment system. CFAR will contact you are your LessWrong email address about next steps. (Make sure it's an email that you check regularly)</p>
       </div>
@@ -33,7 +38,7 @@ export const EditPaymentInfo = ({classes}: {
         layout="elementOnly"
         collection={Users}
         documentId={currentUser._id}
-        fields={['email', 'paymentEmail', 'paymentInfo']}
+        fields={['paymentEmail', 'paymentInfo']}
         successCallback={async (user) => {
           flash(`Payment Info for "${userGetDisplayName(user)}" edited`);
           history.push(userGetProfileUrl(user));
@@ -44,7 +49,6 @@ export const EditPaymentInfo = ({classes}: {
         mutationFragment={getFragment('UsersEdit')}
         submitLabel="Save"
       />
-    </SingleColumnSection>
   </div>;
 }
 
