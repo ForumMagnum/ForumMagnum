@@ -30,6 +30,8 @@ export const getPostDescription = (post: PostsWithNavigation | PostsWithNavigati
       .split(/\n\n/)
       // get rid of bullshit opening text ('epistemic status' or 'crossposted from' etc)
       .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)))
+      
+    if (!plaintextPars.length) return ''
     
     // concatenate paragraphs together with a delimiter, until they reach an
     // acceptable length (target is 100-200 characters)

@@ -34,6 +34,7 @@ registerFragment(`
     meta
 
     shareWithUsers
+    sharingSettings
     
     commentCount
     voteCount

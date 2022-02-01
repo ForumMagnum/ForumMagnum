@@ -329,6 +329,8 @@ const ReviewVotingPage = ({classes}: {
 
   const { LWTooltip, Loading, ReviewVotingExpandedPost, ReviewVoteTableRow, SectionTitle, RecentComments, FrontpageReviewWidget } = Components
 
+  const canInitialResort = !!postsResults
+
   const reSortPosts = useCallback((sortPosts, sortReversed) => {
     if (!postsResults) return
 
@@ -373,9 +375,9 @@ const ReviewVotingPage = ({classes}: {
           if (permuted1 > permuted2) return 1;
         }
 
-        if (sortPosts === "currentUserReviewVote") {
+        if (sortPosts === "yourVote") {
+          if (post1Score < post2Score) return 1
           if (post1Score > post2Score) return -1
-          if (post2Score < post1Score) return 1
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
@@ -401,10 +403,8 @@ const ReviewVotingPage = ({classes}: {
     setPostsHaveBeenSorted(true)
     captureEvent(undefined, {eventSubType: "postsResorted"})
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, captureEvent])
+  }, [currentUser, captureEvent, canInitialResort])
   
-  const canInitialResort = !!postsResults
-
   useEffect(() => {
     setCostTotal(getCostTotal(postsResults))
   }, [canInitialResort, postsResults])
@@ -532,7 +532,7 @@ const ReviewVotingPage = ({classes}: {
             }
             {(postsLoading || loading) && <Loading/>}
 
-            {!isEAForum && costTotal && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
+            {!isEAForum && (costTotal !== null) && <div className={classNames(classes.costTotal, {[classes.excessVotes]: costTotal > 500})}>
               <LWTooltip title={costTotalTooltip}>
                 {costTotal}/500
               </LWTooltip>
@@ -565,7 +565,7 @@ const ReviewVotingPage = ({classes}: {
                 {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
-                <MenuItem value={'currentUserReviewVote'}>
+                <MenuItem value={'yourVote'}>
                   <span className={classes.sortBy}>Sort by</span> Your Vote
                 </MenuItem>
                 <MenuItem value={'reviewCount'}>
