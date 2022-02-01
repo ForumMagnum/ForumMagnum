@@ -9,7 +9,9 @@ import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
 
 // space pic for events with no img
-export const DEFAULT_EVENT_IMG = 'https://res.cloudinary.com/cea/image/upload/w_800/Banner/yeldubyolqpl3vqqy0m6.jpg'
+export const getDefaultEventImg = (width: number, blur?: boolean) => {
+  return `https://res.cloudinary.com/cea/image/upload/w_${width}${blur ? ',e_blur:500' : ''}/Banner/yeldubyolqpl3vqqy0m6.jpg`
+}
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -32,19 +34,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   content: {
     position: 'relative',
-    background: 'inherit',
     padding: '10px 20px',
     overflow: 'visible',
-    '&::before': {
-      content: "''",
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: 'inherit',
-      filter: 'blur(12px)',
-    }
   },
   text: {
     position: 'relative',
@@ -114,8 +105,8 @@ const HighlightedEventCard = ({event, loading, classes}: {
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
   const eventImg = event?.eventImageId ?
-    `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800/${event.eventImageId}` :
-    DEFAULT_EVENT_IMG
+    `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800,e_blur:500/${event.eventImageId}` :
+    getDefaultEventImg(800, true)
   
   const cardBackground = {
     backgroundImage: `linear-gradient(rgba(0, 87, 102, 0.6), rgba(0, 87, 102, 0.6)), url(${eventImg})`

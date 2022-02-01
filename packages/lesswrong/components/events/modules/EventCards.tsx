@@ -8,7 +8,7 @@ import CardContent from '@material-ui/core/CardContent';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
-import { DEFAULT_EVENT_IMG } from './HighlightedEventCard';
+import { getDefaultEventImg } from './HighlightedEventCard';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -147,7 +147,7 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
         <Link to={`/events/${event._id}/${event.slug}`}>
           {event.eventImageId ?
             <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
-            <img src={DEFAULT_EVENT_IMG} style={{height: 200, width: 373}} />}
+            <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
         </Link>
         <CardContent className={classes.eventCardContent}>
           <div className={classes.eventCardTime}>
