@@ -6,6 +6,7 @@ import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { useLocation } from '../../lib/routeUtil';
 
 
 const styles = theme => ({
@@ -37,9 +38,10 @@ const styles = theme => ({
 const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
+  const { params: {year} } = useLocation()
 
   const { results: votes, loading: votesLoading } = useMulti({
-    terms: {view: "reviewVotesAdminDashboard", limit: 2000, year: REVIEW_YEAR+""},
+    terms: {view: "reviewVotesAdminDashboard", limit: 2000, year: year},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
@@ -58,11 +60,10 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
 
   const userRows = sortBy(
     Object.entries(groupBy(votes, (vote) => vote.userId)),
-    obj => -(obj[1].length || 0)
+    obj => -obj[1].length
   ) 
 
   return <div className={classes.root}>
-    {votesLoading && <Loading/>}
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
       <br/>
@@ -129,6 +130,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
     <div>
       <Typography variant="display1">All Votes ({votes?.length})</Typography>
       <br/>
+      {votesLoading && <Loading/>}
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.date}>
           <b>Date</b>

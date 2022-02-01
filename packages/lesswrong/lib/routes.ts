@@ -996,6 +996,11 @@ addRoute(
   {
     name: 'reviewAdmin',
     path: '/reviewAdmin',
+    redirect: () => `/reviewAdmin/2020`,
+  },
+  {
+    name: 'reviewAdmin-year',
+    path: '/reviewAdmin/:year',
     componentName: 'ReviewAdminDashboard',
     title: "Review Admin Dashboard",
   }
