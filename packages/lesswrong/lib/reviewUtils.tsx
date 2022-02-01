@@ -21,7 +21,7 @@ export type ReviewPhase = "NOMINATIONS" | "REVIEWS" | "VOTING"
 export function getReviewPhase(): ReviewPhase | void {
   const currentDate = moment.utc()
   const reviewStart = moment.utc(annualReviewStart.get())
-  // Add 1 day because the end dates are inclusive
+
   const nominationsPhaseEnd = moment.utc(annualReviewNominationPhaseEnd.get())
   const reviewPhaseEnd = moment.utc(annualReviewReviewPhaseEnd.get())
   const reviewEnd = moment.utc(annualReviewEnd.get())
