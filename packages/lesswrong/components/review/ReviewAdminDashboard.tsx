@@ -41,17 +41,17 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   const { params: {year} } = useLocation()
 
   const { results: votes, loading: votesLoading } = useMulti({
-    terms: {view: "reviewVotesAdminDashboard", limit: 2000, year: year},
+    terms: {view: "reviewVotesAdminDashboard", limit: 10000, year: year},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
   })
 
   const { results: users, loading: usersLoading } = useMulti({
-    terms: {view: "reviewAdminUsers", limit: 2000},
+    terms: {view: "reviewAdminUsers", limit: 500},
     collectionName: "Users",
     fragmentName: "UsersWithReviewInfo",
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'network-only'
   })
 
   if (!userIsAdmin(currentUser)) {
@@ -86,7 +86,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       </div>
       <p><i>Users with at least 1 vote</i></p>
       {votes && userRows.map((userRow, i) => {
-        return <div key={userRow[0]} className={classes.voteItem}>
+        return <div key={userRow[0]} className={classes.voteItem} onClick={()=> console.log(userRow)}>
           <PostsItemMetaInfo className={classes.count}>
             {i+1}
           </PostsItemMetaInfo>
@@ -142,7 +142,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
           <b>Username</b>
         </PostsItemMetaInfo>
       </div>
-      {votes && votes.map(vote=><div className={classes.voteItem} key={vote._id}>
+      {votes && votes.map(vote=><div className={classes.voteItem} key={vote._id} onClick={() => console.log(vote)}>
         <PostsItemMetaInfo className={classes.date}>
           <FormatDate date={vote.createdAt}/>
         </PostsItemMetaInfo>
