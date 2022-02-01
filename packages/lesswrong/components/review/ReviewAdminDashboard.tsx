@@ -1,6 +1,5 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
@@ -19,6 +18,10 @@ const styles = theme => ({
   },
   author: {
     width: 200
+  },
+  count: {
+    width: 50,
+    color: theme.palette.grey[400]
   },
   karma: {
     width: 100
@@ -62,6 +65,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   return <div className={classes.root}>
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
+      <br/>
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.count}>
           <b>Count</b>
