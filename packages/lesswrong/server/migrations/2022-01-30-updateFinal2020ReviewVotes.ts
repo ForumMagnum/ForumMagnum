@@ -14,73 +14,73 @@ registerMigration({
   dateWritten: "2022-01-30",
   idempotent: true,
   action: async () => {
-    // const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
+    const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
     
-    // const votesByUserId = groupBy(votes, vote => vote.userId)
-    // const users = await Users.find({_id: {$in: Object.keys(votesByUserId)}}).fetch()
-    // const usersByUserId = groupBy(users, user => user._id)
+    const votesByUserId = groupBy(votes, vote => vote.userId)
+    const users = await Users.find({_id: {$in: Object.keys(votesByUserId)}}).fetch()
+    const usersByUserId = groupBy(users, user => user._id)
 
-    // let postsAllUsers = {}
-    // let postsHighKarmaUsers = {}
-    // let postsAFUsers = {}
+    let postsAllUsers = {}
+    let postsHighKarmaUsers = {}
+    let postsAFUsers = {}
 
-    // const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
-    // const postIds = posts.map(post=>post._id)
+    const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
+    const postIds = posts.map(post=>post._id)
 
-    // function updatePost(postList, vote, total) {
-    //   if (postList[vote.postId] === undefined) { 
-    //     postList[vote.postId] = [getValue(vote, total)]
-    //   } else {
-    //     postList[vote.postId].push(getValue(vote, total))
-    //   }
-    // }
+    function updatePost(postList, vote, total) {
+      if (postList[vote.postId] === undefined) { 
+        postList[vote.postId] = [getValue(vote, total)]
+      } else {
+        postList[vote.postId].push(getValue(vote, total))
+      }
+    }
 
-    // for (let userId in votesByUserId) {
-    //   let totalUserPoints = 0 
-    //   console.log(userId)
-    //   const user = usersByUserId[userId][0]
-    //   const votes = votesByUserId[userId].filter(vote => postIds.includes(vote.postId))
+    for (let userId in votesByUserId) {
+      let totalUserPoints = 0 
+      console.log(userId)
+      const user = usersByUserId[userId][0]
+      const votes = votesByUserId[userId].filter(vote => postIds.includes(vote.postId))
 
-    //   const costTotal = votes.reduce((total,vote) => total + getCost(vote), 0)
-    //   console.log(userId, costTotal, (costTotal > 500) ? "500+" : "")
-    //   for (let vote of votesByUserId[userId]) {
-    //     if (!vote.qualitativeScore) continue
+      const costTotal = votes.reduce((total,vote) => total + getCost(vote), 0)
+      console.log(userId, costTotal, (costTotal > 500) ? "500+" : "")
+      for (let vote of votesByUserId[userId]) {
+        if (!vote.qualitativeScore) continue
                 
-    //     updatePost(postsAllUsers, vote, costTotal)
+        updatePost(postsAllUsers, vote, costTotal)
 
-    //     if (user.karma >= 1000) {
-    //       updatePost(postsHighKarmaUsers, vote, costTotal)
-    //     }
+        if (user.karma >= 1000) {
+          updatePost(postsHighKarmaUsers, vote, costTotal)
+        }
         
-    //     if (user.groups?.includes('alignmentForum')) {
-    //       updatePost(postsAFUsers, vote, costTotal)
-    //     }
-    //   }
-    // }
+        if (user.groups?.includes('alignmentForum')) {
+          updatePost(postsAFUsers, vote, costTotal)
+        }
+      }
+    }
 
-    // console.log("Updating all karma...")
-    // for (let postId in postsAllUsers) {
-    //   await Posts.update({_id:postId}, {$set: { 
-    //     finalReviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
-    //     finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
-    //   }})
-    // }
+    console.log("Updating all karma...")
+    for (let postId in postsAllUsers) {
+      await Posts.update({_id:postId}, {$set: { 
+        finalReviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
+        finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
+      }})
+    }
 
-    // console.log("Updating high karma...")
-    // for (let postId in postsHighKarmaUsers) {
-    //   await Posts.update({_id:postId}, {$set: { 
-    //     finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
-    //     finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
-    //   }})
-    // }
+    console.log("Updating high karma...")
+    for (let postId in postsHighKarmaUsers) {
+      await Posts.update({_id:postId}, {$set: { 
+        finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
+        finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
+      }})
+    }
 
-    // console.log("Updating AF...")
-    // for (let postId in postsAFUsers) {
-    //   await Posts.update({_id:postId}, {$set: { 
-    //     finalReviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
-    //     finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
-    //    }})
-    // }
+    console.log("Updating AF...")
+    for (let postId in postsAFUsers) {
+      await Posts.update({_id:postId}, {$set: { 
+        finalReviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
+        finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
+       }})
+    }
 
     const finalPosts = await Posts.find({reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}, postedAt: {$gte: moment(`${REVIEW_YEAR}-01-01`).toDate()}}, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch()
 
