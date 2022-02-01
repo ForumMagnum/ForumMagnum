@@ -6,7 +6,7 @@ import forumThemeExport from '../../themes/forumTheme';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { eligibleToNominate, getCostData } from '../../lib/reviewUtils';
+import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
 
 const downvoteColor = "rgba(125,70,70, .87)"
@@ -14,7 +14,8 @@ const upvoteColor = forumTypeSetting.get() === "EAForum" ? forumThemeExport.pale
 
 const styles = (theme: ThemeType) => ({
   root: { 
-    whiteSpace: "pre"
+    whiteSpace: "pre",
+    ...theme.typography.commentStyle,
   },
   button: {
     paddingTop: 3,
@@ -71,6 +72,8 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
       dispatch({_id: currentUserVote?._id, postId: post._id, score: index})
     }
   }
+
+  if (!reviewIsActive()) return <div className={classes.root}>Voting period is over.</div>
 
   if (currentUser?._id === post.userId) return <div className={classes.root}>You can't vote on your own posts</div>
 
