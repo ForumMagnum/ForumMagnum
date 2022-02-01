@@ -39,7 +39,6 @@ const ReviewVotingExpandedPost = ({classes, post}:{classes: ClassesType, post?: 
   const { ReviewPostButton, ReviewPostComments, PostsHighlight, PingbacksList, Loading} = Components
 
   const {document: postWithContents, loading} = useSingle({
-    skip: !!post?.contents,
     documentId: post?._id,
     collectionName: "Posts",
     fetchPolicy: "cache-first",

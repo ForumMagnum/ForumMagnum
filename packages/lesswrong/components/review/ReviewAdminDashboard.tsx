@@ -20,10 +20,6 @@ const styles = theme => ({
   author: {
     width: 200
   },
-  count: {
-    width: 50,
-    color: theme.palette.grey[400]
-  },
   karma: {
     width: 100
   },
@@ -66,12 +62,8 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   return <div className={classes.root}>
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
-      <br/>
       <div className={classes.voteItem} >
-        <PostsItemMetaInfo className={classes.count}>
-          <b>Count</b>
-        </PostsItemMetaInfo>
-        <PostsItemMetaInfo className={classes.karma}>
+      <PostsItemMetaInfo className={classes.karma}>
           <b>Votes</b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
@@ -106,11 +98,8 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       })}
       <p><i>1000+ karma users</i></p>
       {usersLoading && <Loading/>}
-      {users && users.map((user, i) => {
+      {users && users.map(user => {
         return <div key={user._id} className={classes.voteItem}>
-          <PostsItemMetaInfo className={classes.count}>
-            {i+1}
-          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {user.reviewVoteCount}
           </PostsItemMetaInfo>

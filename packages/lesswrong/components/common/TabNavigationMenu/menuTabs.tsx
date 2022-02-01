@@ -14,9 +14,9 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import type { ForumTypeString } from '../../../lib/instanceSettings';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { ForumOptions } from '../../../lib/forumTypeUtils';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -70,7 +70,7 @@ export type MenuTabRegular = {
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
 
-export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
+export const menuTabs: ForumOptions<Array<MenuTab>> = {
   LessWrong: [
     {
       id: 'home',
@@ -323,6 +323,78 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       title: 'About EA',
       link: '/intro',
       subItem: true,
+    }, {
+      id: 'about',
+      title: 'About the Forum',
+      link: '/about',
+      subItem: true,
+      compressedIconComponent: Info,
+      showOnCompressed: true,
+    }, {
+      id: 'contact',
+      title: 'Contact Us',
+      link: '/contact',
+      subItem: true,
+    }
+  ],
+  default: [
+    {
+      id: 'home',
+      title: 'Home',
+      link: '/',
+      iconComponent: Home,
+      tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'allPosts',
+      title: 'All Posts',
+      link: '/allPosts',
+      iconComponent: Sort,
+      tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
+      showOnMobileStandalone: false,
+      showOnCompressed: true,
+    }, {
+      id: 'wiki',
+      title: 'Wiki',
+      mobileTitle: 'Wiki',
+      link: '/tags/all',
+      iconComponent: LocalOffer,
+      tooltip: 'Collaboratively edited Tags and Wiki Articles',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'library',
+      title: 'Library',
+      link: '/library',
+      iconComponent: LocalLibrary,
+      tooltip: "Core reading, and sequences of posts building on a common theme",
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'events',
+      title: 'Community and Events',
+      mobileTitle: 'Events',
+      link: communityPath,
+      iconComponent: SupervisedUserCircleIcon,
+      tooltip: 'See groups and events in your area',
+      showOnMobileStandalone: true,
+      showOnCompressed: true
+    }, {
+      id: 'eventsList',
+      customComponentName: "EventsList",
+    }, {
+      id: 'divider',
+      divider: true,
+      showOnCompressed: true,
+    }, {
+      id: 'shortform',
+      title: 'Shortform',
+      link: '/shortform',
+      subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponentName: "SubscribeWidget",
     }, {
       id: 'about',
       title: 'About the Forum',

@@ -142,7 +142,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   
   const currentUser = useCurrentUser();
 
-  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse } = treeOptions;
+  const { postPage, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons } = treeOptions;
 
   const showReply = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -266,6 +266,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   }
 
   const displayReviewVoting = 
+    !hideReviewVoteButtons &&
     reviewIsActive() &&
     comment.reviewingForReview === REVIEW_YEAR+"" &&
     post &&
@@ -358,8 +359,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>
-            Update {REVIEW_NAME_IN_SITU} vote for this post. 
             <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
+              Update your {REVIEW_NAME_IN_SITU} vote for this post. 
               <LWHelpIcon/>
             </LWTooltip>
           </div>

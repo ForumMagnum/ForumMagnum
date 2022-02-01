@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
-import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
@@ -282,9 +282,9 @@ export const forcePendingEvents = async (upToDate=null) => {
     // Keep checking for more events to handle so long as one was handled.
   } while (eventToHandle);
 }
+
 Vulcan.forcePendingEvents = forcePendingEvents;
 
-export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
 if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
@@ -295,3 +295,4 @@ if (!testServerSetting.get()) {
     }
   });
 }
+
