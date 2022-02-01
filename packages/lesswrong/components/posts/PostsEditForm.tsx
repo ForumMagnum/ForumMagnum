@@ -62,7 +62,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
   }
   
-  if (!testServerSetting.get() && isCollaborative(document)) {
+  if (!testServerSetting.get() && isCollaborative(document, "contents")) {
     return <Components.SingleColumnSection>
       <p>This post has experimental collaborative editing enabled.</p>
       <p>It can only be edited on the development server.</p>

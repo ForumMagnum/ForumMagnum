@@ -11,7 +11,7 @@ import * as _ from 'underscore';
 
 const autosaveInterval = 3000; //milliseconds
 
-function isCollaborative(post, fieldName: string): boolean {
+export function isCollaborative(post, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
