@@ -14,8 +14,6 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  timeRemaining: {
-  },
   learnMore: {
     color: theme.palette.lwTertiary.main
   },
@@ -111,6 +109,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('md')]: {
       display: 'none'
     }
+  },
+  timeRemaining: {
+    ...theme.typography.commentStyle,
+    fontSize: 14,
+    color: theme.palette.grey[500]
   }
 })
 
@@ -154,8 +157,8 @@ const voteEndDate = moment.utc(annualReviewEnd.get())
 const forumTitle = forumTitleSetting.get()
 
 const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
-const reviewPhaseDateRange = <span>{nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
-const votingPhaseDateRange = <span>{reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
+const reviewPhaseDateRange = <span>{nominationEndDate.clone().format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
+const votingPhaseDateRange = <span>{reviewEndDate.clone().format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
 
 // EA will use LW text next year, so I've kept the forumType genericization
 export const overviewTooltip = isEAForum ?
@@ -212,14 +215,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
 
   const reviewTooltip = isEAForum ?
     <>
-      <div>Review posts for the {REVIEW_NAME_IN_SITU} (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Review posts for the {REVIEW_NAME_IN_SITU} (Opens {nominationEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Write reviews of posts nominated for the {REVIEW_NAME_IN_SITU}</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
       </ul>
     </> :
     <>
-      <div>Review posts for the {REVIEW_YEAR} Review (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Review posts for the {REVIEW_YEAR} Review (Opens {nominationEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Write reviews of posts nominated for the {REVIEW_YEAR} Review</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
@@ -228,14 +231,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
 
   const voteTooltip = isEAForum ?
     <>
-      <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {nominationStartDate.format('MMM Do')} can vote in the review</li>
       </ul>
     </> :
     <>
-      <div>Cast your final votes for the {REVIEW_YEAR} Review. (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Cast your final votes for the {REVIEW_YEAR} Review. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Look over {/* TODO: Raymond Arnold look here, sentence fragment */} </li>
         <li>Any user registered before {REVIEW_YEAR} can vote in the review</li>
@@ -359,12 +362,18 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
             itemsPerPage: 10
            }}
           >       
-            {eligibleToNominate(currentUser) &&
+            <div>
+              {/* If there's less than 24 hours remaining, show the remaining time */}
+              {voteEndDate.diff(new Date()) < (24 * 60 * 60 * 1000) && <span className={classes.timeRemaining}>
+                {voteEndDate.fromNow()} remaining
+              </span>}
+              {eligibleToNominate(currentUser) &&
               <Link to={"/reviews"} className={classes.actionButtonCTA}>
                 {activeRange === "REVIEWS" && <span>Review {REVIEW_YEAR} Posts</span>}
                 {activeRange === "VOTING" && <span>Cast Final Votes</span>}
               </Link>
-            }
+              }
+            </div>
           </PostsList2>
         </AnalyticsContext>}
 
