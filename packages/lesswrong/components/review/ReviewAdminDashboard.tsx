@@ -63,7 +63,10 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
       <div className={classes.voteItem} >
-      <PostsItemMetaInfo className={classes.karma}>
+        <PostsItemMetaInfo className={classes.count}>
+          <b>Count</b>
+        </PostsItemMetaInfo>
+        <PostsItemMetaInfo className={classes.karma}>
           <b>Votes</b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
@@ -98,8 +101,11 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       })}
       <p><i>1000+ karma users</i></p>
       {usersLoading && <Loading/>}
-      {users && users.map(user => {
+      {users && users.map((user, i) => {
         return <div key={user._id} className={classes.voteItem}>
+          <PostsItemMetaInfo className={classes.count}>
+            {i+1}
+          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {user.reviewVoteCount}
           </PostsItemMetaInfo>
