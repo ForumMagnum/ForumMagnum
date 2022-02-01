@@ -32,7 +32,6 @@ export const userCanUseSharing = karmaGated(50);
 export const userHasNewTagSubscriptions =  isEAForum ? optInOnly : disabled
 
 // Shipped Features
-export const userHasCkEditor = shippedFeature;
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
 export const userCanUseTags = shippedFeature;

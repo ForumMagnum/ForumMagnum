@@ -19,16 +19,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentFont: {
     ...theme.typography.commentStyle
+  },
+  expanded: {
+    background: "white",
+    marginBottom: 20,
+    padding: 16
+  },
+  boxShadow: {
+    boxShadow: "0 1px 5px rgb(0 0 0 / 10%)"
   }
 });
 
-const ConversationItem = ({conversation, updateConversation, currentUser, classes}: {
+const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
   conversation: conversationsListFragment,
   updateConversation: any,
   currentUser: UsersCurrent,
   classes: ClassesType,
+  expanded?: boolean
 }) => {
-  const { PostsItem2MetaInfo, UsersName, FormatDate } = Components
+  const { PostsItem2MetaInfo, UsersName, FormatDate, ConversationPreview } = Components
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id)
   if (!conversation) return null
 
@@ -44,21 +53,26 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
   }
 
   return (
-    <div className={classNames(classes.root, {[classes.archivedItem]: isArchived})}>
-      <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.commentFont)}>{conversationGetTitle(conversation, currentUser)}</Link>
-      { conversation.participants
-        .filter(user => user._id !== currentUser._id)
-        .map(user => <span key={user._id} className={classes.leftMargin}>
-          <PostsItem2MetaInfo> <UsersName user={user} /> </PostsItem2MetaInfo>
-        </span>)
-      }
-      {conversation.latestActivity && <span className={classes.leftMargin}><PostsItem2MetaInfo>
-        <FormatDate date={conversation.latestActivity} />
-      </PostsItem2MetaInfo></span>}
-      {<div className={classes.actions} onClick={archiveIconClick}>
-        <Tooltip title={isArchived ? "Restore this conversation" : "Archive this conversation"}>
-          {isArchived ? <UnarchiveIcon /> : <ArchiveIcon />}
-        </Tooltip>
+    <div className={expanded ? classes.boxShadow : null}>
+      <div className={classNames(classes.root, {[classes.archivedItem]: isArchived})}>
+        <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.commentFont)}>{conversationGetTitle(conversation, currentUser)}</Link>
+        { conversation.participants
+          .filter(user => user._id !== currentUser._id)
+          .map(user => <span key={user._id} className={classes.leftMargin}>
+            <PostsItem2MetaInfo> <UsersName user={user} /> </PostsItem2MetaInfo>
+          </span>)
+        }
+        {conversation.latestActivity && <span className={classes.leftMargin}><PostsItem2MetaInfo>
+          <FormatDate date={conversation.latestActivity} />
+        </PostsItem2MetaInfo></span>}
+        {<div className={classes.actions} onClick={archiveIconClick}>
+          <Tooltip title={isArchived ? "Restore this conversation" : "Archive this conversation"}>
+            {isArchived ? <UnarchiveIcon /> : <ArchiveIcon />}
+          </Tooltip>
+        </div>}
+    </div>
+      {expanded && <div className={classes.expanded}>
+        <ConversationPreview count={3} key={conversation._id} conversationId={conversation._id} currentUser={currentUser} showTitle={false} />
       </div>}
     </div>
   )

@@ -3,12 +3,11 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
-import Card from '@material-ui/core/Card';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit,
-    width: 500,
+    maxWidth: 700,
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
@@ -20,10 +19,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ConversationPreview = ({conversationId, currentUser, classes}: {
+const ConversationPreview = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
   conversationId: string,
   currentUser: UsersCurrent,
   classes: ClassesType,
+  showTitle?: boolean,
+  count?: number
 }) => {
   const { Loading, MessageItem } = Components
 
@@ -42,19 +43,19 @@ const ConversationPreview = ({conversationId, currentUser, classes}: {
     collectionName: "Messages",
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 10,
+    limit: count,
   });
   
   // using a spread operator instead of naively "messages.reverse()" to avoid modifying the 
   // original array, which coud cause rendering bugs (reversing the order every time the component re-renders)
   const reversedMessages = [...messages].reverse()
 
-  return <Card className={classes.root}>
-    { conversation && <div className={classes.title}>{ conversationGetTitle(conversation, currentUser) }</div>}
+  return <div className={classes.root}>
+    { conversation && showTitle && <div className={classes.title}>{ conversationGetTitle(conversation, currentUser) }</div>}
     { conversationLoading && <Loading />}
     
     { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} message={message} />))}
-  </Card>
+  </div>
 }
 
 const ConversationPreviewComponent = registerComponent('ConversationPreview', ConversationPreview, {styles});
@@ -64,4 +65,3 @@ declare global {
     ConversationPreview: typeof ConversationPreviewComponent
   }
 }
-

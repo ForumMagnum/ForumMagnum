@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    previousDisplayName
     fullName
     karma
     afKarma

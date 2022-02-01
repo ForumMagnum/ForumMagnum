@@ -148,9 +148,14 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, subq
   // Apply limit
   const withLimitApplied = _.first(bothResultKinds, limit);
   
+  // Find the last result that wasn't numerically positioned (after the limit
+  // is applied), and get its sortKey to use as the page cutoff
+  const nonNumericallyPositionedResults = _.filter(withLimitApplied, r => !_.some(numericallyPositionedResults, r2=>r===r2));
+  const nextCutoff = (nonNumericallyPositionedResults.length>0) ? nonNumericallyPositionedResults[nonNumericallyPositionedResults.length-1].sortKey : null;
+  
   return {
     results: withLimitApplied,
-    cutoff: withLimitApplied.length>0 ? withLimitApplied[withLimitApplied.length-1].sortKey : null,
+    cutoff: nextCutoff,
     endOffset: (offset||0)+withLimitApplied.length
   };
 }
@@ -167,8 +172,15 @@ function mergeSortedAndNumericallyPositionedResults(sortedResults: Array<any>, n
   let mergedResults: Array<any> = [...sortedResults];
   for (let i=0; i<sortedNumericallyPositionedResults.length; i++) {
     const insertedResult = sortedNumericallyPositionedResults[i];
-    if (insertedResult.sortKey >= offset)
-    mergedResults.splice(insertedResult.sortKey-offset, 0, insertedResult);
+    const insertionPosition = insertedResult.sortKey-offset;
+    
+    if (insertionPosition >= 0) {
+      if (insertionPosition < mergedResults.length) {
+        mergedResults.splice(insertionPosition, 0, insertedResult);
+      } else {
+        mergedResults.push(insertedResult);
+      }
+    }
   }
   
   return mergedResults;

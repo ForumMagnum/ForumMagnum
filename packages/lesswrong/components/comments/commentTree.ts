@@ -15,4 +15,5 @@ export interface CommentTreeOptions {
   singleLinePostTitle?: boolean,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
+  hideReviewVoteButtons?: boolean
 }

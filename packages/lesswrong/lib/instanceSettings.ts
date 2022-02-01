@@ -132,3 +132,8 @@ export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAb
 // database.
 export const ckEditorUploadUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.uploadUrl', null, "optional") // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.webSocketUrl', null, "optional") // Websocket URL for CKEditor (for collaboration)
+
+// Stripe setting
+
+//Test vs Production Setting
+export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")

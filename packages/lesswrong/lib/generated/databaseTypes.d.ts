@@ -421,6 +421,8 @@ interface DbPost extends DbObject {
   localStartTime: Date
   endTime: Date | null
   localEndTime: Date
+  eventRegistrationLink: string
+  joinEventLink: string
   onlineEvent: boolean
   globalEvent: boolean
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
@@ -430,6 +432,7 @@ interface DbPost extends DbObject {
   facebookLink: string
   meetupLink: string
   website: string
+  eventImageId: string
   types: Array<string>
   metaSticky: boolean
   sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
@@ -652,6 +655,7 @@ interface DbUser extends DbObject {
   profile: any /*{"definitions":[{"blackbox":true}]}*/
   services: any /*{"definitions":[{"blackbox":true}]}*/
   displayName: string
+  previousDisplayName: string
   email: string
   slug: string
   noindex: boolean

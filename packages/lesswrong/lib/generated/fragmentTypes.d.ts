@@ -14,6 +14,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly isAdmin: boolean,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly displayName: string,
+  readonly previousDisplayName: string,
   readonly email: string,
   readonly slug: string,
   readonly noindex: boolean,
@@ -289,8 +290,13 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
-  readonly currentUserReviewVote: number,
+  readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
   readonly userId: string,
+}
+
+interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
+  readonly _id: string,
+  readonly qualitativeScore: number,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -331,11 +337,14 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly endTime: Date | null,
   readonly localStartTime: Date,
   readonly localEndTime: Date,
+  readonly eventRegistrationLink: string,
+  readonly joinEventLink: string,
   readonly facebookLink: string,
   readonly meetupLink: string,
   readonly website: string,
   readonly contactInfo: string,
   readonly isEvent: boolean,
+  readonly eventImageId: string,
   readonly types: Array<string>,
   readonly groupId: string,
   readonly reviewedByUserId: string,
@@ -384,6 +393,11 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
+interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
 }
@@ -1508,6 +1522,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly createdAt: Date,
   readonly username: string,
   readonly displayName: string,
+  readonly previousDisplayName: string,
   readonly fullName: string,
   readonly karma: number,
   readonly afKarma: number,
@@ -1860,6 +1875,7 @@ interface FragmentTypes {
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
+  PostsReviewVotingList: PostsReviewVotingList
   PostsAuthors: PostsAuthors
   PostsListBase: PostsListBase
   PostsList: PostsList
@@ -2004,6 +2020,7 @@ interface CollectionNamesByFragmentName {
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
+  PostsReviewVotingList: "Posts"
   PostsAuthors: "Posts"
   PostsListBase: "Posts"
   PostsList: "Posts"

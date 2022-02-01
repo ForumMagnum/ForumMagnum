@@ -1338,3 +1338,27 @@ ensureIndex(Posts,
   augmentForDefaultView({ positiveReviewVoteCount: 1, createdAt: 1 }),
   { name: "posts.positiveReviewVoteCount", }
 );
+
+// During the Final Voting phase, posts need at least one positive vote and at least one review to qualify
+Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      reviewCount: { $gte: 1 },
+      positiveReviewVoteCount: { $gte: 1 }, // TODO: Ray thinks next year this should change to "has at least 4 points"
+    },
+    options: {
+      // This sorts the posts deterministically, which is important for the
+      // relative stability of the seeded frontend sort
+      sort: {
+        lastCommentedAt: -1
+      },
+      ...(terms.excludeContents ?
+        {projection: {contents: 0}} :
+        {})
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ positiveReviewVoteCount: 1, reviewCount: 1, createdAt: 1 }),
+  { name: "posts.positiveReviewVoteCount", }
+);
