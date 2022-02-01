@@ -154,8 +154,8 @@ const voteEndDate = moment.utc(annualReviewEnd.get())
 const forumTitle = forumTitleSetting.get()
 
 const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
-const reviewPhaseDateRange = <span>{nominationEndDate.clone().add(1, 'day').format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
-const votingPhaseDateRange = <span>{reviewEndDate.clone().add(1, 'day').format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
+const reviewPhaseDateRange = <span>{nominationEndDate.clone().format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
+const votingPhaseDateRange = <span>{reviewEndDate.clone().format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
 
 // EA will use LW text next year, so I've kept the forumType genericization
 export const overviewTooltip = isEAForum ?
@@ -212,14 +212,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
 
   const reviewTooltip = isEAForum ?
     <>
-      <div>Review posts for the {REVIEW_NAME_IN_SITU} (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Review posts for the {REVIEW_NAME_IN_SITU} (Opens {nominationEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Write reviews of posts nominated for the {REVIEW_NAME_IN_SITU}</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
       </ul>
     </> :
     <>
-      <div>Review posts for the {REVIEW_YEAR} Review (Opens {nominationEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Review posts for the {REVIEW_YEAR} Review (Opens {nominationEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Write reviews of posts nominated for the {REVIEW_YEAR} Review</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
@@ -228,14 +228,14 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
 
   const voteTooltip = isEAForum ?
     <>
-      <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Cast your final votes for the {REVIEW_NAME_IN_SITU}. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {nominationStartDate.format('MMM Do')} can vote in the review</li>
       </ul>
     </> :
     <>
-      <div>Cast your final votes for the {REVIEW_YEAR} Review. (Opens {reviewEndDate.clone().add(1, 'day').format('MMM Do')})</div>
+      <div>Cast your final votes for the {REVIEW_YEAR} Review. (Opens {reviewEndDate.clone().format('MMM Do')})</div>
       <ul>
         <li>Look over {/* TODO: Raymond Arnold look here, sentence fragment */} </li>
         <li>Any user registered before {REVIEW_YEAR} can vote in the review</li>
