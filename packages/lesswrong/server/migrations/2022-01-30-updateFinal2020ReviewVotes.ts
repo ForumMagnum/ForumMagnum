@@ -4,6 +4,7 @@ import { getCostData, REVIEW_YEAR } from '../../lib/reviewUtils';
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
+import moment from 'moment';
 
 const getCost = (vote) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote, total) => getCostData({costTotal:total})[vote.qualitativeScore].value
@@ -81,7 +82,7 @@ registerMigration({
     //    }})
     // }
 
-    const finalPosts = await Posts.find({reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}}, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch()
+    const finalPosts = await Posts.find({reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}, postedAt: {$gte: moment(`${REVIEW_YEAR}-01-01`).toDate()}}, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch()
 
     const authorIds = finalPosts.map(post => post.userId)
 
@@ -119,9 +120,9 @@ registerMigration({
 
     const donateButton = (post) => `<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
     <input type="hidden" name="cmd" value="_s-xclick" />
-    <input type="hidden" name="item_name" value='For ${getAuthor(post)}, author of "${post.title}" (NOT TAX DEDUCTIBLE)' />
+    <input type="hidden" name="item_name" value='Best of LessWrong Prize, with special appreciation for ${getAuthor(post)}, author of "${post.title}".' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />
-    <input type="submit" value="Donate" border="0" name="submit" title="Donate to author ${getAuthor(post)} via PayPal" alt="Donate with PayPal button" class="donate-button"/>
+    <input type="submit" value="Donate" border="0" name="submit" title="Donate via PayPal" alt="Donate with PayPal button" class="donate-button"/>
     <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
     </form>`
 
