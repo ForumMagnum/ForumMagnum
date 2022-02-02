@@ -14,6 +14,7 @@ import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
+import qs from "qs";
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -426,6 +427,7 @@ const PostsItem2 = ({
     AddToCalendarIcon, PostsItemReviewVote, ReviewPostButton } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
+  const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
 
   const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
@@ -484,7 +486,7 @@ const PostsItem2 = ({
                       captureOnClick={false}
                   >
                     <PostsTitle
-                      postLink={postLink}
+                      postLink={draft ? postEditLink : postLink}
                       post={post}
                       read={isRead}
                       sticky={isSticky(post, terms)}
