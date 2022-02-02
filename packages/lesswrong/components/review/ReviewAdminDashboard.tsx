@@ -85,6 +85,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       </div>
       <p><i>Users with at least 1 vote</i></p>
       {votes && userRows.map((userRow, i) => {
+        // eslint-disable-next-line no-console
         return <div key={userRow[0]} className={classes.voteItem} onClick={()=> console.log(userRow)}>
           <PostsItemMetaInfo className={classes.count}>
             {i+1}
@@ -141,6 +142,7 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
           <b>Username</b>
         </PostsItemMetaInfo>
       </div>
+      {/* eslint-disable-next-line no-console */}
       {votes && votes.map(vote=><div className={classes.voteItem} key={vote._id} onClick={() => console.log(vote)}>
         <PostsItemMetaInfo className={classes.date}>
           <FormatDate date={vote.createdAt}/>
