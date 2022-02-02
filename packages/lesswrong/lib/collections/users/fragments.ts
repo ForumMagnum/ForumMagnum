@@ -85,6 +85,9 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsIncludeEvents
     allPostsOpenSettings
+    draftsListSorting
+    draftsListShowArchived
+    draftsListShowShared
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds

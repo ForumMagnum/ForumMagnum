@@ -32,6 +32,7 @@ registerFragment(`
     status
     frontpageDate
     meta
+    deletedDraft
 
     shareWithUsers
     sharingSettings

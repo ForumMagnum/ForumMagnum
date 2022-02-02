@@ -139,6 +139,7 @@ importComponent("BookmarksPage", () => require('../components/posts/BookmarksPag
 importComponent("BookmarksList", () => require('../components/posts/BookmarksList'));
 importComponent("DraftsPage", () => require('../components/posts/DraftsPage'));
 importComponent("DraftsList", () => require('../components/posts/DraftsList'));
+importComponent("DraftsListSettings", () => require('../components/posts/DraftsListSettings'));
 importComponent("UsersName", () => require('../components/users/UsersName'));
 importComponent("UsersNameWrapper", () => require('../components/users/UsersNameWrapper'));
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay'));

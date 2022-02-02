@@ -54,6 +54,7 @@ declare global {
     excludeContents?: boolean,
     includeArchived?: boolean,
     includeDraftEvents?: boolean
+    includeShared?: boolean
   }
 }
 
@@ -645,7 +646,7 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
       authorIsUnreviewed: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
       isEvent: false,
-      deletedDraft: false
+      deletedDraft: false,
     },
     options: {
       sort: {}
@@ -657,6 +658,9 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   }
   if (terms.includeArchived) {
     query.selector.deletedDraft = viewFieldAllowAny
+  }
+  if (!terms.includeShared) {
+    query.selector.userId = terms.userId
   }
   if (terms.userId) {
     query.selector.hideAuthor = false
