@@ -28,7 +28,7 @@ export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userHasRedesignedSettingsPage = disabled;
-export const userCanUseSharing = karmaGated(50);
+export const userCanUseSharing = adminOnly
 export const userHasNewTagSubscriptions =  isEAForum ? optInOnly : disabled
 
 // Shipped Features
