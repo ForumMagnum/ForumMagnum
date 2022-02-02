@@ -597,6 +597,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: "white"
     },
     {
+      name: 'editPaymentInfo',
+      path: '/payments/account',
+      componentName: 'EditPaymentInfoPage'
+    },
+    {
       name: 'paymentsAdmin',
       path: '/payments/admin',
       componentName: 'AdminPaymentsPage'
