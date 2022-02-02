@@ -22,7 +22,7 @@ registerMigration({
 
     let postsAllUsers = {}
     let postsHighKarmaUsers = {}
-    let postsAFUsers = {}å
+    let postsAFUsers = {}
 
     const posts = await Posts.find({reviewCount: {$gte: 1}}).fetch()
     const postIds = posts.map(post=>post._id)
