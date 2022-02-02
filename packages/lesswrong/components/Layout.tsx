@@ -3,7 +3,6 @@ import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
-import Intercom from 'react-intercom';
 import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
 
@@ -202,28 +201,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     const {hideNavigationSidebar} = this.state
     const { NavigationStandalone, SunshineSidebar, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, BannedNotice } = Components
 
-    const showIntercom = (currentUser: UsersCurrent|null) => {
-      if (currentUser && !currentUser.hideIntercom) {
-        return <div id="intercome-outer-frame">
-          <ErrorBoundary>
-            <Intercom
-              appID={intercomAppIdSetting.get()}
-              user_id={currentUser._id}
-              email={currentUser.email}
-              name={currentUser.displayName}/>
-          </ErrorBoundary>
-        </div>
-      } else if (!currentUser) {
-        return <div id="intercome-outer-frame">
-            <ErrorBoundary>
-              <Intercom appID={intercomAppIdSetting.get()}/>
-            </ErrorBoundary>
-          </div>
-      } else {
-        return null
-      }
-    }
-
     // Check whether the current route is one which should have standalone
     // navigation on the side. If there is no current route (ie, a 404 page),
     // then it should.
@@ -285,8 +262,6 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
 
-              {/* Sign up user for Intercom, if they do not yet have an account */}
-              {showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
