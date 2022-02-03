@@ -12,11 +12,11 @@ describe('Moderators', function() {
     // the not-yet-banned user should see a logged in view of the forum
     cy.loginAs(this.testUser);
     cy.visit('/');
-    cy.contains(this.testUser.displayName).should('be.visible');
+    cy.contains(this.testUser.displayName).should('exist');
 
     cy.loginAs(this.testAdmin);
     cy.visit('/');
-    cy.contains(this.bannedUserPost.title).should('be.visible');
+    cy.contains(this.bannedUserPost.title).should('exist');
     cy.visit(`/users/${this.testUser.slug}/edit`);
     cy.get('.form-section-ban-and-purge-user .form-section-heading-toggle').click();
     cy.get('.input-deleteContent .MuiCheckbox-root').click()
@@ -33,6 +33,6 @@ describe('Moderators', function() {
     
     // the banned user should see a logged out version of the forum
     cy.contains(this.testUser.displayName).should('not.exist');
-    cy.contains('.UsersAccountMenu-userButton', 'Login').should('be.visible');
+    cy.contains('.UsersAccountMenu-userButton', 'Login').should('exist');
   });
 })

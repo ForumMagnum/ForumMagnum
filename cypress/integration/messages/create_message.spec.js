@@ -13,9 +13,9 @@ describe('Messages', function() {
     const testReply = 'Test reply';
     cy.visit(`/users/${this.testOtherUser.slug}`);
     cy.get('a').contains('Message').click();
-    cy.contains('Test seeded message').should('be.visible');
+    cy.contains('Test seeded message').should('exist');
     cy.get('.ck-editor__editable').type(testReply);
     cy.contains("Submit").click();
-    cy.contains('.MessageItem-messageBody', testReply).should('be.visible');
+    cy.contains('.MessageItem-messageBody', testReply).should('exist');
   });
 });
