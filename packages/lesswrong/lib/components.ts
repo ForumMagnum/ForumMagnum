@@ -626,4 +626,4 @@ importComponent("BookFrontpageWidget", () => require('../components/books/BookFr
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
-
+importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));
