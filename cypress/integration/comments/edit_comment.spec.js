@@ -18,6 +18,6 @@ describe('Comments', function() {
     const newCommentText = 'Edited comment';
     cy.get('.comments-edit-form .ck-editor__editable').click().clear().type(newCommentText);
     cy.contains('button', 'Save').click();
-    cy.contains('.CommentBody-root', newCommentText).should('be.visible');
+    cy.contains('.CommentBody-root', newCommentText).should('exist');
   });
 });

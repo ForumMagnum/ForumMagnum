@@ -11,9 +11,9 @@ describe('Basic Login and Signup', function() {
     const newUsername = 'new-user-123123';
     cy.loginAs(this.testUserUnsetUsername);
     cy.visit('/');
-    cy.contains('Please choose a username').should('be.visible');
+    cy.contains('Please choose a username').should('exist');
     cy.get('input[type="text"]').type(newDisplayname);
     cy.get('.NewUserCompleteProfile-submitButtonSection > button').click();
-    cy.contains(`a[href="/users/${newUsername}"]`, newDisplayname).should('be.visible');
+    cy.contains(`a[href="/users/${newUsername}"]`, newDisplayname).should('exist');
   });
 })
