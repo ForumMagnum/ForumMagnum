@@ -18,7 +18,7 @@ describe('Posts', function() {
     cy.get('.form-component-EditTitle').click().clear().type(newPostTitle);
     cy.get('.input-contents .ck-editor__editable').click().clear().type(newPostBody);
     cy.contains('Publish Changes').click();
-    cy.contains('.PostsPageTitle-root', newPostTitle).should('be.visible');
-    cy.contains('.PostsPage-postContent', newPostBody).should('be.visible');
+    cy.contains('.PostsPageTitle-root', newPostTitle).should('exist');
+    cy.contains('.PostsPage-postContent', newPostBody).should('exist');
   });
 });
