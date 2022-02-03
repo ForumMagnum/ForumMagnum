@@ -375,9 +375,9 @@ const ReviewVotingPage = ({classes}: {
           if (permuted1 > permuted2) return 1;
         }
 
-        if (sortPosts === "currentUserReviewVote") {
+        if (sortPosts === "yourVote") {
+          if (post1Score < post2Score) return 1
           if (post1Score > post2Score) return -1
-          if (post2Score < post1Score) return 1
         }
 
         if (post1[sortPosts] > post2[sortPosts]) return -1
@@ -565,7 +565,7 @@ const ReviewVotingPage = ({classes}: {
                 {!isEAForum && <MenuItem value={'reviewVoteScoreAF'}>
                   <span className={classes.sortBy}>Sort by</span> Vote Total (Alignment Forum Users)
                 </MenuItem>}
-                <MenuItem value={'currentUserReviewVote'}>
+                <MenuItem value={'yourVote'}>
                   <span className={classes.sortBy}>Sort by</span> Your Vote
                 </MenuItem>
                 <MenuItem value={'reviewCount'}>

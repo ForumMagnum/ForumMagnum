@@ -1,11 +1,11 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { useLocation } from '../../lib/routeUtil';
 
 
 const styles = theme => ({
@@ -18,6 +18,10 @@ const styles = theme => ({
   },
   author: {
     width: 200
+  },
+  count: {
+    width: 50,
+    color: theme.palette.grey[400]
   },
   karma: {
     width: 100
@@ -33,19 +37,20 @@ const styles = theme => ({
 const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
   const { FormatDate, PostsItemMetaInfo, Loading, Error404, Typography, UsersNameDisplay } = Components
   const currentUser = useCurrentUser()
+  const { params: {year} } = useLocation()
 
   const { results: votes, loading: votesLoading } = useMulti({
-    terms: {view: "reviewVotesAdminDashboard", limit: 2000, year: REVIEW_YEAR+""},
+    terms: {view: "reviewVotesAdminDashboard", limit: 10000, year: year},
     collectionName: "ReviewVotes",
     fragmentName: "reviewVoteWithUserAndPost",
     fetchPolicy: 'network-only',
   })
 
   const { results: users, loading: usersLoading } = useMulti({
-    terms: {view: "reviewAdminUsers", limit: 2000},
+    terms: {view: "reviewAdminUsers", limit: 500},
     collectionName: "Users",
     fragmentName: "UsersWithReviewInfo",
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'network-only'
   })
 
   if (!userIsAdmin(currentUser)) {
@@ -54,15 +59,18 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
 
   const userRows = sortBy(
     Object.entries(groupBy(votes, (vote) => vote.userId)),
-    obj => -(obj[1][0].user?.karma || 0)
+    obj => -obj[1].length
   ) 
 
   return <div className={classes.root}>
-    {votesLoading && <Loading/>}
     <div>
       <Typography variant="display1">Users ({userRows.length})</Typography>
+      <br/>
       <div className={classes.voteItem} >
-      <PostsItemMetaInfo className={classes.karma}>
+        <PostsItemMetaInfo className={classes.count}>
+          <b>Count</b>
+        </PostsItemMetaInfo>
+        <PostsItemMetaInfo className={classes.karma}>
           <b>Votes</b>
         </PostsItemMetaInfo>
         <PostsItemMetaInfo className={classes.karma}>
@@ -76,8 +84,12 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
         </PostsItemMetaInfo>
       </div>
       <p><i>Users with at least 1 vote</i></p>
-      {votes && userRows.map(userRow => {
-        return <div key={userRow[0]} className={classes.voteItem}>
+      {votes && userRows.map((userRow, i) => {
+        // eslint-disable-next-line no-console
+        return <div key={userRow[0]} className={classes.voteItem} onClick={()=> console.log(userRow)}>
+          <PostsItemMetaInfo className={classes.count}>
+            {i+1}
+          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {userRow[1].length}
           </PostsItemMetaInfo>
@@ -94,8 +106,11 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
       })}
       <p><i>1000+ karma users</i></p>
       {usersLoading && <Loading/>}
-      {users && users.map(user => {
+      {users && users.map((user, i) => {
         return <div key={user._id} className={classes.voteItem}>
+          <PostsItemMetaInfo className={classes.count}>
+            {i+1}
+          </PostsItemMetaInfo>
           <PostsItemMetaInfo className={classes.karma}>
             {user.reviewVoteCount}
           </PostsItemMetaInfo>
@@ -114,6 +129,8 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
 
     <div>
       <Typography variant="display1">All Votes ({votes?.length})</Typography>
+      <br/>
+      {votesLoading && <Loading/>}
       <div className={classes.voteItem} >
         <PostsItemMetaInfo className={classes.date}>
           <b>Date</b>
@@ -125,7 +142,8 @@ const ReviewAdminDashboard = ({classes}:{classes:ClassesType}) => {
           <b>Username</b>
         </PostsItemMetaInfo>
       </div>
-      {votes && votes.map(vote=><div className={classes.voteItem} key={vote._id}>
+      {/* eslint-disable-next-line no-console */}
+      {votes && votes.map(vote=><div className={classes.voteItem} key={vote._id} onClick={() => console.log(vote)}>
         <PostsItemMetaInfo className={classes.date}>
           <FormatDate date={vote.createdAt}/>
         </PostsItemMetaInfo>
