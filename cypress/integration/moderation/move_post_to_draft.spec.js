@@ -12,7 +12,7 @@ describe('Moderators', function() {
     cy.loginAs(this.testAdmin);
     cy.visit('/posts/test-seeded-post');
     cy.get('.PostsPageActions-root').click();
-    cy.contains(this.testPost.title).should('be.visible');
+    cy.contains(this.testPost.title).should('exist');
     cy.contains('li', 'Move to Draft').click();
 
     /** this stops the test from auto-failing when the operation_not_allowed 

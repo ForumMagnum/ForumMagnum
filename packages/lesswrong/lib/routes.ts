@@ -597,6 +597,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: "white"
     },
     {
+      name: 'editPaymentInfo',
+      path: '/payments/account',
+      componentName: 'EditPaymentInfoPage'
+    },
+    {
       name: 'paymentsAdmin',
       path: '/payments/admin',
       componentName: 'AdminPaymentsPage'
@@ -1091,6 +1096,11 @@ addRoute(
   {
     name: 'reviewAdmin',
     path: '/reviewAdmin',
+    redirect: () => `/reviewAdmin/2020`,
+  },
+  {
+    name: 'reviewAdmin-year',
+    path: '/reviewAdmin/:year',
     componentName: 'ReviewAdminDashboard',
     title: "Review Admin Dashboard",
   }
