@@ -12,6 +12,6 @@ describe('Comments', function() {
     cy.visit('/posts/test-seeded-post/test-seeded-post');
     cy.get('#new-comment-form').type('Test comment');
     cy.get('#new-comment-submit').click();
-    cy.contains('.CommentBody-root', 'Test comment').should('be.visible');
+    cy.contains('.CommentBody-root', 'Test comment').should('exist');
   });
 });
