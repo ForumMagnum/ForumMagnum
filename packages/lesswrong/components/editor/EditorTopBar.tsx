@@ -21,15 +21,34 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: "0 !important",
     },
     
-    '& .ck-user': { //.CKPostEditor-presenceList .ck-user__name
-      backgroundColor: 'unset !important',
-      borderRadius: '0% !important'
-    },
-    '& .ck-user__name': { //.CKPostEditor-presenceList .ck-user__name
+    '& .ck-user__name': {
       color: 'unset !important',
       fontFamily: theme.typography.commentStyle.fontFamily + '!important',
       fontSize: '1.2rem'
-    }
+    },
+    
+    "& .ck-tooltip": {
+      transform: "initial !important",
+      bottom: "initial !important",
+      visibility: "visible !important",
+      opacity: "initial !important",
+      left: "0 !important",
+      position: "relative !important",
+    },
+    "& .ck-user": {
+      display: "none !important",
+    },
+    "& .ck-presence-list__marker": {
+      display: "none !important",
+    },
+    "& .ck-tooltip__text": {
+      background: "initial !important",
+      color: "rgba(0,0,0,0.87) !important",
+      left: "0 !important",
+    },
+    "& .ck-tooltip__text::after": {
+      display: "none !important",
+    },
   },
   collabModeSelect: {
   },
