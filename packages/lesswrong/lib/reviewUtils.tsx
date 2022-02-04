@@ -92,7 +92,7 @@ export const getCostData = ({costTotal=500}:{costTotal?:number}) => {
       cost: 45, 
       tooltip: 
         <div>
-          <p>Highly misleaŽing, harmful, or unimportant.</p>
+          <p>Highly misleading, harmful, or unimportant.</p>
           <div><em>Costs 45 points</em></div>
           {overSpentWarning}
         </div>
