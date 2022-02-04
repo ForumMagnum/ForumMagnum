@@ -103,7 +103,7 @@ const PostsPageEventData = ({classes, post}: {
     course: ViewListIcon
   }
 
-  const EventTypeNode = (Icon, text) => <div className={classes.eventType}>
+  const eventTypeNode = (Icon, text) => <div className={classes.eventType}>
     <Icon className={classes.eventTypeIcon} /> {text.toUpperCase()}
   </div>
   
@@ -147,7 +147,7 @@ const PostsPageEventData = ({classes, post}: {
         <Components.EventTime post={post} dense={false} />
         { locationNode }
         { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
-        { EventTypeNode(eventTypeIcons[eventType], eventType) }
+        { eventTypeNode(eventTypeIcons[eventType], eventType) }
         {eventCTA && post.startTime && !post.onlineEvent && <div className={classes.inPersonEventCTA}>
           {eventCTA}
         </div>}
