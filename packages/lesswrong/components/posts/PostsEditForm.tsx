@@ -11,7 +11,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import {testServerSetting} from "../../lib/instanceSettings";
+import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
 import { isCollaborative } from '../editor/EditorFormComponent';
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
@@ -62,7 +62,11 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
   }
   
-  if (!testServerSetting.get() && isCollaborative(document, "contents")) {
+  if (
+    !testServerSetting.get() &&
+    isCollaborative(document, "contents") &&
+    ['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
+  ) {
     return <Components.SingleColumnSection>
       <p>This post has experimental collaborative editing enabled.</p>
       <p>It can only be edited on the development server.</p>
@@ -126,4 +130,3 @@ declare global {
     PostsEditForm: typeof PostsEditFormComponent
   }
 }
-
