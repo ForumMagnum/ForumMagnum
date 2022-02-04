@@ -1,48 +1,53 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
+import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
+import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
+import {useMessages} from "../common/withMessages";
+
+const LEFT_COLUMN_WIDTH = 160
 
 const styles = (theme: ThemeType): JssStyles => ({
-  versionHistoryDialog: {
-    width: "80vw",
-    height: "80vh",
-    position: "relative",
+  root: {
+    width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
+    display: "flex",
+    padding: 24,
+    justifyContent: 'space-between'
   },
-  
   leftColumn: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 200,
-    overflowY: "scroll",
+    ...commentBodyStyles(theme),
   },
-  closeButton: {
-  },
+  // closeButton: {
+  // },
   revisionRow: {
-    padding: 16,
+    padding: 12,
     cursor: "pointer",
   },
   selectedRevision: {
     background: "#eee",
   },
   versionNumber: {
+    color: theme.palette.grey[900],
+    marginRight: 8
   },
   editedAt: {
+    color: theme.palette.grey[600],
+    marginLeft: 8
   },
   selectedRevisionDisplay: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 200,
-    right: 0,
-    overflowY: "scroll",
-    padding: 16,
+    width: CENTRAL_COLUMN_WIDTH,
+    ...postBodyStyles(theme)
   },
+  restoreButton: {
+    textAlign: "center",
+    marginBottom: 32,
+    marginTop: 16,
+    paddingRight: 100
+  }
 });
 
 const PostVersionHistoryButton = ({postId, classes}: {
@@ -54,7 +59,8 @@ const PostVersionHistoryButton = ({postId, classes}: {
     onClick={() => {
       openDialog({
         componentName: "PostVersionHistory",
-        componentProps: {postId}
+        componentProps: {postId},
+        noClickawayCancel: false
       })
     }}
   >
@@ -67,8 +73,10 @@ const PostVersionHistory = ({postId, onClose, classes}: {
   onClose: ()=>void,
   classes: ClassesType
 }) => {
-  const { LWDialog, Loading, ContentItemBody } = Components;
+  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
+  
+  const {flash} = useMessages();
   
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
     terms: {
@@ -81,6 +89,10 @@ const PostVersionHistory = ({postId, onClose, classes}: {
     fragmentName: "RevisionMetadataWithChangeMetrics",
   });
   
+  useEffect(() => {
+    revisions && revisions.length > 0 && setSelectedRevisionId(revisions[0]._id)
+  }, [revisions])
+  
   const { document: revision, loading: loadingRevision } = useSingle({
     skip: !selectedRevisionId,
     documentId: selectedRevisionId||"",
@@ -89,8 +101,9 @@ const PostVersionHistory = ({postId, onClose, classes}: {
     fragmentName: "RevisionDisplay",
   });
   
-  return <LWDialog open={true}>
-    <div className={classes.versionHistoryDialog}>
+  
+  return <LWDialog open={true} maxWidth={false}>
+    <div className={classes.root}>
       <div className={classes.leftColumn}>
         {loadingRevisions && <Loading/>}
         {revisions && revisions.map(rev =>
@@ -100,16 +113,27 @@ const PostVersionHistory = ({postId, onClose, classes}: {
             })}
             onClick={() => setSelectedRevisionId(rev._id)}
           >
-            <div className={classes.versionNumber}>{rev.version}</div>
-            <div className={classes.editedAt}>{rev.editedAt}</div>
+            <span className={classes.versionNumber}>{rev.version}</span>
+            <ChangeMetricsDisplay changeMetrics={rev.changeMetrics}/>
+            <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>
+            {/*<span className={classes.changes}>{rev.changeMetrics}</span>*/}
           </div>
         )}
-      
+        <LoadMore {...loadMoreProps}/>
         <div className={classes.closeButton}>
           <Button onClick={onClose}>Close</Button>
         </div>
       </div>
       <div className={classes.selectedRevisionDisplay}>
+        {revision && <div className={classes.restoreButton}>
+          <Button 
+            onClick={()=>flash({messageString: "Restore button is not yet functional. Use copy/paste."})}
+            variant="contained"
+            color="primary"
+          >
+            RESTORE THIS VERSION
+          </Button>
+        </div>}
         {revision && <ContentItemBody
           dangerouslySetInnerHTML={{__html: revision.html}}
           description="PostVersionHistory revision"
