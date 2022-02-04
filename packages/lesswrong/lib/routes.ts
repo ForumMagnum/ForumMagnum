@@ -957,8 +957,9 @@ addRoute(
     componentName: 'PostsSingleSlug',
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
-    previewComponentName: 'PostLinkPreview',
+    previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    background: postBackground
   },
   {
     name: 'posts.revisioncompare',
