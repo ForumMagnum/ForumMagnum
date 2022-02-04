@@ -75,6 +75,7 @@ registerFragment(`
     contactInfo
     isEvent
     eventImageId
+    eventType
     types
     groupId
 
