@@ -952,6 +952,15 @@ addRoute(
     background: postBackground
   },
   {
+    name:'posts.slug.single',
+    path:'/posts/slug/:slug?',
+    componentName: 'PostsSingleSlug',
+    titleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: 'PostsPageHeaderTitle',
+    previewComponentName: 'PostLinkPreview',
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+  },
+  {
     name: 'posts.revisioncompare',
     path: '/compare/post/:_id/:slug',
     componentName: 'PostsCompareRevisions',
