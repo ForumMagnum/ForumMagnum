@@ -8,6 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     ...theme.typography.commentStyles,
     ...theme.typography.body2,
+    maxWidth: 600,
   },
 });
 
