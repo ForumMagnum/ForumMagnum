@@ -152,28 +152,32 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
   const user = await Users.findOne(userId);
   const previousRev = await getLatestRev(documentId, fieldName);
   
-  const newRevision: Partial<DbRevision> = {
-    ...await buildRevision({
-      originalContents: {
-        data: html,
-        type: "ckEditorMarkup",
-      },
-      currentUser: user,
-    }),
-    documentId,
-    fieldName,
-    collectionName: "Posts",
-    version: await getNextVersion(documentId, "patch", fieldName, true),
-    draft: true,
-    updateType: "patch",
-    commitMessage: cloudEditorAutosaveCommitMessage,
-    changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
-  };
-  await createMutator({
-    collection: Revisions,
-    document: newRevision,
-    validate: false,
-  });
+  const newOriginalContents = {
+    data: html,
+    type: "ckEditorMarkup",
+  }
+  
+  if (!previousRev || !_.isEqual(newOriginalContents, previousRev.originalContents)) {
+    const newRevision: Partial<DbRevision> = {
+      ...await buildRevision({
+        originalContents: newOriginalContents,
+        currentUser: user,
+      }),
+      documentId,
+      fieldName,
+      collectionName: "Posts",
+      version: await getNextVersion(documentId, "patch", fieldName, true),
+      draft: true,
+      updateType: "patch",
+      commitMessage: cloudEditorAutosaveCommitMessage,
+      changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
+    };
+    await createMutator({
+      collection: Revisions,
+      document: newRevision,
+      validate: false,
+    });
+  }
 }
 
 // If the latest rev is a CkEditor cloud editor autosave within the last
