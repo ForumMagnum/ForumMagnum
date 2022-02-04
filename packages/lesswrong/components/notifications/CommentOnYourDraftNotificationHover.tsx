@@ -24,16 +24,18 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
     fragmentName: "PostsMinimumInfo",
   });
   
+  const senderUserId = notification.extraData?.senderUserID;
+  
   return <div className={classes.root}>
     <div>
-      <UsersName documentId={notification.extraData.senderUserID}/>
+      {senderUserId ? <UsersName documentId={notification.extraData.senderUserID}/> : "Someone"}
       {" commented on your draft "}
       <Link to={postEditUrl}>
         {post ? post.title : <Loading/>}
       </Link>
     </div>
     
-    <blockquote dangerouslySetInnerHTML={{__html: notification.extraData.commentHtml}}/>
+    {notification.extraData && <blockquote dangerouslySetInnerHTML={{__html: notification.extraData.commentHtml}}/>}
   </div>
 }
 
