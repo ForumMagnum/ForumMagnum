@@ -345,6 +345,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly contactInfo: string,
   readonly isEvent: boolean,
   readonly eventImageId: string,
+  readonly eventType: string,
   readonly types: Array<string>,
   readonly groupId: string,
   readonly reviewedByUserId: string,
