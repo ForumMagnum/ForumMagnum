@@ -47,6 +47,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 32,
     marginTop: 16,
     paddingRight: 100
+  },
+  loadMore: {
+    paddingLeft: 12
   }
 });
 
@@ -60,7 +63,6 @@ const PostVersionHistoryButton = ({postId, classes}: {
       openDialog({
         componentName: "PostVersionHistory",
         componentProps: {postId},
-        noClickawayCancel: false
       })
     }}
   >
@@ -102,7 +104,7 @@ const PostVersionHistory = ({postId, onClose, classes}: {
   });
   
   
-  return <LWDialog open={true} maxWidth={false}>
+  return <LWDialog open={true} maxWidth={false} onClose={onClose}>
     <div className={classes.root}>
       <div className={classes.leftColumn}>
         {loadingRevisions && <Loading/>}
@@ -116,12 +118,10 @@ const PostVersionHistory = ({postId, onClose, classes}: {
             <span className={classes.versionNumber}>{rev.version}</span>
             <ChangeMetricsDisplay changeMetrics={rev.changeMetrics}/>
             <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>
-            {/*<span className={classes.changes}>{rev.changeMetrics}</span>*/}
           </div>
         )}
-        <LoadMore {...loadMoreProps}/>
-        <div className={classes.closeButton}>
-          <Button onClick={onClose}>Close</Button>
+        <div className={classes.loadMore}>
+          <LoadMore {...loadMoreProps}/>
         </div>
       </div>
       <div className={classes.selectedRevisionDisplay}>
