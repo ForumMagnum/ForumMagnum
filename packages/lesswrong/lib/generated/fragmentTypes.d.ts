@@ -594,6 +594,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
+  readonly myEditorAccess: string,
   readonly version: string,
   readonly coauthorUserIds: Array<string>,
   readonly moderationGuidelines: RevisionEdit|null,

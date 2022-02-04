@@ -180,15 +180,25 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
   }
 }
 
+// Time interval such that, when autosaving, we will update an existing
+// rev instead of create a new rev if it's within this amount of time ago. In
+// milliseconds.
+const autosaveMaxInterval = 10*60*1000;
+
 // If the latest rev is a CkEditor cloud editor autosave within the last
 // hour, update it. Otherwise create a new rev.
 async function saveOrUpdateDocumentRevision(postId: string, html: string) {
   const fieldName = "contents";
   const previousRev = await getLatestRev(postId, fieldName);
-  const lastEditedAt = previousRev ? moment(previousRev.editedAt).toDate().getTime() : 0; //In ms since epoch
+  
+  // Time relative to which to compute the max autosave interval, in ms since
+  // epoch.
+  const lastEditedAt = previousRev
+    ? moment(previousRev.autosaveTimeoutStart || previousRev.editedAt).toDate().getTime()
+    : 0;
   const timeSinceLastEdit = new Date().getTime() - lastEditedAt; //In ms
   
-  if (previousRev && timeSinceLastEdit < 60*60*1000 && previousRev.commitMessage===cloudEditorAutosaveCommitMessage) {
+  if (previousRev && timeSinceLastEdit < autosaveMaxInterval && previousRev.commitMessage===cloudEditorAutosaveCommitMessage) {
     // eslint-disable-next-line no-console
     console.log("Updating rev "+previousRev._id);
     // Update the existing rev
@@ -196,6 +206,7 @@ async function saveOrUpdateDocumentRevision(postId: string, html: string) {
       {_id: previousRev._id},
       {$set: {
         editedAt: new Date(),
+        autosaveTimeoutStart: previousRev.autosaveTimeoutStart || previousRev.editedAt,
         originalContents: { data: html, type: "ckEditorMarkup" },
       }}
     )

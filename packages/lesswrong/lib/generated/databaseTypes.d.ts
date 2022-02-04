@@ -527,6 +527,7 @@ interface DbRevision extends DbObject {
   collectionName: CollectionNameString
   fieldName: string
   editedAt: Date
+  autosaveTimeoutStart: Date
   updateType: string
   version: string
   commitMessage: string
