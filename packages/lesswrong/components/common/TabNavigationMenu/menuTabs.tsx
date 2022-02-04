@@ -13,6 +13,7 @@ import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
+import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
@@ -296,16 +297,23 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'events',
-      title: 'Community and Events',
-      mobileTitle: 'Events',
-      link: communityPath,
-      iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See EA groups and events in your area',
+      title: 'Events',
+      link: '/events',
+      iconComponent: EventIcon,
+      tooltip: 'Upcoming events near you',
       showOnMobileStandalone: true,
       showOnCompressed: true
     }, {
       id: 'eventsList',
       customComponentName: "EventsList",
+    }, {
+      id: 'community',
+      title: 'Community',
+      link: communityPath,
+      iconComponent: SupervisedUserCircleIcon,
+      tooltip: 'See EA groups and community members in your area',
+      showOnMobileStandalone: false,
+      showOnCompressed: true
     }, {
       id: 'divider',
       divider: true,
