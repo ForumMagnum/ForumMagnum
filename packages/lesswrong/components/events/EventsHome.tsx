@@ -36,6 +36,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   sectionHeading: {
     flex: 'none',
     textAlign: 'left',
+    ...theme.typography.headline,
     fontSize: 34,
     margin: 0
   },
