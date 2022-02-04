@@ -1,18 +1,18 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount } from "../../lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount, postCanDelete } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { forumTitleSetting } from '../../lib/instanceSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -26,6 +26,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       width: "100%"
     },
     '&:hover $actions': {
+      opacity: .2,
+    },
+    '&:hover $archiveButton': {
       opacity: .2,
     }
   },
@@ -141,6 +144,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     top: 0,
     right: -MENU_WIDTH - 6,
+    width: MENU_WIDTH,
+    height: "100%",
+    cursor: "pointer",
+    alignItems: "center",
+    justifyContent: "center",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
+  archiveButton: {
+    opacity: 0,
+    display: "flex",
+    position: "absolute",
+    top: 1,
+    right: -3*MENU_WIDTH,
     width: MENU_WIDTH,
     height: "100%",
     cursor: "pointer",
@@ -269,6 +287,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
+const archiveDraftTooltip = "Archive this draft (hide from list)"
+
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) => {
@@ -306,9 +326,13 @@ const PostsItem2 = ({
   // dismissRecommendation: If this is a Resume Reading suggestion, a callback
   // to dismiss it.
   dismissRecommendation,
+  draft,
+  // deleteDraft, if this is a draft, a callback to delete/archive it
+  toggleDeleteDraft,
   showBottomBorder=true,
   showQuestionTag=true,
   showDraftTag=true,
+  showPersonalIcon=true,
   showIcons=true,
   showPostedAt=true,
   defaultToShowUnreadComments=false,
@@ -323,7 +347,8 @@ const PostsItem2 = ({
   showReviewCount=false,
   hideAuthor=false,
   classes,
-  curatedIconLeft=false
+  curatedIconLeft=false,
+  strikethroughTitle=false,
 }: {
   post: PostsList,
   tagRel?: WithVoteTagRel|null,
@@ -334,9 +359,12 @@ const PostsItem2 = ({
   terms?: any,
   resumeReading?: any,
   dismissRecommendation?: any,
+  draft?: boolean
+  toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
   showDraftTag?: boolean,
+  showPersonalIcon?: boolean
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -346,7 +374,8 @@ const PostsItem2 = ({
   showReviewCount?: boolean,
   hideAuthor?: boolean,
   classes: ClassesType,
-  curatedIconLeft?: boolean
+  curatedIconLeft?: boolean,
+  strikethroughTitle?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -406,6 +435,12 @@ const PostsItem2 = ({
       <CloseIcon onClick={() => dismissRecommendation()}/>
     </LWTooltip>
   )
+  
+  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) && 
+    <LWTooltip title={archiveDraftTooltip} placement="right">
+      <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
+    </LWTooltip>
+  )
 
   const commentTerms: CommentsViewTerms = {
     view:"postsItemComments", 
@@ -455,7 +490,9 @@ const PostsItem2 = ({
                       sticky={isSticky(post, terms)}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
+                      {...(showPersonalIcon ? {showPersonalIcon} : {})}
                       curatedIconLeft={curatedIconLeft}
+                      strikethroughTitle={strikethroughTitle}
                     />
                   </AnalyticsTracker>
                 </span>
@@ -543,6 +580,10 @@ const PostsItem2 = ({
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
+          {<div className={classes.archiveButton}>
+            {archiveButton}
+          </div>
+          }
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}

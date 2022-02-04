@@ -309,6 +309,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly status: number,
   readonly frontpageDate: Date,
   readonly meta: boolean,
+  readonly deletedDraft: boolean,
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
