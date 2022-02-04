@@ -954,7 +954,7 @@ addRoute(
   {
     name:'posts.slug.single',
     path:'/posts/slug/:slug?',
-    componentName: 'PostsSingleSlug',
+    componentName: 'PostsSingleSlugRedirect',
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
