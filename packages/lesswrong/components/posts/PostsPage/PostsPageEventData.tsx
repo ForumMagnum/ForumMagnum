@@ -147,7 +147,7 @@ const PostsPageEventData = ({classes, post}: {
         <Components.EventTime post={post} dense={false} />
         { locationNode }
         { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
-        { eventTypeNode(eventTypeIcons[eventType], eventType) }
+        { eventType && (eventType in eventTypeIcons) && eventTypeNode(eventTypeIcons[eventType], eventType) }
         {eventCTA && post.startTime && !post.onlineEvent && <div className={classes.inPersonEventCTA}>
           {eventCTA}
         </div>}
