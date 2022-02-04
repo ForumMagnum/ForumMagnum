@@ -4,18 +4,18 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import AddAlertIcon from '@material-ui/icons/AddAlert';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
+import IconButton from '@material-ui/core/IconButton';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -26,7 +26,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   sectionHeadingRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    maxWidth: 700,
+    maxWidth: 800,
     margin: '40px auto',
     '@media (max-width: 812px)': {
       flexDirection: 'column',
@@ -35,7 +35,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   sectionHeading: {
     flex: 'none',
-    textAlign: 'left',
+    display: 'flex',
+    justifyContent: 'space-between',
     fontSize: 34,
     margin: 0
   },
@@ -48,6 +49,19 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     '@media (max-width: 812px)': {
       marginTop: 10,
       marginLeft: 0
+    }
+  },
+  notificationsIconDesktop: {
+    flex: 'none',
+    marginLeft: 30,
+    '@media (max-width: 812px)': {
+      display: 'none'
+    }
+  },
+  notificationsIconMobile: {
+    display: 'none',
+    '@media (max-width: 812px)': {
+      display: 'block'
     }
   },
   filters: {
@@ -86,14 +100,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       gridTemplateColumns: 'auto',
     }
   },
-  loadMoreRow: {
-    gridColumnStart: 1,
-    gridColumnEnd: -1,
-    display: 'flex',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
   loadMore: {
     ...theme.typography.commentStyle,
     background: 'none',
@@ -104,16 +110,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       color: '#085d6c',
     }
   },
-  eventNotificationsBtn: {
-    textTransform: 'none',
-    fontSize: 14,
-    '@media (max-width: 812px)': {
-      display: 'none',
-    }
-  },
-  eventNotificationsIcon: {
-    fontSize: 18,
-    marginRight: 6
+  loading: {
+    display: 'inline-block'
   },
 }))
 
@@ -290,7 +288,7 @@ const EventsHome = ({classes}: {
     Load More
   </button>
   if (loading && results?.length) {
-    loadMoreButton = <div><Loading /></div>
+    loadMoreButton = <div className={classes.loading}><Loading /></div>
   }
 
   return (
@@ -301,11 +299,27 @@ const EventsHome = ({classes}: {
 
       <div className={classes.section}>
         <div className={classes.sectionHeadingRow}>
-          <h1 className={classes.sectionHeading}>Events</h1>
+          <h1 className={classes.sectionHeading}>
+            Events
+            <IconButton color="primary"
+              aria-label="event notifications"
+              onClick={openEventNotificationsForm}
+              className={classes.notificationsIconMobile}
+            >
+              <AddAlertIcon />
+            </IconButton>
+          </h1>
           <div className={classes.sectionDescription}>
             Join people from around the world for discussions, talks, and other events on how we can tackle
             the world's biggest problems.
           </div>
+          <IconButton color="primary"
+            aria-label="event notifications"
+            onClick={openEventNotificationsForm}
+            className={classes.notificationsIconDesktop}
+          >
+            <AddAlertIcon />
+          </IconButton>
         </div>
 
         <div className={classes.eventCards}>
@@ -341,10 +355,6 @@ const EventsHome = ({classes}: {
           <EventCards events={results} loading={loading} numDefaultCards={6} />
           
           <div className={classes.loadMoreRow}>
-            <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
-              <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
-              {currentUser?.nearbyEventsNotifications ? `Edit my notification settings` : `Sign up for notifications`}
-            </Button>
             {loadMoreButton}
           </div>
         </div>
