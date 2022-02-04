@@ -303,6 +303,7 @@ export function useMulti<
 
   const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);
+  const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
   const collection = getCollection(collectionName);
   const fragment = getFragment(fragmentName);
@@ -316,6 +317,13 @@ export function useMulti<
       enableCache, enableTotal,
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
+  }
+  
+  let effectiveLimit = limit;
+  if (!_.isEqual(terms, lastTerms)) {
+    setLastTerms(terms);
+    setLimit(defaultLimit);
+    effectiveLimit = defaultLimit;
   }
 
   // Due to https://github.com/apollographql/apollo-client/issues/6760 this is necessary to restore the Apollo 2.0 behavior for cache-and-network policies
@@ -351,10 +359,10 @@ export function useMulti<
   //
   // The caller of this function is responsible for showing a Load More button
   // if showLoadMore returned true.
-  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= limit));
+  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= effectiveLimit));
   
   const loadMore: LoadMoreCallback = async (limitOverride?: number) => {
-    const newLimit = limitOverride || (limit+itemsPerPage)
+    const newLimit = limitOverride || (effectiveLimit+itemsPerPage)
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
       history.push({...location, search: `?${qs.stringify(newQuery)}`})
@@ -382,11 +390,16 @@ export function useMulti<
     hidden: !showLoadMore,
   };
   
+  let results = data?.[resolverName]?.results;
+  if (results && results.length > limit) {
+    results = _.take(results, limit);
+  }
+  
   return {
     loading: loading || networkStatus === NetworkStatus.fetchMore,
     loadingInitial: networkStatus === NetworkStatus.loading,
     loadingMore: networkStatus === NetworkStatus.fetchMore,
-    results: data && data[resolverName] && data[resolverName].results,
+    results,
     totalCount: totalCount,
     refetch,
     error,
@@ -394,7 +407,7 @@ export function useMulti<
     showLoadMore,
     loadMoreProps,
     loadMore,
-    limit,
+    limit: effectiveLimit,
   };
 }
 
