@@ -5,6 +5,7 @@ import ForumIcon from '@material-ui/icons/Forum';
 import CreateIcon from '@material-ui/icons/Create';
 import PeopleIcon from '@material-ui/icons/People';
 import LaptopIcon from '@material-ui/icons/LaptopMac';
+import ViewListIcon from '@material-ui/icons/ViewList';
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: 'flex',
     alignItems: 'center',
-    color: "rgba(0,0,0,0.3)",
+    color: '#c0a688',
     fontSize: 12,
     letterSpacing: 0.2,
     marginTop: 12
@@ -93,34 +94,18 @@ const PostsPageEventData = ({classes, post}: {
   }
   
   // if this event was labelled with an event type, display it
-  let eventTypeNode;
-  switch (eventType) {
-    case 'presentation':
-      eventTypeNode = <div className={classes.eventType}>
-        <WebIcon className={classes.eventTypeIcon} /> PRESENTATION
-      </div>
-      break;
-    case 'discussion':
-      eventTypeNode = <div className={classes.eventType}>
-        <ForumIcon className={classes.eventTypeIcon} /> DISCUSSION
-      </div>
-      break;
-    case 'workshop':
-      eventTypeNode = <div className={classes.eventType}>
-        <CreateIcon className={classes.eventTypeIcon} /> WORKSHOP
-      </div>
-      break;
-    case 'social':
-      eventTypeNode = <div className={classes.eventType}>
-        <PeopleIcon className={classes.eventTypeIcon} /> SOCIAL
-      </div>
-      break;
-    case 'coworking':
-      eventTypeNode = <div className={classes.eventType}>
-        <LaptopIcon className={classes.eventTypeIcon} /> COWORKING
-      </div>
-      break;
+  const eventTypeIcons = {
+    presentation: WebIcon,
+    discussion: ForumIcon,
+    workshop: CreateIcon,
+    social: PeopleIcon,
+    coworking: LaptopIcon,
+    course: ViewListIcon
   }
+
+  const EventTypeNode = (Icon, text) => <div className={classes.eventType}>
+    <Icon className={classes.eventTypeIcon} /> {text.toUpperCase()}
+  </div>
   
   // determine if it's currently before, during, or after the event
   const inTenMinutes = moment().add(10, 'minutes')
@@ -162,7 +147,7 @@ const PostsPageEventData = ({classes, post}: {
         <Components.EventTime post={post} dense={false} />
         { locationNode }
         { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
-        { eventTypeNode }
+        { EventTypeNode(eventTypeIcons[eventType], eventType) }
         {eventCTA && post.startTime && !post.onlineEvent && <div className={classes.inPersonEventCTA}>
           {eventCTA}
         </div>}

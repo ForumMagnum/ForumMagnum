@@ -666,6 +666,7 @@ addFieldsDict(Posts, {
         {value: 'workshop', label: 'Workshop'},
         {value: 'social', label: 'Social'},
         {value: 'coworking', label: 'Coworking'},
+        {value: 'course', label: 'Course'},
       ]
     },
   },
