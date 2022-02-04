@@ -912,8 +912,8 @@ if (hasEventsSetting.get()) {
       componentName: 'PostsSingle',
       titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
-      subtitle: 'Events',
-      subtitleLink: '/events',
+      subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
+      subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
       background: postBackground
     },
