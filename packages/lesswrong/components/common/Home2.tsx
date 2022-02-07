@@ -3,19 +3,24 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { useCurrentUser } from './withUser';
+import { FrontpageBestOfLWWidget } from '../review/FrontpageBestOfLWWidget';
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
 
   const currentUser = useCurrentUser()
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
+          <FrontpageBestOfLWWidget />
+          
+          {/* {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />} */}
+          
           {reviewIsActive() && currentUser && <SingleColumnSection>
             <FrontpageReviewWidget />
           </SingleColumnSection>}
+          
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
