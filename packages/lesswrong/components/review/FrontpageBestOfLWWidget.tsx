@@ -1,6 +1,10 @@
 
 
 import React from 'react';
+import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { useSingle } from '../../lib/crud/withSingle';
+import { annualReviewVotingResultsPostPath } from '../../lib/publicSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
@@ -20,15 +24,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.frontpageSplashImage,
     left: "50%",
     top: -245,
-    opacity: .7,
     width: "115%",
     transform: "translate(-50%, 0)"
   },
+  title: {
+    textShadow: "0 0 50px rgb(250 255 250), 0 0 50px rgb(250 255 250), 0 0 50px rgb(250 255 250), 0 0 50px rgb(250 255 250)"
+  },
+  viewResultsCTA: {
+    background: "white",
+    padding: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    color: theme.palette.primary.main,
+    textTransform: "uppercase",
+    border: `solid 1px ${theme.palette.primary.main}`,
+    borderRadius: 3
+  }
 });
 
-export const recommendationsAlgorithm = {
-  method: "sample",
-  count: 3,
+export const recommendationsAlgorithm: RecommendationsAlgorithm = {
+  method: 'sample',
+  count: 2,
   scoreOffset: 0,
   scoreExponent: 0,
   personalBlogpostModifier: 0,
@@ -44,13 +60,22 @@ export const recommendationsAlgorithm = {
 export const FrontpageBestOfLWWidget = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection } = Components
+  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
+
+  const { document: post } = useSingle({
+    documentId: "TSaJ9Zcvc3KWh3bjX",
+    collectionName: "Posts",
+    fragmentName: "PostsList"
+  });
+  
   return <div className={classes.root}>
-    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644137659/books-and-gems-white-2_d9waeq.png"}/>
+    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644205079/books-4_ayvfhd.png"}/>
     <SingleColumnSection>
-      <SectionTitle title="Best of LessWrong 2020"/>
-      >
-      <RecommendationsList algorithm={getReviewAlgorithm()} translucentBackground/>
+      <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
+        <Link to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results" className={classes.viewResultsCTA}>View Voting Results</Link>  
+      </SectionTitle></div>
+      {post && <PostsItem2 post={post} translucentBackground />}
+      <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
     </SingleColumnSection>
   </div>;
 }
