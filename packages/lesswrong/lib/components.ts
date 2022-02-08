@@ -204,6 +204,7 @@ importComponent("PostsCompareRevisions", () => require('../components/posts/Post
 importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCalendar/AddToCalendarIcon'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
+importComponent("PostsSingleSlugRedirect", () => require('../components/posts/PostsSingleSlugRedirect'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
 importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
@@ -262,6 +263,9 @@ importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 importComponent("EventsPast", () => require('../components/posts/EventsPast'));
 importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
+importComponent("EventsHome", () => require('../components/events/EventsHome'));
+importComponent("HighlightedEventCard", () => require('../components/events/modules/HighlightedEventCard'));
+importComponent("EventCards", () => require('../components/events/modules/EventCards'));
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
 importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
