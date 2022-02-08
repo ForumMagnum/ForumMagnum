@@ -12,7 +12,6 @@ import { useRecordPostView } from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { forumTitleSetting } from '../../lib/instanceSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -32,6 +31,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   background: {
     width: "100%",
     background: "white"
+  },
+  translucentBackground: {
+    width: "100%",
+    background: "rgba(255,255,255,.87)",
+    backdropFilter: "blur(1px)"
   },
   postsItem: {
     display: "flex",
@@ -263,7 +267,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 2,
   },
   isRead: {
-    background: "white" // this is just a placeholder, enabling easier theming.
+    // this is just a placeholder, enabling easier theming.
   }
 })
 
@@ -323,7 +327,9 @@ const PostsItem2 = ({
   showReviewCount=false,
   hideAuthor=false,
   classes,
-  curatedIconLeft=false
+  curatedIconLeft=false,
+  translucentBackground=false,
+  forceSticky=false
 }: {
   post: PostsList,
   tagRel?: WithVoteTagRel|null,
@@ -346,7 +352,9 @@ const PostsItem2 = ({
   showReviewCount?: boolean,
   hideAuthor?: boolean,
   classes: ClassesType,
-  curatedIconLeft?: boolean
+  curatedIconLeft?: boolean,
+  translucentBackground?: boolean,
+  forceSticky?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -420,8 +428,9 @@ const PostsItem2 = ({
       <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
         <div className={classNames(
           classes.root,
-          classes.background,
           {
+            [classes.background]: !translucentBackground,
+            [classes.translucentBackground]: translucentBackground,
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
             [classes.isRead]: isRead
@@ -452,7 +461,7 @@ const PostsItem2 = ({
                       postLink={postLink}
                       post={post}
                       read={isRead}
-                      sticky={isSticky(post, terms)}
+                      sticky={isSticky(post, terms) || forceSticky}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}

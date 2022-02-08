@@ -86,9 +86,12 @@ importComponent("CloudinaryImage2", () => require('../components/common/Cloudina
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
+importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
+
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
 importComponent("PostsRevisionSelect", () => require('../components/revisions/PostsRevisionSelect'));
+
 importComponent("RevisionComparisonNotice", () => require('../components/revisions/RevisionComparisonNotice'));
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));

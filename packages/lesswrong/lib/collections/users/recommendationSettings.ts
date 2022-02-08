@@ -12,6 +12,7 @@ export interface RecommendationsAlgorithm {
   coronavirus?: boolean
   reviewNominations?: ReviewYear
   reviewReviews?: ReviewYear
+  reviewFinal?: ReviewYear,
   includePersonal?: boolean
   includeMeta?: boolean
   minimumBaseScore?: number
