@@ -3,7 +3,6 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { useCurrentUser } from './withUser';
-import { FrontpageBestOfLWWidget } from '../review/FrontpageBestOfLWWidget';
 
 const Home2 = () => {
   const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components

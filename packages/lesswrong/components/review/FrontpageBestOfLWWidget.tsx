@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: SECTION_WIDTH,
     margin: "auto",
     marginTop: 200,
-    marginBottom:40
+    marginBottom:20
   },
   image: {
     position: "absolute",
@@ -66,7 +66,7 @@ export const FrontpageBestOfLWWidget = ({classes}: {
   });
   
   return <div className={classes.root}>
-    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644302616/books-7_tn9tob.png"}/>
+    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644303659/books-8_bk0yj6.png"}/>
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
 
