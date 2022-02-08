@@ -20,6 +20,7 @@ const titleDividerSpacing = 20
 export const zIndexes = {
   frontpageBooks: 0,
   frontpageSplashImage: 0,
+  sequenceBanner: 0,
   singleColumnSection: 1,
   commentsMenu: 2,
   sequencesPageContent: 2,
