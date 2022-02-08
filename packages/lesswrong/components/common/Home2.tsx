@@ -15,7 +15,6 @@ const Home2 = () => {
         <React.Fragment>
           <FrontpageBestOfLWWidget />
         
-          
           {reviewIsActive() && currentUser && <SingleColumnSection>
             <FrontpageReviewWidget />
           </SingleColumnSection>}
