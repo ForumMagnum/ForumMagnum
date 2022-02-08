@@ -352,8 +352,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
 
         {/* Post list */}
         {showFrontpageItems && activeRange !== "NOMINATIONS" && <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${REVIEW_YEAR}`}>
-          {/* TODO:(Review) I think we can improve this */}
-          {/* <SingleLineReviewsList /> */}
           <PostsList2 terms={{
             view:"reviewVoting",
             before: `${REVIEW_YEAR+1}-01-01`,
@@ -363,6 +361,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true}: {classes: Cla
            }}
           >       
             <div>
+              {/* TODO: make the time-remaining show up correctly throughout the review */}
               {/* If there's less than 24 hours remaining, show the remaining time */}
               {voteEndDate.diff(new Date()) < (24 * 60 * 60 * 1000) && <span className={classes.timeRemaining}>
                 {voteEndDate.fromNow()} remaining
