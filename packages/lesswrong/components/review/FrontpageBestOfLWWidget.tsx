@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
     zIndex: theme.zIndexes.frontpageSplashImage,
-    width: SECTION_WIDTH,
+    maxWidth: SECTION_WIDTH,
     margin: "auto",
     marginTop: 200,
     marginBottom:20
@@ -21,11 +21,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.frontpageSplashImage,
     left: "50%",
     top: -245,
-    width: "115%",
-    transform: "translate(-50%, 0)"
+    maxWidth: "115%",
+    transform: "translate(-50%, 0)",
+    [theme.breakpoints.down('sm')]: {
+      top: -145,
+      width: "100%"
+    }
   },
   title: {
-    textShadow: "0 0 50px rgb(250 255 250), 0 0 50px rgb(250 255 250), 0 0 50px rgb(250 255 250), 0 0 50px rgb(250 255 250)"
+    // This is how much text-shadow you need in order to have the black text reliably show up against complex dark backgrounds
+    textShadow: "0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250)"
   },
   viewResultsCTA: {
     background: "white",

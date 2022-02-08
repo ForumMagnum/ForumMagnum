@@ -101,7 +101,8 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
   if (algorithm.reviewFinal) {
     return {
       postedAt: {$gt: new Date(`${algorithm.reviewFinal}-01-01`), $lt: new Date(`${(algorithm.reviewFinal as number) + 1}-01-01`)},
-      reviewCount: {$gte: 1}
+      reviewCount: {$gte: 1},
+      finalReviewVoteScoreHighKarma: {$gte: 10}
     }
   }
   if (algorithm.includePersonal) {
