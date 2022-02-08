@@ -14,8 +14,7 @@ const Home2 = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
           <FrontpageBestOfLWWidget />
-          
-          {/* {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />} */}
+        
           
           {reviewIsActive() && currentUser && <SingleColumnSection>
             <FrontpageReviewWidget />
@@ -27,6 +26,9 @@ const Home2 = () => {
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+
+          {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
+
           <AnalyticsContext pageSectionContext="recentDiscussion">
             <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
               <RecentDiscussionFeed

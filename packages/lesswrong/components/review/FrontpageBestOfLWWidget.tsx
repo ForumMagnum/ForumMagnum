@@ -3,12 +3,9 @@
 import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useSingle } from '../../lib/crud/withSingle';
-import { annualReviewVotingResultsPostPath } from '../../lib/publicSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { getReviewAlgorithm } from './FrontpageReviewWidget';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,7 +57,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
 export const FrontpageBestOfLWWidget = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2, RecommendationsPersonal } = Components
+  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
 
   const { document: post } = useSingle({
     documentId: "TSaJ9Zcvc3KWh3bjX",
@@ -69,15 +66,13 @@ export const FrontpageBestOfLWWidget = ({classes}: {
   });
   
   return <div className={classes.root}>
-    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644205079/books-4_ayvfhd.png"}/>
+    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644302616/books-7_tn9tob.png"}/>
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
 
       </SectionTitle></div>
-      {post && <PostsItem2 post={post} translucentBackground />}
+      {post && <PostsItem2 post={post} translucentBackground forceSticky />}
       <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
-
-      <RecommendationsPersonal />
 
     </SingleColumnSection>
   </div>;

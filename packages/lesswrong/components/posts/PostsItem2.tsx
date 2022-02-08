@@ -328,7 +328,8 @@ const PostsItem2 = ({
   hideAuthor=false,
   classes,
   curatedIconLeft=false,
-  translucentBackground=false
+  translucentBackground=false,
+  forceSticky=false
 }: {
   post: PostsList,
   tagRel?: WithVoteTagRel|null,
@@ -352,7 +353,8 @@ const PostsItem2 = ({
   hideAuthor?: boolean,
   classes: ClassesType,
   curatedIconLeft?: boolean,
-  translucentBackground?: boolean
+  translucentBackground?: boolean,
+  forceSticky?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -459,7 +461,7 @@ const PostsItem2 = ({
                       postLink={postLink}
                       post={post}
                       read={isRead}
-                      sticky={isSticky(post, terms)}
+                      sticky={isSticky(post, terms) || forceSticky}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
                       curatedIconLeft={curatedIconLeft}
