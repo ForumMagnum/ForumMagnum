@@ -60,7 +60,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
 export const FrontpageBestOfLWWidget = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
+  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2, RecommendationsPersonal } = Components
 
   const { document: post } = useSingle({
     documentId: "TSaJ9Zcvc3KWh3bjX",
@@ -72,10 +72,13 @@ export const FrontpageBestOfLWWidget = ({classes}: {
     <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644205079/books-4_ayvfhd.png"}/>
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
-        <Link to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results" className={classes.viewResultsCTA}>View Voting Results</Link>  
+
       </SectionTitle></div>
       {post && <PostsItem2 post={post} translucentBackground />}
       <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
+
+      <RecommendationsPersonal />
+
     </SingleColumnSection>
   </div>;
 }
