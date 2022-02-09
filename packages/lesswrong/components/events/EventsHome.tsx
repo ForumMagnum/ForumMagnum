@@ -14,7 +14,7 @@ import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
