@@ -49,6 +49,7 @@ const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, on
         },
         initialData: data || ""
       }}
+      data={data}
     />
   </div>
 }
