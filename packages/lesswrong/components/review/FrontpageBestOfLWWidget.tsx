@@ -71,7 +71,7 @@ export const FrontpageBestOfLWWidget = ({classes}: {
   });
   
   return <div className={classes.root}>
-    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644303659/books-8_bk0yj6.png"}/>
+    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/>
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
 
