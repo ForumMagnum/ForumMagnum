@@ -2,7 +2,7 @@ import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Globals } from '../../lib/vulcan-lib/config';
 import { getCkEditorApiPrefix, getCkEditorEnvironmentId, getCkEditorSecretKey, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { postEditorConfig } from '../../../../public/lesswrong-editor/src/editorConfigs';
-import { buildRevision, getNextVersion, getLatestRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
+import { buildRevision, getNextVersion, getLatestRev, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
@@ -198,7 +198,14 @@ async function saveOrUpdateDocumentRevision(postId: string, html: string) {
     : 0;
   const timeSinceLastEdit = new Date().getTime() - lastEditedAt; //In ms
   
-  if (previousRev && timeSinceLastEdit < autosaveMaxInterval && previousRev.commitMessage===cloudEditorAutosaveCommitMessage) {
+  if (previousRev
+    && previousRev.draft
+    && timeSinceLastEdit < autosaveMaxInterval
+    && previousRev.commitMessage===cloudEditorAutosaveCommitMessage
+  ) {
+    // Get the revision prior to the one being replaced, for computing change metrics
+    const precedingRev = await getPrecedingRev(previousRev);
+    
     // eslint-disable-next-line no-console
     console.log("Updating rev "+previousRev._id);
     // Update the existing rev
@@ -208,6 +215,7 @@ async function saveOrUpdateDocumentRevision(postId: string, html: string) {
         editedAt: new Date(),
         autosaveTimeoutStart: previousRev.autosaveTimeoutStart || previousRev.editedAt,
         originalContents: { data: html, type: "ckEditorMarkup" },
+        changeMetrics: htmlToChangeMetrics(precedingRev?.html || "", html),
       }}
     )
   } else {
