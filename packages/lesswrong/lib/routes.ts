@@ -7,11 +7,9 @@ import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 
 
-const isEAForum = forumTypeSetting.get() === 'EAForum';
 export const communityPath = '/community';
-const communitySectionName = isEAForum ? 'Community and Events' : 'Community';
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: communitySectionName };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
@@ -877,19 +875,27 @@ if (hasEventsSetting.get()) {
       componentName: 'EventsUpcoming',
       title: "Upcoming Events by Day"
     },
+    {
+      name: 'EventsHome',
+      path: '/events',
+      componentName: 'EventsHome',
+      title: 'Events',
+      subtitle: 'Events',
+      subtitleLink: '/events'
+    },
 
     {
       name: 'CommunityHome',
       path: communityPath,
       componentName: 'CommunityHome',
-      title: communitySectionName,
+      title: 'Community',
       ...communitySubtitle
     },
     {
       name: 'MeetupsHome',
       path: '/meetups',
       componentName: 'CommunityHome',
-      title: communitySectionName,
+      title: 'Community',
     },
 
     {
@@ -912,7 +918,8 @@ if (hasEventsSetting.get()) {
       componentName: 'PostsSingle',
       titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
-      ...communitySubtitle,
+      subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
+      subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
       background: postBackground
     },
@@ -955,6 +962,16 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+    background: postBackground
+  },
+  {
+    name:'posts.slug.single',
+    path:'/posts/slug/:slug?',
+    componentName: 'PostsSingleSlugRedirect',
+    titleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: 'PostsPageHeaderTitle',
+    previewComponentName: 'PostLinkPreviewSlug',
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
   },
   {

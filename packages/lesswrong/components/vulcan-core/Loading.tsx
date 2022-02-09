@@ -22,6 +22,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       animation: "sk-bouncedelay 1.4s infinite ease-in-out both",
     },
   },
+  whiteSpinner: {
+    "& div": {
+      backgroundColor: "white",
+    }
+  },
   bounce1: {
     animationDelay: "-0.32s !important",
     marginRight: 5,
@@ -45,9 +50,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const Loading = ({classes, className}: {classes: ClassesType, className?: string}) => {
+const Loading = ({classes, className, white}: {
+  classes: ClassesType,
+  className?: string,
+  white?: boolean
+}) => {
   return (
-    <div className={classNames(classes.spinner, className)}>
+    <div className={classNames(classes.spinner, className, {[classes.whiteSpinner]: white})}>
       <div className={classes.bounce1}></div>
       <div className={classes.bounce2}></div>
       <div className={classes.bounce3}></div>

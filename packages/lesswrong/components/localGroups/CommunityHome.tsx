@@ -1,7 +1,7 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userGetLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import { useLocation } from '../../lib/routeUtil';
@@ -52,11 +52,14 @@ const CommunityHome = ({classes}: {
   
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
+  // this gets the location from the current user settings or from the user's browser
+  const currentUserLocation = useUserLocation(currentUser)
+  
   // if the current user provides their browser location and they do not yet have a location in their user settings,
   // assign their browser location to their user settings location
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
-  const updateUserLocation = async ({lat, lng, known}) => {
+  const updateUserLocation = useCallback(async ({lat, lng, known}) => {
     if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
       try {
         // get a list of matching Google locations for the current lat/lng
@@ -82,17 +85,14 @@ const CommunityHome = ({classes}: {
         console.error(e?.message)
       }
     }
-  }
+  }, [isEAForum, mapsLoaded, googleMaps, geocodeError, currentUser, updateUser])
 
-  const [currentUserLocation, setCurrentUserLocation] = useState(userGetLocation(currentUser, updateUserLocation));
-  
   useEffect(() => {
-    userGetLocation(currentUser, (newLocation) => {
-      if (!_.isEqual(currentUserLocation, newLocation)) {
-        setCurrentUserLocation(newLocation);
-      }
-    });
-  }, [currentUserLocation, currentUser]);
+    // if we've gotten a location from the browser, save it
+    if (isEAForum && currentUser && !currentUser.location && !currentUserLocation.loading && currentUserLocation.known) {
+      void updateUserLocation(currentUserLocation)
+    }
+  }, [isEAForum, currentUser, currentUserLocation, updateUserLocation])
 
   const openSetPersonalLocationForm = () => {
     openDialog({
@@ -146,7 +146,7 @@ const CommunityHome = ({classes}: {
       view: 'events',
       filters: filters,
     }
-    const title = forumTypeSetting.get() === 'EAForum' ? 'Community and Events' : 'Welcome to the Community Section';
+    const title = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Welcome to the Community Section';
     const WelcomeText = () => (isEAForum ?
     <Typography variant="body2" className={classes.welcomeText}>
       <p>
@@ -154,7 +154,7 @@ const CommunityHome = ({classes}: {
         and other users who have added themselves to the map (purple person icons).
       </p>
       <p>
-        This page is being trialed with a handful of EA groups, so the map isn't yet fully populated. For more, visit
+        Not all groups have been added to this page yet. For more, visit
         the <a className={classes.link} href="https://eahub.org/groups?utm_source=forum.effectivealtruism.org&utm_medium=Organic&utm_campaign=Forum_Homepage">EA Hub Groups Directory</a>.
       </p>
     </Typography> : 

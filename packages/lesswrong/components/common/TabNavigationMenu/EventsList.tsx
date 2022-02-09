@@ -10,20 +10,25 @@ const EventsList = ({currentUser, onClick}) => {
 
   const lat = currentUser?.mongoLocation?.coordinates[1]
   const lng = currentUser?.mongoLocation?.coordinates[0]
-
-  let eventsListTerms: PostsViewTerms = {
-    view: 'events',
-    globalEvent: false,
-    limit: isEAForum ? 1 : 3,
-  }
+  
   if (lat && lng) {
-    eventsListTerms = {
+    const nearbyTerms: PostsViewTerms = {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      globalEvent: false,
-      limit: 1,
+      limit: isEAForum ? 4 : 7,
     }
+    return <span>
+      <AnalyticsContext pageSubSectionContext="menuEventsList">
+        <TabNavigationEventsList onClick={onClick} terms={nearbyTerms} />
+      </AnalyticsContext>
+    </span>
+  }
+
+  const eventsListTerms: PostsViewTerms = {
+    view: 'events',
+    globalEvent: false,
+    limit: isEAForum ? 1 : 3,
   }
   const globalTerms: PostsViewTerms = {
     view: 'globalEvents',

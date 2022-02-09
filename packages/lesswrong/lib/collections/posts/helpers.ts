@@ -206,9 +206,10 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
  * 
  * @param {(PostsBase|DbPost)} post - The event to be checked.
  * @param {string} [timezone] - (Optional) Convert datetimes to this timezone.
+ * @param {string} [dense] - (Optional) Exclude the day of the week.
  * @returns {string} The formatted event datetimes.
  */
-export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string): string => {
+export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, dense?: boolean): string => {
   // when no start time, just show "TBD"
   if (!post.startTime) return 'TBD'
   
@@ -216,6 +217,7 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string):
   let end = post.endTime && moment(post.endTime)
   // if we have event times in the local timezone, use those instead
   const useLocalTimes = post.localStartTime && (!post.endTime || post.localEndTime)
+
   // prefer to use the provided timezone
   let tz = ` ${start.format('[UTC]ZZ')}`
   if (timezone) {
@@ -234,18 +236,18 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string):
   const sixMonthsFromNow = moment().add(6, 'months')
   const startYear = (now.isSame(start, 'year') || start.isBefore(sixMonthsFromNow)) ? '' : `, ${start.format('YYYY')}`
   
-  const startDate = start.format('ddd, MMM D')
-  const startTime = start.format('h:mm')
+  const startDate = dense ? start.format('MMM D') : start.format('ddd, MMM D')
+  const startTime = start.format('h:mm').replace(':00', '')
   let startAmPm = ` ${start.format('A')}`
   
   if (!end) {
     // just a start time
     // ex: Starts on Mon, Jan 3 at 4:30 PM
     // ex: Starts on Mon, Jan 3, 2023 at 4:30 PM EST
-    return `Starts on ${startDate}${startYear} at ${startTime}${startAmPm}${tz}`
+    return `${dense ? '' : 'Starts on '}${startDate}${startYear} at ${startTime}${startAmPm}${tz}`
   }
 
-  const endTime = end.format('h:mm A')
+  const endTime = end.format('h:mm A').replace(':00', '')
   // start and end time on the same day
   // ex: Mon, Jan 3 at 4:30 - 5:30 PM
   // ex: Mon, Jan 3, 2023 at 4:30 - 5:30 PM EST
@@ -258,6 +260,7 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string):
   // start and end time on different days
   // ex: Mon, Jan 3 at 4:30 PM - Tues, Jan 4 at 5:30 PM
   // ex: Mon, Jan 3, 2023 at 4:30 PM - Tues, Jan 4, 2023 at 5:30 PM EST
+  const endDate = dense ? end.format('MMM D') : end.format('ddd, MMM D')
   const endYear = (now.isSame(end, 'year') || end.isBefore(sixMonthsFromNow)) ? '' : `, ${end.format('YYYY')}`
-  return `${startDate}${startYear} at ${startTime}${startAmPm} - ${end.format('ddd, MMM D')}${endYear} at ${endTime}${tz}`
+  return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }

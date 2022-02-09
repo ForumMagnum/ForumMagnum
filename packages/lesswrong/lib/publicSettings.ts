@@ -97,3 +97,5 @@ export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualR
 export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
 export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-01")
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
+
+export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")

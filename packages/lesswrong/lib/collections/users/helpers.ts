@@ -5,6 +5,7 @@ import { forumTypeSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
+import { useEffect, useState } from 'react';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -293,6 +294,26 @@ interface UserLocation {
   known: boolean,
 }
 
+// Return the current user's location, as a latitude-longitude pair, plus the boolean field `known`.
+// If `known` is false, the lat/lng are invalid placeholders.
+// If the user is logged in, we try to return the location specified in their account settings.
+export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
+  lat: number,
+  lng: number,
+  known: boolean
+} => {
+  const placeholderLat = 37.871853;
+  const placeholderLng = -122.258423;
+
+  const currentUserLat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
+  const currentUserLng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
+
+  if (currentUserLat && currentUserLng) {
+    return {lat: currentUserLat, lng: currentUserLng, known: true}
+  }
+  return {lat: placeholderLat, lng: placeholderLng, known: false}
+}
+
 // Return the current user's location, as a latitude-longitude pair, plus
 // boolean fields `loading` and `known`. If `known` is false, the lat/lng are
 // invalid placeholders. If `loading` is true, then `known` is false, but the
@@ -303,45 +324,62 @@ interface UserLocation {
 // for server-side rendering, but we can try to get a location client-side
 // using the browser geolocation API. (This won't necessarily work, since not
 // all browsers and devices support it, and it requires user permission.)
-export const userGetLocation = (currentUser: UsersCurrent|DbUser|null, onLoadFinished?: ((location: UserLocation)=>void)|null): UserLocation => {
-  const placeholderLat = 37.871853;
-  const placeholderLng = -122.258423;
-
+export const useUserLocation = (currentUser: UsersCurrent|DbUser|null) => {
+  const placeholderLat = 37.871853
+  const placeholderLng = -122.258423
+  
   const currentUserLat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const currentUserLng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
-  if (currentUserLat && currentUserLng) {
-    // First return a location from the user profile, if set
-    return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true}
-  } else if (isServer) {
-    // If there's no location in the user profile, we may still be able to get
-    // a location from the browser--but not in SSR.
-    return {lat: placeholderLat, lng:placeholderLng, loading: true, known: false};
-  } else {
-    // If we're on the browser, try to get a location using the browser
-    // geolocation API. This is not always available.
-    if (typeof window !== 'undefined' && typeof navigator !== 'undefined'
-        && navigator && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-          if(position && position.coords) {
-            const navigatorLat = position.coords.latitude
-            const navigatorLng = position.coords.longitude
-            if (onLoadFinished)
-              onLoadFinished({lat: navigatorLat, lng: navigatorLng, loading: false, known: true});
-          } else {
-            if (onLoadFinished)
-              onLoadFinished({lat: placeholderLat, lng: placeholderLng, loading: false, known: false});
-          }
-        },
-        (error) => {
-          if (onLoadFinished)
-            onLoadFinished({lat: placeholderLat, lng: placeholderLng, loading: false, known: false});
-        }
-      );
-      return {lat: placeholderLat, lng:placeholderLng, loading: true, known: false};
-    }
 
-    return {lat: placeholderLat, lng:placeholderLng, loading: false, known: false};
-  }
+  const [location, setLocation] = useState(() => {
+    if (currentUserLat && currentUserLng) {
+      // First return a location from the user profile, if set
+      return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true}
+    } else if (isServer) {
+      // If there's no location in the user profile, we may still be able to get
+      // a location from the browser--but not in SSR.
+      return {lat: placeholderLat, lng: placeholderLng, loading: true, known: false}
+    } else {
+      // If we're on the browser, we'll try to get a location using the browser
+      // geolocation API. This is not always available.
+      if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator && navigator.geolocation) {
+        return {lat: placeholderLat, lng: placeholderLng, loading: true, known: false}
+      }
+    }
+  
+    return {lat: placeholderLat, lng: placeholderLng, loading: false, known: false}
+  })
+  
+  useEffect(() => {
+    // if we don't yet have a location for the user and we're on the browser,
+    // try to get the browser location
+    if (
+      !(currentUserLat && currentUserLng) &&
+      !isServer &&
+      typeof window !== 'undefined' &&
+      typeof navigator !== 'undefined' &&
+      navigator &&
+      navigator.geolocation
+    ) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        if (position && position.coords) {
+          const navigatorLat = position.coords.latitude
+          const navigatorLng = position.coords.longitude
+          setLocation({lat: navigatorLat, lng: navigatorLng, loading: false, known: true})
+        } else {
+          setLocation({lat: placeholderLat, lng: placeholderLng, loading: false, known: false})
+        }
+      },
+      (error) => {
+        setLocation({lat: placeholderLat, lng: placeholderLng, loading: false, known: false})
+      }
+    )
+    }
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  
+  return location
 }
 
 // utility function for checking how much karma a user is supposed to have

@@ -20,10 +20,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
+const AddToCalendarIcon = ({post, label, hideTooltip, hidePlusIcon, classes}: {
   post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision,
   label?: string,
   hideTooltip?: boolean,
+  hidePlusIcon?: boolean,
   classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking();
@@ -61,7 +62,7 @@ const AddToCalendarIcon = ({post, label, hideTooltip, classes}: {
           startsAt: moment(post.startTime).format(),
           endsAt: endTime.format()
         }}>
-          <Add className={classes.plusIcon} />
+          {!hidePlusIcon && <Add className={classes.plusIcon} />}
           {label && (
             <span className={classes.label}>
               {label}

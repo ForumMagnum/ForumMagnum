@@ -95,9 +95,12 @@ importComponent("CloudinaryImage2", () => require('../components/common/Cloudina
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
+importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
+
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
 importComponent("PostsRevisionSelect", () => require('../components/revisions/PostsRevisionSelect'));
+
 importComponent("RevisionComparisonNotice", () => require('../components/revisions/RevisionComparisonNotice'));
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
@@ -218,6 +221,7 @@ importComponent("PostsCompareRevisions", () => require('../components/posts/Post
 importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCalendar/AddToCalendarIcon'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
+importComponent("PostsSingleSlugRedirect", () => require('../components/posts/PostsSingleSlugRedirect'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
 importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
@@ -279,6 +283,9 @@ importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 importComponent("EventsPast", () => require('../components/posts/EventsPast'));
 importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
+importComponent("EventsHome", () => require('../components/events/EventsHome'));
+importComponent("HighlightedEventCard", () => require('../components/events/modules/HighlightedEventCard'));
+importComponent("EventCards", () => require('../components/events/modules/EventCards'));
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
 importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
