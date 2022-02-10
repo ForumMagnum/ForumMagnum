@@ -37,6 +37,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     flex: 'none',
     display: 'flex',
     justifyContent: 'space-between',
+    ...theme.typography.headline,
     fontSize: 34,
     margin: 0
   },

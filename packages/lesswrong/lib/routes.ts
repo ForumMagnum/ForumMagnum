@@ -912,8 +912,8 @@ if (hasEventsSetting.get()) {
       componentName: 'PostsSingle',
       titleComponentName: 'PostsPageHeaderTitle',
       previewComponentName: 'PostLinkPreview',
-      subtitle: 'Events',
-      subtitleLink: '/events',
+      subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
+      subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
       background: postBackground
     },
@@ -956,6 +956,16 @@ addRoute(
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+    background: postBackground
+  },
+  {
+    name:'posts.slug.single',
+    path:'/posts/slug/:slug?',
+    componentName: 'PostsSingleSlugRedirect',
+    titleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: 'PostsPageHeaderTitle',
+    previewComponentName: 'PostLinkPreviewSlug',
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
   },
   {

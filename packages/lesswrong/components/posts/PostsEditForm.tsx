@@ -11,7 +11,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import {testServerSetting} from "../../lib/instanceSettings";
+import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
@@ -57,7 +57,11 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   }
   
   
-  if (!testServerSetting.get() && isCollaborative(document)) {
+  if (
+    !testServerSetting.get() &&
+    isCollaborative(document) &&
+    ['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
+  ) {
     return <Components.SingleColumnSection>
       <p>This post has experimental collaborative editing enabled.</p>
       <p>It can only be edited on the development server.</p>
@@ -115,4 +119,3 @@ declare global {
     PostsEditForm: typeof PostsEditFormComponent
   }
 }
-

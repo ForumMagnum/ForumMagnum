@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: -1,
     marginRight: 6
-  }
+  },
 })
 
 const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10" xmlns="http://www.w3.org/2000/svg">
