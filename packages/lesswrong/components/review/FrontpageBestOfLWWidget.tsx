@@ -68,7 +68,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
 export const FrontpageBestOfLWWidget = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2, SectionFooter } = Components
+  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
 
   const { document: post } = useSingle({
     documentId: "TSaJ9Zcvc3KWh3bjX",
@@ -77,7 +77,7 @@ export const FrontpageBestOfLWWidget = ({classes}: {
   });
   
   return <div className={classes.root}>
-    <Link className={classes.imageWrapper} to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results-for-the-2020-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644303659/books-8_bk0yj6.png"}/></Link>
+    <Link className={classes.imageWrapper} to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results-for-the-2020-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
         <Link to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results-for-the-2020-review#Results">
