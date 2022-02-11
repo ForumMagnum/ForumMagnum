@@ -3,6 +3,7 @@
 import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useSingle } from '../../lib/crud/withSingle';
+import { Link } from '../../lib/reactRouterWrapper';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
@@ -26,6 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       top: -145,
       width: "100%"
+    },
+  },
+  imageWrapper: {
+    '&:hover': {
+      opacity: "1 !important"
     }
   },
   title: {
@@ -62,7 +68,7 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
 export const FrontpageBestOfLWWidget = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
+  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2, SectionFooter } = Components
 
   const { document: post } = useSingle({
     documentId: "TSaJ9Zcvc3KWh3bjX",
@@ -71,14 +77,17 @@ export const FrontpageBestOfLWWidget = ({classes}: {
   });
   
   return <div className={classes.root}>
-    <img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644303659/books-8_bk0yj6.png"}/>
+    <Link className={classes.imageWrapper} to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results-for-the-2020-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644303659/books-8_bk0yj6.png"}/></Link>
     <SingleColumnSection>
       <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
-
+        <Link to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results-for-the-2020-review#Results">
+          <div className={classes.viewResultsCTA}>
+            Donate to Thank Authors
+          </div>
+        </Link>
       </SectionTitle></div>
       {post && <PostsItem2 post={post} translucentBackground forceSticky />}
       <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
-
     </SingleColumnSection>
   </div>;
 }
