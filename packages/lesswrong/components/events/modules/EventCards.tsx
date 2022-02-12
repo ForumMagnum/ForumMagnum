@@ -46,6 +46,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     borderRadius: 0,
     overflow: 'visible',
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: '100vw'
+    }
   },
   eventCardContent: {
     position: 'relative',

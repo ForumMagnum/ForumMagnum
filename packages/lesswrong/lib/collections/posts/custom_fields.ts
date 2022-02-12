@@ -18,6 +18,16 @@ import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 
+export const EVENT_TYPES = [
+  {value: 'presentation', label: 'Presentation'},
+  {value: 'discussion', label: 'Discussion'},
+  {value: 'workshop', label: 'Workshop'},
+  {value: 'social', label: 'Social'},
+  {value: 'coworking', label: 'Coworking'},
+  {value: 'course', label: 'Course'},
+  {value: 'conference', label: 'Conference'},
+]
+
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 function eaFrontpageDate (document: Partial<DbPost>) {
   if (document.isEvent || !document.submitToFrontpage) {
@@ -660,14 +670,7 @@ addFieldsDict(Posts, {
     optional: true,
     order: 2,
     form: {
-      options: [
-        {value: 'presentation', label: 'Presentation'},
-        {value: 'discussion', label: 'Discussion'},
-        {value: 'workshop', label: 'Workshop'},
-        {value: 'social', label: 'Social'},
-        {value: 'coworking', label: 'Coworking'},
-        {value: 'course', label: 'Course'},
-      ]
+      options: EVENT_TYPES
     },
   },
 

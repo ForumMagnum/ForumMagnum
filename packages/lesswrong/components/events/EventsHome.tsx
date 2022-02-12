@@ -262,7 +262,7 @@ const EventsHome = ({classes}: {
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     limit: 12,
-    itemsPerPage: 6,
+    itemsPerPage: 12,
     skip: !queryLocation && currentUserLocation.loading
   });
   
