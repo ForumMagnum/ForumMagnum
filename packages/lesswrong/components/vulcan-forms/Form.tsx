@@ -265,10 +265,11 @@ class Form extends Component<any,any> {
 
   */
   getFieldGroups = () => {
+    let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
     let fields: Array<any> = this.getFieldNames().map((fieldName: string) => {
       // get schema for the current field
-      return this.createField(fieldName, this.state.schema);
+      return this.createField(fieldName, this.state.schema, mutableFields);
     });
 
     fields = _.sortBy(fields, 'order');
@@ -426,14 +427,14 @@ class Form extends Component<any,any> {
 
     return field;
   };
-  handlePermissions = (field, fieldName, schema) => {
+  handlePermissions = (field, fieldName, mutableFields) => {
     // if field is not creatable/updatable, disable it
-    if (!this.getMutableFields(schema).includes(fieldName)) {
+    if (!mutableFields.includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field, fieldName, fieldSchema, schema) => {
+  handleFieldChildren = (field, fieldName, fieldSchema, mutableFields) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -441,7 +442,7 @@ class Form extends Component<any,any> {
       field.arrayField = this.createArraySubField(
         fieldName,
         field.arrayFieldSchema,
-        schema
+        mutableFields
       );
 
       //field.nestedInput = true
@@ -459,6 +460,7 @@ class Form extends Component<any,any> {
         return this.createField(
           subFieldName,
           field.nestedSchema,
+          mutableFields,
           fieldName,
           field.path
         );
@@ -472,22 +474,22 @@ class Form extends Component<any,any> {
   complete field object to be passed to the component
 
   */
-  createField = (fieldName, schema, parentFieldName?: any, parentPath?: any) => {
+  createField = (fieldName, schema, mutableFields, parentFieldName?: any, parentPath?: any) => {
     const fieldSchema = schema[fieldName];
     let field = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
-    field = this.handlePermissions(field, fieldName, schema);
-    field = this.handleFieldChildren(field, fieldName, fieldSchema, schema);
+    field = this.handlePermissions(field, fieldName, mutableFields);
+    field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields);
     return field;
   };
-  createArraySubField = (fieldName, subFieldSchema, schema) => {
+  createArraySubField = (fieldName, subFieldSchema, mutableFields) => {
     const subFieldName = `${fieldName}.$`;
     let subField = this.initField(subFieldName, subFieldSchema);
     // array subfield has the same path and permissions as its parent
     // so we use parent name (fieldName) and not subfieldName
     subField = this.handleFieldPath(subField, fieldName);
-    subField = this.handlePermissions(subField, fieldName, schema);
+    subField = this.handlePermissions(subField, fieldName, mutableFields);
     // we do not allow nesting yet
     //subField = this.handleFieldChildren(field, fieldSchema)
     return subField;
@@ -657,14 +659,10 @@ class Form extends Component<any,any> {
     return new Promise<void>((resolve, reject) => {
       this.setState(prevState => {
         // keep only the relevant properties
-        const { currentValues, currentDocument, deletedValues } = cloneDeep(
-          prevState
-        );
         const newState = {
-          currentValues,
-          currentDocument,
-          deletedValues,
-          foo: {}
+          currentValues: cloneDeep(prevState.currentValues),
+          currentDocument: cloneDeep(prevState.currentDocument),
+          deletedValues: prevState.deletedValues,
         };
   
         Object.keys(newValues).forEach(key => {
