@@ -82,6 +82,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 14,
     color: theme.palette.primary.main
   },
+  eventCardTimeApply: {
+    color: "rgba(0, 0, 0, 0.5)",
+    fontSize: 11,
+    marginRight: 5
+  },
   eventCardTitle: {
     ...theme.typography.headline,
     fontSize: 20,
@@ -193,6 +198,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
       </Link>
       <CardContent className={classes.eventCardContent}>
         <div className={classes.eventCardTime}>
+          {event.eventType === 'course' && <span className={classes.eventCardTimeApply}>Apply by</span>}
           {prettyEventDateTimes(event, timezone, true)}
         </div>
         <PostsItemTooltipWrapper post={event}>
