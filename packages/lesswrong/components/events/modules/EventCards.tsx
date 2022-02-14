@@ -9,6 +9,8 @@ import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
+import classNames from 'classnames';
+import moment from 'moment';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -50,6 +52,27 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       maxWidth: '100vw'
     }
   },
+  specialEventCardLink: {
+    '&:hover': {
+      opacity: '0.9'
+    }
+  },
+  specialEventCard: {
+    background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_373,c_fill/Event/pz3xmsm63xl8thlyt2up.jpg')",
+    padding: '50px 24px',
+    '& div': {
+      color: 'white'
+    },
+    '& .EventCards-eventCardTitle': {
+      fontSize: 24
+    },
+    '& .EventCards-eventCardLocation': {
+      opacity: '0.7'
+    },
+    '&:hover .EventCards-eventCardDeadline': {
+      borderBottom: '2px solid white'
+    }
+  },
   eventCardContent: {
     position: 'relative',
     height: 170,
@@ -78,6 +101,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginTop: 8,
   },
+  eventCardDescription: {
+    ...theme.typography.commentStyle,
+    color: "rgba(0, 0, 0, 0.7)",
+    fontSize: 14,
+    lineHeight: '1.8em',
+    marginTop: 30,
+  },
   eventCardGroup: {
     ...theme.typography.commentStyle,
     maxWidth: 290,
@@ -88,6 +118,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     marginTop: 10,
+  },
+  eventCardDeadline: {
+    ...theme.typography.commentStyle,
+    display: 'inline-block',
+    fontWeight: 'bold',
+    color: "rgba(0, 0, 0, 0.5)",
+    fontSize: 16,
+    paddingBottom: 5,
+    marginTop: 20,
   },
   addToCal: {
     ...theme.typography.commentStyle,
@@ -102,10 +141,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const EventCards = ({events, loading, numDefaultCards, classes}: {
+const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes}: {
   events?: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
+  hideSpecialCards?: boolean,
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone()
@@ -143,34 +183,77 @@ const EventCards = ({events, loading, numDefaultCards, classes}: {
       </div>
     </div>
   }
+  
+  const eventCards = events.map(event => {
+    return <Card key={event._id} className={classes.eventCard}>
+      <Link to={`/events/${event._id}/${event.slug}`}>
+        {event.eventImageId ?
+          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
+          <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
+      </Link>
+      <CardContent className={classes.eventCardContent}>
+        <div className={classes.eventCardTime}>
+          {prettyEventDateTimes(event, timezone, true)}
+        </div>
+        <PostsItemTooltipWrapper post={event}>
+          <div className={classes.eventCardTitle}>
+            <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
+          </div>
+        </PostsItemTooltipWrapper>
+        <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
+        {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
+          <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
+        </div>}
+        <div className={classes.addToCal}>
+          <AddToCalendarIcon post={event} />
+        </div>
+      </CardContent>
+    </Card>
+  })
+  
+  // on the EA Forum, insert a card advertising the Intro VP
+  if (forumTypeSetting.get() === 'EAForum' && !hideSpecialCards && events.length >= 2) {
+    // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
+    let sunday = moment().day(0)
+    _.range(5).forEach(() => {
+      const nextSunday = moment(sunday).add(1, 'week')
+      // needs to be in the future
+      if (sunday.isBefore(moment(), 'day')) {
+        sunday = nextSunday
+      }
+      // needs to be the last Sunday of the month
+      if (nextSunday.month() === sunday.month()) {
+        sunday = nextSunday
+      }
+    })
+    
+    // VP starts 8 days after the deadline, on a Monday
+    const startOfVp = moment(sunday).add(8, 'days')
+    // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
+    const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
+    
+    eventCards.splice(2, 0, (
+      <a href="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.specialEventCardLink}>
+        <Card key="intro-vp" className={classNames(classes.eventCard, classes.specialEventCard)}>
+          <div className={classes.eventCardTime}>
+            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+          </div>
+          <div className={classes.eventCardTitle}>
+            Introductory EA Program
+          </div>
+          <div className={classes.eventCardLocation}>Online</div>
+          <div className={classes.eventCardDescription}>
+            This program is ideal for those new to effective altruism, or for those who have some familiarity,
+            but want to explore the core ideas in a structured way.
+          </div>
+          <div className={classes.eventCardDeadline}>Apply by Sunday, {sunday.format('MMMM D')}</div>
+        </Card>
+      </a>
+    ))
+  }
 
   return <>
-    {events.map(event => {
-      return <Card key={event._id} className={classes.eventCard}>
-        <Link to={`/events/${event._id}/${event.slug}`}>
-          {event.eventImageId ?
-            <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
-            <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
-        </Link>
-        <CardContent className={classes.eventCardContent}>
-          <div className={classes.eventCardTime}>
-            {prettyEventDateTimes(event, timezone, true)}
-          </div>
-          <PostsItemTooltipWrapper post={event}>
-            <div className={classes.eventCardTitle}>
-              <Link to={`/events/${event._id}/${event.slug}`}>{event.title}</Link>
-            </div>
-          </PostsItemTooltipWrapper>
-          <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
-          {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
-            <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
-          </div>}
-          <div className={classes.addToCal}>
-            <AddToCalendarIcon post={event} />
-          </div>
-        </CardContent>
-      </Card>
-    })}
+    {eventCards}
   </>
 }
 
