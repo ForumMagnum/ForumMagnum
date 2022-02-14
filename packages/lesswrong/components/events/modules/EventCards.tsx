@@ -11,6 +11,7 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import classNames from 'classnames';
 import moment from 'moment';
+import { useTracking } from '../../../lib/analyticsEvents';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -154,6 +155,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone()
+  const { captureEvent } = useTracking()
   
   const getEventLocation = (event: PostsList): string => {
     if (event.onlineEvent) return 'Online'
@@ -239,7 +241,10 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
     const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
     
     eventCards.splice(2, 0, (
-      <a href="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.specialEventCardLink}>
+      <a href="https://www.effectivealtruism.org/virtual-programs/introductory-program?from=forum_events_page"
+        className={classes.specialEventCardLink}
+        onClick={() => captureEvent('introVPClicked')}
+      >
         <Card key="intro-vp" className={classNames(classes.eventCard, classes.specialEventCard)}>
           <div className={classes.eventCardTime}>
             {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
