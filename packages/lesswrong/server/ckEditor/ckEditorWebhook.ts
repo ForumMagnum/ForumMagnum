@@ -56,10 +56,14 @@ async function handleCkEditorWebhook(message: any) {
       };
       const commentAddedPayload = payload as CkEditorCommentAdded;
       
+      const thread = await fetchCkEditorCommentThread(payload?.comment?.thread_id);
+      const commentersInThread: string[] = _.uniq(thread.map(comment => comment?.user?.id));
+      
       await notifyCkEditorCommentAdded({
         commenterUserId: payload?.comment?.user?.id,
         commentHtml: payload?.comment?.content,
         postId: ckEditorDocumentIdToPostId(payload?.document?.id),
+        commentersInThread,
       });
       break;
     }
@@ -241,16 +245,55 @@ async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Promise<st
   }
 }
 
-async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId}: {
+interface CkEditorComment {
+    id: string,
+    document_id: string,
+    thread_id: string,
+    content: string,
+    user: {id: string},
+    created_at: string,
+    updated_at: string,
+    attributes: any,
+}
+interface CkEditorGetCommentsResponse {
+  cursor_next: string,
+  cursor_prev: string,
+  data: CkEditorComment[],
+}
+
+async function fetchCkEditorCommentThread(threadId: string): Promise<CkEditorComment[]> {
+  // Fetch a comment thread. Used to find out who should be notified of new
+  // comments in that thread.
+  //
+  // The REST API has pagination, which we don't handle. Instead we just set the
+  // limit to the maximum (according to the documentation at
+  // https://help.cke-cs.com/api/v4/docs#tag/Comments/paths/~1comments/get); if
+  // a CkEditor thread somehow has more comments than that, then new commenters
+  // won't subscribed after the 1000th comment, which is not a big problem.
+  const limit = 1000;
+  
+  const response = await fetchCkEditorRestAPI("GET", `/comments?thread_id=${threadId}&limit=${limit}`);
+  const parsedResponse: CkEditorGetCommentsResponse = JSON.parse(response);
+  return parsedResponse.data;
+}
+
+async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId, commentersInThread}: {
   commenterUserId: string,
   commentHtml: string,
   postId: string,
+  commentersInThread: string[],
 }) {
   const post = await Posts.findOne({_id: postId});
   if (!post) throw new Error(`Couldn't find post for CkEditor comment notification: ${postId}`);
   
-  const authorAndCoauthors = [post.userId, ...(post.coauthorUserIds||[])];
-  const usersToNotify = _.filter(authorAndCoauthors, u=>u!==commenterUserId);
+  // Notify the main author of the post, the coauthors if any, and everyone
+  // who's commented in the thread. Then filter out the person who wrote the
+  // comment themself.
+  const usersToNotify = _.uniq(_.filter(
+    [post.userId, ...(post.coauthorUserIds||[]), ...commentersInThread],
+    u=>(!!u && u!==commenterUserId)
+  ));
+  
   // eslint-disable-next-line no-console
   console.log(`New CkEditor comment. Notifying users: ${JSON.stringify(usersToNotify)}`);
   
