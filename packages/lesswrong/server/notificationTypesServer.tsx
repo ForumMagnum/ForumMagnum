@@ -16,6 +16,7 @@ import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
+import './emailComponents/EmailUsernameByID';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
@@ -387,27 +388,34 @@ export const NewRSVPNotification = serverRegisterNotificationType({
 
 export const NewCommentOnDraftNotification = serverRegisterNotificationType({
   name: "newCommentOnDraft",
-  canCombineEmails: false,
+  canCombineEmails: true,
+  
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const notification = notifications[0];
-    const { senderUserID, commentHtml } = notification.extraData;
-    const senderUser = await Users.findOne({_id: senderUserID});
-    const post = await Posts.findOne({_id: notification.documentId});
-    
-    return `${senderUser?.displayName} commented on ${post?.title}`;
+    const firstNotification = notifications[0];
+    const post = await Posts.findOne({_id: firstNotification.documentId});
+    if (notifications.length===1) {
+      const { senderUserID, commentHtml } = firstNotification.extraData;
+      const senderUser = await Users.findOne({_id: senderUserID});
+      
+      return `${senderUser?.displayName} commented on ${post?.title}`;
+    } else {
+      return `${notifications.length} comments on ${post?.title}`;
+    }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const notification = notifications[0];
-    const { senderUserID, commentHtml } = notification.extraData;
-    const senderUser = await Users.findOne({_id: senderUserID});
-    const post = await Posts.findOne({_id: notification.documentId});
-    const postLink = makeAbsolute(`/editPost?postId=${notification.documentId}`);
+    const firstNotification = notifications[0];
+    const post = await Posts.findOne({_id: firstNotification.documentId});
+    const postTitle = post?.title;
+    const postLink = makeAbsolute(`/editPost?postId=${firstNotification.documentId}`);
+    const { EmailUsernameByID } = Components;
     
     return <div>
-      <div>{senderUser?.displayName} commented on <a href={postLink}>{post?.title}</a>:</div>
-      <div>
-        <blockquote dangerouslySetInnerHTML={{__html: commentHtml}}/>
-      </div>
+      {notifications.map((notification,i) => <div key={i}>
+        <div><EmailUsernameByID userID={notification.extraData?.senderUserID}/> commented on <a href={postLink}>{postTitle}</a>:</div>
+        <div>
+          <blockquote dangerouslySetInnerHTML={{__html: notification.extraData?.commentHtml}}/>
+        </div>
+      </div>)}
     </div>
   }
 });
