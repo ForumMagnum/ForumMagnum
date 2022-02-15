@@ -297,7 +297,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     switch(this.props.value.type) {
       case "draftJS":
         const draftJS = this.props.value.value.getCurrentContent()
-        data = draftJS.hasText() ? convertToRaw(draftJS) : null
+        data = convertToRaw(draftJS);
         break
       case "markdown":
       case "html":
