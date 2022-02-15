@@ -456,7 +456,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name: 'Community',
+      name: 'CommunityTag',
       path: '/meta',
       redirect: () => `/tag/community`,
     },
@@ -877,10 +877,16 @@ if (hasEventsSetting.get()) {
       subtitle: 'Events',
       subtitleLink: '/events'
     },
-
+    {
+      name: 'Community',
+      path: forumTypeSetting.get() === 'EAForum' ? communityPath : '/community-new',
+      componentName: 'Community',
+      title: 'Community',
+      ...communitySubtitle
+    },
     {
       name: 'CommunityHome',
-      path: communityPath,
+      path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
       componentName: 'CommunityHome',
       title: 'Community',
       ...communitySubtitle

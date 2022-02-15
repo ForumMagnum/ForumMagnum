@@ -1,5 +1,6 @@
 import Localgroups from "./collection"
 import { ensureIndex } from '../../collectionUtils';
+import { viewFieldNullOrMissing } from "../../vulcan-lib";
 
 declare global {
   interface LocalgroupsViewTerms extends ViewTermsBase {
@@ -84,6 +85,14 @@ Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
   };
 });
 
+Localgroups.addView("local", function () {
+  return {
+    selector: {$or: [
+      {isOnline: false}, {isOnline: {$exists: false}}
+    ]},
+    options: {sort: {name: 1}}
+  };
+});
 Localgroups.addView("online", function () {
   return {
     selector: {isOnline: true},

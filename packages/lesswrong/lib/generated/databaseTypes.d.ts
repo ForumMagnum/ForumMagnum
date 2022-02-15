@@ -251,6 +251,7 @@ interface DbLocalgroup extends DbObject {
   facebookLink: string
   facebookPageLink: string
   meetupLink: string
+  slackLink: string
   website: string
   inactive: boolean
   bannerImageId: string
