@@ -241,11 +241,12 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
     const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
     
     eventCards.splice(2, 0, (
-      <a href="https://www.effectivealtruism.org/virtual-programs/introductory-program?from=forum_events_page"
+      <a key="intro-vp"
+        href="https://www.effectivealtruism.org/virtual-programs/introductory-program?from=forum_events_page"
         className={classes.specialEventCardLink}
         onClick={() => captureEvent('introVPClicked')}
       >
-        <Card key="intro-vp" className={classNames(classes.eventCard, classes.specialEventCard)}>
+        <Card className={classNames(classes.eventCard, classes.specialEventCard)}>
           <div className={classes.eventCardTime}>
             {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
           </div>
