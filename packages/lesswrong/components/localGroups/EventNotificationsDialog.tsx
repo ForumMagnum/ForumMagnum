@@ -37,6 +37,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
     marginTop: 16, 
     marginBottom: 16,
     width: 400,
+    maxWidth: '100%',
     ...geoSuggestStyles(theme),
     "& .geosuggest__suggests": {
       top: "100%",
@@ -73,7 +74,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex'
   },
   input: {
-    width: '15%',
     marginLeft: '5%',
     position: 'relative',
     top: -12
@@ -136,12 +136,12 @@ const EventNotificationsDialog = ({ onClose, classes }: {
       onClose={onClose}
     >
       <DialogTitle>
-        I wish to be notified of nearby events and new groups
+        {currentUser?.nearbyEventsNotifications ? 'Edit Notifications' : 'Sign up for Notifications'}
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2">
           <p>
-            Notify me for events and new groups in this location 
+            Notify me of events and new groups in this location
           </p>
         </Typography>
         <div className={classes.geoSuggest}>
