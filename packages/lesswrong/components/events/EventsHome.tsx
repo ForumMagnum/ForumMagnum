@@ -350,7 +350,7 @@ const EventsHome = ({classes}: {
             </div>
           </div>
 
-          <EventCards events={results} loading={loading} numDefaultCards={6} />
+          <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={modeFilter === 'in-person'} />
           
           <div className={classes.loadMoreRow}>
             {loadMoreButton}
