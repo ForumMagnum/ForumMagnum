@@ -908,7 +908,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
         {
           mongoLocation: {
             $geoWithin: {
-              $centerSphere: [ [ terms.lng, terms.lat ], 150/3963.2 ] // only show in-person events within 150 miles
+              $centerSphere: [ [ terms.lng, terms.lat ], 100/3963.2 ] // only show in-person events within 100 miles
             }
           }
         },
