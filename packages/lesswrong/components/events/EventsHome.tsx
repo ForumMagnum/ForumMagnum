@@ -336,7 +336,6 @@ const EventsHome = ({classes}: {
           <div className={classes.filters}>
             <FilterIcon className={classes.filterIcon} />
             <Select
-              variant="filled"
               className={classes.filter}
               value={modeFilter}
               onChange={(e) => setModeFilter(e.target.value)}>
