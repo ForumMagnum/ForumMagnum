@@ -722,6 +722,7 @@ addFieldsDict(Posts, {
     group: formGroups.event,
     optional: true,
     nullable: true,
+    tooltip: 'For courses/programs, this is the application deadline.'
   },
 
   localStartTime: {
@@ -731,7 +732,7 @@ addFieldsDict(Posts, {
 
   endTime: {
     type: Date,
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || props.document.eventType === 'course',
     viewableBy: ['guests'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
