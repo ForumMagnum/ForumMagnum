@@ -103,6 +103,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       gridTemplateColumns: 'auto',
     }
   },
+  loadMoreRow: {
+    gridColumnStart: 1,
+    gridColumnEnd: -1,
+  },
   loadMore: {
     ...theme.typography.commentStyle,
     background: 'none',
@@ -239,6 +243,9 @@ const EventsHome = ({classes}: {
   }
   
   const { HighlightedEventCard, EventCards, Loading } = Components
+  
+  // if certain filters are active, we hide the special event cards (ex. Intro VP card)
+  const hideSpecialCards = modeFilter === 'in-person'
 
   const filters: PostsViewTerms = {}
   if (modeFilter === 'in-person') {
@@ -263,7 +270,7 @@ const EventsHome = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 12,
+    limit: hideSpecialCards ? 12 : 11,
     itemsPerPage: 12,
     skip: !queryLocation && currentUserLocation.loading
   });
@@ -350,7 +357,7 @@ const EventsHome = ({classes}: {
             </div>
           </div>
 
-          <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={modeFilter === 'in-person'} />
+          <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={hideSpecialCards} />
           
           <div className={classes.loadMoreRow}>
             {loadMoreButton}
