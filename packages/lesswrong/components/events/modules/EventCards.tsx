@@ -59,7 +59,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   specialEventCard: {
-    background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_373,c_fill/Event/pz3xmsm63xl8thlyt2up.jpg')",
+    background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_373,c_fill,q_auto,f_auto/Event/pz3xmsm63xl8thlyt2up.jpg')",
     padding: '50px 24px',
     '& div': {
       color: 'white'

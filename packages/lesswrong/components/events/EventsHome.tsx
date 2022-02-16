@@ -4,7 +4,9 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import AddAlertIcon from '@material-ui/icons/AddAlert';
+import FilterIcon from '@material-ui/icons/FilterList';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -15,7 +17,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
-import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -26,7 +28,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   sectionHeadingRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    maxWidth: 800,
+    maxWidth: 700,
     margin: '40px auto',
     '@media (max-width: 812px)': {
       flexDirection: 'column',
@@ -35,8 +37,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   sectionHeading: {
     flex: 'none',
-    display: 'flex',
-    justifyContent: 'space-between',
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0
@@ -44,7 +44,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   sectionDescription: {
     ...theme.typography.commentStyle,
     textAlign: 'left',
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: '1.8em',
     marginLeft: 60,
     '@media (max-width: 812px)': {
@@ -52,41 +52,43 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginLeft: 0
     }
   },
-  notificationsIconDesktop: {
-    flex: 'none',
-    marginLeft: 30,
-    '@media (max-width: 812px)': {
-      display: 'none'
-    }
-  },
-  notificationsIconMobile: {
-    display: 'none',
-    '@media (max-width: 812px)': {
-      display: 'block'
-    }
-  },
   filters: {
     gridColumnStart: 1,
     gridColumnEnd: -1,
     display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: 10,
+    alignItems: 'baseline',
+    columnGap: 10,
   },
   where: {
+    flex: '1 0 0',
     ...theme.typography.commentStyle,
     fontSize: 13,
+    color: "rgba(0,0,0,0.6)",
+    paddingLeft: 3
   },
   geoSuggest: {
     ...geoSuggestStyles(theme),
     display: 'inline-block',
-    maxWidth: 200,
+    minWidth: 200,
     marginLeft: 6
   },
+  filterIcon: {
+    alignSelf: 'center',
+    fontSize: 20
+  },
   filter: {
-    marginLeft: 10,
-    '@media (max-width: 812px)': {
-      display: 'none',
-    }
+  },
+  notifications: {
+    flex: '1 0 0',
+    textAlign: 'right'
+  },
+  notificationsBtn: {
+    textTransform: 'none',
+    fontSize: 14,
+  },
+  notificationsIcon: {
+    fontSize: 18,
+    marginRight: 6
   },
   eventCards: {
     display: 'grid',
@@ -302,25 +304,11 @@ const EventsHome = ({classes}: {
         <div className={classes.sectionHeadingRow}>
           <h1 className={classes.sectionHeading}>
             Events
-            <IconButton color="primary"
-              aria-label="event notifications"
-              onClick={openEventNotificationsForm}
-              className={classes.notificationsIconMobile}
-            >
-              <AddAlertIcon />
-            </IconButton>
           </h1>
           <div className={classes.sectionDescription}>
             Join people from around the world for discussions, talks, and other events on how we can tackle
             the world's biggest problems.
           </div>
-          <IconButton color="primary"
-            aria-label="event notifications"
-            onClick={openEventNotificationsForm}
-            className={classes.notificationsIconDesktop}
-          >
-            <AddAlertIcon />
-          </IconButton>
         </div>
 
         <div className={classes.eventCards}>
@@ -343,6 +331,10 @@ const EventsHome = ({classes}: {
                   </div>
               }
             </div>
+          </div>
+          
+          <div className={classes.filters}>
+            <FilterIcon className={classes.filterIcon} />
             <Select
               className={classes.filter}
               value={modeFilter}
@@ -351,6 +343,11 @@ const EventsHome = ({classes}: {
                 <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                 <MenuItem key="online" value="online">Online only</MenuItem>
             </Select>
+            <div className={classes.notifications}>
+              <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
+                {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
+              </Button>
+            </div>
           </div>
 
           <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={modeFilter === 'in-person'} />
