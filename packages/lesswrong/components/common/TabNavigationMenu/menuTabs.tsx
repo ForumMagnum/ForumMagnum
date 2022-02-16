@@ -287,13 +287,13 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'replacing-guilt',
       title: 'Replacing Guilt',
       link: '/s/a2LBRPLhvwB83DSGq',
-      tooltip: "Nate Soares writes about replacing guilt with other feelings, exercising self-compassion, and developing confidence — so that we can create a better world.",
+      tooltip: "Nate Soares writes about replacing guilt with other feelings and finding better ways to motivate yourself, so you can build a better future without falling apart.",
       subItem: true,
     }, {
       id: 'most-important-century',
       title: 'Most Important Century',
       link: '/s/isENJuPdB3fhjWYHd',
-      tooltip: `Holden Karnofsky argues that there's a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
+      tooltip: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
       subItem: true,
     }, {
       id: 'events',
