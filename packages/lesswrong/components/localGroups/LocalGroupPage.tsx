@@ -134,7 +134,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       <HeadTags
         title={group.name}
         description={group.contents?.plaintextDescription}
-        image={group.bannerImageId && `https://res.cloudinary.com/cea/image/upload/v1640139083/${group.bannerImageId}.jpg`}
+        image={group.bannerImageId && `https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/${group.bannerImageId}.jpg`}
       />
       {topSection}
       <SingleColumnSection>
