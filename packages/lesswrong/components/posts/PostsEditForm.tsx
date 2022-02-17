@@ -13,6 +13,7 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
 import { isCollaborative } from '../editor/EditorFormComponent';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
@@ -58,7 +59,12 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
 
   // If we only have read access to this post, but it's shared with us
   // as a draft, redirect to the collaborative editor.
-  if (document && document.draft && document.userId!==currentUser?._id && document.sharingSettings) {
+  if (document
+    && document.draft
+    && document.userId!==currentUser?._id
+    && document.sharingSettings
+    && !userIsAdmin(currentUser)
+  ) {
     return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
   }
   
