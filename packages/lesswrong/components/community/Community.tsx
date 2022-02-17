@@ -22,6 +22,8 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import EmailIcon from '@material-ui/icons/MailOutline';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -199,6 +201,30 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+  },
+  localGroupsBtns: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    '@media (max-width: 1200px)': {
+      padding: '0 20px',
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
+  },
+  localGroupsBtn: {
+    textTransform: 'none',
+    fontSize: 12
+  },
+  localGroupsBtnIcon: {
+    fontSize: 15,
+    marginLeft: 8
+  },
+  localGroupsBtnEmailIcon: {
+    fontSize: 20,
+    marginLeft: 10,
+    marginRight: 5
   },
   onlineGroups: {
     [theme.breakpoints.down('sm')]: {
@@ -574,6 +600,17 @@ const Community = ({classes}: {
               />
             </div>
           </div>
+          
+          <div className={classes.localGroupsBtns}>
+            <Button href="https://resources.eagroups.org/" variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}>
+              Start your own group
+              <OpenInNewIcon className={classes.localGroupsBtnIcon} />
+            </Button>
+            <Button href="/contact" color="primary" className={classes.localGroupsBtn}>
+              Is your group missing? <EmailIcon className={classes.localGroupsBtnEmailIcon} /> Contact us
+            </Button>
+          </div>
+          
         </div>}
         
         {tab === 'online' && <div key="online" className={classes.tabBody}>
