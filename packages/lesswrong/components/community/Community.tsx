@@ -29,16 +29,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     margin: 'auto',
   },
   sectionHeadingRow: {
-    maxWidth: 700,
+    display: 'flex',
+    justifyContent: 'space-between',
+    maxWidth: 800,
     padding: '0 20px',
-    margin: '0 auto 30px',
+    margin: '0 auto 40px',
     [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
       marginTop: 30,
     },
   },
   sectionHeading: {
-    display: 'flex',
-    justifyContent: 'space-between',
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0
@@ -48,7 +49,24 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     textAlign: 'left',
     fontSize: 15,
     lineHeight: '1.8em',
-    marginTop: 20,
+    marginLeft: 60,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20,
+      marginLeft: 0
+    },
+  },
+  bannerImg: {
+    width: '100vw',
+    height: 200,
+    backgroundImage: "linear-gradient(to right, rgba(0, 87, 102, 1), transparent), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_300,w_1200,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)",
+    backgroundSize: 'cover',
+    backgroundPosition: 'top right',
+    marginBottom: 10,
+    [theme.breakpoints.down('sm')]: {
+      height: 200,
+      marginLeft: -4,
+      marginRight: -4,
+    }
   },
   filters: {
     display: 'flex',
@@ -140,7 +158,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       height: 'auto',
       backgroundImage: 'none !important',
-      paddingLeft: 16
+      paddingLeft: 16,
+      paddingBottom: 30
     },
   },
   localGroupNameRow: {
@@ -479,11 +498,14 @@ const Community = ({classes}: {
             Community
           </h1>
           <div className={classes.sectionDescription}>
-            Effective altruism is a global community with thousands of members. Joining a group
-            is a great way to meet people who want to help each other do the most good.
+            Effective altruism is a global community with thousands of members. Reach out to learn how you can have the most impact.
           </div>
         </div>
+      </div>
+        
+      <div className={classes.bannerImg}></div>
 
+      <div className={classes.section}>
         <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} centered aria-label='view local or online groups'>
           <Tab label="Local Groups" value="local" />
           <Tab label="Online Groups" value="online" />
