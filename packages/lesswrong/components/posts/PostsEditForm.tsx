@@ -69,21 +69,6 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
   }
   
-  if (
-    !testServerSetting.get() &&
-    isCollaborative(document, "contents") &&
-    ['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
-  ) {
-    return <Components.SingleColumnSection>
-      <p>This post has experimental collaborative editing enabled.</p>
-      <p>It can only be edited on the development server.</p>
-      <a className={classes.collaborativeRedirectLink} href={`https://www.lessestwrong.com/editPost?postId=${document?._id}`}>
-        <h1>EDIT THE POST HERE</h1>
-      </a>
-    </Components.SingleColumnSection>
-  }
-  
-  
   return (
     <div className={classes.postForm}>
       <HeadTags title={document?.title} />
