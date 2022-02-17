@@ -110,7 +110,10 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   
   return <div className={classes.shareButtonSection}>
     <Button variant="contained" color="primary" onClick={onClickShare}>
-      Share
+      <div>
+        Share<br/>
+        <span className={classes.betaLabel}>(Beta)</span>
+      </div>
     </Button>
   </div>
 }
