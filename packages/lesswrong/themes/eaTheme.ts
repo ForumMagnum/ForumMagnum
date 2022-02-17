@@ -158,6 +158,17 @@ const theme = createLWTheme({
         padding: ".7rem",
       }
     },
+    MuiMenuItem: {
+      root: {
+        '&.MuiMenuItem-selected': {
+          backgroundColor: "#c69c6a",
+          color: 'white',
+          '&:hover': {
+            backgroundColor: "#b6ab9f"
+          }
+        }
+      }
+    },
     Header: {
       root: {
         height: 90,
