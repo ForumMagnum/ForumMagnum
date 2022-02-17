@@ -64,6 +64,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     && document.userId!==currentUser?._id
     && document.sharingSettings
     && !userIsAdmin(currentUser)
+    && !currentUser.groups?.includes('sunshineRegiment')
   ) {
     return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
   }
