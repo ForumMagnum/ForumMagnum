@@ -311,7 +311,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Community',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See EA groups and community members in your area',
+      tooltip: 'Find your group',
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {

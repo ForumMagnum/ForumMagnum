@@ -4,7 +4,6 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import AddAlertIcon from '@material-ui/icons/AddAlert';
 import LinkIcon from '@material-ui/icons/Link';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -14,13 +13,15 @@ import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationForm
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
-import IconButton from '@material-ui/core/IconButton';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { Link } from '../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { FacebookIcon, SlackIcon } from '../localGroups/GroupLinks';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
+import Button from '@material-ui/core/Button';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -45,19 +46,23 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   sectionDescription: {
     ...theme.typography.commentStyle,
     textAlign: 'left',
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: '1.8em',
     marginTop: 20,
   },
   filters: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: '0 20px',
+    alignItems: 'baseline',
+    columnGap: 10,
     marginTop: 10,
   },
   where: {
+    flex: '1 0 0',
     ...theme.typography.commentStyle,
     fontSize: 13,
+    color: "rgba(0,0,0,0.6)",
+    paddingLeft: 3
   },
   geoSuggest: {
     ...geoSuggestStyles(theme),
@@ -66,10 +71,20 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginLeft: 6
   },
   filter: {
-    marginLeft: 10,
-    [theme.breakpoints.down('md')]: {
+  },
+  notifications: {
+    textAlign: 'right',
+    [theme.breakpoints.down('xs')]: {
       display: 'none'
-    },
+    }
+  },
+  notificationsBtn: {
+    textTransform: 'none',
+    fontSize: 14,
+  },
+  notificationsIcon: {
+    fontSize: 18,
+    marginRight: 6
   },
   tabs: {
     marginBottom: 40,
@@ -95,24 +110,43 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
   },
   localGroup: {
+    height: 116,
+    borderBottomWidth: 1,
+    borderBottomStyle: 'solid',
+    borderColor: "rgba(0, 0, 0, 0.1)",
+    '&:last-of-type': {
+      borderBottom: 'none'
+    },
+    [theme.breakpoints.down('xs')]: {
+      height: 'auto'
+    },
+  },
+  localGroupMobileImg: {
+    display: 'none',
+    height: 160,
+    backgroundColor: '#e2f1f4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    [theme.breakpoints.down('xs')]: {
+      display: 'flex'
+    },
+  },
+  localGroupContent: {
     height: 115,
     background: 'white',
     backgroundRepeat: 'no-repeat',
     backgroundPositionY: 'center',
-    borderBottomWidth: 1,
-    borderBottomStyle: 'solid',
-    borderColor: "rgba(0, 0, 0, 0.1)",
-    // borderColor: '#c0a688',
-    // borderColor: theme.palette.primary.main,
     padding: '16px 16px 16px 150px',
-    '&:last-of-type': {
-      borderBottom: 'none'
+    [theme.breakpoints.down('xs')]: {
+      height: 'auto',
+      backgroundImage: 'none !important',
+      paddingLeft: 16
     },
   },
   localGroupNameRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'baseline'
+    alignItems: 'baseline',
   },
   localGroupName: {
     ...theme.typography.headline,
@@ -154,25 +188,53 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   onlineGroup: {
+    height: 116,
+    borderBottomWidth: 1,
+    borderBottomStyle: 'solid',
+    borderColor: "rgba(0, 0, 0, 0.1)",
+    '&:last-of-type': {
+      borderBottom: 'none'
+    },
+    [theme.breakpoints.down('xs')]: {
+      height: 'auto'
+    },
+  },
+  onlineGroupContent: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
     height: 115,
     background: 'white',
     backgroundRepeat: 'no-repeat',
     backgroundPositionY: 'center',
-    borderBottomWidth: 1,
-    borderBottomStyle: 'solid',
-    borderColor: "rgba(0, 0, 0, 0.1)",
-    padding: '20px 20px 20px 220px',
-    '&:last-of-type': {
-      borderBottom: 'none'
+    padding: '15px 20px 15px 204px',
+    '@media (max-width: 730px)': {
+      paddingLeft: 94
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: 'block',
+      height: 'auto',
+      backgroundImage: 'none !important',
+      paddingLeft: 4,
+      paddingBottom: 30
     },
   },
+  onlineGroupText: {
+    backgroundColor: 'white',
+    minWidth: 0,
+    padding: '6px 15px',
+  },
+  onlineGroupNameRow: {
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    [theme.breakpoints.down('xs')]: {
+      whiteSpace: 'normal'
+    }
+  },
   onlineGroupName: {
-    display: 'inline-block',
     ...theme.typography.headline,
     fontSize: 20,
-    marginBottom: 0
   },
   onlineGroupDescription: {
     ...theme.typography.commentStyle,
@@ -184,23 +246,29 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
     marginTop: 8,
+    [theme.breakpoints.down('xs')]: {
+      "-webkit-line-clamp": 4,
+    },
   },
   onlineGroupJoin: {
     alignSelf: 'center',
     flex: 'none',
-    marginLeft: 30
+    marginLeft: 14,
+    [theme.breakpoints.down('xs')]: {
+      textAlign: 'right',
+      marginTop: 16,
+      marginLeft: 0
+    }
   },
   onlineGroupBtn: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
+    width: 80,
     ...theme.typography.commentStyle,
     backgroundColor: theme.palette.primary.main,
     color: 'white',
     padding: '10px 16px',
     borderRadius: 4,
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: 100
-    },
   },
   onlineGroupBtnIcon: {
     fontSize: 13,
@@ -248,9 +316,16 @@ const Community = ({classes}: {
   })
   
   // local or online
-  const [tab, setTab] = useState(() => {
-    return location.hash ? location.hash.replace('#','') : 'local'
-  })
+  const [tab, setTab] = useState('local')
+  
+  useEffect(() => {
+    // unfortunately the hash is unavailable on the server, so we check it here instead
+    if (location.hash === '#online') {
+      setTab('online')
+    }
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // used to set the user's location if they did not already have one
   const { mutate: updateUser } = useUpdate({
@@ -338,13 +413,20 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityMapWrapper } = Components
+  const { CommunityMapWrapper, CloudinaryImage2 } = Components
   
   const handleChangeTab = (e, value) => {
     setTab(value)
     history.replace({...location, hash: `#${value}`})
   }
   
+  /**
+   * Calculates the distance between the query location and the given lat/lng, as the crow flies
+   *
+   * @param {number} lat - latitude
+   * @param {number} lng - longitude
+   * @returns {number}
+   */
   const distance = (lat, lng) => {
     if (!queryLocation) return null
     
@@ -352,7 +434,7 @@ const Community = ({classes}: {
     
     const dLat = toRad(lat - queryLocation.lat)
     const dLng = toRad(lng - queryLocation.lng)
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(queryLocation.lat)) * Math.cos(toRad(lat))
+    const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(queryLocation.lat)) * Math.cos(toRad(lat)))
     return Math.round(2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371)
   }
 
@@ -395,13 +477,6 @@ const Community = ({classes}: {
         <div className={classes.sectionHeadingRow}>
           <h1 className={classes.sectionHeading}>
             Community
-            <IconButton color="primary"
-              aria-label="group notifications"
-              onClick={openEventNotificationsForm}
-              className={classes.notificationsIcon}
-            >
-              <AddAlertIcon />
-            </IconButton>
           </h1>
           <div className={classes.sectionDescription}>
             Effective altruism is a global community with thousands of members. Joining a group
@@ -434,25 +509,38 @@ const Community = ({classes}: {
                   </div>
               }
             </div>
+            
+            <div className={classes.notifications}>
+              <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
+                {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
+              </Button>
+            </div>
           </div>
           
           <div className={classes.localGroups}>
             <div className={classes.localGroupsList}>
               {results?.map(group => {
                 const rowStyle = group.bannerImageId ? {
-                  backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.0), rgba(255, 255, 255, 1.0) 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_140/${group.bannerImageId})`
+                  backgroundImage: `linear-gradient(to right, transparent, white 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_140,q_auto,f_auto/${group.bannerImageId})`
                 } : {
-                  backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/b_white,c_pad,h_80,w_140/ea-logo-square-1200x1200__1_.png)'
+                  backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_140,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 140px)'
                 }
                 
-                return <div key={group._id} className={classes.localGroup} style={rowStyle}>
-                  <div className={classes.localGroupNameRow}>
-                    <Link to={`/groups/${group._id}`} className={classes.localGroupName}>{group.name}</Link>
-                    <div className={classes.localGroupDistance}>
-                      {queryLocation && group.mongoLocation?.coordinates && `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} km`}
+                return <div key={group._id} className={classes.localGroup}>
+                  <Link to={`/groups/${group._id}`} className={classes.localGroupMobileImg}>
+                    {group.bannerImageId ?
+                      <CloudinaryImage2 height={160} width="100vw" objectFit="cover" publicId={group.bannerImageId} imgProps={{w:'600'}} /> :
+                      <img src="https://res.cloudinary.com/cea/image/upload/h_120,q_auto,f_auto/ea-logo-square-1200x1200__1_.png" />}
+                  </Link>
+                  <div className={classes.localGroupContent} style={rowStyle}>
+                    <div className={classes.localGroupNameRow}>
+                      <Link to={`/groups/${group._id}`} className={classes.localGroupName}>{group.name}</Link>
+                      <div className={classes.localGroupDistance}>
+                        {queryLocation && group.mongoLocation?.coordinates && `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} km`}
+                      </div>
                     </div>
+                    <div className={classes.localGroupLocation}>{group.location}</div>
                   </div>
-                  <div className={classes.localGroupLocation}>{group.location}</div>
                 </div>
               })}
             </div>
@@ -474,38 +562,45 @@ const Community = ({classes}: {
             <div className={classes.onlineGroupsList}>
               {results?.map(group => {
                 const rowStyle = group.bannerImageId ? {
-                  backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.0), rgba(255, 255, 255, 1.0) 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_200/${group.bannerImageId})`
+                  backgroundImage: `linear-gradient(to right, transparent, white 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
                 } : {
-                  backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/b_white,c_pad,h_80,w_200/ea-logo-square-1200x1200__1_.png)'
+                  backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 200px)'
                 }
                 
                 let cta;
                 if (group.facebookLink) {
                   cta = <a href={group.facebookLink} className={classes.onlineGroupBtn}>
                     <FacebookIcon className={classes.onlineGroupBtnIcon} />
-                    Join
+                    <div>Join</div>
                   </a>
                 } else if (group.slackLink) {
                   cta = <a href={group.slackLink} className={classes.onlineGroupBtn}>
                     <SlackIcon className={classes.onlineGroupBtnIcon} />
-                    Join
+                    <div>Join</div>
                   </a>
                 } else if (group.website) {
                   cta = <a href={group.website} className={classes.onlineGroupBtn}>
                     <LinkIcon className={classes.onlineGroupBtnIconWebsite} />
-                    Join
+                    <div>Join</div>
                   </a>
                 }
                 
-                return <div key={group._id} className={classes.onlineGroup} style={rowStyle}>
-                  <div>
-                    <div>
-                      <Link to={`/groups/${group._id}`} className={classes.onlineGroupName}>{group.name}</Link>
+                return <div key={group._id} className={classes.onlineGroup}>
+                  <Link to={`/groups/${group._id}`} className={classes.localGroupMobileImg}>
+                    {group.bannerImageId ?
+                      <CloudinaryImage2 height={160} width="100vw" objectFit="cover" publicId={group.bannerImageId} imgProps={{w:'600'}} /> :
+                      <img src="https://res.cloudinary.com/cea/image/upload/h_120,q_auto,f_auto/ea-logo-square-1200x1200__1_.png" />}
+                  </Link>
+                  <div className={classes.onlineGroupContent} style={rowStyle}>
+                    <div className={classes.onlineGroupText}>
+                      <div className={classes.onlineGroupNameRow}>
+                        <Link to={`/groups/${group._id}`} className={classes.onlineGroupName}>{group.name}</Link>
+                      </div>
+                      <div className={classes.onlineGroupDescription}>{group.contents?.plaintextDescription}</div>
                     </div>
-                    <div className={classes.onlineGroupDescription}>{group.contents?.plaintextDescription}</div>
-                  </div>
-                  <div className={classes.onlineGroupJoin}>
-                    {cta}
+                    <div className={classes.onlineGroupJoin}>
+                      {cta}
+                    </div>
                   </div>
                 </div>
               })}
