@@ -18,6 +18,9 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
+import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -77,6 +80,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 20
   },
   filter: {
+    '& .MuiOutlinedInput-input': {
+      paddingRight: 30
+    },
+  },
+  formatFilter: {
+    '@media (max-width: 812px)': {
+      display: 'none'
+    }
+  },
+  placeholder: {
+    color: "rgba(0,0,0,0.4)",
   },
   notifications: {
     flex: '1 0 0',
@@ -131,6 +145,8 @@ const EventsHome = ({classes}: {
   
   // in-person, online, or all
   const [modeFilter, setModeFilter] = useState('all')
+  // ex. presentation, discussion, course, etc. (see EVENT_TYPES for full list)
+  const [formatFilter, setFormatFilter] = useState<Array<string>>([])
 
   // used to set the user's location if they did not already have one
   const { mutate: updateUser } = useUpdate({
@@ -232,13 +248,16 @@ const EventsHome = ({classes}: {
   const { HighlightedEventCard, EventCards, Loading } = Components
   
   // if certain filters are active, we hide the special event cards (ex. Intro VP card)
-  const hideSpecialCards = modeFilter === 'in-person'
+  const hideSpecialCards = modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))
 
   const filters: PostsViewTerms = {}
   if (modeFilter === 'in-person') {
     filters.onlineEvent = false
   } else if (modeFilter === 'online') {
     filters.onlineEvent = true
+  }
+  if (formatFilter.length) {
+    filters.eventType = formatFilter
   }
   
   const eventsListTerms: PostsViewTerms = userLocation.known ? {
@@ -332,11 +351,35 @@ const EventsHome = ({classes}: {
             <Select
               className={classes.filter}
               value={modeFilter}
+              input={<OutlinedInput labelWidth={0} />}
               onChange={(e) => setModeFilter(e.target.value)}>
                 <MenuItem key="all" value="all">In-person and online</MenuItem>
                 <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                 <MenuItem key="online" value="online">Online only</MenuItem>
             </Select>
+            <Select
+              className={classNames(classes.filter, classes.formatFilter)}
+              value={formatFilter}
+              input={<OutlinedInput labelWidth={0} />}
+              onChange={e => {
+                // MUI documentation says e.target.value is always an array: https://mui.com/components/selects/#multiple-select
+                // @ts-ignore
+                setFormatFilter(e.target.value)
+              }}
+              multiple
+              displayEmpty
+              renderValue={(selected: Array<string>) => {
+                if (selected.length === 0) {
+                  return <em className={classes.placeholder}>Filter by format</em>
+                }
+                // if any options are selected, display them separated by commas
+                return selected.map(type => EVENT_TYPES.find(t => t.value === type)?.label).join(', ')
+              }}>
+                {EVENT_TYPES.map(type => {
+                  return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
+                })}
+            </Select>
+            
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
                 {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
