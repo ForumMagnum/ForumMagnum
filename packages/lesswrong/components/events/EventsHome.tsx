@@ -18,6 +18,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -244,8 +245,12 @@ const EventsHome = ({classes}: {
   
   const { HighlightedEventCard, EventCards, Loading } = Components
   
-  // if certain filters are active, we hide the special event cards (ex. Intro VP card)
-  const hideSpecialCards = modeFilter === 'in-person'
+  // on the EA Forum, we insert some special event cards (ex. Intro VP card)
+  let numSpecialCards = currentUser ? 1 : 2
+  // hide them on other forums, and when certain filters are set
+  if (forumTypeSetting.get() !== 'EAForum' || modeFilter === 'in-person') {
+    numSpecialCards = 0
+  }
 
   const filters: PostsViewTerms = {}
   if (modeFilter === 'in-person') {
@@ -270,7 +275,7 @@ const EventsHome = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: hideSpecialCards ? 12 : 11,
+    limit: 12 - numSpecialCards,
     itemsPerPage: 12,
     skip: !queryLocation && currentUserLocation.loading
   });
@@ -357,7 +362,7 @@ const EventsHome = ({classes}: {
             </div>
           </div>
 
-          <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={hideSpecialCards} />
+          <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={!numSpecialCards} />
           
           <div className={classes.loadMoreRow}>
             {loadMoreButton}
