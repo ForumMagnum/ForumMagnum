@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     bottom: 10,
     left: "50%",
-    zIndex: 1,
     width: 0,
     
     [theme.breakpoints.down('sm')]: {
@@ -36,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '36px',
     color: 'white',
     fontVariant: 'small-caps',
-    zIndex: 2,
+    zIndex: theme.zIndexes.editSequenceTitleInput,
     height: '1em',
     resize: 'none',
     backgroundColor: 'transparent',

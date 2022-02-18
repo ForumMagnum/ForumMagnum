@@ -209,7 +209,7 @@ const PostsPage = ({post, refetch, classes}: {
             {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
               <CloudinaryImage2
                 publicId={post.eventImageId}
-                imgProps={{ar: '16:9', w: '682', q: 'auto:best'}}
+                imgProps={{ar: '16:9', w: '682'}}
                 className={classes.headerImage}
               />
             </div>}
