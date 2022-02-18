@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent, } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
@@ -24,6 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     padding: '50px 24px',
     '& .VirtualProgramCard-eventCardDescription': {
       opacity: 1,
+      lineHeight: '1.8em',
       marginTop: 30
     },
     '& .VirtualProgramCard-eventCardDeadline': {
@@ -47,15 +48,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   inDepthSection: {
     background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/f2cbeqvjyhyl6rhhzdsu.jpg')",
-    // background: "linear-gradient(rgb(95, 73, 47, 0.7), rgb(95, 73, 47, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/f2cbeqvjyhyl6rhhzdsu.jpg')",
-    // background: "linear-gradient(rgb(198, 156, 106, 0.7), rgb(198, 156, 106, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/f2cbeqvjyhyl6rhhzdsu.jpg')",
     clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)'
   },
   precipiceSection: {
-    // background: "linear-gradient(rgb(153, 106, 0, 0.6), rgb(153, 106, 0, 0.6)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
-    // background: "linear-gradient(rgb(95, 73, 47, 0.7), rgb(95, 73, 47, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
     background: "linear-gradient(rgb(168, 114, 51, 0.5), rgb(168, 114, 51, 0.5)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
-    // background: "linear-gradient(rgb(198, 156, 106, 0.4), rgb(198, 156, 106, 0.4)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
     clipPath: 'polygon(0 46%, 100% 0, 100% 100%, 0 100%)',
     position: 'absolute',
     bottom: 0,
@@ -71,10 +67,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.headline,
     color: 'white',
     fontSize: 22,
-    display: '-webkit-box',
-    "-webkit-line-clamp": 2,
-    "-webkit-box-orient": 'vertical',
-    overflow: 'hidden',
     marginTop: 8,
     marginBottom: 0
   },
@@ -133,7 +125,7 @@ const VirtualProgramCard = ({program, classes}: {
 
   if (program === 'intro') {
     return <a
-      href="https://www.effectivealtruism.org/virtual-programs/introductory-program?from=forum_events_page"
+      href="https://www.effectivealtruism.org/virtual-programs/introductory-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
       className={classes.cardLink}
       onClick={() => captureEvent('introVPClicked')}
     >
@@ -157,7 +149,7 @@ const VirtualProgramCard = ({program, classes}: {
   if (program === 'advanced') {
     return <Card className={classes.eventCard}>
         <a
-          href="https://www.effectivealtruism.org/virtual-programs/in-depth-program?from=forum_events_page"
+          href="https://www.effectivealtruism.org/virtual-programs/in-depth-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
           className={classNames(classes.cardLink, classes.cardSection, classes.inDepthSection)}
           onClick={() => captureEvent('inDepthVPClicked')}
         >
@@ -175,7 +167,7 @@ const VirtualProgramCard = ({program, classes}: {
           </div>
         </a>
         <a
-          href="https://www.effectivealtruism.org/virtual-programs/the-precipice-reading-group?from=forum_events_page"
+          href="https://www.effectivealtruism.org/virtual-programs/the-precipice-reading-group?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
           className={classNames(classes.cardLink, classes.cardSection, classes.precipiceSection)}
           onClick={() => captureEvent('precipiceVPClicked')}
         >
