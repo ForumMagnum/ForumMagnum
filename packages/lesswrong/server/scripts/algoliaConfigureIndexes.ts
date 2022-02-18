@@ -99,6 +99,9 @@ export const algoliaConfigureIndexes = async () => {
       'description',
       'unordered(_id)',
     ],
+    attributesForFaceting: [
+      'filterOnly(wikiOnly)', 'filterOnly(core)',
+    ],
     ranking: [
       'typo','geo','words','filters','proximity','attribute','exact',
       'desc(core)',

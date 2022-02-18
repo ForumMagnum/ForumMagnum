@@ -73,11 +73,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, removeButton, onRemoved}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
+  removeButton?: boolean,
+  onRemoved?: ()=>void,
   classes: ClassesType,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
@@ -96,6 +98,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>
+      {removeButton && <span onClick={onRemoved}>X</span>}
       {tagRel && <PopperCard open={hover} anchorEl={anchorEl} modifiers={{flip:{enabled:false}}}>
         <div className={classes.hovercard}>
           <TagRelCard tagRel={tagRel} />

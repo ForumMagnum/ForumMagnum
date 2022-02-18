@@ -28,8 +28,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AddTag = ({onTagSelected, classes}: {
+const AddTag = ({onTagSelected, onlyCoreTags, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  onlyCoreTags?: boolean,
   classes: ClassesType,
 }) => {
   const { TagSearchHit, WrappedSmartForm } = Components
@@ -88,7 +89,7 @@ const AddTag = ({onTagSelected, classes}: {
        // @ts-ignore */}
       <SearchBox reset={null} focusShortcuts={[]}/>
       <Configure
-        filters="wikiOnly:false"
+        filters={onlyCoreTags ? "core:true" : "wikiOnly:false"}
         hitsPerPage={searchOpen ? 12 : 6}
       />
       <Hits hitComponent={({hit}) =>
@@ -100,11 +101,11 @@ const AddTag = ({onTagSelected, classes}: {
           />
         }/>
     </InstantSearch>
-    <Divider/>
-    <Link target="_blank" to="/tags/all" className={classes.newTag}>
+    {!onlyCoreTags && <Divider/>}
+    {!onlyCoreTags && <Link target="_blank" to="/tags/all" className={classes.newTag}>
       All Tags
-    </Link>
-    {userCanCreateTags(currentUser) && <Link target="_blank" to="/tag/create" className={classes.newTag}>
+    </Link>}
+    {userCanCreateTags(currentUser) && !onlyCoreTags && <Link target="_blank" to="/tag/create" className={classes.newTag}>
       Create Tag
     </Link>}
   </div>

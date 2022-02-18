@@ -769,7 +769,7 @@ const schema: SchemaType<DbPost> = {
   tagRelevance: {
     type: Object,
     optional: true,
-    hidden: true,
+    hidden: false,
     viewableBy: ['guests'],
   },
   
@@ -777,6 +777,14 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     optional: true,
     hidden: true,
+  },
+  
+  newPostTags: {
+    type: Object,
+    optional: true,
+    insertableBy: ['members'],
+    group: formGroups.tags,
+    control: "FormComponentTags",
   },
 
   lastPromotedComment: resolverOnlyField({

@@ -5,6 +5,11 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     order: 0,
     paddingStyle: true
   },
+  tags: {
+    name: "tags",
+    order: 5,
+    defaultStyle: true,
+  },
   adminOptions: {
     name: "adminOptions",
     order: 25,

@@ -18,8 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, classes, children}: {
+const AddTagButton = ({onTagSelected, onlyCoreTags, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  onlyCoreTags?: boolean,
   classes: ClassesType,
   children?: any
 }) => {
@@ -58,6 +59,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
       >
         <Paper>
           <AddTag
+            onlyCoreTags={onlyCoreTags}
             onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
               setAnchorEl(null);
               setIsOpen(false);
