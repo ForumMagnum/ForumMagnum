@@ -161,7 +161,6 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => setViewport(viewport)}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >
