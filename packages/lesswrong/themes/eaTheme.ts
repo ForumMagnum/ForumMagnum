@@ -161,10 +161,10 @@ const theme = createLWTheme({
     MuiMenuItem: {
       root: {
         '&.MuiMenuItem-selected': {
-          backgroundColor: "#c69c6a",
+          backgroundColor: palette.primary.main,
           color: 'white',
           '&:hover': {
-            backgroundColor: "#b6ab9f"
+            backgroundColor: "#679299"
           }
         }
       }
