@@ -323,13 +323,13 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
  * @param {UsersCurrent|DbUser|null} currentUser - The user we are checking.
  * @param {boolean} dontAsk - Flag that prevents us from asking the user for their browser's location.
  *
- * @returns {Object} location
- * @returns {number} location.lat - The user's latitude.
- * @returns {number} location.lng - The user's longitude.
- * @returns {boolean} location.loading - Indicates that we might have a known location later.
- * @returns {boolean} location.known - If false, then we're returning the default location instead of the user's location.
- * @returns {string} location.label - The string description of the location (ex: Cambridge, MA, USA).
- * @returns {Function} location.setLocation - Function to set the location directly.
+ * @returns {Object} locationData
+ * @returns {number} locationData.lat - The user's latitude.
+ * @returns {number} locationData.lng - The user's longitude.
+ * @returns {boolean} locationData.loading - Indicates that we might have a known location later.
+ * @returns {boolean} locationData.known - If false, then we're returning the default location instead of the user's location.
+ * @returns {string} locationData.label - The string description of the location (ex: Cambridge, MA, USA).
+ * @returns {Function} locationData.setLocationData - Function to set the location directly.
  */
 export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?: boolean): {
   lat: number,
@@ -337,7 +337,7 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
   loading: boolean,
   known: boolean,
   label: string,
-  setLocation: Function
+  setLocationData: Function
 } => {
   // default is Berkeley, CA
   const placeholderLat = 37.871853
@@ -347,10 +347,10 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
   const currentUserLat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const currentUserLng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
 
-  const [location, setLocation] = useState(() => {
-    if (currentUserLat && currentUserLng && currentUser?.location) {
+  const [locationData, setLocationData] = useState(() => {
+    if (currentUserLat && currentUserLng) {
       // First return a location from the user profile, if set
-      return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true, label: currentUser.location}
+      return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true, label: currentUser?.location}
     } else if (isServer) {
       // If there's no location in the user profile, we may still be able to get
       // a location from the browser--but not in SSR.
@@ -384,7 +384,7 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
     // try to get the browser location
     if (
       !dontAsk &&
-      !location.known &&
+      !locationData.known &&
       !isServer &&
       typeof window !== 'undefined' &&
       typeof navigator !== 'undefined' &&
@@ -396,13 +396,13 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
           const navigatorLat = position.coords.latitude
           const navigatorLng = position.coords.longitude
           // label (location name) needs to be filled in by the caller
-          setLocation({lat: navigatorLat, lng: navigatorLng, loading: false, known: true, label: ''})
+          setLocationData({lat: navigatorLat, lng: navigatorLng, loading: false, known: true, label: ''})
         } else {
-          setLocation(defaultLocation)
+          setLocationData(defaultLocation)
         }
       },
       (error) => {
-        setLocation(defaultLocation)
+        setLocationData(defaultLocation)
       }
     )
     }
@@ -410,7 +410,7 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
-  return {...location, setLocation}
+  return {...locationData, setLocationData}
 }
 
 // utility function for checking how much karma a user is supposed to have

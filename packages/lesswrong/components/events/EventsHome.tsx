@@ -167,7 +167,7 @@ const EventsHome = ({classes}: {
    */
   const saveUserLocation = ({lat, lng, gmaps}) => {
     // save it in the page state
-    userLocation.setLocation({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
+    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
 
     if (currentUser) {
       // save it on the user document
@@ -213,14 +213,14 @@ const EventsHome = ({classes}: {
           saveUserLocation({lat, lng, gmaps: location})
         } else {
           // update the page state to indicate that we're not waiting on a location name
-          userLocation.setLocation({...userLocation, label: null})
+          userLocation.setLocationData({...userLocation, label: null})
         }
       } catch (e) {
         setGeocodeError(true)
         // eslint-disable-next-line no-console
         console.error(e?.message)
         // update the page state to indicate that we're not waiting on a location name
-        userLocation.setLocation({...userLocation, label: null})
+        userLocation.setLocationData({...userLocation, label: null})
       }
     }
   }
