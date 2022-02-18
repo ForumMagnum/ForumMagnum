@@ -34,6 +34,7 @@ declare global {
     excludeEvents?: boolean,
     onlineEvent?: boolean,
     globalEvent?: boolean,
+    eventType?: Array<string>,
     groupId?: string,
     lat?: number,
     lng?: number,
@@ -866,6 +867,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
       globalEvent: true,
       isEvent: true,
       groupId: null,
+      eventType: terms.eventType ? {$in: terms.eventType} : null,
       $and: [
         timeSelector, onlineEventSelector
       ],
@@ -880,7 +882,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   return query
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ globalEvent:1, startTime:1 }),
+  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1 }),
   { name: "posts.globalEvents" }
 );
 
@@ -896,11 +898,12 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
       {onlineEvent: false}, {onlineEvent: {$exists: false}}
     ]}
   }
-
+  
   let query: any = {
     selector: {
       groupId: null,
       isEvent: true,
+      eventType: terms.eventType ? {$in: terms.eventType} : null,
       $and: [
         timeSelector, onlineEventSelector
       ],
@@ -930,7 +933,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
   return query;
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ mongoLocation:"2dsphere", location:1, startTime:1 }),
+  augmentForDefaultView({ mongoLocation:"2dsphere", eventType:1, startTime:1 }),
   { name: "posts.2dsphere" }
 );
 
