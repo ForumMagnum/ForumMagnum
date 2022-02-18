@@ -181,15 +181,15 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
   })
   
   // on the EA Forum, insert card(s) advertising Virtual Programs
-  if (forumTypeSetting.get() === 'EAForum' && !hideSpecialCards && events.length >= 2) {
+  if (forumTypeSetting.get() === 'EAForum' && !hideSpecialCards) {
+    // NOTE: splice() will just insert the card at the end of the list if the first param > length
     if (currentUser) {
       // for logged in users, just display the In-Depth / Precipice VP card
       eventCards.splice(2, 0, <VirtualProgramCard program="advanced" />)
     } else {
       // for logged logged out users, display both VP cards
       eventCards.splice(2, 0, <VirtualProgramCard program="intro" />)
-      // we try to space out the two cards, but if there are less than 5 other items
-      // then luckily splice() will just insert this card at the end of the list
+      // we try to space out the two cards
       eventCards.splice(5, 0, <VirtualProgramCard program="advanced" />)
     }
   }
