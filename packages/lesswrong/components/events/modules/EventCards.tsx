@@ -188,6 +188,8 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
     } else {
       // for logged logged out users, display both VP cards
       eventCards.splice(2, 0, <VirtualProgramCard program="intro" />)
+      // we try to space out the two cards, but if there are less than 5 other items
+      // then luckily splice() will just insert this card at the end of the list
       eventCards.splice(5, 0, <VirtualProgramCard program="advanced" />)
     }
   }
