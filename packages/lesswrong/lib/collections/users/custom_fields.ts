@@ -215,7 +215,8 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Hide Intercom"
+    label: "Hide Intercom",
+    hidden: true,
   },
 
   // This field-name is no longer accurate, but is here because we used to have that field
@@ -242,6 +243,7 @@ addFieldsDict(Users, {
     control: 'checkbox',
     group: formGroups.siteCustomizations,
     label: "Hide other users' Elicit predictions until I have predicted myself",
+    hidden: true,
   },
   
   hideAFNonMemberInitialWarning: {
@@ -681,7 +683,7 @@ addFieldsDict(Users, {
   },
   notificationAlignmentSubmissionApproved: {
     label: "Alignment Forum submission approvals",
-    hidden: forumTypeSetting.get() === 'EAForum',
+    hidden: true,
     ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationEventInRadius: {
@@ -696,6 +698,7 @@ addFieldsDict(Users, {
   },
   notificationPostsNominatedReview: {
     label: "Nominations of my posts for the annual LessWrong Review",
+    hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -986,7 +989,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     label: "Hide the tagging progress bar",
     order: 45,
     group: formGroups.siteCustomizations
@@ -1000,9 +1003,9 @@ addFieldsDict(Users, {
     // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 46,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     group: formGroups.siteCustomizations,
-    label: "Hide the frontpage book ad"
+    label: "Hide the frontpage book ad",
   },
 
   hideFrontpageBook2019Ad: {
@@ -1012,9 +1015,9 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     order: 47,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
     group: formGroups.siteCustomizations,
-    label: "Hide the frontpage book ad"
+    label: "Hide the frontpage book ad",
   },
 
   sunshineNotes: {
@@ -1188,7 +1191,7 @@ addFieldsDict(Users, {
     group: formGroups.default,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment'],
-    hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get()),
+    hidden: true,
     order: 39,
   },
 
@@ -1481,7 +1484,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() === "EAForum",
+    hidden: true,
   },
   walledGardenPortalOnboarded: {
     type: Boolean,
