@@ -316,7 +316,7 @@ const PostActions = ({post, closeMenu, classes}: {
             }
           </span>
         }
-        {forumTypeSetting.get() !== "EAForum" && <>
+        {forumTypeSetting.get() === "LessWrong" && <>
           <SuggestAlignment post={post}/>
           { userCanMakeAlignmentPost(currentUser, post) && !post.af && 
             <div onClick={handleMoveToAlignmentForum }>
