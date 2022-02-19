@@ -337,6 +337,69 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }
   ],
+  ProgressForum: [
+    {
+      id: 'home',
+      title: 'Home',
+      link: '/',
+      iconComponent: Home,
+      tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'allPosts',
+      title: 'All Posts',
+      link: '/allPosts',
+      iconComponent: Sort,
+      tooltip: 'See all posts, filtered and sorted by date, karma, and more',
+      showOnMobileStandalone: false,
+      showOnCompressed: true,
+    }, {
+      id: 'library',
+      title: 'Library',
+      link: '/library',
+      iconComponent: LocalLibrary,
+      tooltip: "Core reading, and sequences of posts building on a common theme",
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'events',
+      title: 'Community and Events',
+      mobileTitle: 'Events',
+      link: communityPath,
+      iconComponent: SupervisedUserCircleIcon,
+      tooltip: 'See groups and events in your area',
+      showOnMobileStandalone: true,
+      showOnCompressed: true
+    }, {
+      id: 'eventsList',
+      customComponentName: "EventsList",
+    }, {
+      id: 'divider',
+      divider: true,
+      showOnCompressed: true,
+    }, {
+      id: 'shortform',
+      title: 'Shortform',
+      link: '/shortform',
+      subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponentName: "SubscribeWidget",
+    }, {
+      id: 'about',
+      title: 'About the Forum',
+      link: '/about',
+      subItem: true,
+      compressedIconComponent: Info,
+      showOnCompressed: true,
+    }, {
+      id: 'contact',
+      title: 'Contact Us',
+      link: '/contact',
+      subItem: true,
+    }
+  ],
   default: [
     {
       id: 'home',
