@@ -390,15 +390,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     },
     {
-      id: "allPosts",
-      title: "All Posts",
-      link: "/allPosts",
-      iconComponent: Sort,
-      tooltip: "See all posts, filtered and sorted by date, karma, and more",
-      showOnMobileStandalone: false,
-      showOnCompressed: true,
-    },
-    {
       id: "library",
       title: "Library",
       link: "/library",
@@ -422,19 +413,18 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       customComponentName: "EventsList",
     },
     {
-      id: "divider",
-      divider: true,
+      id: "allPosts",
+      title: "All Posts",
+      link: "/allPosts",
+      iconComponent: Sort,
+      tooltip: "See all posts, filtered and sorted by date, karma, and more",
+      showOnMobileStandalone: false,
       showOnCompressed: true,
     },
     {
-      id: "shortform",
-      title: "Shortform",
-      link: "/shortform",
-      subItem: true,
-    },
-    {
-      id: "subscribeWidget",
-      customComponentName: "SubscribeWidget",
+      id: "divider",
+      divider: true,
+      showOnCompressed: true,
     },
     {
       id: "about",
@@ -449,6 +439,16 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: "Contact Us",
       link: "/contact",
       subItem: true,
+    },
+    {
+      id: "shortform",
+      title: "Shortform",
+      link: "/shortform",
+      subItem: true,
+    },
+    {
+      id: "subscribeWidget",
+      customComponentName: "SubscribeWidget",
     },
   ],
   default: [
