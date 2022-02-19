@@ -803,6 +803,41 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
   ],
+  ProgressForum: [
+    {
+      name:'home',
+      path:'/',
+      componentName: 'Home2',
+      sunshineSidebar: true,
+    },
+    {
+      name:'about',
+      path:'/about',
+      componentName: 'PostsSingleRoute',
+      _id: aboutPostIdSetting.get()
+    },
+    {
+      name: 'faq',
+      path: '/faq',
+      componentName: 'PostsSingleRoute',
+      _id: faqPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'contact',
+      path:'/contact',
+      componentName: 'PostsSingleRoute',
+      _id: contactPostIdSetting.get(),
+      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+      background: postBackground
+    },
+    {
+      name: 'pfLibrary',
+      path: '/library',
+      componentName: 'PFLibraryHome'
+    },
+  ],
   default: [
     {
       name:'home',

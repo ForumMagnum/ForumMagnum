@@ -25,6 +25,10 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
 }
 
+if (forumTypeSetting.get() === 'ProgressForum') {
+  importComponent("PFLibraryHome", () => require('../components/progress-forum/PFLibraryHome'));
+}
+
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
 importComponent("ConversationItem", () => require('../components/messaging/ConversationItem'));
