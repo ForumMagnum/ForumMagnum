@@ -19,7 +19,7 @@ const PFLibraryHome = ({ classes }) => {
       <SingleColumnSection>
         <SectionTitle title="Core Reading" />
         <CoreReading />
-        {/* TODO: Reinstance once there are posted sequences. */}
+        {/* TODO: Reinstate once there are posted sequences. */}
         {/* <SectionTitle  title="Sequences" >
         <SequencesNewButton />
       </SectionTitle>
