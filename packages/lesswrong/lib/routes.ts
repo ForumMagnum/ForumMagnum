@@ -474,7 +474,15 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: "communityRedirect",
       path:'/groupsAndEvents',
       redirect: () => '/community'
-    }
+    },
+    {
+      name: 'EventsHome',
+      path: '/events',
+      componentName: 'EventsHome',
+      title: 'Events',
+      subtitle: 'Events',
+      subtitleLink: '/events'
+    },
   ],
   LessWrong: [
     {
@@ -868,14 +876,6 @@ if (hasEventsSetting.get()) {
       path: '/upcomingEvents',
       componentName: 'EventsUpcoming',
       title: "Upcoming Events by Day"
-    },
-    {
-      name: 'EventsHome',
-      path: '/events',
-      componentName: 'EventsHome',
-      title: 'Events',
-      subtitle: 'Events',
-      subtitleLink: '/events'
     },
 
     {
