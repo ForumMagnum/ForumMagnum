@@ -70,24 +70,31 @@ export const FrontpageBestOfLWWidget = ({classes}: {
 }) => {
   const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
 
-  const { document: post } = useSingle({
+  const { document: postVoting } = useSingle({
     documentId: "TSaJ9Zcvc3KWh3bjX",
+    collectionName: "Posts",
+    fragmentName: "PostsList"
+  });
+
+  const { document: postPrizes } = useSingle({
+    documentId: "y2qydZosrttzgm65H",
     collectionName: "Posts",
     fragmentName: "PostsList"
   });
   
   return <div className={classes.root}>
-    <Link className={classes.imageWrapper} to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results-for-the-2020-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
+    <Link className={classes.imageWrapper} to="/posts/y2qydZosrttzgm65H/prizes-for-the-2020-review#Results"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
     <SingleColumnSection>
-      <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
-        <Link to="/posts/TSaJ9Zcvc3KWh3bjX/voting-results-for-the-2020-review#Results">
+      {/* <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
+        <Link to="/posts/y2qydZosrttzgm65H/prizes-for-the-2020-review#Results">
           <div className={classes.viewResultsCTA}>
             Donate to Thank Authors
           </div>
         </Link>
-      </SectionTitle></div>
-      {post && <PostsItem2 post={post} translucentBackground forceSticky />}
-      <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
+      </SectionTitle></div> */}
+      {postVoting && <PostsItem2 post={postVoting} translucentBackground forceSticky />}
+      {postPrizes && <PostsItem2 post={postPrizes} translucentBackground forceSticky />}
+      {/* <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/> */}
     </SingleColumnSection>
   </div>;
 }
