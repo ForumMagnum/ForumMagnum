@@ -39,6 +39,7 @@ const PostsListEditor = ({value, path, label, classes}: {
       setValue={(newValue: string[]) => {
         updateCurrentValues({[path]: newValue});
       }}
+      classes={classes}
     />
     <Components.PostsSearchAutoComplete
       clickAction={(postId: string) => {
