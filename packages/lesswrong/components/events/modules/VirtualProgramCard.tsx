@@ -138,8 +138,7 @@ const VirtualProgramCard = ({program, classes}: {
         </div>
         <div className={classes.eventCardLocation}>Online</div>
         <div className={classes.eventCardDescription}>
-          For those new to effective altruism, or those who have some familiarity,
-          but want to explore the core ideas in a structured way
+          Explore key ideas in effective altruism through short readings and weekly discussions
         </div>
         <div className={classes.eventCardDeadline}>Apply by Sunday, {sunday.format('MMMM D')}</div>
       </Card>
@@ -179,7 +178,7 @@ const VirtualProgramCard = ({program, classes}: {
               <em>The Precipice</em> Reading Group
             </div>
             <div className={classes.eventCardDescription}>
-              Read and discuss this book about existential risks and safeguarding the future of humanity
+              Learn more about existential risks and safeguarding the future of humanity
             </div>
             <div className={classes.eventCardDeadline}>Apply by Sunday, {sunday.format('MMMM D')}</div>
           </div>
