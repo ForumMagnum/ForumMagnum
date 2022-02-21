@@ -38,6 +38,7 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, classNa
     dpr: "auto",
     g: "custom",
     q: "auto",
+    f: "auto"
   };
   let imageStyle: any = {};
 

@@ -4,18 +4,23 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
+import FilterIcon from '@material-ui/icons/FilterList';
+import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
+import Button from '@material-ui/core/Button';
+import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -35,7 +40,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   sectionHeading: {
     flex: 'none',
-    textAlign: 'left',
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0
@@ -43,7 +47,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   sectionDescription: {
     ...theme.typography.commentStyle,
     textAlign: 'left',
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: '1.8em',
     marginLeft: 60,
     '@media (max-width: 812px)': {
@@ -55,24 +59,50 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     gridColumnStart: 1,
     gridColumnEnd: -1,
     display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: 10,
+    alignItems: 'baseline',
+    columnGap: 10,
   },
   where: {
+    flex: '1 0 0',
     ...theme.typography.commentStyle,
     fontSize: 13,
+    color: "rgba(0,0,0,0.6)",
+    paddingLeft: 3
   },
   geoSuggest: {
     ...geoSuggestStyles(theme),
     display: 'inline-block',
-    maxWidth: 200,
+    minWidth: 200,
     marginLeft: 6
   },
+  filterIcon: {
+    alignSelf: 'center',
+    fontSize: 20
+  },
   filter: {
-    marginLeft: 10,
+    '& .MuiOutlinedInput-input': {
+      paddingRight: 30
+    },
+  },
+  formatFilter: {
     '@media (max-width: 812px)': {
-      display: 'none',
+      display: 'none'
     }
+  },
+  placeholder: {
+    color: "rgba(0,0,0,0.4)",
+  },
+  notifications: {
+    flex: '1 0 0',
+    textAlign: 'right'
+  },
+  notificationsBtn: {
+    textTransform: 'none',
+    fontSize: 14,
+  },
+  notificationsIcon: {
+    fontSize: 18,
+    marginRight: 6
   },
   eventCards: {
     display: 'grid',
@@ -90,10 +120,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   loadMoreRow: {
     gridColumnStart: 1,
     gridColumnEnd: -1,
-    display: 'flex',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center'
   },
   loadMore: {
     ...theme.typography.commentStyle,
@@ -105,16 +131,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       color: '#085d6c',
     }
   },
-  eventNotificationsBtn: {
-    textTransform: 'none',
-    fontSize: 14,
-    '@media (max-width: 812px)': {
-      display: 'none',
-    }
-  },
-  eventNotificationsIcon: {
-    fontSize: 18,
-    marginRight: 6
+  loading: {
+    display: 'inline-block'
   },
 }))
 
@@ -151,6 +169,8 @@ const EventsHome = ({classes}: {
   
   // in-person, online, or all
   const [modeFilter, setModeFilter] = useState('all')
+  // ex. presentation, discussion, course, etc. (see EVENT_TYPES for full list)
+  const [formatFilter, setFormatFilter] = useState<Array<string>>([])
 
   // used to set the user's location if they did not already have one
   const { mutate: updateUser } = useUpdate({
@@ -239,12 +259,18 @@ const EventsHome = ({classes}: {
   }
   
   const { HighlightedEventCard, EventCards, Loading } = Components
+  
+  // if certain filters are active, we hide the special event cards (ex. Intro VP card)
+  const hideSpecialCards = modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))
 
   const filters: PostsViewTerms = {}
   if (modeFilter === 'in-person') {
     filters.onlineEvent = false
   } else if (modeFilter === 'online') {
     filters.onlineEvent = true
+  }
+  if (formatFilter.length) {
+    filters.eventType = formatFilter
   }
   
   const eventsListTerms: PostsViewTerms = queryLocation ? {
@@ -263,8 +289,8 @@ const EventsHome = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 12,
-    itemsPerPage: 6,
+    limit: hideSpecialCards ? 12 : 11,
+    itemsPerPage: 12,
     skip: !queryLocation && currentUserLocation.loading
   });
   
@@ -291,7 +317,7 @@ const EventsHome = ({classes}: {
     Load More
   </button>
   if (loading && results?.length) {
-    loadMoreButton = <div><Loading /></div>
+    loadMoreButton = <div className={classes.loading}><Loading /></div>
   }
 
   return (
@@ -302,7 +328,9 @@ const EventsHome = ({classes}: {
 
       <div className={classes.section}>
         <div className={classes.sectionHeadingRow}>
-          <h1 className={classes.sectionHeading}>Events</h1>
+          <h1 className={classes.sectionHeading}>
+            Events
+          </h1>
           <div className={classes.sectionDescription}>
             Join people from around the world for discussions, talks, and other events on how we can tackle
             the world's biggest problems.
@@ -329,23 +357,52 @@ const EventsHome = ({classes}: {
                   </div>
               }
             </div>
+          </div>
+          
+          <div className={classes.filters}>
+            <FilterIcon className={classes.filterIcon} />
             <Select
               className={classes.filter}
               value={modeFilter}
+              input={<OutlinedInput labelWidth={0} />}
               onChange={(e) => setModeFilter(e.target.value)}>
                 <MenuItem key="all" value="all">In-person and online</MenuItem>
                 <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                 <MenuItem key="online" value="online">Online only</MenuItem>
             </Select>
+            <Select
+              className={classNames(classes.filter, classes.formatFilter)}
+              value={formatFilter}
+              input={<OutlinedInput labelWidth={0} />}
+              onChange={e => {
+                // MUI documentation says e.target.value is always an array: https://mui.com/components/selects/#multiple-select
+                // @ts-ignore
+                setFormatFilter(e.target.value)
+              }}
+              multiple
+              displayEmpty
+              renderValue={(selected: Array<string>) => {
+                if (selected.length === 0) {
+                  return <em className={classes.placeholder}>Filter by format</em>
+                }
+                // if any options are selected, display them separated by commas
+                return selected.map(type => EVENT_TYPES.find(t => t.value === type)?.label).join(', ')
+              }}>
+                {EVENT_TYPES.map(type => {
+                  return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
+                })}
+            </Select>
+            
+            <div className={classes.notifications}>
+              <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
+                {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
+              </Button>
+            </div>
           </div>
 
-          <EventCards events={results} loading={loading} numDefaultCards={6} />
+          <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={hideSpecialCards} />
           
           <div className={classes.loadMoreRow}>
-            <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.eventNotificationsBtn}>
-              <NotificationsNoneIcon className={classes.eventNotificationsIcon} />
-              {currentUser?.nearbyEventsNotifications ? `Edit my notification settings` : `Sign up for notifications`}
-            </Button>
             {loadMoreButton}
           </div>
         </div>
