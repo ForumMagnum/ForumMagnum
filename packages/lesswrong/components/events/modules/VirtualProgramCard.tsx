@@ -1,0 +1,196 @@
+import { registerComponent, } from '../../../lib/vulcan-lib';
+import React from 'react';
+import { createStyles } from '@material-ui/core/styles';
+import * as _ from 'underscore';
+import Card from '@material-ui/core/Card';
+import classNames from 'classnames';
+import moment from 'moment';
+import { useTracking } from '../../../lib/analyticsEvents';
+
+const styles = createStyles((theme: ThemeType): JssStyles => ({
+  eventCard: {
+    position: 'relative',
+    width: 373,
+    height: 374,
+    borderRadius: 0,
+    overflow: 'visible',
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: '100vw'
+    }
+  },
+  introVPCard: {
+    background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_373,c_fill,q_auto,f_auto/Event/pz3xmsm63xl8thlyt2up.jpg')",
+    padding: '50px 24px',
+    '& .VirtualProgramCard-eventCardDescription': {
+      opacity: 1,
+      lineHeight: '1.8em',
+      marginTop: 30
+    },
+    '& .VirtualProgramCard-eventCardDeadline': {
+      marginTop: 30
+    }
+  },
+  cardLink: {
+    '&:hover': {
+      opacity: '0.9'
+    },
+    '&:hover .VirtualProgramCard-eventCardDeadline': {
+      borderBottom: '2px solid white'
+    }
+  },
+  cardSection: {
+    display: 'flex',
+    width: 373,
+    height: 243,
+    padding: 20,
+    overflow: 'hidden'
+  },
+  inDepthSection: {
+    background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/f2cbeqvjyhyl6rhhzdsu.jpg')",
+    clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)'
+  },
+  precipiceSection: {
+    background: "linear-gradient(rgb(168, 114, 51, 0.5), rgb(168, 114, 51, 0.5)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
+    clipPath: 'polygon(0 46%, 100% 0, 100% 100%, 0 100%)',
+    position: 'absolute',
+    bottom: 0,
+    alignItems: 'flex-end',
+    textAlign: 'right'
+  },
+  eventCardTime: {
+    ...theme.typography.commentStyle,
+    fontSize: 14,
+    color: 'white'
+  },
+  eventCardTitle: {
+    ...theme.typography.headline,
+    color: 'white',
+    fontSize: 22,
+    marginTop: 8,
+    marginBottom: 0
+  },
+  eventCardLocation: {
+    ...theme.typography.commentStyle,
+    opacity: '0.7',
+    color: 'white',
+    fontSize: 14,
+    marginTop: 8,
+  },
+  eventCardDescription: {
+    ...theme.typography.commentStyle,
+    opacity: '0.7',
+    color: 'white',
+    fontSize: 14,
+    lineHeight: '1.5em',
+    marginTop: 10,
+  },
+  eventCardDeadline: {
+    ...theme.typography.commentStyle,
+    display: 'inline-block',
+    fontWeight: 'bold',
+    color: 'white',
+    fontSize: 16,
+    paddingBottom: 5,
+    marginTop: 10,
+    borderBottom: '2px solid transparent'
+  },
+}))
+
+
+const VirtualProgramCard = ({program, classes}: {
+  program: string,
+  classes: ClassesType,
+}) => {
+  const { captureEvent } = useTracking()
+  
+  // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
+  let deadline = moment()
+  // Iterate through 5 Sundays to find the one we want
+  for (const sunday of _.range(5).map(x => moment().day(0).add(x, 'week'))) {
+    const nextSunday = moment(sunday).add(1, 'week')
+    // needs to be in the future, and needs to be the last Sunday of the month
+    if (sunday.isSameOrAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
+      deadline = sunday
+      break
+    }
+  }
+  
+  // VP starts 8 days after the deadline, on a Monday
+  const startOfVp = moment(deadline).add(8, 'days')
+  // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
+  const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
+
+  if (program === 'intro') {
+    return <a
+      href="https://www.effectivealtruism.org/virtual-programs/introductory-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
+      className={classes.cardLink}
+      onClick={() => captureEvent('introVPClicked')}
+    >
+      <Card className={classNames(classes.eventCard, classes.introVPCard)}>
+        <div className={classes.eventCardTime}>
+          {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+        </div>
+        <div className={classes.eventCardTitle}>
+          Introductory EA Program
+        </div>
+        <div className={classes.eventCardLocation}>Online</div>
+        <div className={classes.eventCardDescription}>
+          Explore key ideas in effective altruism through short readings and weekly discussions
+        </div>
+        <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+      </Card>
+    </a>
+  }
+  
+  if (program === 'advanced') {
+    return <Card className={classes.eventCard}>
+      <a
+        href="https://www.effectivealtruism.org/virtual-programs/in-depth-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
+        className={classNames(classes.cardLink, classes.cardSection, classes.inDepthSection)}
+        onClick={() => captureEvent('inDepthVPClicked')}
+      >
+        <div>
+          <div className={classes.eventCardTime}>
+            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+          </div>
+          <div className={classes.eventCardTitle}>
+            In-Depth EA Program
+          </div>
+          <div className={classes.eventCardDescription}>
+            Dive deeper into more complex EA ideas and examine your key uncertainties
+          </div>
+          <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+        </div>
+      </a>
+      <a
+        href="https://www.effectivealtruism.org/virtual-programs/the-precipice-reading-group?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
+        className={classNames(classes.cardLink, classes.cardSection, classes.precipiceSection)}
+        onClick={() => captureEvent('precipiceVPClicked')}
+      >
+        <div>
+          <div className={classes.eventCardTime}>
+            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+          </div>
+          <div className={classes.eventCardTitle}>
+            <em>The Precipice</em> Reading Group
+          </div>
+          <div className={classes.eventCardDescription}>
+            Join weekly discussions about existential risks and safeguarding the future of humanity
+          </div>
+          <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+        </div>
+      </a>
+    </Card>
+  }
+  
+  return null
+}
+
+const VirtualProgramCardComponent = registerComponent('VirtualProgramCard', VirtualProgramCard, {styles});
+
+declare global {
+  interface ComponentTypes {
+    VirtualProgramCard: typeof VirtualProgramCardComponent
+  }
+}
