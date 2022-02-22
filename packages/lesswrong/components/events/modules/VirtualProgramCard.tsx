@@ -106,7 +106,8 @@ const VirtualProgramCard = ({program, classes}: {
   
   // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
   let result = moment()
-  _.range(5).forEach(() => {
+    // Iterate through 5 sundays to find the one we want
+  for (const sunday of _.range(5).map(x => moment().day(0).add(x, 'week'))) {
     const nextSunday = moment(sunday).add(1, 'week')
     // needs to be in the future, and needs to be the last Sunday of the month
     if (sunday.isAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
