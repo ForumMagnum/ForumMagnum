@@ -336,30 +336,6 @@ const Community = ({classes}: {
   const { history } = useNavigation();
   const { location } = useLocation();
   
-  // this is the actual location used for the groups query -
-  // to make the page load faster, we try to use a saved location
-  const [queryLocation, setQueryLocation] = useState(() => {
-    if (currentUser) {
-      if (!currentUser.mongoLocation || !currentUser.location) return null
-      return {
-        lat: currentUser.mongoLocation.coordinates[1],
-        lng: currentUser.mongoLocation.coordinates[0],
-        known: true,
-        label: currentUser.location
-      }
-    }
-    // if the user isn't logged in, see if we saved it in local storage
-    const ls = getBrowserLocalStorage()
-    if (!ls) return null
-    try {
-      return JSON.parse(ls.getItem('userlocation'))
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      return null
-    }
-  })
-  
   // local or online
   const [tab, setTab] = useState('local')
   
@@ -387,11 +363,11 @@ const Community = ({classes}: {
    * @param {number} location.lat - The location's latitude.
    * @param {number} location.lng - The location's longitude.
    * @param {Object} location.gmaps - The Google Maps location data.
-   * @param {string} location.gmaps.formatted_address - The user-facing address.
+   * @param {string} location.gmaps.formatted_address - The user-facing address (ex: Cambridge, MA, USA).
    */
-  const saveUserLocation = ({lat, lng, gmaps}) => {
+   const saveUserLocation = ({lat, lng, gmaps}) => {
     // save it in the page state
-    setQueryLocation({lat, lng, known: true, label: gmaps.formatted_address})
+    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
 
     if (currentUser) {
       // save it on the user document
@@ -419,8 +395,11 @@ const Community = ({classes}: {
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
   const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
-    // we need Google Maps to be loaded before we can call the Geocoder
-    if (mapsLoaded && !geocodeError && !queryLocation && known) {
+    if (
+      mapsLoaded &&     // we need Google Maps to be loaded before we can call the Geocoder
+      !geocodeError &&  // if we've ever gotten a geocoding error, don't try again
+      known             // skip if we've received the default location
+    ) {
       try {
         // get a list of matching Google locations for the current lat/lng (reverse geocoding)
         const geocoder = new googleMaps.Geocoder();
@@ -432,25 +411,33 @@ const Community = ({classes}: {
         if (results?.length) {
           const location = pickBestReverseGeocodingResult(results)
           saveUserLocation({lat, lng, gmaps: location})
+        } else {
+          // update the page state to indicate that we're not waiting on a location name
+          userLocation.setLocationData({...userLocation, label: null})
         }
       } catch (e) {
         setGeocodeError(true)
         // eslint-disable-next-line no-console
         console.error(e?.message)
+        // update the page state to indicate that we're not waiting on a location name
+        userLocation.setLocationData({...userLocation, label: null})
       }
     }
   }
 
-  // this gets the location from the current user settings or from the user's browser
-  const currentUserLocation = useUserLocation(currentUser)
+  // on page load, try to get the user's location from:
+  // 1. (logged in user) user settings
+  // 2. (logged out user) browser's local storage
+  // 3. failing those, browser's geolocation API (which we then try to save in #1 or #2)
+  const userLocation = useUserLocation(currentUser)
   
   useEffect(() => {
-    // if we've gotten a location from the browser, save it
-    if (!queryLocation && !currentUserLocation.loading && currentUserLocation.known) {
-      void saveReverseGeocodedLocation(currentUserLocation)
+    // if we've gotten a location from the browser's geolocation API, save it
+    if (!userLocation.loading && userLocation.known && userLocation.label === '') {
+      void saveReverseGeocodedLocation(userLocation)
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryLocation, currentUserLocation])
+  }, [userLocation])
 
   const openEventNotificationsForm = () => {
     openDialog({
@@ -473,13 +460,13 @@ const Community = ({classes}: {
    * @returns {number}
    */
   const distance = (lat, lng) => {
-    if (!queryLocation) return null
+    if (!userLocation) return null
     
     const toRad = (num) => num * Math.PI / 180
     
-    const dLat = toRad(lat - queryLocation.lat)
-    const dLng = toRad(lng - queryLocation.lng)
-    const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(queryLocation.lat)) * Math.cos(toRad(lat)))
+    const dLat = toRad(lat - userLocation.lat)
+    const dLng = toRad(lng - userLocation.lng)
+    const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(userLocation.lat)) * Math.cos(toRad(lat)))
     return Math.round(2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371)
   }
 
@@ -487,10 +474,10 @@ const Community = ({classes}: {
   
   let groupsListTerms: LocalgroupsViewTerms = {}
   if (tab === 'local') {
-    groupsListTerms = queryLocation ? {
+    groupsListTerms = userLocation.known ? {
       view: 'nearby',
-      lat: queryLocation.lat,
-      lng: queryLocation.lng,
+      lat: userLocation.lat,
+      lng: userLocation.lng,
       ...filters,
     } : {
       view: 'local',
@@ -503,14 +490,14 @@ const Community = ({classes}: {
     }
   }
   
-  const { results, loading } = useMulti({
+  const { results } = useMulti({
     terms: groupsListTerms,
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     limit: 200,
-    skip: !queryLocation && currentUserLocation.loading
+    skip: userLocation.loading
   });
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -552,7 +539,7 @@ const Community = ({classes}: {
                           })
                         }
                       }}
-                      initialValue={queryLocation?.label}
+                      initialValue={userLocation?.label}
                     />
                   </div>
               }
@@ -584,7 +571,7 @@ const Community = ({classes}: {
                     <div className={classes.localGroupNameRow}>
                       <Link to={`/groups/${group._id}`} className={classes.localGroupName}>{group.name}</Link>
                       <div className={classes.localGroupDistance}>
-                        {queryLocation && group.mongoLocation?.coordinates && `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} km`}
+                        {userLocation.known && group.mongoLocation?.coordinates && `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} km`}
                       </div>
                     </div>
                     <div className={classes.localGroupLocation}>{group.location}</div>
@@ -594,7 +581,7 @@ const Community = ({classes}: {
             </div>
             <div className={classes.localGroupsMap}>
               <CommunityMapWrapper
-                mapOptions={queryLocation ? {center: queryLocation, zoom: 5} : {zoom: 1}}
+                mapOptions={userLocation.known ? {center: userLocation, zoom: 5} : {zoom: 1}}
                 hideLegend
                 showUsers={false}
               />
