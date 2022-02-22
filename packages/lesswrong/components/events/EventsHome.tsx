@@ -22,6 +22,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import classNames from 'classnames';
+import  FormLabel  from '@material-ui/core/FormLabel';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -154,6 +155,9 @@ const EventsHome = ({classes}: {
     collectionName: "Users",
     fragmentName: 'UsersProfile',
   });
+
+  // used to set the cutoff distance for the query
+  const [distance, setDistance] = useState(100)
   
   /**
    * Given a location, update the page query to use that location,
@@ -264,6 +268,9 @@ const EventsHome = ({classes}: {
   if (formatFilter.length) {
     filters.eventType = formatFilter
   }
+  if (distance) {
+    filters.distance = distance
+  }
   
   const eventsListTerms: PostsViewTerms = userLocation.known ? {
     view: 'nearbyEvents',
@@ -362,6 +369,8 @@ const EventsHome = ({classes}: {
                 <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                 <MenuItem key="online" value="online">Online only</MenuItem>
             </Select>
+
+              
             <Select
               className={classNames(classes.filter, classes.formatFilter)}
               value={formatFilter}
@@ -384,7 +393,11 @@ const EventsHome = ({classes}: {
                   return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
                 })}
             </Select>
-            
+            <FormLabel>
+                Filter events within
+                <OutlinedInput type='number' labelWidth={0} value={distance} onChange={(e) => setDistance(parseInt(e.target.value))}/>
+                km
+            </FormLabel>
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
                 {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
