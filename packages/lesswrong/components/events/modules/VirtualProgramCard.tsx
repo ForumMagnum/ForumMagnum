@@ -108,13 +108,10 @@ const VirtualProgramCard = ({program, classes}: {
   let result = moment()
   _.range(5).forEach(() => {
     const nextSunday = moment(sunday).add(1, 'week')
-    // needs to be in the future
-    if (sunday.isBefore(moment(), 'day')) {
-      sunday = nextSunday
-    }
-    // needs to be the last Sunday of the month
-    if (nextSunday.month() === sunday.month()) {
-      sunday = nextSunday
+    // needs to be in the future, and needs to be the last Sunday of the month
+    if (sunday.isAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
+      result = sunday
+      break
     }
   })
   
