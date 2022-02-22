@@ -105,19 +105,19 @@ const VirtualProgramCard = ({program, classes}: {
   const { captureEvent } = useTracking()
   
   // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
-  let result = moment()
-    // Iterate through 5 sundays to find the one we want
+  let deadline = moment()
+  // Iterate through 5 Sundays to find the one we want
   for (const sunday of _.range(5).map(x => moment().day(0).add(x, 'week'))) {
     const nextSunday = moment(sunday).add(1, 'week')
     // needs to be in the future, and needs to be the last Sunday of the month
-    if (sunday.isAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
-      result = sunday
+    if (sunday.isSameOrAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
+      deadline = sunday
       break
     }
-  })
+  }
   
   // VP starts 8 days after the deadline, on a Monday
-  const startOfVp = moment(sunday).add(8, 'days')
+  const startOfVp = moment(deadline).add(8, 'days')
   // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
   const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
 
@@ -138,50 +138,50 @@ const VirtualProgramCard = ({program, classes}: {
         <div className={classes.eventCardDescription}>
           Explore key ideas in effective altruism through short readings and weekly discussions
         </div>
-        <div className={classes.eventCardDeadline}>Apply by Sunday, {sunday.format('MMMM D')}</div>
+        <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
       </Card>
     </a>
   }
   
   if (program === 'advanced') {
     return <Card className={classes.eventCard}>
-        <a
-          href="https://www.effectivealtruism.org/virtual-programs/in-depth-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
-          className={classNames(classes.cardLink, classes.cardSection, classes.inDepthSection)}
-          onClick={() => captureEvent('inDepthVPClicked')}
-        >
-          <div>
-            <div className={classes.eventCardTime}>
-              {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
-            </div>
-            <div className={classes.eventCardTitle}>
-              In-Depth EA Program
-            </div>
-            <div className={classes.eventCardDescription}>
-              Dive deeper into more complex EA ideas and examine your key uncertainties
-            </div>
-            <div className={classes.eventCardDeadline}>Apply by Sunday, {sunday.format('MMMM D')}</div>
+      <a
+        href="https://www.effectivealtruism.org/virtual-programs/in-depth-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
+        className={classNames(classes.cardLink, classes.cardSection, classes.inDepthSection)}
+        onClick={() => captureEvent('inDepthVPClicked')}
+      >
+        <div>
+          <div className={classes.eventCardTime}>
+            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
           </div>
-        </a>
-        <a
-          href="https://www.effectivealtruism.org/virtual-programs/the-precipice-reading-group?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
-          className={classNames(classes.cardLink, classes.cardSection, classes.precipiceSection)}
-          onClick={() => captureEvent('precipiceVPClicked')}
-        >
-          <div>
-            <div className={classes.eventCardTime}>
-              {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
-            </div>
-            <div className={classes.eventCardTitle}>
-              <em>The Precipice</em> Reading Group
-            </div>
-            <div className={classes.eventCardDescription}>
-              Learn more about existential risks and safeguarding the future of humanity
-            </div>
-            <div className={classes.eventCardDeadline}>Apply by Sunday, {sunday.format('MMMM D')}</div>
+          <div className={classes.eventCardTitle}>
+            In-Depth EA Program
           </div>
-        </a>
-      </Card>
+          <div className={classes.eventCardDescription}>
+            Dive deeper into more complex EA ideas and examine your key uncertainties
+          </div>
+          <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+        </div>
+      </a>
+      <a
+        href="https://www.effectivealtruism.org/virtual-programs/the-precipice-reading-group?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
+        className={classNames(classes.cardLink, classes.cardSection, classes.precipiceSection)}
+        onClick={() => captureEvent('precipiceVPClicked')}
+      >
+        <div>
+          <div className={classes.eventCardTime}>
+            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+          </div>
+          <div className={classes.eventCardTitle}>
+            <em>The Precipice</em> Reading Group
+          </div>
+          <div className={classes.eventCardDescription}>
+            Join weekly discussions about existential risks and safeguarding the future of humanity
+          </div>
+          <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+        </div>
+      </a>
+    </Card>
   }
   
   return null
