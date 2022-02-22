@@ -669,6 +669,7 @@ addFieldsDict(Posts, {
     group: formGroups.event,
     optional: true,
     order: 2,
+    label: 'Event Format',
     form: {
       options: EVENT_TYPES
     },

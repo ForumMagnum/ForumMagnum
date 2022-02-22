@@ -2,16 +2,16 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { useUserLocation } from '../../../lib/collections/users/helpers';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
-
-  const lat = currentUser?.mongoLocation?.coordinates[1]
-  const lng = currentUser?.mongoLocation?.coordinates[0]
   
-  if (lat && lng) {
+  const {lat, lng, known} = useUserLocation(currentUser, true)
+  
+  if (lat && lng && known) {
     const nearbyTerms: PostsViewTerms = {
       view: 'nearbyEvents',
       lat: lat,
