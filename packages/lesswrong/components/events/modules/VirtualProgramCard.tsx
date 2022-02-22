@@ -105,7 +105,7 @@ const VirtualProgramCard = ({program, classes}: {
   const { captureEvent } = useTracking()
   
   // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
-  let sunday = moment().day(0)
+  let result = moment()
   _.range(5).forEach(() => {
     const nextSunday = moment(sunday).add(1, 'week')
     // needs to be in the future
