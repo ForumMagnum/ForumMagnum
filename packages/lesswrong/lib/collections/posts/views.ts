@@ -882,7 +882,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   return query
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1 }),
+  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1, endTime:1 }),
   { name: "posts.globalEvents" }
 );
 
