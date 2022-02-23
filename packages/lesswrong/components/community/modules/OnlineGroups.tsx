@@ -146,7 +146,8 @@ const OnlineGroups = ({classes}: {
           } : {
             backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 200px)'
           }
-          
+          // try to highlight to the most relevant link for the group
+          // (eventually we should let the group pick a link)
           let cta;
           if (group.facebookLink) {
             cta = <a href={group.facebookLink} className={classes.onlineGroupBtn}>
