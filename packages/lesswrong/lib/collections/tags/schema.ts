@@ -250,6 +250,19 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  
+  // Cloudinary image id for the banner image (high resolution)
+  bannerImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Banner Image",
+    control: "ImageUpload",
+    tooltip: "Minimum 200x600 px",
+    group: formGroups.advancedOptions,
+  },
 
   tagFlagsIds: {
     ...arrayOfForeignKeysField({

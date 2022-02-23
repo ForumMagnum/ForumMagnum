@@ -30,10 +30,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   header: {
     paddingTop: 19,
-    paddingBottom: 5,
+    paddingBottom: 10,
     paddingLeft: 42,
     paddingRight: 42,
-    background: "white",
+    [theme.breakpoints.down('xs')]: {
+      backgroundColor: 'white'
+    }
   },
   tableOfContentsWrapper: {
     position: "relative",
@@ -75,7 +77,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   wikiSection: {
-    paddingTop: 5,
+    paddingTop: 24,
     paddingLeft: 42,
     paddingRight: 42,
     paddingBottom: 12,
