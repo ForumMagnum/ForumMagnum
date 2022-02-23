@@ -311,7 +311,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Community',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'Find your group',
+      tooltip: 'Join a group near you or meet others online',
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {

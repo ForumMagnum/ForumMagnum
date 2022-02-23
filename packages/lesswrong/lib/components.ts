@@ -272,6 +272,7 @@ importComponent("EventCards", () => require('../components/events/modules/EventC
 importComponent("VirtualProgramCard", () => require('../components/events/modules/VirtualProgramCard'));
 // this is the new Community page, used by the EA Forum
 importComponent("Community", () => require('../components/community/Community'));
+importComponent("CommunityBanner", () => require('../components/community/modules/CommunityBanner'));
 importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
 importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
 // this is the previous Community page, used by LW
