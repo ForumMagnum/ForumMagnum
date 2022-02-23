@@ -31,7 +31,7 @@ const serifStack = [
 
 const palette = {
   primary: {
-    main: "#841212",
+    main: '#5f9b65',
   },
   secondary: {
     main: "#5f9b65",
