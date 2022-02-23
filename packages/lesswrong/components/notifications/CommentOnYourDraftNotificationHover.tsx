@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
+import {useCurrentUser} from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,6 +20,7 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   const { UsersName, Loading } = Components;
   const postId = notification.documentId;
   const postEditUrl = `/editPost?postId=${postId}`
+  const currentUser = useCurrentUser()
   const { document: post, loading: loadingPost } = useSingle({
     documentId: postId,
     collectionName: "Posts",
@@ -30,7 +32,7 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   return <div className={classes.root}>
     <div>
       {senderUserId ? <UsersName documentId={notification.extraData.senderUserID}/> : "Someone"}
-      {" commented on your draft "}
+      {(currentUser?._id !== post?.userId) ? " replied to your comment on " : " commented on your draft "}
       <Link to={postEditUrl}>
         {post ? post.title : <Loading/>}
       </Link>
