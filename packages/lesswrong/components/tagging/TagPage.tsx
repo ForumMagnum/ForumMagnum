@@ -18,13 +18,28 @@ import { useTagBySlug } from './useTag';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
-  root: {
+  rootGivenImage: {
     marginTop: 185,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 130,
+    },
   },
   imageContainer: {
-    height: 300,
+    '& > img': {
+      height: 300,
+      objectFit: 'cover',
+    },
     position: 'absolute',
     top: 90,
+    [theme.breakpoints.down('sm')]: {
+      '& > img': {
+        height: 200,
+        width: '100%',
+      },
+      top: 77,
+      left: -4,
+      right: -4,
+    },
   },
   description: {
     marginTop: 18,
@@ -251,7 +266,7 @@ const TagPage = ({classes}: {
         height={300}
       />
     </div>}
-    <div className={classes.root}>
+    <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
       <ToCColumn
         tableOfContents={
           tag.tableOfContents
