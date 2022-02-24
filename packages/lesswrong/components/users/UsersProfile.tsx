@@ -234,7 +234,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     //Terms for Drafts List
     const currentDraftSorting = query.sortDraftsBy || query.view || currentUser?.draftsListSorting || "lastModified"
     const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived
-    const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : currentUser?.draftsListShowShared || true
+    const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false)
     draftTerms.includeArchived = currentIncludeArchived
     draftTerms.sortDraftsBy = currentDraftSorting
     draftTerms.includeShared = currentIncludeShared

@@ -170,7 +170,7 @@ const DraftsListSettings = ({
             </MetaInfo>
           </QueryLink>
         </Tooltip>
-        <Tooltip title={<div><div>By default, posts shared with you are shown.</div><div>Toggle to show them.</div></div>} placement="left-start">
+        <Tooltip title={<div><div>By default, posts shared with you are shown.</div><div>Toggle to hide them.</div></div>} placement="left-start">
           <QueryLink
             className={classes.checkboxGroup}
             onClick={() => setSetting('showShared', !currentIncludeShared)}

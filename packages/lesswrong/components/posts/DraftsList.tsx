@@ -58,17 +58,13 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
     terms,
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    enableTotal: true,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
   });
   
   if (!currentUser) return null
-  if (!results && loading) return <Loading />
   
-  const currentSorting = query.sortDraftsBy || query.view || currentUser.draftsListSorting || "lastModified"
-  const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser.draftsListShowArchived
-  const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : currentUser.draftsListShowShared
+  const currentSorting = terms.sortDraftsBy || "lastModified"
   
   
   return <div>
@@ -97,25 +93,27 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
       hidden={false}
       persistentSettings={true}
       currentSorting={currentSorting}
-      currentIncludeArchived={currentIncludeArchived}
-      currentIncludeShared={currentIncludeShared}
+      currentIncludeArchived={!!terms.includeArchived}
+      currentIncludeShared={!!terms.includeShared}
       sortings={sortings}
     />}
-    {results
-      .map((post: PostsList, i: number) =>
-      <PostsItem2
-        key={post._id} 
-        post={post}
-        draft
-        toggleDeleteDraft={toggleDelete}
-        hideAuthor
-        showDraftTag={false}
-        showPersonalIcon={false}
-        showBottomBorder={i < results.length-1}
-        strikethroughTitle={post.deletedDraft}
-      />
-    )}
-    <Components.LoadMore {...{...loadMoreProps, count: undefined, totalCount: undefined }}/>
+    {(!results && loading) ? <Loading /> : <>
+      {results
+        .map((post: PostsList, i: number) =>
+        <PostsItem2
+          key={post._id} 
+          post={post}
+          draft
+          toggleDeleteDraft={toggleDelete}
+          hideAuthor
+          showDraftTag={false}
+          showPersonalIcon={false}
+          showBottomBorder={i < results.length-1}
+          strikethroughTitle={post.deletedDraft}
+        />
+      )}
+    </>}
+    <Components.LoadMore {...{...loadMoreProps }}/>
   </div>
 }
 
