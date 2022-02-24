@@ -106,7 +106,7 @@ const coreReadingCollections: Array<CoreReadingCollection> = forumSelect({
       userId: "vvHZTqAQBJmRopLah",
       summary:
         "The 19th century believed in progress; the 20th century grew skeptical. We need a new way forward.",
-      imageId: "banner/Nicolas_de_Condorcet_apejac.jpg",
+      imageId: "library/Nicolas_de_Condorcet_apejac",
       color: "#0c869b",
       big: true,
       url: "/posts/iTJHGrFRuHYX4HotJ"
@@ -117,7 +117,7 @@ const coreReadingCollections: Array<CoreReadingCollection> = forumSelect({
       userId: "vvHZTqAQBJmRopLah",
       summary:
         "When you know these facts of history, you understand what “industrial civilization” is and why it is the benefactor of everyone who is lucky enough to live in it.",
-      imageId: "banner/1280px-Smokestacks_3958_dg2z32.jpg",
+      imageId: "library/Smokestacks_3958_dg2z32",
       color: "#d0c9d5",
       big: false,
       url: "/posts/iTJHGrFRuHYX4HotJ",
@@ -127,7 +127,7 @@ const coreReadingCollections: Array<CoreReadingCollection> = forumSelect({
       id: "progress-civic-duty",
       userId: "vvHZTqAQBJmRopLah",
       summary: "We have a responsibility to learn the underpinnings of the standard of living we all enjoy. To understand and appreciate how we got here, and what it took. And ultimately, to keep it going",
-      imageId: "banner/scotus-building_rappgq.jpg",
+      imageId: "library/scotus-building_rappgq",
       color: "#d96704",
       big: false,
       url: "/posts/iTJHGrFRuHYX4HotJ",
