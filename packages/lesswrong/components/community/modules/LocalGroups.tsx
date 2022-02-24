@@ -100,13 +100,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const LocalGroups = ({userLocation, classes}: {
+const LocalGroups = ({userLocation, distanceUnit='km', classes}: {
   userLocation: {
     lat: number,
     lng: number,
     known: boolean,
     loading: boolean,
   },
+  distanceUnit: 'km'|'mi',
   classes: ClassesType,
 }) => {
   const { CommunityMapWrapper, CloudinaryImage2 } = Components
@@ -126,7 +127,9 @@ const LocalGroups = ({userLocation, classes}: {
     const dLat = toRad(lat - userLocation.lat)
     const dLng = toRad(lng - userLocation.lng)
     const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(userLocation.lat)) * Math.cos(toRad(lat)))
-    return Math.round(2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371)
+    const distanceInKm = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371
+  
+    return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
   }
 
   let groupsListTerms: LocalgroupsViewTerms = {}
@@ -159,6 +162,11 @@ const LocalGroups = ({userLocation, classes}: {
           } : {
             backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_140,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 140px)'
           }
+          // the distance from the user's location to the group's location
+          let distanceToGroup;
+          if (userLocation.known && group.mongoLocation?.coordinates) {
+            distanceToGroup = `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} ${distanceUnit}`
+          }
           
           return <div key={group._id} className={classes.localGroup}>
             <Link to={`/groups/${group._id}`} className={classes.mobileImg}>
@@ -170,7 +178,7 @@ const LocalGroups = ({userLocation, classes}: {
               <div className={classes.localGroupNameRow}>
                 <Link to={`/groups/${group._id}`} className={classes.localGroupName}>{group.name}</Link>
                 <div className={classes.localGroupDistance}>
-                  {userLocation.known && group.mongoLocation?.coordinates && `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} km`}
+                  {distanceToGroup}
                 </div>
               </div>
               <div className={classes.localGroupLocation}>{group.location}</div>

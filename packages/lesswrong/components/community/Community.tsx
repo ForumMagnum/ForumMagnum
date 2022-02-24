@@ -19,6 +19,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import EmailIcon from '@material-ui/icons/MailOutline';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -60,21 +61,60 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 10,
   },
   where: {
-    flex: '1 0 0',
     ...theme.typography.commentStyle,
     fontSize: 13,
     color: "rgba(0,0,0,0.6)",
     paddingLeft: 3
   },
+  whereTextDesktop: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  whereTextMobile: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'inline'
+    }
+  },
   geoSuggest: {
     ...geoSuggestStyles(theme),
     display: 'inline-block',
-    maxWidth: 200,
     marginLeft: 6
   },
   filter: {
   },
+  distanceUnit: {
+    ...theme.typography.commentStyle,
+  },
+  distanceUnitRadio: {
+    display: 'none'
+  },
+  distanceUnitLabel: {
+    padding: '5px 10px',
+    cursor: 'pointer',
+    border: '1px solid #d4d4d4',
+    '&.left': {
+      borderRightColor: theme.palette.primary.dark,
+      borderRadius: '4px 0 0 4px',
+    },
+    '&.right': {
+      borderLeftWidth: 0,
+      borderRadius: '0 4px 4px 0'
+    },
+    '&.selected': {
+      backgroundColor: theme.palette.primary.main,
+      color: 'white',
+      borderColor: theme.palette.primary.dark,
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+      color: 'white',
+      borderColor: theme.palette.primary.dark,
+    }
+  },
   notifications: {
+    flex: '1 0 0',
     textAlign: 'right',
     [theme.breakpoints.down('xs')]: {
       display: 'none'
@@ -131,6 +171,7 @@ const Community = ({classes}: {
   
   // local or online
   const [tab, setTab] = useState('local')
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">(window?.navigator?.language === 'en-US' ? 'mi' : 'km')
   
   useEffect(() => {
     // unfortunately the hash is unavailable on the server, so we check it here instead
@@ -270,10 +311,12 @@ const Community = ({classes}: {
         {tab === 'local' && <div key="local">
           <div className={classes.filters}>
             <div className={classes.where}>
-              Showing groups near {mapsLoaded
+              <span className={classes.whereTextDesktop}>Showing groups near</span>
+              <span className={classes.whereTextMobile}>Location</span>
+              {mapsLoaded
                 && <div className={classes.geoSuggest}>
                     <Geosuggest
-                      placeholder="Location"
+                      placeholder="search for a location"
                       onSuggestSelect={(suggestion) => {
                         if (suggestion?.location) {
                           saveUserLocation({
@@ -288,6 +331,20 @@ const Community = ({classes}: {
               }
             </div>
             
+            {userLocation.known && <div className={classes.distanceUnit}>
+              <input type="radio" id="km" name="distanceUnit" value="km" className={classes.distanceUnitRadio}
+                checked={distanceUnit === 'km'} onClick={() => setDistanceUnit('km')} />
+              <label htmlFor="km" className={classNames(classes.distanceUnitLabel, 'left', {'selected': distanceUnit === 'km'})}>
+                km
+              </label>
+
+              <input type="radio" id="mi" name="distanceUnit" value="mi" className={classes.distanceUnitRadio}
+                checked={distanceUnit === 'mi'} onClick={() => setDistanceUnit('mi')} />
+              <label htmlFor="mi" className={classNames(classes.distanceUnitLabel, 'right', {'selected': distanceUnit === 'mi'})}>
+                mi
+              </label>
+            </div>}
+            
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
                 {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
@@ -295,7 +352,7 @@ const Community = ({classes}: {
             </div>
           </div>
           
-          <LocalGroups userLocation={userLocation} />
+          <LocalGroups userLocation={userLocation} distanceUnit={distanceUnit} />
           
           <div className={classes.localGroupsBtns}>
             <Button href="https://resources.eagroups.org/" variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}>
