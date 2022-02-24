@@ -56,7 +56,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 5,
     paddingLeft: 42,
     paddingRight: 42,
-    background: 'white'
+    background: "white",
   },
   tableOfContentsWrapper: {
     position: "relative",

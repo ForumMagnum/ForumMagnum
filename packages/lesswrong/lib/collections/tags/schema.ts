@@ -7,6 +7,7 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -262,6 +263,7 @@ export const schema: SchemaType<DbTag> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x600 px",
     group: formGroups.advancedOptions,
+    hidden: forumTypeSetting.get() !== 'EAForum',
   },
 
   tagFlagsIds: {
