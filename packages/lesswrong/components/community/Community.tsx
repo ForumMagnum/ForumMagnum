@@ -300,7 +300,7 @@ const Community = ({classes}: {
         </div>
       </div>
         
-      {/* <CommunityBanner /> */}
+      <CommunityBanner />
 
       <div className={classes.section}>
         <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} centered aria-label='view local or online groups'>
