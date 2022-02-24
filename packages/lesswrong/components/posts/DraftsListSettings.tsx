@@ -109,25 +109,25 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
 }
 
 const USER_SETTING_NAMES = {
-  sortDraftsBy: 'draftPostsSorting',
-  showEvents: 'draftPostsIncludeEvents',
-  showArchived: 'draftPostsIncludeArchived'
+  sortDraftsBy: 'draftsListSorting',
+  showArchived: 'draftsListShowArchived',
+  showShared: 'draftsListShowShared'
 }
 
 const DraftsListSettings = ({
   persistentSettings, 
   hidden, 
   currentSorting, 
-  currentIncludeEvents,
   currentIncludeArchived,
+  currentIncludeShared,
   sortings=defaultSortings, 
   classes
 }: {
   persistentSettings?: any,
   hidden: boolean,
   currentSorting: any,
-  currentIncludeEvents: boolean,
   currentIncludeArchived: boolean,
+  currentIncludeShared: boolean,
   sortings?: any,
   classes: ClassesType,
 }) => {
@@ -155,21 +155,6 @@ const DraftsListSettings = ({
       />
       <div>
         
-        <Tooltip title={<div><div>By default, events are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
-          <QueryLink
-            className={classes.checkboxGroup}
-            onClick={() => setSetting('showEvents', !currentIncludeEvents)}
-            query={{includeDraftEvents: !currentIncludeEvents}}
-            merge
-            rel="nofollow"
-          >
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeEvents}/>
-            
-            <MetaInfo className={classes.checkboxLabel}>
-              Show Events
-            </MetaInfo>
-          </QueryLink>
-        </Tooltip>
         <Tooltip title={<div><div>By default, archived posts are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
           <QueryLink
             className={classes.checkboxGroup}
@@ -182,6 +167,21 @@ const DraftsListSettings = ({
       
             <MetaInfo className={classes.checkboxLabel}>
               Show Archived
+            </MetaInfo>
+          </QueryLink>
+        </Tooltip>
+        <Tooltip title={<div><div>By default, posts shared with you are shown.</div><div>Toggle to show them.</div></div>} placement="left-start">
+          <QueryLink
+            className={classes.checkboxGroup}
+            onClick={() => setSetting('showShared', !currentIncludeShared)}
+            query={{includeShared: !currentIncludeShared}}
+            merge
+            rel="nofollow"
+          >
+            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeShared}/>
+      
+            <MetaInfo className={classes.checkboxLabel}>
+              Show Shared with You
             </MetaInfo>
           </QueryLink>
         </Tooltip>

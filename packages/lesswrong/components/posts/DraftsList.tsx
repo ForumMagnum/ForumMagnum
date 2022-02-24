@@ -66,10 +66,9 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
   if (!currentUser) return null
   if (!results && loading) return <Loading />
   
-  const currentSorting = query.sortDraftsBy || query.view ||  "lastModified"
-  const currentIncludeEvents = (query.includeDraftEvents === 'true')
-  const currentIncludeArchived = (query.includeArchived === 'true')
-  terms.excludeEvents = !currentIncludeEvents 
+  const currentSorting = query.sortDraftsBy || query.view || currentUser.draftsListSorting || "lastModified"
+  const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser.draftsListShowArchived
+  const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : currentUser.draftsListShowShared
   
   
   return <div>
@@ -96,9 +95,10 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
     </Components.SectionTitle>
     {showSettings && <Components.DraftsListSettings
       hidden={false}
+      persistentSettings={true}
       currentSorting={currentSorting}
-      currentIncludeEvents={currentIncludeEvents}
       currentIncludeArchived={currentIncludeArchived}
+      currentIncludeShared={currentIncludeShared}
       sortings={sortings}
     />}
     {results

@@ -229,11 +229,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
-    const currentIncludeDraftEvents = (query.includeDraftEvents === 'true')
-    const currentIncludeArchived = (query.includeArchived === 'true')
     terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+    
+    //Terms for Drafts List
+    const currentDraftSorting = query.sortDraftsBy || query.view || currentUser?.draftsListSorting || "lastModified"
+    const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived
+    const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : currentUser?.draftsListShowShared || true
     draftTerms.includeArchived = currentIncludeArchived
-    draftTerms.includeDraftEvents = currentIncludeDraftEvents
+    draftTerms.sortDraftsBy = currentDraftSorting
+    draftTerms.includeShared = currentIncludeShared
     
 
     const username = userGetDisplayName(user)
@@ -300,6 +304,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
             <AnalyticsContext listContext={"userPageDrafts"}>
+              {/*<Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>*/}
               <Components.DraftsList terms={draftTerms}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>

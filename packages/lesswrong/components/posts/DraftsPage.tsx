@@ -30,16 +30,17 @@ const DraftsPage = ({classes}) => {
   
   const currentUser = useCurrentUser()
   const { query } = useLocation();
-  const [showArchived, setShowArchived] = useState(false)
   
   if (!currentUser) return <span>You must sign in to view your drafts.</span>
   
-  const currentIncludeDraftEvents = (query.includeDraftEvents === 'true')
-  const currentIncludeArchived = (query.includeArchived === 'true')
+  const currentSorting = query.sortDraftsBy || query.view || currentUser.draftsListSorting || "lastModified"
+  const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser.draftsListShowArchived
+  const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : currentUser.draftsListShowShared || true
   
   const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: currentUser._id, limit: 50, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
   draftTerms.includeArchived = currentIncludeArchived
-  draftTerms.includeDraftEvents = currentIncludeDraftEvents
+  draftTerms.includeShared = currentUser.draftsListShowShared || currentIncludeShared
+  draftTerms.sortDraftsBy = currentUser.draftsListSorting || currentSorting
   
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>
