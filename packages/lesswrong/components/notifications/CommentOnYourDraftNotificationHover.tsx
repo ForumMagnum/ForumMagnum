@@ -29,7 +29,7 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   
   const senderUserId = notification.extraData?.senderUserID;
   
-  const postOrDraft = post.draft ? "draft" : "post";
+  const postOrDraft = post?.draft ? "draft" : "post";
   
   return <div className={classes.root}>
     <div>
