@@ -39,7 +39,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   classes: ClassesType
 }) => {
   const { flash } = useMessages()
-  const [currentTitle, setCurrentTitle] = useState<string>(document.title)
+  const [lastSavedTitle, setLastSavedTitle] = useState<string>(document.title)
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
@@ -47,14 +47,14 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   const { question } = document;
 
   const handleChangeTitle = useCallback((event) => {
-    if (event.target.value !== currentTitle) {
-      setCurrentTitle(event.target.value)
+    if (event.target.value !== lastSavedTitle) {
+      setLastSavedTitle(event.target.value)
       void updatePost({
         selector: {_id: document._id},
         data: {title: event.target.value}
       }).then(() => flash({messageString: "Title has been changed."}))
     }
-  }, [document, updatePost, currentTitle, flash])
+  }, [document, updatePost, lastSavedTitle, flash])
 
   return <Input
     className={classNames(classes.root, {[classes.question]: question})}
