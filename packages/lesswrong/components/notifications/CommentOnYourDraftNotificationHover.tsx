@@ -34,7 +34,7 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   return <div className={classes.root}>
     <div>
       {senderUserId ? <UsersName documentId={notification.extraData.senderUserID}/> : "Someone"}
-      {(currentUser?._id !== post?.userId) ? " replied to your comment on " : " commented on your draft "}
+      {(currentUser?._id !== post?.userId) ? " replied to your comment on " : ` commented on your draft ${postOrDraft}`}
       <Link to={postEditUrl}>
         {post ? post.title : <Loading/>}
       </Link>
