@@ -29,6 +29,8 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   
   const senderUserId = notification.extraData?.senderUserID;
   
+  const postOrDraft = post.draft ? "draft" : "post";
+  
   return <div className={classes.root}>
     <div>
       {senderUserId ? <UsersName documentId={notification.extraData.senderUserID}/> : "Someone"}
