@@ -31,43 +31,43 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
-    document: PostsBase,
-    value: any,
-    path: string,
-    placeholder: string,
-    updateCurrentValues: Function,
-    classes: ClassesType
-  }) => {
-    const { flash } = useMessages()
+  document: PostsBase,
+  value: any,
+  path: string,
+  placeholder: string,
+  updateCurrentValues: Function,
+  classes: ClassesType
+}) => {
+  const { flash } = useMessages()
   const [currentTitle, setCurrentTitle] = useState<string>(document.title)
   const {mutate: updatePost} = useUpdate({
-      collectionName: "Posts",
-      fragmentName: 'PostsMinimumInfo',
-    });
-    const { question } = document;
-  
-    const handleChangeTitle = useCallback((event) => {
-      if (event.target.value !== currentTitle) {
-        setCurrentTitle(event.target.value)
-        void updatePost({
-          selector: {_id: document._id},
-          data: {title: event.target.value}
-        }).then(() => flash({messageString: "Title has been changed."}))
-      }
-    }, [document, updatePost, currentTitle, flash])
+    collectionName: "Posts",
+    fragmentName: 'PostsMinimumInfo',
+  });
+  const { question } = document;
 
-    return <Input
-      className={classNames(classes.root, {[classes.question]: question})}
-      placeholder={ question ? "Question Title" : placeholder }
-      value={value}
-      onChange={(event) => {
-        updateCurrentValues({
-          [path]: event.target.value
-        })
-      }}
-      onBlur={(event) =>  handleChangeTitle(event)}
-      disableUnderline={true}
-    />
+  const handleChangeTitle = useCallback((event) => {
+    if (event.target.value !== currentTitle) {
+      setCurrentTitle(event.target.value)
+      void updatePost({
+        selector: {_id: document._id},
+        data: {title: event.target.value}
+      }).then(() => flash({messageString: "Title has been changed."}))
+    }
+  }, [document, updatePost, currentTitle, flash])
+
+  return <Input
+    className={classNames(classes.root, {[classes.question]: question})}
+    placeholder={ question ? "Question Title" : placeholder }
+    value={value}
+    onChange={(event) => {
+      updateCurrentValues({
+        [path]: event.target.value
+      })
+    }}
+    onBlur={(event) =>  handleChangeTitle(event)}
+    disableUnderline={true}
+  />
 };
 
 (EditTitle as any).contextTypes = {
