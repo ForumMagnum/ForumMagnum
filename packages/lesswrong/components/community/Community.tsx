@@ -171,7 +171,10 @@ const Community = ({classes}: {
   
   // local or online
   const [tab, setTab] = useState('local')
-  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">(window?.navigator?.language === 'en-US' ? 'mi' : 'km')
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">(() => {
+    // only US and UK default to miles - everyone else defaults to km
+    return ['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language) ? 'mi' : 'km'
+  })
   
   useEffect(() => {
     // unfortunately the hash is unavailable on the server, so we check it here instead
