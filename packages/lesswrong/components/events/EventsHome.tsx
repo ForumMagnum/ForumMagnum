@@ -22,6 +22,8 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
 import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Checkbox from '@material-ui/core/Checkbox';
+import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -85,13 +87,20 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     '& .MuiOutlinedInput-input': {
       paddingRight: 30
     },
+    '@media (max-width: 812px)': {
+      display: 'none'
+    }
+  },
+  distanceFilter: {
+    color: "rgba(0,0,0,0.6)",
   },
   distanceInput: {
     width: 68,
     color: theme.palette.primary.main,
+    margin: '0 6px'
   },
   formatFilter: {
-    '@media (max-width: 812px)': {
+    [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
@@ -364,14 +373,16 @@ const EventsHome = ({classes}: {
           
           <div className={classes.filters}>
             <FilterIcon className={classes.filterIcon} />
-
-            Within
-            <Input type="number"
-              value={distance}
-              placeholder="distance"
-              onChange={(e) => setDistance(parseInt(e.target.value))}
-              className={classes.distanceInput} />
-            km
+            
+            <div className={classes.distanceFilter}>
+              Within
+              <Input type="number"
+                value={distance}
+                placeholder="distance"
+                onChange={(e) => setDistance(parseInt(e.target.value))}
+                className={classes.distanceInput} />
+              km
+            </div>
             
             <Select
               className={classes.filter}
@@ -402,7 +413,10 @@ const EventsHome = ({classes}: {
                 return selected.map(type => EVENT_TYPES.find(t => t.value === type)?.label).join(', ')
               }}>
                 {EVENT_TYPES.map(type => {
-                  return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
+                  return <MenuItem key={type.value} value={type.value}>
+                    <Checkbox checked={formatFilter.some(format => format === type.value)} />
+                    <ListItemText primary={type.label} />
+                  </MenuItem>
                 })}
             </Select>
             
@@ -413,7 +427,7 @@ const EventsHome = ({classes}: {
             </div>
           </div>
 
-          <EventCards events={results} loading={loading || userLocation.loading} numDefaultCards={6} hideSpecialCards={!numSpecialCards} />
+          <EventCards events={results || []} loading={loading || userLocation.loading} numDefaultCards={6} hideSpecialCards={!numSpecialCards} />
           
           <div className={classes.loadMoreRow}>
             {loadMoreButton}

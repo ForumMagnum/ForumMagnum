@@ -109,7 +109,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes}: {
-  events?: PostsList[],
+  events: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
   hideSpecialCards?: boolean,
@@ -126,30 +126,12 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
   const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard } = Components
   
   // while the data is loading, show some placeholder empty cards
-  if (loading && !events?.length) {
+  if (loading && !events.length) {
     return numDefaultCards ? <>
       {_.range(numDefaultCards).map((i) => {
         return <Card key={i} className={classes.eventCard}></Card>
       })}
     </> : null
-  }
-  
-  if (!events?.length) {
-    // link to the Community page when there are no events to show
-    let communityName = 'Community'
-    if (forumTypeSetting.get() === 'EAForum') {
-      communityName = 'EA Community'
-    } else if (forumTypeSetting.get() === 'LessWrong') {
-      communityName = 'LessWrong Community'
-    }
-    return <div className={classes.noResults}>
-      <div className={classes.noResultsText}>No upcoming events matching your search</div>
-      <div className={classes.noResultsCTA}>
-        <Link to={'/community'} className={classes.communityLink}>
-          Explore the {communityName}
-        </Link>
-      </div>
-    </div>
   }
   
   const eventCards = events.map(event => {
@@ -192,6 +174,24 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
       // we try to space out the two cards
       eventCards.splice(5, 0, <VirtualProgramCard program="advanced" />)
     }
+  }
+  
+  if (!eventCards.length) {
+    // link to the Community page when there are no events to show
+    let communityName = 'Community'
+    if (forumTypeSetting.get() === 'EAForum') {
+      communityName = 'EA Community'
+    } else if (forumTypeSetting.get() === 'LessWrong') {
+      communityName = 'LessWrong Community'
+    }
+    return <div className={classes.noResults}>
+      <div className={classes.noResultsText}>No upcoming events matching your search</div>
+      <div className={classes.noResultsCTA}>
+        <Link to={'/community'} className={classes.communityLink}>
+          Explore the {communityName}
+        </Link>
+      </div>
+    </div>
   }
 
   return <>
