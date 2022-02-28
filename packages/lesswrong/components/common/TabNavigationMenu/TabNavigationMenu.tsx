@@ -5,7 +5,7 @@ import { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
@@ -33,8 +33,14 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
   const { TabNavigationItem, FeaturedResourceBanner } = Components
   const customComponentProps = {currentUser}
+  
+  const handleClick = (e, tabId) => {
+    captureEvent(`${tabId}NavClicked`)
+    onClickSection && onClickSection(e)
+  }
 
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
@@ -47,7 +53,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
               const CustomComponent = Components[tab.customComponentName];
               return <CustomComponent
                 key={tab.id}
-                onClick={onClickSection}
+                onClick={(e) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />
             }
@@ -55,7 +61,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
             return <TabNavigationItem
               key={tab.id}
               tab={tab}
-              onClick={onClickSection}
+              onClick={(e) => handleClick(e, tab.id)}
             />
           })}
           {/* NB: This returns null if you don't have any active resources */}
