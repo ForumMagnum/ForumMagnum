@@ -20,9 +20,9 @@ import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
+import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import classNames from 'classnames';
-import  FormLabel  from '@material-ui/core/FormLabel';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -63,11 +63,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'baseline',
     columnGap: 10,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
   },
   where: {
     flex: '1 0 0',
-    ...theme.typography.commentStyle,
-    fontSize: 13,
     color: "rgba(0,0,0,0.6)",
     paddingLeft: 3
   },
@@ -85,6 +85,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     '& .MuiOutlinedInput-input': {
       paddingRight: 30
     },
+  },
+  distanceInput: {
+    width: 68,
+    color: theme.palette.primary.main,
   },
   formatFilter: {
     '@media (max-width: 812px)': {
@@ -157,7 +161,7 @@ const EventsHome = ({classes}: {
   });
 
   // used to set the cutoff distance for the query
-  const [distance, setDistance] = useState(100)
+  const [distance, setDistance] = useState(160)
   
   /**
    * Given a location, update the page query to use that location,
@@ -360,6 +364,15 @@ const EventsHome = ({classes}: {
           
           <div className={classes.filters}>
             <FilterIcon className={classes.filterIcon} />
+
+            Within
+            <Input type="number"
+              value={distance}
+              placeholder="distance"
+              onChange={(e) => setDistance(parseInt(e.target.value))}
+              className={classes.distanceInput} />
+            km
+            
             <Select
               className={classes.filter}
               value={modeFilter}
@@ -370,7 +383,6 @@ const EventsHome = ({classes}: {
                 <MenuItem key="online" value="online">Online only</MenuItem>
             </Select>
 
-              
             <Select
               className={classNames(classes.filter, classes.formatFilter)}
               value={formatFilter}
@@ -393,11 +405,7 @@ const EventsHome = ({classes}: {
                   return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
                 })}
             </Select>
-            <FormLabel>
-                Filter events within
-                <OutlinedInput type='number' labelWidth={0} value={distance} onChange={(e) => setDistance(parseInt(e.target.value))}/>
-                km
-            </FormLabel>
+            
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
                 {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
