@@ -169,6 +169,7 @@ const CommunityHome = ({classes}: {
           <Components.CommunityMapWrapper
             terms={mapEventTerms}
             mapOptions={currentUserLocation.known && {center: currentUserLocation, zoom: 5}}
+            showUsers
           />
             <SingleColumnSection>
               <SectionTitle title={title} />
