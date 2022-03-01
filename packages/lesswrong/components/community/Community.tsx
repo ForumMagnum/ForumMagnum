@@ -20,6 +20,7 @@ import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import EmailIcon from '@material-ui/icons/MailOutline';
 import classNames from 'classnames';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -157,6 +158,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 20,
     marginLeft: 10,
     marginRight: 5
+  },
+  addGroup: {
+    marginTop: 20
   }
 }))
 
@@ -282,12 +286,14 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityBanner, LocalGroups, OnlineGroups } = Components
+  const { CommunityBanner, LocalGroups, OnlineGroups, GroupFormLink } = Components
   
   const handleChangeTab = (e, value) => {
     setTab(value)
     history.replace({...location, hash: `#${value}`})
   }
+  
+  const canCreateGroups = currentUser && userIsAdmin(currentUser)
 
   return (
     <AnalyticsContext pageContext="Community">
@@ -371,6 +377,9 @@ const Community = ({classes}: {
         
         {tab === 'online' && <OnlineGroups />}
         
+        {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
+          <GroupFormLink isOnline={tab === 'online'} />
+        </div>}
       </div>
     </AnalyticsContext>
   )
