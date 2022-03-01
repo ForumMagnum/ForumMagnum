@@ -122,7 +122,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
   // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
-    !pathname.includes('/events') && !pathname.includes('/groups');
+    !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
   const url = postLink || postGetPageUrl(post)
   

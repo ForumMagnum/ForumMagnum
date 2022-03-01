@@ -167,6 +167,18 @@ const schema: SchemaType<DbLocalgroup> = {
     regEx: SimpleSchema.RegEx.Url,
     tooltip: 'https://www.meetup.com/...'
   },
+  
+  slackLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Slack Workspace",
+    control: "MuiTextField",
+    optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
 
   website: {
     type: String,
