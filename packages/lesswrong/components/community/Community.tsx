@@ -175,15 +175,17 @@ const Community = ({classes}: {
   
   // local or online
   const [tab, setTab] = useState('local')
-  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">(() => {
-    // only US and UK default to miles - everyone else defaults to km
-    return ['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language) ? 'mi' : 'km'
-  })
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
   
   useEffect(() => {
     // unfortunately the hash is unavailable on the server, so we check it here instead
     if (location.hash === '#online') {
       setTab('online')
+    }
+    // only US and UK default to miles - everyone else defaults to km
+    // (this is checked here to allow SSR to work properly)
+    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
+      setDistanceUnit('mi')
     }
     //No exhaustive deps because this is supposed to run only on mount
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -206,7 +208,7 @@ const Community = ({classes}: {
    * @param {Object} location.gmaps - The Google Maps location data.
    * @param {string} location.gmaps.formatted_address - The user-facing address (ex: Cambridge, MA, USA).
    */
-   const saveUserLocation = ({lat, lng, gmaps}) => {
+  const saveUserLocation = ({lat, lng, gmaps}) => {
     // save it in the page state
     userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
 
