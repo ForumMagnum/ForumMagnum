@@ -6,6 +6,7 @@ import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import { useEffect, useState } from 'react';
+import * as _ from 'underscore';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
@@ -42,8 +43,13 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
     return !document.sharingSettings || document.sharingSettings.explicitlySharedUsersCan !== "none";
   } else {
     // If not individually shared with this user, still counts if shared if
-    // link sharing is enabled
-    return document.sharingSettings?.anyoneWithLinkCan && document.sharingSettings.anyoneWithLinkCan !== "none";
+    // (1) link sharing is enabled and (2) the user's ID is in
+    // linkSharingKeyUsedBy.
+    return (
+      document.sharingSettings?.anyoneWithLinkCan
+      && document.sharingSettings.anyoneWithLinkCan !== "none"
+      && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
+    )
   }
 }
 

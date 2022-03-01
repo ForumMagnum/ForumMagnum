@@ -399,6 +399,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     myEditorAccess
+    linkSharingKey
   }
 `)
 
@@ -406,6 +407,7 @@ registerFragment(`
   fragment PostsEdit on Post {
     ...PostsDetails
     myEditorAccess
+    linkSharingKey
     version
     coauthorUserIds
     moderationGuidelines {

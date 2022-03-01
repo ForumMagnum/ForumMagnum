@@ -77,6 +77,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       componentName: "PostSharingSettingsDialog",
       componentProps: {
         postId: document._id,
+        linkSharingKey: document.linkSharingKey,
         initialSharingSettings,
         onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
@@ -148,8 +149,9 @@ const PreviewSharingSettings = ({sharingSettings, unsavedChanges, classes}: {
 }
 
 
-const PostSharingSettingsDialog = ({postId, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
+const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
   postId: string,
+  linkSharingKey: string,
   initialSharingSettings: SharingSettings,
   setSharingSettings: (newSettings: SharingSettings)=>void,
   initialShareWithUsers: string[],
@@ -176,7 +178,7 @@ const PostSharingSettingsDialog = ({postId, initialSharingSettings, initialShare
   };
   
   const linkPrefix = getSiteUrl().slice(0,-1);
-  const collabEditorLink = `${linkPrefix}/collaborateOnPost?postId=${postId}`
+  const collabEditorLink = `${linkPrefix}/collaborateOnPost?postId=${postId}&key=${linkSharingKey}`
   
   return <LWDialog open={true}>
     <div className={classes.sharingSettingsDialog}>
@@ -224,7 +226,7 @@ const PostSharingSettingsDialog = ({postId, initialSharingSettings, initialShare
       </div>
       
       <div className={classes.buttonRow}>
-        {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" &&
+        {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId &&
           <CopyToClipboard
             text={collabEditorLink}
             onCopy={(text,result) => {

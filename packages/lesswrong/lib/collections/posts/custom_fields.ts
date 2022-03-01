@@ -18,6 +18,16 @@ import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 
+export const EVENT_TYPES = [
+  {value: 'presentation', label: 'Presentation'},
+  {value: 'discussion', label: 'Discussion'},
+  {value: 'workshop', label: 'Workshop'},
+  {value: 'social', label: 'Social'},
+  {value: 'coworking', label: 'Coworking'},
+  {value: 'course', label: 'Course'},
+  {value: 'conference', label: 'Conference'},
+]
+
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 function eaFrontpageDate (document: Partial<DbPost>) {
   if (document.isEvent || !document.submitToFrontpage) {
@@ -660,14 +670,7 @@ addFieldsDict(Posts, {
     optional: true,
     order: 2,
     form: {
-      options: [
-        {value: 'presentation', label: 'Presentation'},
-        {value: 'discussion', label: 'Discussion'},
-        {value: 'workshop', label: 'Workshop'},
-        {value: 'social', label: 'Social'},
-        {value: 'coworking', label: 'Coworking'},
-        {value: 'course', label: 'Course'},
-      ]
+      options: EVENT_TYPES
     },
   },
 
@@ -719,6 +722,7 @@ addFieldsDict(Posts, {
     group: formGroups.event,
     optional: true,
     nullable: true,
+    tooltip: 'For courses/programs, this is the application deadline.'
   },
 
   localStartTime: {
@@ -728,7 +732,7 @@ addFieldsDict(Posts, {
 
   endTime: {
     type: Date,
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || props.document.eventType === 'course',
     viewableBy: ['guests'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
@@ -974,7 +978,33 @@ addFieldsDict(Posts, {
     foreignKey: "Users",
     optional: true
   },
+  
+  // linkSharingKey: An additional ID for this post which is used for link-sharing,
+  // and not made accessible to people who merely have access to the published version
+  // of a post. Only populated if some form of link sharing is (or has been) enabled.
+  linkSharingKey: {
+    type: String,
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
 
+  // linkSharingKeyUsedBy: An array of user IDs who have used the link-sharing key
+  // to unlock access.
+  linkSharingKeyUsedBy: {
+    type: Array,
+    viewableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
+  'linkSharingKeyUsedBy.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true
+  },
+  
+  
   commentSortOrder: {
     type: String,
     viewableBy: ['guests'],

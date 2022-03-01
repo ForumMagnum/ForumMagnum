@@ -6,6 +6,7 @@ import CreateIcon from '@material-ui/icons/Create';
 import PeopleIcon from '@material-ui/icons/People';
 import LaptopIcon from '@material-ui/icons/LaptopMac';
 import ViewListIcon from '@material-ui/icons/ViewList';
+import LocalActivityIcon from '@material-ui/icons/LocalActivity';
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -100,7 +101,8 @@ const PostsPageEventData = ({classes, post}: {
     workshop: CreateIcon,
     social: PeopleIcon,
     coworking: LaptopIcon,
-    course: ViewListIcon
+    course: ViewListIcon,
+    conference: LocalActivityIcon
   }
 
   const eventTypeNode = (Icon, text) => <div className={classes.eventType}>

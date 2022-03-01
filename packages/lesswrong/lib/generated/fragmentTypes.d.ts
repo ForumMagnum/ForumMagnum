@@ -604,10 +604,12 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
+  readonly linkSharingKey: string,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
+  readonly linkSharingKey: string,
   readonly version: string,
   readonly coauthorUserIds: Array<string>,
   readonly moderationGuidelines: RevisionEdit|null,
