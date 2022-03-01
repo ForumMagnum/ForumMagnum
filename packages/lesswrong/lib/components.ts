@@ -441,6 +441,7 @@ importComponent("TagHistoryPageTitle", () => require('../components/tagging/TagH
 importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
+importComponent("PostsPageTopTag", () => require('../components/tagging/PostsPageTopTag'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("RandomTagPage", () => require('../components/tagging/RandomTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
