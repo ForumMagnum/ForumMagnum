@@ -669,6 +669,7 @@ addFieldsDict(Posts, {
     group: formGroups.event,
     optional: true,
     order: 2,
+    label: 'Event Format',
     form: {
       options: EVENT_TYPES
     },
@@ -967,7 +968,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: true,
+    hidden: false, //Temporary while testing new collab editing
     control: "UsersListEditor",
     label: "Share draft with users",
     group: formGroups.options

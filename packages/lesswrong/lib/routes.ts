@@ -477,6 +477,14 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EASequencesHome'
     },
     {
+      name: 'EventsHome',
+      path: '/events',
+      componentName: 'EventsHome',
+      title: 'Events',
+      subtitle: 'Events',
+      subtitleLink: '/events'
+    },
+    {
       name: "communityRedirect",
       path:'/groupsAndEvents',
       redirect: () => '/community'
@@ -875,15 +883,6 @@ if (hasEventsSetting.get()) {
       componentName: 'EventsUpcoming',
       title: "Upcoming Events by Day"
     },
-    {
-      name: 'EventsHome',
-      path: '/events',
-      componentName: 'EventsHome',
-      title: 'Events',
-      subtitle: 'Events',
-      subtitleLink: '/events'
-    },
-
     {
       name: 'CommunityHome',
       path: communityPath,
