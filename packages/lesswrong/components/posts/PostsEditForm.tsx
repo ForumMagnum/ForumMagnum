@@ -57,10 +57,9 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     </Components.SingleColumnSection>
   }
 
-  // If we only have read access to this post, but it's shared with us
-  // as a draft, redirect to the collaborative editor.
+  // If we only have read access to this post, but it's shared with us,
+  // redirect to the collaborative editor.
   if (document
-    && document.draft
     && document.userId!==currentUser?._id
     && document.sharingSettings
     && !userIsAdmin(currentUser)
