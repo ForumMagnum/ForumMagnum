@@ -3,11 +3,13 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
+import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
+import { useQuery, gql } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -36,14 +38,23 @@ const PostCollaborationEditor = ({ classes }: {
   const currentUser = useCurrentUser();
   const [editorLoaded, setEditorLoaded] = useState(false)
 
-  const { query: { postId } } = useLocation();
+  const { query: { postId, key } } = useLocation();
 
-  const { document: post, loading, error } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsPage',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-    documentId: postId,
+  const { data, loading, error } = useQuery(gql`
+    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
+      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
+        ...PostsPage
+      }
+    }
+    ${fragmentTextForQuery("PostsPage")}
+  `, {
+    variables: {
+      postId,
+      linkSharingKey: key||"",
+    },
+    ssr: true,
   });
+  const post: PostsPage = data?.getLinkSharedPost;
   
   // If logged out, show a login form. (Even if link-sharing is enabled, you still
   // need to be logged into LessWrong with some account.)
@@ -71,7 +82,13 @@ const PostCollaborationEditor = ({ classes }: {
   // If you're the primary author, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
   if (post?.userId === currentUser._id) {
-    return <Components.PermanentRedirect url={`/editPost?postId=${post._id}`}/>
+    return <Components.PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
+  }
+  
+  // If the post has a link-sharing key which is not in the URL, redirect to add
+  // the link-sharing key to the URL
+  if (post?.linkSharingKey && !key) {
+    return <Components.PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)} status={302}/>
   }
   
   return <SingleColumnSection>

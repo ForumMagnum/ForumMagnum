@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -158,7 +158,7 @@ const PostsNewForm = ({classes}: {
             successCallback={(post, options) => {
               if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
               if (options?.submitOptions?.redirectToEditor) {
-                history.push(`/editPost?postId=${post._id}`);
+                history.push(postGetEditUrl(post._id));
               } else {
                 history.push({pathname: postGetPageUrl(post)})
                 flash({ messageString: "Post created.", type: 'success'});

@@ -978,7 +978,33 @@ addFieldsDict(Posts, {
     foreignKey: "Users",
     optional: true
   },
+  
+  // linkSharingKey: An additional ID for this post which is used for link-sharing,
+  // and not made accessible to people who merely have access to the published version
+  // of a post. Only populated if some form of link sharing is (or has been) enabled.
+  linkSharingKey: {
+    type: String,
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
 
+  // linkSharingKeyUsedBy: An array of user IDs who have used the link-sharing key
+  // to unlock access.
+  linkSharingKeyUsedBy: {
+    type: Array,
+    viewableBy: ['admins'],
+    optional: true,
+    hidden: true,
+  },
+  'linkSharingKeyUsedBy.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true
+  },
+  
+  
   commentSortOrder: {
     type: String,
     viewableBy: ['guests'],

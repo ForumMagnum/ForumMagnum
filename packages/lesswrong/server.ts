@@ -15,6 +15,7 @@ import './server/database-import/cleanup_scripts';
 import './server/robots';
 import './server/ckEditor/ckEditorToken';
 import './server/ckEditor/ckEditorWebhook';
+import './server/ckEditor/ckEditorCallbacks';
 
 // Scripts
 import './server/scripts/sscImport';
