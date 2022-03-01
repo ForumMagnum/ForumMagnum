@@ -258,6 +258,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
+  readonly bannerImageId: string,
   readonly tagFlagsIds: Array<string>,
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
@@ -1400,6 +1401,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly defaultOrder: number,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
+  readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
 }

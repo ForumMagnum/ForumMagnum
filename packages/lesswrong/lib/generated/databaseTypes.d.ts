@@ -641,6 +641,7 @@ interface DbTag extends DbObject {
   reviewedByUserId: string
   wikiGrade: number
   wikiOnly: boolean
+  bannerImageId: string
   tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string
