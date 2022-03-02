@@ -91,15 +91,20 @@ const PostsPageTopTag = ({post, classes}: {
   // });
   const { PopperCard, TagRelCard } = Components
   
-  const { results, loading, refetch } = useMulti({
-    terms: {
-      view: "tagsOnPost",
-      postId: post._id,
-    },
-    collectionName: "TagRels",
-    fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
-    limit: 100,
-  });
+  // const { results, loading, refetch } = useMulti({
+  //   terms: {
+  //     view: "tagsOnPost",
+  //     postId: post._id,
+  //   },
+  //   collectionName: "TagRels",
+  //   fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
+  //   limit: 100,
+  // });
+  
+  // Fragment types have it typed as `any`. It is a map from tagId to the
+  // relevance of the tag to the post
+  const tagRels = post.tagRelevance as Record<string, number>
+  const tags = post.tags
   
   // if (tag.adminOnly) { return null }
   return <div>Hello cruel world!</div>
