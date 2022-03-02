@@ -92,7 +92,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   noUpcomingEvents: {
     color: theme.palette.grey[600],
   },
-  pastEvents: {
+  pastEventCard: {
     filter: 'saturate(0.5) opacity(0.8)',
   }
 }));
@@ -252,6 +252,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
               loading={upcomingEventsLoading}
               numDefaultCards={2}
               hideSpecialCards
+              hideGroupNames
             />
             <LoadMore {...upcomingEventsLoadMoreProps}  />
           </div>
@@ -272,8 +273,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <EventCards
               events={tbdEvents}
               loading={tbdEventsLoading}
-              numDefaultCards={2}
               hideSpecialCards
+              hideGroupNames
             />
             <LoadMore {...tbdEventsLoadMoreProps}  />
           </div>
@@ -282,12 +283,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           <Components.Typography variant="headline" className={classes.eventsHeadline}>
             Past Events
           </Components.Typography>
-          <div className={classNames(classes.eventCards, classes.pastEvents)}>
+          <div className={classes.eventCards}>
             <EventCards
               events={pastEvents}
               loading={pastEventsLoading}
-              numDefaultCards={2}
               hideSpecialCards
+              hideGroupNames
+              cardClassName={classes.pastEventCard}
             />
             <LoadMore {...pastEventsLoadMoreProps}  />
           </div>
