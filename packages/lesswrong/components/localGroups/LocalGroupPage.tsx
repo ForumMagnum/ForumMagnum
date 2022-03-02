@@ -11,6 +11,7 @@ import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -64,8 +65,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...postBodyStyles(theme),
     padding: theme.spacing.unit,
   },
-  eventPostsHeadline: {
-    marginTop: 20
+  eventsHeadline: {
+    marginTop: 40,
+    marginBottom: 16,
+  },
+  eventCards: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 373px)',
+    gridGap: '20px',
+    justifyContent: 'center',
+    '@media (max-width: 812px)': {
+      gridTemplateColumns: 'auto',
+    }
   },
   mapContainer: {
     height: 200,
@@ -84,16 +95,45 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage
+    Error404, CloudinaryImage, EventCards, LoadMore
   } = Components
 
-  const { document: group, loading } = useSingle({
+  const { document: group, loading: groupLoading } = useSingle({
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     documentId: groupId
   })
+  
+  const {
+    results: upcomingEvents,
+    loading: upcomingEventsLoading,
+    loadMoreProps: upcomingEventsLoadMoreProps
+  } = useMulti({
+    terms: {view: 'upcomingEvents', groupId: groupId},
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first",
+    limit: 2,
+    itemsPerPage: 6,
+    enableTotal: true,
+  });
+  const {
+    results: tbdEvents,
+    loading: tbdEventsLoading,
+    loadMoreProps: tbdEventsLoadMoreProps
+  } = useMulti({
+    terms: {view: 'tbdEvents', groupId: groupId},
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first",
+    limit: 2,
+    itemsPerPage: 6,
+    enableTotal: true,
+  });
 
-  if (loading) return <Loading />
+  if (groupLoading) return <Loading />
   if (!group) return <Error404 />
 
   const { html = ""} = group.contents || {}
@@ -174,15 +214,39 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           />}
         </div>
         
+        {/* TODO; refactor to return null if nothing found, if you're brave enough */}
+        {/* Or pick margins that are good enough in either case */}
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
         
-        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
+        <Components.Typography variant="headline" className={classes.eventsHeadline}>
           Upcoming Events
         </Components.Typography>
-        <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
-        <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+        <div className={classes.eventCards}>
+          <EventCards
+            events={upcomingEvents}
+            loading={upcomingEventsLoading}
+            numDefaultCards={2}
+            hideSpecialCards
+          />
+          <LoadMore {...upcomingEventsLoadMoreProps}  />
+        </div>
+        {!!tbdEvents.length && <>
+          <Components.Typography variant="headline" className={classes.eventsHeadline}>
+            To Be Scheduled Events
+          </Components.Typography>
+          <div className={classes.eventCards}>
+            <EventCards
+              events={tbdEvents}
+              loading={tbdEventsLoading}
+              numDefaultCards={2}
+              hideSpecialCards
+            />
+            <LoadMore {...tbdEventsLoadMoreProps}  />
+          </div>
+        </>}
+        {/* TODO; what do we do if there are no upcoming events */}
         
-        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
+        <Components.Typography variant="headline" className={classes.eventsHeadline}>
           Past Events
         </Components.Typography>
         <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />

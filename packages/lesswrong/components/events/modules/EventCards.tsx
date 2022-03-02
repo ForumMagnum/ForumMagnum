@@ -28,18 +28,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   communityLink: {
     color: theme.palette.primary.main,
   },
-  eventCards: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 373px)',
-    gridGap: '20px',
-    justifyContent: 'center',
-    [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(2, 373px)',
-    },
-    '@media (max-width: 812px)': {
-      gridTemplateColumns: 'auto',
-    }
-  },
   eventCard: {
     position: 'relative',
     width: 373,
@@ -170,6 +158,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
           </div>
         </PostsItemTooltipWrapper>
         <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
+        {/* TODO; hide group name in group event list */}
         {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
