@@ -46,6 +46,7 @@ const NotifyMeButton = ({
   hideLabel = false,
   hideLabelOnMobile = false,
   hideIfNotificationsDisabled = false,
+  componentIfSubscribed,
 }: {
   document: any,
   subscriptionType?: string,
@@ -59,6 +60,7 @@ const NotifyMeButton = ({
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
   hideIfNotificationsDisabled?: boolean,
+  componentIfSubscribed?: JSX.Element,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -160,7 +162,7 @@ const NotifyMeButton = ({
   
   const maybeMenuItemButton = asMenuItem ?
     <MenuItem onClick={onSubscribe}>
-      <a className={classNames(className, classes.root)}>
+      <a className={classNames(classes.root, className)}>
         {button}
       </a>
     </MenuItem> :
@@ -172,8 +174,8 @@ const NotifyMeButton = ({
       {maybeMenuItemButton}
     </Components.LWTooltip> :
     maybeMenuItemButton
-    
-  return maybeToolipButton
+  
+  return componentIfSubscribed && isSubscribed() ? componentIfSubscribed : maybeToolipButton
 }
 
 const SubscribeToComponent = registerComponent('NotifyMeButton', NotifyMeButton, {styles});

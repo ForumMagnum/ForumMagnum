@@ -12,6 +12,7 @@ import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -83,6 +84,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 50,
     marginLeft: 'auto',
     marginRight: 'auto'
+  },
+  notifyMeButton: {
+    display: 'inline !important',
+    color: theme.palette.primary.main,
+  },
+  noUpcomingEvents: {
+    color: theme.palette.grey[600],
+  },
+  pastEvents: {
+    filter: 'saturate(0.5) opacity(0.8)',
   }
 }));
 
@@ -124,6 +135,20 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     loadMoreProps: tbdEventsLoadMoreProps
   } = useMulti({
     terms: {view: 'tbdEvents', groupId: groupId},
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first",
+    limit: 2,
+    itemsPerPage: 6,
+    enableTotal: true,
+  });
+  const {
+    results: pastEvents,
+    loading: pastEventsLoading,
+    loadMoreProps: pastEventsLoadMoreProps
+  } = useMulti({
+    terms: {view: 'pastEvents', groupId: groupId},
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
@@ -217,20 +242,29 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {/* TODO; refactor to return null if nothing found, if you're brave enough */}
         {/* Or pick margins that are good enough in either case */}
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
-        
         <Components.Typography variant="headline" className={classes.eventsHeadline}>
           Upcoming Events
         </Components.Typography>
-        <div className={classes.eventCards}>
-          <EventCards
-            events={upcomingEvents}
-            loading={upcomingEventsLoading}
-            numDefaultCards={2}
-            hideSpecialCards
-          />
-          <LoadMore {...upcomingEventsLoadMoreProps}  />
-        </div>
-        {!!tbdEvents.length && <>
+        {!!upcomingEvents?.length ? (<>
+          <div className={classes.eventCards}>
+            <EventCards
+              events={upcomingEvents}
+              loading={upcomingEventsLoading}
+              numDefaultCards={2}
+              hideSpecialCards
+            />
+            <LoadMore {...upcomingEventsLoadMoreProps}  />
+          </div>
+        </>) : <Components.Typography variant="body1" className={classes.noUpcomingEvents}>No upcoming events.{' '}
+            <NotifyMeButton
+              showIcon={false}
+              document={group}
+              subscribeMessage="Subscribe to be notified when an event is added."
+              componentIfSubscribed={<span>You are subscribed to be notified when an event is added.</span>}
+              className={classes.notifyMeButton}
+            />
+          </Components.Typography>}
+        {!!tbdEvents?.length && <>
           <Components.Typography variant="headline" className={classes.eventsHeadline}>
             To Be Scheduled Events
           </Components.Typography>
@@ -244,13 +278,20 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <LoadMore {...tbdEventsLoadMoreProps}  />
           </div>
         </>}
-        {/* TODO; what do we do if there are no upcoming events */}
-        
-        <Components.Typography variant="headline" className={classes.eventsHeadline}>
-          Past Events
-        </Components.Typography>
-        <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
-        
+        {!!pastEvents?.length && <>
+          <Components.Typography variant="headline" className={classes.eventsHeadline}>
+            Past Events
+          </Components.Typography>
+          <div className={classNames(classes.eventCards, classes.pastEvents)}>
+            <EventCards
+              events={pastEvents}
+              loading={pastEventsLoading}
+              numDefaultCards={2}
+              hideSpecialCards
+            />
+            <LoadMore {...pastEventsLoadMoreProps}  />
+          </div>
+        </>}
         {bottomSection}
       </SingleColumnSection>
     </div>
