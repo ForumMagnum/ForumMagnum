@@ -185,7 +185,7 @@ addFieldsDict(Users, {
   },
 
 
-  sortDrafts: {
+  sortDraftsBy: {
     type: String,
     optional: true,
     canRead: [userOwns, 'admins'],

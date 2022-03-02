@@ -38,7 +38,6 @@ declare global {
     lat?: number,
     lng?: number,
     slug?: string,
-    sortDrafts?: string,
     sortDraftsBy?: string,
     forum?: boolean,
     question?: boolean,
@@ -645,7 +644,6 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       authorIsUnreviewed: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
-      isEvent: false,
       deletedDraft: false,
     },
     options: {

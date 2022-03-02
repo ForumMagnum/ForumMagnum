@@ -216,7 +216,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
 
 
-    const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: user._id, limit: 5, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+    const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: user._id, limit: 5, sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};

@@ -37,7 +37,7 @@ const DraftsPage = ({classes}) => {
   const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser.draftsListShowArchived
   const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : (currentUser.draftsListShowShared !== false)
   
-  const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: currentUser._id, limit: 50, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
+  const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: currentUser._id, limit: 50, sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt" }
   draftTerms.includeArchived = currentIncludeArchived
   draftTerms.includeShared = currentUser.draftsListShowShared || currentIncludeShared
   draftTerms.sortDraftsBy = currentUser.draftsListSorting || currentSorting
