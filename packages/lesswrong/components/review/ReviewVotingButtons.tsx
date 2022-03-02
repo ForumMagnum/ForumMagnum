@@ -91,7 +91,7 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
                 })}
                 onClick={createClickHandler(i)}
               >
-              {getCostData({costTotal})[i].label}
+              {getCostData({costTotal})[i].value}
             </span>
           </LWTooltip>
         })}

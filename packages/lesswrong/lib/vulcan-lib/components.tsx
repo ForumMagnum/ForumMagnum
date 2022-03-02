@@ -22,7 +22,7 @@ interface ComponentOptions {
   
   // Array of higher-order components that this component should be wrapped
   // with.
-  hocs?: Array<any>
+  hocs?: Array<any>,
   
   // Determines what changes to props are considered relevant, for rerendering.
   // Takes either "auto" (meaning a shallow comparison of all props), a function
@@ -81,8 +81,8 @@ type EmailRenderContextType = {
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const addClassnames = (componentName: string, styles: any) => {
-  const classesProxy = new Proxy({}, {
+const classNameProxy = (componentName: string) => {
+  return new Proxy({}, {
     get: function(obj: any, prop: any) {
       // Check that the prop is really a string. This isn't an error that comes
       // up normally, but apparently React devtools will try to query for non-
@@ -93,6 +93,10 @@ const addClassnames = (componentName: string, styles: any) => {
         return `${componentName}-invalid`;
     }
   });
+}
+
+const addClassnames = (componentName: string, styles: any) => {
+  const classesProxy = classNameProxy(componentName);
   return (WrappedComponent: any) => (props: any) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
@@ -103,6 +107,10 @@ const addClassnames = (componentName: string, styles: any) => {
     return <WrappedComponent {...props} classes={classesProxy}/>
   }
 }
+
+export const useStyles = (styles: (theme: ThemeType)=>JssStyles, componentName: keyof ComponentTypes) => {
+  return classNameProxy(componentName);
+};
 
 // Register a component. Takes a name, a raw component, and ComponentOptions
 // (see above). Components should be in their own file, imported with

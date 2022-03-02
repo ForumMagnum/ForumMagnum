@@ -18,12 +18,12 @@ import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from '../../li
 //     add to the schema, provided for convenience so you can define the types
 //     referenced in resultType and argTypes in the same place.
 //   fn: ((root,args,context)=>resultType). The GraphQL resolver.
-export const defineQuery = ({name, resultType, argTypes=null, schema, fn}: {
+export const defineQuery = ({name, resultType, argTypes=null, schema=null, fn}: {
   name: string,
   resultType: string,
   argTypes?: string|null,
-  schema?: string,
-  fn: any,
+  schema?: string|null,
+  fn: (root: any, args: any, context: ResolverContext)=>any,
 }) => {
   if (schema) {
     if (typeof(schema) !== 'string') {

@@ -13,6 +13,7 @@ import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
+import EventIcon from '@material-ui/icons/Event';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
@@ -286,26 +287,33 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'replacing-guilt',
       title: 'Replacing Guilt',
       link: '/s/a2LBRPLhvwB83DSGq',
-      tooltip: "Nate Soares writes about replacing guilt with other feelings, exercising self-compassion, and developing confidence — so that we can create a better world.",
+      tooltip: "Nate Soares writes about replacing guilt with other feelings and finding better ways to motivate yourself, so you can build a better future without falling apart.",
       subItem: true,
     }, {
       id: 'most-important-century',
       title: 'Most Important Century',
       link: '/s/isENJuPdB3fhjWYHd',
-      tooltip: `Holden Karnofsky argues that there's a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
+      tooltip: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
       subItem: true,
     }, {
       id: 'events',
-      title: 'Community and Events',
-      mobileTitle: 'Events',
-      link: communityPath,
-      iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See EA groups and events in your area',
+      title: 'Events',
+      link: '/events',
+      iconComponent: EventIcon,
+      tooltip: 'Upcoming events near you',
       showOnMobileStandalone: true,
       showOnCompressed: true
     }, {
       id: 'eventsList',
       customComponentName: "EventsList",
+    }, {
+      id: 'community',
+      title: 'Community',
+      link: communityPath,
+      iconComponent: SupervisedUserCircleIcon,
+      tooltip: 'See EA groups and community members in your area',
+      showOnMobileStandalone: false,
+      showOnCompressed: true
     }, {
       id: 'divider',
       divider: true,

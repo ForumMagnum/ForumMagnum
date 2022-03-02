@@ -34,6 +34,7 @@ declare global {
     excludeEvents?: boolean,
     onlineEvent?: boolean,
     globalEvent?: boolean,
+    eventType?: Array<string>,
     groupId?: string,
     lat?: number,
     lng?: number,
@@ -882,25 +883,35 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
+  
+  let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
+  if (terms.onlineEvent === false) {
+    onlineEventSelector = {$or: [
+      {onlineEvent: false}, {onlineEvent: {$exists: false}}
+    ]}
+  }
+  
   let query = {
     selector: {
       globalEvent: true,
       isEvent: true,
       groupId: null,
-      ...timeSelector,
+      eventType: terms.eventType ? {$in: terms.eventType} : null,
+      $and: [
+        timeSelector, onlineEventSelector
+      ],
     },
     options: {
       sort: {
         startTime: 1,
-        createdAt: null,
-        _id: null
+        _id: 1
       }
     }
   }
   return query
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ globalEvent:1, startTime:1 }),
+  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1 }),
   { name: "posts.globalEvents" }
 );
 
@@ -909,37 +920,37 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
     {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
   ]}
-  // make sure that, by default, events are not global
-  let globalEventSelector: {} = terms.globalEvent ? {globalEvent: true} : {};
-  if (terms.globalEvent === false) {
-    globalEventSelector = {$or: [
-      {globalEvent: false}, {globalEvent: {$exists: false}}
+  
+  let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
+  if (terms.onlineEvent === false) {
+    onlineEventSelector = {$or: [
+      {onlineEvent: false}, {onlineEvent: {$exists: false}}
     ]}
   }
-
+  
   let query: any = {
     selector: {
-      location: {$exists: true},
       groupId: null,
       isEvent: true,
+      eventType: terms.eventType ? {$in: terms.eventType} : null,
       $and: [
-        timeSelector, globalEventSelector
+        timeSelector, onlineEventSelector
       ],
-      mongoLocation: {
-        $near: {
-          $geometry: {
-               type: "Point" ,
-               coordinates: [ terms.lng, terms.lat ]
-          },
-          $maxDistance: 240000 // only show in-person events within 150 miles
+      $or: [
+        {
+          mongoLocation: {
+            $geoWithin: {
+              $centerSphere: [ [ terms.lng, terms.lat ], 100/3963.2 ] // only show in-person events within 100 miles
+            }
+          }
         },
-      }
+        {globalEvent: true} // also include events that are open to everyone around the world
+      ]
     },
     options: {
       sort: {
         startTime: 1, // show events in chronological order
-        createdAt: null,
-        _id: null
+        _id: 1
       }
     }
   };
@@ -951,7 +962,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
   return query;
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ mongoLocation:"2dsphere", location:1, startTime:1 }),
+  augmentForDefaultView({ mongoLocation:"2dsphere", eventType:1, startTime:1 }),
   { name: "posts.2dsphere" }
 );
 
@@ -969,11 +980,18 @@ Posts.addView("events", (terms: PostsViewTerms) => {
     ]}
   }
   
+  let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
+  if (terms.onlineEvent === false) {
+    onlineEventSelector = {$or: [
+      {onlineEvent: false}, {onlineEvent: {$exists: false}}
+    ]}
+  }
+  
   return {
     selector: {
       isEvent: true,
       $and: [
-        timeSelector, globalEventSelector
+        timeSelector, globalEventSelector, onlineEventSelector
       ],
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,

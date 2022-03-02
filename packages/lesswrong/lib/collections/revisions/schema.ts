@@ -33,6 +33,23 @@ const schema: SchemaType<DbRevision> = {
     optional: true,
     viewableBy: ['guests'],
   },
+  
+  // autosaveTimeoutStart: If this revision was created by rate-limited
+  // autosaving, this is the timestamp that the rate limit is computed relative
+  // to. This is separate from editedAt, which is when this revision was last
+  // rewritten. This is so that if the revision is repeatedly updated in place,
+  // chaining together edits can't produce an interval longer than the
+  // intended one.
+  //
+  // Optional, only present on revisions that have been autosaved in-place at
+  // least once.
+  //
+  // See also: saveOrUpdateDocumentRevision in ckEditorWebhook.ts
+  autosaveTimeoutStart: {
+    type: Date,
+    optional: true,
+  },
+  
   updateType: {
     viewableBy: ['guests'],
     editableBy: ['members'],

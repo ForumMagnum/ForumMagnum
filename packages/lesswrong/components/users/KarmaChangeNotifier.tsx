@@ -14,7 +14,7 @@ import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { getHeaderTextColor } from '../common/Header';
 import MenuItem from '@material-ui/core/MenuItem';
-import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
+import { karmaNotificationTimingChoices } from '../forms/FormKarmaChangeNotifierSettings'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';

@@ -14,6 +14,7 @@ import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
 
 export const MAX_COLUMN_WIDTH = 720
+export const CENTRAL_COLUMN_WIDTH = 682
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /cross-? ?posted/i,
@@ -75,7 +76,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   centralColumn: {
-    maxWidth: 650 + (theme.spacing.unit*4),
+    maxWidth: CENTRAL_COLUMN_WIDTH, 
     marginLeft: 'auto',
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
@@ -208,7 +209,7 @@ const PostsPage = ({post, refetch, classes}: {
             {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
               <CloudinaryImage2
                 publicId={post.eventImageId}
-                imgProps={{ar: '16:9', w: '682', q: 'auto:best'}}
+                imgProps={{ar: '16:9', w: '682'}}
                 className={classes.headerImage}
               />
             </div>}
@@ -220,7 +221,6 @@ const PostsPage = ({post, refetch, classes}: {
       <div className={classes.centralColumn}>
         {/* Body */}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        { post.isEvent && !post.onlineEvent && <Components.SmallMapPreview post={post} /> }
         <div className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">

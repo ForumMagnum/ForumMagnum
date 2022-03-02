@@ -37,6 +37,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     background: "white"
   },
+  translucentBackground: {
+    width: "100%",
+    background: "rgba(255,255,255,.87)",
+    backdropFilter: "blur(1px)"
+  },
   postsItem: {
     display: "flex",
     position: "relative",
@@ -282,7 +287,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 2,
   },
   isRead: {
-    background: "white" // this is just a placeholder, enabling easier theming.
+    // this is just a placeholder, enabling easier theming.
   }
 })
 
@@ -350,6 +355,8 @@ const PostsItem2 = ({
   classes,
   curatedIconLeft=false,
   strikethroughTitle=false,
+  translucentBackground=false,
+  forceSticky=false
 }: {
   post: PostsList,
   tagRel?: WithVoteTagRel|null,
@@ -377,6 +384,8 @@ const PostsItem2 = ({
   classes: ClassesType,
   curatedIconLeft?: boolean,
   strikethroughTitle?: boolean
+  translucentBackground?: boolean,
+  forceSticky?: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -457,8 +466,9 @@ const PostsItem2 = ({
       <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
         <div className={classNames(
           classes.root,
-          classes.background,
           {
+            [classes.background]: !translucentBackground,
+            [classes.translucentBackground]: translucentBackground,
             [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
             [classes.isRead]: isRead
@@ -489,7 +499,7 @@ const PostsItem2 = ({
                       postLink={draft ? postEditLink : postLink}
                       post={post}
                       read={isRead}
-                      sticky={isSticky(post, terms)}
+                      sticky={isSticky(post, terms) || forceSticky}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
                       {...(showPersonalIcon ? {showPersonalIcon} : {})}

@@ -1,6 +1,6 @@
 import { isClient } from '../../lib/executionEnvironment';
 
-function getBrowserLocalStorage() {
+export function getBrowserLocalStorage() {
   try {
     return 'localStorage' in global && (global as any).localStorage ? (global as any).localStorage : null;
   } catch(e) {
@@ -14,21 +14,24 @@ function getBrowserLocalStorage() {
 
 // Return a wrapper around localStorage, with get, set, and reset functions
 // which handle the (document, field-name, prefix) => key mapping.
-export const getLSHandlers = (getLocalStorageId) => {
+export const getLSHandlers = (getLocalStorageId: any, doc: any, name: string, prefix: string) => {
+  const { id, verify } = getLocalStorageId(doc, name)
+  const prefixedId = prefix+id;
+  
   return {
-    get: ({doc, name, prefix}: { doc: any, name: string, prefix: string }) => {
-      const { id, verify } = getLocalStorageId(doc, name)
+    get: () => {
       const ls = getBrowserLocalStorage();
-      if (!ls) return null;
+      if (!isClient || !ls) return null;
       
       try {
-        const savedState = JSON.parse(ls.getItem(prefix+id))
-        if (verify && savedState && isClient && window) {
+        const savedState = JSON.parse(ls.getItem(prefixedId))
+        return savedState;
+        /*if (verify && savedState && isClient && window) {
           const result = window.confirm("We've found a previously saved state for this document, would you like to restore it?")
           return result ? savedState : null
         } else {
           return savedState
-        }
+        }*/
       } catch(e) {
         // eslint-disable-next-line no-console
         console.warn("Failed reading from localStorage:");
@@ -37,13 +40,12 @@ export const getLSHandlers = (getLocalStorageId) => {
         return null;
       }
     },
-    set: ({state, doc, name, prefix}: {state: any, doc: any, name: string, prefix: string}) => {
+    set: (state: any) => {
       const ls = getBrowserLocalStorage();
       if (!ls) return false;
-      const id = prefix+getLocalStorageId(doc, name).id;
       
       try {
-        ls.setItem(id, JSON.stringify(state))
+        ls.setItem(prefixedId, JSON.stringify(state))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.warn("Failed writing to localStorage:");
@@ -53,13 +55,12 @@ export const getLSHandlers = (getLocalStorageId) => {
       }
       return true;
     },
-    reset: ({doc, name, prefix}: {doc: any, name: string, prefix: string}) => {
+    reset: () => {
       const ls = getBrowserLocalStorage();
       if (!ls) return;
-      const id = prefix+getLocalStorageId(doc, name).id;
       
       try {
-        ls.removeItem(id)
+        ls.removeItem(prefixedId)
       } catch(e) {
         // eslint-disable-next-line no-console
         console.warn("Failed writing to localStorage:");
@@ -67,5 +68,17 @@ export const getLSHandlers = (getLocalStorageId) => {
         console.warn(e);
       }
     }
+  }
+}
+
+// Get an editor-type-specific prefix to use on localStorage keys, to prevent
+// drafts written with different editors from having conflicting names.
+export const getLSKeyPrefix = (editorType: string): string => {
+  switch(editorType) {
+    default:
+    case "draftJS":  return "";
+    case "markdown": return "md_";
+    case "html":     return "html_";
+    case "ckEditorMarkup": return "ckeditor_";
   }
 }

@@ -12,6 +12,7 @@ import { getWithLoader } from '../../loaders';
 import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
+import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 
 const STICKY_PRIORITIES = {
@@ -127,7 +128,7 @@ const schema: SchemaType<DbPost> = {
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
-    group: formGroups.default,
+    group: formGroups.title,
   },
   // Slug
   slug: {
@@ -618,6 +619,8 @@ const schema: SchemaType<DbPost> = {
     }),
     canRead: ['guests'],
   },
+
+  // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
@@ -665,6 +668,58 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests']
   },
   'reviewVotesAllKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  // the final review scores for each post, at the end of the review.
+  finalReviewVoteScoreHighKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  finalReviewVotesHighKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'finalReviewVotesHighKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  finalReviewVoteScoreAllKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  finalReviewVotesAllKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'finalReviewVotesAllKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  finalReviewVoteScoreAF: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  finalReviewVotesAF: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'finalReviewVotesAF.$': {
     type: Number,
     optional: true,
   },
@@ -864,6 +919,18 @@ const schema: SchemaType<DbPost> = {
       }
     },
   },
+  
+  myEditorAccess: resolverOnlyField({
+    type: String,
+    viewableBy: ['guests'],
+    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+      return getCollaborativeEditorAccess({
+        formType: "edit",
+        post, user: context.currentUser,
+        useAdminPowers: false,
+      });
+    }
+  }),
 };
 
 export default schema;
