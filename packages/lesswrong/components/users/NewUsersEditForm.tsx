@@ -140,7 +140,7 @@ const NewUsersEditForm = ({currentUser, terms, classes}: {
         
         <h2>Sorting</h2>
         <FormDropdown form={form} fieldName="commentSorting" label="Comment Sorting" collectionName="Users" />
-        <FormDropdown form={form} fieldName="sortDrafts" label="Sort Drafts by" collectionName="Users" />
+        <FormDropdown form={form} fieldName="sortDraftsBy" label="Sort Drafts by" collectionName="Users" />
         
         <h2>Hide Elements</h2>
         <FormCheckbox form={form} fieldName="hideTaggingProgressBar" label="Hide the tagging progress bar"/>

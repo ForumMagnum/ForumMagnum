@@ -18,7 +18,7 @@ const DraftsPage = ({classes}: {
     view: "drafts",
     userId: currentUser._id,
     limit: 50,
-    sortDrafts: currentUser?.sortDrafts || "modifiedAt"
+    sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt"
   };
   
   return <SingleColumnSection>
