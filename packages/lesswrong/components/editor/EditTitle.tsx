@@ -47,7 +47,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   const { question } = document;
 
   const handleChangeTitle = useCallback((event) => {
-    if (event.target.value !== lastSavedTitle) {
+    if (event.target.value !== lastSavedTitle && !!document._id) {
       setLastSavedTitle(event.target.value)
       void updatePost({
         selector: {_id: document._id},
