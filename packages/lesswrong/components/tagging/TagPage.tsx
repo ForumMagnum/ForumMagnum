@@ -25,13 +25,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   imageContainer: {
+    width: '100%',
     '& > img': {
       height: 300,
       objectFit: 'cover',
+      width: '100%',
     },
     position: 'absolute',
     top: 90,
     [theme.breakpoints.down('sm')]: {
+      width: 'unset',
       '& > img': {
         height: 200,
         width: '100%',
