@@ -74,9 +74,22 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 373px)',
     gridGap: '20px',
-    justifyContent: 'center',
     '@media (max-width: 812px)': {
       gridTemplateColumns: 'auto',
+    }
+  },
+  noUpcomingEvents: {
+    color: theme.palette.grey[500],
+  },
+  notifyMeButton: {
+    display: 'inline !important',
+    color: theme.palette.primary.main,
+  },
+  pastEventCard: {
+    height: 350,
+    filter: 'saturate(0.3) opacity(0.8)',
+    '& .EventCards-addToCal': {
+      display: 'none'
     }
   },
   mapContainer: {
@@ -85,16 +98,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginLeft: 'auto',
     marginRight: 'auto'
   },
-  notifyMeButton: {
-    display: 'inline !important',
-    color: theme.palette.primary.main,
-  },
-  noUpcomingEvents: {
-    color: theme.palette.grey[600],
-  },
-  pastEventCard: {
-    filter: 'saturate(0.5) opacity(0.8)',
-  }
 }));
 
 const LocalGroupPage = ({ classes, documentId: groupId }: {
@@ -238,14 +241,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             description={`group ${groupId}`}
           />}
         </div>
-        
-        {/* TODO; refactor to return null if nothing found, if you're brave enough */}
-        {/* Or pick margins that are good enough in either case */}
+
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
+
         <Components.Typography variant="headline" className={classes.eventsHeadline}>
           Upcoming Events
         </Components.Typography>
-        {!!upcomingEvents?.length ? (<>
+        {!!upcomingEvents?.length ? (
           <div className={classes.eventCards}>
             <EventCards
               events={upcomingEvents}
@@ -256,18 +258,19 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             />
             <LoadMore {...upcomingEventsLoadMoreProps}  />
           </div>
-        </>) : <Components.Typography variant="body1" className={classes.noUpcomingEvents}>No upcoming events.{' '}
+        ) : <Components.Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
             <NotifyMeButton
               showIcon={false}
               document={group}
               subscribeMessage="Subscribe to be notified when an event is added."
-              componentIfSubscribed={<span>You are subscribed to be notified when an event is added.</span>}
+              componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
               className={classes.notifyMeButton}
             />
           </Components.Typography>}
+
         {!!tbdEvents?.length && <>
           <Components.Typography variant="headline" className={classes.eventsHeadline}>
-            To Be Scheduled Events
+            Events Yet To Be Scheduled
           </Components.Typography>
           <div className={classes.eventCards}>
             <EventCards
@@ -279,6 +282,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <LoadMore {...tbdEventsLoadMoreProps}  />
           </div>
         </>}
+
         {!!pastEvents?.length && <>
           <Components.Typography variant="headline" className={classes.eventsHeadline}>
             Past Events
@@ -294,6 +298,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <LoadMore {...pastEventsLoadMoreProps}  />
           </div>
         </>}
+
         {bottomSection}
       </SingleColumnSection>
     </div>
