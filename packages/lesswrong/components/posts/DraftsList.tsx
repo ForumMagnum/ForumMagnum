@@ -46,12 +46,10 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
   });
   
   const toggleDelete = useCallback((post) => {
-    // if (post.deletedDraft||confirm("Are you sure you want to delete this post?")) { //don't confirm to undelete
     void updatePost({
       selector: {_id: post._id},
       data: {deletedDraft:!post.deletedDraft, draft: true} //undeleting goes to draft
     })
-    // }
   }, [updatePost])
   
   const { results, loading, loadMoreProps } = useMulti({
@@ -67,7 +65,7 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
   const currentSorting = terms.sortDraftsBy || "lastModified"
   
   
-  return <div>
+  return <>
     <Components.SectionTitle title={title}>
       <div className={classes.draftsHeaderRow}>
         <div className={classes.newPostButton}>
@@ -113,8 +111,8 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
         />
       )}
     </>}
-    <Components.LoadMore {...{...loadMoreProps }}/>
-  </div>
+    <Components.LoadMore { ...loadMoreProps }/>
+  </>
 }
 
 const DraftsListComponent = registerComponent('DraftsList', DraftsList, {

@@ -328,8 +328,8 @@ const PostsItem2 = ({
   // to dismiss it.
   dismissRecommendation,
   draft,
-  // deleteDraft, if this is a draft, a callback to delete/archive it
-  toggleDeleteDraft,
+  // toggleDeleteDraft, if this a draft, a callback to archive/unarchive it
+  toggleDeleteDraft, 
   showBottomBorder=true,
   showQuestionTag=true,
   showDraftTag=true,
