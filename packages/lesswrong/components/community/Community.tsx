@@ -4,43 +4,41 @@ import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import FilterIcon from '@material-ui/icons/FilterList';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import EmailIcon from '@material-ui/icons/MailOutline';
 import classNames from 'classnames';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
     maxWidth: 1200,
-    padding: 20,
     margin: 'auto',
   },
   sectionHeadingRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    maxWidth: 700,
-    margin: '40px auto',
-    '@media (max-width: 812px)': {
+    maxWidth: 800,
+    padding: '0 20px',
+    margin: '0 auto 40px',
+    [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
-      margin: '30px auto',
-    }
+      marginTop: 30,
+    },
   },
   sectionHeading: {
-    flex: 'none',
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0
@@ -51,51 +49,77 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 15,
     lineHeight: '1.8em',
     marginLeft: 60,
-    '@media (max-width: 812px)': {
-      marginTop: 10,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20,
       marginLeft: 0
-    }
+    },
   },
   filters: {
-    gridColumnStart: 1,
-    gridColumnEnd: -1,
     display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'baseline',
     columnGap: 10,
+    marginTop: 10,
   },
   where: {
-    flex: '1 0 0',
     ...theme.typography.commentStyle,
     fontSize: 13,
     color: "rgba(0,0,0,0.6)",
     paddingLeft: 3
   },
-  geoSuggest: {
-    ...geoSuggestStyles(theme),
-    display: 'inline-block',
-    minWidth: 200,
-    marginLeft: 6
-  },
-  filterIcon: {
-    alignSelf: 'center',
-    fontSize: 20
-  },
-  filter: {
-    '& .MuiOutlinedInput-input': {
-      paddingRight: 30
-    },
-  },
-  formatFilter: {
-    '@media (max-width: 812px)': {
+  whereTextDesktop: {
+    [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
   },
-  placeholder: {
-    color: "rgba(0,0,0,0.4)",
+  whereTextMobile: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'inline'
+    }
+  },
+  geoSuggest: {
+    ...geoSuggestStyles(theme),
+    display: 'inline-block',
+    marginLeft: 6
+  },
+  filter: {
+  },
+  distanceUnit: {
+    ...theme.typography.commentStyle,
+  },
+  distanceUnitRadio: {
+    display: 'none'
+  },
+  distanceUnitLabel: {
+    padding: '5px 10px',
+    cursor: 'pointer',
+    border: '1px solid #d4d4d4',
+    '&.left': {
+      borderRightColor: theme.palette.primary.dark,
+      borderRadius: '4px 0 0 4px',
+    },
+    '&.right': {
+      borderLeftWidth: 0,
+      borderRadius: '0 4px 4px 0'
+    },
+    '&.selected': {
+      backgroundColor: theme.palette.primary.main,
+      color: 'white',
+      borderColor: theme.palette.primary.dark,
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+      color: 'white',
+      borderColor: theme.palette.primary.dark,
+    }
   },
   notifications: {
     flex: '1 0 0',
-    textAlign: 'right'
+    textAlign: 'right',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
   },
   notificationsBtn: {
     textTransform: 'none',
@@ -105,49 +129,67 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 18,
     marginRight: 6
   },
-  eventCards: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 373px)',
-    gridGap: '20px',
-    justifyContent: 'center',
-    marginTop: 16,
-    [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(2, 373px)',
+  tabs: {
+    marginBottom: 40,
+    '& .MuiTab-labelContainer': {
+      fontSize: '1rem'
+    }
+  },
+  localGroupsBtns: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    '@media (max-width: 1200px)': {
+      padding: '0 20px',
     },
-    '@media (max-width: 812px)': {
-      gridTemplateColumns: 'auto',
-    }
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
   },
-  loadMoreRow: {
-    gridColumnStart: 1,
-    gridColumnEnd: -1,
+  localGroupsBtn: {
+    textTransform: 'none',
+    fontSize: 12
   },
-  loadMore: {
-    ...theme.typography.commentStyle,
-    background: 'none',
-    color: theme.palette.primary.main,
-    fontSize: 16,
-    padding: 0,
-    '&:hover': {
-      color: '#085d6c',
-    }
+  localGroupsBtnIcon: {
+    fontSize: 15,
+    marginLeft: 8
   },
-  loading: {
-    display: 'inline-block'
+  localGroupsBtnEmailIcon: {
+    fontSize: 20,
+    marginLeft: 10,
+    marginRight: 5
   },
+  addGroup: {
+    marginTop: 20
+  }
 }))
 
 
-const EventsHome = ({classes}: {
+const Community = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
+  const { history } = useNavigation();
+  const { location } = useLocation();
   
-  // in-person, online, or all
-  const [modeFilter, setModeFilter] = useState('all')
-  // ex. presentation, discussion, course, etc. (see EVENT_TYPES for full list)
-  const [formatFilter, setFormatFilter] = useState<Array<string>>([])
+  // local or online
+  const [tab, setTab] = useState('local')
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
+  
+  useEffect(() => {
+    // unfortunately the hash is unavailable on the server, so we check it here instead
+    if (location.hash === '#online') {
+      setTab('online')
+    }
+    // only US and UK default to miles - everyone else defaults to km
+    // (this is checked here to allow SSR to work properly)
+    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
+      setDistanceUnit('mi')
+    }
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // used to set the user's location if they did not already have one
   const { mutate: updateUser } = useUpdate({
@@ -246,93 +288,43 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { HighlightedEventCard, EventCards, Loading } = Components
+  const { CommunityBanner, LocalGroups, OnlineGroups, GroupFormLink } = Components
   
-  // on the EA Forum, we insert some special event cards (ex. Intro VP card)
-  let numSpecialCards = currentUser ? 1 : 2
-  // hide them on other forums, and when certain filters are set
-  if (forumTypeSetting.get() !== 'EAForum' || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
-    numSpecialCards = 0
-  }
-
-  const filters: PostsViewTerms = {}
-  if (modeFilter === 'in-person') {
-    filters.onlineEvent = false
-  } else if (modeFilter === 'online') {
-    filters.onlineEvent = true
-  }
-  if (formatFilter.length) {
-    filters.eventType = formatFilter
+  const handleChangeTab = (e, value) => {
+    setTab(value)
+    history.replace({...location, hash: `#${value}`})
   }
   
-  const eventsListTerms: PostsViewTerms = userLocation.known ? {
-    view: 'nearbyEvents',
-    lat: userLocation.lat,
-    lng: userLocation.lng,
-    ...filters,
-  } : {
-    view: 'globalEvents',
-    ...filters,
-  }
-  
-  const { results, loading, showLoadMore, loadMore } = useMulti({
-    terms: eventsListTerms,
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: "cache-first",
-    limit: 12 - numSpecialCards,
-    itemsPerPage: 12,
-    skip: userLocation.loading
-  });
-  
-  // we try to highlight the event most relevant to you
-  let highlightedEvent: PostsList|undefined;
-  if (results && results.length > 0) {
-    // first, try to find the next in-person event near you
-    results.forEach(result => {
-      if (!highlightedEvent && !result.onlineEvent) {
-        highlightedEvent = result
-      }
-    })
-    // if none, then try to find the next "local" online event near you
-    results.forEach(result => {
-      if (!highlightedEvent && !result.globalEvent) {
-        highlightedEvent = result
-      }
-    })
-    // otherwise, just show the first event in the list
-    if (!highlightedEvent) highlightedEvent = results[0]
-  }
-  
-  let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
-    Load More
-  </button>
-  if (loading && results?.length) {
-    loadMoreButton = <div className={classes.loading}><Loading /></div>
-  }
+  const canCreateGroups = currentUser && userIsAdmin(currentUser)
 
   return (
-    <AnalyticsContext pageContext="EventsHome">
-      <div>
-        <HighlightedEventCard event={highlightedEvent} loading={loading || userLocation.loading} />
-      </div>
-
+    <AnalyticsContext pageContext="Community">
+      
       <div className={classes.section}>
         <div className={classes.sectionHeadingRow}>
           <h1 className={classes.sectionHeading}>
-            Events
+            Community
           </h1>
           <div className={classes.sectionDescription}>
-            Join people from around the world for discussions, talks, and other events on how we can tackle
-            the world's biggest problems.
+            Effective altruism is a global community with thousands of members. Reach out to learn how you can have the most impact.
           </div>
         </div>
+      </div>
+        
+      <CommunityBanner />
 
-        <div className={classes.eventCards}>
+      <div className={classes.section}>
+        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} centered aria-label='view local or online groups'>
+          <Tab label="Local Groups" value="local" />
+          <Tab label="Online Groups" value="online" />
+        </Tabs>
+        
+        {tab === 'local' && <div key="local">
           <div className={classes.filters}>
             <div className={classes.where}>
-              Showing events near {mapsLoaded
+              <span className={classes.whereTextDesktop}>Showing groups near</span>
+              <span className={classes.whereTextMobile}>Location</span>
+              {mapsLoaded
                 && <div className={classes.geoSuggest}>
                     <Geosuggest
                       placeholder="search for a location"
@@ -349,41 +341,20 @@ const EventsHome = ({classes}: {
                   </div>
               }
             </div>
-          </div>
-          
-          <div className={classes.filters}>
-            <FilterIcon className={classes.filterIcon} />
-            <Select
-              className={classes.filter}
-              value={modeFilter}
-              input={<OutlinedInput labelWidth={0} />}
-              onChange={(e) => setModeFilter(e.target.value)}>
-                <MenuItem key="all" value="all">In-person and online</MenuItem>
-                <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
-                <MenuItem key="online" value="online">Online only</MenuItem>
-            </Select>
-            <Select
-              className={classNames(classes.filter, classes.formatFilter)}
-              value={formatFilter}
-              input={<OutlinedInput labelWidth={0} />}
-              onChange={e => {
-                // MUI documentation says e.target.value is always an array: https://mui.com/components/selects/#multiple-select
-                // @ts-ignore
-                setFormatFilter(e.target.value)
-              }}
-              multiple
-              displayEmpty
-              renderValue={(selected: Array<string>) => {
-                if (selected.length === 0) {
-                  return <em className={classes.placeholder}>Filter by format</em>
-                }
-                // if any options are selected, display them separated by commas
-                return selected.map(type => EVENT_TYPES.find(t => t.value === type)?.label).join(', ')
-              }}>
-                {EVENT_TYPES.map(type => {
-                  return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
-                })}
-            </Select>
+            
+            {userLocation.known && <div className={classes.distanceUnit}>
+              <input type="radio" id="km" name="distanceUnit" value="km" className={classes.distanceUnitRadio}
+                checked={distanceUnit === 'km'} onClick={() => setDistanceUnit('km')} />
+              <label htmlFor="km" className={classNames(classes.distanceUnitLabel, 'left', {'selected': distanceUnit === 'km'})}>
+                km
+              </label>
+
+              <input type="radio" id="mi" name="distanceUnit" value="mi" className={classes.distanceUnitRadio}
+                checked={distanceUnit === 'mi'} onClick={() => setDistanceUnit('mi')} />
+              <label htmlFor="mi" className={classNames(classes.distanceUnitLabel, 'right', {'selected': distanceUnit === 'mi'})}>
+                mi
+              </label>
+            </div>}
             
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
@@ -391,23 +362,35 @@ const EventsHome = ({classes}: {
               </Button>
             </div>
           </div>
-
-          <EventCards events={results} loading={loading || userLocation.loading} numDefaultCards={6} hideSpecialCards={!numSpecialCards} />
           
-          <div className={classes.loadMoreRow}>
-            {loadMoreButton}
+          <LocalGroups userLocation={userLocation} distanceUnit={distanceUnit} />
+          
+          <div className={classes.localGroupsBtns}>
+            <Button href="https://resources.eagroups.org/" variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}>
+              Start your own group
+              <OpenInNewIcon className={classes.localGroupsBtnIcon} />
+            </Button>
+            <Button href="/contact" color="primary" className={classes.localGroupsBtn}>
+              Is your group missing? <EmailIcon className={classes.localGroupsBtnEmailIcon} /> Contact us
+            </Button>
           </div>
-        </div>
+          
+        </div>}
         
+        {tab === 'online' && <OnlineGroups />}
+        
+        {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
+          <GroupFormLink isOnline={tab === 'online'} />
+        </div>}
       </div>
     </AnalyticsContext>
   )
 }
 
-const EventsHomeComponent = registerComponent('EventsHome', EventsHome, {styles});
+const CommunityComponent = registerComponent('Community', Community, {styles});
 
 declare global {
   interface ComponentTypes {
-    EventsHome: typeof EventsHomeComponent
+    Community: typeof CommunityComponent
   }
 }

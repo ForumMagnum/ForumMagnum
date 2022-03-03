@@ -286,6 +286,13 @@ importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcom
 importComponent("EventsHome", () => require('../components/events/EventsHome'));
 importComponent("HighlightedEventCard", () => require('../components/events/modules/HighlightedEventCard'));
 importComponent("EventCards", () => require('../components/events/modules/EventCards'));
+importComponent("VirtualProgramCard", () => require('../components/events/modules/VirtualProgramCard'));
+// this is the new Community page, used by the EA Forum
+importComponent("Community", () => require('../components/community/Community'));
+importComponent("CommunityBanner", () => require('../components/community/modules/CommunityBanner'));
+importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
+importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
+// this is the previous Community page, used by LW
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
 importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));

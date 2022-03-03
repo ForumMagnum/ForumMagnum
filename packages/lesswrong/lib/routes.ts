@@ -462,7 +462,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name: 'Community',
+      name: 'CommunityTag',
       path: '/meta',
       redirect: () => `/tag/community`,
     },
@@ -477,9 +477,24 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EASequencesHome'
     },
     {
+      name: 'EventsHome',
+      path: '/events',
+      componentName: 'EventsHome',
+      title: 'Events',
+      subtitle: 'Events',
+      subtitleLink: '/events'
+    },
+    {
       name: "communityRedirect",
       path:'/groupsAndEvents',
-      redirect: () => '/community'
+      redirect: () => communityPath
+    },
+    {
+      name: 'Community',
+      path: communityPath,
+      componentName: 'Community',
+      title: 'Community',
+      ...communitySubtitle
     }
   ],
   LessWrong: [
@@ -876,17 +891,8 @@ if (hasEventsSetting.get()) {
       title: "Upcoming Events by Day"
     },
     {
-      name: 'EventsHome',
-      path: '/events',
-      componentName: 'EventsHome',
-      title: 'Events',
-      subtitle: 'Events',
-      subtitleLink: '/events'
-    },
-
-    {
       name: 'CommunityHome',
-      path: communityPath,
+      path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
       componentName: 'CommunityHome',
       title: 'Community',
       ...communitySubtitle

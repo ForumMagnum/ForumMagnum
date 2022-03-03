@@ -6,6 +6,7 @@ import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import { useEffect, useState } from 'react';
+import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import * as _ from 'underscore';
 
 // Get a user's display name (not unique, can take special characters and spaces)
@@ -320,47 +321,84 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
   return {lat: placeholderLat, lng: placeholderLng, known: false}
 }
 
-// Return the current user's location, as a latitude-longitude pair, plus
-// boolean fields `loading` and `known`. If `known` is false, the lat/lng are
-// invalid placeholders. If `loading` is true, then `known` is false, but the
-// state might be updated with a location later.
-//
-// If the user is logged in, the location specified in their account settings
-// is used first. If the user is not logged in, then no location is available
-// for server-side rendering, but we can try to get a location client-side
-// using the browser geolocation API. (This won't necessarily work, since not
-// all browsers and devices support it, and it requires user permission.)
-export const useUserLocation = (currentUser: UsersCurrent|DbUser|null) => {
+/**
+ * Return the current user's location, by checking a few places.
+ *
+ * If the user is logged in, the location specified in their account settings is used first.
+ * If the user is not logged in, then no location is available for server-side rendering,
+ * but we can check if we've already saved a location in their browser's local storage.
+ *
+ * If we've failed to get a location for the user, finally try to get a location
+ * client-side using the browser geolocation API.
+ * (This won't necessarily work, since not all browsers and devices support it, and it requires user permission.)
+ * This step is skipped if the "dontAsk" flag is set, to be less disruptive to the user
+ * (for example, on the forum homepage).
+ *
+ * @param {UsersCurrent|DbUser|null} currentUser - The user we are checking.
+ * @param {boolean} dontAsk - Flag that prevents us from asking the user for their browser's location.
+ *
+ * @returns {Object} locationData
+ * @returns {number} locationData.lat - The user's latitude.
+ * @returns {number} locationData.lng - The user's longitude.
+ * @returns {boolean} locationData.loading - Indicates that we might have a known location later.
+ * @returns {boolean} locationData.known - If false, then we're returning the default location instead of the user's location.
+ * @returns {string} locationData.label - The string description of the location (ex: Cambridge, MA, USA).
+ * @returns {Function} locationData.setLocationData - Function to set the location directly.
+ */
+export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?: boolean): {
+  lat: number,
+  lng: number,
+  loading: boolean,
+  known: boolean,
+  label: string,
+  setLocationData: Function
+} => {
+  // default is Berkeley, CA
   const placeholderLat = 37.871853
   const placeholderLng = -122.258423
+  const defaultLocation = {lat: placeholderLat, lng: placeholderLng, loading: false, known: false, label: null}
   
   const currentUserLat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
   const currentUserLng = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[0]
 
-  const [location, setLocation] = useState(() => {
+  const [locationData, setLocationData] = useState(() => {
     if (currentUserLat && currentUserLng) {
       // First return a location from the user profile, if set
-      return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true}
+      return {lat: currentUserLat, lng: currentUserLng, loading: false, known: true, label: currentUser?.location}
     } else if (isServer) {
       // If there's no location in the user profile, we may still be able to get
       // a location from the browser--but not in SSR.
-      return {lat: placeholderLat, lng: placeholderLng, loading: true, known: false}
+      return {lat: placeholderLat, lng: placeholderLng, loading: true, known: false, label: null}
     } else {
-      // If we're on the browser, we'll try to get a location using the browser
+      // If we're on the browser, and the user isn't logged in, see if we saved it in local storage
+      const ls = getBrowserLocalStorage()
+      if (!currentUser && ls) {
+        try {
+          const lsLocation = JSON.parse(ls.getItem('userlocation'))
+          if (lsLocation) {
+            return {...lsLocation, loading: false}
+          }
+        } catch(e) {
+          // eslint-disable-next-line no-console
+          console.error(e)
+        }
+      }
+      // If we couldn't get it from local storage, we'll try to get a location using the browser
       // geolocation API. This is not always available.
-      if (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator && navigator.geolocation) {
-        return {lat: placeholderLat, lng: placeholderLng, loading: true, known: false}
+      if (!dontAsk && typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator && navigator.geolocation) {
+        return {lat: placeholderLat, lng: placeholderLng, loading: true, known: false, label: null}
       }
     }
   
-    return {lat: placeholderLat, lng: placeholderLng, loading: false, known: false}
+    return defaultLocation
   })
   
   useEffect(() => {
     // if we don't yet have a location for the user and we're on the browser,
     // try to get the browser location
     if (
-      !(currentUserLat && currentUserLng) &&
+      !dontAsk &&
+      !locationData.known &&
       !isServer &&
       typeof window !== 'undefined' &&
       typeof navigator !== 'undefined' &&
@@ -371,13 +409,14 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null) => {
         if (position && position.coords) {
           const navigatorLat = position.coords.latitude
           const navigatorLng = position.coords.longitude
-          setLocation({lat: navigatorLat, lng: navigatorLng, loading: false, known: true})
+          // label (location name) needs to be filled in by the caller
+          setLocationData({lat: navigatorLat, lng: navigatorLng, loading: false, known: true, label: ''})
         } else {
-          setLocation({lat: placeholderLat, lng: placeholderLng, loading: false, known: false})
+          setLocationData(defaultLocation)
         }
       },
       (error) => {
-        setLocation({lat: placeholderLat, lng: placeholderLng, loading: false, known: false})
+        setLocationData(defaultLocation)
       }
     )
     }
@@ -385,7 +424,7 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null) => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
-  return location
+  return {...locationData, setLocationData}
 }
 
 // utility function for checking how much karma a user is supposed to have
