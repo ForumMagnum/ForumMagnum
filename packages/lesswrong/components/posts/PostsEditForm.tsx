@@ -65,13 +65,13 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     && !userIsAdmin(currentUser)
     && !currentUser.groups?.includes('sunshineRegiment')
   ) {
-    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
+    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}${query.key ? "&key="+query.key : ""}`} status={302}/>
   }
   
   // If we don't have access at all but a link-sharing key was provided, redirect to the
   // collaborative editor
   if (!document && !loading && query?.key) {
-    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
+    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}&key=${query.key}`} status={302}/>
   }
   
   // If the post has a link-sharing key which is not in the URL, redirect to add
