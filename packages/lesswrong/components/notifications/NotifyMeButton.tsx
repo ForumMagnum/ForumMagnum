@@ -60,6 +60,7 @@ const NotifyMeButton = ({
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
   hideIfNotificationsDisabled?: boolean,
+  // display this component if the user is already subscribed, instead of the unsubscribeMessage
   componentIfSubscribed?: JSX.Element,
 }) => {
   const currentUser = useCurrentUser();
