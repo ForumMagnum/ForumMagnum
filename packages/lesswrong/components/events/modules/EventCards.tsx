@@ -167,12 +167,12 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
     // NOTE: splice() will just insert the card at the end of the list if the first param > length
     if (currentUser) {
       // for logged in users, just display the In-Depth / Precipice VP card
-      eventCards.splice(2, 0, <VirtualProgramCard program="advanced" />)
+      eventCards.splice(2, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
     } else {
       // for logged logged out users, display both VP cards
-      eventCards.splice(2, 0, <VirtualProgramCard program="intro" />)
+      eventCards.splice(2, 0, <VirtualProgramCard key="introVP" program="intro" />)
       // we try to space out the two cards
-      eventCards.splice(5, 0, <VirtualProgramCard program="advanced" />)
+      eventCards.splice(5, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
     }
   }
   

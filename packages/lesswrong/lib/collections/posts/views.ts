@@ -883,7 +883,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   return query
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1 }),
+  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1, endTime:1 }),
   { name: "posts.globalEvents" }
 );
 
@@ -935,7 +935,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
   return query;
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ mongoLocation:"2dsphere", eventType:1, startTime:1 }),
+  augmentForDefaultView({ mongoLocation:"2dsphere", eventType:1, startTime:1, endTime: 1 }),
   { name: "posts.2dsphere" }
 );
 
@@ -978,7 +978,7 @@ Posts.addView("events", (terms: PostsViewTerms) => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ startTime:1, createdAt:1, baseScore:1 }),
+  augmentForDefaultView({ globalEvent: 1, onlineEvent: 1, startTime:1, endTime: 1, createdAt:1, baseScore:1 }),
   { name: "posts.events" }
 );
 

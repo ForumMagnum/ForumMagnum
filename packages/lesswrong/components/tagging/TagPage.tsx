@@ -18,6 +18,32 @@ import { useTagBySlug } from './useTag';
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
+  rootGivenImage: {
+    marginTop: 185,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 130,
+    },
+  },
+  imageContainer: {
+    width: '100%',
+    '& > img': {
+      height: 300,
+      objectFit: 'cover',
+      width: '100%',
+    },
+    position: 'absolute',
+    top: 90,
+    [theme.breakpoints.down('sm')]: {
+      width: 'unset',
+      '& > img': {
+        height: 200,
+        width: '100%',
+      },
+      top: 77,
+      left: -4,
+      right: -4,
+    },
+  },
   description: {
     marginTop: 18,
     ...tagBodyStyles(theme),
@@ -124,7 +150,7 @@ const TagPage = ({classes}: {
 }) => {
   const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect,
     HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn,
-    TableOfContents, TableOfContentsRow, TagContributorsList, SubscribeButton } = Components;
+    TableOfContents, TableOfContentsRow, TagContributorsList, SubscribeButton, CloudinaryImage } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { revision } = query;
@@ -236,96 +262,105 @@ const TagPage = ({classes}: {
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}
-    <ToCColumn
-      tableOfContents={
-        tag.tableOfContents
-          ? <span className={classes.tableOfContentsWrapper}>
-              <TableOfContents
-                sectionData={tag.tableOfContents}
-                title={tag.name}
-                onClickSection={expandAll}
+    {tag.bannerImageId && <div className={classes.imageContainer}>
+      <CloudinaryImage
+        publicId={tag.bannerImageId}
+        width="auto"
+        height={300}
+      />
+    </div>}
+    <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
+      <ToCColumn
+        tableOfContents={
+          tag.tableOfContents
+            ? <span className={classes.tableOfContentsWrapper}>
+                <TableOfContents
+                  sectionData={tag.tableOfContents}
+                  title={tag.name}
+                  onClickSection={expandAll}
+                />
+                <Link to="/tags/random" className={classes.randomTagLink}>Random Tag</Link>
+                <TableOfContentsRow href="#" divider={true}/>
+                <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
+              </span>
+            : null
+        }
+        header={<div className={classNames(classes.header,classes.centralColumn)}>
+          {query.flagId && <span>
+            <Link to={`/tags/dashboard?focus=${query.flagId}`}>
+              <TagFlagItem 
+                itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
+                documentId={query.flagId}
               />
-              <Link to="/tags/random" className={classes.randomTagLink}>Random Tag</Link>
-              <TableOfContentsRow href="#" divider={true}/>
-              <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
-            </span>
-          : null
-      }
-      header={<div className={classNames(classes.header,classes.centralColumn)}>
-        {query.flagId && <span>
-          <Link to={`/tags/dashboard?focus=${query.flagId}`}>
-            <TagFlagItem 
-              itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
-              documentId={query.flagId}
-            />
-          </Link>
-          {nextTag && <span onClick={() => setEditing(true)}><Link
-            className={classes.nextLink}
-            to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
-              Next Tag ({nextTag.name})
-          </Link></span>}
-        </span>}
-        <div className={classes.titleRow}>
-          <Typography variant="display3" className={classes.title}>
-            {tag.name}
-          </Typography>
-          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
-          {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
-            <SubscribeButton
-              tag={tag}
-              className={classes.notifyMeButton}
-              subscribeMessage="Subscribe"
-              unsubscribeMessage="Unsubscribe"
-              subscriptionType={subscriptionTypes.newTagPosts}
-            />
-          }
-        </div>
-        <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
-      </div>}
-    >
-      <div className={classNames(classes.wikiSection,classes.centralColumn)}>
-        <AnalyticsContext pageSectionContext="wikiSection">
-          { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-            You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
-          </div>}
-          {editing ? <EditTagForm
-            tag={tag}
-            successCallback={ async () => {
-              setEditing(false)
-              await client.resetStore()
-            }}
-            cancelCallback={() => setEditing(false)}
-          /> :
-          <div onClick={clickReadMore}>
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: description||""}}
-              description={`tag ${tag.name}`}
-              className={classes.description}
-            />
-          </div>}
-        </AnalyticsContext>
-      </div>
-      <div className={classes.centralColumn}>
-        {editing && <TagDiscussionSection
-          key={tag._id}
-          tag={tag}
-        />}
-        {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-          <div className={classes.tagHeader}>
-            <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-            <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+            </Link>
+            {nextTag && <span onClick={() => setEditing(true)}><Link
+              className={classes.nextLink}
+              to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+                Next Tag ({nextTag.name})
+            </Link></span>}
+          </span>}
+          <div className={classes.titleRow}>
+            <Typography variant="display3" className={classes.title}>
+              {tag.name}
+            </Typography>
+            <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
+            {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
+              <SubscribeButton
+                tag={tag}
+                className={classes.notifyMeButton}
+                subscribeMessage="Subscribe"
+                unsubscribeMessage="Unsubscribe"
+                subscriptionType={subscriptionTypes.newTagPosts}
+              />
+            }
           </div>
-          <PostsList2
-            terms={terms}
-            enableTotal
-            tagId={tag._id}
-            itemsPerPage={200}
-          >
-            <AddPostsToTag tag={tag} />
-          </PostsList2>
-        </AnalyticsContext>}
-      </div>
-    </ToCColumn>
+          <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
+        </div>}
+      >
+        <div className={classNames(classes.wikiSection,classes.centralColumn)}>
+          <AnalyticsContext pageSectionContext="wikiSection">
+            { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
+              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+            </div>}
+            {editing ? <EditTagForm
+              tag={tag}
+              successCallback={ async () => {
+                setEditing(false)
+                await client.resetStore()
+              }}
+              cancelCallback={() => setEditing(false)}
+            /> :
+            <div onClick={clickReadMore}>
+              <ContentItemBody
+                dangerouslySetInnerHTML={{__html: description||""}}
+                description={`tag ${tag.name}`}
+                className={classes.description}
+              />
+            </div>}
+          </AnalyticsContext>
+        </div>
+        <div className={classes.centralColumn}>
+          {editing && <TagDiscussionSection
+            key={tag._id}
+            tag={tag}
+          />}
+          {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
+            <div className={classes.tagHeader}>
+              <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+              <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+            </div>
+            <PostsList2
+              terms={terms}
+              enableTotal
+              tagId={tag._id}
+              itemsPerPage={200}
+            >
+              <AddPostsToTag tag={tag} />
+            </PostsList2>
+          </AnalyticsContext>}
+        </div>
+      </ToCColumn>
+    </div>
   </AnalyticsContext>
 }
 

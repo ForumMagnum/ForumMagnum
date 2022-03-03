@@ -355,7 +355,7 @@ const EventsHome = ({classes}: {
               Showing events near {mapsLoaded
                 && <div className={classes.geoSuggest}>
                     <Geosuggest
-                      placeholder="Location"
+                      placeholder="search for a location"
                       onSuggestSelect={(suggestion) => {
                         if (suggestion?.location) {
                           saveUserLocation({
