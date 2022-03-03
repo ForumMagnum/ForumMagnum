@@ -19,15 +19,30 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginTop: -50,
     }
   },
-  imageContainer: {
-    height: 200,
+  topSectionMap: {
+    height: 250,
     [theme.breakpoints.up('md')]: {
       marginTop: -50,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: -4,
       marginRight: -4,
-    }
+    },
+  },
+  imageContainer: {
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -4,
+      marginRight: -4,
+    },
+  },
+  bannerImg: {
+    display: 'block',
+    maxWidth: '100%',
+    objectFit: 'cover',
+    margin: '0 auto',
   },
   groupInfo: {
     ...sectionFooterLeftStyles,
@@ -84,7 +99,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage
+    Error404, CloudinaryImage2
   } = Components
 
   const { document: group, loading } = useSingle({
@@ -104,7 +119,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   
   // by default, we try to show the map at the top if the group has a location
   let topSection = group.googleLocation ? <CommunityMapWrapper
-    className={classes.imageContainer}
+    className={classes.topSectionMap}
     terms={{view: "events", groupId: groupId}}
     groupQueryTerms={{view: "single", groupId: groupId}}
     hideLegend={true}
@@ -114,11 +129,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   // if the group has a banner image, show that at the top instead, and move the map to the bottom
   if (group.bannerImageId) {
     topSection = <div className={classes.imageContainer}>
-      <CloudinaryImage
-        publicId={group.bannerImageId}
-        width="auto"
-        height={200}
-      />
+      <CloudinaryImage2 imgProps={{ar: '191:100', w: '765'}} publicId={group.bannerImageId} className={classes.bannerImg} />
     </div>
     bottomSection = group.googleLocation && <CommunityMapWrapper
       className={classes.mapContainer}
