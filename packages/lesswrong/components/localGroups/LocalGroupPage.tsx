@@ -78,6 +78,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       gridTemplateColumns: 'auto',
     }
   },
+  loading: {
+    marginLeft: 0
+  },
   noUpcomingEvents: {
     color: theme.palette.grey[500],
   },
@@ -97,7 +100,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 50,
     marginLeft: 'auto',
     marginRight: 'auto'
-  },
+  }
 }));
 
 const LocalGroupPage = ({ classes, documentId: groupId }: {
@@ -196,6 +199,73 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
     />
   }
+  
+  // the EA Forum shows the group's events as event cards instead of post list items
+  let upcomingEventsList = <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
+  if (isEAForum) {
+    upcomingEventsList = !!upcomingEvents?.length ? (
+      <div className={classes.eventCards}>
+        <EventCards
+          events={upcomingEvents}
+          loading={upcomingEventsLoading}
+          numDefaultCards={2}
+          hideSpecialCards
+          hideGroupNames
+        />
+        <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
+      </div>
+    ) : <Components.Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
+        <NotifyMeButton
+          showIcon={false}
+          document={group}
+          subscribeMessage="Subscribe to be notified when an event is added."
+          componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
+          className={classes.notifyMeButton}
+        />
+      </Components.Typography>
+  }
+  
+  let tbdEventsList: JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+  if (isEAForum) {
+    tbdEventsList = tbdEvents?.length ? <>
+      <Components.Typography variant="headline" className={classes.eventsHeadline}>
+        Events Yet To Be Scheduled
+      </Components.Typography>
+      <div className={classes.eventCards}>
+        <EventCards
+          events={tbdEvents}
+          loading={tbdEventsLoading}
+          hideSpecialCards
+          hideGroupNames
+        />
+        <LoadMore {...tbdEventsLoadMoreProps}  />
+      </div>
+    </> : null
+  }
+  
+  let pastEventsList: JSX.Element|null = <>
+    <Components.Typography variant="headline" className={classes.eventsHeadline}>
+      Past Events
+    </Components.Typography>
+    <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
+  </>
+  if (isEAForum) {
+    pastEventsList = pastEvents?.length ? <>
+      <Components.Typography variant="headline" className={classes.eventsHeadline}>
+        Past Events
+      </Components.Typography>
+      <div className={classes.eventCards}>
+        <EventCards
+          events={pastEvents}
+          loading={pastEventsLoading}
+          hideSpecialCards
+          hideGroupNames
+          cardClassName={classes.pastEventCard}
+        />
+        <LoadMore {...pastEventsLoadMoreProps}  />
+      </div>
+    </> : null
+  }
 
   return (
     <div className={classes.root}>
@@ -247,57 +317,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         <Components.Typography variant="headline" className={classes.eventsHeadline}>
           Upcoming Events
         </Components.Typography>
-        {!!upcomingEvents?.length ? (
-          <div className={classes.eventCards}>
-            <EventCards
-              events={upcomingEvents}
-              loading={upcomingEventsLoading}
-              numDefaultCards={2}
-              hideSpecialCards
-              hideGroupNames
-            />
-            <LoadMore {...upcomingEventsLoadMoreProps}  />
-          </div>
-        ) : <Components.Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
-            <NotifyMeButton
-              showIcon={false}
-              document={group}
-              subscribeMessage="Subscribe to be notified when an event is added."
-              componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
-              className={classes.notifyMeButton}
-            />
-          </Components.Typography>}
+        {upcomingEventsList}
 
-        {!!tbdEvents?.length && <>
-          <Components.Typography variant="headline" className={classes.eventsHeadline}>
-            Events Yet To Be Scheduled
-          </Components.Typography>
-          <div className={classes.eventCards}>
-            <EventCards
-              events={tbdEvents}
-              loading={tbdEventsLoading}
-              hideSpecialCards
-              hideGroupNames
-            />
-            <LoadMore {...tbdEventsLoadMoreProps}  />
-          </div>
-        </>}
+        {tbdEventsList}
 
-        {!!pastEvents?.length && <>
-          <Components.Typography variant="headline" className={classes.eventsHeadline}>
-            Past Events
-          </Components.Typography>
-          <div className={classes.eventCards}>
-            <EventCards
-              events={pastEvents}
-              loading={pastEventsLoading}
-              hideSpecialCards
-              hideGroupNames
-              cardClassName={classes.pastEventCard}
-            />
-            <LoadMore {...pastEventsLoadMoreProps}  />
-          </div>
-        </>}
+        {pastEventsList}
 
         {bottomSection}
       </SingleColumnSection>
