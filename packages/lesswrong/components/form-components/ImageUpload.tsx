@@ -50,7 +50,7 @@ const cloudinaryArgsByImageType = {
     uploadPreset: cloudinaryUploadPresetGridImageSetting.get(),
   },
   bannerImageId: {
-    minImageHeight: 400,
+    minImageHeight: 350,
     minImageWidth: 700,
     croppingAspectRatio: 1.91,
     croppingDefaultSelectionRatio: 1,
