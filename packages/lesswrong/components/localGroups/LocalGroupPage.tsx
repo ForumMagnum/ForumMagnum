@@ -12,7 +12,6 @@ import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
-import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
