@@ -114,7 +114,28 @@ export default class MathEditing extends Plugin {
 						return writer.createElement( 'mathtex', { equation: firstChild.getAttribute( 'aria-label' ), type, display: false } );
 					}
 				}
-			} );
+			} )
+			// Despite promises of editing views being read only and never being
+			// upcast, they are actually upcast. This is the custom upcast for the
+			// inline math element editing view. Otherwise, a broken upcast would be
+			// used. See: https://github.com/ckeditor/ckeditor5/issues/8874
+			.elementToElement( {
+				view: {
+					name: 'span',
+					attributes: {
+						'data-math-tex': true
+					}
+				},
+				model: ( viewElement, { writer } ) => {
+					const equation = viewElement.getAttribute( 'data-math-tex' );
+					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
+					return writer.createElement( 'mathtex', {
+						equation,
+						type,
+						display: false
+					})
+				}
+			});
 
 		// Model -> View (element)
 		conversion.for( 'editingDowncast' )
@@ -154,7 +175,10 @@ export default class MathEditing extends Plugin {
 			// CKEngine render multiple times if using span instead of div
 			const mathtexView = writer.createContainerElement( display ? 'div' : 'span', {
 				style: styles,
-				class: classes
+				class: classes,
+				// Q: Should we be worried about XSS here?
+				// We tested that either ckeditor or chrome is escaping our XSS attempts
+				'data-math-tex': equation
 			} );
 
 			// Div is formatted as parent container
