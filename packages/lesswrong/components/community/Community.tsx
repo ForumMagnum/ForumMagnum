@@ -85,35 +85,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   filter: {
   },
-  distanceUnit: {
-    ...theme.typography.commentStyle,
-  },
-  distanceUnitRadio: {
-    display: 'none'
-  },
-  distanceUnitLabel: {
-    padding: '5px 10px',
-    cursor: 'pointer',
-    border: '1px solid #d4d4d4',
-    '&.left': {
-      borderRightColor: theme.palette.primary.dark,
-      borderRadius: '4px 0 0 4px',
-    },
-    '&.right': {
-      borderLeftWidth: 0,
-      borderRadius: '0 4px 4px 0'
-    },
-    '&.selected': {
-      backgroundColor: theme.palette.primary.main,
-      color: 'white',
-      borderColor: theme.palette.primary.dark,
-    },
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-      color: 'white',
-      borderColor: theme.palette.primary.dark,
-    }
-  },
   notifications: {
     flex: '1 0 0',
     textAlign: 'right',
@@ -181,11 +152,6 @@ const Community = ({classes}: {
     // unfortunately the hash is unavailable on the server, so we check it here instead
     if (location.hash === '#online') {
       setTab('online')
-    }
-    // only US and UK default to miles - everyone else defaults to km
-    // (this is checked here to allow SSR to work properly)
-    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
-      setDistanceUnit('mi')
     }
     //No exhaustive deps because this is supposed to run only on mount
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -288,7 +254,7 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityBanner, LocalGroups, OnlineGroups, GroupFormLink } = Components
+  const { CommunityBanner, LocalGroups, OnlineGroups, GroupFormLink, DistanceUnitToggle } = Components
   
   const handleChangeTab = (e, value) => {
     setTab(value)
@@ -342,19 +308,7 @@ const Community = ({classes}: {
               }
             </div>
             
-            {userLocation.known && <div className={classes.distanceUnit}>
-              <input type="radio" id="km" name="distanceUnit" value="km" className={classes.distanceUnitRadio}
-                checked={distanceUnit === 'km'} onClick={() => setDistanceUnit('km')} />
-              <label htmlFor="km" className={classNames(classes.distanceUnitLabel, 'left', {'selected': distanceUnit === 'km'})}>
-                km
-              </label>
-
-              <input type="radio" id="mi" name="distanceUnit" value="mi" className={classes.distanceUnitRadio}
-                checked={distanceUnit === 'mi'} onClick={() => setDistanceUnit('mi')} />
-              <label htmlFor="mi" className={classNames(classes.distanceUnitLabel, 'right', {'selected': distanceUnit === 'mi'})}>
-                mi
-              </label>
-            </div>}
+            {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} />}
             
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>

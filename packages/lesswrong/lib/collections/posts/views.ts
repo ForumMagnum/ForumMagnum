@@ -900,7 +900,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     ]}
   }
   
-  let milesPerKm = 0.621371
+  // Note: distance is in miles
   let query: any = {
     selector: {
       groupId: null,
@@ -913,7 +913,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
         {
           mongoLocation: {
             $geoWithin: {
-              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 160) * milesPerKm / 3963.2 ] // only show in-person events within 100 miles
+              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ] // only show in-person events within 100 miles
             }
           }
         },

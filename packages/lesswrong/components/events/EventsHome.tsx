@@ -92,6 +92,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   distanceFilter: {
+    display: 'flex',
+    alignItems: 'center',
     color: "rgba(0,0,0,0.6)",
   },
   distanceInput: {
@@ -170,7 +172,13 @@ const EventsHome = ({classes}: {
   });
 
   // used to set the cutoff distance for the query
-  const [distance, setDistance] = useState(160)
+  const [distance, setDistance] = useState(() => {
+    const ls = getBrowserLocalStorage()
+    const savedDistance = ls?.getItem('eventsDistanceFilter')
+    // default to 160 km (100 mi)
+    return savedDistance || 160
+  })
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
   
   /**
    * Given a location, update the page query to use that location,
@@ -263,7 +271,22 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { HighlightedEventCard, EventCards, Loading } = Components
+  const handleChangeDistance = (e) => {
+    const distance = parseInt(e.target.value)
+    setDistance(distance)
+    
+    // save it in local storage in km
+    const ls = getBrowserLocalStorage()
+    ls?.setItem('eventsDistanceFilter', distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance)
+  }
+  
+  const handleChangeDistanceUnit = (unit) => {
+    setDistanceUnit(unit)
+    // when changing between miles and km, we convert the distance to the new unit
+    setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
+  }
+  
+  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle } = Components
   
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
@@ -282,7 +305,8 @@ const EventsHome = ({classes}: {
     filters.eventType = formatFilter
   }
   if (distance) {
-    filters.distance = distance
+    // convert distance to miles if necessary
+    filters.distance = (distanceUnit === 'mi') ? distance : (distance * 0.621371)
   }
   
   const eventsListTerms: PostsViewTerms = userLocation.known ? {
@@ -379,9 +403,10 @@ const EventsHome = ({classes}: {
               <Input type="number"
                 value={distance}
                 placeholder="distance"
-                onChange={(e) => setDistance(parseInt(e.target.value))}
-                className={classes.distanceInput} />
-              km
+                onChange={handleChangeDistance}
+                className={classes.distanceInput}
+              />
+              <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} />
             </div>
             
             <Select
