@@ -19,6 +19,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginTop: -50,
     }
   },
+  topSectionMap: {
+    height: 250,
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -4,
+      marginRight: -4,
+    },
+  },
   imageContainer: {
     [theme.breakpoints.up('md')]: {
       marginTop: -50,
@@ -109,7 +119,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   
   // by default, we try to show the map at the top if the group has a location
   let topSection = group.googleLocation ? <CommunityMapWrapper
-    className={classes.imageContainer}
+    className={classes.topSectionMap}
     terms={{view: "events", groupId: groupId}}
     groupQueryTerms={{view: "single", groupId: groupId}}
     hideLegend={true}
