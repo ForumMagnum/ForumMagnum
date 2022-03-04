@@ -8,6 +8,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
     position: "relative",
+    borderRadius: 5,
+    boxShadow: "0 1px 5px rgba(0,0,0,.025)",
     
     "& a": {
       position: "relative",

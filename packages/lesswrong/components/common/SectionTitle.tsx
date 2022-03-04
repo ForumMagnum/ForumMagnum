@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 export const sectionTitleStyle = (theme: ThemeType): JssStyles => ({
   margin:0,
-  ...theme.typography.postStyle,
+  ...theme.typography.sectionStyle,
   fontSize: "2.2rem"
 })
 

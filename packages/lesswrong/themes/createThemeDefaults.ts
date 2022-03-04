@@ -61,22 +61,22 @@ const createLWTheme = (theme: ThemeType) => {
   // cleanly overriden
 
   const body1FontSize = {
-    fontSize: '1.4rem',
+    fontSize: '1.3rem',
     lineHeight: '2rem'
   }
 
   const body2FontSize = {
-    fontSize: '1.1rem',
+    fontSize: '1.2rem',
     lineHeight: '1.5rem',
   }
 
   const smallFontSize = {
-    fontSize: "1rem",
+    fontSize: "1.1rem",
     lineHeight: '1.4rem'
   }
 
   const tinyFontSize = {
-    fontSize: ".75rem",
+    fontSize: "1rem",
     lineHeight: '1.4rem'
   }
 
@@ -174,17 +174,19 @@ const createLWTheme = (theme: ThemeType) => {
         paddingBottom: spacingUnit*2,
         paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
-        margin: 0,
+        marginLeft: spacingUnit*2,
+        fontFamily: theme.typography.blockquote,
       },
       commentBlockquote: {
         fontWeight: 400,
-        paddingTop: spacingUnit,
-        paddingRight: spacingUnit*3,
-        paddingBottom: spacingUnit,
+        paddingTop: spacingUnit*2,
+        paddingRight: spacingUnit*2,
+        paddingBottom: spacingUnit*2,
         paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
-        marginLeft: spacingUnit*1.5,
+        marginLeft: spacingUnit*2,
+        fontFamily: theme.typography.blockquote,
       },
       codeblock: {
         backgroundColor: grey[100],

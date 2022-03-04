@@ -22,6 +22,7 @@ const COMMENTS_BACKGROUND_COLOR = "#fafafa"
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
+    // borderRadius: 30, // test, problem is boxShadow
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     },

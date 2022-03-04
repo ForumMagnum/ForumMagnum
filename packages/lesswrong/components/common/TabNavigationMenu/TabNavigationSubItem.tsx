@@ -16,7 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       TAB_NAVIGATION_MENU_WIDTH - // base width
       ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,
       (theme.spacing.unit*2), // leave some space on the right,
-    fontSize: "1rem",
+    fontSize: "1.1rem",
+    // lineHeight: '1.5rem',
     whiteSpace: "nowrap",
     overflow: "hidden",
     '&:hover': {

@@ -16,6 +16,7 @@ import { useCurrentUser } from '../common/withUser';
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
   paddingTop: 12,
+  paddingBottom: 16,
   paddingRight: 16,
   width: 500,
   marginBottom: -4,
@@ -31,6 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
+    padding: 2,
   },
   description: {
     ...commentBodyStyles(theme),

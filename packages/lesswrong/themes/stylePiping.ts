@@ -1,5 +1,8 @@
+import { serializeFetchParameter } from '@apollo/client';
+import { Typography } from '@material-ui/core';
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
+import theme from './pfTheme';
 
 export const metaculusBackground = "#2c3947"
 
@@ -133,6 +136,7 @@ const hrStyles = {
 }
 
 const footnoteStyles = () => ({
+  // fontFamily: theme.typography.fontFamily,
   '& .footnote-section': {
     counterReset: "footnote-counter",
   },
@@ -147,20 +151,26 @@ const footnoteStyles = () => ({
   '& .footnote-back-link': {
     position: "relative",
     top: "-0.2em",
+    fontFamily: theme.typography.fontFamily,
   },
   '& .footnotes .footnote-back-link > sup': {
     marginRight: 0,
+    fontFamily: theme.typography.fontFamily,
   },
  '& .footnote-item::before': {
     content: "counter(footnote-counter) '. '",
     display: "inline-block",
     position: "relative",
     right: "0.2em",
+    fontFamily: theme.typography.fontFamily,
+    fontSize: "1.1rem",
   },
  '& .footnote-content': {
     display: "inline-block",
     padding: "0 0.3em",
     width: '95%',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: "1.1rem",
   },
 });
 
@@ -176,8 +186,8 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& blockquote': {
     ...theme.typography.blockquote,
-    ...theme.typography.body1,
-    ...theme.typography.postStyle
+    // ...theme.typography.body1,
+    // ...theme.typography.postStyle
   },
   '& li': {
     ...theme.typography.body1,
@@ -270,8 +280,9 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...footnoteStyles(),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
+      fontFamily: theme.typography.fontFamily,
       marginTop: 40,
-      fontSize: '0.9em',
+      fontSize: '1em',
       paddingTop: 40,
       borderTop: 'solid 1px rgba(0,0,0,0.2)',
       '& sup': {
@@ -283,10 +294,10 @@ export const postBodyStyles = (theme: ThemeType) => {
         marginInlineStart: '1em'
       },
       '& li': {
-        fontSize: '0.9em' // Overwriting default size setting for list items
+        fontSize: '1em' // Overwriting default size setting for list items
       },
       '& blockquote': {
-        fontSize: '0.9em',
+        fontSize: '1em',
         lineHeight: '1.5em',
         padding: 1,
         paddingLeft: 3,
@@ -389,10 +400,11 @@ export const emailBodyStyles = baseBodyStyles
 
 const smallPostStyles = (theme: ThemeType) => ({
   ...theme.typography.body2,
-  fontSize: "1.28rem",
-  lineHeight: "1.75rem",
+  fontSize: "1.25rem", // article preview on homepage
+  lineHeight: "1.9rem",
   ...theme.typography.postStyle,
   '& blockquote': {
+    ...theme.typography.blockquote,
     ...theme.typography.body2,
     ...theme.typography.postStyle
   },
@@ -402,8 +414,8 @@ const smallPostStyles = (theme: ThemeType) => ({
   '& li': {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontSize: "1.28rem",
-    lineHeight: "1.8rem",
+    fontSize: "1.25rem",
+    lineHeight: "1.9rem",
   },
 })
 
@@ -411,7 +423,7 @@ export const postHighlightStyles = (theme: ThemeType) => {
   const postHighlightStyles = {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
-      fontSize: "1.6rem",
+      fontSize: "1.6rem", // showed up on FAQ headings on homepage, not in actual FAQ page
       // Cancel out a negative margin which would cause clipping
       marginBlickStart: "0 !important",
     },
