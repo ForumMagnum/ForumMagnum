@@ -251,6 +251,7 @@ interface DbLocalgroup extends DbObject {
   facebookLink: string
   facebookPageLink: string
   meetupLink: string
+  slackLink: string
   website: string
   inactive: boolean
   bannerImageId: string
@@ -366,6 +367,12 @@ interface DbPost extends DbObject {
   reviewVotesHighKarma: Array<number>
   reviewVoteScoreAllKarma: number
   reviewVotesAllKarma: Array<number>
+  finalReviewVoteScoreHighKarma: number
+  finalReviewVotesHighKarma: Array<number>
+  finalReviewVoteScoreAllKarma: number
+  finalReviewVotesAllKarma: Array<number>
+  finalReviewVoteScoreAF: number
+  finalReviewVotesAF: Array<number>
   lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   noIndex: boolean
@@ -413,6 +420,7 @@ interface DbPost extends DbObject {
   commentsLocked: boolean
   organizerIds: Array<string>
   groupId: string
+  eventType: string
   isEvent: boolean
   reviewedByUserId: string
   reviewForCuratedUserId: string
@@ -434,6 +442,7 @@ interface DbPost extends DbObject {
   eventImageId: string
   types: Array<string>
   metaSticky: boolean
+  sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
   shareWithUsers: Array<string>
   commentSortOrder: string
   hideAuthor: boolean
@@ -632,6 +641,7 @@ interface DbTag extends DbObject {
   reviewedByUserId: string
   wikiGrade: number
   wikiOnly: boolean
+  bannerImageId: string
   tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string

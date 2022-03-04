@@ -154,12 +154,13 @@ const PostsList2 = ({
   useOnMountTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
+  if (results && !results.length && !showNoResults) return null
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={decodeIntlError(error)} />}
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
-      {results && !results.length && showNoResults && <PostsNoResults />}
+      {results && !results.length && <PostsNoResults />}
 
       <div className={boxShadow ? classes.posts : null}>
         {orderedResults && orderedResults.map((post, i) => {

@@ -10,7 +10,10 @@ registerFragment(`
     draft
     hideCommentKarma
     af
-    currentUserReviewVote
+    currentUserReviewVote {
+      _id
+      qualitativeScore
+    }
     userId
   }
 `);
@@ -31,6 +34,7 @@ registerFragment(`
     meta
 
     shareWithUsers
+    sharingSettings
     
     commentCount
     voteCount
@@ -71,6 +75,7 @@ registerFragment(`
     contactInfo
     isEvent
     eventImageId
+    eventType
     types
     groupId
 
@@ -97,13 +102,10 @@ registerFragment(`
     shortform
     onlyVisibleToLoggedIn
 
-    nominationCount2018
-    reviewCount2018
-    nominationCount2019
-    reviewCount2019
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
+
     reviewVoteScoreAllKarma
     reviewVotesAllKarma
     reviewVoteScoreHighKarma
@@ -111,11 +113,24 @@ registerFragment(`
     reviewVoteScoreAF
     reviewVotesAF
 
+    finalReviewVoteScoreHighKarma
+    finalReviewVotesHighKarma
+    finalReviewVoteScoreAllKarma
+    finalReviewVotesAllKarma
+    finalReviewVoteScoreAF
+    finalReviewVotesAF
+
     group {
       _id
       name
       organizerIds
     }
+
+    # deprecated
+    nominationCount2018
+    reviewCount2018
+    nominationCount2019
+    reviewCount2019
   }
 `);
 

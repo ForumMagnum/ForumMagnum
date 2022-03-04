@@ -618,6 +618,8 @@ const schema: SchemaType<DbPost> = {
     }),
     canRead: ['guests'],
   },
+
+  // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
@@ -665,6 +667,58 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests']
   },
   'reviewVotesAllKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  // the final review scores for each post, at the end of the review.
+  finalReviewVoteScoreHighKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  finalReviewVotesHighKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'finalReviewVotesHighKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  finalReviewVoteScoreAllKarma: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  finalReviewVotesAllKarma: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'finalReviewVotesAllKarma.$': {
+    type: Number,
+    optional: true,
+  },
+
+  finalReviewVoteScoreAF: {
+    type: Number, 
+    optional: true,
+    defaultValue: 0,
+    canRead: ['guests']
+  },
+  finalReviewVotesAF: {
+    type: Array,
+    optional: true,
+    defaultValue: [],
+    canRead: ['guests']
+  },
+  'finalReviewVotesAF.$': {
     type: Number,
     optional: true,
   },
@@ -830,9 +884,10 @@ const schema: SchemaType<DbPost> = {
   },
 
   currentUserReviewVote: resolverOnlyField({
-    type: Number,
+    type: "ReviewVote",
+    graphQLtype: "ReviewVote",
     viewableBy: ['members'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<number|null> => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewVote|null> => {
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -843,7 +898,8 @@ const schema: SchemaType<DbPost> = {
         "postId", post._id
       );
       if (!votes.length) return null;
-      return votes[0].qualitativeScore;
+      const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
+      return vote;
     }
   }),
   

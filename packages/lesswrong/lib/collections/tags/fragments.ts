@@ -25,6 +25,7 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
+    bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
   }

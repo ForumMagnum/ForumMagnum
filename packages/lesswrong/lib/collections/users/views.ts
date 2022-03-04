@@ -160,6 +160,19 @@ Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
   }
 })
 
+Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
+    },
+    options: {
+      sort: {
+        displayName: 1
+      }
+    }
+  }
+})
+
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",

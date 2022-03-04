@@ -167,6 +167,18 @@ const schema: SchemaType<DbLocalgroup> = {
     regEx: SimpleSchema.RegEx.Url,
     tooltip: 'https://www.meetup.com/...'
   },
+  
+  slackLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Slack Workspace",
+    control: "MuiTextField",
+    optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
 
   website: {
     type: String,
@@ -198,7 +210,7 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     label: "Banner Image",
     control: "ImageUpload",
-    tooltip: "Minimum 200x600 px"
+    tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)"
   },
 };
 

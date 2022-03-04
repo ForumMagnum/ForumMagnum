@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import type { SyntheticQuadraticVote, SyntheticReviewVote } from './ReviewVotingPage';
+import type { SyntheticQuadraticVote, SyntheticQualitativeVote, SyntheticReviewVote } from './ReviewVotingPage';
 import { postGetCommentCount } from "../../lib/collections/posts/helpers";
 import { eligibleToNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import indexOf from 'lodash/indexOf'
@@ -157,6 +157,9 @@ const styles = (theme: ThemeType) => ({
     ...voteTextStyling(theme),
     color: theme.palette.grey[500],
     cursor: "default"
+  },
+  commentsCount: {
+    paddingBottom: 8
   }
 });
 
@@ -170,15 +173,14 @@ const arrayDiff = (arr1:Array<any>, arr2:Array<any>) => {
 }
 
 const ReviewVoteTableRow = (
-  { post, dispatch, dispatchQuadraticVote, useQuadratic, classes, expandedPostId, currentVote, showKarmaVotes }: {
+  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes }: {
     post: PostsListWithVotes,
-    dispatch: React.Dispatch<SyntheticReviewVote>,
-    dispatchQuadraticVote: any,
+    costTotal?: number,
+    dispatch: React.Dispatch<SyntheticQualitativeVote>,
     showKarmaVotes: boolean,
-    useQuadratic: boolean,
     classes:ClassesType,
     expandedPostId?: string|null,
-    currentVote: SyntheticReviewVote|null,
+    currentVote: SyntheticQualitativeVote|null,
   }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, QuadraticVotingButtons, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments } = Components
@@ -192,10 +194,9 @@ const ReviewVoteTableRow = (
     setMarkedVisitedAt(new Date()) 
   }
 
-  if (!currentUser) return null;
   const expanded = expandedPostId === post._id
 
-  const currentUserIsAuthor = post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id)
+  const currentUserIsAuthor = currentUser && (post.userId === currentUser._id || post.coauthors?.map(author => author?._id).includes(currentUser._id))
 
   const voteMap = {
     'bigDownvote': 'a strong downvote',
@@ -232,12 +233,14 @@ const ReviewVoteTableRow = (
             post={post}
           />
         </div>}
-        <PostsItemComments
-          small={false}
-          commentCount={postGetCommentCount(post)}
-          unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
-          newPromotedComments={false}
-        />
+        <div className={classes.commentsCount}>
+          <PostsItemComments
+            small={false}
+            commentCount={postGetCommentCount(post)}
+            unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
+            newPromotedComments={false}
+          />
+        </div>
         {getReviewPhase() !== "VOTING" && <PostsItem2MetaInfo className={classes.count}>
           <LWTooltip title={`This post has ${post.reviewCount} review${post.reviewCount > 1 ? "s" : ""}`}>
             { post.reviewCount }
@@ -265,10 +268,7 @@ const ReviewVoteTableRow = (
           </LWTooltip>}
         </div>}
         {getReviewPhase() !== "REVIEWS" && eligibleToNominate(currentUser) && <div className={classNames(classes.votes, {[classes.votesVotingPhase]: getReviewPhase() === "VOTING"})}>
-          {!currentUserIsAuthor && <div>{useQuadratic ?
-            <QuadraticVotingButtons postId={post._id} voteForCurrentPost={currentVote as SyntheticQuadraticVote} vote={dispatchQuadraticVote} /> :
-            <ReviewVotingButtons post={post} dispatch={dispatch} currentUserVoteScore={currentVote?.score || null} />}
-          </div>}
+          {!currentUserIsAuthor && <ReviewVotingButtons post={post} dispatch={dispatch} costTotal={costTotal} currentUserVote={currentVote} />}
           {currentUserIsAuthor && <MetaInfo>You can't vote on your own posts</MetaInfo>}
         </div>}
 

@@ -10,6 +10,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
+    position: "relative",
+    zIndex: theme.zIndexes.singleColumnSection,
     [theme.breakpoints.up('md')]: {
       width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
       // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)

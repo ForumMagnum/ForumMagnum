@@ -128,3 +128,6 @@ export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sent
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
 // Stripe setting
+
+//Test vs Production Setting
+export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")

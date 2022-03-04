@@ -12,16 +12,20 @@ const Home2 = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
+
           {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
+        
           {reviewIsActive() && currentUser && <SingleColumnSection>
             <FrontpageReviewWidget />
           </SingleColumnSection>}
+          
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+
           <AnalyticsContext pageSectionContext="recentDiscussion">
             <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
               <RecentDiscussionFeed
