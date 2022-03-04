@@ -192,7 +192,7 @@ addFieldsDict(Users, {
   },
 
 
-  sortDrafts: {
+  sortDraftsBy: {
     type: String,
     optional: true,
     canRead: [userOwns, 'admins'],
@@ -331,6 +331,30 @@ addFieldsDict(Users, {
     hidden: true,
   },
   allPostsOpenSettings: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  draftsListSorting: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+  },
+  draftsListShowArchived: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  draftsListShowShared: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
