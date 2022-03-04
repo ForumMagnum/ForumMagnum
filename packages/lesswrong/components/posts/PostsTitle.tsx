@@ -11,7 +11,7 @@ import { communityPath } from '../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.textColor,
     position: "relative",
     lineHeight: "1.8rem",
     zIndex: theme.zIndexes.postItemTitle,
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2
   },
   primaryIcon: {
-    color: "rgba(0,0,0,.55)",
+    color: theme.palette.dimTextColor,
     paddingRight: theme.spacing.unit,
     top: -2,
     width: "auto",
@@ -47,20 +47,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "middle",
   },
   read: {
-    color: "rgba(0,0,0,.55)",
+    color: theme.palette.dimTextColor,
     '&:hover': {
-      color: "rgba(0,0,0,.87)",
+      color: theme.palette.textColor,
     }
-  },
-  adminUnread: {
-    fontWeight: 500,
-    color: "rgba(0,0,0,.87)",
-    textShadow: "0.2px 0.2px 0px rgba(0,0,0,.87)"
-  },
-  adminRead: {
-    fontWeight: 500,
-    opacity: 1,
-    color: "rgba(0,0,0,.75)",
   },
   hideSmDown: { // TODO FIX NAME
     [theme.breakpoints.down('xs')]: {
@@ -144,8 +134,6 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
     <span className={classNames(classes.root, {
       [classes.read]: read,
       [classes.wrap]: wrap,
-      [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
-      [classes.adminRead]: read && userHasBoldPostItems(currentUser),
     })}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>

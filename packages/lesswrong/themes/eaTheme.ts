@@ -32,7 +32,7 @@ const sansSerifStack = [
   'sans-serif'
 ].join(',')
 
-const palette = {
+const palette = (themeOptions: ThemeOptions) => ({
   primary: {
     main: '#0c869b',
     light: '#00b2be',
@@ -50,10 +50,14 @@ const palette = {
   background: {
     default: '#f6f8f9'
   },
+  contentBackground: themeOptions.name === 'dark' ? 'black' : 'white',
+  hoveredContentBackground: themeOptions.name === 'dark' ? "#333333" : "#fafafa",
+  textColor: themeOptions.name === 'dark' ? 'white' : "rgba(0,0,0,.87)",
+  dimTextColor: themeOptions.name === 'dark' ? "rgba(255,255,255,.55)" : "rgba(0,0,0,.55)",
   event: '#0C869B',
   group: '#538747',
   individual: '#BF577D',
-}
+})
 
 const basicText = {
   color: grey[900],
@@ -66,7 +70,7 @@ const basicText = {
 const defaultTheme = createMuiTheme()
 
 export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOptions, {
-  palette,
+  palette: palette(themeOptions),
   typography: {
     fontDownloads: [
       "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
@@ -97,7 +101,7 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
       fontFamily: sansSerifStack,
     },
     errorStyle: {
-      color: palette.error.main,
+      color: palette(themeOptions).error.main,
       fontFamily: sansSerifStack
     },
     headline: {
@@ -162,7 +166,7 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
     MuiMenuItem: {
       root: {
         '&.MuiMenuItem-selected': {
-          backgroundColor: palette.primary.main,
+          backgroundColor: palette(themeOptions).primary.main,
           color: 'white',
           '&:hover': {
             backgroundColor: "#679299"
@@ -222,7 +226,7 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
     },
     FilterMode: {
       selected: {
-        color: palette.primary.main
+        color: palette(themeOptions).primary.main
       }
     },
     NavigationStandalone: {
@@ -253,7 +257,7 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
     },
     TabNavigationFooterItem: {
       selected: {
-        backgroundColor: palette.secondary.main
+        backgroundColor: palette(themeOptions).secondary.main
       }
     },
     TabNavigationCompressedItem: {
@@ -320,7 +324,7 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
     },
     MuiSnackbarContent: {
       root: {
-        backgroundColor: palette.lwTertiary.main
+        backgroundColor: palette(themeOptions).lwTertiary.main
       }
     }
   }

@@ -56,11 +56,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: theme.spacing.unit/2,
     },
   },
-  wrapper: {
-    ...(theme.themeName==="dark" ? {
-      filter: "invert(1)",
-    } : {}),
-  },
+  // wrapper: {
+  //   ...(theme.themeName==="dark" ? {
+  //     filter: "invert(1)",
+  //   } : {}),
+  // },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',

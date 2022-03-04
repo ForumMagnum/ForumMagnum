@@ -90,7 +90,12 @@ addStaticRoute("/allStyles", ({query}, req, res, next) => {
   const validThemeOptions = isValidSerializedThemeOptions(serializedThemeOptions) ? JSON.parse(serializedThemeOptions) : {name:"default"}
   const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions);
   
-  if (!expectedHash || expectedHash === stylesheetHash) {
+  if (!expectedHash) {
+    res.writeHead(302, {
+      'Location': `/allStyles?theme=${encodedThemeOptions}&hash=${stylesheetHash}`
+    })
+    res.end('')
+  } else if (expectedHash === stylesheetHash) {
     res.writeHead(200, {
       "Cache-Control": expectedHash ? "public, max-age=604800, immutable" : "public, max-age=604800",
       "Content-Type": "text/css; charset=utf-8"

@@ -30,7 +30,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   background: {
     width: "100%",
-    background: "white"
+    background: theme.palette.contentBackground
   },
   translucentBackground: {
     width: "100%",
@@ -53,7 +53,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: "#fafafa" // note: this is not intended to be the same as the COMMENTS_BACKGROUND_COLOR, it just happens to be
+      backgroundColor: theme.palette.hoveredContentBackground // note: this is not intended to be the same as the COMMENTS_BACKGROUND_COLOR, it just happens to be
     },
   },
   hasSmallSubtitle: {
