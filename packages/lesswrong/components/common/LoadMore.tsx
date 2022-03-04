@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Load More button. The simplest way to use this is to take `loadMoreProps`
 // from the return value of `useMulti` and spread it into this component's
 // props.
-const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes, sectionFooterStyles }: {
+const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassName, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes, sectionFooterStyles }: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
@@ -48,6 +48,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   totalCount?: number,
   // className: If provided, replaces the root style (default typography).
   className?: string|null|undefined,
+  loadingClassName?: string,
   // disabled: If true, this is grayed out (eg because everything's already loaded).
   disabled?: boolean,
   networkStatus?: any,
@@ -68,7 +69,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   }
 
   if (!hideLoading && (loading || (networkStatus && queryIsUpdating(networkStatus)))) {
-    return <Loading className={classNames(classes.loading, {[classes.sectionFooterStyles]: sectionFooterStyles})} />
+    return <Loading className={classNames(classes.loading, loadingClassName, {[classes.sectionFooterStyles]: sectionFooterStyles})} />
   }
 
   if (hidden) return null;

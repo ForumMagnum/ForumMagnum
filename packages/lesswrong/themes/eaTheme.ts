@@ -182,6 +182,17 @@ export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOpt
         padding: ".7rem",
       }
     },
+    MuiMenuItem: {
+      root: {
+        '&.MuiMenuItem-selected': {
+          backgroundColor: palette.primary.main,
+          color: 'white',
+          '&:hover': {
+            backgroundColor: "#679299"
+          }
+        }
+      }
+    },
     Header: {
       root: {
         height: 90,

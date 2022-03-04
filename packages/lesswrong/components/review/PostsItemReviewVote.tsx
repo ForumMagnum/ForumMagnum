@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
-import { indexToTermsLookup } from './ReviewVotingButtons';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
-import { canNominate, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import classNames from 'classnames';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
@@ -78,8 +77,8 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes:Classes
 
   if (!canNominate(currentUser, post)) return null
 
-  const voteIndex = newVote || post.currentUserReviewVote
-  const displayVote = indexToTermsLookup[voteIndex]?.label
+  const voteIndex = newVote || post.currentUserReviewVote?.qualitativeScore || 0
+  const displayVote = getCostData({})[voteIndex]?.label
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
   return <div onMouseLeave={() => setAnchorEl(null)}>

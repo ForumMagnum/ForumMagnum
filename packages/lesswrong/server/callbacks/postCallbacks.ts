@@ -218,8 +218,16 @@ async function oldPostsLastCommentedAt (post: DbPost) {
 
 getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
 
-
 getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
+  // make sure courses/programs have no end time
+  // (we don't want them listed for the length of the course, just until the application deadline / start time)
+  if (post.eventType === 'course') {
+    return {
+      ...post,
+      endTime: null
+    }
+  }
+
   // If the post has an end time but no start time, move the time given to the startTime
   // slot, and leave the end time blank
   if (post?.endTime && !post?.startTime) {
@@ -242,3 +250,13 @@ getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(
   
   return post;
 });
+
+getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): Promise<MongoModifier<DbPost>> {
+  // make sure courses/programs have no end time
+  // (we don't want them listed for the length of the course, just until the application deadline / start time)
+  if (post.eventType === 'course') {
+    modifier.$set.endTime = null;
+  }
+  
+  return modifier
+})

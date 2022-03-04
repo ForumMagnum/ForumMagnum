@@ -4,7 +4,7 @@ import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/p
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
-export const dataToModifier = <T extends DbObject>(data: Partial<T>): MongoModifier<T> => ({ 
+export const dataToModifier = <T extends DbObject>(data: Partial<DbInsertion<T>>): MongoModifier<DbInsertion<T>> => ({ 
   $set: pickBy(data, f => f !== null), 
   $unset: mapValues(pickBy(data, f => f === null), () => true),
 });
@@ -78,7 +78,7 @@ export const validateDocument = (document, collection, context: ResolverContext)
   2. Run SimpleSchema validation step
   
 */
-export const validateModifier = <T extends DbObject>(modifier: MongoModifier<T>, document: T, collection: CollectionBase<T>, context: ResolverContext) => {
+export const validateModifier = <T extends DbObject>(modifier: MongoModifier<DbInsertion<T>>, document: any, collection: CollectionBase<T>, context: ResolverContext) => {
   
   const { currentUser } = context;
   const schema = getSchema(collection);

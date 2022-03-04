@@ -450,8 +450,8 @@ const ReviewVotingPage2019 = ({classes}: {
                     showKarmaVotes={showKarmaVotes}
                     dispatch={dispatchQualitativeVote as any}
                     currentVote={(useQuadratic ? currentQuadraticVote : currentQualitativeVote) as any}
-                    dispatchQuadraticVote={dispatchQuadraticVote}
-                    useQuadratic={useQuadratic}
+                    // dispatchQuadraticVote={dispatchQuadraticVote}
+                    // useQuadratic={useQuadratic}
                     expandedPostId={expandedPost?._id}
                   />
                 </div>

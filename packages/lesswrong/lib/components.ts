@@ -86,9 +86,12 @@ importComponent("CloudinaryImage2", () => require('../components/common/Cloudina
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
 importComponent("ContentItemTruncated", () => require('../components/common/ContentItemTruncated'));
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
+importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
+
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
 importComponent("PostsRevisionSelect", () => require('../components/revisions/PostsRevisionSelect'));
+
 importComponent("RevisionComparisonNotice", () => require('../components/revisions/RevisionComparisonNotice'));
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
@@ -205,6 +208,7 @@ importComponent("PostsCompareRevisions", () => require('../components/posts/Post
 importComponent("AddToCalendarIcon", () => require('../components/posts/AddToCalendar/AddToCalendarIcon'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
+importComponent("PostsSingleSlugRedirect", () => require('../components/posts/PostsSingleSlugRedirect'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
 importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
@@ -263,6 +267,16 @@ importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 
 importComponent("EventsPast", () => require('../components/posts/EventsPast'));
 importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
+importComponent("EventsHome", () => require('../components/events/EventsHome'));
+importComponent("HighlightedEventCard", () => require('../components/events/modules/HighlightedEventCard'));
+importComponent("EventCards", () => require('../components/events/modules/EventCards'));
+importComponent("VirtualProgramCard", () => require('../components/events/modules/VirtualProgramCard'));
+// this is the new Community page, used by the EA Forum
+importComponent("Community", () => require('../components/community/Community'));
+importComponent("CommunityBanner", () => require('../components/community/modules/CommunityBanner'));
+importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
+importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
+// this is the previous Community page, used by LW
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
 importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
@@ -625,3 +639,6 @@ importComponent("BookAnimation", () => require('../components/books/BookAnimatio
 importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
+
+importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
+importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));

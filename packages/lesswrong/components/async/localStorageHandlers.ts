@@ -1,6 +1,6 @@
 import { isClient } from '../../lib/executionEnvironment';
 
-function getBrowserLocalStorage() {
+export function getBrowserLocalStorage() {
   try {
     return 'localStorage' in global && (global as any).localStorage ? (global as any).localStorage : null;
   } catch(e) {
