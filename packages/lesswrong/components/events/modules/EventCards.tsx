@@ -10,6 +10,7 @@ import { useTimezone } from '../../common/withTimezone';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -27,18 +28,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   communityLink: {
     color: theme.palette.primary.main,
-  },
-  eventCards: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 373px)',
-    gridGap: '20px',
-    justifyContent: 'center',
-    [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(2, 373px)',
-    },
-    '@media (max-width: 812px)': {
-      gridTemplateColumns: 'auto',
-    }
   },
   eventCard: {
     position: 'relative',
@@ -108,11 +97,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes}: {
+const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
   events?: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
   hideSpecialCards?: boolean,
+  hideGroupNames?: boolean,
+  cardClassName?: string,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
@@ -129,7 +120,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
   if (loading && !events?.length) {
     return numDefaultCards ? <>
       {_.range(numDefaultCards).map((i) => {
-        return <Card key={i} className={classes.eventCard}></Card>
+        return <Card key={i} className={classNames(classes.eventCard, cardClassName)}></Card>
       })}
     </> : null
   }
@@ -153,7 +144,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
   }
   
   const eventCards = events.map(event => {
-    return <Card key={event._id} className={classes.eventCard}>
+    return <Card key={event._id} className={classNames(classes.eventCard, cardClassName)}>
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
           <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
@@ -170,7 +161,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
           </div>
         </PostsItemTooltipWrapper>
         <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
-        {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
+        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name}>
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
         <div className={classes.addToCal}>
