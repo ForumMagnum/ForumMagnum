@@ -5,6 +5,7 @@ import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
+import Public from '@material-ui/icons/Public'
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -70,15 +71,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallText: {
     ...smallTagTextStyle(theme),
+  },
+  topTag: {
+    background: '#0c869b',
+    color: 'white',
+    border: 'none',
+    padding: '6px 12px',
+    fontWeight: 600,
+  },
+  flexContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 10,
   }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=false}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
   classes: ClassesType,
+  isTopTag?: boolean
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tagItem",
@@ -91,8 +105,9 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
   if (tag.adminOnly) { return null }
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core, [classes.smallText]: smallText})}>
-      <Link to={`/tag/${tag.slug}`}>
+    <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
+      <Link to={`/tag/${tag.slug}`} className={!!isTopTag && classes.flexContainer}>
+        {!!isTopTag && <Public />}
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>
