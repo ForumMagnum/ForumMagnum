@@ -34,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   description: {
     ...commentBodyStyles(theme),
-    margin: theme.spacing*2,
     marginTop: 20
   },
   filterScore: {
