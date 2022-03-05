@@ -2,6 +2,7 @@ import createTheme from './createThemeDefaults';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 import type { ThemeOptions } from './themeNames';
+import type { PartialDeep } from 'type-fest'
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -24,7 +25,7 @@ const sansSerifStack = [
   'sans-serif'
 ].join(',')
 
-const palette = {
+const palette: PartialDeep<ThemePalette> = {
   primary: indigo,
   secondary: indigo,
   lwTertiary: {
@@ -53,7 +54,7 @@ export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => createThem
       fontVariantNumeric: "lining-nums",
     },
     errorStyle: {
-      color: palette.error.main,
+      color: palette.error!.main!,
       fontFamily: sansSerifStack
     },
     title: {

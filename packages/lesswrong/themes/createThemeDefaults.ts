@@ -4,6 +4,8 @@ import grey from '@material-ui/core/colors/grey';
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 import type { PartialDeep } from 'type-fest'
+// eslint-disable-next-line no-restricted-imports
+import type { Color as MuiColorShades } from '@material-ui/core';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -21,16 +23,65 @@ const titleDividerSpacing = 20
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
+  type ColorString = string;
+  
   type ThemeType = {
     breakpoints: {
       down:  (breakpoint: BreakpointName|number)=>string,
       up: (breakpoint: BreakpointName|number)=>string,
+      values: Record<BreakpointName,number>,
     },
     spacing: {
       unit: number,
       titleDividerSpacing: number,
     },
-    palette: any,
+    palette: {
+      primary: MuiColorShades & {
+        main: ColorString,
+        light: ColorString,
+        dark: ColorString,
+        contrastText: ColorString
+      },
+      secondary: MuiColorShades & {
+        main: ColorString,
+        light: ColorString,
+        contrastText: ColorString
+      },
+      lwTertiary: {
+        main: ColorString,
+        dark: ColorString
+      },
+      error: {
+        main: ColorString,
+        light: ColorString,
+        dark: ColorString
+      },
+      text: {
+        primary: ColorString,
+        secondary: ColorString
+      },
+      background: {
+        default: ColorString
+      },
+      grey: MuiColorShades,
+      group: ColorString,
+      commentBorderGrey: ColorString,
+      contentBackground: ColorString,
+      hoveredContentBackground: ColorString,
+      getContrastText: (backgroundColor: ColorString)=>ColorString,
+      contrastText: ColorString,
+      textColor: ColorString,
+      dimTextColor: ColorString,
+      individual: ColorString,
+      event: ColorString,
+      
+      // type, headerType: Used by the Header component for figuring out the
+      // color of the title in the top-bar, by indirect reference to another
+      // palette entry. This is a weird hack that we probably want to replace
+      // with something more straightforward.
+      type: "dark"|undefined,
+      headerType: "primary"|undefined,
+    },
     typography: any,
     zIndexes: any,
     overrides: any,
@@ -38,7 +89,8 @@ declare global {
     boxShadow: any,
     itemBorderBottom: any,
     secondary: any,
-  }
+  };
+  type ThemePalette = ThemeType["palette"];
 }
 
 export const zIndexes = {
@@ -113,7 +165,9 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
 
   const typography = theme.typography || {}
 
-  const defaultTheme = {
+  // TODO: Make this ThemeType rather than PartialDeep<ThemeType> so that every
+  // theme is guaranteed to be complete
+  const defaultTheme: PartialDeep<ThemeType> = {
     breakpoints: {
       values: {
         xs: 0,
