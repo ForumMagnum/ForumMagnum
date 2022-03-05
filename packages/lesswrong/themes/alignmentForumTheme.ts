@@ -1,4 +1,4 @@
-import createLWTheme from './createThemeDefaults';
+import createTheme from './createThemeDefaults';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 import type { ThemeOptions } from './themeNames';
@@ -40,7 +40,7 @@ const palette = {
   headerType: "primary"
 }
 
-export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOptions, {
+export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => createTheme(themeOptions, {
   palette: palette,
   typography: {
     fontFamily: sansSerifStack,

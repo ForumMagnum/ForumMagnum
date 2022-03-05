@@ -1,4 +1,4 @@
-import createLWTheme from './createThemeDefaults';
+import createTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import { createMuiTheme } from '@material-ui/core/styles';
@@ -69,7 +69,7 @@ const basicText = {
 
 const defaultTheme = createMuiTheme()
 
-export const getEaTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOptions, {
+export const getEaTheme = (themeOptions: ThemeOptions) => createTheme(themeOptions, {
   palette: palette(themeOptions),
   typography: {
     fontDownloads: [

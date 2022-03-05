@@ -1,4 +1,4 @@
-import createLWTheme from './createThemeDefaults';
+import createTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import type { ThemeOptions } from './themeNames';
@@ -52,7 +52,7 @@ const palette = {
   individual: '#3f51b5',
 }
 
-export const getLwTheme = (themeOptions: ThemeOptions) => createLWTheme(themeOptions, {
+export const getLwTheme = (themeOptions: ThemeOptions) => createTheme(themeOptions, {
   palette: palette,
   typography: {
     fontFamily: sansSerifStack,

@@ -61,13 +61,8 @@ export const zIndexes = {
   petrovDayLoss: 1000000
 }
 
-const createLWTheme = (themeOptions: ThemeOptions, theme: ThemeType) => {
-  theme = {
-    ...theme,
-    themeName: themeOptions.name,
-    forumType: getForumType(themeOptions)
-  };
-  
+// Create a theme and merge it with the default theme.
+const createTheme = (themeOptions: ThemeOptions, theme: ThemeType) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 
@@ -95,7 +90,7 @@ const createLWTheme = (themeOptions: ThemeOptions, theme: ThemeType) => {
 
   const typography = theme.typography || {}
 
-  const defaultLWTheme = {
+  const defaultTheme = {
     breakpoints: {
       values: {
         xs: 0,
@@ -277,11 +272,16 @@ const createLWTheme = (themeOptions: ThemeOptions, theme: ThemeType) => {
     }
   }
 
-  const mergedTheme = deepmerge(defaultLWTheme, theme, {isMergeableObject:isPlainObject})
-
-  const newTheme = createMuiTheme(mergedTheme)
-
-  return newTheme
+  const mergedTheme = deepmerge(
+    defaultTheme,
+    {
+      ...theme,
+      themeName: themeOptions.name,
+      forumType: getForumType(themeOptions)
+    },
+    {isMergeableObject:isPlainObject}
+  )
+  return createMuiTheme(mergedTheme)
 }
 
-export default createLWTheme
+export default createTheme

@@ -14,7 +14,12 @@ export type ThemeOptions = {
 }
 
 export type ThemeMetadata = {
+  // Name to use for this theme internally, in config settings and stylesheet
+  // names and whatnot. URL-safe characters only.
   name: ThemeName
+  
+  // Name to use for this theme when displaying it in menus. Title cased, with
+  // spaces.
   label: string
 }
 
