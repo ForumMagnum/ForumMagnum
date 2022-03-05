@@ -370,7 +370,6 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
       MuiTableCell: {
         body: {
           ...body2FontSize,
-          ...typography.fontFamily,
           paddingLeft: 16,
           paddingRight: 16,
           paddingTop: 12,
