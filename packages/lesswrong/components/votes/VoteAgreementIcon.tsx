@@ -1,4 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
+import { useTheme } from '../themes/useTheme';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -6,7 +7,6 @@ import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { withTheme } from '@material-ui/core/styles';
 
 // const styles = (theme: ThemeType): JssStyles => ({
 //   root: {
@@ -194,12 +194,12 @@ export interface VoteArrowIconProps {
   bigVoted: boolean,
   bigVoteCompleted: boolean,
   alwaysColored: boolean,
-  theme?: ThemeType,
 }
 
-const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, theme, classes }: VoteArrowIconProps & {
+const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
+  const theme = useTheme();
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
   const PrimaryIcon =  (upOrDown === "Downvote") ? ClearIcon : CheckIcon

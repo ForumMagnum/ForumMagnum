@@ -3,6 +3,7 @@ import { getForumType, ThemeOptions } from './themeNames';
 import grey from '@material-ui/core/colors/grey';
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
+import type { PartialDeep } from 'type-fest'
 
 const monoStack = [
   '"Liberation Mono"',
@@ -17,6 +18,28 @@ const monoStack = [
 // = 16 (see header and divider) + the ~4 pixel distance from the bottom
 // of the secondaryInfo text to the bottom of the associated div
 const titleDividerSpacing = 20
+
+declare global {
+  type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
+  type ThemeType = {
+    breakpoints: {
+      down:  (breakpoint: BreakpointName|number)=>string,
+      up: (breakpoint: BreakpointName|number)=>string,
+    },
+    spacing: {
+      unit: number,
+      titleDividerSpacing: number,
+    },
+    palette: any,
+    typography: any,
+    zIndexes: any,
+    overrides: any,
+    voting: {strongVoteDelay: number},
+    boxShadow: any,
+    itemBorderBottom: any,
+    secondary: any,
+  }
+}
 
 export const zIndexes = {
   frontpageBooks: 0,
@@ -62,7 +85,7 @@ export const zIndexes = {
 }
 
 // Create a theme and merge it with the default theme.
-const createTheme = (themeOptions: ThemeOptions, theme: ThemeType) => {
+const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 

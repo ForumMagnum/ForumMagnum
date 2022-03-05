@@ -38,6 +38,7 @@ importComponent("NewConversationButton", () => require('../components/messaging/
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
+importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));

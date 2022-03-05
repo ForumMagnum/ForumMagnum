@@ -4,7 +4,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
-import { withTheme } from '@material-ui/core/styles';
+import { useTheme } from '../themes/useTheme';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -139,12 +139,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, theme, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
   toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
-  theme?: ThemeType,
   classes: ClassesType,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -155,6 +154,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
+  const theme = useTheme();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -331,10 +331,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
 
 const HeaderComponent = registerComponent('Header', Header, {
   styles,
-  hocs: [
-    withErrorBoundary,
-    withTheme(),
-  ]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

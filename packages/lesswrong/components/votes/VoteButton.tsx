@@ -1,7 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { isMobile } from '../../lib/utils/isMobile'
-import { withTheme } from '@material-ui/core/styles';
+import { useTheme } from '../themes/useTheme';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -13,7 +13,6 @@ const VoteButton = ({
   orientation = "up",
   solidArrow,
   VoteIconComponent,
-  theme,
 }: {
   vote: (strength: "big"|"small"|"neutral")=>void,
   currentStrength: "big"|"small"|"neutral",
@@ -23,9 +22,8 @@ const VoteButton = ({
   orientation: "up"|"down"|"left"|"right",
   solidArrow?: boolean
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
-  // From withTheme. TODO: Hookify this.
-  theme?: ThemeType
 }) => {
+  const theme = useTheme();
   const [votingTransition, setVotingTransition] = useState<any>(null);
   const [bigVotingTransition, setBigVotingTransition] = useState(false);
   const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
@@ -91,7 +89,7 @@ const VoteButton = ({
 }
 
 const VoteButtonComponent = registerComponent('VoteButton', VoteButton, {
-  hocs: [withTheme()], areEqual: "auto"
+  areEqual: "auto"
 });
 
 declare global {
