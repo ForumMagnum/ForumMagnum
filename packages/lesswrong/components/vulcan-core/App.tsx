@@ -11,6 +11,8 @@ import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
 import { userIdentifiedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
+import { ThemeContext } from '../themes/useTheme';
+import { withTheme } from '@material-ui/core/styles';
 
 const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
 
@@ -22,6 +24,9 @@ interface AppProps extends ExternalProps {
   // From withRouter
   location: any
   history: any
+  
+  // From withTHeme
+  theme: ThemeType
   
   // From withCurrentUser HoC
   currentUser: UsersCurrent
@@ -97,7 +102,7 @@ class App extends PureComponent<AppProps,any> {
   render() {
     const { flash } = this;
     const { messages } = this.state;
-    const { currentUser, serverRequestStatus } = this.props;
+    const { currentUser, serverRequestStatus, theme } = this.props;
 
     // Parse the location into a route/params/query/etc.
     const location = parseRoute({location: this.props.location});
@@ -136,6 +141,7 @@ class App extends PureComponent<AppProps,any> {
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
       <NavigationContext.Provider value={this.navigationContext}>
       <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
+      <ThemeContext.Provider value={theme}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
@@ -145,6 +151,7 @@ class App extends PureComponent<AppProps,any> {
           </Components.Layout>
         </MessageContext.Provider>
       </IntlProvider>
+      </ThemeContext.Provider>
       </ServerRequestStatusContext.Provider>
       </NavigationContext.Provider>
       </SubscribeLocationContext.Provider>
@@ -163,7 +170,8 @@ class App extends PureComponent<AppProps,any> {
 const AppComponent = registerComponent<ExternalProps>('App', App, {
   hocs: [
     withCurrentUser,
-    withRouter
+    withRouter,
+    withTheme(),
   ]
 });
 
