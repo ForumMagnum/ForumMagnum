@@ -8,7 +8,6 @@ import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { getLSHandlers } from '../async/localStorageHandlers'
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -764,7 +763,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
     return <div>
         { this.renderPlaceholder(showPlaceholder, false) }
-        {draftJSValue && <EditorForm
+        {draftJSValue && <Components.DraftJSEditor
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
