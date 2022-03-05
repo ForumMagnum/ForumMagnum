@@ -7,7 +7,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltipSingle';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit*1.5,
     width: POST_PREVIEW_WIDTH,

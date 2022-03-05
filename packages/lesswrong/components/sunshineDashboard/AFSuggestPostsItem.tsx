@@ -16,7 +16,7 @@ import {DatabasePublicSetting} from "../../lib/publicSettings";
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
-export const afSubmissionHeader = (theme) => ({
+export const afSubmissionHeader = (theme: ThemeType): JssStyles => ({
   ...commentBodyStyles(theme),
   marginBottom: 24,
   display: "flex",
@@ -25,7 +25,7 @@ export const afSubmissionHeader = (theme) => ({
   justifyContent: "space-between"
 })
 
-export const afSubmissionHeaderText = (theme) => ({
+export const afSubmissionHeaderText = (theme: ThemeType): JssStyles => ({
   ...commentBodyStyles(theme),
   fontStyle: 'italic',
 })

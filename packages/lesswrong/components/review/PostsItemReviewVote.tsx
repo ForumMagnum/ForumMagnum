@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
-export const voteTextStyling = theme => ({
+export const voteTextStyling = (theme: ThemeType): JssStyles => ({
   ...theme.typography.smallText,
   ...theme.typography.commentStyle,
   textAlign: "center",

@@ -6,7 +6,7 @@ import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   postTitle: {
     ...postPageTitleStyles(theme),
     display: "block",

@@ -11,7 +11,7 @@ import { CommentTreeOptions } from './commentTree';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
-export const singleLineStyles = theme => ({
+export const singleLineStyles = (theme: ThemeType): JssStyles => ({
   display: "flex",
   borderRadius: 3,
   backgroundColor: "#f0f0f0",

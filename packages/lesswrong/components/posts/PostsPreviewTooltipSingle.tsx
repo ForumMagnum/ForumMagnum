@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { POST_PREVIEW_WIDTH } from './PostsPreviewTooltip';
 
-export const notificationLoadingStyles = theme => ({
+export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({
   width: POST_PREVIEW_WIDTH,
   paddingTop: theme.spacing.unit,
   paddingBottom: theme.spacing.unit
