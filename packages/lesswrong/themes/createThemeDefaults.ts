@@ -340,6 +340,10 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
     },
     palette: {
       commentBorderGrey: "rgba(72,94,144,0.16)",
+      contentBackground: themeOptions.name === 'dark' ? 'black' : 'white',
+      hoveredContentBackground: themeOptions.name === 'dark' ? "#333333" : "#fafafa",
+      textColor: themeOptions.name === 'dark' ? 'white' : "rgba(0,0,0,.87)",
+      dimTextColor: themeOptions.name === 'dark' ? "rgba(255,255,255,.55)" : "rgba(0,0,0,.55)",
     },
     boxShadow: "0 1px 5px rgba(0,0,0,.025)",
     itemBorderBottom: "solid 2px rgba(0,0,0,.05)",

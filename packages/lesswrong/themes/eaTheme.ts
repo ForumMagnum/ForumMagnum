@@ -50,10 +50,6 @@ const palette = (themeOptions: ThemeOptions) => ({
   background: {
     default: '#f6f8f9'
   },
-  contentBackground: themeOptions.name === 'dark' ? 'black' : 'white',
-  hoveredContentBackground: themeOptions.name === 'dark' ? "#333333" : "#fafafa",
-  textColor: themeOptions.name === 'dark' ? 'white' : "rgba(0,0,0,.87)",
-  dimTextColor: themeOptions.name === 'dark' ? "rgba(255,255,255,.55)" : "rgba(0,0,0,.55)",
   event: '#0C869B',
   group: '#538747',
   individual: '#BF577D',
