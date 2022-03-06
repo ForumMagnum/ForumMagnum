@@ -39,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   notificationLabel: {
-    ...theme.typography.commentStyles,
     ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",

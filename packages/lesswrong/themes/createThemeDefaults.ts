@@ -115,7 +115,6 @@ declare global {
       caption: JssStyles,
       blockquote: JssStyles,
       uiStyle: JssStyles,
-      uiLink: JssStyles,
     },
     zIndexes: any,
     overrides: any,
@@ -338,12 +337,6 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
         fontWeight: 600,
         marginBottom: ".5rem"
       },
-      uiLink: {
-        color: grey[500],
-        '&:hover': {
-          color:grey[300]
-        }
-      }
     },
     palette: {
       commentBorderGrey: "rgba(72,94,144,0.16)",

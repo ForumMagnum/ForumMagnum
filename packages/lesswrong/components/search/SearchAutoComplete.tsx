@@ -9,7 +9,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   autoComplete: {
     '& input': {
       ...theme.typography.body2,
-      ...theme.typography.uiStyle,
       backgroundColor: "rgba(0,0,0,0)"
     },
     "& li": {
