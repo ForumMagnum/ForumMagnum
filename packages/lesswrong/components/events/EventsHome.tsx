@@ -116,10 +116,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   notificationsBtn: {
     textTransform: 'none',
     fontSize: 14,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 12,
+      padding: '8px 8px'
+    }
   },
   notificationsIcon: {
     fontSize: 18,
-    marginRight: 6
+    marginRight: 6,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 16,
+      marginRight: 4
+    }
   },
   eventCards: {
     display: 'grid',

@@ -7,7 +7,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     display: 'inline-block',
     ...theme.typography.commentStyle,
-    marginLeft: 8
+    marginLeft: 5
   },
   radio: {
     display: 'none'
