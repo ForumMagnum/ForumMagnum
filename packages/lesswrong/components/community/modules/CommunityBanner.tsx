@@ -6,13 +6,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   bannerImg: {
     width: '100vw',
     height: 200,
-    backgroundImage: `linear-gradient(to right, ${theme.palette.primary.dark} 30%, transparent), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_380,w_1600,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)`,
+    backgroundImage: `linear-gradient(to right, ${theme.palette.primary.dark} 20%, transparent), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_380,w_1600,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)`,
     backgroundSize: 'cover',
     backgroundPosition: 'top right',
     padding: 40,
     marginBottom: 10,
     [theme.breakpoints.down('sm')]: {
-      backgroundImage: `linear-gradient(to right, rgba(8, 93, 108, 1) 300px, rgba(8, 93, 108, 0.4)), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_300,w_1000,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)`,
+      backgroundImage: `linear-gradient(to right, rgba(8, 93, 108, 1) 200px, rgba(8, 93, 108, 0.4)), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_300,w_1000,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)`,
       marginLeft: -4,
       marginRight: -4,
     },
@@ -29,7 +29,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   bannerQuote: {
     position: 'relative',
-    maxWidth: 500,
+    maxWidth: 300,
     fontSize: 20,
     lineHeight: '1.5em',
     fontStyle: 'italic',
@@ -58,12 +58,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 const CommunityBanner = ({classes}: {
   classes: ClassesType,
 }) => {
-  
+  // quote is from this post, with permission from the author:
+  // https://forum.effectivealtruism.org/posts/kE3FRC5gq9QxMrn3w/what-drew-me-to-ea-reflections-on-ea-as-relief-growth-and
   return <div className={classes.bannerImg}>
     <div className={classes.bannerText}>
       <div className={classes.bannerQuote}>
-        In EA, I found a group of people who cared about the whole world, not just their small part of it,
-        and who didn't need to agree on everything to be part of the same community.
+        In EA, I found a group of people who cared about the whole world, not just their small part of it...
       </div>
       <div className={classes.bannerQuoteAuthor}>- Vaidehi, member of EA East Bay</div>
     </div>

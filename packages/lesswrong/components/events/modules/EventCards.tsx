@@ -40,6 +40,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       maxWidth: '100vw'
     }
   },
+  eventCardTag: {
+    ...theme.typography.commentStyle,
+    position: 'absolute',
+    top: 15,
+    left: 15,
+    backgroundColor: '#CC5500',
+    color: 'white',
+    fontSize: 12,
+    padding: '6px 12px',
+    borderRadius: 20
+  },
   eventCardContent: {
     position: 'relative',
     height: 170,
@@ -132,6 +143,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
           <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
           <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
       </Link>
+      {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}
       <CardContent className={classes.eventCardContent}>
         <div className={classes.eventCardTime}>
           {event.eventType === 'course' && <span className={classes.eventCardTimeApply}>Apply by</span>}
