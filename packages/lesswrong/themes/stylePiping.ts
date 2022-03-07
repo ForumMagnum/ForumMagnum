@@ -3,7 +3,7 @@ import isPlainObject from 'is-plain-object';
 
 export const metaculusBackground = "#2c3947"
 
-const hideSpoilers = {
+const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: 'black',
   color: 'black',
   '& a, & a:hover, & a:focus, & a::after': {
@@ -12,9 +12,9 @@ const hideSpoilers = {
   '& code': {
     backgroundColor: 'black',
   }
-}
+});
 
-const spoilerStyles = (theme: ThemeType) => ({
+const spoilerStyles = (theme: ThemeType): JssStyles => ({
   '& p.spoiler': {
     margin: 0,
   },
@@ -26,7 +26,7 @@ const spoilerStyles = (theme: ThemeType) => ({
       margin: 0,
     },
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
-      ...hideSpoilers,
+      ...hideSpoilers(theme),
     }
   },
   // Note: ".spoiler" is the old class Oli originally used. ".spoilers" is a new class 
@@ -36,7 +36,7 @@ const spoilerStyles = (theme: ThemeType) => ({
     margin: '1em 0',
     overflow: 'auto',
     '&:not(:hover)': {
-      ...hideSpoilers,
+      ...hideSpoilers(theme),
     },
     '&:hover': {
       background: 'rgba(0,0,0,.12)' // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
@@ -54,11 +54,11 @@ const spoilerStyles = (theme: ThemeType) => ({
     backgroundColor: 'transparent'
   },
   '& .spoilers > p:hover ~ p': {
-    ...hideSpoilers
+    ...hideSpoilers(theme),
   }
 })
 
-const metaculusPreviewStyles = () => ({
+const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.metaculus-preview': {
     backgroundColor: metaculusBackground,
     '& iframe': {
@@ -69,7 +69,7 @@ const metaculusPreviewStyles = () => ({
   }
 })
 
-const youtubePreviewStyles = () => ({
+const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
     height: 0,
@@ -85,7 +85,7 @@ const youtubePreviewStyles = () => ({
   }
 })
 
-const tableStyles = {
+const tableStyles = (theme: ThemeType): JssStyles => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
   border: "1px double #b3b3b3",
@@ -93,9 +93,9 @@ const tableStyles = {
   height: "100%",
   textAlign: "left",
   width: '100%'
-}
+});
 
-const tableCellStyles = {
+const tableCellStyles = (theme: ThemeType): JssStyles => ({
   minWidth: "2em",
   padding: ".4em",
   border: "1px double #d9d9d9",
@@ -106,14 +106,14 @@ const tableCellStyles = {
   '& p:first-of-type': {
     marginTop: 0
   }
-}
+});
 
-const tableHeadingStyles = {
+const tableHeadingStyles = (theme: ThemeType): JssStyles => ({
   background: "#fafafa",
   fontWeight: 700
-}
+});
 
-const hrStyles = {
+const hrStyles = (theme: ThemeType): JssStyles => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -130,9 +130,9 @@ const hrStyles = {
     letterSpacing: "12px", /* increase space between dots */
     content: '"•••"',
   }
-}
+});
 
-const footnoteStyles = () => ({
+const footnoteStyles = (theme: ThemeType): JssStyles => ({
   '& .footnote-section': {
     counterReset: "footnote-counter",
   },
@@ -164,7 +164,7 @@ const footnoteStyles = () => ({
   },
 });
 
-const baseBodyStyles = (theme: ThemeType) => ({
+const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
   wordBreak: "break-word",
@@ -239,17 +239,17 @@ const baseBodyStyles = (theme: ThemeType) => ({
     }
   },
   '& table': {
-    ...tableStyles
+    ...tableStyles(theme)
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
     display: 'table'
   },
   '& td, & th': {
-    ...tableCellStyles
+    ...tableCellStyles(theme)
   },
   '& th': {
-    ...tableHeadingStyles
+    ...tableHeadingStyles(theme)
   },
   '& figure': {
     margin: '1em auto',
@@ -261,13 +261,13 @@ const baseBodyStyles = (theme: ThemeType) => ({
   }
 })
 
-export const postBodyStyles = (theme: ThemeType) => {
+export const postBodyStyles = (theme: ThemeType): JssStyles => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(),
-    ...youtubePreviewStyles(),
-    ...footnoteStyles(),
+    ...metaculusPreviewStyles(theme),
+    ...youtubePreviewStyles(theme),
+    ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -298,12 +298,12 @@ export const postBodyStyles = (theme: ThemeType) => {
       display: 'none'
     },
     '& hr': {
-      ...hrStyles,
+      ...hrStyles(theme),
     }
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean): JssStyles => {
   // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
 
   const pointerEvents = dontIncludePointerEvents ?
@@ -323,8 +323,8 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.commentStyle,
 
     ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(),
-    ...youtubePreviewStyles(),
+    ...metaculusPreviewStyles(theme),
+    ...youtubePreviewStyles(theme),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -357,7 +357,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
 
-export const tagBodyStyles = (theme: ThemeType) => {
+export const tagBodyStyles = (theme: ThemeType): JssStyles => {
   return {
     ...commentBodyStyles(theme),
     '&& h1': {
@@ -387,7 +387,7 @@ export const tagBodyStyles = (theme: ThemeType) => {
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-const smallPostStyles = (theme: ThemeType) => ({
+const smallPostStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.body2,
   fontSize: "1.28rem",
   lineHeight: "1.75rem",
@@ -407,7 +407,7 @@ const smallPostStyles = (theme: ThemeType) => ({
   },
 })
 
-export const postHighlightStyles = (theme: ThemeType) => {
+export const postHighlightStyles = (theme: ThemeType): JssStyles => {
   const postHighlightStyles = {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
@@ -419,14 +419,14 @@ export const postHighlightStyles = (theme: ThemeType) => {
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
 
-export const answerStyles = (theme: ThemeType) => {
+export const answerStyles = (theme: ThemeType): JssStyles => {
   const answerStyles = {
     ...smallPostStyles(theme)
   }
   return deepmerge(postBodyStyles(theme), answerStyles, {isMergeableObject:isPlainObject})
 }
 
-export const pBodyStyle = {
+export const pBodyStyle = (theme: ThemeType): JssStyles => ({
   marginTop: "1em",
   marginBottom: "1em",
   '&:first-child': {
@@ -438,9 +438,9 @@ export const pBodyStyle = {
   '&:last-child': {
     marginBottom: 0,
   }
-}
+});
 
-export const ckEditorStyles = (theme: ThemeType) => {
+export const ckEditorStyles = (theme: ThemeType): JssStyles => {
   return {
     '& .ck': {
       '& code .public-DraftStyleDefault-block': {
@@ -451,7 +451,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         fontStyle: "unset",
         ...theme.typography.blockquote,
         '& p': {
-          ...pBodyStyle,
+          ...pBodyStyle(theme),
         },
         '& .public-DraftStyleDefault-block': {
           marginTop: 0,
@@ -473,13 +473,13 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .table table': {
-          ...tableStyles
+          ...tableStyles(theme)
         },
         '& .table table td, & .table table th': {
-          ...tableCellStyles
+          ...tableCellStyles(theme)
         },
         '& .table table th': {
-          ...tableHeadingStyles
+          ...tableHeadingStyles(theme)
         },
         '& .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
           outline: "none"
@@ -489,7 +489,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           backgroundColor: "unset",
         },
         '& hr': {
-          ...hrStyles
+          ...hrStyles(theme)
         },
       },
       '&.ck-sidebar, &.ck-presence-list': {
