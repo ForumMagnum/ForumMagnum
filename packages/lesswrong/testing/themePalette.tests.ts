@@ -47,13 +47,16 @@ function assertNoNonPaletteColorsRec(componentName: string, path: string, styleF
 }
 
 function replacePaletteWithStubs(theme: ThemeType): ThemeType {
-  function objReplaceStrings(obj: any, replacement: string) {
+  function objReplaceColors(obj: any, replacement: string) {
     if (typeof obj === 'string') {
-      return replacement;
+      if (stringMentionsAnyColor(obj))
+        return replacement;
+      else
+        return obj;
     } else if (typeof obj === 'object') {
       let result = {};
       for (let key of Object.keys(obj)) {
-        result[key] = objReplaceStrings(obj[key], replacement);
+        result[key] = objReplaceColors(obj[key], replacement);
       }
       return result;
     } else {
@@ -63,12 +66,14 @@ function replacePaletteWithStubs(theme: ThemeType): ThemeType {
   
   return {
     ...theme,
-    palette: objReplaceStrings(theme.palette, "fakecolor"),
+    typography: objReplaceColors(theme.typography, "fakecolor"),
+    palette: objReplaceColors(theme.palette, "fakecolor"),
   };
 }
 
 function stringMentionsAnyColor(str: string): boolean {
-  // TODO: Extend this to color words like "black", "white", etc
+  // TODO: Extend this to other color words besides black and white?
   return !!str.match(/rgba?\(/)
     || !!str.match(/#[0-9a-fA-F]{6}/)
+    || !!str.match(/\b(white|black)\b/)
 }
