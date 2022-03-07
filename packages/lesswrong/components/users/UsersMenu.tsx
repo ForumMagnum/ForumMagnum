@@ -41,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
+    color: theme.palette.headerTextColor,
   },
   notAMember: {
     marginLeft: 5,
@@ -58,8 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
-  color?: string,
+const UsersMenu = ({classes}: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
@@ -71,7 +71,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
   if (currentUser.usernameUnset) {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
-        <span className={classes.userButtonContents} style={{ color: color }}>
+        <span className={classes.userButtonContents}>
           LOG OUT
         </span>
       </Button>
@@ -87,7 +87,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
       <div className={classes.root} {...eventHandlers}>
         <Link to={`/users/${currentUser.slug}`}>
           <Button classes={{root: classes.userButtonRoot}}>
-            <span className={classes.userButtonContents} style={{ color: color }}>
+            <span className={classes.userButtonContents}>
               {userGetDisplayName(currentUser)}
               {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
                 <div>Your account has been deactivated:</div>

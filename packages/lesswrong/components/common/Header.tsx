@@ -287,13 +287,12 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                 </NoSSR>
                 {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
                     <AnalyticsContext pageSectionContext="usersMenu">
-                      <UsersMenu color={theme.palette.headerTextColor} />
+                      <UsersMenu />
                     </AnalyticsContext>
                   </div>}
-                {!currentUser && <UsersAccountMenu color={theme.palette.headerTextColor} />}
+                {!currentUser && <UsersAccountMenu />}
                 {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
                 {currentUser && <NotificationsMenuButton
-                  color={theme.palette.headerTextColor}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
                   currentUser={currentUser}

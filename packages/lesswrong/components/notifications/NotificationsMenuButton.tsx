@@ -5,6 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import classNames from 'classnames';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -24,16 +25,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     pointerEvents: "none",
   },
   buttonOpen: {
-    backgroundColor: "rgba(0,0,0,0.4)"
+    backgroundColor: "rgba(0,0,0,0.4)",
+    color: "white",
   },
   buttonClosed: {
-    backgroundColor: "rgba(0,0,0,0)"
+    backgroundColor: "rgba(0,0,0,0)",
+    color: theme.palette.headerTextColor,
   },
 });
 
-const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: {
+const NotificationsMenuButton = ({ open, toggle, currentUser, classes }: {
   open: boolean,
-  color?: string,
   toggle: any,
   currentUser: UsersCurrent,
   classes: ClassesType,
@@ -56,9 +58,6 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
   );
 
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
-  const notificationIconStyle = {
-    color: open ? "#FFFFFF" : (color || "rgba(0,0,0,0.6)"),
-  }
 
   return (
     <Badge
@@ -66,9 +65,8 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
       badgeContent={(filteredResults && filteredResults.length) || ""}
     >
       <IconButton
-          classes={{ root: buttonClass }}
-          onClick={toggle}
-          style={ notificationIconStyle }
+        classes={{ root: buttonClass }}
+        onClick={toggle}
       >
         {filteredResults && filteredResults.length ? <NotificationsIcon /> : <NotificationsNoneIcon />}
       </IconButton>
