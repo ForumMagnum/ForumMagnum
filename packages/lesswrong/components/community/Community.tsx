@@ -13,12 +13,14 @@ import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import Button from '@material-ui/core/Button';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import EmailIcon from '@material-ui/icons/MailOutline';
+import Search from '@material-ui/icons/Search';
 import classNames from 'classnames';
 import { userIsAdmin } from '../../lib/vulcan-users';
 
@@ -56,12 +58,36 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   filters: {
     display: 'flex',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
     alignItems: 'baseline',
     columnGap: 10,
+    rowGap: '20px',
     marginTop: 10,
+    '@media (max-width: 1200px)': {
+      padding: '0 20px',
+    },
+    [theme.breakpoints.down('sm')]: {
+      padding: 0
+    },
+  },
+  keywordSearch: {
+    maxWidth: '100%',
+  },
+  keywordSearchInput: {
+    width: 350,
+    maxWidth: '100%',
+    verticalAlign: 'sub',
+    paddingLeft: 10,
+    '& input': {
+      padding: '15px 14px 15px 0'
+    }
+  },
+  searchIcon: {
+    color: theme.palette.primary.main,
+    marginRight: 6
   },
   where: {
+    display: 'inline-block',
     ...theme.typography.commentStyle,
     fontSize: 13,
     color: "rgba(0,0,0,0.6)",
@@ -83,10 +109,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     marginLeft: 6
   },
-  filter: {
-  },
   distanceUnit: {
+    display: 'inline-block',
     ...theme.typography.commentStyle,
+    marginLeft: 8
   },
   distanceUnitRadio: {
     display: 'none'
@@ -117,7 +143,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   notifications: {
     flex: '1 0 0',
     textAlign: 'right',
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
@@ -176,6 +202,7 @@ const Community = ({classes}: {
   // local or online
   const [tab, setTab] = useState('local')
   const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
+  const [keywordSearch, setKeywordSearch] = useState('')
   
   useEffect(() => {
     // unfortunately the hash is unavailable on the server, so we check it here instead
@@ -292,6 +319,7 @@ const Community = ({classes}: {
   
   const handleChangeTab = (e, value) => {
     setTab(value)
+    setKeywordSearch('')
     history.replace({...location, hash: `#${value}`})
   }
   
@@ -321,49 +349,63 @@ const Community = ({classes}: {
         
         {tab === 'local' && <div key="local">
           <div className={classes.filters}>
-            <div className={classes.where}>
-              <span className={classes.whereTextDesktop}>Showing groups near</span>
-              <span className={classes.whereTextMobile}>Location</span>
-              {mapsLoaded
-                && <div className={classes.geoSuggest}>
-                    <Geosuggest
-                      placeholder="search for a location"
-                      onSuggestSelect={(suggestion) => {
-                        if (suggestion?.location) {
-                          saveUserLocation({
-                            ...suggestion.location,
-                            gmaps: suggestion.gmaps
-                          })
-                        }
-                      }}
-                      initialValue={userLocation?.label}
-                    />
-                  </div>
-              }
+            <div className={classes.keywordSearch}>
+              <OutlinedInput
+                labelWidth={0}
+                startAdornment={<Search className={classes.searchIcon}/>}
+                placeholder="Search groups"
+                onChange={(e) => setKeywordSearch(e.target.value)}
+                className={classes.keywordSearchInput}
+              />
             </div>
-            
-            {userLocation.known && <div className={classes.distanceUnit}>
-              <input type="radio" id="km" name="distanceUnit" value="km" className={classes.distanceUnitRadio}
-                checked={distanceUnit === 'km'} onClick={() => setDistanceUnit('km')} />
-              <label htmlFor="km" className={classNames(classes.distanceUnitLabel, 'left', {'selected': distanceUnit === 'km'})}>
-                km
-              </label>
+            <div>
+              <div className={classes.where}>
+                <span className={classes.whereTextDesktop}>Groups near</span>
+                <span className={classes.whereTextMobile}>Near</span>
+                {mapsLoaded
+                  && <div className={classes.geoSuggest}>
+                      <Geosuggest
+                        placeholder="search for a location"
+                        onSuggestSelect={(suggestion) => {
+                          if (suggestion?.location) {
+                            saveUserLocation({
+                              ...suggestion.location,
+                              gmaps: suggestion.gmaps
+                            })
+                          }
+                        }}
+                        initialValue={userLocation?.label}
+                      />
+                    </div>
+                }
+              </div>
+              
+              {userLocation.known && <div className={classes.distanceUnit}>
+                <input type="radio" id="km" name="distanceUnit" value="km" className={classes.distanceUnitRadio}
+                  checked={distanceUnit === 'km'} onClick={() => setDistanceUnit('km')} />
+                <label htmlFor="km" className={classNames(classes.distanceUnitLabel, 'left', {'selected': distanceUnit === 'km'})}>
+                  km
+                </label>
 
-              <input type="radio" id="mi" name="distanceUnit" value="mi" className={classes.distanceUnitRadio}
-                checked={distanceUnit === 'mi'} onClick={() => setDistanceUnit('mi')} />
-              <label htmlFor="mi" className={classNames(classes.distanceUnitLabel, 'right', {'selected': distanceUnit === 'mi'})}>
-                mi
-              </label>
-            </div>}
-            
+                <input type="radio" id="mi" name="distanceUnit" value="mi" className={classes.distanceUnitRadio}
+                  checked={distanceUnit === 'mi'} onClick={() => setDistanceUnit('mi')} />
+                <label htmlFor="mi" className={classNames(classes.distanceUnitLabel, 'right', {'selected': distanceUnit === 'mi'})}>
+                  mi
+                </label>
+              </div>}
+            </div>
+              
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
-                {currentUser?.nearbyEventsNotifications ? <NotificationsIcon className={classes.notificationsIcon} /> : <NotificationsNoneIcon className={classes.notificationsIcon} />} Notify me
+                {currentUser?.nearbyEventsNotifications ?
+                  <NotificationsIcon className={classes.notificationsIcon} /> :
+                  <NotificationsNoneIcon className={classes.notificationsIcon} />
+                } Notify me
               </Button>
             </div>
           </div>
           
-          <LocalGroups userLocation={userLocation} distanceUnit={distanceUnit} />
+          <LocalGroups keywordSearch={keywordSearch} userLocation={userLocation} distanceUnit={distanceUnit} />
           
           <div className={classes.localGroupsBtns}>
             <Button href="https://resources.eagroups.org/" variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}>
@@ -377,7 +419,20 @@ const Community = ({classes}: {
           
         </div>}
         
-        {tab === 'online' && <OnlineGroups />}
+        {tab === 'online' && <div key="online">
+          <div className={classes.filters}>
+            <div className={classes.keywordSearch}>
+              <OutlinedInput
+                labelWidth={0}
+                startAdornment={<Search className={classes.searchIcon}/>}
+                placeholder="Search groups"
+                onChange={(e) => setKeywordSearch(e.target.value)}
+                className={classes.keywordSearchInput}
+              />
+            </div>
+          </div>
+          <OnlineGroups keywordSearch={keywordSearch} />
+        </div>}
         
         {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
           <GroupFormLink isOnline={tab === 'online'} />
