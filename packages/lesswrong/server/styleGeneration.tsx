@@ -7,10 +7,10 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
-import addToCalendarStyles from '../styles/addToCalendarStyles';
-import datetimeStyles from '../styles/datetimeStyles';
-import draftjsStyles from '../styles/draftjsStyles';
-import miscStyles from '../styles/miscStyles';
+import addToCalendarStyles from '../themes/globalStyles/addToCalendarStyles';
+import datetimeStyles from '../themes/globalStyles/datetimeStyles';
+import draftjsStyles from '../themes/globalStyles/draftjsStyles';
+import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import { forumTypeSetting } from '../lib/instanceSettings';
 
