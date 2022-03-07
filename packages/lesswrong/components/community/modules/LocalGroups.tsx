@@ -218,6 +218,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
       <div className={classes.localGroupsMap}>
         <CommunityMapWrapper
           mapOptions={userLocation.known ? {center: userLocation, zoom: 5} : {zoom: 1}}
+          keywordSearch={keywordSearch}
           hideLegend
           showUsers={false}
         />
