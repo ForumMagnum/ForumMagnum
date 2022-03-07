@@ -9,7 +9,23 @@ import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { FacebookIcon, SlackIcon } from '../../localGroups/GroupLinks';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  noResults: {
+    ...theme.typography.commentStyle,
+    textAlign: 'center',
+    fontSize: 18,
+  },
+  noResultsText: {
+    marginTop: 30
+  },
+  noResultsCTA: {
+    fontSize: 14,
+    marginTop: 20
+  },
+  eventsLink: {
+    color: theme.palette.primary.main,
+  },
   onlineGroups: {
+    marginTop: 20,
     [theme.breakpoints.down('sm')]: {
       marginLeft: -4,
       marginRight: -4,
@@ -121,12 +137,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const OnlineGroups = ({classes}: {
+const OnlineGroups = ({keywordSearch, classes}: {
+  keywordSearch: string,
   classes: ClassesType,
 }) => {
   const { CloudinaryImage2 } = Components
   
-  const { results } = useMulti({
+  const { results, loading } = useMulti({
     terms: {view: 'online'},
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
@@ -136,11 +153,29 @@ const OnlineGroups = ({classes}: {
   });
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+  
+  // filter the list of groups if the user has typed in a keyword
+  let onlineGroups = results
+  if (results && keywordSearch) {
+    onlineGroups = results.filter(group => group.name.toLowerCase().includes(keywordSearch.toLowerCase()))
+  }
+  
+  if (!loading && !onlineGroups?.length) {
+    // link to the Events page when there are no groups to show
+    return <div className={classes.noResults}>
+      <div className={classes.noResultsText}>No online groups matching your search</div>
+      <div className={classes.noResultsCTA}>
+        <Link to={'/events'} className={classes.eventsLink}>
+          Find an online event
+        </Link>
+      </div>
+    </div>
+  }
 
   return (
     <div className={classes.onlineGroups}>
       <div className={classes.onlineGroupsList}>
-        {results?.map(group => {
+        {onlineGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
             backgroundImage: `linear-gradient(to right, transparent, white 200px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_200,q_auto,f_auto/${group.bannerImageId})`
           } : {

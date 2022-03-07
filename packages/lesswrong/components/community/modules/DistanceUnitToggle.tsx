@@ -5,7 +5,9 @@ import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
+    display: 'inline-block',
     ...theme.typography.commentStyle,
+    marginLeft: 8
   },
   radio: {
     display: 'none'
