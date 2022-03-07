@@ -11,6 +11,7 @@ import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -79,8 +80,34 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...postBodyStyles(theme),
     padding: theme.spacing.unit,
   },
-  eventPostsHeadline: {
-    marginTop: 20
+  eventsHeadline: {
+    marginTop: 40,
+    marginBottom: 16,
+  },
+  eventCards: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 373px)',
+    gridGap: '20px',
+    '@media (max-width: 812px)': {
+      gridTemplateColumns: 'auto',
+    }
+  },
+  loading: {
+    marginLeft: 0
+  },
+  noUpcomingEvents: {
+    color: theme.palette.grey[500],
+  },
+  notifyMeButton: {
+    display: 'inline !important',
+    color: theme.palette.primary.main,
+  },
+  pastEventCard: {
+    height: 350,
+    filter: 'saturate(0.3) opacity(0.8)',
+    '& .EventCards-addToCal': {
+      display: 'none'
+    }
   },
   mapContainer: {
     height: 200,
@@ -99,16 +126,59 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2
+    Error404, CloudinaryImage2, EventCards, LoadMore
   } = Components
 
-  const { document: group, loading } = useSingle({
+  const { document: group, loading: groupLoading } = useSingle({
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     documentId: groupId
   })
+  
+  const {
+    results: upcomingEvents,
+    loading: upcomingEventsLoading,
+    loadMoreProps: upcomingEventsLoadMoreProps
+  } = useMulti({
+    terms: {view: 'upcomingEvents', groupId: groupId},
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first",
+    limit: 2,
+    itemsPerPage: 6,
+    enableTotal: true,
+  });
+  const {
+    results: tbdEvents,
+    loading: tbdEventsLoading,
+    loadMoreProps: tbdEventsLoadMoreProps
+  } = useMulti({
+    terms: {view: 'tbdEvents', groupId: groupId},
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first",
+    limit: 2,
+    itemsPerPage: 6,
+    enableTotal: true,
+  });
+  const {
+    results: pastEvents,
+    loading: pastEventsLoading,
+    loadMoreProps: pastEventsLoadMoreProps
+  } = useMulti({
+    terms: {view: 'pastEvents', groupId: groupId},
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first",
+    limit: 2,
+    itemsPerPage: 6,
+    enableTotal: true,
+  });
 
-  if (loading) return <Loading />
+  if (groupLoading) return <Loading />
   if (!group) return <Error404 />
 
   const { html = ""} = group.contents || {}
@@ -138,6 +208,73 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       hideLegend={true}
       mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
     />
+  }
+  
+  // the EA Forum shows the group's events as event cards instead of post list items
+  let upcomingEventsList = <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
+  if (isEAForum) {
+    upcomingEventsList = !!upcomingEvents?.length ? (
+      <div className={classes.eventCards}>
+        <EventCards
+          events={upcomingEvents}
+          loading={upcomingEventsLoading}
+          numDefaultCards={2}
+          hideSpecialCards
+          hideGroupNames
+        />
+        <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
+      </div>
+    ) : <Components.Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
+        <NotifyMeButton
+          showIcon={false}
+          document={group}
+          subscribeMessage="Subscribe to be notified when an event is added."
+          componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
+          className={classes.notifyMeButton}
+        />
+      </Components.Typography>
+  }
+  
+  let tbdEventsList: JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
+  if (isEAForum) {
+    tbdEventsList = tbdEvents?.length ? <>
+      <Components.Typography variant="headline" className={classes.eventsHeadline}>
+        Events Yet To Be Scheduled
+      </Components.Typography>
+      <div className={classes.eventCards}>
+        <EventCards
+          events={tbdEvents}
+          loading={tbdEventsLoading}
+          hideSpecialCards
+          hideGroupNames
+        />
+        <LoadMore {...tbdEventsLoadMoreProps}  />
+      </div>
+    </> : null
+  }
+  
+  let pastEventsList: JSX.Element|null = <>
+    <Components.Typography variant="headline" className={classes.eventsHeadline}>
+      Past Events
+    </Components.Typography>
+    <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
+  </>
+  if (isEAForum) {
+    pastEventsList = pastEvents?.length ? <>
+      <Components.Typography variant="headline" className={classes.eventsHeadline}>
+        Past Events
+      </Components.Typography>
+      <div className={classes.eventCards}>
+        <EventCards
+          events={pastEvents}
+          loading={pastEventsLoading}
+          hideSpecialCards
+          hideGroupNames
+          cardClassName={classes.pastEventCard}
+        />
+        <LoadMore {...pastEventsLoadMoreProps}  />
+      </div>
+    </> : null
   }
 
   return (
@@ -173,7 +310,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   </Link>
                 </SectionButton>}
               {Localgroups.options.mutations.edit.check(currentUser, group) &&
-               (!isEAForum || isAdmin || isGroupAdmin ) && 
+               (!isEAForum || isAdmin || isGroupAdmin ) &&
                 <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
             </SectionFooter>
@@ -184,20 +321,18 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             description={`group ${groupId}`}
           />}
         </div>
-        
+
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
-        
-        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
+
+        <Components.Typography variant="headline" className={classes.eventsHeadline}>
           Upcoming Events
         </Components.Typography>
-        <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
-        <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
-        
-        <Components.Typography variant="headline" gutterBottom={true} className={classes.eventPostsHeadline}>
-          Past Events
-        </Components.Typography>
-        <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
-        
+        {upcomingEventsList}
+
+        {tbdEventsList}
+
+        {pastEventsList}
+
         {bottomSection}
       </SingleColumnSection>
     </div>
