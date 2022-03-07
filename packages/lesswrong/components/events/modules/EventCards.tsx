@@ -40,6 +40,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       maxWidth: '100vw'
     }
   },
+  eventCardTag: {
+    ...theme.typography.commentStyle,
+    position: 'absolute',
+    top: 15,
+    left: 15,
+    backgroundColor: '#CC5500',
+    color: 'white',
+    fontSize: 12,
+    padding: '6px 12px',
+    borderRadius: 20
+  },
   eventCardContent: {
     position: 'relative',
     height: 170,
@@ -98,7 +109,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
-  events?: PostsList[],
+  events: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
   hideSpecialCards?: boolean,
@@ -117,30 +128,12 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard } = Components
   
   // while the data is loading, show some placeholder empty cards
-  if (loading && !events?.length) {
+  if (loading && !events.length) {
     return numDefaultCards ? <>
       {_.range(numDefaultCards).map((i) => {
         return <Card key={i} className={classNames(classes.eventCard, cardClassName)}></Card>
       })}
     </> : null
-  }
-  
-  if (!events?.length) {
-    // link to the Community page when there are no events to show
-    let communityName = 'Community'
-    if (forumTypeSetting.get() === 'EAForum') {
-      communityName = 'EA Community'
-    } else if (forumTypeSetting.get() === 'LessWrong') {
-      communityName = 'LessWrong Community'
-    }
-    return <div className={classes.noResults}>
-      <div className={classes.noResultsText}>No upcoming events matching your search</div>
-      <div className={classes.noResultsCTA}>
-        <Link to={'/community'} className={classes.communityLink}>
-          Explore the {communityName}
-        </Link>
-      </div>
-    </div>
   }
   
   const eventCards = events.map(event => {
@@ -150,6 +143,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
           <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
           <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
       </Link>
+      {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}
       <CardContent className={classes.eventCardContent}>
         <div className={classes.eventCardTime}>
           {event.eventType === 'course' && <span className={classes.eventCardTimeApply}>Apply by</span>}
@@ -183,6 +177,24 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
       // we try to space out the two cards
       eventCards.splice(5, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
     }
+  }
+  
+  if (!eventCards.length) {
+    // link to the Community page when there are no events to show
+    let communityName = 'Community'
+    if (forumTypeSetting.get() === 'EAForum') {
+      communityName = 'EA Community'
+    } else if (forumTypeSetting.get() === 'LessWrong') {
+      communityName = 'LessWrong Community'
+    }
+    return <div className={classes.noResults}>
+      <div className={classes.noResultsText}>No upcoming events matching your search</div>
+      <div className={classes.noResultsCTA}>
+        <Link to={'/community'} className={classes.communityLink}>
+          Explore the {communityName}
+        </Link>
+      </div>
+    </div>
   }
 
   return <>

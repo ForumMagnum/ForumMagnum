@@ -310,7 +310,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   </Link>
                 </SectionButton>}
               {Localgroups.options.mutations.edit.check(currentUser, group) &&
-               (!isEAForum || isAdmin || isGroupAdmin ) && 
+               (!isEAForum || isAdmin || isGroupAdmin ) &&
                 <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
             </SectionFooter>
