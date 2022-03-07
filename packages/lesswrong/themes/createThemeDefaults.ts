@@ -81,6 +81,8 @@ declare global {
       // with something more straightforward.
       type: "dark"|undefined,
       headerType: "primary"|undefined,
+      
+      headerTextColor: ColorString,
     },
     typography: {
       fontFamily: string,
@@ -344,6 +346,8 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
       hoveredContentBackground: themeOptions.name === 'dark' ? "#333333" : "#fafafa",
       textColor: themeOptions.name === 'dark' ? 'white' : "rgba(0,0,0,.87)",
       dimTextColor: themeOptions.name === 'dark' ? "rgba(255,255,255,.55)" : "rgba(0,0,0,.55)",
+      
+      headerTextColor: "rgba(0,0,0,0.87)",
     },
     boxShadow: "0 1px 5px rgba(0,0,0,.025)",
     itemBorderBottom: "solid 2px rgba(0,0,0,.05)",

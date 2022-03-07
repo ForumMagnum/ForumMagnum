@@ -19,17 +19,6 @@ import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSetti
 
 const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const getHeaderTextColor = (theme: ThemeType) => {
-  if (theme.palette.headerType === 'primary') {
-    return theme.palette.primary.contrastText
-  } else if (theme.palette.headerType === 'secondary') {
-    return theme.palette.secondary.contrastText
-  } else if (theme.palette.type === "dark") {
-    return theme.palette.getContrastText(grey[900])
-  } else {
-    return theme.palette.getContrastText(grey[100])
-  }
-}
 
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
@@ -60,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: getHeaderTextColor(theme),
+    color: theme.palette.headerTextColor,
     fontSize: 19,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
@@ -298,13 +287,13 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                 </NoSSR>
                 {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
                     <AnalyticsContext pageSectionContext="usersMenu">
-                      <UsersMenu color={getHeaderTextColor(theme)} />
+                      <UsersMenu color={theme.palette.headerTextColor} />
                     </AnalyticsContext>
                   </div>}
-                {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
+                {!currentUser && <UsersAccountMenu color={theme.palette.headerTextColor} />}
                 {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
                 {currentUser && <NotificationsMenuButton
-                  color={getHeaderTextColor(theme)}
+                  color={theme.palette.headerTextColor}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
                   currentUser={currentUser}

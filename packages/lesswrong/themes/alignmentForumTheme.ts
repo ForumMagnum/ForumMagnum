@@ -38,7 +38,8 @@ const palette: PartialDeep<ThemePalette> = {
   background: {
     default: '#f8f8f8'
   },
-  headerType: "primary"
+  headerType: "primary",
+  headerTextColor: "#ffffff",
 }
 
 export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => createTheme(themeOptions, {
