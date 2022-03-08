@@ -12,6 +12,10 @@ import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
+import Button from '@material-ui/core/Button';
+import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
+import EmailIcon from '@material-ui/icons/Email';
+import LinkIcon from '@material-ui/icons/Link';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -45,6 +49,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     objectFit: 'cover',
     margin: '0 auto',
   },
+  titleRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    columnGap: 20,
+    marginTop: 24,
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    },
+  },
   groupInfo: {
     ...sectionFooterLeftStyles,
     alignItems: 'baseline'
@@ -65,7 +78,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     display: "inline-block",
     color: "rgba(0,0,0,0.7)",
-    maxWidth: 260
+    // maxWidth: 260
   },
   groupLinks: {
     display: "inline-block",
@@ -79,6 +92,53 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   groupDescriptionBody: {
     ...postBodyStyles(theme),
     padding: theme.spacing.unit,
+  },
+  contactUsSection: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    columnGap: '40px',
+    marginTop: 40,
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    },
+  },
+  externalLinkBtns: {
+    flex: 'none',
+  },
+  externalLinkBtnRow: {
+    marginBottom: 16
+  },
+  externalLinkBtn: {
+    textTransform: 'none',
+    fontSize: 13,
+    paddingLeft: 14,
+    boxShadow: 'none',
+    '& svg': {
+      width: 17,
+      marginRight: 10
+    }
+  },
+  facebookGroupIcon: {
+    fontSize: 13,
+  },
+  facebookPageIcon: {
+    fontSize: 14,
+  },
+  meetupIcon: {
+    fontSize: 15,
+  },
+  slackIcon: {
+    fontSize: 14,
+  },
+  linkIcon: {
+    transform: "rotate(-45deg)",
+    fontSize: 17
+  },
+  emailIcon: {
+    fontSize: 17,
+  },
+  contactUsHeadline: {
+    marginBottom: 16,
   },
   eventsHeadline: {
     marginTop: 40,
@@ -110,10 +170,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   mapContainer: {
-    height: 200,
-    marginTop: 50,
-    marginLeft: 'auto',
-    marginRight: 'auto'
+    height: 260,
+    maxWidth: 450,
+    marginTop: 0,
+    marginLeft: 0,
+    marginRight: 0,
+    [theme.breakpoints.down('xs')]: {
+      height: 200,
+      maxWidth: 'none'
+    },
   }
 }));
 
@@ -193,22 +258,24 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     terms={{view: "events", groupId: groupId}}
     groupQueryTerms={{view: "single", groupId: groupId}}
     hideLegend={true}
-    mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+    mapOptions={{zoom: 11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
   /> : <div className={classes.topSection}></div>;
-  let bottomSection;
-  // if the group has a banner image, show that at the top instead, and move the map to the bottom
+  let smallMap;
+  // if the group has a banner image, show that at the top instead, and move the map down
   if (group.bannerImageId) {
     topSection = <div className={classes.imageContainer}>
       <CloudinaryImage2 imgProps={{ar: '191:100', w: '765'}} publicId={group.bannerImageId} className={classes.bannerImg} />
     </div>
-    bottomSection = group.googleLocation && <CommunityMapWrapper
+    smallMap = group.googleLocation && <CommunityMapWrapper
       className={classes.mapContainer}
       terms={{view: "events", groupId: groupId}}
       groupQueryTerms={{view: "single", groupId: groupId}}
       hideLegend={true}
-      mapOptions={{zoom:11, center: group.googleLocation.geometry.location, initialOpenWindows:[groupId]}}
+      mapOptions={{zoom: 5, center: group.googleLocation.geometry.location}}
     />
   }
+  
+  const groupHasContactInfo = group.facebookLink || group.facebookPageLink || group.meetupLink || group.slackLink || group.website || group.contactInfo
   
   // the EA Forum shows the group's events as event cards instead of post list items
   let upcomingEventsList = <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
@@ -286,23 +353,24 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       />
       {topSection}
       <SingleColumnSection>
-        <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
-          {currentUser && <SectionButton>
-            <NotifyMeButton
-              showIcon
-              document={group}
-              subscribeMessage="Subscribe to group"
-              unsubscribeMessage="Unsubscribe from group"
-            />
-          </SectionButton>}
-        </SectionTitle>
-        <div className={classes.groupDescription}>
-          <div className={classes.groupSubtitle}>
+        <div className={classes.titleRow}>
+          <div>
+            <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin />
+            <div className={classes.groupSubtitle}>
+              <div className={classes.groupLocation}>{group.isOnline ? 'Online Group' : group.location}</div>
+              {/* <div className={classes.groupLinks}><GroupLinks document={group} /></div> */}
+            </div>
+          </div>
+          <div>
+            {currentUser && <SectionButton>
+              <NotifyMeButton
+                showIcon
+                document={group}
+                subscribeMessage="Subscribe to group"
+                unsubscribeMessage="Unsubscribe from group"
+              />
+            </SectionButton>}
             <SectionFooter>
-              <span className={classes.groupInfo}>
-                <div className={classes.groupLocation}>{group.isOnline ? 'Online Group' : group.location}</div>
-                <div className={classes.groupLinks}><GroupLinks document={group} /></div>
-              </span>
               {Posts.options.mutations.new.check(currentUser) &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
                   <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
@@ -310,11 +378,14 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   </Link>
                 </SectionButton>}
               {Localgroups.options.mutations.edit.check(currentUser, group) &&
-               (!isEAForum || isAdmin || isGroupAdmin ) &&
+                (!isEAForum || isAdmin || isGroupAdmin ) &&
                 <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
             </SectionFooter>
           </div>
+        </div>
+        
+        <div className={classes.groupDescription}>
           {group.contents && <ContentItemBody
             dangerouslySetInnerHTML={htmlBody}
             className={classes.groupDescriptionBody}
@@ -323,6 +394,53 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         </div>
 
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
+        
+        {(groupHasContactInfo || smallMap) && <div className={classes.contactUsSection}>
+          {groupHasContactInfo && <div className={classes.externalLinkBtns}>
+            <Components.Typography variant="headline" className={classes.contactUsHeadline}>
+              Contact Us
+            </Components.Typography>
+            <div>
+              {group.facebookLink && <div className={classes.externalLinkBtnRow}>
+                <Button variant="contained" color="primary" href={group.facebookLink} className={classes.externalLinkBtn}>
+                  <FacebookIcon className={classes.facebookGroupIcon} />
+                  Join our Facebook group
+                </Button>
+              </div>}
+              {group.facebookPageLink && <div className={classes.externalLinkBtnRow}>
+                <Button variant="contained" color="primary" href={group.facebookPageLink} className={classes.externalLinkBtn}>
+                  <RoundFacebookIcon className={classes.facebookPageIcon} />
+                  See our Facebook page
+                </Button>
+              </div>}
+              {group.meetupLink && <div className={classes.externalLinkBtnRow}>
+                <Button variant="contained" color="primary" href={group.meetupLink} className={classes.externalLinkBtn}>
+                  <MeetupIcon className={classes.meetupIcon} />
+                  Join our Meetup group
+                </Button>
+              </div>}
+              {group.slackLink && <div className={classes.externalLinkBtnRow}>
+                <Button variant="contained" color="primary" href={group.slackLink} className={classes.externalLinkBtn}>
+                  <SlackIcon className={classes.slackIcon} />
+                  Join us on Slack
+                </Button>
+              </div>}
+              {group.website && <div className={classes.externalLinkBtnRow}>
+                <Button variant="outlined" color="primary" href={group.website} className={classes.externalLinkBtn}>
+                  <LinkIcon className={classes.linkIcon} />
+                  Explore our website
+                </Button>
+              </div>}
+              {group.contactInfo && <div className={classes.externalLinkBtnRow}>
+                <Button variant="outlined" color="primary" href={`mailto:${group.contactInfo}`} className={classes.externalLinkBtn}>
+                  <EmailIcon className={classes.emailIcon} />
+                  Email the organizers
+                </Button>
+              </div>}
+            </div>
+          </div>}
+          {smallMap}
+        </div>}
 
         <Components.Typography variant="headline" className={classes.eventsHeadline}>
           Upcoming Events
@@ -332,8 +450,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {tbdEventsList}
 
         {pastEventsList}
-
-        {bottomSection}
       </SingleColumnSection>
     </div>
   )
