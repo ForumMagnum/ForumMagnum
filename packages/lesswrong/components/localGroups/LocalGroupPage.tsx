@@ -71,10 +71,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       justifyContent: 'flex-start !important'
     }
   },
-  groupInfo: {
-    ...sectionFooterLeftStyles,
-    alignItems: 'baseline'
-  },
   groupName: {
     ...theme.typography.headerStyle,
     fontSize: "30px",
@@ -88,9 +84,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     display: "inline-block",
     color: "rgba(0,0,0,0.7)",
-  },
-  groupLinks: {
-    display: "inline-block",
   },
   groupDescription: {
     marginBottom: 20,
@@ -198,7 +191,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 }) => {
   const currentUser = useCurrentUser();
   const {
-    HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2,
+    HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
     Error404, CloudinaryImage2, EventCards, LoadMore
   } = Components
@@ -367,7 +360,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin />
             <div className={classes.groupSubtitle}>
               <div className={classes.groupLocation}>{group.isOnline ? 'Online Group' : group.location}</div>
-              {/* <div className={classes.groupLinks}><GroupLinks document={group} /></div> */}
             </div>
           </div>
           <div>
