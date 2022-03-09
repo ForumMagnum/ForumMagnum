@@ -403,31 +403,56 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             </Components.Typography>
             <div>
               {group.facebookLink && <div className={classes.externalLinkBtnRow}>
-                <Button variant="contained" color="primary" href={group.facebookLink} className={classes.externalLinkBtn}>
+                <Button
+                  variant="contained" color="primary"
+                  href={group.facebookLink}
+                  target="_blank" rel="noopener noreferrer"
+                  className={classes.externalLinkBtn}
+                >
                   <FacebookIcon className={classes.facebookGroupIcon} />
-                  Join our Facebook group
+                  See our Facebook group
                 </Button>
               </div>}
               {group.facebookPageLink && <div className={classes.externalLinkBtnRow}>
-                <Button variant="contained" color="primary" href={group.facebookPageLink} className={classes.externalLinkBtn}>
+                <Button
+                  variant="contained" color="primary"
+                  href={group.facebookPageLink}
+                  target="_blank" rel="noopener noreferrer"
+                  className={classes.externalLinkBtn}
+                >
                   <RoundFacebookIcon className={classes.facebookPageIcon} />
-                  See our Facebook page
+                  Learn more on our Facebook page
                 </Button>
               </div>}
               {group.meetupLink && <div className={classes.externalLinkBtnRow}>
-                <Button variant="contained" color="primary" href={group.meetupLink} className={classes.externalLinkBtn}>
+                <Button
+                  variant="contained" color="primary"
+                  href={group.meetupLink}
+                  target="_blank" rel="noopener noreferrer"
+                  className={classes.externalLinkBtn}
+                >
                   <MeetupIcon className={classes.meetupIcon} />
-                  Join our Meetup group
+                  Find us on Meetup
                 </Button>
               </div>}
               {group.slackLink && <div className={classes.externalLinkBtnRow}>
-                <Button variant="contained" color="primary" href={group.slackLink} className={classes.externalLinkBtn}>
+                <Button
+                  variant="contained" color="primary"
+                  href={group.slackLink}
+                  target="_blank" rel="noopener noreferrer"
+                  className={classes.externalLinkBtn}
+                >
                   <SlackIcon className={classes.slackIcon} />
                   Join us on Slack
                 </Button>
               </div>}
               {group.website && <div className={classes.externalLinkBtnRow}>
-                <Button variant="outlined" color="primary" href={group.website} className={classes.externalLinkBtn}>
+                <Button
+                  variant="outlined" color="primary"
+                  href={group.website}
+                  target="_blank" rel="noopener noreferrer"
+                  className={classes.externalLinkBtn}
+                >
                   <LinkIcon className={classes.linkIcon} />
                   Explore our website
                 </Button>
