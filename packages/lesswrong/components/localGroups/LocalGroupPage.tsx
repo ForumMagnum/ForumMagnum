@@ -52,11 +52,24 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   titleRow: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'baseline',
     columnGap: 20,
     marginTop: 24,
     [theme.breakpoints.down('xs')]: {
       display: 'block'
-    },
+    }
+  },
+  notifyMe: {
+    justifyContent: 'flex-end',
+    margin: '8px 4px 20px',
+    [theme.breakpoints.down('xs')]: {
+      justifyContent: 'flex-start'
+    }
+  },
+  organizerActions: {
+    [theme.breakpoints.down('xs')]: {
+      justifyContent: 'flex-start !important'
+    }
   },
   groupInfo: {
     ...sectionFooterLeftStyles,
@@ -70,9 +83,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   groupSubtitle: {
     marginBottom: theme.spacing.unit * 2
-  },
-  leftAction: {
-    alignSelf: "center",
   },
   groupLocation: {
     ...theme.typography.body2,
@@ -362,7 +372,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             </div>
           </div>
           <div>
-            {currentUser && <SectionButton>
+            {currentUser && <SectionButton className={classes.notifyMe}>
               <NotifyMeButton
                 showIcon
                 document={group}
@@ -370,16 +380,16 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                 unsubscribeMessage="Unsubscribe from group"
               />
             </SectionButton>}
-            <SectionFooter>
+            <SectionFooter className={classes.organizerActions}>
               {Posts.options.mutations.new.check(currentUser) &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
-                  <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
+                  <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}}>
                     New event
                   </Link>
                 </SectionButton>}
               {Localgroups.options.mutations.edit.check(currentUser, group) &&
                 (!isEAForum || isAdmin || isGroupAdmin ) &&
-                <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
+                <GroupFormLink documentId={groupId} />
               }
             </SectionFooter>
           </div>
