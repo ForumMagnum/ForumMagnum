@@ -1,11 +1,11 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 import { useDialog } from '../common/withDialog'
-import {AnalyticsContext} from "../../lib/analyticsEvents";
+import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
@@ -167,6 +167,7 @@ const Community = ({classes}: {
   const { openDialog } = useDialog();
   const { history } = useNavigation();
   const { location } = useLocation();
+  const { captureEvent } = useTracking();
   
   // local or online
   const [tab, setTab] = useState('local')
@@ -272,6 +273,8 @@ const Community = ({classes}: {
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLocation])
+  
+  const keywordSearchTimer = useRef<any>(null)
 
   const openEventNotificationsForm = () => {
     openDialog({
@@ -285,6 +288,17 @@ const Community = ({classes}: {
     setTab(value)
     setKeywordSearch('')
     history.replace({...location, hash: `#${value}`})
+  }
+  
+  const handleKeywordSearch = (e) => {
+    const newKeyword = e.target.value
+    setKeywordSearch(newKeyword)
+    // log the event after typing has stopped for 1 second
+    clearTimeout(keywordSearchTimer.current)
+    keywordSearchTimer.current = setTimeout(
+      () => captureEvent(`keywordSearchGroups`, {tab, keyword: newKeyword}),
+      1000
+    )
   }
   
   const canCreateGroups = currentUser && userIsAdmin(currentUser)
@@ -318,7 +332,7 @@ const Community = ({classes}: {
                 labelWidth={0}
                 startAdornment={<Search className={classes.searchIcon}/>}
                 placeholder="Search groups"
-                onChange={(e) => setKeywordSearch(e.target.value)}
+                onChange={handleKeywordSearch}
                 className={classes.keywordSearchInput}
               />
             </div>
@@ -378,7 +392,7 @@ const Community = ({classes}: {
                 labelWidth={0}
                 startAdornment={<Search className={classes.searchIcon}/>}
                 placeholder="Search groups"
-                onChange={(e) => setKeywordSearch(e.target.value)}
+                onChange={handleKeywordSearch}
                 className={classes.keywordSearchInput}
               />
             </div>
