@@ -283,7 +283,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       services: {
         google: profile
       },
-      emails: [{address: profile.emails?.[0].value, verified: true}],
+      emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
       username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
       displayName: profile.displayName,
       emailSubscribedToCurated: true
@@ -305,6 +305,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     },
       createOAuthUserHandler<FacebookProfile>('services.facebook', profile => profile.id, async profile => ({
         email: profile.emails?.[0].value,
+        emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
         services: {
           facebook: profile
         },
@@ -326,6 +327,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     },
       createOAuthUserHandler<GithubProfile>('services.github', profile => parseInt(profile.id), async profile => ({
         email: profile.emails?.[0].value,
+        emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
         services: {
           github: profile
         },
