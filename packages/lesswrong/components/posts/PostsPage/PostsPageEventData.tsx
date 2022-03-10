@@ -58,6 +58,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: 12
   },
+  externalEventPageBtnIcon: {
+    fontSize: 15,
+    marginLeft: 6
+  },
   registerBtnIcon: {
     fontSize: 15,
     marginTop: -4,
@@ -167,7 +171,7 @@ const PostsPageEventData = ({classes, post}: {
       target="_blank" rel="noopener noreferrer"
       className={classes.externalEventPageBtn}
     >
-      See event on Facebook <OpenInNewIcon className={classes.registerBtnIcon} />
+      See event on Facebook <OpenInNewIcon className={classes.externalEventPageBtnIcon} />
     </Button>
   } else if (!eventCTA && post.meetupLink) {
     eventCTA = <Button
@@ -177,7 +181,7 @@ const PostsPageEventData = ({classes, post}: {
       target="_blank" rel="noopener noreferrer"
       className={classes.externalEventPageBtn}
     >
-      See event on Meetup <OpenInNewIcon className={classes.registerBtnIcon} />
+      See event on Meetup <OpenInNewIcon className={classes.externalEventPageBtnIcon} />
     </Button>
   }
   
