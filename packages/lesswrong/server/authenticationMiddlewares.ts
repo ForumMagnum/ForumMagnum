@@ -80,10 +80,12 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
       let user = await Users.findOne({[`${profilePath}.id`]: profileId})
       if (!user) {
         const email = profile.emails?.[0]?.value 
-        if (!email) {
-          throw new Error('Account must have associated email!')
-        }
-        //FB and GitHub require verified emails, so this is secure
+        
+        // Don't enforce having an email. Facebook OAuth accounts don't necessarily
+        // have an email address associated (or visible to us).
+        //
+        // If an email *is* provided, the OAuth provider verified it, and we should
+        // be able to trust that.
         if (email) {
           // Collation here means we're using the case-insensitive index
           const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
