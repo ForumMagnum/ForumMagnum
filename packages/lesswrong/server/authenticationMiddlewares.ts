@@ -146,13 +146,19 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
   // ever report one email, in which case this is over-thought.
   const profileEmails = profile.emails.map(emailObj => emailObj.value)
   if (!profileEmails.includes(user.email)) {
-    const updatedUserResponse = await updateMutator({
-      collection: Users,
-      documentId: user._id,
-      set: {email: profileEmails[0]},
-      validate: false
-    })
-    return updatedUserResponse.data
+    // Attempt to update the email field on the account to match the OAuth-provided
+    // email. This will fail if the user has both an OAuth and a non-OAuth account
+    // with the same email.
+    const preexistingAccountWithEmail = await Users.findOne({email: profileEmails[0]});
+    if (!preexistingAccountWithEmail) {
+      const updatedUserResponse = await updateMutator({
+        collection: Users,
+        documentId: user._id,
+        set: {email: profileEmails[0]},
+        validate: false
+      })
+      return updatedUserResponse.data
+    }
   }
   return user
 }
