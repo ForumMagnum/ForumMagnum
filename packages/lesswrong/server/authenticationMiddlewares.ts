@@ -15,6 +15,7 @@ import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils
 import pick from 'lodash/pick';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
+import { captureException } from '@sentry/core';
 import moment from 'moment';
 
 /**
@@ -74,7 +75,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       const profileId = getIdFromProfile(profile)
       // Probably impossible
       if (!profileId) {
-        return done(new Error('OAuth profile does not have a profile ID'))
+        throw new Error('OAuth profile does not have a profile ID')
       }
       let user = await Users.findOne({[idPath]: profileId})
       if (!user) {
@@ -112,6 +113,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       }
       return done(null, user)
     } catch (err) {
+      captureException(err);
       return done(err)
     }
   }
