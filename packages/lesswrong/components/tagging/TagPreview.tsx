@@ -51,11 +51,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
-  tag: TagPreviewFragment,
+const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
+  tag: TagPreviewFragment | null,
+  loading?: boolean,
   classes: ClassesType,
   showCount?: boolean,
-  postCount?: number
+  postCount?: number,
 }) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const { results } = useMulti({
@@ -66,17 +67,18 @@ const TagPreview = ({tag, classes, showCount=true, postCount=6}: {
     limit: postCount,
   });
 
-  if (!tag) return null
-
   return (<div className={classes.card}>
-    <TagPreviewDescription tag={tag}/>
-    {!tag.wikiOnly && <>
-      {results ? <div className={classes.posts}>
-        {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
-      </div> : <Loading /> }
-      {showCount && <div className={classes.footerCount}>
-        <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
-      </div>}
+    {loading && <Loading />}
+    {tag && <>
+      <TagPreviewDescription tag={tag}/>
+      {!tag.wikiOnly && <>
+        {results ? <div className={classes.posts}>
+          {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
+        </div> : <Loading /> }
+        {showCount && <div className={classes.footerCount}>
+          <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
+        </div>}
+      </>}
     </>}
   </div>)
 }
