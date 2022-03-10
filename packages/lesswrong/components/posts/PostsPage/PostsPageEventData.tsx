@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   registerBtnIcon: {
     fontSize: 15,
-    marginTop: -4,
+    marginTop: -2,
     marginLeft: 6
   },
   mapbox: {
