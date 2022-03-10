@@ -3,6 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import maxBy from 'lodash/maxBy';
 import { useMulti } from '../../lib/crud/withMulti';
 
+/** Inner component used so that we can run a query here, which would have been
+ * a conditional hook otherwise */
 const TopTagInner = ({ post, tag }: {post: PostsDetails, tag: TagPreviewFragment}) => {
   const { FooterTag } = Components
   const { results, loading } = useMulti({
@@ -19,7 +21,7 @@ const TopTagInner = ({ post, tag }: {post: PostsDetails, tag: TagPreviewFragment
   if(!loading && results.filter(tagRelResult => tagRelResult.tagId === tag._id).length > 0) {
     tagRel = results.filter(tagRelResult => tagRelResult.tagId === tag._id)[0]
   }
-  return <FooterTag tag={tag} tagRel={tagRel || undefined} hideScore isTopTag/>
+  return <FooterTag tag={tag} tagRel={tagRel || undefined} hideScore isTopTag />
 }
 
 const PostsPageTopTag = ({post}: {post: PostsDetails}) => {

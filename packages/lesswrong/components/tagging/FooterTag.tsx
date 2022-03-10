@@ -78,11 +78,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: 'none',
     padding: '6px 12px',
     fontWeight: 600,
+    '& svg': {
+      height: 22,
+      width: 20,
+      fill: '#fff',
+      padding: '1px 0px'
+    },
   },
   flexContainer: {
     display: 'flex',
     alignItems: 'center',
-    columnGap: 10,
+    columnGap: 8,
   }
 });
 
@@ -100,14 +106,14 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
     tagName: tag.name,
     tagSlug: tag.slug
   });
-  const { PopperCard, TagRelCard } = Components
+  const { PopperCard, TagRelCard, TopTagIcon } = Components
 
   if (tag.adminOnly) { return null }
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
     <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
       <Link to={`/tag/${tag.slug}`} className={!!isTopTag && classes.flexContainer}>
-        {!!isTopTag && <Public />}
+        {!!isTopTag && <TopTagIcon tag={tag} />}
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>

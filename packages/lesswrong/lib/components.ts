@@ -442,6 +442,7 @@ importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsTo
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("PostsPageTopTag", () => require('../components/tagging/PostsPageTopTag'));
+importComponent("TopTagIcon", () => require('../components/tagging/TopTagIcon'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("RandomTagPage", () => require('../components/tagging/RandomTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
