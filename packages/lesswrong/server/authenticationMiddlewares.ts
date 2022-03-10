@@ -55,11 +55,11 @@ export const expressSessionSecretSetting = new DatabaseServerSetting<string | nu
 type IdFromProfile<P extends Profile> = (profile: P) => string | number
 type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser>>
 
-async function mergeAccount(idPath: string, user: DbUser, profile: Profile) {
+async function mergeAccount(profilePath: string, user: DbUser, profile: Profile) {
   return await updateMutator({
     collection: Users,
     documentId: user._id,
-    set: {[idPath]: profile} as any,
+    set: {[profilePath]: profile} as any,
     // Normal updates are not supposed to update services
     validate: false
   })
@@ -69,7 +69,7 @@ async function mergeAccount(idPath: string, user: DbUser, profile: Profile) {
  * Given the provider-appropriate ways to get user info from a profile, create
  * a function that handles successful logins from that provider
  */
-function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProfile: IdFromProfile<P>, getUserDataFromProfile: UserDataFromProfile<P>) {
+function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFromProfile: IdFromProfile<P>, getUserDataFromProfile: UserDataFromProfile<P>) {
   return async (_accessToken: string, _refreshToken: string, profile: P, done: VerifyCallback) => {
     try {
       const profileId = getIdFromProfile(profile)
@@ -77,7 +77,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       if (!profileId) {
         throw new Error('OAuth profile does not have a profile ID')
       }
-      let user = await Users.findOne({[idPath]: profileId})
+      let user = await Users.findOne({[`${profilePath}.id`]: profileId})
       if (!user) {
         const email = profile.emails?.[0]?.value 
         if (!email) {
@@ -92,7 +92,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
           }
           const user = matchingUsers[0]
           if (user) {
-            const { data: userUpdated } = await mergeAccount(idPath, user, profile)
+            const { data: userUpdated } = await mergeAccount(profilePath, user, profile)
             if (user.banned && new Date(user.banned) > new Date()) {
               return done(new Error("banned"))
             }
@@ -122,8 +122,8 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
 /**
  * Auth0 passes 5 parameters, not 4, so we need to wrap createOAuthUserHandler
  */
-function createOAuthUserHandlerAuth0(idPath: string, getIdFromProfile: IdFromProfile<Auth0Profile>, getUserDataFromProfile: UserDataFromProfile<Auth0Profile>) {
-  const standardHandler = createOAuthUserHandler(idPath, getIdFromProfile, getUserDataFromProfile)
+function createOAuthUserHandlerAuth0(profilePath: string, getIdFromProfile: IdFromProfile<Auth0Profile>, getUserDataFromProfile: UserDataFromProfile<Auth0Profile>) {
+  const standardHandler = createOAuthUserHandler(profilePath, getIdFromProfile, getUserDataFromProfile)
   return (accessToken: string, refreshToken: string, _extraParams: ExtraVerificationParams, profile: Auth0Profile, done: VerifyCallback) => {
     return standardHandler(accessToken, refreshToken, profile, done)
   }
@@ -270,7 +270,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       callbackURL: `${getSiteUrl()}auth/google/callback`,
       proxy: true
     },
-    createOAuthUserHandler<GoogleProfile>('services.google.id', profile => profile.id, async profile => ({
+    createOAuthUserHandler<GoogleProfile>('services.google', profile => profile.id, async profile => ({
       email: profile.emails?.[0].value,
       services: {
         google: profile
@@ -295,7 +295,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       callbackURL: `${getSiteUrl()}auth/facebook/callback`,
       profileFields: ['id', 'emails', 'name', 'displayName'],
     },
-      createOAuthUserHandler<FacebookProfile>('services.facebook.id', profile => profile.id, async profile => ({
+      createOAuthUserHandler<FacebookProfile>('services.facebook', profile => profile.id, async profile => ({
         email: profile.emails?.[0].value,
         services: {
           facebook: profile
@@ -316,7 +316,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       callbackURL: `${getSiteUrl()}auth/github/callback`,
       scope: [ 'user:email' ], // fetches non-public emails as well
     },
-      createOAuthUserHandler<GithubProfile>('services.github.id', profile => parseInt(profile.id), async profile => ({
+      createOAuthUserHandler<GithubProfile>('services.github', profile => parseInt(profile.id), async profile => ({
         email: profile.emails?.[0].value,
         services: {
           github: profile
@@ -367,7 +367,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
         domain: auth0Domain,
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
-      createOAuthUserHandlerAuth0('services.auth0.id', profile => profile.id, userFromAuth0Profile)
+      createOAuthUserHandlerAuth0('services.auth0', profile => profile.id, userFromAuth0Profile)
     ));
   }
 
