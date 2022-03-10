@@ -21,8 +21,9 @@ registerFragment(`
     meetupLink
     slackLink
     website
-    inactive
     bannerImageId
+    inactive
+    deleted
   }
 `);
 
