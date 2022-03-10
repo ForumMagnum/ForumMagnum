@@ -39,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 75,
   },
   newForm: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
   },
 });
 

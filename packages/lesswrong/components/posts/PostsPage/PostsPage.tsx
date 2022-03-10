@@ -88,7 +88,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 0
     },
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
     position: "relative"
   },
   // these marginTops are necessary to make sure the image is flush with the header,

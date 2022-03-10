@@ -64,7 +64,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   where: {
     ...theme.typography.commentStyle,
     fontSize: 13,
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
     paddingLeft: 3
   },
   whereTextDesktop: {

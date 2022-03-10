@@ -24,14 +24,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     // not sure if this is best way to do this
     '&&': {
       fontSize: "1.2rem",
-      color: theme.palette.grey[500],
+      color: theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     }
   },
   question: {
     fontSize: "1.2rem",
-    color: theme.palette.grey[500],
+    color: theme.palette.icon.dim4,
     fontWeight: '600'
   },
   alignmentIcon: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   linkIcon: {
     fontSize: "1.2rem",
-    color: theme.palette.grey[500],
+    color: theme.palette.icon.dim4,
     transform: 'rotate(-45deg)',
     position: "relative",
     top: 3

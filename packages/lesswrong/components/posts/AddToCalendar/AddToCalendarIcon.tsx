@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     left: 11,
     height: 10,
     width: 10,
-    backgroundColor: 'white'
+    backgroundColor: theme.palette.icon.onTooltip,
   },
   label: {
     marginLeft: 3

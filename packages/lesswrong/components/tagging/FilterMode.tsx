@@ -64,8 +64,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   selected: {
-    color: "black",
-    backgroundColor: "rgba(0,0,0,.1)",
+    color: theme.palette.text.maxIntensity,
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
     padding: 4,
     paddingLeft: 8,
     paddingRight: 8,

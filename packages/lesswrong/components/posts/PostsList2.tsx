@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: .4,
   },
   posts: {
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   }
 })
 

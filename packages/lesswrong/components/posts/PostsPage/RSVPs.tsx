@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...commentBodyStyles(theme),
     marginTop: -4,
     fontSize: "1rem",
-    color: "rgba(0,0,0,0.7)"
+    color: theme.palette.text.slightlyDim2,
   },
   rsvpBlock: {
     marginTop: 10, 

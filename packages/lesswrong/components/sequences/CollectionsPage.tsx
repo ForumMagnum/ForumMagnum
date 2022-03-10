@@ -9,7 +9,7 @@ import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
     padding: 32,
     [theme.breakpoints.down('md')]: {
       paddingTop: 70,
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 50,
   },
   startReadingButton: {
-    background: "rgba(0,0,0, 0.05)",
+    background: theme.palette.buttons.startReadingButtonBackground,
 
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)

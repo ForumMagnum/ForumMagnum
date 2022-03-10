@@ -68,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2
   },
   checkedLabel: {
-    color: 'white'
+    color: theme.palette.text.tooltipText,
   },
   filterSection: {
     display: "flex",
@@ -103,7 +103,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer"
   },
   hideSection: {
-    backgroundColor: 'rgba(0,0,0,0.05)'
+    backgroundColor: theme.palette.panelBackground.darken05,
   },
   buttonIcon: {
     width: '1.2rem',
@@ -122,7 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer"
   },
   visibilityIcon: {
-    color: 'rgba(0,0,0,0.4)',
+    color: theme.palette.icon.dim2,
     cursor: "pointer",
   },
   addIcon: {

@@ -64,7 +64,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   groupLocation: {
     ...theme.typography.body2,
     display: "inline-block",
-    color: "rgba(0,0,0,0.7)",
+    color: theme.palette.text.slightlyDim2,
     maxWidth: 260
   },
   groupLinks: {

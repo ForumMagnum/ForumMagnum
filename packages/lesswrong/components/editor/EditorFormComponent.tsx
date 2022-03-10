@@ -113,7 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8,
     marginRight: 8,
     ...theme.typography.commentStyle,
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
   },
   changeDescriptionInput: {
     flexGrow: 1,

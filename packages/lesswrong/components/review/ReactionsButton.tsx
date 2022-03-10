@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     padding: '5px  8px',
     borderRadius: 3,
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     marginRight: 4,
     marginLeft: 4,
     marginBottom: 4,

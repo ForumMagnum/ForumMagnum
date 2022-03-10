@@ -10,7 +10,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
-import grey from '@material-ui/core/colors/grey';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
@@ -22,7 +21,7 @@ const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.
 
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
-    boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
+    boxShadow: theme.palette.boxShadow.appBar,
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds

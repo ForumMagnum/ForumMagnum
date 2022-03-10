@@ -23,8 +23,8 @@ const headerStyle = (theme: ThemeType) => ({
   fontSize: "1.1rem",
   fontWeight: 600,
   backgroundColor: theme.palette.grey[800],
-  borderRight: `1px solid white`,
-  color: "white",
+  borderRight: `1px solid ${theme.palette.panelBackground.default}`,
+  color: theme.palette.text.tooltipText,
   wordBreak: "normal",
   position: "sticky",
   top: 0,
@@ -68,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 25,
     paddingRight: 25,
     backgroundColor: theme.palette.primary.dark,
-    color: "white !important",
+    color: `${theme.palette.buttons.primaryDarkText} !important`,
     fontWeight: 600,
     borderRadius: 5,
     textAlign: "center",
@@ -101,7 +101,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   cellMeta: {
     ...cellStyle(),
     maxWidth: 210,
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     fontSize: "1rem"
   },
   metaType: {
@@ -112,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   cellTitle: {
     ...cellStyle(),
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     [theme.breakpoints.down('md')]: {
       display: "none"
     }
@@ -171,14 +171,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   leftFixed1: {
     ...cellStyle(),
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     position: "relative",
     [theme.breakpoints.up('md')]: {
       position: "sticky",
       left: 0,
     },
     minWidth: 400,
-    boxShadow: "2px 0 2px -1px rgba(0,0,0,.15)",
+    boxShadow: theme.palette.boxShadow.spreadsheetPage1,
     '& a': {
       color: theme.palette.primary.dark
     },
@@ -224,11 +224,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 2,
     backgroundColor: theme.palette.grey[300],
     cursor: "pointer",
-    boxShadow: "0 0 3px rgba(0,0,0,.3)",
+    boxShadow: theme.palette.boxShadow.spreadsheetPage2,
     whiteSpace: "pre",
     height: 43,
     '&:hover': {
-      backgroundColor: "white",
+      backgroundColor: theme.palette.panelBackground.default,
     }
   },
   tabLabel: {
@@ -277,14 +277,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   topLinks: {
     padding: 0,
-    borderLeft: "solid 1px rgba(0,0,0,.1)",
+    borderLeft: theme.palette.border.faint,
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
   },
   topLinkRow: {
     display: "flex",
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
     alignItems: "center",
     fontSize: "1rem",
     '&:last-child': {
@@ -336,7 +336,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   cellDate: {
     fontSize: "1rem",
     textAlign: "center",
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     [theme.breakpoints.down('md')]: {
       display: "none"
     }
@@ -352,7 +352,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
     display: 'block',
     marginTop: 8,
-    color: 'rgba(0,0,0,0.87)',
+    color: theme.palette.text.normal,
     lineHeight: '1.4',
     fontWeight: '500',
     [theme.breakpoints.up('md')]: {
@@ -361,14 +361,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reviewerThoughts: {
     display: 'block',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     marginTop: 8,
     fontStyle: "italic"
   },
   selectedRow: {
     '& $leftFixed0': {
       backgroundColor: theme.palette.primary.main,
-      color: 'white'
+      color: theme.palette.panelBackground.default,
     }
   }
 })

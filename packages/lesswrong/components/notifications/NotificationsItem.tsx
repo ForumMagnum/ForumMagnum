@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     padding: 0,
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
 
     // Disable MUI's hover-highlight-color animation that conflicts with having
     // a non-default background color and looks glitchy.
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "14px",
     lineHeight: "18px",
     paddingRight: theme.spacing.unit*2,
-    color: "rgba(0,0,0, 0.66)",
+    color: theme.palette.text.notificationLabel,
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
     // inherited from old-Material-UI (where it also doesn't work in Firefox,

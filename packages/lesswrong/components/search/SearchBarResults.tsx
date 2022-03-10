@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    color: "rgba(0,0,0, 0.87)",
+    color: theme.palette.text.normal,
     transition: "opacity .1s ease-in-out",
     zIndex: theme.zIndexes.searchResults,
     width:520,

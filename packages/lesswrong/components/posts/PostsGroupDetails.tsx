@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: '-webkit-baseline-middle',
     fontVariant: 'small-caps',
     lineHeight: '24px',
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
     marginTop: -10,
   },
   serif: {

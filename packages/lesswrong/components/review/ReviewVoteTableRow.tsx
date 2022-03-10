@@ -23,12 +23,12 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('xs')]: {
       marginBottom: 2,
-      boxShadow: theme.boxShadow
+      boxShadow: theme.palette.boxShadow.default,
     }
   },
   votingPhase: {
     marginTop: 20,
-    border: "solid 1px rgba(0,0,0,.1)",
+    border: theme.palette.border.faint,
     boxShadow: "0 1px 3px 0px rgba(0,0,0,.05)"
   },
   voteIcon: {
@@ -85,7 +85,7 @@ const styles = (theme: ThemeType) => ({
   highlight: {
     padding: 16,
     background: "#f9f9f9",
-    borderTop: "solid 1px rgba(0,0,0,.1)"
+    borderTop: theme.palette.border.faint,
   },
   userVote: {
     position: "absolute",

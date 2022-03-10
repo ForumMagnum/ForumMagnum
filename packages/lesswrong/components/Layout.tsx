@@ -86,11 +86,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'sunshine'
   },
   whiteBackground: {
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
   },
   '@global': {
     ...globalStyles(theme),
-    p: pBodyStyle,
+    p: pBodyStyle(theme),
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup

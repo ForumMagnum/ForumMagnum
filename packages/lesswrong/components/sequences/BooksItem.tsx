@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 20,
     marginRight: 25,
     marginBottom: 30,
-    "& .posts-item": {
+    "& .posts-item": { // UNUSED (.posts-item isn't a real clas)
       "&:hover": {
         boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
       },

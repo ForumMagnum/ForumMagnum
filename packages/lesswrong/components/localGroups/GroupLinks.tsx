@@ -95,7 +95,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: "13px",
     height: "13px",
     display: "inline-block",
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
   },
 
@@ -103,7 +103,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: "15px",
     height: "15px",
     display: "inline-block",
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
     transform: "translateY(2px)",
   },
@@ -113,7 +113,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: "17px",
     paddingTop: "0px",
     transform: "translateY(3px) rotate(-45deg)",
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.icon.slightlyDim3,
   },
 
   iconButton: {

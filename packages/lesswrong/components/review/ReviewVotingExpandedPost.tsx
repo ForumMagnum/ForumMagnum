@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   reviewPrompt: {
     fontWeight: 600,
     fontSize: "1.2rem",
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
     width: "100%",
     display: "block"
   },

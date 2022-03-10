@@ -16,7 +16,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
     margin: '1em 0 1em 1em',
     padding: '2em',
-    boxShadow: '0 4px 4px rgba(0, 0, 0, 0.07)',
+    boxShadow: theme.palette.boxShadow.featuredResourcesCard,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -31,7 +31,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   closeIcon: {
     width: '.6em',
     height: '.6em',
-    color: 'rgba(0, 0, 0, .2)',
+    color: theme.palette.icon.dim6,
   },
   title: {
     color: '#616161',
@@ -54,7 +54,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     borderRadius: 'unset',
     minWidth: '50%',
     background: theme.palette.primary.main,
-    color: 'white',
+    color: theme.palette.buttons.featuredResourceCTAtext,
     '&:hover': {
       background: theme.palette.primary.main,
     },

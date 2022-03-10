@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   info: {
     display: "inline",
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     marginRight: theme.spacing.unit,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle

@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    backgroundColor:"rgba(80,80,0,.08)"
+    backgroundColor: theme.palette.panelBackground.sunshineNewTags,
   }
 })
 

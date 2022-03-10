@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...postHighlightStyles(theme)
   },
   title: {
-    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderTop: theme.palette.border.faint,
     paddingTop: 12,
     marginTop: 12
   },

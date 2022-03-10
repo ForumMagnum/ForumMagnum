@@ -23,12 +23,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   moveIcon: {
     marginLeft:8,
-    color: "black"
+    color: theme.palette.text.maxIntensity,
   },
   undoIcon: {
     marginLeft:8,
     width: 20,
-    color: "black"
+    color: theme.palette.text.maxIntensity,
   }
 })
 

@@ -140,7 +140,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 0
   },
   bookCheckoutBackground: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     [theme.breakpoints.down('xs')]: {
       width: "100%"
     }
@@ -202,7 +202,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   cta: {
     background: theme.palette.primary.light,
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     display: "block",
     paddingTop: 16,
     paddingBottom: 16,
@@ -219,7 +219,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.primary.light,
     opacity: .5,
     filter: "saturation(.5)",
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     display: "block",
     paddingTop: 16,
     paddingBottom: 16,
@@ -237,7 +237,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     fontSize: '1rem',
     marginTop: 8,
-    color: 'rgba(0,0,0,0.6)'
+    color: theme.palette.text.dim60,
   },
   faqLink: {
     ...theme.typography.commentStyle,

@@ -17,17 +17,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit*2,
     position:"relative"
   },
-  assistance: {
-    color: 'rgba(0,0,0,0.6)',
+  assistance: { //UNUSED
+    color: theme.palette.text.normal,
   },
   'easy-going': {
-    color: 'rgba(100, 169, 105, 0.9)',
+    color: theme.palette.text.moderationGuidelinesEasygoing,
   },
   'norm-enforcing': {
-    color: '#2B6A99',
+    color: theme.palette.text.moderationGuidelinesNormEnforcing,
   },
   'reign-of-terror': {
-    color: 'rgba(179,90,49,.8)',
+    color: theme.palette.text.moderationGuidelinesReignOfTerror,
   },
   'editButton': {
     cursor: "pointer",

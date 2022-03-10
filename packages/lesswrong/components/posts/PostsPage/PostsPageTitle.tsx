@@ -23,10 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...postPageTitleStyles(theme)
   },
   draft: {
-    color: theme.palette.grey[500]
+    color: theme.palette.text.dim4
   },
   question: {
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     display: "block",
   },
   link: {

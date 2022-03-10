@@ -21,11 +21,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...voteTextStyling(theme)
   },
   7: {
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     background: theme.palette.grey[700]
   },
   6: {
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     background: theme.palette.grey[500]
   },
   5: {
@@ -38,15 +38,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.grey[300]
   },
   2: {
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     background: theme.palette.error.light
   },
   1: {
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     background: theme.palette.error.dark
   },
   button: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
     borderRadius: 3,
     paddingTop: 2,
     paddingBottom: 2,

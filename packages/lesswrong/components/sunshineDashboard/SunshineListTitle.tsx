@@ -3,7 +3,7 @@ import React from 'react';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    borderTop: "solid 1px rgba(0,0,0,.2)",
+    borderTop: theme.palette.border.normal,
     padding: theme.spacing.unit*1.5,
     fontWeight: 600,
     display: "flex",

@@ -11,7 +11,7 @@ import { communityPath } from '../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    color: theme.palette.textColor,
+    color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.8rem",
     zIndex: theme.zIndexes.postItemTitle,
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2
   },
   primaryIcon: {
-    color: theme.palette.dimTextColor,
+    color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
     width: "auto",
@@ -47,9 +47,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "middle",
   },
   read: {
-    color: theme.palette.dimTextColor,
+    color: theme.palette.text.dim55,
     '&:hover': {
-      color: theme.palette.textColor,
+      color: theme.palette.text.normal,
     }
   },
   hideSmDown: { // TODO FIX NAME

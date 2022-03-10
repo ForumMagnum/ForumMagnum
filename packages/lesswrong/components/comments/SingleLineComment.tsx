@@ -14,16 +14,16 @@ export const SINGLE_LINE_PADDING_TOP = 5
 export const singleLineStyles = (theme: ThemeType): JssStyles => ({
   display: "flex",
   borderRadius: 3,
-  backgroundColor: "#f0f0f0",
+  backgroundColor: theme.palette.panelBackground.singleLineComment,
   '&:hover': {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: theme.palette.panelBackground.singleLineCommentHovered,
   },
   ...commentBodyStyles(theme),
   marginTop: 0,
   marginBottom: 0,
   paddingLeft: theme.spacing.unit,
   paddingRight: theme.spacing.unit,
-  color: "rgba(0,0,0,.6)",
+  color: theme.palette.text.dim60,
   whiteSpace: "nowrap",
 })
 
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"inline-block",
     padding: SINGLE_LINE_PADDING_TOP,
     '& a, & a:hover': {
-      color: "rgba(0,0,0,.87)",
+      color: theme.palette.link.unmarked,
     },
     fontWeight: 600,
     marginRight: 10,
@@ -87,14 +87,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   highlight: {
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     width: "inherit",
     maxWidth: 625,
     position: "absolute",
     top: "calc(100% - 20px)",
     right: 0,
     zIndex: 5,
-    border: "solid 1px rgba(0,0,0,.1)",
+    border: theme.palette.border.faint,
     boxShadow: "0 0 10px rgba(0,0,0,.2)",
     maxHeight: 500,
     overflow: "hidden",
@@ -116,9 +116,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   odd: {
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     '&:hover': {
-      backgroundColor: "#f3f3f3",
+      backgroundColor: theme.palette.panelBackground.singleLineCommentOddHovered,
     }
   },
   metaNotice: {
@@ -131,7 +131,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   preview: {
     backgroundColor: "white",
-    border: "solid 1px rgba(0,0,0,.1)",
+    border: theme.palette.border.faint,
     boxShadow: "0 0 10px rgba(0,0,0,.2)",
     width: 500
   }

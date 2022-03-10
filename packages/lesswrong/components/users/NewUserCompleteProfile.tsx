@@ -11,7 +11,7 @@ import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: 'white',
+    background: theme.palette.panelBackground.default,
     padding: theme.spacing.unit * 6
   },
   title: {

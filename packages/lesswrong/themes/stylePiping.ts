@@ -1,16 +1,14 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
-export const metaculusBackground = "#2c3947"
-
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
-  backgroundColor: 'black',
-  color: 'black',
+  backgroundColor: theme.palette.panelBackground.spoilerBlock,
+  color: theme.palette.panelBackground.spoilerBlock,
   '& a, & a:hover, & a:focus, & a::after': {
-    color: 'black'
+    color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
-    backgroundColor: 'black',
+    backgroundColor: theme.palette.panelBackground.spoilerBlock,
   }
 });
 
@@ -39,7 +37,7 @@ const spoilerStyles = (theme: ThemeType): JssStyles => ({
       ...hideSpoilers(theme),
     },
     '&:hover': {
-      background: 'rgba(0,0,0,.12)' // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
+      background: theme.palette.panelBackground.revealedSpoilerBlock, // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
     },
     '& > p' : {
       margin: '0 !important',
@@ -60,7 +58,7 @@ const spoilerStyles = (theme: ThemeType): JssStyles => ({
 
 const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.metaculus-preview': {
-    backgroundColor: metaculusBackground,
+    backgroundColor: theme.palette.panelBackground.metaculusBackground,
     '& iframe': {
       width: '100%',
       height: 400,
@@ -88,7 +86,7 @@ const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
 const tableStyles = (theme: ThemeType): JssStyles => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
-  border: "1px double #b3b3b3",
+  border: theme.palette.border.table,
   margin: "auto",
   height: "100%",
   textAlign: "left",
@@ -98,7 +96,7 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
 const tableCellStyles = (theme: ThemeType): JssStyles => ({
   minWidth: "2em",
   padding: ".4em",
-  border: "1px double #d9d9d9",
+  border: theme.palette.border.tableCell,
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em'
@@ -109,7 +107,7 @@ const tableCellStyles = (theme: ThemeType): JssStyles => ({
 });
 
 const tableHeadingStyles = (theme: ThemeType): JssStyles => ({
-  background: "#fafafa",
+  background: theme.palette.panelBackground.tableHeading,
   fontWeight: 700
 });
 
@@ -125,7 +123,7 @@ const hrStyles = (theme: ThemeType): JssStyles => ({
   textAlign: "center",
   '&:after': {
     marginLeft: 12,
-    color: "rgba(0, 0, 0, 0.26)", /* pick a color */
+    color: theme.palette.icon.horizRuleDots,
     fontSize: "1rem",
     letterSpacing: "12px", /* increase space between dots */
     content: '"•••"',
@@ -273,7 +271,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: 'solid 1px rgba(0,0,0,0.2)',
+      borderTop: theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -343,11 +341,11 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     // but it's the only way I was able to make this weird stuff work.
     ...pointerEvents,
     '& > *:hover ~ .spoiler': {
-      color: 'black'
+      color: theme.palette.panelBackground.spoilerBlock,
     },
     '& > *:hover ~ .spoiler:before': {
       content: '"spoiler (hover/select to reveal)"',
-      color: 'white',
+      color: theme.palette.text.spoilerBlockNotice,
     },
     '& hr': {
       marginTop: theme.spacing.unit*1.5,
@@ -462,7 +460,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
       '&.ck-content': {
         marginLeft: -theme.spacing.unit,
         '--ck-focus-outer-shadow-geometry': "none",
-        '--ck-focus-ring': "solid 1px rgba(0,0,0,0)",
+        '--ck-focus-ring': theme.palette.border.transparent,
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
         '& p': {
@@ -533,7 +531,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
           width : "100%"
         },
         '& .ck-comment__wrapper': {
-          borderTop: 'solid 1px rgba(0,0,0,.15)',
+          borderTop: theme.palette.border.slightlyFaint,
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time': {
           color: theme.palette.grey[600],
@@ -568,7 +566,7 @@ export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)
     // This selector isn't necessary on rendered posts/comments, just the draft-js editor.
     // To minimize potential damage from */important it's only applied here.
     '& .spoiler:not(:hover) *': {
-      backgroundColor: "black !important"
+      backgroundColor: `${theme.palette.panelBackground.spoilerBlock} !important`
     },
     ...styleFunction(theme),
     ...ckEditorStyles(theme)

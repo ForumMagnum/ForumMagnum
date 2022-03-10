@@ -20,9 +20,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   postStyle: theme.typography.postStyle,
   postBody: {
@@ -85,7 +85,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     borderRadius: 3,
     marginBottom:4
   },

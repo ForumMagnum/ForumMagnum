@@ -59,7 +59,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 5,
     paddingLeft: 42,
     paddingRight: 42,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   tableOfContentsWrapper: {
     position: "relative",
@@ -106,7 +106,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 42,
     paddingBottom: 12,
     marginBottom: 24,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   tagHeader: {
     display: "flex",

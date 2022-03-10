@@ -83,7 +83,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: '103px',
     top: '-24px',
     fontSize: '1rem',
-    color: 'rgba(0,0,0,0.4)',
+    color: theme.palette.icon.dim2,
     cursor: 'pointer',
     [theme.breakpoints.down('md')]: {
       right: 0
@@ -95,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   mobileCloseButton: {
     ...theme.typography.commentStyle,
     fontSize: '1.1rem',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.icon.slightlyDim4,
     marginLeft: 'auto',
     display: 'none',
     whiteSpace: "nowrap",
@@ -112,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   disclaimerRow: {
     ...theme.typography.commentStyle,
     fontSize: '0.65em',
-    color: 'rgba(0,0,0,0.4)',
+    color: theme.palette.text.dim40,
     marginTop: 4,
     lineHeight: '1.3'
   },

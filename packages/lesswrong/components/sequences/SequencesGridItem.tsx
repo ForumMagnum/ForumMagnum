@@ -9,15 +9,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
 
     width: "calc(33% - 5px)",
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     paddingBottom: 0,
     marginBottom: 10,
     display: "flex",
     flexDirection: "column",
 
     "&:hover": {
-      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-      color: "rgba(0,0,0,0.87)",
+      boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
+      color: theme.palette.text.normal,
     },
 
     [legacyBreakpoints.maxSmall]: {
@@ -48,11 +48,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   draft: {
     textTransform: "uppercase",
-    color: "rgba(100, 169, 105, 0.9)",
+    color: theme.palette.text.sequenceIsDraft,
   },
 
   author: {
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
   },
 
   meta: {
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   bookItemShadowStyle: {
     boxShadow: "none",

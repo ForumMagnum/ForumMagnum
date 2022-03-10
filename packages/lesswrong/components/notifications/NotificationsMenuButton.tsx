@@ -25,11 +25,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     pointerEvents: "none",
   },
   buttonOpen: {
-    backgroundColor: "rgba(0,0,0,0.4)",
-    color: "white",
+    backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
+    color: theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
-    backgroundColor: "rgba(0,0,0,0)",
+    backgroundColor: "transparent",
     color: theme.palette.headerTextColor,
   },
 });

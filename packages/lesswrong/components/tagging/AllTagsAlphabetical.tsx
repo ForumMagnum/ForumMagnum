@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columns: 5,
     columnWidth: 225,
     columnGap: 0,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: 20,
     marginBottom: 24
   }

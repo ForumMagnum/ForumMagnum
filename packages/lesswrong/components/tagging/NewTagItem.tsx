@@ -9,8 +9,8 @@ import { tagBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     padding: 12,
     borderRadius:3,
     marginBottom: 16,

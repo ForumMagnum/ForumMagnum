@@ -13,10 +13,10 @@ import classNames from 'classnames';
 
 export const gardenForm = (theme: ThemeType) => ({
   ...commentBodyStyles(theme, true),
-  border: "solid 1px rgba(0,0,0,.2)",
+  border: theme.palette.border.normal,
   borderRadius: 3,
   padding: 8,
-  backgroundColor: "white",
+  backgroundColor: theme.palette.panelBackground.default,
   maxWidth: 400,
   '& .MuiInput-formControl': {
     width: 320

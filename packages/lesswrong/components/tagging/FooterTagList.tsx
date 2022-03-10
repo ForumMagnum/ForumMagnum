@@ -27,11 +27,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
-    backgroundColor: "white",
+    backgroundColor: theme.palette.tag.hollowTagBackground,
     paddingTop: 4,
     paddingBottom: 4,
-    border: "solid 1px rgba(0,0,0,.12)",
-    color: theme.palette.grey[600]
+    border: theme.palette.tag.coreTagBorder,
+    color: theme.palette.text.dim3,
   },
   card: {
     ...commentBodyStyles(theme),

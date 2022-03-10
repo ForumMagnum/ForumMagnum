@@ -14,9 +14,9 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   paddingLeft: 6,
   paddingRight: 6,
   marginBottom: 8,
-  backgroundColor: theme.palette.grey[200],
-  border: `solid 1px ${theme.palette.grey[200]}`,
-  color: 'rgba(0,0,0,.9)',
+  backgroundColor: theme.palette.tag.background,
+  border: theme.palette.tag.border,
+  color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
   cursor: "pointer"
@@ -29,7 +29,7 @@ const newTagStyle = (theme: ThemeType): JssStyles => ({
   paddingRight: 7,
   marginBottom: 8,
   borderRadius: 4,
-  boxShadow: '1px 2px 5px rgba(0,0,0,.2)',
+  boxShadow: theme.palette.tag.boxShadow,
   color: theme.palette.primary.main,
   fontSize: 15
 })
@@ -55,13 +55,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     )
   },
   core: {
-    backgroundColor: "white",
-    border: "solid 1px rgba(0,0,0,.12)",
-    color: theme.palette.grey[600]
+    backgroundColor: theme.palette.tag.hollowTagBackground,
+    border: theme.palette.tag.coreTagBorder,
+    color: theme.palette.text.dim3,
   },
   score:  {
     paddingLeft: 5,
-    color: 'rgba(0,0,0,0.7)',
+    color: theme.palette.text.slightlyDim2,
   },
   name: {
     display: 'inline-block',

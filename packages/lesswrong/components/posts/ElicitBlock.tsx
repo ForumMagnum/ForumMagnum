@@ -148,7 +148,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   titleSection: {
     textAlign: 'center',
     width: '100%',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     marginTop: 4,
     paddingBottom: 4,
     display: 'flex',
@@ -175,7 +175,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     width: '100%',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     height: `calc(100% - ${rootHeight + rootPaddingTop}px)`,
     paddingTop: 4,
     zIndex: 1 // Ensure that the users are displayed on top of the title element

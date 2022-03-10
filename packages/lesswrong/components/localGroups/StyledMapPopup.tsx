@@ -28,11 +28,11 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginBottom: "10px",
     marginTop: "10px",
     fontWeight: 400,
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
   },
   markerPageLink: {
     fontWeight: 400,
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.link.dim3,
     flex: 'none'
   },
   linksWrapper: {

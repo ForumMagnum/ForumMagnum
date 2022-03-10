@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     marginBottom: 24,
     background: "white",
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -210,7 +210,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 4,
     borderRadius: 3,
     marginRight: 6,
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
     "&:hover": {
       background: "rgba(0,0,0,.2)",
     }

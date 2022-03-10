@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...postBodyStyles(theme)
   },
   users: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: 20,
   },
   usersList: {

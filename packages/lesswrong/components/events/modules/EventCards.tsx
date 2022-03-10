@@ -35,7 +35,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 374,
     borderRadius: 0,
     overflow: 'visible',
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: theme.palette.boxShadow.eventCard,
     [theme.breakpoints.down('xs')]: {
       maxWidth: '100vw'
     }
@@ -50,7 +50,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main
   },
   eventCardTimeApply: {
-    color: "rgba(0, 0, 0, 0.5)",
+    color: theme.palette.text.dim,
     fontSize: 11,
     marginRight: 5
   },
@@ -66,7 +66,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardLocation: {
     ...theme.typography.commentStyle,
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.text.slightlyDim2,
     fontSize: 14,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -77,7 +77,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     maxWidth: 290,
     fontStyle: 'italic',
-    color: "rgba(0, 0, 0, 0.5)",
+    color: theme.palette.text.dim,
     fontSize: 14,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',

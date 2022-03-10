@@ -14,9 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   title: {
     ...theme.typography.display2,
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     borderRadius: 3,
     marginBottom:4
   },
@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   metadata: {
     fontSize: "1.1rem",
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     ...theme.typography.commentStyle,
   },
 });

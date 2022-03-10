@@ -6,7 +6,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles, metaculusBackground, postHighlightStyles } from '../../themes/stylePiping';
+import { commentBodyStyles, postHighlightStyles } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
@@ -430,9 +430,9 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.3rem"
   },
   card: {
-    boxShadow: "0px 0px 10px rgba(0,0,0,.1)",
+    boxShadow: theme.palette.boxShadow.mozillaHubPreview,
     width: 350,
-    backgroundColor: "white"
+    backgroundColor: theme.palette.panelBackground.default,
   },
   description: {
     marginTop: 8,
@@ -506,7 +506,7 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
 
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {
-    backgroundColor: metaculusBackground
+    backgroundColor: theme.palette.panelBackground.metaculusBackground,
   },
   iframeStyling: {
     width: 400,
@@ -600,7 +600,7 @@ const arbitalStyles = (theme: ThemeType): JssStyles => ({
   },
   logo: {
     height: 24,
-    fill: 'rgba(0,0,0,0.4)',
+    fill: theme.palette.icon.dim2,
     marginTop: -5
   },
   link: {

@@ -16,7 +16,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
   
     "& .input-title .form-input-errors": {
-      backgroundColor: "rgba(0,0,0,0.25)",
+      backgroundColor: theme.palette.panelBackground.formErrors,
       width: "100%",
       textAlign: "center",
       margin: "0 !important",

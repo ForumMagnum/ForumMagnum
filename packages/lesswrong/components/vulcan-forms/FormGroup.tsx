@@ -46,14 +46,14 @@ const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupH
 const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
-    border: `solid 1px ${theme.palette.grey[400]}`,
+    border: theme.palette.border.grey400,
     marginBottom: theme.spacing.unit,
-    background: "white"
+    background: theme.palette.panelBackground.default,
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`,
+    borderTop: theme.palette.border.grey300,
   },
   formSectionPadding: {
     paddingRight: theme.spacing.unit*2,

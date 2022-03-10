@@ -67,7 +67,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     flex: '1 0 0',
     ...theme.typography.commentStyle,
     fontSize: 13,
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
     paddingLeft: 3
   },
   geoSuggest: {
@@ -91,7 +91,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   placeholder: {
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
   },
   notifications: {
     flex: '1 0 0',

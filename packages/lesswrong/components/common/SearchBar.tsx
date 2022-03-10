@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   alignmentForum: {
     "& .ais-SearchBox-input": {
-      color: "white",
+      color: theme.palette.panelBackground.default,
     },
     "& .ais-SearchBox-input::placeholder": {
       color: "rgba(255,255,255, 0.5)",

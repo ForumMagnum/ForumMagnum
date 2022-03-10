@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     '&$specificalz': {
       fontSize: 18,
-      color: 'rgba(0,0,0,0.5)',
+      color: theme.palette.icon.dim,
       marginRight: 4
     }
   },

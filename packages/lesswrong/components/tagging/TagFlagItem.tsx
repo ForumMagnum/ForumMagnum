@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 4,
     margin: 4,
     borderRadius: 5,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: theme.palette.panelBackground.tenPercent,
     display: 'inline-block'
   },
   black: {

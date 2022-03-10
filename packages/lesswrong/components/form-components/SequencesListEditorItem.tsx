@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   meta: {
     display: "inline-block",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     "& div": {
       display: "inline-block",
       marginRight: 5,
@@ -34,13 +34,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   removeIcon: {
-    color: "rgba(0,0,0,0.3) !important"
+    color: `${theme.palette.icon.dim5} !important`
   },
   dragHandle: {
     pointerEvents: "none",
     position: "absolute",
     display: "block !important",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.icon.dim,
     margin: "auto",
     top: "0px",
     bottom: "0px",

@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   notSelected: {
     textTransform: "none",
     color: "rgba(0,0,0,0.6)",
-    backgroundColor: "rgba(0,0,0, 0)",
+    backgroundColor: "transparent",
 
     "&:hover": {
       backgroundColor: "rgba(0,0,0, 0.1)",

@@ -16,7 +16,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   height: 150,
   width: '100%',
   zIndex: theme.zIndexes.sequencesImageScrim,
-  background: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)'
+  background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     padding: theme.spacing.unit * 4,
     position: 'relative',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     marginTop: -200,
     zIndex: theme.zIndexes.sequencesPageContent,
     [theme.breakpoints.down('sm')]: {

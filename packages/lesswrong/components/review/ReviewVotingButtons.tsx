@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => {
       paddingBottom: 3,
       marginRight: 2,
       display: "inline-block",
-      border: "solid 1px rgba(0,0,0,.1)",
+      border: theme.palette.border.faint,
       borderRadius: 3,
       width: 26,
       textAlign: "center",

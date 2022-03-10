@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
   },
   footerCount: {
-    borderTop: "solid 1px rgba(0,0,0,.08)",
+    borderTop: theme.palette.border.extraFaint,
     paddingTop: 6,
     textAlign: "right",
     ...theme.typography.smallFont,
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   posts: {
     marginTop: 12,
     paddingTop: 8,
-    borderTop: "solid 1px rgba(0,0,0,.08)",
+    borderTop: theme.palette.border.extraFaint,
     marginBottom: 8
   }
 });

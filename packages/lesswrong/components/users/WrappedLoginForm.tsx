@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1.2rem',
     marginBottom: 8,
     padding: 8,
-    backgroundColor: 'rgba(0,0,0,0.03)',
+    backgroundColor: theme.palette.panelBackground.darken03,
     width: '100%'
   },
   submit: {
@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: 10
   },
   oAuthLink: {
-    color: 'rgba(0,0,0,0.7) !important',
+    color: `${theme.palette.text.slightlyDim2} !important`,
     fontSize: '0.9em',
     padding: 6,
     textTransform: 'uppercase'
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   toggle: {
     cursor: 'pointer',
     '&:hover': {
-      color: 'rgba(0,0,0,0.5)'
+      color: theme.palette.link.dim,
     }
   }
 })

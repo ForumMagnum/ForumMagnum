@@ -23,11 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
-    border: `solid 1px rgba(0,0,0,.25)`,
-    backgroundColor: "white"
+    border: theme.palette.border.slightlyIntense,
+    backgroundColor: theme.palette.tag.hollowTagBackground,
   },
   addButton: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.tag.addTagButtonBackground,
     paddingLeft: 9,
     paddingTop: 5,
     paddingBottom: 5,

@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2
   },
   errorMsg: {
-    color: "#9b5e5e"
+    color: theme.palette.text.error,
   },
   link: {
     textDecoration: "underline"

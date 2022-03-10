@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 300,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
-      borderBottom: "solid 1px rgba(0,0,0,.1)",
+      borderBottom: theme.palette.border.faint,
       order: 1,
       maxWidth: 625,
     },
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: 625,
-      borderBottom: "solid 1px rgba(0,0,0,.1)",
+      borderBottom: theme.palette.border.faint,
       paddingBottom: 8
     }
   },
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: 625,
-      borderBottom: "solid 1px rgba(0,0,0,.1)",
+      borderBottom: theme.palette.border.faint,
       paddingBottom: 8
     }
   },
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 24,
     marginBottom: 40,
     height: 48,
-    border: "solid 1px rgba(0,0,0,.3)",
+    border: theme.palette.border.slightlyIntense2,
     borderRadius: 3,
     [theme.breakpoints.down('xs')]: {
       width: "100%",

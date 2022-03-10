@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
+    color: theme.palette.text.dim700,
     marginBottom: 4
   }
 })

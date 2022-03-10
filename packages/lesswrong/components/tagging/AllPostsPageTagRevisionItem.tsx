@@ -5,8 +5,8 @@ import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "rgb(242,242,242)",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    background: theme.palette.panelBackground.commentNodeEven,
+    border: theme.palette.border.commentBorder,
     borderRight: "none",
     borderRadius: "2px 0 0 2px",
     padding: 12,

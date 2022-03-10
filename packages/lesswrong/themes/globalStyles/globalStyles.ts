@@ -18,7 +18,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.default,
     
     "@media print": {
-      backgroundColor: "white",
+      backgroundColor: theme.palette.panelBackground.default,
     },
   },
   
@@ -44,7 +44,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
 
 const globalStyle = (theme: ThemeType): JssStyles => ({
   ".message.error": {
-    color: "#E04E4B",
+    color: theme.palette.text.error2,
   },
   
   ".ais-InstantSearch__root": {
@@ -75,7 +75,7 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
   
   ".reCaptcha-text": {
     fontFamily: "sans-serif",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     fontSize: 11,
   },
   ".thoughtSaverFrame": {
@@ -98,7 +98,7 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
       paddingTop: 5,
     },
     
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
   },
   ".comments-node .comments-node": {
     [maxTiny]: {
@@ -121,10 +121,10 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
   },
   
   ".comments-node-even": {
-    backgroundColor: "rgb(242,242,242)",
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
   },
   ".comments-node-odd": {
-    backgroundColor: "rgb(252,252,252)",
+    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
   },
   ".comments-node-its-getting-nested-here": {
     marginLeft: "7px !important",
@@ -170,7 +170,7 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
     "&.loading": {
       minHeight: 80,
       padding: 35,
-      backgroundColor: "rgb(242,242,242)",
+      backgroundColor: theme.palette.panelBackground.commentNodeEven,
     },
   
     "& .comments-node": {

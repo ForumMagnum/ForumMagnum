@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
     
     padding: 16,
     ...theme.typography.body2,

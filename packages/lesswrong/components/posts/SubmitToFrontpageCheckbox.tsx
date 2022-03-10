@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight:500,
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
     verticalAlign: 'middle',
     lineHeight: '1.25em'
   },
