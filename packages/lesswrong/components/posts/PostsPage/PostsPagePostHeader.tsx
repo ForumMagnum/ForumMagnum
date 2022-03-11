@@ -127,7 +127,7 @@ const PostsPagePostHeader = ({post, classes}: {
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       <PostsTopSequencesNav post={post} />
     </AnalyticsContext>
-    {!post.group && !post.sequence && <PostsPageTopTag post={post} />}
+    {!post.group && !post.sequence && !post.question && <PostsPageTopTag post={post} />}
     
     <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
       <div className={classes.headerLeft}>
