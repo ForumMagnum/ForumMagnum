@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import maxBy from 'lodash/maxBy';
 import { useMulti } from '../../lib/crud/withMulti';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 /** Inner component used so that we can run a query here, which would have been
  * a conditional hook otherwise */
@@ -25,6 +26,7 @@ const TopTagInner = ({ post, tag }: {post: PostsDetails, tag: TagPreviewFragment
 }
 
 const PostsPageTopTag = ({post}: {post: PostsDetails}) => {
+  if (forumTypeSetting.get() !== "EAForum") return null
   // Fragment types have it typed as `any`. It is a map from tagId to the
   // relevance of the tag to the post
   const tagRels = post.tagRelevance as Record<string, number>

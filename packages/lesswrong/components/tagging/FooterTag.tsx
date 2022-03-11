@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...smallTagTextStyle(theme),
   },
   topTag: {
-    background: '#0c869b',
+    background: theme.palette.primary.main,
     color: 'white',
     border: 'none',
     padding: '6px 12px',
@@ -84,6 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       fill: '#fff',
       padding: '1px 0px'
     },
+    marginBottom: 16,
   },
   flexContainer: {
     display: 'flex',
@@ -108,9 +109,11 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
   });
   const { PopperCard, TagRelCard, TopTagIcon } = Components
 
+  const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
+
   if (tag.adminOnly) { return null }
 
-  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
+  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
       <Link to={`/tag/${tag.slug}`} className={!!isTopTag && classes.flexContainer}>
         {!!isTopTag && <TopTagIcon tag={tag} />}

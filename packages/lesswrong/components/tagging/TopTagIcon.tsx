@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import PeopleIcon from '@material-ui/icons/People';
+import EarthIcon from '@material-ui/icons/Public';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
 import { GlobeIcon } from '../icons/globeIcon';
@@ -17,14 +18,15 @@ const topTagIconMap = forumSelect<Record<string, any>>({
   EAForum: {
     community: PeopleIcon,
     biosecurity: DnaIcon,
-    'x-risk': MushroomCloudIcon,
+    'existential-risk': MushroomCloudIcon,
     'cause-prioritization': GlobeIcon,
     'moral-philosophy': ScrollIcon,
     'wild-animal-welfare': BirdIcon,
     'farmed-animal-welfare': ChickenIcon,
-    'groups': PeopleIcon,
+    'effective-altruism-groups': PeopleIcon,
     'career-choice': ChoiceIcon,
     'ai-alignment': ChipIcon,
+    'global-health-and-development': EarthIcon,
   },
   default: {}
 })
