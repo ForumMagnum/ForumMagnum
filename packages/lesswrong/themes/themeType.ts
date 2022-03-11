@@ -17,15 +17,16 @@ declare global {
       titleDividerSpacing: number,
     },
     palette: {
-      primary: MuiColorShades & {
+      primary: Partial<MuiColorShades> & {
         main: ColorString,
         light: ColorString,
         dark: ColorString,
         contrastText: ColorString
       },
-      secondary: MuiColorShades & {
+      secondary: Partial<MuiColorShades> & {
         main: ColorString,
         light: ColorString,
+        dark: ColorString, //UNUSED
         contrastText: ColorString
       },
       lwTertiary: {
@@ -36,6 +37,7 @@ declare global {
         main: ColorString,
         light: ColorString,
         dark: ColorString
+        contrastText: ColorString, //UNUSED
       },
       text: {
         primary: ColorString,
@@ -244,12 +246,11 @@ declare global {
       individual: ColorString,
       event: ColorString,
       
-      // type, headerType: Used by the Header component for figuring out the
+      // headerType: Used by the Header component for figuring out the
       // color of the title in the top-bar, by indirect reference to another
       // palette entry. This is a weird hack that we probably want to replace
       // with something more straightforward.
-      type: "dark"|undefined,
-      headerType: "primary"|undefined,
+      headerType: "primary"|"default",
       
       commentParentScrollerHover: ColorString,
       headerTextColor: ColorString,

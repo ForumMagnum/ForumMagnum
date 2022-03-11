@@ -1,6 +1,5 @@
 import createTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
-import deepOrange from '@material-ui/core/colors/deepOrange';
 import type { ThemeOptions } from './themeNames';
 
 const sansSerifStack = [
@@ -42,14 +41,11 @@ const palette = {
     dark: "#21672b"
   },
   error: {
-    main: deepOrange[900]
+    main: '#bf360c',
   },
   background: {
     default: '#f8f8f8'
   },
-  event: '#2b6a99',
-  group: '#588f27',
-  individual: '#3f51b5',
 }
 
 export const getLwTheme = (themeOptions: ThemeOptions) => createTheme(themeOptions, {
