@@ -85,6 +85,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: '1px 0px'
     },
     marginBottom: 16,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 16,
+    },
   },
   flexContainer: {
     display: 'flex',

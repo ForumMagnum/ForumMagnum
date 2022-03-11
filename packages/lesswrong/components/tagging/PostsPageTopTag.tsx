@@ -14,7 +14,7 @@ const TopTagInner = ({ post, tag }: {post: PostsDetails, tag: TagPreviewFragment
       postId: post._id,
     },
     collectionName: "TagRels",
-    fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
+    fragmentName: "TagRelMinimumFragment",
     limit: 100,
   });
 
