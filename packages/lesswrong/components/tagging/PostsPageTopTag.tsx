@@ -25,6 +25,9 @@ const TopTagInner = ({ post, tag }: {post: PostsDetails, tag: TagPreviewFragment
   return <FooterTag tag={tag} tagRel={tagRel || undefined} hideScore isTopTag />
 }
 
+// Sometimes you have tags that are core but not the type you want to advertize
+const TOP_TAG_REJECTS = ['community']
+
 const PostsPageTopTag = ({post}: {post: PostsDetails}) => {
   if (forumTypeSetting.get() !== "EAForum") return null
   // Fragment types have it typed as `any`. It is a map from tagId to the
@@ -32,7 +35,7 @@ const PostsPageTopTag = ({post}: {post: PostsDetails}) => {
   const tagRels = post.tagRelevance as Record<string, number>
   const tags = post.tags
   const topTag = maxBy(tags.filter(tag => tag.core), tag => tagRels[tag._id])
-  if (!topTag) { return null }
+  if (!topTag || TOP_TAG_REJECTS.includes(topTag.slug)) { return null }
   return <TopTagInner post={post} tag={topTag} />
 }
 

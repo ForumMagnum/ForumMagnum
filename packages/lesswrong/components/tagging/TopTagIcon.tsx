@@ -16,7 +16,6 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 // Don't want to fight the type system about the type of the MUI icon
 const topTagIconMap = forumSelect<Record<string, any>>({
   EAForum: {
-    community: PeopleIcon,
     biosecurity: DnaIcon,
     'existential-risk': MushroomCloudIcon,
     'cause-prioritization': GlobeIcon,
