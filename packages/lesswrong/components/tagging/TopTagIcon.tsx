@@ -24,7 +24,7 @@ const topTagIconMap = forumSelect<Record<string, any>>({
     'farmed-animal-welfare': ChickenIcon,
     'effective-altruism-groups': PeopleIcon,
     'career-choice': ChoiceIcon,
-    'ai-alignment': ChipIcon,
+    'ai-risk': ChipIcon,
     'global-health-and-development': EarthIcon,
   },
   default: {}
