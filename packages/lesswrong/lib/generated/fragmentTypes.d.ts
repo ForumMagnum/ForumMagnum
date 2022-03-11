@@ -471,6 +471,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
