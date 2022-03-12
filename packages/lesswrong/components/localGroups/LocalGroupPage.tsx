@@ -246,7 +246,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   });
 
   if (groupLoading) return <Loading />
-  if (!group) return <Error404 />
+  if (!group || group.deleted) return <Error404 />
 
   const { html = ""} = group.contents || {}
   const htmlBody = {__html: html}
