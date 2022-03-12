@@ -128,7 +128,9 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   // filter the list of groups if the user has typed in a keyword
   let visibleGroups = groups
   if (keywordSearch) {
-    visibleGroups = groups.filter(group => group.name.toLowerCase().includes(keywordSearch.toLowerCase()))
+    visibleGroups = groups.filter(group => (
+      `${group.name.toLowerCase()} ${group.location?.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+    ))
   }
 
   const { results: users = [] } = useMulti({
