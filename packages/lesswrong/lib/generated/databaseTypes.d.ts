@@ -253,8 +253,9 @@ interface DbLocalgroup extends DbObject {
   meetupLink: string
   slackLink: string
   website: string
-  inactive: boolean
   bannerImageId: string
+  inactive: boolean
+  deleted: boolean
   contents: EditableFieldContents
 }
 

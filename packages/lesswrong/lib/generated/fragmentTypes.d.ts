@@ -97,8 +97,9 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly meetupLink: string,
   readonly slackLink: string,
   readonly website: string,
-  readonly inactive: boolean,
   readonly bannerImageId: string,
+  readonly inactive: boolean,
+  readonly deleted: boolean,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -1211,8 +1212,9 @@ interface localGroupsBase { // fragment on Localgroups
   readonly meetupLink: string,
   readonly slackLink: string,
   readonly website: string,
-  readonly inactive: boolean,
   readonly bannerImageId: string,
+  readonly inactive: boolean,
+  readonly deleted: boolean,
 }
 
 interface localGroupsHomeFragment extends localGroupsBase { // fragment on Localgroups
