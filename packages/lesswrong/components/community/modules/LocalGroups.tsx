@@ -172,7 +172,9 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
   // filter the list of groups if the user has typed in a keyword
   let localGroups = results
   if (results && keywordSearch) {
-    localGroups = results.filter(group => group.name.toLowerCase().includes(keywordSearch.toLowerCase()))
+    localGroups = results.filter(group => (
+      `${group.name.toLowerCase()} ${group.location.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+    ))
   }
 
   return (
