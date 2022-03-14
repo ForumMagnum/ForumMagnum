@@ -427,7 +427,7 @@ const EventsHome = ({classes}: {
                 onChange={handleChangeDistance}
                 className={classes.distanceInput}
               />
-              <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} skipEffect />
+              <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} skipDefaultEffect />
             </div>
             
             <Select
