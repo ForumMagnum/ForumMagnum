@@ -77,6 +77,8 @@ interface ContentItemBodyProps extends WithStylesProps {
   dangerouslySetInnerHTML: { __html: string },
   className?: string,
   description?: string,
+  // Only Implemented for Tag Hover Previews
+  noHoverPreviewPrefetch?: boolean,
 }
 interface ContentItemBodyState {
   updatedElements: boolean,
@@ -262,7 +264,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
           continue;
         const id = linkTag.getAttribute("id");
         const rel = linkTag.getAttribute("rel")
-        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel}/>
+        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel} noPrefetch={this.props.noHoverPreviewPrefetch}/>
         this.replaceElement(linkTag, replacementElement);
       }
     }
