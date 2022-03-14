@@ -37,13 +37,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
-const DistanceUnitToggle = ({distanceUnit='km', onChange, classes}: {
+const DistanceUnitToggle = ({distanceUnit='km', onChange, skipEffect, classes}: {
   distanceUnit: "km"|"mi",
   onChange: Function,
+  skipEffect?: boolean,
   classes: ClassesType,
 }) => {
   
   useEffect(() => {
+    if (skipEffect) return
+    
     // only US and UK default to miles - everyone else defaults to km
     // (this is checked here to allow SSR to work properly)
     if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {

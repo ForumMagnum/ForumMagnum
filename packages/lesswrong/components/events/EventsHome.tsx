@@ -179,14 +179,27 @@ const EventsHome = ({classes}: {
     fragmentName: 'UsersProfile',
   });
 
-  // used to set the cutoff distance for the query
-  const [distance, setDistance] = useState(() => {
+  // used to set the cutoff distance for the query (default to 160 km / 100 mi)
+  const [distance, setDistance] = useState(160)
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
+  
+  useEffect(() => {
     const ls = getBrowserLocalStorage()
     const savedDistance = ls?.getItem('eventsDistanceFilter')
-    // default to 160 km (100 mi)
-    return savedDistance || 160
-  })
-  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
+    if (savedDistance) {
+      setDistance(savedDistance)
+    }
+    
+    // only US and UK default to miles - everyone else defaults to km
+    // (this is checked here to allow SSR to work properly)
+    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
+      setDistanceUnit('mi')
+      setDistance(Math.round((savedDistance || distance) * 0.621371))
+    }
+    
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   
   /**
    * Given a location, update the page query to use that location,
@@ -414,7 +427,7 @@ const EventsHome = ({classes}: {
                 onChange={handleChangeDistance}
                 className={classes.distanceInput}
               />
-              <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} />
+              <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} skipEffect />
             </div>
             
             <Select
