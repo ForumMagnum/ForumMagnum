@@ -66,7 +66,13 @@ const TagPreview = ({tag, loading, classes, showCount=true, postCount=6}: {
     fragmentName: "PostsList",
     limit: postCount,
   });
-
+  
+  // I kinda want the type system to forbid this, but the obvious union approach
+  // didn't work
+  if (!loading && !tag) {
+    return null
+  }
+  
   return (<div className={classes.card}>
     {loading && <Loading />}
     {tag && <>
