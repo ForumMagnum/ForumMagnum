@@ -5,6 +5,7 @@ import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
+import Public from '@material-ui/icons/Public'
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -70,15 +71,38 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallText: {
     ...smallTagTextStyle(theme),
+  },
+  topTag: {
+    background: theme.palette.primary.main,
+    color: 'white',
+    border: 'none',
+    padding: '6px 12px',
+    fontWeight: 600,
+    '& svg': {
+      height: 22,
+      width: 20,
+      fill: '#fff',
+      padding: '1px 0px'
+    },
+    marginBottom: 16,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 16,
+    },
+  },
+  flexContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 8,
   }
 });
 
-const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
+const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=false}: {
   tagRel?: TagRelMinimumFragment,
   tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
   classes: ClassesType,
+  isTopTag?: boolean
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tagItem",
@@ -86,13 +110,16 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText}: {
     tagName: tag.name,
     tagSlug: tag.slug
   });
-  const { PopperCard, TagRelCard } = Components
+  const { PopperCard, TagRelCard, TopTagIcon } = Components
+
+  const sectionContextMaybe = isTopTag ? {pageSectionContext: 'topTag'} : {}
 
   if (tag.adminOnly) { return null }
 
-  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span {...eventHandlers} className={classNames(classes.root, {[classes.core]: tag.core, [classes.smallText]: smallText})}>
-      <Link to={`/tag/${tag.slug}`}>
+  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
+    <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
+      <Link to={`/tag/${tag.slug}`} className={!!isTopTag && classes.flexContainer}>
+        {!!isTopTag && <TopTagIcon tag={tag} />}
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>

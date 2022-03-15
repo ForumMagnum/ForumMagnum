@@ -64,9 +64,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showUsers, showHideMap = false, hideLegend, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showUsers, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
+  keywordSearch?: string,
   initialOpenWindows: Array<any>,
   center?: {lat: number, lng: number},
   zoom: number,
@@ -108,7 +109,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
       longitude: center.lng,
       zoom: zoom
     })
-  }, [center, zoom])
+  }, [center.lat, center.lng, zoom])
 
   const { results: events = [] } = useMulti({
     terms: eventTerms || {view: 'events'},
@@ -124,6 +125,13 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
   })
+  // filter the list of groups if the user has typed in a keyword
+  let visibleGroups = groups
+  if (keywordSearch) {
+    visibleGroups = groups.filter(group => (
+      `${group.name.toLowerCase()} ${group.location?.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+    ))
+  }
 
   const { results: users = [] } = useMulti({
     terms: {view: "usersMapLocations"},
@@ -138,7 +146,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
       {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showGroups && <LocalGroupsMapMarkers groups={visibleGroups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
       {!hideLegend && <div className={classes.mapButtons}>
         <Components.CommunityMapFilter 
@@ -151,7 +159,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
         />
       </div>}
     </React.Fragment>
-  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap, hideLegend])
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, visibleGroups, showIndividuals, users, classes.mapButtons, showHideMap, hideLegend])
 
   if (!showMap) return null
 

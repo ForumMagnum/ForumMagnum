@@ -6,6 +6,15 @@ import { forumTypeSetting } from '../../instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
+const formGroups: Partial<Record<string,FormGroup>> = {
+  advancedOptions: {
+    name: "advancedOptions",
+    order: 2,
+    label: "Advanced Options",
+    startCollapsed: true,
+  },
+};
+
 const schema: SchemaType<DbLocalgroup> = {
   createdAt: {
     optional: true,
@@ -190,16 +199,6 @@ const schema: SchemaType<DbLocalgroup> = {
     regEx: SimpleSchema.RegEx.Url,
     tooltip: 'https://...'
   },
-
-  inactive: {
-    type: Boolean,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
-    hidden: true,
-    optional: true,
-    ...schemaDefaultValue(false),
-  },
   
   // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
@@ -211,6 +210,27 @@ const schema: SchemaType<DbLocalgroup> = {
     label: "Banner Image",
     control: "ImageUpload",
     tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)"
+  },
+  
+  inactive: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+  
+  deleted: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
+    ...schemaDefaultValue(false),
   },
 };
 

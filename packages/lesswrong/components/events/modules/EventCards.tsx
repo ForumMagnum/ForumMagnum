@@ -10,6 +10,7 @@ import { useTimezone } from '../../common/withTimezone';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -28,18 +29,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   communityLink: {
     color: theme.palette.primary.main,
   },
-  eventCards: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 373px)',
-    gridGap: '20px',
-    justifyContent: 'center',
-    [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(2, 373px)',
-    },
-    '@media (max-width: 812px)': {
-      gridTemplateColumns: 'auto',
-    }
-  },
   eventCard: {
     position: 'relative',
     width: 373,
@@ -50,6 +39,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       maxWidth: '100vw'
     }
+  },
+  eventCardTag: {
+    ...theme.typography.commentStyle,
+    position: 'absolute',
+    top: 15,
+    left: 15,
+    backgroundColor: '#CC5500',
+    color: 'white',
+    fontSize: 12,
+    padding: '6px 12px',
+    borderRadius: 20
   },
   eventCardContent: {
     position: 'relative',
@@ -108,11 +108,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes}: {
-  events?: PostsList[],
+const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
+  events: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
   hideSpecialCards?: boolean,
+  hideGroupNames?: boolean,
+  cardClassName?: string,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
@@ -126,39 +128,22 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
   const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard } = Components
   
   // while the data is loading, show some placeholder empty cards
-  if (loading && !events?.length) {
+  if (loading && !events.length) {
     return numDefaultCards ? <>
       {_.range(numDefaultCards).map((i) => {
-        return <Card key={i} className={classes.eventCard}></Card>
+        return <Card key={i} className={classNames(classes.eventCard, cardClassName)}></Card>
       })}
     </> : null
   }
   
-  if (!events?.length) {
-    // link to the Community page when there are no events to show
-    let communityName = 'Community'
-    if (forumTypeSetting.get() === 'EAForum') {
-      communityName = 'EA Community'
-    } else if (forumTypeSetting.get() === 'LessWrong') {
-      communityName = 'LessWrong Community'
-    }
-    return <div className={classes.noResults}>
-      <div className={classes.noResultsText}>No upcoming events matching your search</div>
-      <div className={classes.noResultsCTA}>
-        <Link to={'/community'} className={classes.communityLink}>
-          Explore the {communityName}
-        </Link>
-      </div>
-    </div>
-  }
-  
   const eventCards = events.map(event => {
-    return <Card key={event._id} className={classes.eventCard}>
+    return <Card key={event._id} className={classNames(classes.eventCard, cardClassName)}>
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
           <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
           <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
       </Link>
+      {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}
       <CardContent className={classes.eventCardContent}>
         <div className={classes.eventCardTime}>
           {event.eventType === 'course' && <span className={classes.eventCardTimeApply}>Apply by</span>}
@@ -170,7 +155,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
           </div>
         </PostsItemTooltipWrapper>
         <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
-        {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
+        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name}>
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
         <div className={classes.addToCal}>
@@ -192,6 +177,24 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
       // we try to space out the two cards
       eventCards.splice(5, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
     }
+  }
+  
+  if (!eventCards.length) {
+    // link to the Community page when there are no events to show
+    let communityName = 'Community'
+    if (forumTypeSetting.get() === 'EAForum') {
+      communityName = 'EA Community'
+    } else if (forumTypeSetting.get() === 'LessWrong') {
+      communityName = 'LessWrong Community'
+    }
+    return <div className={classes.noResults}>
+      <div className={classes.noResultsText}>No upcoming events matching your search</div>
+      <div className={classes.noResultsCTA}>
+        <Link to={'/community'} className={classes.communityLink}>
+          Explore the {communityName}
+        </Link>
+      </div>
+    </div>
   }
 
   return <>

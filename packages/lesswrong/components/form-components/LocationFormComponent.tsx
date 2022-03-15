@@ -21,6 +21,7 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
     padding: ".5em .5em 0.5em 0em !important",
     width: 350,
     fontSize: 13,
+    color: theme.palette.primary.main,
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },

@@ -114,7 +114,7 @@ const PostsPagePostHeader = ({post, classes}: {
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarIcon} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarIcon, PostsPageTopTag} = Components;
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -130,6 +130,7 @@ const PostsPagePostHeader = ({post, classes}: {
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       <PostsTopSequencesNav post={post} />
     </AnalyticsContext>
+    {!post.group && !post.sequence && !post.question && <PostsPageTopTag post={post} />}
     
     <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
       <div className={classes.headerLeft}>

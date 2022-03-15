@@ -97,8 +97,9 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly meetupLink: string,
   readonly slackLink: string,
   readonly website: string,
-  readonly inactive: boolean,
   readonly bannerImageId: string,
+  readonly inactive: boolean,
+  readonly deleted: boolean,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -471,6 +472,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -1224,8 +1226,9 @@ interface localGroupsBase { // fragment on Localgroups
   readonly meetupLink: string,
   readonly slackLink: string,
   readonly website: string,
-  readonly inactive: boolean,
   readonly bannerImageId: string,
+  readonly inactive: boolean,
+  readonly deleted: boolean,
 }
 
 interface localGroupsHomeFragment extends localGroupsBase { // fragment on Localgroups

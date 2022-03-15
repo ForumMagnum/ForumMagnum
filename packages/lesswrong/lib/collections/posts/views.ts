@@ -52,6 +52,7 @@ declare global {
     postIds?: Array<string>,
     reviewYear?: number,
     excludeContents?: boolean,
+    distance?: number,
   }
 }
 
@@ -899,6 +900,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     ]}
   }
   
+  // Note: distance is in miles
   let query: any = {
     selector: {
       groupId: null,
@@ -911,7 +913,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
         {
           mongoLocation: {
             $geoWithin: {
-              $centerSphere: [ [ terms.lng, terms.lat ], 100/3963.2 ] // only show in-person events within 100 miles
+              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ] // only show in-person events within 100 miles
             }
           }
         },

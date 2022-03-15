@@ -292,6 +292,7 @@ importComponent("Community", () => require('../components/community/Community'))
 importComponent("CommunityBanner", () => require('../components/community/modules/CommunityBanner'));
 importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
 importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
+importComponent("DistanceUnitToggle", () => require('../components/community/modules/DistanceUnitToggle'));
 // this is the previous Community page, used by LW
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
@@ -458,6 +459,8 @@ importComponent("TagHistoryPageTitle", () => require('../components/tagging/TagH
 importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
+importComponent("PostsPageTopTag", () => require('../components/tagging/PostsPageTopTag'));
+importComponent("TopTagIcon", () => require('../components/tagging/TopTagIcon'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("RandomTagPage", () => require('../components/tagging/RandomTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
