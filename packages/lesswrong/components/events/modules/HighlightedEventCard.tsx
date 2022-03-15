@@ -15,6 +15,7 @@ export const getDefaultEventImg = (width: number, blur?: boolean) => {
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
+    position: 'relative',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -31,6 +32,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginLeft: -4,
       marginRight: -4,
     }
+  },
+  recommendedText: {
+    position: 'absolute',
+    top: 20,
+    left: 25,
+    ...theme.typography.commentStyle,
+    fontStyle: 'italic',
+    fontSize: 14,
+    opacity: 0.7
   },
   content: {
     position: 'relative',
@@ -56,6 +66,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 8
   },
   title: {
+    display: '-webkit-box',
+    "-webkit-line-clamp": 4,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
     ...theme.typography.headline,
     fontSize: 36,
     color: 'white',
@@ -124,6 +138,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
   if (!event) {
     return (
       <Card className={classes.root} style={cardBackground}>
+        <div className={classes.recommendedText}>Recommended for you</div>
         <div className={classes.content}>
           <div className={classes.text}>
             <h1 className={classes.title}>
@@ -142,6 +157,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
 
   return (
     <Card className={classes.root} style={cardBackground}>
+      <div className={classes.recommendedText}>Recommended for you</div>
       <div className={classes.content}>
         <div className={classes.text}>
           <div className={classes.detail}>

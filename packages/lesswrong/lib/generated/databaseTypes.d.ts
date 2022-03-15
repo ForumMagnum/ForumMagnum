@@ -251,9 +251,11 @@ interface DbLocalgroup extends DbObject {
   facebookLink: string
   facebookPageLink: string
   meetupLink: string
+  slackLink: string
   website: string
-  inactive: boolean
   bannerImageId: string
+  inactive: boolean
+  deleted: boolean
   contents: EditableFieldContents
 }
 
@@ -644,6 +646,7 @@ interface DbTag extends DbObject {
   reviewedByUserId: string
   wikiGrade: number
   wikiOnly: boolean
+  bannerImageId: string
   tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string
   lesswrongWikiImportSlug: string

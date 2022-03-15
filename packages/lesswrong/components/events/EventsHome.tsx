@@ -18,8 +18,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
+import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Checkbox from '@material-ui/core/Checkbox';
+import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -61,11 +65,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'baseline',
     columnGap: 10,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
   },
   where: {
     flex: '1 0 0',
-    ...theme.typography.commentStyle,
-    fontSize: 13,
     color: "rgba(0,0,0,0.6)",
     paddingLeft: 3
   },
@@ -83,9 +87,22 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     '& .MuiOutlinedInput-input': {
       paddingRight: 30
     },
+    '@media (max-width: 812px)': {
+      display: 'none'
+    }
+  },
+  distanceFilter: {
+    display: 'flex',
+    alignItems: 'center',
+    color: "rgba(0,0,0,0.6)",
+  },
+  distanceInput: {
+    width: 68,
+    color: theme.palette.primary.main,
+    margin: '0 6px'
   },
   formatFilter: {
-    '@media (max-width: 812px)': {
+    [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
@@ -99,10 +116,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   notificationsBtn: {
     textTransform: 'none',
     fontSize: 14,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 12,
+      padding: '8px 8px'
+    }
   },
   notificationsIcon: {
     fontSize: 18,
-    marginRight: 6
+    marginRight: 6,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 16,
+      marginRight: 4
+    }
   },
   eventCards: {
     display: 'grid',
@@ -143,30 +168,6 @@ const EventsHome = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   
-  // this is the actual location used for the events query -
-  // to make the page load faster, we try to use a saved location
-  const [queryLocation, setQueryLocation] = useState(() => {
-    if (currentUser) {
-      if (!currentUser.mongoLocation || !currentUser.location) return null
-      return {
-        lat: currentUser.mongoLocation.coordinates[1],
-        lng: currentUser.mongoLocation.coordinates[0],
-        known: true,
-        label: currentUser.location
-      }
-    }
-    // if the user isn't logged in, see if we saved it in local storage
-    const ls = getBrowserLocalStorage()
-    if (!ls) return null
-    try {
-      return JSON.parse(ls.getItem('userlocation'))
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      return null
-    }
-  })
-  
   // in-person, online, or all
   const [modeFilter, setModeFilter] = useState('all')
   // ex. presentation, discussion, course, etc. (see EVENT_TYPES for full list)
@@ -177,6 +178,28 @@ const EventsHome = ({classes}: {
     collectionName: "Users",
     fragmentName: 'UsersProfile',
   });
+
+  // used to set the cutoff distance for the query (default to 160 km / 100 mi)
+  const [distance, setDistance] = useState(160)
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
+  
+  useEffect(() => {
+    const ls = getBrowserLocalStorage()
+    const savedDistance = ls?.getItem('eventsDistanceFilter')
+    if (savedDistance) {
+      setDistance(savedDistance)
+    }
+    
+    // only US and UK default to miles - everyone else defaults to km
+    // (this is checked here to allow SSR to work properly)
+    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
+      setDistanceUnit('mi')
+      setDistance(Math.round((savedDistance || distance) * 0.621371))
+    }
+    
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   
   /**
    * Given a location, update the page query to use that location,
@@ -187,11 +210,11 @@ const EventsHome = ({classes}: {
    * @param {number} location.lat - The location's latitude.
    * @param {number} location.lng - The location's longitude.
    * @param {Object} location.gmaps - The Google Maps location data.
-   * @param {string} location.gmaps.formatted_address - The user-facing address.
+   * @param {string} location.gmaps.formatted_address - The user-facing address (ex: Cambridge, MA, USA).
    */
   const saveUserLocation = ({lat, lng, gmaps}) => {
     // save it in the page state
-    setQueryLocation({lat, lng, known: true, label: gmaps.formatted_address})
+    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
 
     if (currentUser) {
       // save it on the user document
@@ -219,8 +242,11 @@ const EventsHome = ({classes}: {
   const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
   const [geocodeError, setGeocodeError] = useState(false)
   const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
-    // we need Google Maps to be loaded before we can call the Geocoder
-    if (mapsLoaded && !geocodeError && !queryLocation && known) {
+    if (
+      mapsLoaded &&     // we need Google Maps to be loaded before we can call the Geocoder
+      !geocodeError &&  // if we've ever gotten a geocoding error, don't try again
+      known             // skip if we've received the default location
+    ) {
       try {
         // get a list of matching Google locations for the current lat/lng (reverse geocoding)
         const geocoder = new googleMaps.Geocoder();
@@ -232,25 +258,33 @@ const EventsHome = ({classes}: {
         if (results?.length) {
           const location = pickBestReverseGeocodingResult(results)
           saveUserLocation({lat, lng, gmaps: location})
+        } else {
+          // update the page state to indicate that we're not waiting on a location name
+          userLocation.setLocationData({...userLocation, label: null})
         }
       } catch (e) {
         setGeocodeError(true)
         // eslint-disable-next-line no-console
         console.error(e?.message)
+        // update the page state to indicate that we're not waiting on a location name
+        userLocation.setLocationData({...userLocation, label: null})
       }
     }
   }
 
-  // this gets the location from the current user settings or from the user's browser
-  const currentUserLocation = useUserLocation(currentUser)
+  // on page load, try to get the user's location from:
+  // 1. (logged in user) user settings
+  // 2. (logged out user) browser's local storage
+  // 3. failing those, browser's geolocation API (which we then try to save in #1 or #2)
+  const userLocation = useUserLocation(currentUser)
   
   useEffect(() => {
-    // if we've gotten a location from the browser, save it
-    if (!queryLocation && !currentUserLocation.loading && currentUserLocation.known) {
-      void saveReverseGeocodedLocation(currentUserLocation)
+    // if we've gotten a location from the browser's geolocation API, save it
+    if (!userLocation.loading && userLocation.known && userLocation.label === '') {
+      void saveReverseGeocodedLocation(userLocation)
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryLocation, currentUserLocation])
+  }, [userLocation])
 
   const openEventNotificationsForm = () => {
     openDialog({
@@ -258,10 +292,29 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { HighlightedEventCard, EventCards, Loading } = Components
+  const handleChangeDistance = (e) => {
+    const distance = parseInt(e.target.value)
+    setDistance(distance)
+    
+    // save it in local storage in km
+    const ls = getBrowserLocalStorage()
+    ls?.setItem('eventsDistanceFilter', distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance)
+  }
   
-  // if certain filters are active, we hide the special event cards (ex. Intro VP card)
-  const hideSpecialCards = modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))
+  const handleChangeDistanceUnit = (unit) => {
+    setDistanceUnit(unit)
+    // when changing between miles and km, we convert the distance to the new unit
+    setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
+  }
+  
+  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle } = Components
+  
+  // on the EA Forum, we insert some special event cards (ex. Intro VP card)
+  let numSpecialCards = currentUser ? 1 : 2
+  // hide them on other forums, and when certain filters are set
+  if (forumTypeSetting.get() !== 'EAForum' || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
+    numSpecialCards = 0
+  }
 
   const filters: PostsViewTerms = {}
   if (modeFilter === 'in-person') {
@@ -272,11 +325,15 @@ const EventsHome = ({classes}: {
   if (formatFilter.length) {
     filters.eventType = formatFilter
   }
+  if (distance) {
+    // convert distance to miles if necessary
+    filters.distance = (distanceUnit === 'mi') ? distance : (distance * 0.621371)
+  }
   
-  const eventsListTerms: PostsViewTerms = queryLocation ? {
+  const eventsListTerms: PostsViewTerms = userLocation.known ? {
     view: 'nearbyEvents',
-    lat: queryLocation.lat,
-    lng: queryLocation.lng,
+    lat: userLocation.lat,
+    lng: userLocation.lng,
     ...filters,
   } : {
     view: 'globalEvents',
@@ -289,9 +346,9 @@ const EventsHome = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: hideSpecialCards ? 12 : 11,
+    limit: 12 - numSpecialCards,
     itemsPerPage: 12,
-    skip: !queryLocation && currentUserLocation.loading
+    skip: userLocation.loading
   });
   
   // we try to highlight the event most relevant to you
@@ -323,7 +380,7 @@ const EventsHome = ({classes}: {
   return (
     <AnalyticsContext pageContext="EventsHome">
       <div>
-        <HighlightedEventCard event={highlightedEvent} loading={loading} />
+        <HighlightedEventCard event={highlightedEvent} loading={loading || userLocation.loading} />
       </div>
 
       <div className={classes.section}>
@@ -343,7 +400,7 @@ const EventsHome = ({classes}: {
               Showing events near {mapsLoaded
                 && <div className={classes.geoSuggest}>
                     <Geosuggest
-                      placeholder="Location"
+                      placeholder="search for a location"
                       onSuggestSelect={(suggestion) => {
                         if (suggestion?.location) {
                           saveUserLocation({
@@ -352,7 +409,7 @@ const EventsHome = ({classes}: {
                           })
                         }
                       }}
-                      initialValue={queryLocation?.label}
+                      initialValue={userLocation?.label}
                     />
                   </div>
               }
@@ -361,6 +418,18 @@ const EventsHome = ({classes}: {
           
           <div className={classes.filters}>
             <FilterIcon className={classes.filterIcon} />
+            
+            <div className={classes.distanceFilter}>
+              Within
+              <Input type="number"
+                value={distance}
+                placeholder="distance"
+                onChange={handleChangeDistance}
+                className={classes.distanceInput}
+              />
+              <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} skipDefaultEffect />
+            </div>
+            
             <Select
               className={classes.filter}
               value={modeFilter}
@@ -370,6 +439,7 @@ const EventsHome = ({classes}: {
                 <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                 <MenuItem key="online" value="online">Online only</MenuItem>
             </Select>
+
             <Select
               className={classNames(classes.filter, classes.formatFilter)}
               value={formatFilter}
@@ -389,7 +459,10 @@ const EventsHome = ({classes}: {
                 return selected.map(type => EVENT_TYPES.find(t => t.value === type)?.label).join(', ')
               }}>
                 {EVENT_TYPES.map(type => {
-                  return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
+                  return <MenuItem key={type.value} value={type.value}>
+                    <Checkbox checked={formatFilter.some(format => format === type.value)} />
+                    <ListItemText primary={type.label} />
+                  </MenuItem>
                 })}
             </Select>
             
@@ -400,7 +473,7 @@ const EventsHome = ({classes}: {
             </div>
           </div>
 
-          <EventCards events={results} loading={loading} numDefaultCards={6} hideSpecialCards={hideSpecialCards} />
+          <EventCards events={results || []} loading={loading || userLocation.loading} numDefaultCards={6} hideSpecialCards={!numSpecialCards} />
           
           <div className={classes.loadMoreRow}>
             {loadMoreButton}

@@ -19,9 +19,11 @@ registerFragment(`
     facebookLink
     facebookPageLink
     meetupLink
+    slackLink
     website
-    inactive
     bannerImageId
+    inactive
+    deleted
   }
 `);
 

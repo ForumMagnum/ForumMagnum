@@ -251,15 +251,12 @@ getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(
   return post;
 });
 
-getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(post: DbPost): Promise<DbPost> {
+getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): Promise<MongoModifier<DbPost>> {
   // make sure courses/programs have no end time
   // (we don't want them listed for the length of the course, just until the application deadline / start time)
   if (post.eventType === 'course') {
-    return {
-      ...post,
-      endTime: null
-    }
+    modifier.$set.endTime = null;
   }
   
-  return post
+  return modifier
 })

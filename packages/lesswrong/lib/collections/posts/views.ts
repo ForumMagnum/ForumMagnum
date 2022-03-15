@@ -55,6 +55,7 @@ declare global {
     includeArchived?: boolean,
     includeDraftEvents?: boolean
     includeShared?: boolean
+    distance?: number,
   }
 }
 
@@ -911,7 +912,7 @@ Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   return query
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1 }),
+  augmentForDefaultView({ globalEvent:1, eventType:1, startTime:1, endTime:1 }),
   { name: "posts.globalEvents" }
 );
 
@@ -928,6 +929,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
     ]}
   }
   
+  // Note: distance is in miles
   let query: any = {
     selector: {
       groupId: null,
@@ -940,7 +942,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
         {
           mongoLocation: {
             $geoWithin: {
-              $centerSphere: [ [ terms.lng, terms.lat ], 100/3963.2 ] // only show in-person events within 100 miles
+              $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ] // only show in-person events within 100 miles
             }
           }
         },
@@ -962,7 +964,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
   return query;
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ mongoLocation:"2dsphere", eventType:1, startTime:1 }),
+  augmentForDefaultView({ mongoLocation:"2dsphere", eventType:1, startTime:1, endTime: 1 }),
   { name: "posts.2dsphere" }
 );
 
@@ -1005,7 +1007,7 @@ Posts.addView("events", (terms: PostsViewTerms) => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ startTime:1, createdAt:1, baseScore:1 }),
+  augmentForDefaultView({ globalEvent: 1, onlineEvent: 1, startTime:1, endTime: 1, createdAt:1, baseScore:1 }),
   { name: "posts.events" }
 );
 

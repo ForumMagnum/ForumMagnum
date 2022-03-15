@@ -234,6 +234,9 @@ registerFragment(`
     viewCount
     socialPreviewImageUrl
     
+    # Tags
+    tagRelevance
+    
     # Sort settings
     commentSortOrder
     

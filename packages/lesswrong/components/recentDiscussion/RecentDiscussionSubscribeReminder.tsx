@@ -53,6 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8
   },
   mailIcon: {
+    color: theme.palette.primary.main,
     marginTop: 4,
     marginRight: 12
   },
@@ -196,10 +197,10 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         Sign up for the Forum's email digest
       </div>
       <div className={classes.messageDescription}>
-        Want a weekly email containing the best posts from the past week?
-        Our moderator Aaron sends out a weekly digest of recent posts that
-        have a lot of karma/discussion or seemed really good to him, as well
-        as question posts that could use more answers.
+        You'll get a weekly email with the best posts from the past week.
+        The Forum team selects the posts to feature based on personal preference
+        and Forum popularity, and also adds some question posts that could use
+        more answers.
       </div>
     </>
   );

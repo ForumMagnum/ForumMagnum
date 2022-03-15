@@ -137,7 +137,12 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // Change slug of source account by appending "old" and reset oldSlugs array
   // eslint-disable-next-line no-console
   console.log("Change slugs of source account")
-  await Users.update({_id: sourceUserId}, {slug: await Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)})
+  await Users.update(
+    {_id: sourceUserId},
+    {$set: {
+      slug: await Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)
+    }}
+  );
 
   // Add slug to oldSlugs array of target account
   const newOldSlugs = [

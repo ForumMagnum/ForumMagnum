@@ -7,6 +7,7 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -249,6 +250,20 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(false),
+  },
+  
+  // Cloudinary image id for the banner image (high resolution)
+  bannerImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Banner Image",
+    control: "ImageUpload",
+    tooltip: "Minimum 200x600 px",
+    group: formGroups.advancedOptions,
+    hidden: forumTypeSetting.get() !== 'EAForum',
   },
 
   tagFlagsIds: {

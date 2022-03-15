@@ -14,6 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: 'rgba(0,0,0,0.5)',
     marginTop: -10,
   },
+  serif: {
+    fontFamily: theme.typography.body1.fontFamily,
+  },
   sansSerif: {
     fontSize: 16,
     fontFamily: theme.typography.fontFamily
@@ -35,15 +38,21 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
   });
-  if (document) {
-    return <div className={inRecentDiscussion ? '' : classes.root}>
-      <div className={inRecentDiscussion ? classNames(classes.title, classes.sansSerif) : classes.title}>
-        {post?.group && <Link to={'/groups/' + post.group._id }>{ document.name }</Link>}
-      </div>
-    </div>
-  } else {
+
+  if (!document) {
     return null
   }
+  
+  let groupName
+  if (post.group) {
+    groupName = document.deleted ? document.name : <Link to={'/groups/' + post.group._id }>{ document.name }</Link>
+  }
+
+  return <div className={inRecentDiscussion ? '' : classes.root}>
+    <div className={classNames(classes.title, {[classes.sansSerif]: inRecentDiscussion, [classes.serif]: !inRecentDiscussion})}>
+      {groupName}
+    </div>
+  </div>
 }
 
 const PostsGroupDetailsComponent = registerComponent(
@@ -55,4 +64,3 @@ declare global {
     PostsGroupDetails: typeof PostsGroupDetailsComponent
   }
 }
-
