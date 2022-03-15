@@ -16,9 +16,8 @@ import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
 import { isCollaborative } from '../editor/EditorFormComponent';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
-const PostsEditForm = ({ documentId, eventForm, classes }: {
+const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
-  eventForm: boolean,
   classes: ClassesType,
 }) => {
   const { location, query } = useLocation();
@@ -34,17 +33,6 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
-  const EditPostsSubmit = (props) => {
-    return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
-      <PostSubmit
-        saveDraftLabel={isDraft ? "Preview" : "Move to Drafts"}
-        feedbackLabel={"Get Feedback"}
-        {...props}
-      />
-    </div>
-  }
-  
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
@@ -90,7 +78,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   // If we don't have the post and none of the earlier cases applied, we either
   // have an invalid post ID or the post is a draft that we don't have access
   // to.
-  if (!document && !loading) {
+  if (!document) {
     return <Components.Error404/>
   }
   
@@ -98,6 +86,17 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   // it's published, don't show the edit form.
   if (document.userId !== currentUser?._id && !userIsSharedOn(currentUser, document)) {
     return <Components.ErrorAccessDenied/>
+  }
+  
+  const EditPostsSubmit = (props) => {
+    return <div className={classes.formSubmit}>
+      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
+      <PostSubmit
+        saveDraftLabel={isDraft ? "Preview" : "Move to Drafts"}
+        feedbackLabel={"Get Feedback"}
+        {...props}
+      />
+    </div>
   }
   
   
@@ -120,7 +119,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
               flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             }
           }}
-          eventForm={eventForm}
+          eventForm={document.isEvent}
           removeSuccessCallback={({ documentId, documentTitle }) => {
             // post edit form is being included from a single post, redirect to index
             // note: this.props.params is in the worst case an empty obj (from react-router)
