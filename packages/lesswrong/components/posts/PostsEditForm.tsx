@@ -4,6 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { userIsSharedOn } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
@@ -56,6 +57,10 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
       <Components.WrappedLoginForm/>
     </Components.SingleColumnSection>
   }
+  
+  if (!document && loading) {
+    return <Components.Loading/>
+  }
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
@@ -75,10 +80,26 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   }
   
   // If the post has a link-sharing key which is not in the URL, redirect to add
-  // the link-sharing key to the URL
+  // the link-sharing key to the URL. (linkSharingKey has field-level
+  // permissions so it will only be present if we've either already used the
+  // link-sharing key, or have access through something other than link-sharing.)
   if (document?.linkSharingKey && !(query?.key)) {
     return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
   }
+  
+  // If we don't have the post and none of the earlier cases applied, we either
+  // have an invalid post ID or the post is a draft that we don't have access
+  // to.
+  if (!document && !loading) {
+    return <Components.Error404/>
+  }
+  
+  // If we have access to the post but only readonly access and only because
+  // it's published, don't show the edit form.
+  if (document.userId !== currentUser?._id && !userIsSharedOn(currentUser, document)) {
+    return <Components.ErrorAccessDenied/>
+  }
+  
   
   return (
     <div className={classes.postForm}>
