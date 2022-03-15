@@ -36,6 +36,8 @@ import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+import Mention from '@ckeditor/ckeditor5-mention/src/mention';
+
 import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
 
 // The following plugin enables real-time collaborative comments.
@@ -49,6 +51,7 @@ import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-col
 // The following plugin enables users presence list and is optional.
 // You do not need to import it if you do not want to integrate it.
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
+
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
@@ -80,6 +83,48 @@ class PostEditorCollaboration extends BalloonBlockEditorBase {}
 //
 // alternately, you could run `yarn rebuild-reinstall-ckeditor` to do all of the above at once
 
+const mathConfig = {
+	engine: 'mathjax',
+	outputType: 'span',
+	forceOutputType: true,
+	enablePreview: true
+}
+
+const embedConfig = {
+	toolbar: [ 'comment' ],
+	previewsInData: true,
+	removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook', 'spotify', 'vimeo', 'dailymotion'],
+	extraProviders: [
+		{
+			name: 'Elicit',
+			url: /^(?:forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
+			html: ([match, questionId]) => `
+				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
+					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
+				</div>
+			`
+		},
+		{
+			name: 'Metaculus',
+			url: /^metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/,
+			html: ([match, questionNumber]) => `
+				<div data-metaculus-id="${questionNumber}" style="background-color: #2c3947;" class="metaculus-preview">
+					<iframe style="height: 400px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
+				</div>
+			`
+		},
+		{
+		  name: 'Thoughtsaver',
+		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
+		  html: ([match,urlParams]) => `
+		    <div class="thoughtSaverFrameWrapper">
+		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
+		    </div>
+		  `
+		}
+	]
+}
+
 const headingOptions = {
 	options: [
 		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
@@ -88,6 +133,16 @@ const headingOptions = {
 		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' }	
 	]
 };
+
+const mentionConfig = {
+	feeds: [
+		{
+				marker: '@',
+				feed: [ '@Barney', '@Lily', '@Marry Ann', '@Marshall', '@Robin', '@Ted' ],
+				minimumCharacters: 1
+		}
+	]
+}
 
 const postEditorPlugins = [
 	Autosave,
@@ -136,6 +191,7 @@ const postEditorPlugins = [
 	Spoilers,
 	AutoLink,
 	Footnote,
+	Mention,
 ];
 
 PostEditor.builtinPlugins = [
@@ -149,48 +205,6 @@ PostEditorCollaboration.builtinPlugins = [
 	RealTimeCollaborativeTrackChanges,
 	PresenceList
 ];
-
-const mathConfig = {
-	engine: 'mathjax',
-	outputType: 'span',
-	forceOutputType: true,
-	enablePreview: true
-}
-
-const embedConfig = {
-	toolbar: [ 'comment' ],
-	previewsInData: true,
-	removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook', 'spotify', 'vimeo', 'dailymotion'],
-	extraProviders: [
-		{
-			name: 'Elicit',
-			url: /^(?:forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
-			html: ([match, questionId]) => `
-				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
-					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
-				</div>
-			`
-		},
-		{
-			name: 'Metaculus',
-			url: /^metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/,
-			html: ([match, questionNumber]) => `
-				<div data-metaculus-id="${questionNumber}" style="background-color: #2c3947;" class="metaculus-preview">
-					<iframe style="height: 400px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
-				</div>
-			`
-		},
-		{
-		  name: 'Thoughtsaver',
-		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
-		  html: ([match,urlParams]) => `
-		    <div class="thoughtSaverFrameWrapper">
-		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
-		    </div>
-		  `
-		}
-	]
-}
 
 const postEditorConfig = {
 	blockToolbar: [
@@ -236,6 +250,7 @@ const postEditorConfig = {
 	},
 	math: mathConfig,
 	mediaEmbed: embedConfig,
+	mention: mentionConfig,
 };
 
 PostEditor.defaultConfig = {
@@ -288,6 +303,7 @@ CommentEditor.builtinPlugins = [
 	Spoilers,
 	AutoLink,
 	Footnote,
+	Mention,
 ];
 
 CommentEditor.defaultConfig = {
@@ -322,6 +338,7 @@ CommentEditor.defaultConfig = {
 	},
 	math: mathConfig,
 	mediaEmbed: embedConfig,
+	mention: mentionConfig,
 };
 
 export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, EditorWatchdog };

@@ -2,6 +2,12 @@
   "name": "@lesswrong/lesswrong-editor",
   "version": "0.1.1",
   "description": "The balloon editor build of CKEditor 5 with a block toolbar – the best browser-based rich text editor.",
+  "scripts": {
+    "build": "webpack --mode production",
+    "build-dev": "webpack --mode development --watch",
+    "lint": "eslint --quiet '**/*.js'",
+    "preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
+  },
   "keywords": [
     "wysiwyg",
     "rich text",
@@ -48,6 +54,7 @@
     "@ckeditor/ckeditor5-link": "^28.0.0",
     "@ckeditor/ckeditor5-list": "^28.0.0",
     "@ckeditor/ckeditor5-media-embed": "^28.0.0",
+    "@ckeditor/ckeditor5-mention": "^33.0.0",
     "@ckeditor/ckeditor5-paragraph": "^28.0.0",
     "@ckeditor/ckeditor5-paste-from-office": "^28.0.0",
     "@ckeditor/ckeditor5-real-time-collaboration": "^28.0.0",
@@ -80,12 +87,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/ckeditor/ckeditor5-build-balloon-block.git"
-  },
-  "scripts": {
-    "build": "webpack --mode production",
-    "build-dev": "webpack --mode development --watch",
-    "lint": "eslint --quiet '**/*.js'",
-    "preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
   },
   "lint-staged": {
     "**/*.js": [
