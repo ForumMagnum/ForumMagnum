@@ -27,7 +27,7 @@ interface NotificationType {
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
-  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>Promise<string>
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
 }
 
 const notificationTypes: Record<string,NotificationType> = {};
@@ -291,6 +291,13 @@ export const PostSharedWithUserNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    return `/collaborateOnPost?postId=${documentId}`;
+  }
 });
 
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({
@@ -365,11 +372,11 @@ export const NewCommentOnDraftNotification = registerNotificationType({
     return <Components.CommentOnYourDraftNotificationHover notification={notification}/>
   },
   
-  getLink: async ({documentType, documentId, extraData}: {
+  getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
     documentId: string|null,
     extraData: any
-  }): Promise<string> => {
+  }): string => {
     return `/editPost?postId=${documentId}`;
   },
 });

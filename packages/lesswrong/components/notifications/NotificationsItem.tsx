@@ -73,9 +73,18 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   const { LWPopper } = Components
   const notificationType = getNotificationTypeByName(notification.type);
 
+  const notificationLink = (notificationType.getLink
+    ? notificationType.getLink({
+      documentType: notification.documentType,
+      documentId: notification.documentId,
+      extraData: notification.extraData,
+    })
+    : notification.link
+  );
+
   const renderPreview = () => {
     const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
-    const parsedPath = parseRouteWithErrors(notification.link)
+    const parsedPath = parseRouteWithErrors(notificationLink)
 
     if (notificationType.onsiteHoverView) {
       return <Card>
@@ -113,11 +122,11 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         return notification.message
     }
   }
-
+  
   return (
     <span {...eventHandlers}>
       <a
-        href={notification.link}
+        href={notificationLink}
         className={classNames(
           classes.root,
           {
@@ -131,13 +140,13 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           
           // Do manual navigation since we also want to do a bunch of other stuff
           ev.preventDefault()
-          history.push(notification.link)
+          history.push(notificationLink)
 
           setClicked(true);
           
           // we also check whether it's a relative link, and if so, scroll to the item
           const UrlClass = getUrlClass()
-          const url = new UrlClass(notification.link, getSiteUrl())
+          const url = new UrlClass(notificationLink, getSiteUrl())
           const hash = url.hash
           if (hash) {
             const element = document.getElementById(hash.substr(1))
