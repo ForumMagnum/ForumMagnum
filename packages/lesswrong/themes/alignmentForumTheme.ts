@@ -1,5 +1,4 @@
-import createTheme from './createThemeDefaults';
-import deepOrange from '@material-ui/core/colors/deepOrange';
+import { createTheme } from './createThemeDefaults';
 import indigo from '@material-ui/core/colors/indigo';
 import type { ThemeOptions } from './themeNames';
 import type { PartialDeep } from 'type-fest'
@@ -25,93 +24,95 @@ const sansSerifStack = [
   'sans-serif'
 ].join(',')
 
-const palette: PartialDeep<ThemePalette> = {
-  primary: indigo,
-  secondary: indigo,
-  lwTertiary: {
-    main: "#607e88",
-    dark: "#607e88",
-  },
-  error: {
-    main: deepOrange[900]
-  },
-  background: {
-    default: '#f8f8f8'
-  },
-  headerType: "primary",
-  headerTextColor: "#ffffff",
-}
-
-export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => createTheme(themeOptions, {
-  palette: palette,
-  typography: {
-    fontFamily: sansSerifStack,
-    postStyle: {
+export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => {
+  const palette: PartialDeep<ThemePalette> = {
+    primary: indigo,
+    secondary: indigo,
+    lwTertiary: {
+      main: "#607e88",
+      dark: "#607e88",
+    },
+    error: {
+      main: '#bf360c',
+    },
+    background: {
+      default: '#f8f8f8'
+    },
+    headerType: "primary",
+    headerTextColor: "#ffffff",
+  }
+  return createTheme(themeOptions, {
+    palette: palette,
+    typography: {
       fontFamily: sansSerifStack,
-      fontVariantNumeric: "lining-nums",
-    },
-    commentStyle: {
-      fontFamily: sansSerifStack,
-      fontVariantNumeric: "lining-nums",
-    },
-    errorStyle: {
-      color: palette.error!.main!,
-      fontFamily: sansSerifStack
-    },
-    title: {
-      fontWeight: 500,
-    },
-    display2: {
-      fontWeight: 500
-    },
-    display3: {
-      fontWeight: 500
-    },
-    uiSecondary: {
-      fontFamily: sansSerifStack,
-    },
-  },
-  overrides: {
-    Header: {
-      titleLink: {
-        top: 0
-      }
-    },
-    MuiTooltip: {
-      tooltip: {
-        fontSize: "1rem"
-      }
-    },
-    PostsVote: {
-      voteScores: {
+      postStyle: {
+        fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",
-      }
-    },
-    SectionTitle: {
-      leftDivider: {
-        width: 18,
-        marginTop: 4
       },
-      rightDivider: {
-        marginTop: 4,
-        marginRight: 8,
+      commentStyle: {
+        fontFamily: sansSerifStack,
+        fontVariantNumeric: "lining-nums",
       },
-      tailDivider: {
-        marginTop: 4,
-        width: 24,
-      }
-    },
-    SectionButton: {
-      root: {
-        marginTop: 4,
+      errorStyle: {
+        color: palette.error!.main!,
+        fontFamily: sansSerifStack
+      },
+      title: {
         fontWeight: 500,
-      }
+      },
+      display2: {
+        fontWeight: 500
+      },
+      display3: {
+        fontWeight: 500
+      },
+      uiSecondary: {
+        fontFamily: sansSerifStack,
+      },
     },
-    LoadMore: {
-      root: {
-        fontWeight: 500,
+    overrides: {
+      Header: {
+        titleLink: {
+          top: 0
+        }
+      },
+      MuiTooltip: {
+        tooltip: {
+          fontSize: "1rem"
+        }
+      },
+      PostsVote: {
+        voteScores: {
+          fontVariantNumeric: "lining-nums",
+        }
+      },
+      SectionTitle: {
+        leftDivider: {
+          width: 18,
+          marginTop: 4
+        },
+        rightDivider: {
+          marginTop: 4,
+          marginRight: 8,
+        },
+        tailDivider: {
+          marginTop: 4,
+          width: 24,
+        }
+      },
+      SectionButton: {
+        root: {
+          marginTop: 4,
+          fontWeight: 500,
+        }
+      },
+      LoadMore: {
+        root: {
+          fontWeight: 500,
+        }
       }
     }
-  }
-});
+  });
+}
+
 export default getAlignmentForumTheme;

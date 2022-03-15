@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow:"scroll",
     width: "100%",
     height: "calc(100vh - 48px)",
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     paddingBottom: 100,
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,

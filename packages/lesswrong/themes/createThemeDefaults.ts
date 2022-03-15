@@ -1,10 +1,10 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 import { getForumType, ThemeOptions } from './themeNames';
-import grey from '@material-ui/core/colors/grey';
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 import type { PartialDeep } from 'type-fest'
-import { defaultPalette } from './defaultPalette';
+import { darkModePalette, invertedGreyscale } from './darkMode';
+import { defaultPalette, grey as defaultGreyscale } from './defaultPalette';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -63,8 +63,11 @@ export const zIndexes = {
   petrovDayLoss: 1000000
 }
 
+export const getBasePalette = (themeOptions: ThemeOptions) =>
+  (themeOptions.name==="dark" ? darkModePalette : defaultPalette)
+
 // Create a theme and merge it with the default theme.
-const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) => {
+export const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 
@@ -91,6 +94,8 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
   const spacingUnit = 8
 
   const typography = theme.typography || {}
+  const palette = getBasePalette(themeOptions);
+  const grey = palette.grey;
 
   // TODO: Make this ThemeType rather than PartialDeep<ThemeType> so that every
   // theme is guaranteed to be complete
@@ -232,7 +237,7 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
         marginBottom: ".5rem"
       },
     },
-    palette: defaultPalette,
+    palette: palette,
     zIndexes: {
       ...zIndexes
     },
@@ -276,5 +281,3 @@ const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) 
   )
   return createMuiTheme(mergedTheme)
 }
-
-export default createTheme

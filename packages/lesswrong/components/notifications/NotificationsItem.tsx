@@ -12,7 +12,7 @@ import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "&:hover": {
-      backgroundColor: "rgba(0,0,0,0.02) !important",
+      backgroundColor: `${theme.palette.panelBackground.darken20} !important`,
     },
     display: "flex",
     alignItems: "center",
@@ -24,10 +24,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     transition: "none",
   },
   read: {
-    backgroundColor: "rgba(0,0,0,0.04) !important",
+    backgroundColor: `${theme.palette.panelBackground.darken04} !important`,
     
     "&:hover": {
-      backgroundColor: "rgba(0,0,0,0.08) !important",
+      backgroundColor: `${theme.palette.panelBackground.darken08} !important`,
     },
   },
   unread: {

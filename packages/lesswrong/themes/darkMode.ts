@@ -1,128 +1,92 @@
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
 
-//
-// All About the Theme Palette and Colors
-// ======================================
-//
-// Components Should Use the Palette
-// =================================
-// When writing styles for UI components, use colors that come from the palette,
-// rather than writing the color directly, eg like this:
-//
-//   const styles = (theme: ThemeType): JssStyles => ({
-//     normalText: {
-//       color: theme.palette.text.normal,
-//     },
-//     notice: {
-//       border: theme.palette.border.normal,
-//       background: theme.palette.panelBackground.default,
-//     },
-//   });
-//
-// Not like this:
-//
-//   const styles = (theme: ThemeType): JssStyles => ({
-//     normalText: {
-//       color: "rgba(0,0,0,.87)", // Bad: Will be black-on-black in dark mode
-//     },
-//     notice: {
-//       border: "rgba(0,0,0,.1)", // Bad: Border will be black-on-black
-//       background: "white", // Bad: Text will be white-on-white
-//     },
-//   });
-//
-// This is enforced by a unit test, which will provide a theme with blanked-out
-// palette colors and scan JSS styles for color words. Following this convention
-// should prevent almost all problems with dark-on-dark and light-on-light text.
-// However tooltips and buttons are occasionally inverted relative to the base
-// theme, and aesthetic issues may appear in dark mode that don't appear in
-// light mode and vise versa, so try to check your UI in both.
-//
-// If you can't find the color you want, go ahead and add it! Having to add
-// colors to the palette is meant to make sure you give a little thought to
-// themes and dark mode, not to restrict you to approved colors. First add your
-// color to ThemeType in themeType.ts. This will create type errors in all the
-// other places you need to add the color (currently defaultPalette.ts and
-// darkMode.ts).
-//
-// Text Color and Alpha Versus Shade
-// =================================
-// When you've got dark text on a white background, there are two ways to adjust
-// its contrast: either choose a shade of grey, or make it black and choose an
-// opacity (aka alpha). In general, opacity is the better option, because it
-// maintains the ~same contrast ratio if you put you put the same text color
-// on a colored background. The same applies for dark-mode themes, where it's
-// better to use white-and-transparent rather than grey.
-//
-// Don't overuse pure-black or pure-white text colors. Think of these as
-// bolded colors, not as defaults.
-//
-// Text should have a minimum contrast ratio of 4.5:1 ("AA") and ideally 7:1
-// ("AAA"). You can check the contrast ratio of your text in the Chrome
-// development tools. In the Elements tab, find the `color` attribute on an
-// element with text, click on the swatch next to it, and the contrast ratio
-// should be on the color-picker dialog that appears.
-//
-// Notational Conventions
-// ======================
-// CSS has a number of different ways to specify colors. For the sake of
-// consistency, we only use a subset of them.
-//
-// Do Use:
-//   The specific color words "white", "black" and "transparent"
-//   Three or six hex digits: #rrggbb
-//   RGB 0-255 with alpha 0-1: "rgba(r,g,b,a)",
-// Avoid:
-//   HSL, HSLA, HWB, Lab, and LCH color specifiers, eg "hsl(60 100% 50%)"
-//   Functional notation without commas, eg "rgba(0 0 0 / 10%)"
-//   RGB percentages, eg "rgba(50%,25%,25%,1)"
-//   Omitted alpha: eg "rgb(0,0,100)"
-//   Importing color constants from @material-ui/core/colors or other libraries
-//   Color keywords other than white, black, and transparent: eg "red", "grey", "wheat"
-//
-//
+function invertHexColor(color: string): string {
+  function fromHexDigit(s: string, offset: number): number {
+    let ch = s.charCodeAt(offset);
+    if (ch>=48 && ch<58) return ch-48; //'0'-'9'
+    else if (ch>=97 && ch<=102) return ch-97+10; //'a'-'f'
+    else if (ch>=65 && ch<=70) return ch-65+10; //'A'-'F'
+    else return 0;
+  }
+  function parseHexColor(color: string): [number,number,number] {
+    const r = fromHexDigit(color,1)*16 + fromHexDigit(color,2);
+    const g = fromHexDigit(color,3)*16 + fromHexDigit(color,4);
+    const b = fromHexDigit(color,5)*16 + fromHexDigit(color,6);
+    return [r,g,b];
+  }
+  function toHexDigit(n: number) {
+    if (n<10) return String.fromCharCode(48+n);
+    else return String.fromCharCode(87+n);
+  }
+  function toHex2(n: number) {
+    return toHexDigit(n/16)+toHexDigit(n%16);
+  }
+  function toHexColor(r: number, g: number, b: number) {
+    return `#${toHex2(r)}${toHex2(g)}${toHex2(b)}`;
+  }
+  
+  // Parse and convert to RGB
+  const [r,g,b] = parseHexColor(color);
+  // Convert into linear color space
+  // HACK: Gamma here is tuned empirically for a visual result, not based on
+  // anything principled.
+  const gamma=1.5;
+  const linR = Math.pow(r,gamma);
+  const linG = Math.pow(g,gamma);
+  const linB = Math.pow(b,gamma);
+  // Invert
+  const invLinR = Math.pow(255,gamma)-linR;
+  const invLinG = Math.pow(255,gamma)-linG;
+  const invLinB = Math.pow(255,gamma)-linB;
+  // Convert back into gamma color space
+  const invR = Math.round(Math.pow(invLinR, 1/gamma));
+  const invG = Math.round(Math.pow(invLinG, 1/gamma));
+  const invB = Math.round(Math.pow(invLinB, 1/gamma));
+  return toHexColor(invR,invG,invB);
+}
 
-export const grey = {
-  // Exactly matches @material-ui/core/colors/grey
-  50: '#fafafa',
-  100: '#f5f5f5',
-  200: '#eeeeee',
-  300: '#e0e0e0',
-  400: '#bdbdbd',
-  500: '#9e9e9e',
-  600: '#757575',
-  700: '#616161',
-  800: '#424242',
-  900: '#212121',
-  A100: '#d5d5d5',
-  A200: '#aaaaaa',
-  A400: '#303030',
-  A700: '#616161',
+export const invertedGreyscale = {
+  // Present in @material-ui/core/colors/grey
+  50: invertHexColor('#fafafa'),
+  100: invertHexColor('#f5f5f5'),
+  200: invertHexColor('#eeeeee'),
+  300: invertHexColor('#e0e0e0'),
+  400: invertHexColor('#bdbdbd'),
+  500: invertHexColor('#9e9e9e'),
+  600: invertHexColor('#757575'),
+  700: invertHexColor('#616161'),
+  800: invertHexColor('#424242'),
+  900: invertHexColor('#212121'),
+  A100: invertHexColor('#d5d5d5'),
+  A200: invertHexColor('#aaaaaa'),
+  A400: invertHexColor('#303030'),
+  A700: invertHexColor('#616161'),
   
   // Greyscale colors not in the MUI palette
-  0: "white",
-  1000: "black",
+  0: "black",
+  1000: "white",
   
-  10: '#fefefe',
-  20: '#fdfdfd',
-  25: '#fcfcfc',
-  30: '#fbfbfb',
-  40: '#f8f8f8',
-  110: "#f3f3f3",
-  120: '#f2f2f2',
-  140: "#f0f0f0",
-  320: "#d9d9d9",
-  340: "#d0d0d0",
-  410: "#b3b3b3",
-  650: '#808080',
+  10: invertHexColor('#fefefe'),
+  20: invertHexColor('#fdfdfd'),
+  25: invertHexColor('#fcfcfc'),
+  30: invertHexColor('#fbfbfb'),
+  40: invertHexColor('#f8f8f8'),
+  110: invertHexColor("#f3f3f3"),
+  120: invertHexColor('#f2f2f2'),
+  140: invertHexColor("#f0f0f0"),
+  320: invertHexColor("#d9d9d9"),
+  340: invertHexColor("#d0d0d0"),
+  410: invertHexColor("#b3b3b3"),
+  650: invertHexColor('#808080'),
 };
+export const grey = invertedGreyscale;
 
-const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
+const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
 const boxShadowColor = (alpha: number) => greyAlpha(alpha);
 const greyBorder = (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`;
 
-export const defaultPalette: ThemePalette = {
+export const darkModePalette: ThemePalette = {
   text: {
     primary: greyAlpha(.87),
     secondary: greyAlpha(.54),
@@ -341,7 +305,7 @@ export const defaultPalette: ThemePalette = {
   group: '#588f27',
   individual: '#3f51b5',
   headerType: "default",
-  type: "light",
+  type: "dark",
   
   primary: {
     main: "#3f51b5",

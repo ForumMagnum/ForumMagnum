@@ -71,6 +71,7 @@ declare global {
         charsAdded: ColorString,
         charsRemoved: ColorString,
         invertedBackgroundText: ColorString,
+        invertedBackgroundText2: ColorString,
         error: ColorString,
         error2: ColorString,
         sequenceIsDraft: ColorString,
@@ -150,7 +151,10 @@ declare global {
         postsItemHover: ColorString,
         formErrors: ColorString,
         darken03: ColorString,
+        darken04: ColorString,
         darken05: ColorString,
+        darken08: ColorString,
+        darken20: ColorString,
         darken25: ColorString,
         darken40: ColorString,
         
@@ -200,9 +204,10 @@ declare global {
         parentComment: string,
         sunshineSidebarHoverInfo: string,
         sunshineSendMessage: string,
+        lwCard: string,
       },
       buttons: {
-        hoverGrayHighlight: "rgba(0,0,0,0.05)",
+        hoverGrayHighlight: ColorString,
         startReadingButtonBackground: ColorString,
         recentDiscussionSubscribeButtonText: ColorString,
         featuredResourceCTAtext: ColorString,
@@ -235,6 +240,7 @@ declare global {
       },
       background: {
         default: ColorString
+        paper: ColorString,
         pageActiveAreaBackground: ColorString,
         diffInserted: ColorString,
         diffDeleted: ColorString,
@@ -251,6 +257,9 @@ declare global {
       // palette entry. This is a weird hack that we probably want to replace
       // with something more straightforward.
       headerType: "primary"|"default",
+      
+      // Used by material-UI for picking some of its own colors
+      type: "light"|"dark",
       
       commentParentScrollerHover: ColorString,
       headerTextColor: ColorString,
