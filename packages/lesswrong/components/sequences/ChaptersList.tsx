@@ -2,15 +2,16 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
-const ChaptersList = ({sequenceId, canEdit}: {
+const ChaptersList = ({sequenceId, canEdit, preview}: {
   sequenceId: string,
   canEdit: boolean,
+  preview?: boolean,
 }) => {
   const { results, loading } = useMulti({
     terms: {
       view: "SequenceChapters",
       sequenceId,
-      limit: 100
+      limit: preview ? 1 : 100
     },
     collectionName: "Chapters",
     fragmentName: 'ChaptersFragment',
@@ -18,7 +19,7 @@ const ChaptersList = ({sequenceId, canEdit}: {
   });
   if (results && !loading) {
     return <div className="chapters-list">
-      {results.map((chapter) => <Components.ChaptersItem key={chapter._id} chapter={chapter} canEdit={canEdit} />)}
+      {results.map((chapter) => <Components.ChaptersItem key={chapter._id} chapter={chapter} canEdit={canEdit} limit={preview ? 3 : undefined} />)}
     </div>
   } else {
     return <Components.Loading />
@@ -32,4 +33,3 @@ declare global {
     ChaptersList: typeof ChaptersListComponent
   }
 }
-
