@@ -54,8 +54,6 @@ const ChaptersItem = ({ chapter, canEdit, limit, classes }: {
   </SectionButton>
 
   const posts = limit ? chapter.posts.slice(0, limit) : chapter.posts
-  console.log('🚀 ~ file: ChaptersItem.tsx ~ line 57 ~ limit', limit)
-  console.log('🚀 ~ file: ChaptersItem.tsx ~ line 57 ~ posts', posts.length)
 
   return (
     <div>
