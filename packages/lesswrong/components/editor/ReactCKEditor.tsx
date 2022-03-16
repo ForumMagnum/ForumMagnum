@@ -18,6 +18,11 @@ interface CKEditorProps {
   config?: any,
 }
 
+async function fetchSuggestions(searchString: string) {
+  
+  return ['@success', '@failure', '@error', '@warning', '@info', '@debug', '@log', '@trace']
+}
+
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
 export default class CKEditor extends React.Component<CKEditorProps,{}> {
   domContainer: any
@@ -75,14 +80,25 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
   _initializeEditor() {
     this.watchdog.setCreator((el, config) => {
       
-     console.log({config}) 
-      
+     console.log({config})
+      config.mention = {
+        feeds: [
+          {
+            marker: '@',
+            feed: fetchSuggestions,
+            minimumCharacters: 1
+          }
+        ]
+      }
+
+
       return this.props.editor
         .create( el , config )
         .then( editor => {
           this.editor = editor;
           console.log({config: this.editor?.config, editor: this.editor})
-          
+
+
           if ( 'disabled' in this.props ) {
             editor.isReadOnly = this.props.disabled;
           }

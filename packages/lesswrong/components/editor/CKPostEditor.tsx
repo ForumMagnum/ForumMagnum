@@ -175,7 +175,8 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
         presenceList: {
           container: presenceListRef.current
         },
-        initialData: initData
+        initialData: initData,
+        // mention: 
       }}
     />}
   </div>
