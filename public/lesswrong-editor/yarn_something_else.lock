@@ -278,6 +278,14 @@
     "@ckeditor/ckeditor5-ui" "^31.0.0"
     ckeditor5 "^31.0.0"
 
+"@ckeditor/ckeditor5-mention@31.0.0":
+  version "31.0.0"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-mention/-/ckeditor5-mention-31.0.0.tgz#ae2f6240591131e18bcce800249631257e2599c8"
+  integrity sha512-/1mgWiTGANCKs1cJMrFaEqOkUBje+Ra7rHc8omQqKRg8vLPUHaB2OuU/JZlXjgQCKoMxIbMYtmM/bLkpaE/VBA==
+  dependencies:
+    ckeditor5 "^31.0.0"
+    lodash-es "^4.17.15"
+
 "@ckeditor/ckeditor5-operations-compressor@^31.0.0":
   version "31.0.0"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-operations-compressor/-/ckeditor5-operations-compressor-31.0.0.tgz#8914b30b3ca334f3a3f26e925cad049f61e0f797"

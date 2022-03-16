@@ -36,6 +36,7 @@ import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+import Mention from '@ckeditor/ckeditor5-mention/src/mention';
 import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
 
 // The following plugin enables real-time collaborative comments.
@@ -49,6 +50,7 @@ import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-col
 // The following plugin enables users presence list and is optional.
 // You do not need to import it if you do not want to integrate it.
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
+
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
@@ -125,6 +127,7 @@ const sharedPlugins = [
 	AutoLink,
 	RestyledCommentButton,
 	Footnote,
+  	Mention
 ];
 
 const postEditorPlugins = [

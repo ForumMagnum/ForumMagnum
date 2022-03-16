@@ -50,6 +50,16 @@ const embedConfig = {
 	]
 }
 
+const mentionConfig = {
+  feeds: [
+	{
+	  marker: '@',
+	  feed: [ '@Barney', '@Lily', '@Marry Ann', '@Marshall', '@Robin', '@Ted' ],
+	  minimumCharacters: 1
+	}
+  ]
+}
+
 export const postEditorConfig = {
 	blockToolbar: [
 		'imageUpload',
@@ -99,6 +109,7 @@ export const postEditorConfig = {
 	},
 	math: mathConfig,
 	mediaEmbed: embedConfig,
+    mention: mentionConfig
 };
 
 export const commentEditorConfig = {
@@ -133,5 +144,6 @@ export const commentEditorConfig = {
 	},
 	math: mathConfig,
 	mediaEmbed: embedConfig,
+  	mention: mentionConfig
 };
 

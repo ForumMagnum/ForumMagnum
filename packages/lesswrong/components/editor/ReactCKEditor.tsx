@@ -74,10 +74,14 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     
   _initializeEditor() {
     this.watchdog.setCreator((el, config) => {
+      
+     console.log({config}) 
+      
       return this.props.editor
         .create( el , config )
         .then( editor => {
           this.editor = editor;
+          console.log({config: this.editor?.config, editor: this.editor})
           
           if ( 'disabled' in this.props ) {
             editor.isReadOnly = this.props.disabled;
