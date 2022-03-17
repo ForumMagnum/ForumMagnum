@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ThemeMetadata, themeMetadata, getForumType, ThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting } from '../../lib/instanceSettings';
+import { useSetTheme } from './useTheme';
 import Divider from '@material-ui/core/Divider';
 import Check from '@material-ui/icons/Check';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -49,12 +50,14 @@ const ThemePickerMenu = ({children, classes}: {
 }) => {
   const { LWTooltip } = Components;
   const [currentThemeOptions, setCurrentThemeOptions] = useState((window as any)?.themeOptions as ThemeOptions);
+  const setPageTheme = useSetTheme();
   
   const setTheme = async (themeOptions: ThemeOptions) => {
     setCurrentThemeOptions(themeOptions);
     if (JSON.stringify((window as any).themeOptions) !== JSON.stringify(themeOptions)) {
       const oldThemeOptions = (window as any).themeOptions;
       (window as any).themeOptions = themeOptions;
+      setPageTheme(themeOptions);
       addStylesheet(`/allStyles?theme=${encodeURIComponent(JSON.stringify(themeOptions))}`, (success: boolean) => {
         if (success) {
           removeStylesheetsMatching(encodeURIComponent(JSON.stringify(oldThemeOptions)));

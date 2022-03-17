@@ -1,12 +1,13 @@
 import React from 'react';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { MuiThemeProvider, createGenerateClassName, jssPreset } from '@material-ui/core/styles';
+import { createGenerateClassName, jssPreset } from '@material-ui/core/styles';
 import { create } from 'jss';
 import { getForumTheme } from '../themes/forumTheme';
 import type { ThemeOptions } from '../themes/themeNames';
+import { ThemeContextProvider } from '../components/themes/useTheme';
 
 
-export function wrapWithMuiTheme (app: React.ReactNode, theme: ThemeOptions) {
+export function wrapWithMuiTheme (app: React.ReactNode, themeOptions: ThemeOptions) {
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });
@@ -17,9 +18,9 @@ export function wrapWithMuiTheme (app: React.ReactNode, theme: ThemeOptions) {
   
   return (
     <JssProvider jss={jss} generateClassName={generateClassName}>
-      <MuiThemeProvider theme={getForumTheme(theme)}>
+      <ThemeContextProvider options={themeOptions}>
         {app}
-      </MuiThemeProvider>
+      </ThemeContextProvider>
     </JssProvider>
   );
 }
