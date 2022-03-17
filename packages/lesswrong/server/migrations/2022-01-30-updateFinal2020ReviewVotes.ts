@@ -5,6 +5,10 @@ import groupBy from 'lodash/groupBy';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import moment from 'moment';
+import theme from '../../themes/forumTheme';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
+const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const getCost = (vote) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote, total) => getCostData({costTotal:total})[vote.qualitativeScore].value
@@ -94,7 +98,7 @@ registerMigration({
 
     const getAuthor = (post) => authors.filter(author => author._id === post.userId)[0]
 
-    const primaryColor = "#5f9b65" // ea-forum-look-here
+    const primaryColor = theme.palette.primary.main;
     const errorColor = "#bf360c"
 
     const voteColor = vote => {
@@ -120,13 +124,13 @@ registerMigration({
       }
     }
 
-    const donateButton = (post) => `<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
+    const donateButton = (post) => isLW ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
     <input type="hidden" name="cmd" value="_s-xclick" />
     <input type="hidden" name="item_name" value='Best of LessWrong Prize, with special appreciation for ${getAuthor(post).displayName}, author of "${post.title}".' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />
     <input type="submit" value="Donate" border="0" name="submit" title="Donate via PayPal" alt="Donate with PayPal button" class="donate-button"/>
     <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
-    </form>`
+    </form></td>` : ""
 
     const postTableRow = (post, i) => `<tr>
         <td class="item-count">${i}</td>
@@ -146,7 +150,7 @@ registerMigration({
             </div>
           </div>
         </td>
-        <td>${donateButton(post)}</td>
+        ${donateButton(post)}
       </tr>`
     
     const html = `<div>
