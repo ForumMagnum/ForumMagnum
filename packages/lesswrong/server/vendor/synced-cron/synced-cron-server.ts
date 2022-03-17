@@ -233,7 +233,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 
       log.info('Finished "' + entry.name + '".');
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdate({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             result: output
@@ -243,7 +243,7 @@ SyncedCron._entryWrapper = function(entry: any) {
     } catch(e) {
       log.info('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdate({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             error: (e && e.stack) ? e.stack : e

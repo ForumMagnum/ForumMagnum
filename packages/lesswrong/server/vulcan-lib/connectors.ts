@@ -98,7 +98,7 @@ export const Connectors = {
     logger('modifier', modifier)
     logger('options', options)
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
-    const result = await collection.update(convertedSelector, modifier, options);
+    const result = await collection.rawUpdate(convertedSelector, modifier, options);
     logger('result', result)
     logger('---<')
     return result

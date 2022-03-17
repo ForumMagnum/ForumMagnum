@@ -12,6 +12,7 @@ import type { Request, Response } from 'express';
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
+// See mongoCollection.ts for implementation
 interface CollectionBase<
   T extends DbObject,
   N extends CollectionNameString = CollectionNameString
@@ -33,12 +34,24 @@ interface CollectionBase<
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
   findOneArbitrary: () => Promise<T|null>
-  // Return result is number of documents **matched** not affected
-  //
-  // You might have expected that the return type would be MongoDB's WriteResult. Unfortunately, no.
-  // Meteor is maintaining backwards compatibility with an old version that returned nMatched. See:
-  // https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
-  update: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  /**
+   * rawUpdate runs relatively directly on the database, bypassing the callbacks
+   * we have registered
+   *
+   * You should start by considering whether you should instead be using
+   * updateMutator, which will run those callbacks.
+   *
+   * Return result is number of documents **matched** not affected
+   *
+   * You might have expected that the return type would be MongoDB's
+   * WriteResult. Unfortunately, no. Meteor was maintaining backwards
+   * compatibility with an old version that returned nMatched. See:
+   * https://github.com/meteor/meteor/issues/4436#issuecomment-283974686
+   *
+   * We then decided to maintain compatibility with meteor when we switched
+   * away.
+   */
+  rawUpdate: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
   remove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
   insert: (data: any, options?: any) => string
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any

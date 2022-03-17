@@ -155,16 +155,16 @@ export class MongoCollection<T extends DbObject> {
       return insertResult.insertedId;
     });
   }
-  update = async (selector, update, options) => {
+  rawUpdate = async (selector, update, options) => {
     if (disableAllWrites) return;
     try {
       const table = this.getTable();
       return await wrapQuery(`${this.tableName}.update`, async () => {
         if (typeof selector === 'string') {
-          const updateResult = await table.update({_id: selector}, update, options);
+          const updateResult = await table.rawUpdate({_id: selector}, update, options);
           return updateResult.matchedCount;
         } else {
-          const updateResult = await table.update(removeUndefinedFields(selector), update, options);
+          const updateResult = await table.rawUpdate(removeUndefinedFields(selector), update, options);
           return updateResult.matchedCount;
         }
       });
@@ -228,7 +228,7 @@ export class MongoCollection<T extends DbObject> {
     update: async (selector, update, options) => {
       if (disableAllWrites) return;
       const table = this.getTable();
-      return await table.update(selector, update, options);
+      return await table.rawUpdate(selector, update, options);
     },
   })
 }

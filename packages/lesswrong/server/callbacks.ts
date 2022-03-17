@@ -284,7 +284,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   }
 
   // Remove login tokens
-  await Users.update({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
+  await Users.rawUpdate({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
 }
 
 
@@ -297,7 +297,7 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     //   https://docs.mongodb.com/manual/core/retryable-writes/#retryable-update-upsert
     // In particular, this means the selector has to exactly match the unique
     // index's keys.
-    await ReadStatuses.update({
+    await ReadStatuses.rawUpdate({
       postId: event.documentId,
       userId: event.userId,
       tagId: null,

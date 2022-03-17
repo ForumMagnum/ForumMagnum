@@ -25,7 +25,7 @@ async function maybeFixAccount(user: DbUser): Promise<void> {
   if (isSensibleEmail(user.email) && JSON.stringify(user.emails)==='{"0":{"verified":true}}') {
     // eslint-disable-next-line no-console
     console.log(`Fixing emails for ${user.slug}`);
-    await Users.update(
+    await Users.rawUpdate(
       {_id: user._id},
       {$set: {
         emails: [{address: user.email, verified: true}]
@@ -56,7 +56,7 @@ async function maybeFixAccount(user: DbUser): Promise<void> {
         return;
       }
       
-      await Users.update(
+      await Users.rawUpdate(
         {_id: user._id},
         {$set: {
           [`services.${oauthProvider}`]: user.services[oauthProvider].id,
