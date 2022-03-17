@@ -230,7 +230,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
   // eslint-disable-next-line no-console
   console.info("Deleting tag revisions: ", tagRevisions)
-  await Revisions.remove({userId: user._id})
+  await Revisions.rawRemove({userId: user._id})
   // Revert revision documents
   for (let revision of tagRevisions) {
     const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>

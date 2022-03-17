@@ -213,7 +213,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = await self._collection.insert(jobHistory);
+        jobHistory._id = await self._collection.rawInsert(jobHistory);
       } catch(e) {
         // http://www.mongodb.org/about/contributors/error-codes/
         // 11000 == duplicate key error
@@ -257,7 +257,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 // for tests
 SyncedCron._reset = async function() {
   this._entries = {};
-  await this._collection.remove({});
+  await this._collection.rawRemove({});
   this.running = false;
 }
 

@@ -52,7 +52,7 @@ export async function runMigration(name: string)
   // eslint-disable-next-line no-console
   console.log(`Beginning migration: ${name}`);
 
-  const migrationLogId = await Migrations.insert({
+  const migrationLogId = await Migrations.rawInsert({
     name: name,
     started: new Date(),
   });

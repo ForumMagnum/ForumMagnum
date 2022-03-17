@@ -79,7 +79,7 @@ export const Connectors = {
     logger('---------->')
     logger('document', document)
     logger('options', options)
-    const result = await collection.insert(document);
+    const result = await collection.rawInsert(document);
     logger('result', result)
     logger('---<')
     return result
@@ -115,7 +115,7 @@ export const Connectors = {
     logger('selector', selector)
     logger('options', options)
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
-    const result = await collection.remove(convertedSelector);
+    const result = await collection.rawRemove(convertedSelector);
     logger('result', result)
     logger('---<')
     return result

@@ -52,8 +52,8 @@ interface CollectionBase<
    * away.
    */
   rawUpdate: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  remove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
-  insert: (data: any, options?: any) => string
+  rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
+  rawInsert: (data: any, options?: any) => string
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
 }

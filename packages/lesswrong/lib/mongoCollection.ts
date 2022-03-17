@@ -144,7 +144,7 @@ export class MongoCollection<T extends DbObject> {
       return await table.findOne({});
     });
   }
-  insert = async (doc, options) => {
+  rawInsert = async (doc, options) => {
     if (disableAllWrites) return;
     if (!doc._id) {
       doc._id = randomId();
@@ -176,7 +176,7 @@ export class MongoCollection<T extends DbObject> {
       throw e;
     }
   }
-  remove = async (selector, options) => {
+  rawRemove = async (selector, options) => {
     if (disableAllWrites) return;
     const table = this.getTable();
     return await wrapQuery(`${this.tableName}.remove`, async () => {

@@ -37,7 +37,7 @@ registerMigration({
             { ordered: false }
           )
           const _ids = _.pluck(documents, '_id')
-          await collection.remove({_id: {$in: _ids}})
+          await collection.rawRemove({_id: {$in: _ids}})
         }
       })
       await migrateDocuments({
