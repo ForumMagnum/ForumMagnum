@@ -25,8 +25,17 @@ onStartup(() => {
   ReactDOM.hydrate(
     <Main />,
     document.getElementById('react-app'),
-    () => {
+    () => { // On hydration finished
       apolloClient.disableNetworkFetches = false;
+      
+      // Remove server-side injected CSS. Material-UI elements (which bypass
+      // our styling system and bypass the static stylesheet) put some styles
+      // into the page header, and hydration makes a duplicate. This removes
+      // the duplicate.
+      const jssStyles = document.getElementById('jss-server-side');
+      if (jssStyles && jssStyles.parentNode) {
+        jssStyles.parentNode.removeChild(jssStyles);
+      }
     }
   );
 });
