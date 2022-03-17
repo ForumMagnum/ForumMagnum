@@ -35,11 +35,8 @@ interface CollectionBase<
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
   findOneArbitrary: () => Promise<T|null>
   /**
-   * rawUpdate runs relatively directly on the database, bypassing the callbacks
-   * we have registered
-   *
-   * You should start by considering whether you should instead be using
-   * updateMutator, which will run those callbacks.
+   * Update without running callbacks. Consider using updateMutator, which wraps
+   * this.
    *
    * Return result is number of documents **matched** not affected
    *
@@ -52,7 +49,11 @@ interface CollectionBase<
    * away.
    */
   rawUpdate: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  /** Remove without running callbacks. Consider using deleteMutator, which
+   * wraps this. */
   rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
+  /** Inserts without running callbacks. Consider using createMutator, which
+   * wraps this. */
   rawInsert: (data: any, options?: any) => string
   aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
   _ensureIndex: any
