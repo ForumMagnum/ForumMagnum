@@ -34,10 +34,13 @@ Forum Magnum is built on top of a number major open-source libraries.
 
 ### Installation
 
+Prerequisites:
+- Install MongoDB: https://docs.mongodb.com/manual/installation/
+
 Clone our repo:
 
 ```
-git clone git@github.com:centre-for-effective-altruism/EAForum.git
+git clone git@github.com:ForumMagnum/ForumMagnum.git
 ```
 
 (CEA Devs, see the ForumCredentials repository for secrets)
@@ -52,6 +55,9 @@ yarn install
 Start the development server:
 
 ```
+# run MongoDB with defaut settings: e.g. on MacOS:
+mongod --config /usr/local/etc/mongod.conf
+
 yarn [start|ea-start]
 ```
 

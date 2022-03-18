@@ -27,16 +27,16 @@ export async function mongoAggregate<N extends CollectionNameString>(collectionN
 export async function mongoUpdate<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
 {
   const collection = getCollection(collectionName);
-  return await collection.update(selector, modifier, options);
+  return await collection.rawUpdate(selector, modifier, options);
 }
 export async function mongoRemove<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoRemoveOptions<ObjectsByCollectionName[N]>)
 {
   const collection = getCollection(collectionName);
-  return await collection.remove(selector, options);
+  return await collection.rawRemove(selector, options);
 }
 
 export async function mongoInsert<N extends CollectionNameString>(collectionName: N, insertedObject: ObjectsByCollectionName[N], options: MongoInsertOptions<ObjectsByCollectionName[N]>)
 {
   const collection = getCollection(collectionName);
-  return await collection.insert(insertedObject, options);
+  return await collection.rawInsert(insertedObject, options);
 }
