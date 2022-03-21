@@ -151,7 +151,7 @@ const TagPage = ({classes}: {
   const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect,
     HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn,
     TableOfContents, TableOfContentsRow, TagContributorsList, SubscribeButton, CloudinaryImage,
-    TagIntroSequence
+    TagIntroSequence, SectionTitle
    } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -348,10 +348,15 @@ const TagPage = ({classes}: {
           />}
           {tag.sequence && <TagIntroSequence tag={tag} />}
           {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-            <div className={classes.tagHeader}>
-              <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-              <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-            </div>
+            {tag.sequence ?
+              <SectionTitle title={`Posts tagged ${tag.name}`}>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+              </SectionTitle> :
+              <div className={classes.tagHeader}>
+                <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+              </div>
+            }
             <PostsList2
               terms={terms}
               enableTotal
