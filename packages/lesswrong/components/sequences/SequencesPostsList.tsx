@@ -17,4 +17,3 @@ declare global {
     SequencesPostsList: typeof SequencesPostsListComponent
   }
 }
-
