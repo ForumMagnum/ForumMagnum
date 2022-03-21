@@ -24,10 +24,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const ChaptersItem = ({ chapter, canEdit, limit, classes }: {
+const ChaptersItem = ({ chapter, canEdit, classes }: {
   chapter: ChaptersFragment,
   canEdit: boolean,
-  limit?: number,
   classes: ClassesType,
 }) => {
   const [edit,setEdit] = useState(false);
@@ -53,8 +52,6 @@ const ChaptersItem = ({ chapter, canEdit, limit, classes }: {
     <a onClick={showEdit}>Add/Remove Posts</a>
   </SectionButton>
 
-  const posts = limit ? chapter.posts.slice(0, limit) : chapter.posts
-
   return (
     <div>
       {chapter.title && <SectionTitle title={chapter.title}>
@@ -68,7 +65,7 @@ const ChaptersItem = ({ chapter, canEdit, limit, classes }: {
       </div>}
       <div className={classes.posts}>
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
-          <SequencesPostsList posts={posts} chapter={chapter} />
+          <SequencesPostsList posts={chapter.posts} chapter={chapter} />
         </AnalyticsContext>
       </div>
       {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
