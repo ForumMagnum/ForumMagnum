@@ -10,9 +10,9 @@ function invertHexColor(color: string): string {
     else return 0;
   }
   function parseHexColor(color: string): [number,number,number] {
-    const r = fromHexDigit(color,1)*16 + fromHexDigit(color,2);
-    const g = fromHexDigit(color,3)*16 + fromHexDigit(color,4);
-    const b = fromHexDigit(color,5)*16 + fromHexDigit(color,6);
+    const r = (fromHexDigit(color,1)*16) + fromHexDigit(color,2);
+    const g = (fromHexDigit(color,3)*16) + fromHexDigit(color,4);
+    const b = (fromHexDigit(color,5)*16) + fromHexDigit(color,6);
     return [r,g,b];
   }
   function toHexDigit(n: number) {
@@ -168,7 +168,7 @@ export const darkModePalette: ThemePalette = {
   },
   border: {
     normal: greyBorder("1px", .2),
-    itemSeparatorBottom: greyBorder("2px", .05),
+    itemSeparatorBottom: greyBorder("1px", .2),
     slightlyFaint: greyBorder("1px", .15),
     slightlyIntense: greyBorder("1px", .25),
     slightlyIntense2: greyBorder("1px", .3),
@@ -308,25 +308,25 @@ export const darkModePalette: ThemePalette = {
   type: "dark",
   
   primary: {
-    main: "#3f51b5",
+    main: "#5f9b65",
+    dark: "#426c46",
+    light: "#7faf83",
     contrastText: grey[0],
-    dark: "#303f9f",
-    light: "#7986cb",
   },
   secondary: {
+    main: "#5f9b65",
+    dark: "#426c46",
+    light: "#7faf83",
     contrastText: grey[0],
-    dark: "#c51162",
-    light: "#ff4081",
-    main: "#f50057",
   },
   lwTertiary: {
     main: "#69886e",
-    dark: "#21672b"
+    dark: "#21672b",
   },
   error: {
-    main: "#f44336",
-    light: "#e57373",
-    dark: "#d32f2f",
+    main: "#bf360c",
+    dark: "#852508",
+    light: "#cb5e3c",
     contrastText: grey[0],
   },
 }
