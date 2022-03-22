@@ -6,6 +6,7 @@ import React from 'react'
 interface SearchHit {
   title: string,
   slug: string,
+  _id: string
 }
 
 interface SearchResults {
@@ -25,17 +26,18 @@ async function fetchSuggestions(searchString: string) {
   const search = initSearchForIndex('Posts')
   const searchResults = await search({
     query: searchString,
-    attributesToRetrieve: ['title', 'slug'],
+    attributesToRetrieve: ['title', 'slug', '_id'],
     hitsPerPage: 20
   }) as SearchResults
   console.log({searchResults})
-  return searchResults.hits.map(it => postMarker + it.title)
+  // return searchResults.hits.map(it => postMarker + it.title)
+  return searchResults.hits
 }
 
 
 const mentionHitRenderer = (item) => {
   const itemElement = document.createElement('span')
-  ReactDOM.render(<p>TTTTT</p>, itemElement)
+  ReactDOM.render(<p>${item.title}</p>, itemElement)
   return itemElement
 } 
 
