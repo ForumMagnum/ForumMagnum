@@ -3,10 +3,10 @@
  * For licensing, see LICENSE.md.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { getCkEditor } from '../../lib/wrapCkEditor';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import React from 'react'
+import PropTypes from 'prop-types'
+import {getCkEditor} from '../../lib/wrapCkEditor'
+import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../../lib/algoliaUtil'
 
 interface CKEditorProps {
   data?: any,
@@ -19,33 +19,33 @@ interface CKEditorProps {
   config?: any,
 }
 
-async function fetchSuggestions(searchString: string) {
- 
-  
-  const hitsCallback = (err, { hits } = {}) => {
-    if (err) throw err;
-    console.log(hits)
-  }
-  
-  const searchClient = getSearchClient()
-  const index = searchClient.initIndex(getAlgoliaIndexName("Posts"))
-  
-  const hitsPromise = (searchString) => {
-    return new Promise((resolve, reject) => {
-      index.search(searchString, (err, {hits} ) => {
-        if (err) reject(err);
-        else resolve(hits);
+const promisify = (func: any) =>
+  (...args: any[]) =>
+    new Promise((resolve, reject) => {
+      func(...args, (err: any, data: any) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(data)
+        }
       })
     })
-  } 
-  
-  
-  
+
+
+const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
+  const searchClient = getSearchClient()
+  const index = searchClient.initIndex(getAlgoliaIndexName(indexName))
   console.log({index})
-  console.log({indexdotsearch: index.search(searchString, hitsCallback), hitsPromiseResult: await hitsPromise(searchString)})
+  return promisify(index.search)
+}
+
+async function fetchSuggestions(searchString: string) {
+  const search = initSearchForIndex('Posts')
+  console.log({search})
+  const searchResult = await search(searchString)
+  console.log({searchResult})
   
-  
-  return ['@success', '@failure', '@error', '@warning', '@info', '@debug', '@log', '@trace']
+  return searchResult.hits.map(it => '@'+ it.title)
 }
 
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
