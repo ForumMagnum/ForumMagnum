@@ -6,7 +6,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {getCkEditor} from '../../lib/wrapCkEditor'
-import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../../lib/algoliaUtil'
 
 interface CKEditorProps {
   data?: any,
@@ -19,34 +18,6 @@ interface CKEditorProps {
   config?: any,
 }
 
-const promisify = (func: any) =>
-  (...args: any[]) =>
-    new Promise((resolve, reject) => {
-      func(...args, (err: any, data: any) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(data)
-        }
-      })
-    })
-
-
-const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
-  const searchClient = getSearchClient()
-  const index = searchClient.initIndex(getAlgoliaIndexName(indexName))
-  console.log({index})
-  return promisify(index.search)
-}
-
-async function fetchSuggestions(searchString: string) {
-  const search = initSearchForIndex('Posts')
-  console.log({search})
-  const searchResult = await search(searchString)
-  console.log({searchResult})
-  
-  return searchResult.hits.map(it => '@'+ it.title)
-}
 
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
 export default class CKEditor extends React.Component<CKEditorProps,{}> {
@@ -104,24 +75,11 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     
   _initializeEditor() {
     this.watchdog.setCreator((el, config) => {
-      
-     console.log({config})
-      config.mention = {
-        feeds: [
-          {
-            marker: '@',
-            feed: fetchSuggestions,
-            minimumCharacters: 1
-          }
-        ]
-      }
-
 
       return this.props.editor
         .create( el , config )
         .then( editor => {
           this.editor = editor;
-          console.log({config: this.editor?.config, editor: this.editor})
 
 
           if ( 'disabled' in this.props ) {
