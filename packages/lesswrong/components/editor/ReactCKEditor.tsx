@@ -6,6 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getCkEditor } from '../../lib/wrapCkEditor';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 
 interface CKEditorProps {
   data?: any,
@@ -19,6 +20,30 @@ interface CKEditorProps {
 }
 
 async function fetchSuggestions(searchString: string) {
+ 
+  
+  const hitsCallback = (err, { hits } = {}) => {
+    if (err) throw err;
+    console.log(hits)
+  }
+  
+  const searchClient = getSearchClient()
+  const index = searchClient.initIndex(getAlgoliaIndexName("Posts"))
+  
+  const hitsPromise = (searchString) => {
+    return new Promise((resolve, reject) => {
+      index.search(searchString, (err, {hits} ) => {
+        if (err) reject(err);
+        else resolve(hits);
+      })
+    })
+  } 
+  
+  
+  
+  console.log({index})
+  console.log({indexdotsearch: index.search(searchString, hitsCallback), hitsPromiseResult: await hitsPromise(searchString)})
+  
   
   return ['@success', '@failure', '@error', '@warning', '@info', '@debug', '@log', '@trace']
 }
