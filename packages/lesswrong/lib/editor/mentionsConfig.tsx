@@ -1,9 +1,18 @@
 import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from "../algoliaUtil";
 import {promisify} from "../utils/asyncUtils";
+import ReactDOM from 'react-dom';
+import React from 'react'
+
+interface SearchHit {
+  title: string,
+  slug: string,
+}
 
 interface SearchResults {
-  hits: any
+  hits: SearchHit[]
 }
+
+const postMarker = '#';
 
 const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
   const searchClient = getSearchClient()
@@ -14,17 +23,28 @@ const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
 
 async function fetchSuggestions(searchString: string) {
   const search = initSearchForIndex('Posts')
-  console.log({search})
-  
-  const searchResults = await search(searchString) as SearchResults
-  return searchResults.hits.map(it => '@'+ it.title)
+  const searchResults = await search({
+    query: searchString,
+    attributesToRetrieve: ['title', 'slug'],
+    hitsPerPage: 20
+  }) as SearchResults
+  console.log({searchResults})
+  return searchResults.hits.map(it => postMarker + it.title)
 }
+
+
+const mentionHitRenderer = (item) => {
+  const itemElement = document.createElement('span')
+  ReactDOM.render(<p>TTTTT</p>, itemElement)
+  return itemElement
+} 
 
 export const mentionPluginConfiguration = {
     feeds: [
       {
-        marker: '@',
+        marker: postMarker,
         feed: fetchSuggestions,
+        itemRenderer: mentionHitRenderer,
         minimumCharacters: 1
       }
     ]
