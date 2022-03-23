@@ -90,11 +90,39 @@ registerMigration({
        }})
     }
 
-    const finalPosts = await Posts.find({reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}, postedAt: {$gte: moment(`${REVIEW_YEAR}-01-01`).toDate()}}, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch()
-
+    const finalPosts = isLW ?
+      await Posts.find({
+        reviewCount: {$gt: 0},
+        finalReviewVoteScoreHighKarma: {$exists: true},
+        postedAt: {$gte: moment(`${REVIEW_YEAR}-01-01`).toDate()}
+      }, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch() :
+      await Posts.aggregate([
+        {$match: {finalReviewVoteScoreHighKarma: {$exists: true}}},
+        {$project: {
+          _id : 1,
+          slug : 1,
+          title : 1,
+          userId : 1,
+          finalReviewVotesHighKarma: 1,
+          finalReviewVoteScore: 1,
+          finalReviewVoteScoreHighKarma: 1,
+          finalReviewVoteScoreAllKarma: 1,
+          combinedScore : {
+            $sum : [
+              {$multiply: ['$finalReviewVoteScoreHighKarma', 2]},
+              '$finalReviewVoteScoreAllKarma',
+            ]
+          }
+        }},
+        {$sort : {combinedScore : -1}},
+      ]).toArray()
+    
+    // console.log('finalPosts', finalPosts.length)
+    // console.log('finalPosts[0]', finalPosts[0])
+    
     const authorIds = finalPosts.map(post => post.userId)
 
-    const authors = await Users.find({_id: {$in:authorIds}}).fetch() 
+    const authors = await Users.find({_id: {$in:authorIds}}).fetch()
 
     const getAuthor = (post) => authors.filter(author => author._id === post.userId)[0]
 
@@ -112,7 +140,7 @@ registerMigration({
       return size < 3 ? 3 : size
     }
 
-    const voteDot = (vote) => { 
+    const voteDot = (vote) => {
       if (vote !== 0) {
         return `<span title="${vote}" class="dot" style="
           height:${voteSize(vote)}px;
@@ -146,7 +174,7 @@ registerMigration({
 
             </div>
             <div class="dots-row">
-              ${post.finalReviewVotesHighKarma.sort((x,y) => x - y).map(vote=>voteDot(vote)).join("")}
+              ${(post.finalReviewVotesHighKarma || []).sort((x,y) => x - y).map(vote=>voteDot(vote)).join("")}
             </div>
           </div>
         </td>
