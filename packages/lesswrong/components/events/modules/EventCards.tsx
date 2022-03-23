@@ -9,9 +9,8 @@ import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
+import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
-import moment from 'moment';
-import { useTracking } from '../../../lib/analyticsEvents';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -30,18 +29,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   communityLink: {
     color: theme.palette.primary.main,
   },
-  eventCards: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 373px)',
-    gridGap: '20px',
-    justifyContent: 'center',
-    [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(2, 373px)',
-    },
-    '@media (max-width: 812px)': {
-      gridTemplateColumns: 'auto',
-    }
-  },
   eventCard: {
     position: 'relative',
     width: 373,
@@ -51,27 +38,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
     [theme.breakpoints.down('xs')]: {
       maxWidth: '100vw'
-    }
-  },
-  specialEventCardLink: {
-    '&:hover': {
-      opacity: '0.9'
-    }
-  },
-  specialEventCard: {
-    background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_373,c_fill,q_auto,f_auto/Event/pz3xmsm63xl8thlyt2up.jpg')",
-    padding: '50px 24px',
-    '& div': {
-      color: 'white'
-    },
-    '& .EventCards-eventCardTitle': {
-      fontSize: 24
-    },
-    '& .EventCards-eventCardLocation': {
-      opacity: '0.7'
-    },
-    '&:hover .EventCards-eventCardDeadline': {
-      borderBottom: '2px solid white'
     }
   },
   eventCardContent: {
@@ -107,13 +73,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginTop: 8,
   },
-  eventCardDescription: {
-    ...theme.typography.commentStyle,
-    color: "rgba(0, 0, 0, 0.7)",
-    fontSize: 14,
-    lineHeight: '1.8em',
-    marginTop: 30,
-  },
   eventCardGroup: {
     ...theme.typography.commentStyle,
     maxWidth: 290,
@@ -124,15 +83,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     marginTop: 10,
-  },
-  eventCardDeadline: {
-    ...theme.typography.commentStyle,
-    display: 'inline-block',
-    fontWeight: 'bold',
-    color: "rgba(0, 0, 0, 0.5)",
-    fontSize: 16,
-    paddingBottom: 5,
-    marginTop: 20,
   },
   addToCal: {
     ...theme.typography.commentStyle,
@@ -147,28 +97,30 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes}: {
+const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGroupNames, cardClassName, classes}: {
   events?: PostsList[],
   loading?: boolean,
   numDefaultCards?: number,
   hideSpecialCards?: boolean,
+  hideGroupNames?: boolean,
+  cardClassName?: string,
   classes: ClassesType,
 }) => {
+  const currentUser = useCurrentUser()
   const { timezone } = useTimezone()
-  const { captureEvent } = useTracking()
   
   const getEventLocation = (event: PostsList): string => {
     if (event.onlineEvent) return 'Online'
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2 } = Components
+  const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard } = Components
   
   // while the data is loading, show some placeholder empty cards
   if (loading && !events?.length) {
     return numDefaultCards ? <>
       {_.range(numDefaultCards).map((i) => {
-        return <Card key={i} className={classes.eventCard}></Card>
+        return <Card key={i} className={classNames(classes.eventCard, cardClassName)}></Card>
       })}
     </> : null
   }
@@ -192,7 +144,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
   }
   
   const eventCards = events.map(event => {
-    return <Card key={event._id} className={classes.eventCard}>
+    return <Card key={event._id} className={classNames(classes.eventCard, cardClassName)}>
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
           <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
@@ -209,7 +161,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
           </div>
         </PostsItemTooltipWrapper>
         <div className={classes.eventCardLocation}>{getEventLocation(event)}</div>
-        {event.group && <div className={classes.eventCardGroup} title={event.group.name}>
+        {!hideGroupNames && event.group && <div className={classes.eventCardGroup} title={event.group.name}>
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
         <div className={classes.addToCal}>
@@ -219,49 +171,18 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, classes
     </Card>
   })
   
-  // on the EA Forum, insert a card advertising the Intro VP
-  if (forumTypeSetting.get() === 'EAForum' && !hideSpecialCards && events.length >= 2) {
-    // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
-    let sunday = moment().day(0)
-    _.range(5).forEach(() => {
-      const nextSunday = moment(sunday).add(1, 'week')
-      // needs to be in the future
-      if (sunday.isBefore(moment(), 'day')) {
-        sunday = nextSunday
-      }
-      // needs to be the last Sunday of the month
-      if (nextSunday.month() === sunday.month()) {
-        sunday = nextSunday
-      }
-    })
-    
-    // VP starts 8 days after the deadline, on a Monday
-    const startOfVp = moment(sunday).add(8, 'days')
-    // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
-    const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
-    
-    eventCards.splice(2, 0, (
-      <a key="intro-vp"
-        href="https://www.effectivealtruism.org/virtual-programs/introductory-program?from=forum_events_page"
-        className={classes.specialEventCardLink}
-        onClick={() => captureEvent('introVPClicked')}
-      >
-        <Card className={classNames(classes.eventCard, classes.specialEventCard)}>
-          <div className={classes.eventCardTime}>
-            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
-          </div>
-          <div className={classes.eventCardTitle}>
-            Introductory EA Program
-          </div>
-          <div className={classes.eventCardLocation}>Online</div>
-          <div className={classes.eventCardDescription}>
-            This program is ideal for those new to effective altruism, or for those who have some familiarity,
-            but want to explore the core ideas in a structured way.
-          </div>
-          <div className={classes.eventCardDeadline}>Apply by Sunday, {sunday.format('MMMM D')}</div>
-        </Card>
-      </a>
-    ))
+  // on the EA Forum, insert card(s) advertising Virtual Programs
+  if (forumTypeSetting.get() === 'EAForum' && !hideSpecialCards) {
+    // NOTE: splice() will just insert the card at the end of the list if the first param > length
+    if (currentUser) {
+      // for logged in users, just display the In-Depth / Precipice VP card
+      eventCards.splice(2, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
+    } else {
+      // for logged logged out users, display both VP cards
+      eventCards.splice(2, 0, <VirtualProgramCard key="introVP" program="intro" />)
+      // we try to space out the two cards
+      eventCards.splice(5, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
+    }
   }
 
   return <>

@@ -66,7 +66,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 const defaultCenter = {lat: 39.5, lng: -43.636047}
 const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showUsers, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
-  eventTerms: PostsViewTerms,
+  eventTerms?: PostsViewTerms,
   initialOpenWindows: Array<any>,
   center?: {lat: number, lng: number},
   zoom: number,
@@ -92,7 +92,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
   const [ showEvents, setShowEvents ] = useState(true)
   const [ showGroups, setShowGroups ] = useState(true)
-  const [ showIndividuals, setShowIndividuals ] = useState(true)
+  const [ showIndividuals, setShowIndividuals ] = useState(!!showUsers)
   const [ showMap, setShowMap ] = useState(true)
 
   const [ viewport, setViewport ] = useState({
@@ -111,10 +111,11 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   }, [center, zoom])
 
   const { results: events = [] } = useMulti({
-    terms: eventTerms,
+    terms: eventTerms || {view: 'events'},
     collectionName: "Posts",
     fragmentName: "PostsList",
     limit: 500,
+    skip: !eventTerms
   });
 
   const { results: groups = [] } = useMulti({
@@ -129,6 +130,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
     limit: 500,
+    skip: !showUsers
   })
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';
