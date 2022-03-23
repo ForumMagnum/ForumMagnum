@@ -12,7 +12,7 @@ describe('JSS', () => {
     const fakeTheme = replacePaletteWithStubs(realTheme);
     let nonPaletteColors: string[] = [];
     
-    for (let componentName of Object.keys(ComponentsTable)) {
+    for (let componentName of _.sortBy(Object.keys(ComponentsTable), x=>x)) {
       const styleGetter = ComponentsTable[componentName].options?.styles;
       const styles = (typeof styleGetter === 'function') ? styleGetter(fakeTheme) : styleGetter;
       if (styles) {

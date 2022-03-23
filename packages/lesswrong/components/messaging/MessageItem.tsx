@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:theme.spacing.unit*1.5
   },
   whiteMeta: {
-    color: 'rgba(255,255,255, 0.7)'
+    color: theme.palette.text.invertedBackgroundText2,
   },
   messageBody: {
     '& a': {

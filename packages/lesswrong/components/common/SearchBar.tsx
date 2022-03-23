@@ -93,7 +93,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.panelBackground.default,
     },
     "& .ais-SearchBox-input::placeholder": {
-      color: "rgba(255,255,255, 0.5)",
+      color: theme.palette.text.invertedBackgroundText3,
     },
   },  
 })

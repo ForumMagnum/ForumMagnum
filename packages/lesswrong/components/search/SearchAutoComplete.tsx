@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       listStyle: "none",
     },
     "& .react-autosuggest__suggestion--highlighted": {
-        backgroundColor: "rgba(0,0,0,0.05)",
+      backgroundColor: theme.palette.panelBackground.darken05,
     },
     "& ul": {
       marginLeft: 0,

@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       top: 16
     },
     "& .ais-CurrentRefinements-item": {
-      border: '1px solid rgba(0,0,0,0.3)',
+      border: theme.palette.border.slightlyIntense2,
       borderRadius: 20,
       padding: '8px',
     },
@@ -45,12 +45,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 100,
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,
-      boxShadow: "0 0 20px rgba(0,0,0,.2)",
+      boxShadow: theme.palette.boxShadow.searchResults,
       height: "calc(100vh - 64px)",
     },
   },
   searchList: {
-    borderBottom: "solid 1px rgba(0,0,0,.3)",
+    borderBottom: theme.palette.border.slightlyIntense2,
     paddingTop:theme.spacing.unit,
     paddingBottom:theme.spacing.unit,
     paddingLeft:theme.spacing.unit*2,

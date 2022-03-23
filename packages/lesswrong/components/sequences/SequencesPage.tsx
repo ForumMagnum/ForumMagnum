@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bannerWrapper: {
     position: "relative",
     height: 380,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: theme.palette.panelBackground.sequencesBanner,
   },
   meta: {
     ...theme.typography.body2,

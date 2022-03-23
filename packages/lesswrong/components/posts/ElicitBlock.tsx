@@ -68,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     justifyContent: 'flex-end',
     '&:hover $sliceColoredArea': {
-      backgroundColor: "rgba(0,0,0,0.15)"
+      backgroundColor: theme.palette.panelBackground.darken15,
     },
     '&:hover $usersInBucket': {
       display: 'block'
@@ -85,10 +85,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: 'column',
     '&:hover': {
       '& $additionalVoteArea': {
-        backgroundColor: "rgba(0,0,0,0.05)"
+        backgroundColor: theme.palette.panelBackground.darken05,
       },
       '& $sliceColoredArea': {
-        backgroundColor: "rgba(0,0,0,0.2)"
+        backgroundColor: theme.palette.panelBackground.darken20,
       },
       '& $sliceNumber': {
         opacity: 1,
@@ -139,7 +139,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 0
   },
   sliceColoredArea: {
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: theme.palette.panelBackground.darken10,
   },
   additionalVoteArea: {
     marginTop: 'auto',

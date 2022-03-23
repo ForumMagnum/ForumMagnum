@@ -131,7 +131,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   checkedVisibilityIcon: {
-    color: 'rgba(0,0,0,0.87)'
+    color: theme.palette.text.normal,
   },
   actionContainer: {
     marginLeft: 'auto',

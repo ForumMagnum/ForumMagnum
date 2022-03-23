@@ -28,7 +28,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 116,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: "rgba(0, 0, 0, 0.1)",
+    borderColor: theme.palette.border.faint,
     '&:last-of-type': {
       borderBottom: 'none'
     },
@@ -82,7 +82,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupLocation: {
     ...theme.typography.commentStyle,
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.text.slightlyDim2,
     fontSize: 14,
     lineHeight: '1.5em',
     display: '-webkit-box',

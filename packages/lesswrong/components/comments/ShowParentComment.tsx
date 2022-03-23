@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 650,
     bottom: "100%",
     left: 0,
-    boxShadow: theme.palette.boxShadow.parentComment,
+    boxShadow: theme.palette.boxShadow.comment,
   },
   usernameSpacing: { // UNUSED
     paddingRight: 1,

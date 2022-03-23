@@ -95,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 0,
     zIndex: 5,
     border: theme.palette.border.faint,
-    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    boxShadow: theme.palette.boxShadow.comment,
     maxHeight: 500,
     overflow: "hidden",
     '& img': {
@@ -130,9 +130,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 20
   },
   preview: {
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     border: theme.palette.border.faint,
-    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    boxShadow: theme.palette.boxShadow.comment,
     width: 500
   }
 })

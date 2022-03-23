@@ -27,10 +27,14 @@ export const ThemeContextProvider = ({options, sheetsManager, children}: {
   children: React.ReactNode,
 }) => {
   const [themeOptions,setThemeOptions] = useState(options);
-  const theme: any = getForumTheme(themeOptions);
-  const themeContext = useMemo(() => ({
-    theme, setThemeOptions
-  }), [theme, themeOptions, setThemeOptions]);
+  const theme: any = useMemo(() => 
+    getForumTheme(themeOptions),
+    [themeOptions]
+  );
+  const themeContext = useMemo(() => (
+    {theme, setThemeOptions}),
+    [theme, setThemeOptions]
+  );
   
   return <ThemeContext.Provider value={themeContext}>
     <MuiThemeProvider theme={theme as any} sheetsManager={sheetsManager}>

@@ -109,20 +109,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500],
     marginRight: theme.spacing.unit
   },
-  karmaIcon: {
-    marginRight: -2,
-    marginTop: 2,
-    height: 15,
-    color: "rgba(0,0,0,.19)"
-  },
-  commentIcon: {
-    marginLeft: 6,
-    marginTop: 2,
-    // position: "relative",
-    marginRight: -1,
-    height: 13,
-    color: "rgba(0,0,0,.19)"
-  }
 })
 
 const getPostCategory = (post: PostsBase) => {
