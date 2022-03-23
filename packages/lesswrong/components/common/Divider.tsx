@@ -7,7 +7,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit*3,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    
+    "& svg": {
+      fill: "currentColor",
+    },
   },
   divider: {
     height: 80,

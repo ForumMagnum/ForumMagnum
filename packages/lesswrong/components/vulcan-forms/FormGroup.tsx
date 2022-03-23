@@ -208,7 +208,7 @@ const IconRight = ({ width = 24, height = 24 }) => (
   >
     <polyline
       fill="none"
-      stroke="#000"
+      stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeMiterlimit="10"
@@ -230,7 +230,7 @@ const IconDown = ({ width = 24, height = 24 }) => (
   >
     <polyline
       fill="none"
-      stroke="#000"
+      stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeMiterlimit="10"
