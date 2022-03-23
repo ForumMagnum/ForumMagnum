@@ -22,6 +22,7 @@ const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
+    color: theme.palette.text.normal,
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds

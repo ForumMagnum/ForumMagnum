@@ -195,6 +195,7 @@ export const defaultPalette: ThemePalette = {
     greenCheckmark: "#4caf50",
     onTooltip: "white",
     topAuthor: grey[340],
+    navigationSidebarIcon: greyAlpha(1.0),
     
     commentsBubble: {
       commentCount: "white",

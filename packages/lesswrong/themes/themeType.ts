@@ -112,6 +112,7 @@ declare global {
         greenCheckmark: ColorString,
         onTooltip: ColorString,
         topAuthor: ColorString,
+        navigationSidebarIcon: ColorString,
         
         commentsBubble: {
           commentCount: ColorString,

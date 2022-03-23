@@ -47,6 +47,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 28,
     marginRight: theme.spacing.unit*2,
     display: "inline",
+    
+    "& svg": {
+      fill: "currentColor",
+      color: theme.palette.icon.navigationSidebarIcon,
+    },
   },
   navText: {
     ...theme.typography.body2,
