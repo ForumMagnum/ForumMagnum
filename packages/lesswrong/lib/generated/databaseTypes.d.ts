@@ -253,8 +253,9 @@ interface DbLocalgroup extends DbObject {
   meetupLink: string
   slackLink: string
   website: string
-  inactive: boolean
   bannerImageId: string
+  inactive: boolean
+  deleted: boolean
   contents: EditableFieldContents
 }
 
@@ -648,6 +649,7 @@ interface DbTag extends DbObject {
   lesswrongWikiImportCompleted: boolean
   htmlWithContributorAnnotations: string
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  introSequenceId: string
   description: EditableFieldContents
 }
 

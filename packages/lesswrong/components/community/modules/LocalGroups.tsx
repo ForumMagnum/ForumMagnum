@@ -7,6 +7,21 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  noResults: {
+    ...theme.typography.commentStyle,
+    textAlign: 'center',
+    fontSize: 18,
+  },
+  noResultsText: {
+    marginTop: 30
+  },
+  noResultsCTA: {
+    fontSize: 14,
+    marginTop: 20
+  },
+  eventsLink: {
+    color: theme.palette.primary.main,
+  },
   localGroups: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -100,7 +115,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const LocalGroups = ({userLocation, distanceUnit='km', classes}: {
+const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: {
+  keywordSearch: string,
   userLocation: {
     lat: number,
     lng: number,
@@ -141,7 +157,7 @@ const LocalGroups = ({userLocation, distanceUnit='km', classes}: {
     view: 'local',
   }
   
-  const { results } = useMulti({
+  const { results, loading } = useMulti({
     terms: groupsListTerms,
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
@@ -152,11 +168,26 @@ const LocalGroups = ({userLocation, distanceUnit='km', classes}: {
   });
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+  
+  // filter the list of groups if the user has typed in a keyword
+  let localGroups = results
+  if (results && keywordSearch) {
+    localGroups = results.filter(group => (
+      `${group.name.toLowerCase()} ${group.location.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+    ))
+  }
 
   return (
     <div className={classes.localGroups}>
-      <div className={classes.localGroupsList}>
-        {results?.map(group => {
+      {(!loading && !localGroups?.length) ? <div className={classes.noResults}>
+        <div className={classes.noResultsText}>No local groups matching your search</div>
+        <div className={classes.noResultsCTA}>
+          <Link to={'/events'} className={classes.eventsLink}>
+            Find an upcoming event near you
+          </Link>
+        </div>
+      </div> : <div className={classes.localGroupsList}>
+        {localGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
             backgroundImage: `linear-gradient(to right, transparent, white 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_140,q_auto,f_auto/${group.bannerImageId})`
           } : {
@@ -185,10 +216,11 @@ const LocalGroups = ({userLocation, distanceUnit='km', classes}: {
             </div>
           </div>
         })}
-      </div>
+      </div>}
       <div className={classes.localGroupsMap}>
         <CommunityMapWrapper
           mapOptions={userLocation.known ? {center: userLocation, zoom: 5} : {zoom: 1}}
+          keywordSearch={keywordSearch}
           hideLegend
           showUsers={false}
         />

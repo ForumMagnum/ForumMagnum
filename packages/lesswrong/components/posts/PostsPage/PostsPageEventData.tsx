@@ -54,9 +54,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: '20px 0 0 12px',
     },
   },
+  externalEventPageBtn: {
+    textTransform: 'none',
+    fontSize: 12
+  },
+  externalEventPageBtnIcon: {
+    fontSize: 15,
+    marginLeft: 6
+  },
   registerBtnIcon: {
     fontSize: 15,
-    marginTop: -4,
+    marginTop: -2,
     marginLeft: 6
   },
   mapbox: {
@@ -127,13 +135,23 @@ const PostsPageEventData = ({classes, post}: {
   
   // if the event has a registration link, display that instead
   if (beforeEvent && eventRegistrationLink) {
-    eventCTA = <Button variant="contained" color="primary" href={eventRegistrationLink} onClick={() => captureEvent("eventRegistrationLinkClick")} target="_blank" rel="noopener noreferrer">
+    eventCTA = <Button
+      variant="contained" color="primary"
+      href={eventRegistrationLink}
+      onClick={() => captureEvent("eventRegistrationLinkClick")}
+      target="_blank" rel="noopener noreferrer"
+    >
       Register <OpenInNewIcon className={classes.registerBtnIcon} />
     </Button>
   }
   // if the event is soon/now, enable the "Join Event" button
   else if (duringEvent) {
-    eventCTA = joinEventLink && <Button variant="contained" color="primary" href={joinEventLink} onClick={() => captureEvent("joinEventLinkClick")} target="_blank" rel="noopener noreferrer">
+    eventCTA = joinEventLink && <Button
+      variant="contained" color="primary"
+      href={joinEventLink}
+      onClick={() => captureEvent("joinEventLinkClick")}
+      target="_blank" rel="noopener noreferrer"
+    >
       Join Event
     </Button>
   }
@@ -141,6 +159,29 @@ const PostsPageEventData = ({classes, post}: {
   else if (afterEvent) {
     eventCTA = joinEventLink && <Button variant="contained" color="primary" href={joinEventLink} disabled>
       Event Ended
+    </Button>
+  }
+  
+  // if we have no other CTA, then link to the FB or Meetup event page
+  if (!eventCTA && post.facebookLink) {
+    eventCTA = <Button
+      variant={afterEvent ? "outlined" : "contained"} color="primary"
+      href={post.facebookLink}
+      onClick={() => captureEvent("facebookEventBtnClick")}
+      target="_blank" rel="noopener noreferrer"
+      className={classes.externalEventPageBtn}
+    >
+      See event on Facebook <OpenInNewIcon className={classes.externalEventPageBtnIcon} />
+    </Button>
+  } else if (!eventCTA && post.meetupLink) {
+    eventCTA = <Button
+      variant={afterEvent ? "outlined" : "contained"} color="primary"
+      href={post.meetupLink}
+      onClick={() => captureEvent("meetupEventBtnClick")}
+      target="_blank" rel="noopener noreferrer"
+      className={classes.externalEventPageBtn}
+    >
+      See event on Meetup <OpenInNewIcon className={classes.externalEventPageBtnIcon} />
     </Button>
   }
   

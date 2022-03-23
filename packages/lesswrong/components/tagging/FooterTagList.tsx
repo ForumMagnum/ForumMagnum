@@ -61,6 +61,13 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   const { captureEvent } = useTracking()
   const { LWTooltip, AddTagButton } = Components
 
+  // [Epistemic status - two years later guessing] This loads the tagrels via a
+  // database query instead of using the denormalized field on posts. This
+  // causes a shift of the tag in non-SSR contexts. I believe without
+  // empirically testing this, that it's to allow the mutation to seamlessly
+  // reorder the tags, by updating the result of this query. But you could
+  // imagine that this could start with the ordering of the tags on the post
+  // object, and then use the result from the database once we have it.
   const { results, loading, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",

@@ -98,8 +98,9 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly meetupLink: string,
   readonly slackLink: string,
   readonly website: string,
-  readonly inactive: boolean,
   readonly bannerImageId: string,
+  readonly inactive: boolean,
+  readonly deleted: boolean,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -267,6 +268,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly htmlWithContributorAnnotations: string,
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly introSequenceId: string,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -472,6 +474,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -1211,8 +1214,9 @@ interface localGroupsBase { // fragment on Localgroups
   readonly meetupLink: string,
   readonly slackLink: string,
   readonly website: string,
-  readonly inactive: boolean,
   readonly bannerImageId: string,
+  readonly inactive: boolean,
+  readonly deleted: boolean,
 }
 
 interface localGroupsHomeFragment extends localGroupsBase { // fragment on Localgroups
@@ -1405,6 +1409,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
+  readonly sequence: SequencesPageFragment|null,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags

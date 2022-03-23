@@ -2,6 +2,7 @@ import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubq
 import { Posts } from '../../lib/collections/posts/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
@@ -68,7 +69,7 @@ defineFeedResolver<Date>({
         // Suggestion to subscribe to curated
         fixedIndexSubquery({
           type: "subscribeReminder",
-          index: 6,
+          index: forumTypeSetting.get() === 'EAForum' ? 3 : 6,
           result: {},
         }),
         

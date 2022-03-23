@@ -267,13 +267,13 @@ export const createDummyLocalgroup = async (data?: any) => {
 
 export const clearDatabase = async () => {
   await asyncForeachSequential(await Users.find().fetch(), async (i) => {
-    await Users.remove(i._id)
+    await Users.rawRemove(i._id)
   });
   await asyncForeachSequential(await Posts.find().fetch(), async (i) => {
-    await Posts.remove(i._id)
+    await Posts.rawRemove(i._id)
   });
   await asyncForeachSequential(await Comments.find().fetch(), async (i) => {
-    await Comments.remove(i._id)
+    await Comments.rawRemove(i._id)
   });
 }
 

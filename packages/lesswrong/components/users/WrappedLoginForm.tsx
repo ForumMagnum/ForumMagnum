@@ -68,6 +68,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 6,
     textTransform: 'uppercase'
   },
+  primaryBtn: {
+    background: theme.palette.primary.main,
+    color: 'white !important',
+    fontSize: '0.9em',
+    padding: '6px 12px',
+    textTransform: 'uppercase',
+    borderRadius: 4
+  },
   toggle: {
     cursor: 'pointer',
     '&:hover': {
@@ -189,13 +197,15 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   </React.Fragment>;
 }
 
-const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
+const WrappedLoginFormEA = ({startingState, classes}: WrappedLoginFormProps) => {
   const { pathname } = useLocation()
   
   return <div className={classes.root}>
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
-      <a className={classes.oAuthLink} href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
-      <a className={classes.oAuthLink} href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
+      <a className={startingState === 'login' ? classes.primaryBtn : classes.oAuthLink}
+        href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
+      <a className={startingState === 'signup' ? classes.primaryBtn : classes.oAuthLink}
+        href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
     </div>
   </div>
 }

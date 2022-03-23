@@ -243,7 +243,7 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
-        await DebouncerEvents.update({
+        await DebouncerEvents.rawUpdate({
           _id: eventToHandle._id
         }, {
           $set: { failed: true }
@@ -295,4 +295,3 @@ if (!testServerSetting.get()) {
     }
   });
 }
-

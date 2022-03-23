@@ -38,12 +38,19 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
   });
+
   if (!document) {
     return null
   }
+  
+  let groupName
+  if (post.group) {
+    groupName = document.deleted ? document.name : <Link to={'/groups/' + post.group._id }>{ document.name }</Link>
+  }
+
   return <div className={inRecentDiscussion ? '' : classes.root}>
     <div className={classNames(classes.title, {[classes.sansSerif]: inRecentDiscussion, [classes.serif]: !inRecentDiscussion})}>
-      {post?.group && <Link to={'/groups/' + post.group._id }>{ document.name }</Link>}
+      {groupName}
     </div>
   </div>
 }

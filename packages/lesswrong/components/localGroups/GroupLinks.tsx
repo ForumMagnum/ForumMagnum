@@ -164,7 +164,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
           )
         })}
       </div>}
-      <div className={(noMargin && (isEAForum || !document.types.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
+      <div className={(noMargin && (isEAForum || !document.types?.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
         {document.facebookLink
           && <Tooltip
             title={`Link to Facebook ${isEvent ? 'Event' : 'Group'}`}
