@@ -7,6 +7,7 @@ import Users from '../../lib/collections/users/collection';
 import moment from 'moment';
 import theme from '../../themes/forumTheme';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import fs from 'fs';
 
 const isLW = forumTypeSetting.get() === 'LessWrong';
 
@@ -97,7 +98,7 @@ registerMigration({
         postedAt: {$gte: moment(`${REVIEW_YEAR}-01-01`).toDate()}
       }, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch() :
       await Posts.aggregate([
-        {$match: {finalReviewVoteScoreHighKarma: {$exists: true}}},
+        {$match: {reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}}},
         {$project: {
           _id : 1,
           slug : 1,
@@ -116,9 +117,6 @@ registerMigration({
         }},
         {$sort : {combinedScore : -1}},
       ]).toArray()
-    
-    // console.log('finalPosts', finalPosts.length)
-    // console.log('finalPosts[0]', finalPosts[0])
     
     const authorIds = finalPosts.map(post => post.userId)
 
@@ -245,7 +243,6 @@ registerMigration({
         </table>
       </div>`
 
-    // eslint-disable-next-line no-console
-    console.log(html)
+    fs.writeFileSync('review-vote-table.html', html)
   },
 });
