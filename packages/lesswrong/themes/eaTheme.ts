@@ -55,6 +55,10 @@ export const eaForumTheme: SiteThemeSpecification = {
     background: {
       default: '#f6f8f9'
     },
+    header: {
+      text: "rgba(0,0,0,.87)",
+      background: "white",
+    },
     event: '#0C869B',
     group: '#538747',
     individual: '#BF577D',
@@ -149,11 +153,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         }
       },
       overrides: {
-        MuiAppBar: {
-          colorDefault: {
-            backgroundColor: "white",
-          }
-        },
         MuiTooltip: {
           tooltip: {
             fontSize: "1rem",

@@ -41,10 +41,12 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       main: '#bf360c',
     },
     background: {
-      default: '#f8f8f8'
+      default: shadePalette.grey[40],
     },
-    headerType: "primary",
-    headerTextColor: "#ffffff",
+    header: {
+      text: "#ffffff",
+      background: "#3f51b5",
+    },
   }),
   make: (palette: ThemePalette) => ({
     typography: {

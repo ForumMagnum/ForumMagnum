@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '14px',
     fontWeight: 400,
     opacity: .8,
-    color: theme.palette.headerTextColor,
+    color: theme.palette.header.text,
   },
   signUpButton: {
     display: 'inline-block',

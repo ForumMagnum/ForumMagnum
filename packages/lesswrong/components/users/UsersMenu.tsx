@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
-    color: theme.palette.headerTextColor,
+    color: theme.palette.header.text,
   },
   notAMember: {
     marginLeft: 5,

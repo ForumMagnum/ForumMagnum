@@ -86,11 +86,6 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      MuiAppBar: {
-        colorDefault: {
-          backgroundColor: palette.grey[30],
-        }
-      },
       PostsVote: {
         voteScores: {
           margin: "25% 15% 15% 15%"

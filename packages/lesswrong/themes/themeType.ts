@@ -272,22 +272,19 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
     },
+    header: {
+      text: ColorString,
+      background: ColorString,
+    },
     group: ColorString,
     contrastText: ColorString,
     individual: ColorString,
     event: ColorString,
     
-    // headerType: Used by the Header component for figuring out the
-    // color of the title in the top-bar, by indirect reference to another
-    // palette entry. This is a weird hack that we probably want to replace
-    // with something more straightforward.
-    headerType: "primary"|"default",
-    
     // Used by material-UI for picking some of its own colors
     type: "light"|"dark",
     
     commentParentScrollerHover: ColorString,
-    headerTextColor: ColorString,
     tocScrollbarColors: string,
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>

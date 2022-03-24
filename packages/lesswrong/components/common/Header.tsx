@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import { useTheme } from '../themes/useTheme';
-import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -22,7 +21,15 @@ const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
-    color: theme.palette.text.normal,
+    color: theme.palette.header.text,
+    backgroundColor: theme.palette.header.background,
+    position: "static",
+    width: "100%",
+    display: "flex",
+    zIndex: 1100,
+    boxSizing: "border-box",
+    flexShrink: 0,
+    flexDirection: "column",
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -49,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: theme.palette.headerTextColor,
+    color: theme.palette.header.text,
     fontSize: 19,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
@@ -261,7 +268,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
         >
-          <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
+          <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
               {renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title">
@@ -299,7 +306,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                 />}
               </div>
             </Toolbar>
-          </AppBar>
+          </header>
           <NavigationDrawer
             open={navigationOpen}
             handleOpen={() => setNavigationOpen(true)}

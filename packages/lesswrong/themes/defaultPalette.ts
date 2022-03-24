@@ -362,16 +362,18 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dropdownHoveredBackground: "#f5f5f5",
     dropdownActiveHoveredBackground: "#ccc",
   },
+  header: {
+    text: shades.greyAlpha(.87),
+    background: shades.grey[30],
+  },
   
   commentParentScrollerHover: shades.greyAlpha(.075),
-  headerTextColor: shades.greyAlpha(0.87),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   
   contrastText: shades.grey[0],
   event: '#2b6a99',
   group: '#588f27',
   individual: '#3f51b5',
-  headerType: "default",
   type: "light",
   
   primary: {

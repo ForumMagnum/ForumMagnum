@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: theme.palette.headerTextColor,
+    color: theme.palette.header.text,
   },
   title: {
     display: 'block',

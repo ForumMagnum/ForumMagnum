@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   badge: {
     backgroundColor: 'inherit',
-    color: theme.palette.headerTextColor,
+    color: theme.palette.header.text,
     fontFamily: 'freight-sans-pro, sans-serif',
     fontSize: "12px",
     fontWeight: 500,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   buttonClosed: {
     backgroundColor: "transparent",
-    color: theme.palette.headerTextColor,
+    color: theme.palette.header.text,
   },
 });
 
