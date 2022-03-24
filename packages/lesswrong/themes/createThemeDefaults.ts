@@ -65,30 +65,7 @@ export const zIndexes = {
 export const baseTheme: BaseThemeSpecification = {
   shadePalette: defaultShadePalette(),
   componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
-  make: (palette: ThemePalette): ThemeType => {
-    // Defines sensible typography defaults that can be
-    // cleanly overriden
-  
-    const body1FontSize = {
-      fontSize: '1.4rem',
-      lineHeight: '2rem'
-    }
-  
-    const body2FontSize = {
-      fontSize: '1.1rem',
-      lineHeight: '1.5rem',
-    }
-  
-    const smallFontSize = {
-      fontSize: "1rem",
-      lineHeight: '1.4rem'
-    }
-  
-    const tinyFontSize = {
-      fontSize: ".75rem",
-      lineHeight: '1.4rem'
-    }
-  
+  make: (palette: ThemePalette): PartialDeep<ThemeType> => {
     const spacingUnit = 8
   
     return {
@@ -107,7 +84,7 @@ export const baseTheme: BaseThemeSpecification = {
       },
       typography: {
         postStyle: {
-          fontFamily: typography.fontFamily,
+          fontFamily: palette.fonts.sansSerifStack,
         },
         contentNotice: {
           fontStyle: "italic",
@@ -119,20 +96,26 @@ export const baseTheme: BaseThemeSpecification = {
           marginBottom: titleDividerSpacing,
           wordBreak: "break-word"
         },
-        body1: body1FontSize,
+        body1: {
+          fontSize: '1.4rem',
+          lineHeight: '2rem'
+        },
         body2: {
           fontWeight: 400,
-          ...body2FontSize
+          fontSize: '1.1rem',
+          lineHeight: '1.5rem',
         },
         smallText: {
-          ...typography.body2,
+          fontFamily: palette.fonts.sansSerifStack,
           fontWeight: 400,
-          ...smallFontSize
+          fontSize: "1rem",
+          lineHeight: '1.4rem'
         },
         tinyText: {
-          ...typography.body2,
+          fontFamily: palette.fonts.sansSerifStack,
           fontWeight: 400,
-          ...tinyFontSize
+          fontSize: ".75rem",
+          lineHeight: '1.4rem'
         },
         // used by h3
         display0: {
@@ -169,7 +152,7 @@ export const baseTheme: BaseThemeSpecification = {
         // Used for ui text that's (on LW) serifed rather than the primary
         // sans-serif ui font. On the EA Forum this is overridden with sans-serif
         uiSecondary: {
-          fontFamily: typography.fontFamily,
+          fontFamily: palette.fonts.sansSerifStack,
         },
         caption: {
           fontSize: ".9rem"
@@ -243,12 +226,16 @@ export const baseTheme: BaseThemeSpecification = {
         },
         MuiFormControlLabel: {
           label: {
-            ...typography.body2
+            fontFamily: palette.fonts.sansSerifStack,
+            fontSize: "1.1rem",
+            fontWeight: 400,
+            lineHeight: "1.5rem",
           }
         },
         MuiTableCell: {
           body: {
-            ...body2FontSize,
+            fontSize: '1.1rem',
+            lineHeight: '1.5rem',
             paddingLeft: 16,
             paddingRight: 16,
             paddingTop: 12,

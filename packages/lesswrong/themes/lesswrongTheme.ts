@@ -29,7 +29,9 @@ const serifStack = [
 ].join(',')
 
 export const lessWrongTheme: SiteThemeSpecification = {
-  shadePalette: {},
+  shadePalette: {
+    fonts: {sansSerifStack, serifStack},
+  },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
       main: '#5f9b65',

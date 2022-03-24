@@ -30,6 +30,11 @@ declare global {
     greyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thicknes: string, alpha: number) => string,
+    
+    fonts: {
+      sansSerifStack: string,
+      serifStack: string,
+    },
   }
   type ThemeComponentPalette = {
     primary: Partial<MuiColorShades> & {
@@ -341,7 +346,7 @@ declare global {
   type BaseThemeSpecification = {
     shadePalette: ThemeShadePalette,
     componentPalette: (shadePalette: ThemeShadePalette) => ThemeComponentPalette,
-    make: (palette: ThemePalette) => Omit<ThemeType,"palette">
+    make: (palette: ThemePalette) => PartialDeep<Omit<ThemeType,"palette">>
   };
   type SiteThemeSpecification = {
     shadePalette?: PartialDeep<ThemeShadePalette>,

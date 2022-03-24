@@ -1,3 +1,4 @@
+import type { PartialDeep } from 'type-fest'
 import deepmerge from 'deepmerge';
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
@@ -138,6 +139,12 @@ export const defaultShadePalette = (): ThemeShadePalette => {
     greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+    
+    fonts: {
+      // Every site theme overrides these
+      sansSerifStack: "sans-serif",
+      serifStack: "serif",
+    },
   }
 }
 
@@ -390,9 +397,3 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     contrastText: shades.grey[0],
   },
 })
-
-export const defaultPalette: ThemePalette = (() => {
-  const shadePalette = defaultShadePalette();
-  const componentPalette = defaultComponentPalette(shadePalette);
-  return deepmerge(shadePalette, componentPalette);
-})();

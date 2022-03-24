@@ -1,3 +1,4 @@
+import type { PartialDeep } from 'type-fest'
 import deepmerge from 'deepmerge';
 // eslint-disable-next-line no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
@@ -41,29 +42,19 @@ export const invertedGreyscale = {
   650: invertHexColor('#808080'),
 };
 
-export const darkModeShadePalette = (): ThemeShadePalette => {
-  const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
-  return {
+const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
+
+export const darkModeTheme: UserThemeSpecification = {
+  shadePalette: {
     grey: invertedGreyscale,
     greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
-  };
-}
-
-export const darkModeComponentPalette = (shades: ThemeShadePalette): ThemeComponentPalette => {
-  return deepmerge(
-    defaultComponentPalette(shades),
-    {
-      border: {
-        itemSeparatorBottom: shades.greyBorder("1px", .2),
-      },
-      type: "dark",
-    }
-  );
-}
-
-export const darkModeTheme: UserThemeSpecification = {
-  shadePalette: darkModeShadePalette(),
-  componentPalette: (shadePalette: ThemeShadePalette) => darkModeComponentPalette(shadePalette),
+  },
+  componentPalette: (shadePalette: ThemeShadePalette) => ({
+    border: {
+      itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
+    },
+    type: "dark",
+  }),
 };
