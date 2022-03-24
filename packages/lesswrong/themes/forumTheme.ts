@@ -47,5 +47,5 @@ const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpeci
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   
   let themeWithPalette = {...combinedTheme, palette};
-  return createMuiTheme(themeWithPalette) as MuiThemeType&ThemeType;
+  return createMuiTheme(themeWithPalette as any) as MuiThemeType&ThemeType;
 }

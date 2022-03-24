@@ -7,6 +7,7 @@ import Divider from '@material-ui/core/Divider';
 import Check from '@material-ui/icons/Check';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
+import { useCookies } from 'react-cookie'
 
 const styles = (theme: ThemeType): JssStyles => ({
   check: {
@@ -44,10 +45,13 @@ const addStylesheet = (href: string, onFinish: (success: boolean)=>void) => {
   document.head.appendChild(styleNode);
 }
 
+const THEME_COOKIE_NAME = "theme";
+
 const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
+  const [cookies, setCookie] = useCookies([THEME_COOKIE_NAME]);
   const { LWTooltip } = Components;
   const [currentThemeOptions, setCurrentThemeOptions] = useState((window as any)?.themeOptions as ThemeOptions);
   const setPageTheme = useSetTheme();
@@ -56,9 +60,11 @@ const ThemePickerMenu = ({children, classes}: {
     setCurrentThemeOptions(themeOptions);
     if (JSON.stringify((window as any).themeOptions) !== JSON.stringify(themeOptions)) {
       const oldThemeOptions = (window as any).themeOptions;
+      const serializedThemeOptions = JSON.stringify(themeOptions);
       (window as any).themeOptions = themeOptions;
       setPageTheme(themeOptions);
-      addStylesheet(`/allStyles?theme=${encodeURIComponent(JSON.stringify(themeOptions))}`, (success: boolean) => {
+      setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions));
+      addStylesheet(`/allStyles?theme=${encodeURIComponent(serializedThemeOptions)}`, (success: boolean) => {
         if (success) {
           removeStylesheetsMatching(encodeURIComponent(JSON.stringify(oldThemeOptions)));
         }

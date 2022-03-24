@@ -34,13 +34,20 @@ export const themeMetadata: Array<ThemeMetadata> = [
   },
 ]
 
-export function isValidSerializedThemeOptions(options: string): boolean {
+export function isValidSerializedThemeOptions(options: string|object): boolean {
   try {
-    const deserialized = JSON.parse(options);
-    if (!isValidThemeName(deserialized.name))
-      return false;
-    return true;
+    if (typeof options==="object") {
+      const optionsObj = (options as any)
+      if (isValidThemeName(optionsObj.name))
+        return true;
+    } else {
+      const deserialized = JSON.parse(options as string);
+      if (isValidThemeName(deserialized.name))
+        return true;
+    }
+    return false;
   } catch(e) {
+    // Invalid JSON -> exception -> false
     return false;
   }
 }

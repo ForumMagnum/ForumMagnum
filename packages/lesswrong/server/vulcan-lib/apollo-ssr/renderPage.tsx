@@ -164,8 +164,12 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     abTestGroupsUsed={abTestGroups}
   />;
 
-  const serializedThemeOptions = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : '{"name":"default"}';
-  const themeOptions = JSON.parse(serializedThemeOptions) as ThemeOptions
+  const themeCookie = getCookieFromReq(req, "theme");
+  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
+  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
+  const defaultThemeOptions = '{"name":"default"}';
+  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
+  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
 
   const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   
@@ -192,17 +196,24 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
   // context.
   const sheetsRegistry = context.sheetsRegistry;
-  const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
+  
+  // Experimental handling to make default theme (dark mode or not) depend on
+  // the user's system setting. Currently doesn't work because, while this does
+  // successfully customize everything that goes through our merged stylesheet,
+  // it can't handle the material-UI stuff that gets stuck into the page header.
+  /*const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
   const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
     +'<style>'
     +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
     +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
-    +'</style>'
-    //`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet(themeOptions).url}">`
-    //+`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${defaultStylesheet.url}" media="screen and (prefers-color-scheme: light)">`
-    //+`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${darkStylesheet.url}" media="screen and (prefers-color-scheme: dark)">`
+    +'</style>'*/
+  
+  const stylesheet = getMergedStylesheet(themeOptions);
+  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
+    +'<style id="jss-insertion-point"></style>'
+    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {
