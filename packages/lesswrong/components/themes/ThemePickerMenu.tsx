@@ -90,8 +90,8 @@ const ThemePickerMenu = ({children, classes}: {
       <MenuItem key={forumType} onClick={async (ev) => {
         await setTheme({
           ...currentThemeOptions,
-          forumThemeOverride: {
-            ...currentThemeOptions.forumThemeOverride,
+          siteThemeOverride: {
+            ...currentThemeOptions.siteThemeOverride,
             [forumTypeSetting.get()]: forumType
           },
         })

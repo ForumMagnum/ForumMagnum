@@ -1,22 +1,22 @@
 import { forumTypeSetting, ForumTypeString } from '../lib/instanceSettings';
 
-export type ThemeName = "default"|"dark"
+export type UserThemeName = "default"|"dark"
 
 export type ThemeOptions = {
-  name: ThemeName
+  name: UserThemeName
   
   // Overridden forum type (for admins to quickly test AF and EA Forum themes).
   // This is the form of a partial forum-type=>forum-type mapping, where keys
   // are the actual forum you're visiting and values are the theme you want.
   // (So if you override this on LW, then go to AF it isn't overridden there,
   // and vise versa.)
-  forumThemeOverride: Partial<Record<ForumTypeString,ForumTypeString>>
+  siteThemeOverride: Partial<Record<ForumTypeString,ForumTypeString>>
 }
 
 export type ThemeMetadata = {
   // Name to use for this theme internally, in config settings and stylesheet
   // names and whatnot. URL-safe characters only.
-  name: ThemeName
+  name: UserThemeName
   
   // Name to use for this theme when displaying it in menus. Title cased, with
   // spaces.
@@ -45,7 +45,7 @@ export function isValidSerializedThemeOptions(options: string): boolean {
   }
 }
 
-export function isValidThemeName(name: string): name is ThemeName {
+export function isValidThemeName(name: string): name is UserThemeName {
   for (let theme of themeMetadata) {
     if (theme.name === name)
       return true;
@@ -55,6 +55,6 @@ export function isValidThemeName(name: string): name is ThemeName {
 
 export function getForumType(themeOptions: ThemeOptions) {
   const actualForumType = forumTypeSetting.get();
-  return (themeOptions?.forumThemeOverride && themeOptions.forumThemeOverride[actualForumType]) || actualForumType;
+  return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 

@@ -3,8 +3,7 @@ import { getForumType, ThemeOptions } from './themeNames';
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 import type { PartialDeep } from 'type-fest'
-import { darkModePalette, invertedGreyscale } from './darkMode';
-import { defaultPalette, grey as defaultGreyscale } from './defaultPalette';
+import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -63,36 +62,209 @@ export const zIndexes = {
   petrovDayLoss: 1000000
 }
 
-export const getBasePalette = (themeOptions: ThemeOptions) =>
-  (themeOptions.name==="dark" ? darkModePalette : defaultPalette)
+export const baseTheme: BaseThemeSpecification = {
+  shadePalette: defaultShadePalette(),
+  componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
+  make: (palette: ThemePalette): ThemeType => {
+    // Defines sensible typography defaults that can be
+    // cleanly overriden
+  
+    const body1FontSize = {
+      fontSize: '1.4rem',
+      lineHeight: '2rem'
+    }
+  
+    const body2FontSize = {
+      fontSize: '1.1rem',
+      lineHeight: '1.5rem',
+    }
+  
+    const smallFontSize = {
+      fontSize: "1rem",
+      lineHeight: '1.4rem'
+    }
+  
+    const tinyFontSize = {
+      fontSize: ".75rem",
+      lineHeight: '1.4rem'
+    }
+  
+    const spacingUnit = 8
+  
+    return {
+      breakpoints: {
+        values: {
+          xs: 0,
+          sm: 600,
+          md: 960,
+          lg: 1280,
+          xl: 1400,
+        },
+      },
+      spacing: {
+        unit: spacingUnit,
+        titleDividerSpacing,
+      },
+      typography: {
+        postStyle: {
+          fontFamily: typography.fontFamily,
+        },
+        contentNotice: {
+          fontStyle: "italic",
+          color: palette.grey[600],
+          fontSize:".9em",
+          // This should be at least as big as the margin-bottom of <p> tags (18.1
+          // on LW), and the distance on mobile between the divider and the top of
+          // the notice is as good as any
+          marginBottom: titleDividerSpacing,
+          wordBreak: "break-word"
+        },
+        body1: body1FontSize,
+        body2: {
+          fontWeight: 400,
+          ...body2FontSize
+        },
+        smallText: {
+          ...typography.body2,
+          fontWeight: 400,
+          ...smallFontSize
+        },
+        tinyText: {
+          ...typography.body2,
+          fontWeight: 400,
+          ...tinyFontSize
+        },
+        // used by h3
+        display0: {
+          color: palette.grey[700],
+          fontSize: '1.6rem',
+          marginTop: '1em',
+          // added by MUI to display1, which we're imitating
+          fontWeight: 400,
+          lineHeight: "1.20588em",
+        },
+        display1: {
+          color: palette.grey[800],
+          fontSize: '2rem',
+          marginTop: '1em'
+        },
+        display2: {
+          color: palette.grey[800],
+          fontSize: '2.8rem',
+          marginTop: '1em'
+        },
+        display3: {
+          color: palette.grey[800],
+          marginTop: '1.2em',
+          fontSize: '3rem'
+        },
+        display4: {
+          color: palette.grey[800],
+        },
+        title: {
+          fontSize: 18,
+          fontWeight: 400,
+          marginBottom: 3,
+        },
+        // Used for ui text that's (on LW) serifed rather than the primary
+        // sans-serif ui font. On the EA Forum this is overridden with sans-serif
+        uiSecondary: {
+          fontFamily: typography.fontFamily,
+        },
+        caption: {
+          fontSize: ".9rem"
+        },
+        blockquote: {
+          fontWeight: 400,
+          paddingTop: spacingUnit*2,
+          paddingRight: spacingUnit*2,
+          paddingBottom: spacingUnit*2,
+          paddingLeft: spacingUnit*2,
+          borderLeft: `solid 3px ${palette.grey[300]}`,
+          margin: 0,
+        },
+        commentBlockquote: {
+          fontWeight: 400,
+          paddingTop: spacingUnit,
+          paddingRight: spacingUnit*3,
+          paddingBottom: spacingUnit,
+          paddingLeft: spacingUnit*2,
+          borderLeft: `solid 3px ${palette.grey[300]}`,
+          margin: 0,
+          marginLeft: spacingUnit*1.5,
+        },
+        codeblock: {
+          backgroundColor: palette.grey[100],
+          borderRadius: "5px",
+          border: `solid 1px ${palette.grey[300]}`,
+          padding: '1rem',
+          whiteSpace: 'pre-wrap',
+          margin: "1em 0",
+        },
+        code: {
+          fontFamily: monoStack,
+          fontSize: ".7em",
+          fontWeight: 400,
+          backgroundColor: palette.grey[100],
+          borderRadius: 2,
+          paddingTop: 3,
+          paddingBottom: 3,
+          lineHeight: 1.42
+        },
+        li: {
+          marginBottom: '.5rem',
+        },
+        commentHeader: {
+          fontSize: '1.5rem',
+          marginTop: '.5em',
+          fontWeight:500,
+        },
+        subheading: {
+          fontSize:15,
+          color: palette.grey[600]
+        },
+        subtitle: {
+          fontSize: 16,
+          fontWeight: 600,
+          marginBottom: ".5rem"
+        },
+      },
+      zIndexes: {
+        ...zIndexes
+      },
+      voting: {
+        strongVoteDelay: 1000,
+      },
+      overrides: {
+        MuiSelect: {
+          selectMenu: {
+            paddingLeft: spacingUnit
+          }
+        },
+        MuiFormControlLabel: {
+          label: {
+            ...typography.body2
+          }
+        },
+        MuiTableCell: {
+          body: {
+            ...body2FontSize,
+            paddingLeft: 16,
+            paddingRight: 16,
+            paddingTop: 12,
+            paddingBottom: 12,
+            marginTop: 0,
+            marginBottom: 0,
+            wordBreak: "normal",
+          }
+        }
+      }
+    }
+  }
+};
 
 // Create a theme and merge it with the default theme.
-export const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) => {
-  // Defines sensible typography defaults that can be
-  // cleanly overriden
-
-  const body1FontSize = {
-    fontSize: '1.4rem',
-    lineHeight: '2rem'
-  }
-
-  const body2FontSize = {
-    fontSize: '1.1rem',
-    lineHeight: '1.5rem',
-  }
-
-  const smallFontSize = {
-    fontSize: "1rem",
-    lineHeight: '1.4rem'
-  }
-
-  const tinyFontSize = {
-    fontSize: ".75rem",
-    lineHeight: '1.4rem'
-  }
-
-  const spacingUnit = 8
-
+/*export const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) => {
   const typography = theme.typography || {}
   const palette = getBasePalette(themeOptions);
   const grey = palette.grey;
@@ -100,175 +272,6 @@ export const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<Theme
   // TODO: Make this ThemeType rather than PartialDeep<ThemeType> so that every
   // theme is guaranteed to be complete
   const defaultTheme: PartialDeep<ThemeType> = {
-    breakpoints: {
-      values: {
-        xs: 0,
-        sm: 600,
-        md: 960,
-        lg: 1280,
-        xl: 1400,
-      },
-    },
-    spacing: {
-      unit: spacingUnit,
-      titleDividerSpacing,
-    },
-    typography: {
-      postStyle: {
-        fontFamily: typography.fontFamily,
-      },
-      contentNotice: {
-        fontStyle: "italic",
-        color: grey[600],
-        fontSize:".9em",
-        // This should be at least as big as the margin-bottom of <p> tags (18.1
-        // on LW), and the distance on mobile between the divider and the top of
-        // the notice is as good as any
-        marginBottom: titleDividerSpacing,
-        wordBreak: "break-word"
-      },
-      body1: body1FontSize,
-      body2: {
-        fontWeight: 400,
-        ...body2FontSize
-      },
-      smallText: {
-        ...typography.body2,
-        fontWeight: 400,
-        ...smallFontSize
-      },
-      tinyText: {
-        ...typography.body2,
-        fontWeight: 400,
-        ...tinyFontSize
-      },
-      // used by h3
-      display0: {
-        color: grey[700],
-        fontSize: '1.6rem',
-        marginTop: '1em',
-        // added by MUI to display1, which we're imitating
-        fontWeight: 400,
-        lineHeight: "1.20588em",
-      },
-      display1: {
-        color: grey[800],
-        fontSize: '2rem',
-        marginTop: '1em'
-      },
-      display2: {
-        color: grey[800],
-        fontSize: '2.8rem',
-        marginTop: '1em'
-      },
-      display3: {
-        color: grey[800],
-        marginTop: '1.2em',
-        fontSize: '3rem'
-      },
-      display4: {
-        color: grey[800],
-      },
-      title: {
-        fontSize: 18,
-        fontWeight: 400,
-        marginBottom: 3,
-      },
-      // Used for ui text that's (on LW) serifed rather than the primary
-      // sans-serif ui font. On the EA Forum this is overridden with sans-serif
-      uiSecondary: {
-        fontFamily: typography.fontFamily,
-      },
-      caption: {
-        fontSize: ".9rem"
-      },
-      blockquote: {
-        fontWeight: 400,
-        paddingTop: spacingUnit*2,
-        paddingRight: spacingUnit*2,
-        paddingBottom: spacingUnit*2,
-        paddingLeft: spacingUnit*2,
-        borderLeft: `solid 3px ${grey[300]}`,
-        margin: 0,
-      },
-      commentBlockquote: {
-        fontWeight: 400,
-        paddingTop: spacingUnit,
-        paddingRight: spacingUnit*3,
-        paddingBottom: spacingUnit,
-        paddingLeft: spacingUnit*2,
-        borderLeft: `solid 3px ${grey[300]}`,
-        margin: 0,
-        marginLeft: spacingUnit*1.5,
-      },
-      codeblock: {
-        backgroundColor: grey[100],
-        borderRadius: "5px",
-        border: `solid 1px ${grey[300]}`,
-        padding: '1rem',
-        whiteSpace: 'pre-wrap',
-        margin: "1em 0",
-      },
-      code: {
-        fontFamily: monoStack,
-        fontSize: ".7em",
-        fontWeight: 400,
-        backgroundColor: grey[100],
-        borderRadius: 2,
-        paddingTop: 3,
-        paddingBottom: 3,
-        lineHeight: 1.42
-      },
-      li: {
-        marginBottom: '.5rem',
-      },
-      commentHeader: {
-        fontSize: '1.5rem',
-        marginTop: '.5em',
-        fontWeight:500,
-      },
-      subheading: {
-        fontSize:15,
-        color: grey[600]
-      },
-      subtitle: {
-        fontSize: 16,
-        fontWeight: 600,
-        marginBottom: ".5rem"
-      },
-    },
-    palette: palette,
-    zIndexes: {
-      ...zIndexes
-    },
-    voting: {
-      strongVoteDelay: 1000,
-    },
-    overrides: {
-      MuiSelect: {
-        selectMenu: {
-          paddingLeft: spacingUnit
-        }
-      },
-      MuiFormControlLabel: {
-        label: {
-          ...typography.body2
-        }
-      },
-      MuiTableCell: {
-        body: {
-          ...body2FontSize,
-          paddingLeft: 16,
-          paddingRight: 16,
-          paddingTop: 12,
-          paddingBottom: 12,
-          marginTop: 0,
-          marginBottom: 0,
-          wordBreak: "normal",
-        }
-      }
-    }
-  }
 
   const mergedTheme = deepmerge(
     defaultTheme,
@@ -280,4 +283,4 @@ export const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<Theme
     {isMergeableObject:isPlainObject}
   )
   return createMuiTheme(mergedTheme)
-}
+}*/

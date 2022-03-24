@@ -1,4 +1,3 @@
-import { createTheme } from './createThemeDefaults';
 import indigo from '@material-ui/core/colors/indigo';
 import type { ThemeOptions } from './themeNames';
 import type { PartialDeep } from 'type-fest'
@@ -24,8 +23,9 @@ const sansSerifStack = [
   'sans-serif'
 ].join(',')
 
-export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => {
-  const palette: PartialDeep<ThemePalette> = {
+export const alignmentForumTheme: SiteThemeSpecification = {
+  shadePalette: {},
+  componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: indigo,
     secondary: indigo,
     lwTertiary: {
@@ -40,9 +40,8 @@ export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => {
     },
     headerType: "primary",
     headerTextColor: "#ffffff",
-  }
-  return createTheme(themeOptions, {
-    palette: palette,
+  }),
+  make: (palette: ThemePalette) => ({
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {
@@ -112,7 +111,7 @@ export const getAlignmentForumTheme = (themeOptions: ThemeOptions) => {
         }
       }
     }
-  });
-}
+  }),
+};
 
-export default getAlignmentForumTheme;
+export default alignmentForumTheme;

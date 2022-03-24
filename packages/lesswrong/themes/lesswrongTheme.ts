@@ -1,4 +1,3 @@
-import { createTheme, getBasePalette }  from './createThemeDefaults';
 import type { ThemeOptions } from './themeNames';
 import type { PartialDeep } from 'type-fest'
 
@@ -29,9 +28,9 @@ const serifStack = [
   'serif'
 ].join(',')
 
-export const getLwTheme = (themeOptions: ThemeOptions) => {
-  const basePalette = getBasePalette(themeOptions);
-  const palette = {
+export const lessWrongTheme: SiteThemeSpecification = {
+  shadePalette: {},
+  componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
       main: '#5f9b65',
     },
@@ -45,10 +44,8 @@ export const getLwTheme = (themeOptions: ThemeOptions) => {
     error: {
       main: '#bf360c',
     },
-  }
-  
-  return createTheme(themeOptions, {
-    palette: palette,
+  }),
+  make: (palette: ThemePalette) => ({
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {
@@ -89,7 +86,7 @@ export const getLwTheme = (themeOptions: ThemeOptions) => {
     overrides: {
       MuiAppBar: {
         colorDefault: {
-          backgroundColor: basePalette.grey[30],
+          backgroundColor: palette.grey[30],
         }
       },
       PostsVote: {
@@ -114,7 +111,7 @@ export const getLwTheme = (themeOptions: ThemeOptions) => {
       MuiMenuItem: {
         root: {
           fontFamily: sansSerifStack,
-          color: basePalette.grey[800],
+          color: palette.grey[800],
           fontSize: "1.1rem",
           lineHeight: "1em"
         }
@@ -128,11 +125,9 @@ export const getLwTheme = (themeOptions: ThemeOptions) => {
       MuiCard: {
         root: {
           borderRadius: 1,
-          boxShadow: basePalette.boxShadow.lwCard,
+          boxShadow: palette.boxShadow.lwCard,
         }
       }
     }
-  });
+  }),
 };
-
-export default getLwTheme

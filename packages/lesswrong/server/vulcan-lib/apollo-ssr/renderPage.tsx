@@ -192,8 +192,8 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
   // context.
   const sheetsRegistry = context.sheetsRegistry;
-  const defaultStylesheet = getMergedStylesheet({name: "default", forumThemeOverride: {}});
-  const darkStylesheet = getMergedStylesheet({name: "dark", forumThemeOverride: {}});
+  const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
+  const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
     +'<style>'

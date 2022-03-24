@@ -8,7 +8,7 @@ testStartup();
 describe('JSS', () => {
   it('uses only colors from the theme palette', () => {
     importAllComponents();
-    const realTheme = getForumTheme({name: "default", forumThemeOverride: {}}) as unknown as ThemeType;
+    const realTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
     const fakeTheme = replacePaletteWithStubs(realTheme);
     let nonPaletteColors: string[] = [];
     
