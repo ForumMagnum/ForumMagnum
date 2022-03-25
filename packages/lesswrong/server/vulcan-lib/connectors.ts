@@ -1,11 +1,18 @@
-/*
- * A light wrapper around the Meteor-provided CRUD functionality.
- *
- * NB: You can enable logging here, but be warned that we don't use these
- * functions everywhere, some paths access the DB without using this wapper
- */
 import { Utils } from '../../lib/vulcan-lib/utils';
 import { loggerConstructor } from '../../lib/utils/logging';
+
+//
+// Connectors: A set of wrappers around mongodb collection operators.
+// DEPRECATED. These originate in Vulcan, and they have a major pitfall.
+// At some point, Vulcan decided that `documentId` should be usable as a
+// synonym for `_id`, in utility functions and in the graphql API. But we were
+// already using `documentId` extensively as an actual field name (for foreign-
+// key fields), so this doesn't work at all, and it created a big mess.
+//
+// Usages of `Connectors` should be replaced with either `collection.someMongoFunction`
+// after verifying that they are not relying on the `documentId` translation
+// behavior.
+//
 
 // convert GraphQL selector into Mongo-compatible selector
 // TODO: add support for more than just documentId/_id and slug, potentially making conversion unnecessary
