@@ -52,14 +52,15 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, header,
     cloudinaryProps.w = width.toString()
     imageStyle.width = width
   }
-  // ignore input width if we're told we have a header
-  if (header) {
-    cloudinaryProps.w = 'iw'
-    imageStyle.width="100%"
-  }
   if (height) {
     cloudinaryProps.h = height.toString()
     imageStyle.height = height+"px";
+  }
+  // ignore input width if we're told we have a header
+  if (header) {
+    cloudinaryProps.h = ((height || DEFAULT_HEADER_HEIGHT)*2).toString()
+    cloudinaryProps.w = 'iw'
+    imageStyle.width="100%"
   }
   if (objectFit) {
     imageStyle.objectFit = objectFit
