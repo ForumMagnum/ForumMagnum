@@ -310,7 +310,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequencesBanner: shades.greyAlpha(.5),
   },
   boxShadow: {
-    default: `0 1px 5px {shades.boxShadowColor(.025)}`,
+    default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
     moreFocused: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     faint: `0 1px 5px ${shades.boxShadowColor(.1)}`,
     

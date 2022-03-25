@@ -12,7 +12,7 @@ import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "&:hover": {
-      backgroundColor: `${theme.palette.panelBackground.darken20} !important`,
+      backgroundColor: `${theme.palette.panelBackground.darken02} !important`,
     },
     display: "flex",
     alignItems: "center",

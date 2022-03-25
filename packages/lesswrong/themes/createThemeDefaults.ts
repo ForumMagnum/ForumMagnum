@@ -112,7 +112,6 @@ export const baseTheme: BaseThemeSpecification = {
           lineHeight: '1.4rem'
         },
         tinyText: {
-          fontFamily: palette.fonts.sansSerifStack,
           fontWeight: 400,
           fontSize: ".75rem",
           lineHeight: '1.4rem'
