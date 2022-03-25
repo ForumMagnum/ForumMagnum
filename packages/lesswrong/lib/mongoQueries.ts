@@ -24,10 +24,15 @@ export async function mongoAggregate<N extends CollectionNameString>(collectionN
   return await collection.aggregate(pipeline).toArray();
 }
 
-export async function mongoUpdate<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
+export async function mongoUpdateOne<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
 {
   const collection = getCollection(collectionName);
-  return await collection.rawUpdate(selector, modifier, options);
+  return await collection.rawUpdateOne(selector, modifier, options);
+}
+export async function mongoUpdateMany<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, modifier?: MongoModifier<ObjectsByCollectionName[N]>, options?: MongoUpdateOptions<ObjectsByCollectionName[N]>): Promise<number>
+{
+  const collection = getCollection(collectionName);
+  return await collection.rawUpdateMany(selector, modifier, options);
 }
 export async function mongoRemove<N extends CollectionNameString>(collectionName: N, selector?: string|MongoSelector<ObjectsByCollectionName[N]>, options?: MongoRemoveOptions<ObjectsByCollectionName[N]>)
 {

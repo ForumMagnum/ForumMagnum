@@ -85,7 +85,7 @@ export const Connectors = {
     return result
   },
   
-  update: async <T extends DbObject>(
+  updateOne: async <T extends DbObject>(
     collection: CollectionBase<T>,
     selector: MongoSelector<T>,
     modifier: MongoModifier<T>,
@@ -98,7 +98,7 @@ export const Connectors = {
     logger('modifier', modifier)
     logger('options', options)
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
-    const result = await collection.rawUpdate(convertedSelector, modifier, options);
+    const result = await collection.rawUpdateOne(convertedSelector, modifier, options);
     logger('result', result)
     logger('---<')
     return result

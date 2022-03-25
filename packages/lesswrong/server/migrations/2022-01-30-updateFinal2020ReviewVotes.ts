@@ -63,7 +63,7 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log("Updating all karma...")
     for (let postId in postsAllUsers) {
-      await Posts.rawUpdate({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         finalReviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
         finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
       }})
@@ -72,7 +72,7 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log("Updating high karma...")
     for (let postId in postsHighKarmaUsers) {
-      await Posts.rawUpdate({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
         finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
       }})
@@ -80,7 +80,7 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log("Updating AF...")
     for (let postId in postsAFUsers) {
-      await Posts.rawUpdate({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         finalReviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
         finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
        }})

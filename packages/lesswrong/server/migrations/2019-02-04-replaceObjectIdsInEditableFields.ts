@@ -49,7 +49,7 @@ registerMigration({
         },
         migrate: async (documents: Array<any>) => {
           for (let doc of documents) {
-            await collection.rawUpdate(
+            await collection.rawUpdateOne(
               {_id: doc._id},
               {
                 $set: {
