@@ -269,6 +269,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     hoverHighlightGrey: shades.greyAlpha(.1),
     postsItemHover: shades.grey[50],
     formErrors: shades.greyAlpha(0.25),
+    darken02: shades.greyAlpha(.02),
     darken03: shades.greyAlpha(.03),
     darken04: shades.greyAlpha(.04),
     darken05: shades.greyAlpha(.05),
@@ -328,6 +329,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sunshineSendMessage: `0 0 10px ${shades.boxShadowColor(.5)}`,
     lwCard: `0 0 10px ${shades.boxShadowColor(.2)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
+    recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),

@@ -80,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8
   },
   image: {
-    backgroundColor: "#eee",
+    backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
     [legacyBreakpoints.maxSmall]: {

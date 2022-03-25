@@ -74,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   topTag: {
     background: theme.palette.primary.main,
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     border: 'none',
     padding: '6px 12px',
     fontWeight: 600,

@@ -172,6 +172,7 @@ declare global {
       hoverHighlightGrey: ColorString,
       postsItemHover: ColorString,
       formErrors: ColorString,
+      darken02: ColorString,
       darken03: ColorString,
       darken04: ColorString,
       darken05: ColorString,
@@ -231,6 +232,7 @@ declare global {
       sunshineSendMessage: string,
       lwCard: string,
       searchResults: string,
+      recentDiscussionMeetupsPoke: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,

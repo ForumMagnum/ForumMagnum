@@ -94,7 +94,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   distanceFilter: {
     display: 'flex',
     alignItems: 'center',
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
   },
   distanceInput: {
     width: 68,

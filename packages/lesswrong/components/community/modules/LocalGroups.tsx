@@ -63,7 +63,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupContent: {
     height: 115,
-    background: 'white',
+    background: theme.palette.panelBackground.default,
     backgroundRepeat: 'no-repeat',
     backgroundPositionY: 'center',
     padding: '16px 16px 16px 150px',

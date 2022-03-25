@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     
     border: "1px solid #aaa",
     borderRadius: 10,
-    boxShadow: "5px 5px 5px rgba(0,0,0,20%)",
+    boxShadow: theme.palette.boxShadow.recentDiscussionMeetupsPoke,
     
     marginLeft: "auto",
     marginRight: "auto",

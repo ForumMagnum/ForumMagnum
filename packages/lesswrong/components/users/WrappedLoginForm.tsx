@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   primaryBtn: {
     background: theme.palette.primary.main,
-    color: 'white !important',
+    color: `${theme.palette.buttons.primaryDarkText} !important`,
     fontSize: '0.9em',
     padding: '6px 12px',
     textTransform: 'uppercase',

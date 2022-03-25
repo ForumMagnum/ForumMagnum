@@ -71,9 +71,17 @@ function replacePaletteWithStubs(theme: ThemeType): ThemeType {
   };
 }
 
+const colorWords = ["white","black","red","grey","gray"];
 function stringMentionsAnyColor(str: string): boolean {
-  // TODO: Extend this to other color words besides black and white?
-  return !!str.match(/rgba?\(/)
+  if (!!str.match(/rgba?\(/)
     || !!str.match(/#[0-9a-fA-F]{6}/)
-    || !!str.match(/\b(white|black)\b/)
+    || !!str.match(/#[0-9a-fA-F]{3}/)
+  ) {
+    return true;
+  }
+  for (let colorWord of colorWords) {
+    if (new RegExp(`\\b${colorWord}\\b`).test(str))
+      return true;
+  }
+  return false;
 }
