@@ -133,14 +133,6 @@ const hrStyles = {
 }
 
 const footnoteStyles = () => ({
-  '& .footnote-section': {
-    counterReset: "footnote-counter",
-  },
-  '& .footnote-item': {
-    listStyle: "none",
-    counterIncrement: "footnote-counter",
-    marginLeft: "0.5em",
-  },
   '& .footnote-item > *': {
     verticalAlign: "text-top",
   },
@@ -150,12 +142,6 @@ const footnoteStyles = () => ({
   },
   '& .footnotes .footnote-back-link > sup': {
     marginRight: 0,
-  },
- '& .footnote-item::before': {
-    content: "counter(footnote-counter) '. '",
-    display: "inline-block",
-    position: "relative",
-    right: "0.2em",
   },
  '& .footnote-content': {
     display: "inline-block",
