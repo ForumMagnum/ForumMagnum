@@ -1,5 +1,4 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import type { ThemeOptions } from './themeNames';
 import type { PartialDeep } from 'type-fest'
 
 const titleStack = [

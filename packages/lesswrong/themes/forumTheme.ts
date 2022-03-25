@@ -1,28 +1,9 @@
-import { forumTypeSetting, ForumTypeString } from '../lib/instanceSettings';
-import { alignmentForumTheme } from '../themes/alignmentForumTheme'
-import { eaForumTheme } from '../themes/eaTheme'
-import { lessWrongTheme } from '../themes/lesswrongTheme'
-import { getForumType, ThemeOptions, UserThemeName } from './themeNames';
+import { getForumType, ThemeOptions } from './themeNames';
 import { baseTheme } from './createThemeDefaults';
-import { darkModeTheme } from './darkMode';
 import { createMuiTheme, Theme as MuiThemeType } from '@material-ui/core/styles';
+import { getUserTheme } from './userThemes/index';
+import { getSiteTheme } from './siteThemes/index';
 import deepmerge from 'deepmerge';
-
-export const getSiteTheme = (forumType: ForumTypeString): SiteThemeSpecification => {
-  switch (forumType) {
-    case 'AlignmentForum': return alignmentForumTheme;
-    case 'EAForum': return eaForumTheme;
-    case "LessWrong": return lessWrongTheme;
-    default: return lessWrongTheme;
-  }
-}
-
-export const getUserTheme = (name: UserThemeName): UserThemeSpecification => {
-  switch (name) {
-    case "default": return {};
-    case "dark": return darkModeTheme;
-  }
-}
 
 export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeType => {
   const forumType = getForumType(themeOptions);

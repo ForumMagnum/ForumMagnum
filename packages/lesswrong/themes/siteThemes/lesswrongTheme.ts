@@ -1,4 +1,3 @@
-import type { ThemeOptions } from './themeNames';
 import type { PartialDeep } from 'type-fest'
 
 const sansSerifStack = [
