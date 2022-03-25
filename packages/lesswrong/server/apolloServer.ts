@@ -111,7 +111,7 @@ export function startWebserver() {
   addClientIdMiddleware(addMiddleware);
   
   //eslint-disable-next-line no-console
-  console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
+  console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
   // create server
   // given options contains the schema

@@ -455,6 +455,7 @@ importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTa
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
 importComponent("TagPageButtonRow", () => require('../components/tagging/TagPageButtonRow'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
+importComponent("TagIntroSequence", () => require('../components/tagging/TagIntroSequence'));
 importComponent("TagHistoryPageTitle", () => require('../components/tagging/TagHistoryPageTitle'));
 importComponent("AddPostsToTag", () => require('../components/tagging/AddPostsToTag'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));

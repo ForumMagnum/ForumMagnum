@@ -13,6 +13,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     minHeight: 20,
   },
+  afterPostsListMarginTop: {
+    marginTop: 6,
+  },
   loading: {
     minHeight: 20,
   },
@@ -40,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Load More button. The simplest way to use this is to take `loadMoreProps`
 // from the return value of `useMulti` and spread it into this component's
 // props.
-const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassName, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes, sectionFooterStyles }: {
+const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassName, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes, sectionFooterStyles, afterPostsListMarginTop }: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
@@ -57,7 +60,8 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassNam
   hideLoading?: boolean,
   hidden?: boolean,
   classes: ClassesType,
-  sectionFooterStyles?: boolean
+  sectionFooterStyles?: boolean,
+  afterPostsListMarginTop?: boolean,
 }) => {
   const { captureEvent } = useTracking()
 
@@ -76,7 +80,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, loadingClassNam
 
   return (
     <a
-      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled, [classes.sectionFooterStyles]: sectionFooterStyles})}
+      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled, [classes.sectionFooterStyles]: sectionFooterStyles, [classes.afterPostsListMarginTop]: afterPostsListMarginTop})}
       href="#"
       onClick={handleClickLoadMore}
     >

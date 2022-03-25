@@ -136,7 +136,7 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
       )
     }
   }
-  await collection.update(document._id, {
+  await collection.rawUpdate(document._id, {
     $set: {
       [fieldName]: pick(latestRevision, revisionFieldsToCopy),
       [`${fieldName}_latest`]: latestRevision._id

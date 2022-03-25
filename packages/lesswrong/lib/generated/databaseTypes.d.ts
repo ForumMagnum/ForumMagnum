@@ -653,6 +653,7 @@ interface DbTag extends DbObject {
   lesswrongWikiImportCompleted: boolean
   htmlWithContributorAnnotations: string
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  introSequenceId: string
   description: EditableFieldContents
 }
 
