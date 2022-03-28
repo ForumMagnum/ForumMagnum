@@ -27,22 +27,21 @@ function makeCloudinaryImageUrl (publicId: string, cloudinaryProps: CloudinaryPr
   return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`
 }
 
-// Cloudinary image without using cloudinary-react. Allows SSR. See:
-// https://github.com/LessWrong2/Lesswrong2/pull/937 "Drop cloudinary react"
-// https://github.com/LessWrong2/Lesswrong2/pull/964 "Temporarily revert removal of cloudinary-react"
-const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, header, className}: {
+// Cloudinary image without using cloudinary-react. Allows SSR.
+const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, fullWidthHeader, className}: {
+  /** Overridden if fullWidthHeader is true */
   width?: number|string,
   height?: number,
   objectFit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down',
   publicId: string,
   imgProps?: CloudinaryPropsType,
-  header?: boolean,
+  /** Overrides width */
+  fullWidthHeader?: boolean,
   className?: string,
 }) => {
   let cloudinaryProps: CloudinaryPropsType = {
     c: "fill",
     dpr: "auto",
-    g: "custom",
     q: "auto",
     f: "auto"
   };
@@ -56,8 +55,10 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, header,
     cloudinaryProps.h = height.toString()
     imageStyle.height = height+"px";
   }
-  // ignore input width if we're told we have a header
-  if (header) {
+  // ignore input width if we're told we have a fullWidthHeader
+  if (fullWidthHeader) {
+    // cloudinary props will be used for src, but srcset will effectively
+    // overwrite these, unless client is IE
     cloudinaryProps.h = ((height || DEFAULT_HEADER_HEIGHT)*2).toString()
     cloudinaryProps.w = 'iw'
     imageStyle.width="100%"
@@ -70,17 +71,19 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, header,
 
   const imageUrl = makeCloudinaryImageUrl(publicId, cloudinaryProps)
 
-  // header images are big and so need srcsets
+  // fullWidthHeader images are big and so need srcsets
   let srcSet = {}
-  if (header) {
+  if (fullWidthHeader) {
+    // We always double the height, to account for high dpi screens. We can't
+    // combine srcset width-checking with DPI-checking unfortunately.
     const srcSetHeight = ((height || DEFAULT_HEADER_HEIGHT)*2).toString()
+    // NB: we lie about the final width here, we don't know it
     srcSet = {
-      // we generally double the size because lots of screens these days are
-      // retina or similar
       srcSet: `
-        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '900', h: srcSetHeight}})} 450w,
-        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '1800', h: srcSetHeight}})} 900w,
-        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '3000', h: srcSetHeight}})} 1500w,
+        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '450', h: srcSetHeight}})} 450w,
+        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '900', h: srcSetHeight}})} 900w,
+        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '1500', h: srcSetHeight}})} 1500w,
+        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: 'iw', h: srcSetHeight}})} 3000w,
       `
     }
   }

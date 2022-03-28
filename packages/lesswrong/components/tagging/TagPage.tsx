@@ -269,7 +269,7 @@ const TagPage = ({classes}: {
       <CloudinaryImage2
         publicId={tag.bannerImageId}
         height={300}
-        header
+        fullWidthHeader
       />
     </div>}
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
