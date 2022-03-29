@@ -6,7 +6,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles, metaculusBackground, postHighlightStyles } from '../../themes/stylePiping';
+import { commentBodyStyles, metaculusBackground } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
@@ -414,7 +414,6 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
     height: 200
   },
   roomInfo: {
-    ...postHighlightStyles(theme),
     padding: 16
   },
   roomHover: {
@@ -460,7 +459,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   });
   
   const data = rawData?.MozillaHubsRoomData
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   if (loading || !data) return <a href={href}>
     <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
@@ -479,7 +478,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.card}>
           <img className={classes.image} src={data.previewImage}/>
-          <div className={classes.roomInfo}>
+          <ContentStyles contentType="postHighlight" className={classes.roomInfo}>
             <div className={classes.roomTitle}>{data.name}</div>
             <div className={classes.usersPreview}>
               <SupervisorAccountIcon className={classes.icon}/> 
@@ -488,7 +487,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
             {data.description && <div className={classes.description}>
               {data.description}
             </div>}
-          </div>
+          </ContentStyles>
         </div>
       </LWPopper>
     </span>
