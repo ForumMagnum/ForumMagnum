@@ -6,7 +6,6 @@ import NoSSR from 'react-no-ssr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
@@ -35,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit/2,
     marginBottom: theme.spacing.unit * 2,
-    ...postBodyStyles(theme),
   },
   banner: {
     position: "absolute",
@@ -109,7 +107,7 @@ const SequencesPage = ({ documentId, classes }: {
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
     ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton,
+    ContentItemBody, Typography, SectionButton, ContentStyles,
   } = Components
   
   if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
@@ -168,9 +166,9 @@ const SequencesPage = ({ documentId, classes }: {
           </SectionSubtitle></span>}
         </SectionFooter>
         
-        <div className={classes.description}>
+        <ContentStyles contentType="post" className={classes.description}>
           {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`}/>}
-        </div>
+        </ContentStyles>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
             <ChaptersList sequenceId={document._id} canEdit={canEdit} />

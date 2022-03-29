@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
-import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
@@ -92,7 +91,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   groupDescriptionBody: {
-    ...postBodyStyles(theme),
     padding: theme.spacing.unit,
   },
   contactUsSection: {
@@ -193,7 +191,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore
+    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -386,13 +384,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           </div>
         </div>
         
-        <div className={classes.groupDescription}>
+        <ContentStyles contentType="post" className={classes.groupDescription}>
           {group.contents && <ContentItemBody
             dangerouslySetInnerHTML={htmlBody}
             className={classes.groupDescriptionBody}
             description={`group ${groupId}`}
           />}
-        </div>
+        </ContentStyles>
 
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
         

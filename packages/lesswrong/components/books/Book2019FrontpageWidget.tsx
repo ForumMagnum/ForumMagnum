@@ -2,7 +2,6 @@ import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { postBodyStyles } from '../../themes/stylePiping';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
@@ -44,7 +43,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   bookExplanation: {
-    ...postBodyStyles(theme),
     paddingRight: 100,
     textAlign: 'right',
     [theme.breakpoints.down('md')]: {
@@ -121,7 +119,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const Book2019FrontpageWidget = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { BookCheckout, Book2019Animation } = Components
+  const { BookCheckout, Book2019Animation, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -148,7 +146,7 @@ const Book2019FrontpageWidget = ({ classes }: {
   }
 
   const BookMarketingText = ({title, subtitle, description, buttons}) => {
-    return <div className={classes.bookExplanation}>
+    return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
       <h1 className={classes.mainHeading}>
         {title}
@@ -162,7 +160,7 @@ const Book2019FrontpageWidget = ({ classes }: {
       <div className={classes.buttonRow}>
         {buttons}
       </div>
-    </div>
+    </ContentStyles>
   }
 
   return (

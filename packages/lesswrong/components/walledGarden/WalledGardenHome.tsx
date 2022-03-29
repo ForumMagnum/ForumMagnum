@@ -1,14 +1,9 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  body: {
-    ...theme.typography.body1,
-    ...postBodyStyles(theme)
-  },
   users: {
     background: "white",
     padding: 20,
@@ -26,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
-  const { SingleColumnSection, Error404, Typography } = Components
+  const { SingleColumnSection, Error404, Typography, ContentStyles } = Components
   const currentUser = useCurrentUser()
   const { results: users, totalCount } = useMulti({
     terms: {
@@ -41,7 +36,7 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
   if (!currentUser || !currentUser.walledGardenInvite) { return <Error404/> }
 
   return <SingleColumnSection>
-    <div className={classes.body}>
+    <ContentStyles contentType="post">
       <Typography variant="display3">
         Walled Garden
       </Typography>
@@ -97,7 +92,7 @@ const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
           </div>)}
         </div>
       </div>
-    </div>
+    </ContentStyles>
   </SingleColumnSection>
 }
 

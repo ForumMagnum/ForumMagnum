@@ -1,11 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { postBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
   description: {
-    ...postBodyStyles(theme),
     marginLeft: 10,
     marginBottom: 8,
     marginTop: 16
@@ -39,7 +37,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   }, []);
 
   const { ChaptersEditForm, SectionTitle, SectionFooter,
-    SectionButton, SequencesPostsList, ContentItemBody } = Components
+    SectionButton, SequencesPostsList, ContentItemBody, ContentStyles } = Components
   const html = chapter.contents?.html || ""
   if (edit) return (
     <ChaptersEditForm
@@ -57,12 +55,12 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
       {chapter.title && <SectionTitle title={chapter.title}>
         {canEdit && editButton}
       </SectionTitle>}
-      {html && <div className={classes.description}>
+      {html && <ContentStyles contentType="post" className={classes.description}>
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: html}}
           description={`chapter ${chapter._id}`}
         />
-      </div>}
+      </ContentStyles>}
       <div className={classes.posts}>
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
           <SequencesPostsList posts={chapter.posts} chapter={chapter} />

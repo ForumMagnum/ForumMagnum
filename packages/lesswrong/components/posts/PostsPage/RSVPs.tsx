@@ -3,7 +3,6 @@ import React, { useCallback, useEffect } from 'react';
 import { RSVPType } from '../../../lib/collections/posts/schema';
 import { useLocation } from '../../../lib/routeUtil';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { postBodyStyles } from '../../../themes/stylePiping';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { responseToText } from './RSVPForm';
@@ -11,7 +10,6 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
-    ...postBodyStyles(theme),
     marginBottom: 12
   },
   rsvpItem: {
@@ -77,7 +75,7 @@ const RSVPs = ({post, classes}: {
       openRSVPForm("yes")
     }
   })
-  return <div className={classes.body}>
+  return <ContentStyles contentType="post" className={classes.body}>
     <div className={classes.topRow}>
       <i>The host has requested RSVPs for this event</i>
       <span className={classes.buttons}>
@@ -96,8 +94,7 @@ const RSVPs = ({post, classes}: {
           <ContentStyles contentType="comment" className={classes.email}>{rsvp.email}</ContentStyles>}
       </span>)}
     </div>}
-    
-  </div>;
+  </ContentStyles>;
 }
 
 const RSVPsComponent = registerComponent('RSVPs', RSVPs, {styles});

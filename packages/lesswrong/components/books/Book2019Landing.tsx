@@ -3,7 +3,6 @@ import {Components, registerComponent} from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { captureEvent } from "../../lib/analyticsEvents";
-import { postBodyStyles } from '../../themes/stylePiping';
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
@@ -169,7 +168,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: "15px",
   },
   body: {
-    ...postBodyStyles(theme),
     marginBottom: 50,
     marginLeft: 50
   },
@@ -263,7 +261,7 @@ const HiddenQuote = ({classes}: ClassesType) => {
 const Book2019Landing = ({classes}: {
   classes: ClassesType,
 }) => {
-  const {Book2019Animation, HeadTags, LWTooltip} = Components;
+  const {Book2019Animation, HeadTags, LWTooltip, ContentStyles} = Components;
 
   return (
     <div>
@@ -311,10 +309,10 @@ const Book2019Landing = ({classes}: {
             </div>
           </div>
         </div>
-        <div className={classNames(classes.body, classes.text1)}>
+        <ContentStyles contentType="post" className={classNames(classes.body, classes.text1)}>
           <p>{lw()} is a community blog devoted to refining the art of human rationality. This book set is a collection of our best essays from 2019, as determined by our <Link to="/posts/kdGSTBj3NA2Go3XaE/2019-review-voting-results">Annual Review</Link>.</p>
           <p>It contains over 50 essays, packaged into a beautiful set of 4 books, which form the latest addition to the LessWrong canon.is a community blog devoted to refining the art of human rationality.</p>
-        </div>
+        </ContentStyles>
         <img className={classes.spread1} src="https://39669.cdn.cke-cs.com/rQvD3VnunXZu34m86e5f/images/740b9c8f623b83765762da9ed63ca0e26d9b622da0c60db1.jpg/w_2800" />
         <img className={classes.bookStack} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1639200627/risks-from-learned-optimization_yk7hpc.jpg" />
         <div className={classNames(classes.body, classes.text2)}>
