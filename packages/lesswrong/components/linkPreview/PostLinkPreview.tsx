@@ -27,9 +27,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
     documentId: postID,
   });
 
-  if (!post) return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;
-
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
@@ -47,9 +45,8 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
   });
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewSequencePostComponent = registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
@@ -116,9 +113,7 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
     documentId: postId,
   });
 
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
-
-  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
+  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post||null} id={id}/>
 }
 const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
 
