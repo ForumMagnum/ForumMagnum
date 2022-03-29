@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
@@ -54,7 +53,6 @@ const rootPaddingTop = 12
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme),
     position: 'relative',
     paddingTop: rootPaddingTop,
     marginBottom: 0
@@ -192,7 +190,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
-  const { UsersName } = Components;
+  const { UsersName, ContentStyles } = Components;
   const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
@@ -214,7 +212,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
 
-  return <div className={classes.root}>
+  return <ContentStyles contentType="comment" className={classes.root}>
     <div className={classes.histogramRoot}>
       {times(10, (bucket) => <div key={bucket} 
         className={classNames(classes.histogramBucket, {
@@ -292,8 +290,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
       </div>
       <div className={classes.endPercentage}>99%</div>
     </div>
-  </div>
-    
+  </ContentStyles>
 }
 
 const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, {

@@ -1,7 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -71,7 +70,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipInfo: {
     marginLeft: 2,
     fontStyle: "italic",
-    ...commentBodyStyles(theme),
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
     display: "flex",
@@ -184,7 +182,7 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
             <div className={classes.title}>
               <PostsTitle post={post} wrap showIcons={false} />
             </div>
-            <div className={classes.tooltipInfo}>
+            <ContentStyles contentType="comment" className={classes.tooltipInfo}>
               { postsList && <span> 
                 {postCategory}
                 {postCategory && (tags?.length > 0) && " – "}
@@ -207,7 +205,7 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
                   </span>
                 </div>
               </>}
-            </div>
+            </ContentStyles>
           </div>
           { !postsList && <div className={classes.bookmark}>
             <BookmarkButton post={post}/>

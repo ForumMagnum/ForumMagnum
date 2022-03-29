@@ -5,7 +5,6 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
 
@@ -35,9 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     marginBottom:4
   },
-  tagDescription: {
-    ...commentBodyStyles(theme),
-  },
   content: {
     marginLeft: 4,
     marginRight: 4,
@@ -66,7 +62,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
   expandAllThreads?: boolean
   classes: ClassesType
 }) => {
-  const { CommentsNode, ContentItemBody } = Components;
+  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
@@ -118,12 +114,14 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
         }
       </div>
       
-      <div onClick={clickExpandDescription} className={classes.tagDescription}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
-          description={`tag ${tag.name}`}
-          className={classes.description}
-        />
+      <div onClick={clickExpandDescription}>
+        <ContentStyles contentType="comment">
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
+            description={`tag ${tag.name}`}
+            className={classes.description}
+          />
+        </ContentStyles>
       </div>
     </div>
     

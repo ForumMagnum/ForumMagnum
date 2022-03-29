@@ -6,7 +6,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles, metaculusBackground } from '../../themes/stylePiping';
+import { metaculusBackground } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
@@ -574,7 +574,6 @@ const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 2
 
 const arbitalStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
-    ...commentBodyStyles(theme),
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -611,7 +610,7 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
   innerHTML: string,
   id?: string,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
@@ -637,13 +636,13 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <Card>
-          <div className={classes.hovercard}>
+          <ContentStyles contentType="comment" className={classes.hovercard}>
             <div className={classes.headerRow}>
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
             <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
-          </div>
+          </ContentStyles>
         </Card>
       </LWPopper>
     </span>

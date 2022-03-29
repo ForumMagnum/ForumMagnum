@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
 import { useCurrentUser } from '../common/withUser';
@@ -31,8 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 24
   },
   portal: {
-    marginTop: 18,
-    ...commentBodyStyles(theme),
     marginBottom: 18,
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -62,7 +59,7 @@ const AllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "TagFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody } = Components;
+  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles } = Components;
 
   return (
     <AnalyticsContext pageContext="allTagsPage">
@@ -89,7 +86,7 @@ const AllTagsPage = ({classes}: {
                 }
               </SectionButton>
             </SectionTitle>
-            <div className={classes.portal}>
+            <ContentStyles contentType="comment" className={classes.portal}>
               {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
                 Edit
               </a>}
@@ -101,7 +98,7 @@ const AllTagsPage = ({classes}: {
                   description={`tag ${tag?.name}`} noHoverPreviewPrefetch
                 />
               }
-            </div>
+            </ContentStyles>
           </AnalyticsContext>
         </div>
         <AnalyticsContext pageSectionContext="allTagsAlphabetical">

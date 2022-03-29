@@ -10,7 +10,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
-import { commentBodyStyles } from '../../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -42,7 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 4,
   },
   moderationGuidelines: {
-    ...commentBodyStyles(theme),
     fontSize: "1.1rem",
     '& p, & ul': {
       marginTop: '.6em',
@@ -150,10 +148,10 @@ const ModerationGuidelinesBox = ({classes, post}: {
           </Tooltip>
         </span>
       }
-      <div className={classes.moderationGuidelines}>
+      <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
         <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
         {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
-      </div>
+      </Components.ContentStyles>
     </div>
   )
 }
