@@ -10,7 +10,6 @@ import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import { commentBodyStyles } from '../../themes/stylePiping';
 import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -50,8 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 175
   },
   instructions: {
-    ...theme.typography.body2,
-    ...commentBodyStyles(theme),
     maxWidth: 545,
     paddingBottom: 35
   },
@@ -174,7 +171,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   // averageVoteInstructions: {
   //   padding: 12,
-  //   ...theme.typography.body2,
   //   ...commentBodyStyles(theme),
   // },
   // averageVoteRow: {
@@ -331,7 +327,7 @@ const ReviewVotingPage2019 = ({classes}: {
     })
   }
 
-  const { ReviewPostComments, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton } = Components
+  const { ReviewPostComments, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton, ContentStyles } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -462,7 +458,7 @@ const ReviewVotingPage2019 = ({classes}: {
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
               <h1 className={classes.header}>Vote on nominated and reviewed posts from {YEAR}</h1>
-              <div className={classes.instructions}>
+              <ContentStyles contentType="comment" className={classes.instructions}>
                 {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p> */}
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
                 <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
@@ -476,7 +472,7 @@ const ReviewVotingPage2019 = ({classes}: {
                 <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details. Also note that your vote allocation is not optimal if the average of your votes is above 1 or below -1, see <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results?commentId=HL9cPrFqMexGn4jmZ">this comment</Link> for details..)</p>
                 <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review">this post</Link>.</p>
                 <p>The vote closes on Jan 26th. If you leave this page and come back, your votes will be saved.</p>
-              </div>
+              </ContentStyles>
             </div>
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
