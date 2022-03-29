@@ -346,6 +346,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
 export const tagBodyStyles = (theme: ThemeType) => {
   return {
     ...commentBodyStyles(theme),
+    marginBottom: 18,
     '&& h1': {
       fontSize: '2rem',
       marginTop: '3rem',

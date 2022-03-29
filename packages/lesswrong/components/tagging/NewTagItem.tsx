@@ -5,7 +5,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPage';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
-import { tagBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,10 +28,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     marginBottom: 24,
   },
-  description: {
-    ...tagBodyStyles(theme),
-    marginBottom: 18,
-  },
   discussionButtonPositioning: {
     display: "flex",
   }
@@ -43,7 +38,7 @@ const NewTagItem = ({tag, classes}: {
   classes: ClassesType,
 }) => {
   const tagUrl = tagGetUrl(tag);
-  const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton } = Components;
+  const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton, ContentStyles} = Components;
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()
   
@@ -70,11 +65,13 @@ const NewTagItem = ({tag, classes}: {
     </div>
     
     <div onClick={clickReadMore}>
-      <ContentItemBody
-        dangerouslySetInnerHTML={{__html: description||""}}
-        description={`tag ${tag.name}`}
-        className={classes.description}
-      />
+      <ContentStyles contentType="tag">
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: description||""}}
+          description={`tag ${tag.name}`}
+          className={classes.description}
+        />
+      </ContentStyles>
     </div>
     
     {!tag.wikiOnly && <PostsList2
