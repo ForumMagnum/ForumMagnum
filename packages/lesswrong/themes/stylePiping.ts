@@ -308,9 +308,6 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(),
-    ...youtubePreviewStyles(),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
