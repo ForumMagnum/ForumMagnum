@@ -450,7 +450,9 @@ export const ckEditorStyles = (theme: ThemeType) => {
           display:"none"
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
-          ...deepmerge(postBodyStyles, commentBodyStyles(theme), {isMergeableObject:isPlainObject}),
+          ...theme.typography.body2,
+          ...theme.typography.commentStyle,
+    
           marginTop: 0,
           alignItems: "flex-start",
           marginBottom: 12
