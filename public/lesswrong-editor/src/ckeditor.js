@@ -181,6 +181,17 @@ const embedConfig = {
 			`
 		},
 		{
+			name: 'OWID',
+			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
+			html: ([match, slug]) => {
+				return `
+					<div data-owid-slug="${slug}" class="owid-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
+		{
 		  name: 'Thoughtsaver',
 		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
 		  html: ([match,urlParams]) => `
