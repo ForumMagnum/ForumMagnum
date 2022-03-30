@@ -142,10 +142,11 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect,
-    HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn,
-    TableOfContents, TableOfContentsRow, TagContributorsList, SubscribeButton, CloudinaryImage,
-    TagIntroSequence, SectionTitle, ContentStyles
+  const {
+    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
+    TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
+    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
    } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -259,10 +260,11 @@ const TagPage = ({classes}: {
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}
     {tag.bannerImageId && <div className={classes.imageContainer}>
-      <CloudinaryImage
+      <CloudinaryImage2
         publicId={tag.bannerImageId}
-        width="auto"
+        width="100%"
         height={300}
+        imgProps={{w: 'iw', h: 'ih'}}
       />
     </div>}
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>
