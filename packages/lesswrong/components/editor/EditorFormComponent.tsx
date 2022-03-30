@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles } from '../../themes/stylePiping'
+import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import withUser from '../common/withUser';
 import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
@@ -53,6 +53,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 0,
     padding: 0,
     pointerEvents: 'auto'
+  },
+  ckEditorStyles: {
+    ...ckEditorStyles(theme),
   },
   questionWidth: {
     width: 640,
@@ -698,7 +701,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderCkEditor = () => {
     const { ckEditorValue, ckEditorReference } = this.state
-    const { document, currentUser, formType } = this.props
+    const { document, currentUser, formType, classes } = this.props
     const { Loading } = Components
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
@@ -721,7 +724,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
       const collaboration = this.isDocumentCollaborative()
 
-      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
+      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass(), classes.ckEditorStyles)}>
           { this.renderPlaceholder(!value, collaboration)}
           { collaboration ?
             <CKEditor key="ck-collaborate" { ...editorProps } collaboration />

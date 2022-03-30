@@ -517,5 +517,4 @@ export const editorStyles = (theme: ThemeType) => ({
     '& .spoiler:not(:hover) *': {
       backgroundColor: "black !important"
     },
-    ...ckEditorStyles(theme),
 })

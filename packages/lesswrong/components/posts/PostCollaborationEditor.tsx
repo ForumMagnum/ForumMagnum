@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { editorStyles } from '../../themes/stylePiping'
+import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -14,6 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editor: {
     ...editorStyles(theme),
+    ...ckEditorStyles(theme),
     cursor: "text",
     maxWidth: 640,
     position: "relative",
