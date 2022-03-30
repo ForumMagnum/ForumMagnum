@@ -519,7 +519,6 @@ const OWIDPreview = ({classes, href, innerHTML, id}: {
 }) => {
   const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
-  // TODO; prolly shouldn't be directly matching like this
   const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
 
   if (!match) {
