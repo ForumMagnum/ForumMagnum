@@ -79,6 +79,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
   },
+  postContent: {}, //Used by a Cypress test
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -218,7 +219,7 @@ const PostsPage = ({post, refetch, classes}: {
       <div className={classes.centralColumn}>
         {/* Body */}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <ContentStyles contentType="post">
+        <ContentStyles contentType="post" className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
