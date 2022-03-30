@@ -40,7 +40,7 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-owid-slug'],
       a: ['href', 'name', 'target', 'rel'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
@@ -49,11 +49,12 @@ export const sanitize = function(s: string): string {
       'www.youtube.com', 'youtube.com', 
       'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
       'metaculus.com',
-      'app.thoughtsaver.com'
+      'app.thoughtsaver.com',
+      'ourworldindata.org',
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
-      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper' ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes' ],
       li: [ 'footnote-item' ],
