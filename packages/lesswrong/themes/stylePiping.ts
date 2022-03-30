@@ -343,38 +343,13 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
 
-export const tagBodyStyles = (theme: ThemeType) => {
-  return {
-    ...commentBodyStyles(theme),
-    marginBottom: 18,
-    '&& h1': {
-      fontSize: '2rem',
-      marginTop: '3rem',
-      fontWeight:600,
-      ...theme.typography.commentStyle
-    }, 
-    '&& h2': {
-      fontSize: '1.7rem',
-      marginTop: '1.5rem',
-      fontWeight:500,
-      ...theme.typography.commentStyle
-    }, 
-    '&& h3': {
-      fontSize: '1.3rem',
-      marginTop: '1.5rem',
-      fontWeight:500,
-      ...theme.typography.commentStyle
-    }
-  }
-}
-
 // FIXME: Emails currently don't use this, because the expectations around font size and
 // typography are very different in an email. But some subset of these styles should
 // actually be applied, eg spoiler-tag handling, even though font selection shouldn't
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-const smallPostStyles = (theme: ThemeType) => ({
+export const smallPostStyles = (theme: ThemeType) => ({
   ...theme.typography.body2,
   fontSize: "1.28rem",
   lineHeight: "1.75rem",
@@ -397,11 +372,6 @@ const smallPostStyles = (theme: ThemeType) => ({
 export const postHighlightStyles = (theme: ThemeType) => {
   const postHighlightStyles = {
     ...smallPostStyles(theme),
-    '& h1, & h2, & h3': {
-      fontSize: "1.6rem",
-      // Cancel out a negative margin which would cause clipping
-      marginBlickStart: "0 !important",
-    },
   }
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
