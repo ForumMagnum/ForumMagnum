@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
+import { editorStyles } from '../../themes/stylePiping'
 import withUser from '../common/withUser';
 import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
   },
   postBodyStyles: {
-    ...editorStyles(theme, postBodyStyles),
+    ...editorStyles(theme),
     cursor: "text",
     padding: 0,
     '& li .public-DraftStyleDefault-block': {
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   answerStyles: {
-    ...editorStyles(theme, answerStyles),
+    ...editorStyles(theme),
     cursor: "text",
     maxWidth:620,
     '& li .public-DraftStyleDefault-block': {
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   commentBodyStyles: {
-    ...editorStyles(theme, commentBodyStyles),
+    ...editorStyles(theme),
     cursor: "text",
     marginTop: 0,
     marginBottom: 0,
@@ -647,11 +647,24 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     )
   }
 
-  getBodyStyles = () => {
+  getBodyStyles = (): {className: string, contentType: "comment"|"answer"|"post"} => {
     const { classes, commentStyles, document } = this.props
-    if (commentStyles && document.answer) return classes.answerStyles
-    if (commentStyles) return classes.commentBodyStyles
-    return classes.postBodyStyles
+    if (commentStyles && document.answer) {
+      return {
+        className: classes.answerStyles,
+        contentType: "answer",
+      }
+    }
+    if (commentStyles) {
+      return {
+        className: classes.commentBodyStyles,
+        contentType: "comment",
+      }
+    }
+    return {
+      className: classes.postBodyStyles,
+      contentType: "post",
+    }
   }
 
   renderEditorComponent = (currentEditorType) => {
@@ -669,11 +682,12 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderPlaceholder = (showPlaceholder, collaboration) => {
     const { classes, formProps, hintText, placeholder, label  } = this.props
+    const {className, contentType} = this.getBodyStyles();
 
     if (showPlaceholder) {
-      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
+      return <Components.ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
         { formProps?.editorHintText || hintText || placeholder || label }
-      </div>
+      </Components.ContentStyles>
     }
   }
 
@@ -732,10 +746,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const { markdownValue, htmlValue, markdownImgErrs } = this.state
     const { classes, document, form: { commentStyles }, label } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
+    const {className, contentType} = this.getBodyStyles();
+    
     return <div>
-        { this.renderPlaceholder(!value, false) }
+      { this.renderPlaceholder(!value, false) }
+      <Components.ContentStyles contentType={contentType}>
         <Input
-          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
+          className={classNames(classes.markdownEditor, className, {[classes.questionWidth]: document.question})}
           value={value}
           onChange={(ev) => {
             if (editorType === "html")
@@ -749,28 +766,32 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           fullWidth={true}
           disableUnderline={true}
         />
+      </Components.ContentStyles>
       {markdownImgErrs && editorType === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
-          Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
-          connection. You should update all links to images so that they are served over a{' '}
-          secure HTTPS connection (i.e. the links should start with <em>https://</em>).
-        </Components.Typography>}
-      </div>
+        Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
+        connection. You should update all links to images so that they are served over a{' '}
+        secure HTTPS connection (i.e. the links should start with <em>https://</em>).
+      </Components.Typography>}
+    </div>
   }
 
   renderDraftJSEditor = () => {
     const { draftJSValue } = this.state
     const { document, form, classes } = this.props
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
+    const {className, contentType} = this.getBodyStyles();
 
     return <div>
-        { this.renderPlaceholder(showPlaceholder, false) }
-        {draftJSValue && <EditorForm
+      { this.renderPlaceholder(showPlaceholder, false) }
+      {draftJSValue && <Components.ContentStyles contentType={contentType}>
+        <EditorForm
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
-          className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
-        />}
-      </div>
+          className={classNames(className, this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
+        />
+      </Components.ContentStyles>}
+    </div>
   }
 
   getMaxHeightClass = () => {
@@ -793,8 +814,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   render() {
     const { editorOverride, loading } = this.state
     const { document, currentUser, formType, classes, collectionName } = this.props
-    const { Loading } = Components
+    const { Loading, ContentStyles } = Components
     const currentEditorType = this.getCurrentEditorType()
+    const {className, contentType} = this.getBodyStyles();
 
     if (!document) return null;
 
@@ -806,11 +828,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       && this.renderEditorWarning()
     return <div>
       { editorWarning }
-      <div className={classNames(classes.editor, this.getBodyStyles())}>
+      <ContentStyles contentType={contentType} className={classNames(classes.editor, className)}>
         { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
         { this.renderUpdateTypeSelect() }
         { this.renderEditorTypeSelect() }
-      </div>
+      </ContentStyles>
       { this.renderCommitMessageInput() }
     </div>
   }

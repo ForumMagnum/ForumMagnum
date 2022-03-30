@@ -535,7 +535,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
   }
 }
 
-export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)=>any) => ({
+export const editorStyles = (theme: ThemeType) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
       marginBottom: '1em',  
@@ -557,6 +557,5 @@ export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)
     '& .spoiler:not(:hover) *': {
       backgroundColor: "black !important"
     },
-    ...styleFunction(theme),
-    ...ckEditorStyles(theme)
+    ...ckEditorStyles(theme),
 })

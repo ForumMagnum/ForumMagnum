@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
+import { editorStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: "1em",
   },
   editor: {
-    ...editorStyles(theme, postBodyStyles),
+    ...editorStyles(theme),
     cursor: "text",
     maxWidth: 640,
     position: "relative",
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading } = Components
+  const { SingleColumnSection, Loading, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const editorRef = useRef<any>(null)
   const [editorLoaded, setEditorLoaded] = useState(false)
@@ -53,14 +53,14 @@ const PostCollaborationEditor = ({ classes }: {
   const Editor = editorRef.current
   return <SingleColumnSection>
       <div className={classes.title}>{post?.title}</div>
-      <div className={classes.editor}>
+      <ContentStyles contentType="post" className={classes.editor}>
         {editorLoaded ? <Editor 
           documentId={postId}
           formType="edit"
           userId={currentUser?._id}
           collaboration
         /> : <Loading />}
-      </div>
+      </ContentStyles>
   </SingleColumnSection>
 };
 
