@@ -11,7 +11,7 @@ import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
-import { REVIEW_YEAR } from '../../reviewUtils';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -694,8 +694,15 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationGroupAdministration: {
+    label: "Group administration notifications",
+    hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
   notificationPostsNominatedReview: {
-    label: "Nominations of my posts for the annual LessWrong Review",
+    label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
+    // Hide this while review is inactive
+    hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
