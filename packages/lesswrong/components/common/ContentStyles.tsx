@@ -4,8 +4,10 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  postBody: {
+  base: {
     ...postBodyStyles(theme)
+  },
+  postBody: {
   },
   postHighlight: {
     ...smallPostStyles(theme),
@@ -77,7 +79,7 @@ const ContentStyles = ({contentType, className, children, classes}: {
   classes: ClassesType,
 }) => {
   return <div className={classNames(
-    className, {
+    className, classes.base, {
       [classes.postBody]: contentType==="post",
       [classes.postHighlight]: contentType==="postHighlight",
       [classes.commentBody]: contentType==="comment",

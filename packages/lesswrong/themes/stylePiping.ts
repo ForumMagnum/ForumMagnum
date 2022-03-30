@@ -340,7 +340,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
       marginBottom: theme.spacing.unit*1.5
     }
   }
-  return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
+  return commentBodyStyles;
 }
 
 // FIXME: Emails currently don't use this, because the expectations around font size and
@@ -350,7 +350,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
 export const emailBodyStyles = baseBodyStyles
 
 export const smallPostStyles = (theme: ThemeType) => {
-  const smallPostStyles = {
+  return {
     ...theme.typography.body2,
     fontSize: "1.28rem",
     lineHeight: "1.75rem",
@@ -369,7 +369,6 @@ export const smallPostStyles = (theme: ThemeType) => {
       lineHeight: "1.8rem",
     },
   };
-  return deepmerge(postBodyStyles, smallPostStyles, {isMergeableObject:isPlainObject});
 }
 
 export const pBodyStyle = {
@@ -451,7 +450,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           display:"none"
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
-          ...commentBodyStyles(theme),
+          ...deepmerge(postBodyStyles, commentBodyStyles(theme), {isMergeableObject:isPlainObject}),
           marginTop: 0,
           alignItems: "flex-start",
           marginBottom: 12
