@@ -1,5 +1,5 @@
 import React from 'react';
-import { postBodyStyles, postHighlightStyles, commentBodyStyles, answerStyles } from '../../themes/stylePiping'
+import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 
@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...postBodyStyles(theme)
   },
   postHighlight: {
-    ...postHighlightStyles(theme),
+    ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
       fontSize: "1.6rem",
       // Cancel out a negative margin which would cause clipping
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...commentBodyStyles(theme, true)
   },
   answerBody: {
-    ...answerStyles(theme)
+    ...smallPostStyles(theme)
   },
   tagBody: {
     ...commentBodyStyles(theme),

@@ -349,38 +349,27 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-export const smallPostStyles = (theme: ThemeType) => ({
-  ...theme.typography.body2,
-  fontSize: "1.28rem",
-  lineHeight: "1.75rem",
-  ...theme.typography.postStyle,
-  '& blockquote': {
+export const smallPostStyles = (theme: ThemeType) => {
+  const smallPostStyles = {
     ...theme.typography.body2,
-    ...theme.typography.postStyle
-  },
-  '& ul': {
-    paddingInlineStart: 30
-  },
-  '& li': {
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
     fontSize: "1.28rem",
-    lineHeight: "1.8rem",
-  },
-})
-
-export const postHighlightStyles = (theme: ThemeType) => {
-  const postHighlightStyles = {
-    ...smallPostStyles(theme),
-  }
-  return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
-}
-
-export const answerStyles = (theme: ThemeType) => {
-  const answerStyles = {
-    ...smallPostStyles(theme)
-  }
-  return deepmerge(postBodyStyles(theme), answerStyles, {isMergeableObject:isPlainObject})
+    lineHeight: "1.75rem",
+    ...theme.typography.postStyle,
+    '& blockquote': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle
+    },
+    '& ul': {
+      paddingInlineStart: 30
+    },
+    '& li': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
+      fontSize: "1.28rem",
+      lineHeight: "1.8rem",
+    },
+  };
+  return deepmerge(postBodyStyles, smallPostStyles, {isMergeableObject:isPlainObject});
 }
 
 export const pBodyStyle = {
