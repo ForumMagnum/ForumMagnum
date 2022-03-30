@@ -58,6 +58,7 @@ importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
+importComponent("ContentStyles", () => require('../components/common/ContentStyles'));
 importComponent("FormatDate", () => require('../components/common/FormatDate'));
 importComponent("BetaTag", () => require('../components/common/BetaTag'));
 importComponent("FlashMessages", () => require('../components/common/FlashMessages'));

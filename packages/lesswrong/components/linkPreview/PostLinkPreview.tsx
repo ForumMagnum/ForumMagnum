@@ -6,7 +6,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles, postHighlightStyles } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
@@ -27,9 +26,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
     documentId: postID,
   });
 
-  if (!post) return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;
-
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
@@ -47,9 +44,8 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
   });
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewSequencePostComponent = registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
@@ -116,9 +112,7 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
     documentId: postId,
   });
 
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
-
-  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
+  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post||null} id={id}/>
 }
 const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
 
@@ -419,7 +413,6 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
     height: 200
   },
   roomInfo: {
-    ...postHighlightStyles(theme),
     padding: 16
   },
   roomHover: {
@@ -465,7 +458,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   });
   
   const data = rawData?.MozillaHubsRoomData
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   if (loading || !data) return <a href={href}>
     <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
@@ -484,7 +477,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.card}>
           <img className={classes.image} src={data.previewImage}/>
-          <div className={classes.roomInfo}>
+          <ContentStyles contentType="postHighlight" className={classes.roomInfo}>
             <div className={classes.roomTitle}>{data.name}</div>
             <div className={classes.usersPreview}>
               <SupervisorAccountIcon className={classes.icon}/> 
@@ -493,7 +486,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
             {data.description && <div className={classes.description}>
               {data.description}
             </div>}
-          </div>
+          </ContentStyles>
         </div>
       </LWPopper>
     </span>
@@ -580,7 +573,6 @@ const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 2
 
 const arbitalStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
-    ...commentBodyStyles(theme),
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -617,7 +609,7 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
   innerHTML: string,
   id?: string,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
@@ -643,13 +635,13 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <Card>
-          <div className={classes.hovercard}>
+          <ContentStyles contentType="comment" className={classes.hovercard}>
             <div className={classes.headerRow}>
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
             <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
-          </div>
+          </ContentStyles>
         </Card>
       </LWPopper>
     </span>

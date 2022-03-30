@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import { gql, useMutation, DocumentNode } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
@@ -11,7 +10,6 @@ import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme, true),
     wordBreak: "normal",
     padding: 16,
     marginTop: 0,
@@ -200,14 +198,14 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
 const WrappedLoginFormEA = ({startingState, classes}: WrappedLoginFormProps) => {
   const { pathname } = useLocation()
   
-  return <div className={classes.root}>
+  return <Components.ContentStyles contentType="commentExceptPointerEvents">
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
       <a className={startingState === 'login' ? classes.primaryBtn : classes.oAuthLink}
         href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
       <a className={startingState === 'signup' ? classes.primaryBtn : classes.oAuthLink}
         href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
     </div>
-  </div>
+  </Components.ContentStyles>
 }
 
 const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, { styles });

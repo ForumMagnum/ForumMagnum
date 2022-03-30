@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
 
@@ -16,22 +15,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
-  },
-  tagDescription: {
-    ...commentBodyStyles(theme)
-  },
-  relevance: {
-    marginBottom: 12,
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle
-  },
-  relevanceLabel: {
-    marginRight: 8,
-    color: theme.palette.grey[600]
-  },
-  score: {
-    marginLeft: 4,
-    marginRight: 4,
   },
   footerCount: {
     borderTop: theme.palette.border.extraFaint,

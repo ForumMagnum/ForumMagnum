@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,9 +12,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8,
     marginBottom: 16,
   },
-  textBody: {
-    ...commentBodyStyles(theme),
-  },
 });
 
 const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
@@ -24,7 +20,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   documentId: string,
   classes: ClassesType,
 }) => {
-  const {Loading, CompareRevisions, TagRevisionItemShortMetadata} = Components;
+  const {Loading, CompareRevisions, TagRevisionItemShortMetadata, ContentStyles} = Components;
   const {document: revision, loading} = useSingle({
     documentId: revisionId,
     collectionName: "Revisions",
@@ -40,7 +36,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   return <div className={classes.root}>
     <div><TagRevisionItemShortMetadata tag={tag} revision={revision}/></div>
     
-    {<div className={classes.textBody}>
+    {<ContentStyles contentType="comment">
       <CompareRevisions
         trim={true}
         collectionName="Tags" fieldName="description"
@@ -48,7 +44,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
         versionBefore={null}
         versionAfter={revision.version}
       />
-    </div>}
+    </ContentStyles>}
   </div>
 }
 

@@ -2,8 +2,7 @@ import Button from '@material-ui/core/Button';
 import React, { useCallback, useEffect } from 'react';
 import { RSVPType } from '../../../lib/collections/posts/schema';
 import { useLocation } from '../../../lib/routeUtil';
-import { registerComponent } from '../../../lib/vulcan-lib';
-import { commentBodyStyles, postBodyStyles } from '../../../themes/stylePiping';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { responseToText } from './RSVPForm';
@@ -11,7 +10,6 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
-    ...postBodyStyles(theme),
     marginBottom: 12
   },
   rsvpItem: {
@@ -29,11 +27,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   response: {
-    ...commentBodyStyles(theme),
     marginTop: -4
   },
   email: {
-    ...commentBodyStyles(theme),
     marginTop: -4,
     fontSize: "1rem",
     color: theme.palette.text.slightlyDim2,
@@ -64,6 +60,7 @@ const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType
 }) => {
+  const { ContentStyles } = Components;
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
@@ -78,7 +75,7 @@ const RSVPs = ({post, classes}: {
       openRSVPForm("yes")
     }
   })
-  return <div className={classes.body}>
+  return <ContentStyles contentType="post" className={classes.body}>
     <div className={classes.topRow}>
       <i>The host has requested RSVPs for this event</i>
       <span className={classes.buttons}>
@@ -90,12 +87,14 @@ const RSVPs = ({post, classes}: {
     {post.isEvent && post.rsvps?.length > 0 && <div className={classes.rsvpBlock}>
       {post.rsvps.map((rsvp:RSVPType) => <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
         <div>{rsvp.name}</div>
-        <div className={classes.response}>{responseToText[rsvp.response]}</div>
-        {currentUser?._id === post.userId && <div className={classes.email}>{rsvp.email}</div>}
+        <ContentStyles contentType="comment" className={classes.response}>
+          {responseToText[rsvp.response]}
+        </ContentStyles>
+        {currentUser?._id === post.userId &&
+          <ContentStyles contentType="comment" className={classes.email}>{rsvp.email}</ContentStyles>}
       </span>)}
     </div>}
-    
-  </div>;
+  </ContentStyles>;
 }
 
 const RSVPsComponent = registerComponent('RSVPs', RSVPs, {styles});

@@ -46,7 +46,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
     limit: 5
   });
   
-  const { Loading, CommentsList, SubSection, CommentWithReplies, LoadMore } = Components
+  const { Loading, CommentsList, SubSection, CommentWithReplies, LoadMore, ContentStyles } = Components
   
   // TODO: This doesn't quite work yet. Not sure why - Ray
   const markAsRead = () => {
@@ -68,13 +68,15 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
       </div>}
       <SubSection>
         {loading && <div>
-            {placeholderArray.map((pl,i) => <div
+          {placeholderArray.map((pl,i) =>
+            <ContentStyles contentType="comment"
               className={classes.singleLinePlaceholder}
               key={`placeholder${post._id}${new Date()}${i}`}
             >
               Loading...
-            </div>)}
-          </div>}
+            </ContentStyles>
+          )}
+        </div>}
         {singleLine ? <CommentsList
           treeOptions={{
             lastCommentId: lastCommentId,

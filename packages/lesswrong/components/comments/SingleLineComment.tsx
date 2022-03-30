@@ -1,6 +1,5 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import { useHover } from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -18,7 +17,6 @@ export const singleLineStyles = (theme: ThemeType): JssStyles => ({
   '&:hover': {
     backgroundColor: theme.palette.panelBackground.singleLineCommentHovered,
   },
-  ...commentBodyStyles(theme),
   marginTop: 0,
   marginBottom: 0,
   paddingLeft: theme.spacing.unit,
@@ -66,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   truncatedHighlight: {
     padding: SINGLE_LINE_PADDING_TOP,
-    ...commentBodyStyles(theme),
+    display: "inline",
     flexGrow: 1,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -106,7 +104,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit*1.5
   },
   isAnswer: {
-    ...postBodyStyles(theme),
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
     '& a, & a:hover': {
@@ -153,7 +150,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const { enableHoverPreview=true, hideSingleLineMeta, post, singleLinePostTitle } = treeOptions;
 
   const plaintextMainText = comment.contents?.plaintextMainText;
-  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments } = Components
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon, PostsItemComments, ContentStyles } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
 
@@ -161,10 +158,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <div className={classNames(classes.commentInfo, {
+      <ContentStyles
+        contentType={comment.answer ? "post" : "comment"}
+        className={classNames(classes.commentInfo, {
           [classes.isAnswer]: comment.answer, 
           [classes.odd]:((nestingLevel%2) !== 0),
-        })}>
+        })}
+      >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
 
         {parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
@@ -177,20 +177,20 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
-        {renderHighlight && <span className={classes.truncatedHighlight}> 
+        {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
           {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Promoted</span>}
           {plaintextMainText}
-        </span>}
+        </ContentStyles>}
         {showDescendentCount && comment.descendentCount>0 && <PostsItemComments
           small={true}
           commentCount={comment.descendentCount}
           unreadComments={false}
           newPromotedComments={false}
         />}
-      </div>
+      </ContentStyles>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
          <div className={classes.highlightPadding}><CommentBody truncated comment={comment}/></div>
       </span>}

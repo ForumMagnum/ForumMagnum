@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import _filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -17,9 +16,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 12,
     paddingTop: 8,
     paddingBottom: 8
-  },
-  commentStyle: {
-    ...commentBodyStyles(theme),
   },
   meta: {
     display: "inline-block"

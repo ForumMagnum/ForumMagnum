@@ -6,7 +6,6 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import * as _ from 'underscore';
 import classNames from 'classnames';
 import { useQuery, gql } from '@apollo/client';
@@ -46,7 +45,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   introWrapper: {
     display: "flex",
-    ...commentBodyStyles(theme),
     justifyContent: "space-around",
     alignItems: "center",
     maxWidth: 880,
@@ -377,7 +375,7 @@ const SpreadsheetPage = ({classes}:{
   classes: ClassesType
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
-  const { LWTooltip, HoverPreviewLink, Loading, HeadTags } = Components
+  const { LWTooltip, HoverPreviewLink, Loading, HeadTags, ContentStyles } = Components
   const { data, loading } = useQuery(gql`
     query CoronaVirusData {
       CoronaVirusData {
@@ -495,7 +493,7 @@ const SpreadsheetPage = ({classes}:{
     <div className={classes.root}>
       <HeadTags image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1585093292/Screen_Shot_2020-03-24_at_4.41.12_PM_qiwqwc.png"}/>
       {selectedTab == "Intro" && 
-        <div className={classes.introWrapper}>
+        <ContentStyles contentType="comment" className={classes.introWrapper}>
           <div className={classes.intro}>
             <p>
               Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. We sort, summarize and prioritize all links on a daily basis. You can submit new links by pressing the big green button.
@@ -507,7 +505,7 @@ const SpreadsheetPage = ({classes}:{
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
             Submit New Link
           </a>
-        </div>
+        </ContentStyles>
       }
       <div className={classes.tabRow}>
         <LWTooltip key={"Intro"} placement="top" title={<div>

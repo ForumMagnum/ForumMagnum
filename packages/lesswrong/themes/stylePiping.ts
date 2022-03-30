@@ -306,9 +306,6 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(theme),
-    ...youtubePreviewStyles(theme),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -338,31 +335,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
       marginBottom: theme.spacing.unit*1.5
     }
   }
-  return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
-}
-
-export const tagBodyStyles = (theme: ThemeType): JssStyles => {
-  return {
-    ...commentBodyStyles(theme),
-    '&& h1': {
-      fontSize: '2rem',
-      marginTop: '3rem',
-      fontWeight:600,
-      ...theme.typography.commentStyle
-    }, 
-    '&& h2': {
-      fontSize: '1.7rem',
-      marginTop: '1.5rem',
-      fontWeight:500,
-      ...theme.typography.commentStyle
-    }, 
-    '&& h3': {
-      fontSize: '1.3rem',
-      marginTop: '1.5rem',
-      fontWeight:500,
-      ...theme.typography.commentStyle
-    }
-  }
+  return commentBodyStyles;
 }
 
 // FIXME: Emails currently don't use this, because the expectations around font size and
@@ -371,43 +344,26 @@ export const tagBodyStyles = (theme: ThemeType): JssStyles => {
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-const smallPostStyles = (theme: ThemeType): JssStyles => ({
-  ...theme.typography.body2,
-  fontSize: "1.28rem",
-  lineHeight: "1.75rem",
-  ...theme.typography.postStyle,
-  '& blockquote': {
+export const smallPostStyles = (theme: ThemeType) => {
+  return {
     ...theme.typography.body2,
-    ...theme.typography.postStyle
-  },
-  '& ul': {
-    paddingInlineStart: 30
-  },
-  '& li': {
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
     fontSize: "1.28rem",
-    lineHeight: "1.8rem",
-  },
-})
-
-export const postHighlightStyles = (theme: ThemeType): JssStyles => {
-  const postHighlightStyles = {
-    ...smallPostStyles(theme),
-    '& h1, & h2, & h3': {
-      fontSize: "1.6rem",
-      // Cancel out a negative margin which would cause clipping
-      marginBlickStart: "0 !important",
+    lineHeight: "1.75rem",
+    ...theme.typography.postStyle,
+    '& blockquote': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle
     },
-  }
-  return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
-}
-
-export const answerStyles = (theme: ThemeType): JssStyles => {
-  const answerStyles = {
-    ...smallPostStyles(theme)
-  }
-  return deepmerge(postBodyStyles(theme), answerStyles, {isMergeableObject:isPlainObject})
+    '& ul': {
+      paddingInlineStart: 30
+    },
+    '& li': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
+      fontSize: "1.28rem",
+      lineHeight: "1.8rem",
+    },
+  };
 }
 
 export const pBodyStyle = (theme: ThemeType): JssStyles => ({
@@ -489,7 +445,9 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
           display:"none"
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
-          ...commentBodyStyles(theme),
+          ...theme.typography.body2,
+          ...theme.typography.commentStyle,
+    
           marginTop: 0,
           alignItems: "flex-start",
           marginBottom: 12
@@ -532,7 +490,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
   }
 }
 
-export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)=>any) => ({
+export const editorStyles = (theme: ThemeType) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
       marginBottom: '1em',  
@@ -554,6 +512,4 @@ export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)
     '& .spoiler:not(:hover) *': {
       backgroundColor: `${theme.palette.panelBackground.spoilerBlock} !important`
     },
-    ...styleFunction(theme),
-    ...ckEditorStyles(theme)
 })

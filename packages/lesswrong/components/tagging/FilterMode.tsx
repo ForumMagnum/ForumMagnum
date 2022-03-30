@@ -6,7 +6,6 @@ import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -33,7 +32,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
   },
   description: {
-    ...commentBodyStyles(theme),
     marginTop: 20
   },
   filterScore: {
@@ -92,7 +90,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   description?: React.ReactNode
   classes: ClassesType,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview } = Components
+  const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
   const currentUser = useCurrentUser()
@@ -180,9 +178,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 </LWTooltip>
               </div>}
           </div>
-          {description && <div className={classes.description}>
+          {description && <ContentStyles contentType="comment" className={classes.description}>
             {description}
-          </div>}
+          </ContentStyles>}
         </div>
         {tag && <TagPreview tag={tag} showCount={false} postCount={3}/>}
       </PopperCard>
