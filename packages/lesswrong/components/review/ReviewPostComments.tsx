@@ -17,6 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   singleLinePlaceholder: {
     height: 30,
     width: "100%",
+    ...singleLineStyles(theme),
     backgroundColor: "white",
     border: `solid 1px ${theme.palette.commentBorderGrey}`,
     marginBottom: CONDENSED_MARGIN_BOTTOM,
