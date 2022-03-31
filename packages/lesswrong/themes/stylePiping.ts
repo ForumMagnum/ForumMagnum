@@ -69,6 +69,16 @@ const metaculusPreviewStyles = () => ({
   }
 })
 
+const owidPreviewStyles = () => ({
+  '& div.owid-preview': {
+    '& iframe': {
+      width: '100%',
+      height: 400,
+      border: 'none'
+    }
+  }
+})
+
 const youtubePreviewStyles = () => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
@@ -133,14 +143,6 @@ const hrStyles = {
 }
 
 const footnoteStyles = () => ({
-  '& .footnote-section': {
-    counterReset: "footnote-counter",
-  },
-  '& .footnote-item': {
-    listStyle: "none",
-    counterIncrement: "footnote-counter",
-    marginLeft: "0.5em",
-  },
   '& .footnote-item > *': {
     verticalAlign: "text-top",
   },
@@ -150,12 +152,6 @@ const footnoteStyles = () => ({
   },
   '& .footnotes .footnote-back-link > sup': {
     marginRight: 0,
-  },
- '& .footnote-item::before': {
-    content: "counter(footnote-counter) '. '",
-    display: "inline-block",
-    position: "relative",
-    right: "0.2em",
   },
  '& .footnote-content': {
     display: "inline-block",
@@ -266,6 +262,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(),
+    ...owidPreviewStyles(),
     ...youtubePreviewStyles(),
     ...footnoteStyles(),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -324,6 +321,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
 
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(),
+    ...owidPreviewStyles(),
     ...youtubePreviewStyles(),
     '& blockquote': {
       ...theme.typography.commentBlockquote,

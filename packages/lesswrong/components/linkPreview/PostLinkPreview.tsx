@@ -27,9 +27,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
     documentId: postID,
   });
 
-  if (!post) return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;
-
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
@@ -47,9 +45,8 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
   });
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewSequencePostComponent = registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
@@ -116,9 +113,7 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
     documentId: postId,
   });
 
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
-
-  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
+  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post||null} id={id}/>
 }
 const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
 
@@ -504,6 +499,51 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
+const owidStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 600,
+    height: 375,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: {
+    ...linkStyle(theme)
+  }
+})
+
+const OWIDPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  id?: string,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components
+  const { anchorEl, hover, eventHandlers } = useHover();
+  const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
+
+  if (!match) {
+    return <a href={href}>
+      <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    </a>
+  }
+
+  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
+    <span {...eventHandlers}>
+      <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+        <div className={classes.background}>
+          <iframe className={classes.iframeStyling} src={match} />
+        </div>
+      </LWPopper>
+    </span>
+  </AnalyticsTracker>
+}
+
+const OWIDPreviewComponent = registerComponent('OWIDPreview', OWIDPreview, {
+  styles: owidStyles
+})
+
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {
     backgroundColor: metaculusBackground
@@ -674,6 +714,7 @@ declare global {
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
+    OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
     FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
