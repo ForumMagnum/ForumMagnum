@@ -55,7 +55,7 @@ const transferEditableField = async ({documentId, targetUserId, collection, fiel
     validate: false
   })
   // Update the revisions themselves
-  await Revisions.rawUpdate({ documentId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
+  await Revisions.rawUpdateMany({ documentId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
 }
 
 const mergeReadStatusForPost = async ({sourceUserId, targetUserId, postId}: {sourceUserId: string, targetUserId: string, postId: string}) => {
@@ -65,7 +65,7 @@ const mergeReadStatusForPost = async ({sourceUserId, targetUserId, postId}: {sou
   const readStatus = sourceMostRecentlyUpdated ? sourceUserStatus?.isRead : targetUserStatus?.isRead
   const lastUpdated = sourceMostRecentlyUpdated ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
   if (targetUserStatus) {
-    await ReadStatuses.rawUpdate({_id: targetUserStatus._id}, {$set: {isRead: readStatus, lastUpdated}})
+    await ReadStatuses.rawUpdateOne({_id: targetUserStatus._id}, {$set: {isRead: readStatus, lastUpdated}})
   } else if (sourceUserStatus) {
     // eslint-disable-next-line no-unused-vars
     const {_id, ...sourceUserStatusWithoutId} = sourceUserStatus
@@ -86,7 +86,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   await transferCollection({sourceUserId, targetUserId, collectionName: "Comments"})
 
   // Transfer conversations
-  await Conversations.rawUpdate({participantIds: sourceUserId}, {$set: {"participantIds.$": targetUserId}}, { multi: true })
+  await Conversations.rawUpdateMany({participantIds: sourceUserId}, {$set: {"participantIds.$": targetUserId}}, { multi: true })
 
   // Transfer private messages
   await transferCollection({sourceUserId, targetUserId, collectionName: "Messages"})
@@ -111,12 +111,12 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // Transfer votes that target content from source user (authorId)
   // eslint-disable-next-line no-console
   console.log("Transferring votes that target source user")
-  await Votes.rawUpdate({authorId: sourceUserId}, {$set: {authorId: targetUserId}}, {multi: true})
+  await Votes.rawUpdateMany({authorId: sourceUserId}, {$set: {authorId: targetUserId}}, {multi: true})
 
   // Transfer votes cast by source user
   // eslint-disable-next-line no-console
   console.log("Transferring votes cast by source user")
-  await Votes.rawUpdate({userId: sourceUserId}, {$set: {userId: targetUserId}}, {multi: true})
+  await Votes.rawUpdateMany({userId: sourceUserId}, {$set: {userId: targetUserId}}, {multi: true})
 
   // Transfer karma
   // eslint-disable-next-line no-console
@@ -137,7 +137,7 @@ Vulcan.mergeAccounts = async (sourceUserId: string, targetUserId: string) => {
   // Change slug of source account by appending "old" and reset oldSlugs array
   // eslint-disable-next-line no-console
   console.log("Change slugs of source account")
-  await Users.rawUpdate(
+  await Users.rawUpdateOne(
     {_id: sourceUserId},
     {$set: {
       slug: await Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)

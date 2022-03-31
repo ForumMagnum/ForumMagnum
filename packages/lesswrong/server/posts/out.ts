@@ -1,4 +1,4 @@
-import { addStaticRoute, Connectors } from '../vulcan-lib';
+import { addStaticRoute } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { ensureIndex } from '../../lib/collectionUtils';
 
@@ -33,5 +33,5 @@ addStaticRoute('/out', async ({ query}, req, res, next) => {
 ensureIndex(Posts, {url:1, postedAt:-1});
 
 async function incrementPostClickCount(postId: string) {
-  await Connectors.update(Posts, {_id: postId}, { $inc: { clickCount: 1 } });
+  await Posts.rawUpdateOne({_id: postId}, { $inc: { clickCount: 1 } });
 }

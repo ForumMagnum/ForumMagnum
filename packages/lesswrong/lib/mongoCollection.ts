@@ -155,16 +155,37 @@ export class MongoCollection<T extends DbObject> {
       return insertResult.insertedId;
     });
   }
-  rawUpdate = async (selector, update, options) => {
+  rawUpdateOne = async (selector, update, options) => {
     if (disableAllWrites) return;
     try {
       const table = this.getTable();
-      return await wrapQuery(`${this.tableName}.update`, async () => {
+      return await wrapQuery(`${this.tableName}.updateOne`, async () => {
         if (typeof selector === 'string') {
-          const updateResult = await table.update({_id: selector}, update, options);
+          const updateResult = await table.updateOne({_id: selector}, update, options);
           return updateResult.matchedCount;
         } else {
-          const updateResult = await table.update(removeUndefinedFields(selector), update, options);
+          const updateResult = await table.updateOne(removeUndefinedFields(selector), update, options);
+          return updateResult.matchedCount;
+        }
+      });
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+      // eslint-disable-next-line no-console
+      console.log(`Selector was: ${selector}`);
+      throw e;
+    }
+  }
+  rawUpdateMany = async (selector, update, options) => {
+    if (disableAllWrites) return;
+    try {
+      const table = this.getTable();
+      return await wrapQuery(`${this.tableName}.updateMany`, async () => {
+        if (typeof selector === 'string') {
+          const updateResult = await table.updateMany({_id: selector}, update, options);
+          return updateResult.matchedCount;
+        } else {
+          const updateResult = await table.updateMany(removeUndefinedFields(selector), update, options);
           return updateResult.matchedCount;
         }
       });
@@ -225,10 +246,15 @@ export class MongoCollection<T extends DbObject> {
       const table = this.getTable();
       return await table.indexes(options);
     },
-    update: async (selector, update, options) => {
+    updateOne: async (selector, update, options) => {
       if (disableAllWrites) return;
       const table = this.getTable();
-      return await table.update(selector, update, options);
+      return await table.updateOne(selector, update, options);
+    },
+    updateMany: async (selector, update, options) => {
+      if (disableAllWrites) return;
+      const table = this.getTable();
+      return await table.updateMany(selector, update, options);
     },
   })
 }

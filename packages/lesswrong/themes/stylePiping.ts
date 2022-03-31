@@ -67,6 +67,16 @@ const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.owid-preview': {
+    '& iframe': {
+      width: '100%',
+      height: 400,
+      border: 'none'
+    }
+  }
+})
+
 const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
@@ -250,6 +260,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
+    ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
