@@ -353,7 +353,7 @@ addFieldsDict(Users, {
     order: 40,
     form: {
       hintText:"Bio",
-      rows:4,
+      rows: 12,
       multiLine:true,
       fullWidth:true,
     },
