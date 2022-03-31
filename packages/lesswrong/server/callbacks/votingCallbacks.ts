@@ -13,7 +13,7 @@ import { batchUpdateScore } from '../updateScores';
  */
 const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 const currentDate = new Date()
-const goodHeartStartDate = new Date("01/01/2022")
+export const goodHeartStartDate = new Date("01/01/2022")
 const activateGoodHeartTokens = true //new Date("04/01/2022") < currentDate && currentDate < new Date("04/08/2022")
 
 const hasCreatedAt = (document: any) : document is HasCreatedAtType => {
@@ -31,7 +31,7 @@ voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDo
   }
 });
 
-voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) { 
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdate({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
