@@ -105,7 +105,7 @@ registerMigration({
           
           // Remove subscribedItems from the user
           if (oldSubscriptions) {
-            await Users.rawUpdate(
+            await Users.rawUpdateOne(
               { _id: user._id },
               { $unset: {
                 subscribedItems: 1
