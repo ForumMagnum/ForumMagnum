@@ -19,6 +19,7 @@ import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -262,10 +263,10 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'wiki',
-      title: 'Wiki',
-      mobileTitle: 'Wiki',
-      link: '/tags/all',
+      id: taggingNamePluralSetting.get(),
+      title: taggingNamePluralCapitalSetting.get(),
+      mobileTitle: taggingNamePluralCapitalSetting.get(),
+      link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
       tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,

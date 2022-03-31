@@ -9,7 +9,8 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -64,17 +65,28 @@ const AllTagsPage = ({classes}: {
 
   const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody } = Components;
 
+  let sectionTitle = forumSelect({
+    EAForum: 'EA Forum Wiki',
+    default: 'Concepts Portal'
+  })
+  if (taggingNameIsSet.get()) {
+    sectionTitle = forumSelect({
+      EAForum: `EA Forum ${taggingNamePluralCapitalSetting.get()} Wiki`,
+      default: `${taggingNamePluralCapitalSetting.get()} Portal`
+    })
+  }
+
   return (
     <AnalyticsContext pageContext="allTagsPage">
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title={forumTypeSetting.get() === 'EAForum' ? 'EA Forum Wiki' : 'Concepts Portal'}>
+            <SectionTitle title={sectionTitle}>
               <SectionButton>
                 {currentUser
-                  ? <Link to="/tag/create">
+                  ? <Link to={`/${taggingNameSetting}/create`}>
                       <AddBoxIcon className={classes.addTagButton}/>
-                      New Tag
+                      New {taggingNameCapitalSetting.get()}
                     </Link>
                   : <a onClick={(ev) => {
                       openDialog({
@@ -84,7 +96,7 @@ const AllTagsPage = ({classes}: {
                       ev.preventDefault();
                     }}>
                       <AddBoxIcon className={classes.addTagButton}/>
-                      New Tag
+                      New {taggingNameCapitalSetting.get()}
                     </a>
                 }
               </SectionButton>
