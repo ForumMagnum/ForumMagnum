@@ -20,7 +20,10 @@ import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/custom_fields';
+import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Checkbox from '@material-ui/core/Checkbox';
+import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -62,11 +65,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'baseline',
     columnGap: 10,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
   },
   where: {
     flex: '1 0 0',
-    ...theme.typography.commentStyle,
-    fontSize: 13,
     color: "rgba(0,0,0,0.6)",
     paddingLeft: 3
   },
@@ -84,9 +87,22 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     '& .MuiOutlinedInput-input': {
       paddingRight: 30
     },
+    '@media (max-width: 812px)': {
+      display: 'none'
+    }
+  },
+  distanceFilter: {
+    display: 'flex',
+    alignItems: 'center',
+    color: "rgba(0,0,0,0.6)",
+  },
+  distanceInput: {
+    width: 68,
+    color: theme.palette.primary.main,
+    margin: '0 6px'
   },
   formatFilter: {
-    '@media (max-width: 812px)': {
+    [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
@@ -100,10 +116,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   notificationsBtn: {
     textTransform: 'none',
     fontSize: 14,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 12,
+      padding: '8px 8px'
+    }
   },
   notificationsIcon: {
     fontSize: 18,
-    marginRight: 6
+    marginRight: 6,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 16,
+      marginRight: 4
+    }
   },
   eventCards: {
     display: 'grid',
@@ -154,6 +178,28 @@ const EventsHome = ({classes}: {
     collectionName: "Users",
     fragmentName: 'UsersProfile',
   });
+
+  // used to set the cutoff distance for the query (default to 160 km / 100 mi)
+  const [distance, setDistance] = useState(160)
+  const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
+  
+  useEffect(() => {
+    const ls = getBrowserLocalStorage()
+    const savedDistance = ls?.getItem('eventsDistanceFilter')
+    if (savedDistance) {
+      setDistance(savedDistance)
+    }
+    
+    // only US and UK default to miles - everyone else defaults to km
+    // (this is checked here to allow SSR to work properly)
+    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
+      setDistanceUnit('mi')
+      setDistance(Math.round((savedDistance || distance) * 0.621371))
+    }
+    
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   
   /**
    * Given a location, update the page query to use that location,
@@ -246,7 +292,22 @@ const EventsHome = ({classes}: {
     });
   }
   
-  const { HighlightedEventCard, EventCards, Loading } = Components
+  const handleChangeDistance = (e) => {
+    const distance = parseInt(e.target.value)
+    setDistance(distance)
+    
+    // save it in local storage in km
+    const ls = getBrowserLocalStorage()
+    ls?.setItem('eventsDistanceFilter', distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance)
+  }
+  
+  const handleChangeDistanceUnit = (unit) => {
+    setDistanceUnit(unit)
+    // when changing between miles and km, we convert the distance to the new unit
+    setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
+  }
+  
+  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle } = Components
   
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
@@ -263,6 +324,10 @@ const EventsHome = ({classes}: {
   }
   if (formatFilter.length) {
     filters.eventType = formatFilter
+  }
+  if (distance) {
+    // convert distance to miles if necessary
+    filters.distance = (distanceUnit === 'mi') ? distance : (distance * 0.621371)
   }
   
   const eventsListTerms: PostsViewTerms = userLocation.known ? {
@@ -353,6 +418,18 @@ const EventsHome = ({classes}: {
           
           <div className={classes.filters}>
             <FilterIcon className={classes.filterIcon} />
+            
+            <div className={classes.distanceFilter}>
+              Within
+              <Input type="number"
+                value={distance}
+                placeholder="distance"
+                onChange={handleChangeDistance}
+                className={classes.distanceInput}
+              />
+              <DistanceUnitToggle distanceUnit={distanceUnit} onChange={handleChangeDistanceUnit} skipDefaultEffect />
+            </div>
+            
             <Select
               className={classes.filter}
               value={modeFilter}
@@ -362,6 +439,7 @@ const EventsHome = ({classes}: {
                 <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                 <MenuItem key="online" value="online">Online only</MenuItem>
             </Select>
+
             <Select
               className={classNames(classes.filter, classes.formatFilter)}
               value={formatFilter}
@@ -381,7 +459,10 @@ const EventsHome = ({classes}: {
                 return selected.map(type => EVENT_TYPES.find(t => t.value === type)?.label).join(', ')
               }}>
                 {EVENT_TYPES.map(type => {
-                  return <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
+                  return <MenuItem key={type.value} value={type.value}>
+                    <Checkbox checked={formatFilter.some(format => format === type.value)} />
+                    <ListItemText primary={type.label} />
+                  </MenuItem>
                 })}
             </Select>
             
@@ -392,7 +473,7 @@ const EventsHome = ({classes}: {
             </div>
           </div>
 
-          <EventCards events={results} loading={loading || userLocation.loading} numDefaultCards={6} hideSpecialCards={!numSpecialCards} />
+          <EventCards events={results || []} loading={loading || userLocation.loading} numDefaultCards={6} hideSpecialCards={!numSpecialCards} />
           
           <div className={classes.loadMoreRow}>
             {loadMoreButton}

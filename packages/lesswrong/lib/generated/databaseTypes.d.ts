@@ -253,8 +253,9 @@ interface DbLocalgroup extends DbObject {
   meetupLink: string
   slackLink: string
   website: string
-  inactive: boolean
   bannerImageId: string
+  inactive: boolean
+  deleted: boolean
   contents: EditableFieldContents
 }
 
@@ -677,7 +678,7 @@ interface DbUser extends DbObject {
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string
-  sortDrafts: string
+  sortDraftsBy: string
   hideIntercom: boolean
   markDownPostEditor: boolean
   hideElicitPredictions: boolean
@@ -691,6 +692,9 @@ interface DbUser extends DbObject {
   allPostsShowLowKarma: boolean
   allPostsIncludeEvents: boolean
   allPostsOpenSettings: boolean
+  draftsListSorting: string
+  draftsListShowArchived: boolean
+  draftsListShowShared: boolean
   lastNotificationsCheck: Date
   bio: string
   htmlBio: string

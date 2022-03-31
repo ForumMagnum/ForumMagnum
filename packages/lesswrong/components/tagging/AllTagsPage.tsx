@@ -98,7 +98,7 @@ const AllTagsPage = ({classes}: {
                 :
                 <ContentItemBody
                   dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
-                  description={`tag ${tag?.name}`}
+                  description={`tag ${tag?.name}`} noHoverPreviewPrefetch
                 />
               }
             </div>

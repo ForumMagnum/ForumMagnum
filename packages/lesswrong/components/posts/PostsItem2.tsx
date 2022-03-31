@@ -1,11 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount } from "../../lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLastCommentedAt, postGetLastCommentPromotedAt, postGetCommentCount, postCanDelete } from "../../lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
+import ArchiveIcon from '@material-ui/icons/Archive';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import { useRecordPostView } from '../common/withRecordPostView';
@@ -13,6 +14,7 @@ import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
+import qs from "qs";
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 
@@ -25,6 +27,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       width: "100%"
     },
     '&:hover $actions': {
+      opacity: .2,
+    },
+    '&:hover $archiveButton': {
       opacity: .2,
     }
   },
@@ -154,6 +159,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
+  archiveButton: {
+    opacity: 0,
+    display: "flex",
+    position: "absolute",
+    top: 1,
+    right: -3*MENU_WIDTH,
+    width: MENU_WIDTH,
+    height: "100%",
+    cursor: "pointer",
+    alignItems: "center",
+    justifyContent: "center",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
   mobileSecondRowSpacer: {
     [theme.breakpoints.up('sm')]: {
       display: "none",
@@ -273,6 +293,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
+const archiveDraftTooltip = "Archive this draft (hide from list)"
+
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) => {
@@ -310,9 +332,13 @@ const PostsItem2 = ({
   // dismissRecommendation: If this is a Resume Reading suggestion, a callback
   // to dismiss it.
   dismissRecommendation,
+  draft,
+  // toggleDeleteDraft, if this a draft, a callback to archive/unarchive it
+  toggleDeleteDraft, 
   showBottomBorder=true,
   showQuestionTag=true,
   showDraftTag=true,
+  showPersonalIcon=true,
   showIcons=true,
   showPostedAt=true,
   defaultToShowUnreadComments=false,
@@ -328,6 +354,7 @@ const PostsItem2 = ({
   hideAuthor=false,
   classes,
   curatedIconLeft=false,
+  strikethroughTitle=false,
   translucentBackground=false,
   forceSticky=false
 }: {
@@ -340,9 +367,12 @@ const PostsItem2 = ({
   terms?: any,
   resumeReading?: any,
   dismissRecommendation?: any,
+  draft?: boolean
+  toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showQuestionTag?: boolean,
   showDraftTag?: boolean,
+  showPersonalIcon?: boolean
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
@@ -353,6 +383,7 @@ const PostsItem2 = ({
   hideAuthor?: boolean,
   classes: ClassesType,
   curatedIconLeft?: boolean,
+  strikethroughTitle?: boolean
   translucentBackground?: boolean,
   forceSticky?: boolean
 }) => {
@@ -405,6 +436,7 @@ const PostsItem2 = ({
     AddToCalendarIcon, PostsItemReviewVote, ReviewPostButton } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
+  const postEditLink = `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
 
   const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
@@ -412,6 +444,12 @@ const PostsItem2 = ({
   const dismissButton = (currentUser && resumeReading &&
     <LWTooltip title={dismissRecommendationTooltip} placement="right">
       <CloseIcon onClick={() => dismissRecommendation()}/>
+    </LWTooltip>
+  )
+  
+  const archiveButton = (currentUser && draft && postCanDelete(currentUser, post) && 
+    <LWTooltip title={archiveDraftTooltip} placement="right">
+      <ArchiveIcon onClick={() => toggleDeleteDraft && toggleDeleteDraft(post)}/>
     </LWTooltip>
   )
 
@@ -458,13 +496,15 @@ const PostsItem2 = ({
                       captureOnClick={false}
                   >
                     <PostsTitle
-                      postLink={postLink}
+                      postLink={draft ? postEditLink : postLink}
                       post={post}
                       read={isRead}
                       sticky={isSticky(post, terms) || forceSticky}
                       showQuestionTag={showQuestionTag}
                       showDraftTag={showDraftTag}
+                      {...(showPersonalIcon ? {showPersonalIcon} : {})}
                       curatedIconLeft={curatedIconLeft}
+                      strikethroughTitle={strikethroughTitle}
                     />
                   </AnalyticsTracker>
                 </span>
@@ -551,6 +591,9 @@ const PostsItem2 = ({
           {<div className={classes.actions}>
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical />}
+          </div>}
+          {<div className={classes.archiveButton}>
+            {archiveButton}
           </div>}
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
