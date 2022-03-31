@@ -354,7 +354,7 @@ export const NewGroupOrganizerNotification = registerNotificationType({
     if (documentType !== 'localgroup') throw new Error("documentType must be localgroup")
     const localGroup = await Localgroups.findOne(documentId)
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
-    return `You have been added as an organizer of ${localGroup.name}`
+    return `You've been added as an organizer of ${localGroup.name}`
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />
