@@ -10,6 +10,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import classNames from 'classnames';
 import type { VotingProps } from './withVote';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -47,6 +48,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipHelp: {
     fontSize: '1rem',
     fontStyle: "italic"
+  },
+  goodHeartIcon: {
+    fontSize: 10
   }
 })
 
@@ -125,14 +129,30 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
               {...voteProps}
             />
           </LWTooltip>
-          {hideKarma ?
+          {/* regular voting UI, disabled during April Fools */}
+          {/* {hideKarma ?
             <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
             <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-              <span className={classes.voteScore}>
-                {karma}
-              </span>
+                <span className={classes.voteScore}>
+                  {karma} 
+                </span>
+            </LWTooltip>
+          } */}
+
+          {/* special April fools 2022 UI */}
+          {hideKarma ?
+            <LWTooltip title={'The author of this post has disabled karma visibility'}>
+              <span>{' '}</span>
+            </LWTooltip> :
+            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> Good Heart Tokens ({voteCount} {voteCount == 1 ? "Token" : "Tokens"})</div>} placement="bottom">
+              <>
+                <span className={classes.voteScore}>
+                  {karma} 
+                </span>
+                <FavoriteIcon className={classes.goodHeartIcon}/>
+              </>
             </LWTooltip>
           }
           <LWTooltip
