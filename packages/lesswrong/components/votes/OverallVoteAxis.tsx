@@ -10,7 +10,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import classNames from 'classnames';
 import type { VotingProps } from './withVote';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import { GoodHeartIcon } from './GoodHeartIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -50,7 +50,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   goodHeartIcon: {
-    fontSize: 10
+    height: 5,
+    width: 5
   }
 })
 
@@ -146,12 +147,12 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
             <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
-            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> Good Heart Tokens ({voteCount} {voteCount == 1 ? "Token" : "Tokens"})</div>} placement="bottom">
+            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> Good Heart Tokens ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
               <>
                 <span className={classes.voteScore}>
                   {karma} 
                 </span>
-                <FavoriteIcon className={classes.goodHeartIcon}/>
+                <GoodHeartIcon className={classes.goodHeartIcon}/>
               </>
             </LWTooltip>
           }

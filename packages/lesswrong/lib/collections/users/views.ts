@@ -173,6 +173,16 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
   }
 })
 
+Users.addView("usersByGoodHeartTokens", function (terms: UsersViewTerms) {
+  return {
+    options: {
+      sort: {
+        goodHeartTokens: -1
+      }
+    }
+  }
+})
+
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",

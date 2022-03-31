@@ -12,13 +12,15 @@ export const AprilFools2022 = ({classes}: {
   classes: ClassesType,
 }) => {
     const {results} = useMulti({
-        terms: {view: 'usersProfile'},
+        terms: {view: 'usersByGoodHeartTokens'},
         collectionName: "Users",
         fragmentName: 'UsersProfile',
         enableTotal: false,
       });
   return <div className={classes.root}>
-      April Fools
+      {results?.map(user=> <div>
+          <span>{`${user.displayName}: ${user.goodHeartTokens || 0}`}</span>
+      </div>)}
   </div>;
 }
 
