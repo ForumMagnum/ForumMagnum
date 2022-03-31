@@ -298,6 +298,7 @@ importComponent("LocalGroupsItem", () => require('../components/localGroups/Loca
 importComponent("TabNavigationEventsList", () => require('../components/localGroups/TabNavigationEventsList'));
 importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage'));
 importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog'));
+importComponent("GroupsMap", () => require('../components/localGroups/GroupsMap'));
 
 importComponent("WalledGardenHome", () => require('../components/walledGarden/WalledGardenHome'));
 importComponent("WalledGardenPortal", () => require('../components/walledGarden/WalledGardenPortal'));
