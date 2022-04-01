@@ -374,6 +374,12 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
+  goodHeartTokens: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+  },
+
   // Website
   website: {
     type: String,

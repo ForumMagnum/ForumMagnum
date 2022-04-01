@@ -5,13 +5,15 @@ import { reviewIsActive } from '../../lib/reviewUtils';
 import { useCurrentUser } from './withUser';
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection } = Components
+  const { AprilFools2022, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection } = Components
 
   const currentUser = useCurrentUser()
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
+
+          <AprilFools2022 />
 
           {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
         

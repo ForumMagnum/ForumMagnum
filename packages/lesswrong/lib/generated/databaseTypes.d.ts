@@ -693,6 +693,7 @@ interface DbUser extends DbObject {
   bio: string
   htmlBio: string
   karma: number
+  goodHeartTokens: number
   website: string
   moderationStyle: string
   moderatorAssistance: boolean
