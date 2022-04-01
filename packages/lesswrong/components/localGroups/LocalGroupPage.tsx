@@ -384,7 +384,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             </div>
             {group.categories?.length > 0 && <div className={classes.groupCategories}>
               {group.categories.map(category => {
-                return <div className={classes.groupCategory}>{GROUP_CATEGORIES.find(option => option.value === category)?.label}</div>
+                return <div key={category} className={classes.groupCategory}>{GROUP_CATEGORIES.find(option => option.value === category)?.label}</div>
               })}
             </div>}
           </div>
