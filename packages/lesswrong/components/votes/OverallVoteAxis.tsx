@@ -68,6 +68,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const isPostOrComment = (document: VoteableTypeClient) : document is (PostsDetails | CommentsList) => {
+  if ((document as any)?.postedAt) return true 
+  return false
+}
+
 const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
@@ -109,7 +114,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
     </div>
   )
 
-  const goodHeart = new Date(document.postedAt) > goodHeartStartDate
+  const goodHeart = isPostOrComment(document) && new Date(document.postedAt) > goodHeartStartDate
 
   return (
     <span className={classes.vote} {...eventHandlers}>

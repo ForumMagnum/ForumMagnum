@@ -40,6 +40,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const getRankColorAndDescription = (goodHeartRank) => {
+  if (goodHeartRank === -1) { return {rankColor: "rgba(0,0,0,.87)"}}
+  if (goodHeartRank >= 0 && goodHeartRank < 5) { return {rankColor : "#b42c6c", rankDescription :<p>This user has the goodest of hearts</p>}}
+  if (goodHeartRank >= 5 && goodHeartRank < 10) { return {rankColor : "#8a6a29", rankDescription : <p>This user has a good heart</p>}}
+  if (goodHeartRank >= 10 && goodHeartRank < 15) { return {rankColor : "#6c6c49", rankDescription : <p>This user has a pretty good heart</p>}}
+  return {}
+}
+
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
 const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
@@ -66,15 +74,8 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   const { FormatDate, LWTooltip } = Components
   const { htmlBio } = user
 
-
-
   const goodHeartRank = results && results.findIndex(u => u._id === user._id)
-  let rankColor = "rgba(0,0,0,.87)"
-  let rankDescription = <></>
-  if (goodHeartRank === -1) { rankColor = "rgba(0,0,0,.87)"}
-  if (goodHeartRank >= 0 && goodHeartRank < 5) { rankColor = "#b42c6c"; rankDescription = <p>This user has the goodest of hearts</p>}
-  if (goodHeartRank >= 5 && goodHeartRank < 10) { rankColor = "#8a6a29"; rankDescription = <p>This user has a good heart</p>}
-  if (goodHeartRank >= 10 && goodHeartRank < 15) { rankColor = "#6c6c49"; rankDescription = <p>This user has a pretty good heart</p>}
+  const {rankColor = "", rankDescription = <></>} = getRankColorAndDescription(goodHeartRank)
 
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = userGetPostCount(user)
