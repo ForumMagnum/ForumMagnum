@@ -109,8 +109,8 @@ async function convertImagesInPost(postId: string) {
     commitMessage: "Move images to CDN",
     changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
   };
-  const insertedRevisionId: string = await Revisions.insert(newRevision);
-  await Posts.update({_id: postId}, {
+  const insertedRevisionId: string = await Revisions.rawInsert(newRevision);
+  await Posts.rawUpdateOne({_id: postId}, {
     $set: {
       contents_latest: insertedRevisionId,
       contents: {

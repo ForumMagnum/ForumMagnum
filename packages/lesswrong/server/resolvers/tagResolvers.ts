@@ -271,7 +271,7 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   const contributionStats = await buildContributorsList(tag, null);
   
   if (JSON.stringify(tag.contributionStats) !== JSON.stringify(contributionStats)) {
-    await Tags.update({_id: tag._id}, {$set: {
+    await Tags.rawUpdateOne({_id: tag._id}, {$set: {
       contributionStats: contributionStats,
     }});
   }
@@ -281,7 +281,7 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
 
 export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
   const html = await annotateAuthors(tag._id, "Tags", "description");
-  await Tags.update({_id: tag._id}, {$set: {
+  await Tags.rawUpdateOne({_id: tag._id}, {$set: {
     htmlWithContributorAnnotations: html,
   }});
   return html;

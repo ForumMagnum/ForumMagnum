@@ -44,7 +44,7 @@ getCollectionHooks("Comments").newAsync.add(async function AlignmentCommentsNewO
 
 //TODO: Probably change these to take a boolean argument?
 const updateParentsSetAFtrue = async (comment: DbComment) => {
-  await Comments.update({_id:comment.parentCommentId}, {$set: {af: true}});
+  await Comments.rawUpdateOne({_id:comment.parentCommentId}, {$set: {af: true}});
   const parent = await Comments.findOne({_id: comment.parentCommentId});
   if (parent) {
     await updateParentsSetAFtrue(parent)
@@ -54,7 +54,7 @@ const updateParentsSetAFtrue = async (comment: DbComment) => {
 const updateChildrenSetAFfalse = async (comment: DbComment) => {
   const children = await Comments.find({parentCommentId: comment._id}).fetch();
   await asyncForeachSequential(children, async (child) => {
-    await Comments.update({_id:child._id}, {$set: {af: false}});
+    await Comments.rawUpdateOne({_id:child._id}, {$set: {af: false}});
     await updateChildrenSetAFfalse(child)
   })
 }

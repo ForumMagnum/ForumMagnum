@@ -113,7 +113,7 @@ export class EventDebouncer<KeyType,ValueType>
     const { newDelayTime, newUpperBoundTime } = this.parseTiming(timingRule);
     
     // On rawCollection because minimongo doesn't support $max/$min on Dates
-    await DebouncerEvents.rawCollection().update({
+    await DebouncerEvents.rawCollection().updateOne({
       name: this.name,
       af: af,
       key: JSON.stringify(key),
@@ -243,7 +243,7 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
-        await DebouncerEvents.update({
+        await DebouncerEvents.rawUpdateOne({
           _id: eventToHandle._id
         }, {
           $set: { failed: true }
@@ -295,4 +295,3 @@ if (!testServerSetting.get()) {
     }
   });
 }
-

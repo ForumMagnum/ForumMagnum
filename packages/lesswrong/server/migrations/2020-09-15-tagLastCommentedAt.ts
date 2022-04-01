@@ -20,7 +20,7 @@ registerMigration({
           }).fetch();
           if (newestComment.length>0) {
             const lastCommentedAt = newestComment[0].postedAt;
-            await Tags.update({_id: tag._id}, {$set: {lastCommentedAt: lastCommentedAt}});
+            await Tags.rawUpdateOne({_id: tag._id}, {$set: {lastCommentedAt: lastCommentedAt}});
           }
         }));
       }

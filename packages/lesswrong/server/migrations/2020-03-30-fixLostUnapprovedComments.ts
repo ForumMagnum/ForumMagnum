@@ -29,6 +29,6 @@ registerMigration({
     
     // eslint-disable-next-line no-console
     console.log(commentsToMarkReviewed.length+" comments to mark as reviewed");
-    await Comments.update({_id: {$in: commentsToMarkReviewed}}, {$set: {authorIsUnreviewed: false}}, {multi: true});
+    await Comments.rawUpdateMany({_id: {$in: commentsToMarkReviewed}}, {$set: {authorIsUnreviewed: false}}, {multi: true});
   }
 });
