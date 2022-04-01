@@ -177,12 +177,13 @@ Users.addView("usersByGoodHeartTokens", function (terms: UsersViewTerms) {
   return {
     options: {
       sort: {
-        goodHeartTokens: -1
+        goodHeartTokens: -1, 
+        karma: -1
       }
     }
   }
 })
-ensureIndex(Users, {goodHeartTokens: 1})
+ensureIndex(Users, {goodHeartTokens: 1, karma: 1})
 
 
 export const hashedPetrovLaunchCodes = [

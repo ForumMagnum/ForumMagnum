@@ -11,6 +11,10 @@ import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from '../../lib/crud/withMulti';
+import deepOrange from '@material-ui/core/colors/deepOrange';
+import yellow from '@material-ui/core/colors/yellow';
+import green from '@material-ui/core/colors/green';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
@@ -41,10 +45,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const getRankColorAndDescription = (goodHeartRank) => {
-  if (goodHeartRank === -1) { return {rankColor: "rgba(0,0,0,.87)"}}
-  if (goodHeartRank >= 0 && goodHeartRank < 5) { return {rankColor : "#b42c6c", rankDescription :<p>This user has the goodest of hearts</p>}}
-  if (goodHeartRank >= 5 && goodHeartRank < 10) { return {rankColor : "#8a6a29", rankDescription : <p>This user has a good heart</p>}}
-  if (goodHeartRank >= 10 && goodHeartRank < 15) { return {rankColor : "#6c6c49", rankDescription : <p>This user has a pretty good heart</p>}}
+  if (goodHeartRank === -1) { return {}}
+  if (goodHeartRank >= 0 && goodHeartRank < 5) { return {rankColor : deepOrange[700], rankDescription :<p>This user has the goodest of hearts</p>}}
+  if (goodHeartRank >= 5 && goodHeartRank < 10) { return {rankColor : yellow[900], rankDescription : <p>This user has a good heart</p>}}
+  if (goodHeartRank >= 10 && goodHeartRank < 15) { return {rankColor : green[900], rankDescription : <p>This user has a pretty good heart</p>}}
   return {}
 }
 
