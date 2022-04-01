@@ -1,26 +1,40 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 
 export const goodHeartStartDate = new Date("01/01/2022")
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
+    justifyContent: "space-between"
+  },
+  column: {
+    width: "calc(33% - 2px)",
+  },
+  columnHeading: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.body1,
+    marginBottom: 4,
+    display: "flex",
+    alignItems: "center"
+  },
+  userRow: {
+    display: "flex",
     ...theme.typography.commentStyle,
     background: "white",
     marginBottom: 2,
-    verticalAlign: "center",
+    alignItems: "center",
     boxShadow: theme.boxShadow
-  },
-  column: {
-    width: 250,
   },
   index: {
     width: 20,
     padding: 6,
     fontSize: 10,
-    color: theme.palette.grey[60]
+    textAlign: "center",
+    paddingLeft: 6,
+    color: theme.palette.grey[600]
   },
   username: {
     padding: 6,
@@ -30,7 +44,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 6,
     width: 20,
     textAlign: "right",
-  }
+  },
+  goodestHeartIcon: {
+    fontSize: 18,
+    marginRight: 5,
+    color: "rgba(250,200,100)"
+  },  
+  veryGoodHeartIcon: {
+    fontSize: 18,
+    marginRight: 5,
+    color: "rgba(220,220,100)"
+  },
+  goodHeartIcon: {
+    fontSize: 18,
+    marginRight: 5,
+    color: "rgba(200,200,100)"
+  },
 });
 
 export const AprilFools2022 = ({classes}: {
@@ -50,15 +79,44 @@ export const AprilFools2022 = ({classes}: {
       collectionName: "Users",
       fragmentName: 'UsersProfile',
       enableTotal: false,
+      limit: 15,
     });
   return <SingleColumnSection>
-    <SectionTitle title="Good Heart Ranking"/>
-    <div className={classes.column}>
-      {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classes.row}>
-        <div className={classes.index}>{ i+1 }</div>
-        <div className={classes.username}>{user.displayName}</div>
-        <div className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</div>
-      </div>)}
+    <SectionTitle title="The Good Heart Project"/>
+    <div className={classes.row}>
+      <div className={classes.column}>
+        <div className={classes.columnHeading}>
+          <FavoriteIcon className={classes.goodestHeartIcon}/>
+          <span>Goodest Hearts</span>
+        </div>
+        {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classes.userRow}>
+          <span className={classes.index}>{ i+1 }</span>
+          <span className={classes.username}>{user.displayName}</span>
+          <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
+        </div>)}
+      </div>
+      <div className={classes.column}>
+        <div className={classes.columnHeading}>
+          <FavoriteIcon className={classes.veryGoodHeartIcon}/>
+          <span>Good Hearts</span>
+        </div>
+        {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classes.userRow}>
+          <span className={classes.index}>{ i+6 }</span>
+          <span className={classes.username}>{user.displayName}</span>
+          <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
+        </div>)}
+      </div>
+      <div className={classes.column}>
+        <div className={classes.columnHeading}>
+          <FavoriteIcon className={classes.goodHeartIcon}/>
+          <span>Pretty Good Hearts</span>
+        </div>
+        {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classes.userRow}>
+          <span className={classes.index}>{ i+11 }</span>
+          <span className={classes.username}>{user.displayName}</span>
+          <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
+        </div>)}
+      </div>
     </div>
   </SingleColumnSection>;
 }
