@@ -39,7 +39,7 @@ export class EmailTokenType
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = randomSecret();
-    await EmailTokens.insert({
+    await EmailTokens.rawInsert({
       token: token,
       tokenType: this.name,
       userId: userId,

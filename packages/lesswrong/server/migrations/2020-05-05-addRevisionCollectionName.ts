@@ -17,7 +17,7 @@ registerMigration({
         callback: async (documents: DbObject[]) => {
           // eslint-disable-next-line no-console
           console.log(`Migrating a batch of ${documents.length} documents`);
-          await Revisions.update(
+          await Revisions.rawUpdateMany(
             { documentId: { $in: documents.map(doc => doc._id) } },
             { $set: {collectionName} },
             { multi: true }

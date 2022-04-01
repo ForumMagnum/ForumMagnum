@@ -14,7 +14,7 @@ if (runFix) { void (async ()=>{
     if (html) {
       const plaintextBody = htmlToText.fromString(html);
       const excerpt =  plaintextBody.slice(0,140);
-      await Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
+      await Posts.rawUpdateOne(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
       postCount++;
       if (postCount % 100 == 0) {
         //eslint-disable-next-line no-console

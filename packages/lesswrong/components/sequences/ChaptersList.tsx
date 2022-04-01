@@ -18,7 +18,11 @@ const ChaptersList = ({sequenceId, canEdit}: {
   });
   if (results && !loading) {
     return <div className="chapters-list">
-      {results.map((chapter) => <Components.ChaptersItem key={chapter._id} chapter={chapter} canEdit={canEdit} />)}
+      {results.map((chapter) => <Components.ChaptersItem
+        key={chapter._id}
+        chapter={chapter}
+        canEdit={canEdit}
+      />)}
     </div>
   } else {
     return <Components.Loading />
@@ -32,4 +36,3 @@ declare global {
     ChaptersList: typeof ChaptersListComponent
   }
 }
-

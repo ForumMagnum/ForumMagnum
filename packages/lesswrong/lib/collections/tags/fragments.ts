@@ -28,6 +28,9 @@ registerFragment(`
     bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
+    sequence {
+      ...SequencesPageFragment
+    }
   }
 `);
 

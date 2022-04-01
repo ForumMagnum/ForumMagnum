@@ -304,7 +304,7 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
     hashedToken
   }
 
-  await Users.update({_id: userId}, {
+  await Users.rawUpdateOne({_id: userId}, {
     $addToSet: {
       "services.resume.loginTokens": tokenWithMetadata
     }

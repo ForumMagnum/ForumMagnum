@@ -122,11 +122,11 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
 getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment) {
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
-    await Posts.update(comment.postId, {
+    await Posts.rawUpdateOne(comment.postId, {
       $set: {lastCommentedAt: new Date()},
     });
   } else if (comment.tagId) {
-    await Tags.update(comment.tagId, {
+    await Tags.rawUpdateOne(comment.tagId, {
       $set: {lastCommentedAt: new Date()},
     });
   }
@@ -146,7 +146,7 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
     const lastCommentedAt = postComments[0] && postComments[0].postedAt;
   
     // update post with a decremented comment count, and corresponding last commented at date
-    await Posts.update(postId, {
+    await Posts.rawUpdateOne(postId, {
       $set: {lastCommentedAt},
     });
   }
@@ -325,7 +325,7 @@ getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview
   const user = await Users.findOne({_id:comment.userId})
   const karma = user?.karma || 0
   if (karma < 100) {
-    await Comments.update({_id:comment._id}, {$set: {needsReview: true}});
+    await Comments.rawUpdateOne({_id:comment._id}, {$set: {needsReview: true}});
   }
 });
 
@@ -371,9 +371,9 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
 getCollectionHooks("Comments").editSync.add(async function moveToAnswers (modifier, comment: DbComment) {
   if (modifier.$set) {
     if (modifier.$set.answer === true) {
-      await Comments.update({topLevelCommentId: comment._id}, {$set:{parentAnswerId:comment._id}}, { multi: true })
+      await Comments.rawUpdateMany({topLevelCommentId: comment._id}, {$set:{parentAnswerId:comment._id}}, { multi: true })
     } else if (modifier.$set.answer === false) {
-      await Comments.update({topLevelCommentId: comment._id}, {$unset:{parentAnswerId:true}}, { multi: true })
+      await Comments.rawUpdateMany({topLevelCommentId: comment._id}, {$unset:{parentAnswerId:true}}, { multi: true })
     }
   }
   return modifier
@@ -431,7 +431,7 @@ getCollectionHooks("Comments").createBefore.add(async function SetTopLevelCommen
 getCollectionHooks("Comments").createAfter.add(async function UpdateDescendentCommentCounts (comment: DbComment) {
   const ancestorIds: string[] = await getCommentAncestorIds(comment);
   
-  await Comments.update({ _id: {$in: ancestorIds} }, {
+  await Comments.rawUpdateOne({ _id: {$in: ancestorIds} }, {
     $set: {lastSubthreadActivity: new Date()},
     $inc: {descendentCount:1},
   });
@@ -443,7 +443,7 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   if (context.oldDocument.deleted !== context.newDocument.deleted) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
     const increment = context.oldDocument.deleted ? 1 : -1;
-    await Comments.update({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
+    await Comments.rawUpdateOne({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
   return comment;
 });

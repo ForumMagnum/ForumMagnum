@@ -44,7 +44,7 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       if (!post.scoreExceeded75Date && post.baseScore >= 75) {
         thresholdTimestamp.scoreExceeded75Date = new Date();
       }
-      await Posts.update({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
+      await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
 });
@@ -116,7 +116,7 @@ getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
 getCollectionHooks("Posts").editAsync.add(async function UpdatePostShortform (newPost, oldPost) {
   if (!!newPost.shortform !== !!oldPost.shortform) {
     const shortform = !!newPost.shortform;
-    await Comments.update(
+    await Comments.rawUpdateMany(
       { postId: newPost._id },
       { $set: {
         shortform: shortform
@@ -149,7 +149,7 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
 export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment) {
   const author = await Users.findOne(document.userId);
   if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
-    await Users.update({_id:author._id}, {$set:{needsReview: true}})
+    await Users.rawUpdateOne({_id:author._id}, {$set:{needsReview: true}})
   }
   return document
 }
@@ -196,7 +196,7 @@ async function extractSocialPreviewImage (post: DbPost) {
   // returned value
   // It's important to run this regardless of whether or not we found an image,
   // as removing an image should remove the social preview for that image
-  await Posts.update({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
+  await Posts.rawUpdateOne({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
   
   return {...post, socialPreviewImageAutoUrl}
   
@@ -213,7 +213,7 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 async function oldPostsLastCommentedAt (post: DbPost) {
   if (post.commentCount) return
 
-  await Posts.update({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
+  await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
 }
 
 getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)

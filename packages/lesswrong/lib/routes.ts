@@ -912,6 +912,14 @@ if (hasEventsSetting.get()) {
       componentName: 'AllGroupsPage',
       title: "All Local Groups"
     },
+    
+    {
+      name: 'GroupsMap',
+      path: '/groups-map',
+      componentName: 'GroupsMap',
+      title: "Groups Map",
+      standalone: true
+    },
 
     {
       name:'Localgroups.single',

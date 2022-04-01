@@ -53,7 +53,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   }
   
   // update document score & set item as active
-  await Connectors.update(collection,
+  await collection.rawUpdateOne(
     {_id: document._id},
     {
       $set: {
@@ -63,7 +63,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
         extendedScore: newDocument.extendedScore,
       },
     },
-    {}, true
+    {}
   );
   void algoliaExportById(collection as any, newDocument._id);
   return {newDocument, vote};
@@ -155,12 +155,12 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       );
     }
     const newScores = await recalculateDocumentScores(document, context);
-    await Connectors.update(collection,
+    await collection.rawUpdateOne(
       {_id: document._id},
       {
         $set: {...newScores },
       },
-      {}, true
+      {}
     );
     newDocument = {
       ...newDocument,

@@ -386,6 +386,21 @@ export const schema: SchemaType<DbTag> = {
     viewableBy: ['guests'],
     denormalized: true,
   },
+  
+  introSequenceId: {
+    ...foreignKeyField({
+      idFieldName: "introSequenceId",
+      resolverName: "sequence",
+      collectionName: "Sequences",
+      type: "Sequence",
+      nullable: true,
+    }),
+    optional: true,
+    group: formGroups.advancedOptions,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {

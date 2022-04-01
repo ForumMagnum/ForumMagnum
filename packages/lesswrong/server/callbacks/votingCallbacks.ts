@@ -12,17 +12,37 @@ import { batchUpdateScore } from '../updateScores';
  * @param {string} operation - The operation being performed
  */
 const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
-voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+export const goodHeartStartDate = new Date("01/01/2022")
+const currentDate = new Date()
+const activateGoodHeartTokens = true //new Date("04/01/2022") < currentDate && currentDate < new Date("04/08/2022")
+
+const hasCreatedAt = (document: any) : document is HasCreatedAtType => {
+  if (document.createdAt) return true
+  return false 
+}
+
+const trackGoodheartTokens = (newDocument, user) => {
+  return activateGoodHeartTokens && hasCreatedAt(newDocument) && newDocument.createdAt > goodHeartStartDate && user.createdAt < goodHeartStartDate
+}
+
+voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.update({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
+    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
+    if (trackGoodheartTokens(newDocument, user)) {
+      void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"goodHeartTokens": vote.power}});
+    }
   }
 });
 
-voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) { 
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.update({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
+
+    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
+    if (trackGoodheartTokens(newDocument, user)) {
+      void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"goodHeartTokens": -vote.power}});
+    }
   }
 });
 
@@ -31,7 +51,7 @@ voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
-    void Users.update({_id: vote.userId}, {$inc: {[field]: 1, voteCount: 1}});
+    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: 1, voteCount: 1}});
   }
 });
 
@@ -39,7 +59,7 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
   const field = vote.voteType + "Count"
 
   if (newDocument.userId !== vote.userId) {
-    void Users.update({_id: vote.userId}, {$inc: {[field]: -1, voteCount: -1}});
+    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: -1, voteCount: -1}});
   }
 });
 
@@ -47,7 +67,7 @@ voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: Vote
   const voter = await Users.findOne(document.vote.userId);
   // voting should only be triggered once (after getting snoozed, they will not re-trigger for sunshine review)
   if (voter && voter.voteCount >= 20 && !voter.reviewedByUserId) {
-    void Users.update({_id:voter._id}, {$set:{needsReview: true}})
+    void Users.rawUpdateOne({_id:voter._id}, {$set:{needsReview: true}})
   }
 });
 
@@ -61,7 +81,7 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
   // whole collection. (This is already something being done frequently by a
   // cronjob.)
   if (publishedPost.inactive) {
-    await Posts.update({_id: publishedPost._id}, {$set: {inactive: false}});
+    await Posts.rawUpdateOne({_id: publishedPost._id}, {$set: {inactive: false}});
   }
   
   await batchUpdateScore({collection: Posts});
