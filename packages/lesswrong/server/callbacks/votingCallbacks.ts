@@ -14,7 +14,7 @@ import { goodHeartStartDate } from '../../components/seasonal/AprilFools2022';
  */
 const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
-const hasCreatedAt = (document: any) : document is HasCreatedAtType => {
+const hasPostedAt = (document: any) : document is (DbComment | DbPost) => {
   if (document.createdAt) return true
   return false 
 }
@@ -22,7 +22,7 @@ const hasCreatedAt = (document: any) : document is HasCreatedAtType => {
 const trackGoodheartTokens = (newDocument, user) => {
   const currentDate = new Date()
   const activateGoodHeartTokens = new Date("04/01/2022") < currentDate && currentDate < new Date("04/08/2022")
-  return activateGoodHeartTokens && hasCreatedAt(newDocument) && newDocument.createdAt > goodHeartStartDate && user.createdAt < goodHeartStartDate
+  return activateGoodHeartTokens && hasPostedAt(newDocument) && newDocument.postedAt > goodHeartStartDate && user.createdAt < goodHeartStartDate
 }
 
 voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
