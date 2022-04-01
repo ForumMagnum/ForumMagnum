@@ -29,8 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     fontSize: '45%',
     textAlign: "center",
-    marginLeft: "-100%",
-    marginRight: "-100%",
   },
   secondaryVoteScore: {
     fontSize: '35%',
