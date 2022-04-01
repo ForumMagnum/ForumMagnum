@@ -8,10 +8,12 @@ export const goodHeartStartDate = new Date("01/01/2022")
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
-    justifyContent: "space-between"
+    flexWrap: "wrap",
+    gap: "4px"
   },
   column: {
-    width: "calc(33% - 2px)",
+    flex: "1",
+    minWidth: 180
   },
   columnHeading: {
     ...theme.typography.commentStyle,
@@ -38,12 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   username: {
     padding: 6,
-    width: 200,
   },
   goodHeartTokens: {
+    marginLeft: 'auto',
     padding: 6,
-    width: 20,
-    textAlign: "right",
   },
   goodestHeartIcon: {
     fontSize: 18,
