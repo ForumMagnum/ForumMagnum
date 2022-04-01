@@ -106,7 +106,7 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.goodHeartIcon}/>
-          <span style={{color:green[900]}}>Pretty Good Hearts</span>
+          <span style={{color:green[900]}}>Kinda Good Hearts</span>
         </div>
         {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:green[900]}}>
           <span className={classes.index}>{ i+11 }</span>

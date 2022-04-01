@@ -48,7 +48,7 @@ const getRankColorAndDescription = (goodHeartRank) => {
   if (goodHeartRank === -1) { return {}}
   if (goodHeartRank >= 0 && goodHeartRank < 5) { return {rankColor : deepOrange[700], rankDescription :<p>This user has the goodest of hearts</p>}}
   if (goodHeartRank >= 5 && goodHeartRank < 10) { return {rankColor : yellow[900], rankDescription : <p>This user has a good heart</p>}}
-  if (goodHeartRank >= 10 && goodHeartRank < 15) { return {rankColor : green[900], rankDescription : <p>This user has a pretty good heart</p>}}
+  if (goodHeartRank >= 10 && goodHeartRank < 15) { return {rankColor : green[900], rankDescription : <p>This user has a kinda good heart</p>}}
   return {}
 }
 
