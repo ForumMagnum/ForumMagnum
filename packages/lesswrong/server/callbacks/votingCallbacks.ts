@@ -21,7 +21,7 @@ const hasCreatedAt = (document: any) : document is HasCreatedAtType => {
   return false 
 }
 
-voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdate({_id: newDocument.userId}, {$inc: {"karma": vote.power}});

@@ -182,6 +182,7 @@ Users.addView("usersByGoodHeartTokens", function (terms: UsersViewTerms) {
     }
   }
 })
+ensureIndex(Users, {goodHeartTokens: 1})
 
 
 export const hashedPetrovLaunchCodes = [

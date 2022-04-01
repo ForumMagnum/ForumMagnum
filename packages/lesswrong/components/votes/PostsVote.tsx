@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { useVote } from './withVote';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import FavoriteIcon from '@material-ui/icons/Favorite'
+import { goodHeartStartDate } from '../seasonal/AprilFools2022';
 
 const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
@@ -86,6 +87,16 @@ const PostsVote = ({ post, classes }: {
     }
   </div>
 
+  const goodHeart = new Date(post.postedAt) > goodHeartStartDate
+
+  const voteStyling = goodHeart ? <div className={classes.goodHeartWrapper}> 
+    <Typography variant="headline" className={classes.voteScore}>${voteProps.baseScore}</Typography>
+    <FavoriteIcon className={classes.goodHeartIcon}/>
+  </div> : <div> 
+    {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
+    <Typography variant="headline" className={classes.voteScore}>{voteProps.baseScore}</Typography>
+  </div>
+
   return (
       <div className={classes.voteBlock}>
         <Tooltip
@@ -107,11 +118,7 @@ const PostsVote = ({ post, classes }: {
             title={`${voteProps.baseScore} Good Heart tokens (${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes)"}`}
             placement="right"
           >
-            <div className={classes.goodHeartWrapper}> 
-              {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}
-              <Typography variant="headline" className={classes.voteScore}>${voteProps.baseScore}</Typography>
-              <FavoriteIcon className={classes.goodHeartIcon}/>
-            </div>
+            {voteStyling}
           </Tooltip>
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
             <Tooltip

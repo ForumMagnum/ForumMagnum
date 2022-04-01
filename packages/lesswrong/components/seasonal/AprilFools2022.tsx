@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 10,
     textAlign: "center",
     paddingLeft: 6,
-    color: theme.palette.grey[600]
+    opacity: .65
   },
   username: {
     padding: 6,
@@ -48,31 +48,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   goodestHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: "rgba(250,200,100)"
+    color: "#e03083"
   },  
   veryGoodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: "rgba(220,220,100)"
+    color: "#fac864"
   },
   goodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: "rgba(200,200,100)"
+    color: "#b5b589"
   },
 });
 
 export const AprilFools2022 = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle } = Components
-
-    
-  // const { document: postVoting } = useSingle({
-  //   documentId: "SBpymoJe9Mq64A8xc",
-  //   collectionName: "Posts",
-  //   fragmentName: "PostsList"
-  // });
+  const { SingleColumnSection, SectionTitle, PostsItem2 } = Components
 
   const {results} = useMulti({
       terms: {view: 'usersByGoodHeartTokens'},
@@ -87,9 +80,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.goodestHeartIcon}/>
-          <span>Goodest Hearts</span>
+          <span style={{color:"#b42c6c"}}>Goodest Hearts</span>
         </div>
-        {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classes.userRow}>
+        {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:"#b42c6c"}}>
           <span className={classes.index}>{ i+1 }</span>
           <span className={classes.username}>{user.displayName}</span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
@@ -98,9 +91,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.veryGoodHeartIcon}/>
-          <span>Good Hearts</span>
+          <span style={{color:"#8a6a29"}}>Good Hearts</span>
         </div>
-        {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classes.userRow}>
+        {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:"#8a6a29"}}>
           <span className={classes.index}>{ i+6 }</span>
           <span className={classes.username}>{user.displayName}</span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
@@ -109,9 +102,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.goodHeartIcon}/>
-          <span>Pretty Good Hearts</span>
+          <span style={{color:"#6c6c49"}}>Pretty Good Hearts</span>
         </div>
-        {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classes.userRow}>
+        {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:"#6c6c49"}}>
           <span className={classes.index}>{ i+11 }</span>
           <span className={classes.username}>{user.displayName}</span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>

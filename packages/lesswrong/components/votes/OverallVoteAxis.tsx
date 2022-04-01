@@ -109,7 +109,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
     </div>
   )
 
-  const goodHeart = new Date() > goodHeartStartDate
+  const goodHeart = new Date(document.postedAt) > goodHeartStartDate
 
   return (
     <span className={classes.vote} {...eventHandlers}>
