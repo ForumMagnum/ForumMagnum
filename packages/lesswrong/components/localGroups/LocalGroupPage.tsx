@@ -7,7 +7,6 @@ import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
-import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -16,6 +15,8 @@ import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@material-ui/icons/Email';
 import LinkIcon from '@material-ui/icons/Link';
+import LocationIcon from '@material-ui/icons/LocationOn';
+import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -63,7 +64,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     justifyContent: 'flex-end',
     margin: '8px 4px 20px',
     [theme.breakpoints.down('xs')]: {
-      justifyContent: 'flex-start'
+      justifyContent: 'flex-start',
+      marginTop: 30
     }
   },
   organizerActions: {
@@ -77,15 +79,33 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: "0px",
     marginBottom: "0.5rem"
   },
-  groupSubtitle: {
-    marginBottom: theme.spacing.unit * 2
-  },
   groupLocation: {
     ...theme.typography.body2,
-    display: "inline-block",
+    display: "flex",
+    columnGap: 5,
+    alignItems: 'center',
     color: "rgba(0,0,0,0.7)",
   },
+  groupLocationIcon: {
+    fontSize: 20
+  },
+  groupCategories: {
+    display: 'flex',
+    columnGap: 10,
+    marginTop: theme.spacing.unit * 2
+  },
+  groupCategory: {
+    backgroundColor: 'white',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.grey[600],
+    padding: '6px 12px',
+    border: '1px solid white',
+    borderColor: theme.palette.grey[300],
+    borderRadius: 4
+  },
   groupDescription: {
+    marginTop: theme.spacing.unit * 3,
     marginBottom: 20,
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
@@ -358,9 +378,15 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         <div className={classes.titleRow}>
           <div>
             <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin />
-            <div className={classes.groupSubtitle}>
-              <div className={classes.groupLocation}>{group.isOnline ? 'Online Group' : group.location}</div>
+            <div className={classes.groupLocation}>
+              <LocationIcon className={classes.groupLocationIcon} />
+              {group.isOnline ? 'Online Group' : group.location}
             </div>
+            {group.categories?.length > 0 && <div className={classes.groupCategories}>
+              {group.categories.map(category => {
+                return <div className={classes.groupCategory}>{GROUP_CATEGORIES.find(option => option.value === category)?.label}</div>
+              })}
+            </div>}
           </div>
           <div>
             {currentUser && <SectionButton className={classes.notifyMe}>

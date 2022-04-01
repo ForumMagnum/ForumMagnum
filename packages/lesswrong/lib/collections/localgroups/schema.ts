@@ -6,6 +6,18 @@ import { forumTypeSetting } from '../../instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
+export const GROUP_CATEGORIES = [
+  {value: 'national', label: 'National'},
+  {value: 'regional', label: 'Regional'},
+  {value: 'city', label: 'City'},
+  {value: 'university', label: 'University'},
+  {value: 'high-school', label: 'High School'},
+  {value: 'workplace', label: 'Workplace'},
+  {value: 'professional', label: 'Professional'},
+  {value: 'cause-area', label: 'Cause Area'},
+  {value: 'affiliation', label: 'Affiliation'},
+]
+
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
     name: "advancedOptions",
@@ -81,6 +93,23 @@ const schema: SchemaType<DbLocalgroup> = {
   },
 
   'types.$': {
+    type: String,
+    optional: true,
+  },
+  
+  categories: {
+    type: Array,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: 'FormComponentMultiSelect',
+    placeholder: "Group type / intended audience",
+    form: {
+      options: GROUP_CATEGORIES
+    },
+  },
+  
+  'categories.$': {
     type: String,
     optional: true,
   },
