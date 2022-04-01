@@ -1,4 +1,5 @@
 import React from 'react';
+import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
 import { postGetAuthorName } from './collections/posts/helpers';
@@ -25,6 +26,8 @@ interface NotificationType {
   mustBeEnabled?: boolean,
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
+  onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>Promise<string>
 }
 
 const notificationTypes: Record<string,NotificationType> = {};
@@ -345,3 +348,29 @@ export const NewRSVPNotification = registerNotificationType({
     return <EventIcon style={iconStyles} />
   }
 })
+
+export const NewCommentOnDraftNotification = registerNotificationType({
+  name: "newCommentOnDraft",
+  userSettingField: "notificationCommentsOnDraft",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const post = await getDocument(documentType, documentId) as DbPost;
+    return `New comments on your draft ${post.title}`;
+  },
+  
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  
+  onsiteHoverView({notification}: {notification: NotificationsList}) {
+    return <Components.CommentOnYourDraftNotificationHover notification={notification}/>
+  },
+  
+  getLink: async ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): Promise<string> => {
+    return `/editPost?postId=${documentId}`;
+  },
+});
+

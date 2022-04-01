@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 import { styles } from './PostsNewForm';
@@ -11,17 +11,18 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
+import { isCollaborative } from '../editor/EditorFormComponent';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
   eventForm: boolean,
   classes: ClassesType,
 }) => {
-  const { location } = useLocation();
+  const { location, query } = useLocation();
   const { history } = useNavigation();
   const { flash } = useMessages();
-  const { document } = useSingle({
+  const { document, loading } = useSingle({
     documentId,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
@@ -31,11 +32,19 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
+  
+  const saveDraftLabel: string = ((post) => {
+    if (!post) return "Save Draft"
+    if (!post.draft) return "Move to Drafts"
+    if (isCollaborative(post, "contents")) return "Preview"
+    return "Save Draft"
+  })(document)
+  
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
-        saveDraftLabel={isDraft ? "Save as draft" : "Move to Drafts"}
+        saveDraftLabel={saveDraftLabel} 
         feedbackLabel={"Get Feedback"}
         {...props}
       />
@@ -47,30 +56,37 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     fragmentName: 'SuggestAlignmentPost',
   })
   
-  function isCollaborative(post): boolean {
-    if (!post) return false;
-    if (!post._id) return false;
-    if (post?.shareWithUsers) return true;
-    if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
-      return true;
-    return false;
-  }
-  
-  
-  if (
-    !testServerSetting.get() &&
-    isCollaborative(document) &&
-    ['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
-  ) {
+  // If logged out, show a login form. (Even if link-sharing is enabled, you still
+  // need to be logged into LessWrong with some account.)
+  if (!currentUser) {
     return <Components.SingleColumnSection>
-      <p>This post has experimental collaborative editing enabled.</p>
-      <p>It can only be edited on the development server.</p>
-      <a className={classes.collaborativeRedirectLink} href={`https://www.lessestwrong.com/editPost?postId=${document?._id}`}>
-        <h1>EDIT THE POST HERE</h1>
-      </a>     
+      <Components.WrappedLoginForm/>
     </Components.SingleColumnSection>
   }
-      
+
+  // If we only have read access to this post, but it's shared with us
+  // as a draft, redirect to the collaborative editor.
+  if (document
+    && document.draft
+    && document.userId!==currentUser?._id
+    && document.sharingSettings
+    && !userIsAdmin(currentUser)
+    && !currentUser.groups?.includes('sunshineRegiment')
+  ) {
+    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
+  }
+  
+  // If we don't have access at all but a link-sharing key was provided, redirect to the
+  // collaborative editor
+  if (!document && !loading && query?.key) {
+    return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}`} status={302}/>
+  }
+  
+  // If the post has a link-sharing key which is not in the URL, redirect to add
+  // the link-sharing key to the URL
+  if (document?.linkSharingKey && !(query?.key)) {
+    return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
+  }
   
   return (
     <div className={classes.postForm}>
@@ -79,13 +95,17 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
         <WrappedSmartForm
           collection={Posts}
           documentId={documentId}
-          queryFragment={getFragment('PostsEdit')}
-          mutationFragment={getFragment('PostsEdit')}
-          successCallback={post => {
+          queryFragment={getFragment('PostsEditQueryFragment')}
+          mutationFragment={getFragment('PostsEditMutationFragment')}
+          successCallback={(post, options) => {
             const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
             if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
-            flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
-            history.push({pathname: postGetPageUrl(post)});
+            if (options?.submitOptions?.redirectToEditor) {
+              history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
+            } else {
+              history.push({pathname: postGetPageUrl(post)})
+              flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
+            }
           }}
           eventForm={eventForm}
           removeSuccessCallback={({ documentId, documentTitle }) => {
@@ -105,6 +125,8 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
           extraVariables={{
             version: 'String'
           }}
+          version="draft"
+          noSubmitOnCmdEnter
           repeatErrors
         />
       </NoSsr>
