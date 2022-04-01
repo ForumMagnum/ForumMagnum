@@ -11,7 +11,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import classNames from 'classnames';
 import type { VotingProps } from './withVote';
 import FavoriteIcon from '@material-ui/icons/Favorite'
-import { goodHeartStartDate } from '../../server/callbacks/votingCallbacks';
+import { goodHeartStartDate } from '../seasonal/AprilFools2022';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -110,7 +110,6 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   )
 
   const goodHeart = new Date() > goodHeartStartDate
-  console.log("GOODHEART", goodHeart)
 
   return (
     <span className={classes.vote} {...eventHandlers}>
