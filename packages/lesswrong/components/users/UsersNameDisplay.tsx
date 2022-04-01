@@ -10,6 +10,7 @@ import { BookIcon } from '../icons/bookIcon'
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
@@ -51,11 +52,28 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
 }) => {
   const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
 
+  const {results} = useMulti({
+    terms: {view: 'usersByGoodHeartTokens'},
+    collectionName: "Users",
+    fragmentName: 'UsersProfile',
+    fetchPolicy: 'cache-only',
+    enableTotal: false,
+    limit: 15,
+  });
+
   if (!user || user.deleted) {
     return <Components.UserNameDeleted/>
   }
   const { FormatDate, LWTooltip } = Components
   const { htmlBio } = user
+
+  const goodHeartRank = results?.findIndex(u => u._id === user._id)
+  let rankColor = ""
+  let rankDescription = ""
+  if (goodHeartRank === -1) { rankColor = "rgba(0,0,0,.87)"}
+  if (goodHeartRank >= 0 && goodHeartRank < 5) { rankColor = "#b42c6c"; rankDescription = "This user has the goodest of hearts"}
+  if (goodHeartRank >= 5 && goodHeartRank < 10) { rankColor = "#8a6a29"; rankDescription = "This user has a good heart"}
+  if (goodHeartRank >= 10 && goodHeartRank < 15) { rankColor = "#6c6c49"; rankDescription = "This user has a pretty good heart"}
 
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = userGetPostCount(user)
@@ -64,6 +82,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   const sequenceCount = user.sequenceCount; // TODO: Counts LW sequences on Alignment Forum
 
   const tooltip = <span>
+    {rankDescription}
     <div className={classes.joined}>Joined on <FormatDate date={user.createdAt} format="MMM Do YYYY" /></div>
     { !!sequenceCount && <div>
         <BookIcon className={classNames(classes.icon, classes.bookIcon)}/> { sequenceCount } sequence{sequenceCount !== 1 && 's'}
@@ -83,6 +102,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}
           {...(nofollow ? {rel:"nofollow"} : {})}
+          style={{color:rankColor}}
         >
         {userGetDisplayName(user)}
       </Link>

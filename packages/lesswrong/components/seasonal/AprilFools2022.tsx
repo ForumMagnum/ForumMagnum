@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AprilFools2022 = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, PostsItem2 } = Components
+  const { SingleColumnSection, SectionTitle, UsersNameDisplay } = Components
 
   const {results} = useMulti({
       terms: {view: 'usersByGoodHeartTokens'},
@@ -84,7 +84,7 @@ export const AprilFools2022 = ({classes}: {
         </div>
         {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:"#b42c6c"}}>
           <span className={classes.index}>{ i+1 }</span>
-          <span className={classes.username}>{user.displayName}</span>
+          <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
         </div>)}
       </div>
@@ -95,7 +95,7 @@ export const AprilFools2022 = ({classes}: {
         </div>
         {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:"#8a6a29"}}>
           <span className={classes.index}>{ i+6 }</span>
-          <span className={classes.username}>{user.displayName}</span>
+          <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
         </div>)}
       </div>
@@ -106,7 +106,7 @@ export const AprilFools2022 = ({classes}: {
         </div>
         {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:"#6c6c49"}}>
           <span className={classes.index}>{ i+11 }</span>
-          <span className={classes.username}>{user.displayName}</span>
+          <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
         </div>)}
       </div>
