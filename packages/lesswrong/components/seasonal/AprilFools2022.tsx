@@ -7,7 +7,7 @@ import yellow from '@material-ui/core/colors/yellow';
 import green from '@material-ui/core/colors/green';
 
 
-export const goodHeartStartDate = new Date("01/01/2022")
+export const goodHeartStartDate = new Date("04/01/2022")
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {

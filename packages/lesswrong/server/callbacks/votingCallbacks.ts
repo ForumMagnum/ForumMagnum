@@ -3,6 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
+import { goodHeartStartDate } from '../../components/seasonal/AprilFools2022';
 
 /**
  * @summary Update the karma of the item's owner
@@ -12,9 +13,6 @@ import { batchUpdateScore } from '../updateScores';
  * @param {string} operation - The operation being performed
  */
 const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
-export const goodHeartStartDate = new Date("01/01/2022")
-const currentDate = new Date()
-const activateGoodHeartTokens = true //new Date("04/01/2022") < currentDate && currentDate < new Date("04/08/2022")
 
 const hasCreatedAt = (document: any) : document is HasCreatedAtType => {
   if (document.createdAt) return true
@@ -22,6 +20,8 @@ const hasCreatedAt = (document: any) : document is HasCreatedAtType => {
 }
 
 const trackGoodheartTokens = (newDocument, user) => {
+  const currentDate = new Date()
+  const activateGoodHeartTokens = new Date("04/01/2022") < currentDate && currentDate < new Date("04/08/2022")
   return activateGoodHeartTokens && hasCreatedAt(newDocument) && newDocument.createdAt > goodHeartStartDate && user.createdAt < goodHeartStartDate
 }
 
