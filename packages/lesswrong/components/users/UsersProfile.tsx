@@ -11,6 +11,7 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
+import FavoriteIcon from '@material-ui/icons/Favorite'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -124,7 +125,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const renderMeta = () => {
     const document = getUserFromResults(results)
     if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = document;
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount, goodHeartTokens } = document;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -132,6 +133,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const userCommentCount = forumTypeSetting.get() !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
+        { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${goodHeartTokens} Good Heart Tokens`}>
+          <span className={classes.userMetaInfo}>
+            <FavoriteIcon className={classNames(classes.icon, classes.specificalz)}/>
+            <Components.MetaInfo title="GoodHeartTokens">
+              {goodHeartTokens || 0}
+            </Components.MetaInfo>
+          </span>
+        </Tooltip>}
 
         { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
           <span className={classes.userMetaInfo}>
