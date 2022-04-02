@@ -25,12 +25,18 @@ const trackGoodheartTokens = (newDocument, user) => {
   return activateGoodHeartTokens && hasPostedAt(newDocument) && newDocument.postedAt > goodHeartStartDate && user.createdAt < goodHeartStartDate
 }
 
+const getGoodheartTokenMultiplier = (collectionName) => {
+  if (collectionName === "Posts") return 3
+  else return 1
+}
+
 voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
     if (trackGoodheartTokens(newDocument, user)) {
-      void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"goodHeartTokens": vote.power}});
+      const multiplier = getGoodheartTokenMultiplier(collection.collectionName)
+      void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"goodHeartTokens": multiplier * vote.power}});
     }
   }
 });
@@ -41,7 +47,8 @@ voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: Vote
 
     void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
     if (trackGoodheartTokens(newDocument, user)) {
-      void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"goodHeartTokens": -vote.power}});
+      const multiplier = getGoodheartTokenMultiplier(collection.collectionName)
+      void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"goodHeartTokens": multiplier * -vote.power}});
     }
   }
 });
