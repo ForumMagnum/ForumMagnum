@@ -57,7 +57,8 @@ Start the development server:
 
 ```
 # run MongoDB with defaut settings: e.g. on MacOS:
-mongod --config /usr/local/etc/mongod.conf
+mkdir myLocalDatabase
+mongod --dbpath ./myLocalDatabase
 
 yarn [start|ea-start]
 ```
