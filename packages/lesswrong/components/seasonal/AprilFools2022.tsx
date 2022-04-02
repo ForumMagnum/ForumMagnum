@@ -7,7 +7,7 @@ import yellow from '@material-ui/core/colors/yellow';
 import green from '@material-ui/core/colors/green';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
-export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject', false) // enables all UI for 2022 LW April Fools
+export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject', false) // enables UI for 2022 LW April Fools
 export const goodHeartStartDate = new Date("01/01/2022")
 
 const styles = (theme: ThemeType): JssStyles => ({
