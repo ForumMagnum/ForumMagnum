@@ -56,7 +56,6 @@ yarn install
 Start the development server:
 
 ```
-# run MongoDB with defaut settings: e.g. on MacOS:
 mkdir myLocalDatabase
 mongod --dbpath ./myLocalDatabase
 
