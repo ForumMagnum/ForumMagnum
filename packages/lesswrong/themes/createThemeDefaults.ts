@@ -254,7 +254,7 @@ export const baseTheme: BaseThemeSpecification = {
         },
         MuiChip: {
           root: {
-            color: palette.text.default, //Necessary because this uses getContrastText() which produces a non-theme color
+            color: palette.text.normal, //Necessary because this uses getContrastText() which produces a non-theme color
           },
         },
         MuiButton: {

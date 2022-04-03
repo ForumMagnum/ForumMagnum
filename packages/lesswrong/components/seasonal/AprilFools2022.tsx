@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: "white",
     marginBottom: 2,
     alignItems: "center",
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   },
   index: {
     width: 20,
