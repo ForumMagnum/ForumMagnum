@@ -58,6 +58,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   wrapper: {
     color: theme.palette.text.maxIntensity,
+    "& input": {
+      color: theme.palette.text.maxIntensity,
+    },
   },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
