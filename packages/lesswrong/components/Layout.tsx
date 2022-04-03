@@ -60,6 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.maxIntensity,
     "& input": {
       color: theme.palette.text.maxIntensity,
+      backgroundColor: "transparent",
     },
   },
   gridActivated: {
