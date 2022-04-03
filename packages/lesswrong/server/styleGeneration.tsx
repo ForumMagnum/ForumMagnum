@@ -8,7 +8,6 @@ import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
 import addToCalendarStyles from '../themes/globalStyles/addToCalendarStyles';
-import datetimeStyles from '../themes/globalStyles/datetimeStyles';
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
@@ -40,7 +39,6 @@ const generateMergedStylesheet = (theme: ThemeOptions): string => {
   
   return [
     addToCalendarStyles,
-    datetimeStyles,
     draftjsStyles,
     miscStyles,
     jssStylesheet
