@@ -11,8 +11,9 @@ import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import { forumTypeSetting } from '../lib/instanceSettings';
+import { getForumTheme } from '../themes/forumTheme';
 
-const generateMergedStylesheet = (theme: ThemeOptions): string => {
+const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
   importAllComponents();
   
   const context: any = {};
@@ -31,14 +32,15 @@ const generateMergedStylesheet = (theme: ThemeOptions): string => {
       return <StyledComponent key={componentName}/>
     })}
   </div>
-  const WrappedTree = wrapWithMuiTheme(DummyTree, context, theme);
+  const WrappedTree = wrapWithMuiTheme(DummyTree, context, themeOptions);
   
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
+  const theme = getForumTheme(themeOptions);
   
   return [
-    draftjsStyles,
-    miscStyles,
+    draftjsStyles(theme),
+    miscStyles(theme),
     jssStylesheet
   ].join("\n");
 }
