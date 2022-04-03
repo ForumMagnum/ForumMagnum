@@ -122,7 +122,8 @@ export const grey = {
   20: '#fdfdfd',
   25: '#fcfcfc',
   30: '#fbfbfb',
-  40: '#f8f8f8',
+  55: '#f9f9f9',
+  60: '#f8f8f8',
   110: "#f3f3f3",
   120: '#f2f2f2',
   140: "#f0f0f0",
@@ -131,6 +132,7 @@ export const grey = {
   320: "#d9d9d9",
   340: "#d0d0d0",
   410: "#b3b3b3",
+  550: "#999999",
   650: '#808080',
 }
 
@@ -257,7 +259,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tooltipHR: "solid 1px rgba(255,255,255,.2)",
   },
   background: {
-    default: shades.grey[40],
+    default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
     pageActiveAreaBackground: shades.grey[0],
     diffInserted: "#d4ead4",

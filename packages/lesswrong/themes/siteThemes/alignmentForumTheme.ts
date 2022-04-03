@@ -40,7 +40,7 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       main: '#bf360c',
     },
     background: {
-      default: shadePalette.grey[40],
+      default: shadePalette.grey[60],
     },
     header: {
       text: "#ffffff",

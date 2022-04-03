@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
-    borderBottom: `solid 1px #999`,
+    borderBottom: `solid 1px {$theme.palette.grey[550]}`,
     padding: '6px 0 7px 0'
   },
   label: {
@@ -35,9 +35,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: 4,
       marginTop: 1,
       zIndex: "99999 !important",
-      background: "#fff",
-      boxShadow: "0 1px 3px rgba(0,0,0,.1)",
-      border: "1px solid #f9f9f9",
+      background: theme.palette.panelBackground.default,
+      boxShadow: theme.palette.boxShadow.moreFocused,
+      border: `1px solid ${theme.palette.grey[55]}`,
       bottom: 30,
     },
     "& .rdtOpen .rdtPicker": {
@@ -64,11 +64,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "pointer",
     },
     "& .rdtPicker td.rdtToday:hover, & .rdtPicker td.rdtHour:hover, & .rdtPicker td.rdtMinute:hover, & .rdtPicker td.rdtSecond:hover, & .rdtPicker .rdtTimeToggle:hover": {
-      background: "#eeeeee",
+      background: theme.palette.grey[200],
       cursor: "pointer",
     },
     "& .rdtPicker td.rdtOld, & .rdtPicker td.rdtNew": {
-      color: "#999999",
+      color: theme.palette.grey[550],
     },
     "& .rdtPicker td.rdtToday": {
       position: "relative",
@@ -78,35 +78,35 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "inline-block",
       borderLeft: "7px solid transparent",
       borderBottom: "7px solid #428bca",
-      borderTopColor: "rgba(0, 0, 0, 0.2)",
+      borderTopColor: theme.palette.greyAlpha(0.2),
       position: "absolute",
       bottom: 4,
       right: 4,
     },
     "& .rdtPicker td.rdtActive, & .rdtPicker td.rdtActive:hover": {
       backgroundColor: "#428bca",
-      color: "#fff",
-      textShadow: "0 -1px 0 rgba(0, 0, 0, 0.25)",
+      color: theme.palette.text.maxIntensity,
+      textShadow: `0 -1px 0 ${theme.palette.greyAlpha(0.25)}`,
     },
     "& .rdtPicker td.rdtActive.rdtToday:before": {
-      borderBottomColor: "#fff",
+      borderBottomColor: theme.palette.text.maxIntensity,
     },
     "& .rdtPicker td.rdtDisabled, & .rdtPicker td.rdtDisabled:hover": {
       background: "none",
-      color: "#999999",
+      color: theme.palette.grey[550],
       cursor: "notAllowed",
     },
     
     "& .rdtPicker td span.rdtOld": {
-      color: "#999999",
+      color: theme.palette.grey[550],
     },
     "& .rdtPicker td span.rdtDisabled, .rdtPicker td span.rdtDisabled:hover": {
       background: "none",
-      color: "#999999",
+      color: theme.palette.grey[550],
       cursor: "not-allowed",
     },
     "& .rdtPicker th": {
-      borderBottom: "1px solid #f9f9f9",
+      borderBottom: `1px solid ${theme.palette.grey[55]}`,
     },
     "& .rdtPicker .dow": {
       width: "14.2857%",
@@ -132,18 +132,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     
     "& .rdtPicker th.rdtDisabled, & .rdtPicker th.rdtDisabled:hover": {
       background: "none",
-      color: "#999999",
+      color: theme.palette.grey[550],
       cursor: "not-allowed",
     },
     "& .rdtPicker thead tr:first-child th": {
       cursor: "pointer",
     },
     "& .rdtPicker thead tr:first-child th:hover": {
-      background: "#eeeeee",
+      background: theme.palette.grey[200],
     },
     
     "& .rdtPicker tfoot":{
-      borderTop: "1px solid #f9f9f9",
+      borderTop: `1px solid ${theme.palette.grey[55]}`,
     },
     
     "& .rdtPicker button": {
@@ -152,7 +152,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "pointer",
     },
     "& .rdtPicker button:hover": {
-      backgroundColor: "#eee",
+      backgroundColor: theme.palette.grey[200],
     },
     
     "& .rdtPicker thead button": {
@@ -166,7 +166,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "pointer",
     },
     "& td.rdtMonth:hover, & td.rdtYear:hover": {
-      background: "#eee",
+      background: theme.palette.grey[200],
     },
     
     "& .rdtCounters": {
@@ -200,7 +200,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       userSelect: "none",
     },
     "& .rdtCounter .rdtBtn:hover": {
-      background: "#eee",
+      background: theme.palette.grey[200],
     },
     "& .rdtCounter .rdtCount": {
       height: "20%",
@@ -240,17 +240,18 @@ const FormComponentDateTime = ({ path, value, name, label, classes, position }, 
     <InputLabel className={classes.label}>
       { label } <span className={classes.timezone}>({tzDate.tz(moment.tz.guess()).zoneAbbr()})</span>
     </InputLabel>
-    <DateTimePicker
-      className={classes.wrapper}
-      value={date}
-      inputProps={{
-        name:name,
-        autoComplete:"off",
-        className:classes.input
-      }}
-      // newDate argument is a Moment object given by react-datetime
-      onChange={(newDate: any) => updateDate(newDate._d)}
-    />
+    <div className={classes.wrapper}>
+      <DateTimePicker
+        value={date}
+        inputProps={{
+          name:name,
+          autoComplete:"off",
+          className:classes.input
+        }}
+        // newDate argument is a Moment object given by react-datetime
+        onChange={(newDate: any) => updateDate(newDate._d)}
+      />
+    </div>
   </FormControl>
 }
 

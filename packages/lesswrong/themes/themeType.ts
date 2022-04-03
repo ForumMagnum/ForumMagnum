@@ -15,6 +15,8 @@ declare global {
       25: ColorString,
       30: ColorString,
       40: ColorString,
+      55: ColorString,
+      60: ColorString,
       110: ColorString,
       120: ColorString,
       140: ColorString,
@@ -23,6 +25,7 @@ declare global {
       320: ColorString,
       340: ColorString,
       410: ColorString,
+      550: ColorString,
       650: ColorString,
   }
   type ThemeShadePalette = {
