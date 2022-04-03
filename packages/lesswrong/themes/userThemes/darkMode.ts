@@ -23,8 +23,8 @@ export const invertedGreyscale = {
   A700: invertHexColor('#616161'),
   
   // Greyscale colors not in the MUI palette
-  0: "black",
-  1000: "white",
+  0: "#000",
+  1000: "#fff",
   
   10: invertHexColor('#fefefe'),
   20: invertHexColor('#fdfdfd'),

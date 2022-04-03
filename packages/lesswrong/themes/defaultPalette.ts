@@ -40,7 +40,7 @@ import type { Color as MuiColorShades } from '@material-ui/core';
 //     },
 //     notice: {
 //       border: "rgba(0,0,0,.1)", // Bad: Border will be black-on-black
-//       background: "white", // Bad: Text will be white-on-white
+//       background: "#fff", // Bad: Text will be white-on-white
 //     },
 //   });
 //
@@ -82,10 +82,12 @@ import type { Color as MuiColorShades } from '@material-ui/core';
 // consistency, we only use a subset of them.
 //
 // Do Use:
-//   The specific color words "white", "black" and "transparent"
 //   Three or six hex digits: #rrggbb
 //   RGB 0-255 with alpha 0-1: "rgba(r,g,b,a)",
 // Avoid:
+//   Any color words (including "black" and "white"). If used in the theme in
+//   a place where material-UI uses the, material-UI will crash.
+//
 //   HSL, HSLA, HWB, Lab, and LCH color specifiers, eg "hsl(60 100% 50%)"
 //   Functional notation without commas, eg "rgba(0 0 0 / 10%)"
 //   RGB percentages, eg "rgba(50%,25%,25%,1)"
@@ -113,8 +115,8 @@ export const grey = {
   A700: '#616161',
   
   // Greyscale colors not in the MUI palette
-  0: "white",
-  1000: "black",
+  0: "#fff",
+  1000: "#000",
   
   10: '#fefefe',
   20: '#fdfdfd',
@@ -168,18 +170,18 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dim55: shades.greyAlpha(.55),
     dim60: shades.greyAlpha(.6),
     grey: shades.grey[650],
-    spoilerBlockNotice: "white",
+    spoilerBlockNotice: "#fff",
     notificationCount: shades.greyAlpha(0.6),
     notificationLabel: shades.greyAlpha(.66),
     eventType: "#c0a688",
-    tooltipText: "white",
+    tooltipText: "#fff",
     negativeKarmaRed: "#ff8a80",
     moderationGuidelinesEasygoing: 'rgba(100, 169, 105, 0.9)',
     moderationGuidelinesNormEnforcing: '#2B6A99',
     moderationGuidelinesReignOfTerror: 'rgba(179,90,49,.8)',
     charsAdded: "#008800",
     charsRemoved: "#880000",
-    invertedBackgroundText: "white",
+    invertedBackgroundText: "#fff",
     invertedBackgroundText2: "rgba(255,255,255,0.7)",
     invertedBackgroundText3: "rgba(255,255,255,0.5)",
     error: "#9b5e5e",
@@ -220,12 +222,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     loadingDotsAlternate: shades.grey[0],
     horizRuleDots: shades.greyAlpha(.26),
     greenCheckmark: "#4caf50",
-    onTooltip: "white",
+    onTooltip: "#fff",
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
     
     commentsBubble: {
-      commentCount: "white",
+      commentCount: "#fff",
       noUnread: shades.greyAlpha(.22),
       newPromoted: "rgb(160, 225, 165)",
     },
@@ -290,7 +292,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
     metaculusBackground: "#2c3947",
-    spoilerBlock: "black",
+    spoilerBlock: "#000",
     revealedSpoilerBlock: shades.greyAlpha(.12),
     tableHeading: shades.grey[50],
     notificationMenuTabBar: shades.grey[100],
@@ -335,11 +337,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     hoverGrayHighlight: shades.greyAlpha(0.05),
     
     startReadingButtonBackground: shades.greyAlpha(0.05),
-    recentDiscussionSubscribeButtonText: "white",
-    featuredResourceCTAtext: "white",
-    primaryDarkText: "white",
+    recentDiscussionSubscribeButtonText: "#fff",
+    featuredResourceCTAtext: "#fff",
+    primaryDarkText: "#fff",
     feedExpandButton: {
-      background: "white",
+      background: "#fff",
       plusSign: "#666",
       border: "1px solid #ddd",
     },
@@ -358,9 +360,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     addTagButtonBackground: shades.grey[300],
   },
   geosuggest: {
-    dropdownBackground: "white",
+    dropdownBackground: "#fff",
     dropdownActiveBackground: "#267dc0",
-    dropdownActiveText: "white",
+    dropdownActiveText: "#fff",
     dropdownHoveredBackground: "#f5f5f5",
     dropdownActiveHoveredBackground: "#ccc",
   },
