@@ -7,9 +7,6 @@ import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 
-const scrollIndicatorColor = "#ddd";
-const scrollIndicatorHoverColor = "#888";
-
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
     display: "block",
@@ -37,19 +34,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   scrollIndicatorLeft: {
     left: 0,
-    borderRight: "10px solid "+scrollIndicatorColor,
+    borderRight: `10px solid ${theme.palette.grey[310]}`,
     
     "&:hover": {
-      borderRight: "10px solid "+scrollIndicatorHoverColor,
+      borderRight: `10px solid ${theme.palette.grey[620]}`,
     },
   },
   
   scrollIndicatorRight: {
     right: 0,
-    borderLeft: "10px solid "+scrollIndicatorColor,
+    borderLeft: `10px solid ${theme.palette.grey[310]}`,
     
     "&:hover": {
-      borderLeft: "10px solid "+scrollIndicatorHoverColor,
+      borderLeft: `10px solid ${theme.palette.grey[620]}`,
     },
   },
   

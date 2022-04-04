@@ -128,12 +128,15 @@ export const grey = {
   120: '#f2f2f2',
   140: "#f0f0f0",
   250: "#e8e8e8",
+  310: "#dddddd",
   315: "#d4d4d4",
   320: "#d9d9d9",
   340: "#d0d0d0",
   410: "#b3b3b3",
   550: "#999999",
-  650: '#808080',
+  620: "#888888",
+  650: "#808080",
+  680: "#666666",
 }
 
 export const defaultShadePalette = (): ThemeShadePalette => {
@@ -186,8 +189,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     invertedBackgroundText: "#fff",
     invertedBackgroundText2: "rgba(255,255,255,0.7)",
     invertedBackgroundText3: "rgba(255,255,255,0.5)",
+    invertedBackgroundText4: "rgba(255,255,255,0.8)",
     error: "#9b5e5e",
     error2: "#E04E4B",
+    red: "#ff0000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: "rgba(255,255,255,.5)",
   },
@@ -225,6 +230,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     horizRuleDots: shades.greyAlpha(.26),
     greenCheckmark: "#4caf50",
     onTooltip: "#fff",
+    inverted: shades.grey[0],
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
     
@@ -270,6 +276,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     default: shades.grey[0],
     translucent: "rgba(255,255,255,.87)",
     translucent2: "rgba(255,255,255,.8)",
+    translucent3: "rgba(255,255,255,.75)",
     hoverHighlightGrey: shades.greyAlpha(.1),
     postsItemHover: shades.grey[50],
     formErrors: shades.greyAlpha(0.25),
@@ -351,6 +358,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.greyAlpha(0.4),
       icon: shades.grey[0],
     },
+    
+    groupTypesMultiselect: {
+      background: "rgba(100,169,105, 0.9)",
+      hoverBackground: "rgba(100,169,105, 0.5)",
+    },
+    imageUpload: {
+      background: shades.greyAlpha(.5),
+      hoverBackground: shades.greyAlpha(.35),
+    },
   },
   tag: {
     background: shades.grey[200],
@@ -371,6 +387,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   header: {
     text: shades.greyAlpha(.87),
     background: shades.grey[30],
+  },
+  datePicker: {
+    selectedDate: "#428bca",
   },
   
   commentParentScrollerHover: shades.greyAlpha(.075),

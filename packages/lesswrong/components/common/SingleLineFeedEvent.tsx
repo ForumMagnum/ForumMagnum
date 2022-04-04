@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 8,
     width: 20,
     textAlign: "center",
-    color: "#666",
+    color: theme.palette.grey[680],
   },
   expandButton: {
     display: "inline-block",

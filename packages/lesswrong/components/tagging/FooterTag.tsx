@@ -81,7 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& svg': {
       height: 22,
       width: 20,
-      fill: '#fff',
+      fill: theme.palette.icon.inverted,
       padding: '1px 0px'
     },
     marginBottom: 16,

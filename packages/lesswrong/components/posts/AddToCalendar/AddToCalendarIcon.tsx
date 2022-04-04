@@ -50,10 +50,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     "& .chq-atc--dropdown": {
-      backgroundColor: "white",
+      backgroundColor: theme.palette.panelBackground.default,
       borderRadius: 4,
-      border: "1px solid #eaeaea",
-      boxShadow: "rgb(0 0 0 / 20%) 0px 2px 1px -1px, rgb(0 0 0 / 14%) 0px 1px 1px 0px, rgb(0 0 0 / 12%) 0px 1px 3px 0px",
+      border: theme.palette.border.faint,
+      boxShadow: `${theme.palette.boxShadowColor(0.2)} 0px 2px 1px -1px, ${theme.palette.boxShadowColor(0.14)} 0px 1px 1px 0px, ${theme.palette.boxShadowColor(0.12)} 0px 1px 3px 0px`,
       boxSizing: "border-box",
       position: "absolute",
       textAlign: "left",
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     "& .chq-atc--dropdown a": {
-      color: "#212121",
+      color: theme.palette.grey[900],
       display: "block",
       padding: "8px 15px",
       textDecoration: "none",

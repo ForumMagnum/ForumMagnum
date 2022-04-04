@@ -34,7 +34,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim6,
   },
   title: {
-    color: '#616161',
+    color: theme.palette.text.dim700,
     paddingBottom: '1em',
     fontFamily: theme.typography.fontFamily,
     textAlign: 'center',
@@ -43,7 +43,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: '50%',
   },
   body: {
-    color: '#616161',
+    color: theme.palette.text.dim700,
     marginTop: '1.5rem',
     marginBottom: '1.5rem',
     textAlign: 'center',

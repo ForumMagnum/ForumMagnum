@@ -2,10 +2,7 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import deepOrange from '@material-ui/core/colors/deepOrange';
-import yellow from '@material-ui/core/colors/yellow';
-import green from '@material-ui/core/colors/green';
-
+import classNames from 'classnames';
 
 export const goodHeartStartDate = new Date("01/01/2022")
 
@@ -52,17 +49,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   goodestHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: deepOrange[700]
-  },  
+    color: "#e64a19",
+  },
+  orange: {
+    color: "#e64a19",
+  },
   veryGoodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: yellow[900]
+    color: "#f57f17",
+  },
+  yellow: {
+    color: "#f57f17",
   },
   goodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: green[900]
+    color: "#1b5e20",
+  },
+  green: {
+    color: "#1b5e20",
   },
 });
 
@@ -84,9 +90,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.goodestHeartIcon}/>
-          <span style={{color:deepOrange[700]}}>Goodest Hearts</span>
+          <span className={classes.orange}>Goodest Hearts</span>
         </div>
-        {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:deepOrange[700]}}>
+        {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classNames(classes.userRow, classes.orange)}>
           <span className={classes.index}>{ i+1 }</span>
           <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
@@ -95,9 +101,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.veryGoodHeartIcon}/>
-          <span style={{color:yellow[900]}}>Good Hearts</span>
+          <span className={classes.yellow}>Good Hearts</span>
         </div>
-        {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:yellow[900]}}>
+        {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classNames(classes.userRow, classes.yellow)}>
           <span className={classes.index}>{ i+6 }</span>
           <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
@@ -106,9 +112,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.goodHeartIcon}/>
-          <span style={{color:green[900]}}>Kinda Good Hearts</span>
+          <span className={classes.green}>Kinda Good Hearts</span>
         </div>
-        {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:green[900]}}>
+        {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classNames(classes.userRow, classes.green)}>
           <span className={classes.index}>{ i+11 }</span>
           <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>

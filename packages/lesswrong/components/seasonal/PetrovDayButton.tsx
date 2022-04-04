@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   incomingTitle: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
-    color: 'red',
+    color: theme.palette.text.red,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'

@@ -18,13 +18,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block'
   },
   black: {
-    color: 'white',
-    backgroundColor: 'rgba(0,0,0,0.8)'
+    color: theme.palette.text.invertedBackgroundText,
+    backgroundColor: theme.palette.greyAlpha(0.8),
   },
   white: {
-    backgroundColor: 'white',
-    border: '1px solid rgba(0,0,0,0.4)',
-    color: 'rgba(0,0,0,0.6)'
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.slightlyIntense3,
+    color: theme.palette.text.dim60,
   },
   hoverCard: {
     maxWidth: 350,

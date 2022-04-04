@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
-    borderBottom: `solid 1px {$theme.palette.grey[550]}`,
+    borderBottom: `solid 1px ${theme.palette.grey[550]}`,
     padding: '6px 0 7px 0'
   },
   label: {
@@ -77,14 +77,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       content: '',
       display: "inline-block",
       borderLeft: "7px solid transparent",
-      borderBottom: "7px solid #428bca",
+      borderBottom: `7px solid ${theme.palette.datePicker.selectedDate}`,
       borderTopColor: theme.palette.greyAlpha(0.2),
       position: "absolute",
       bottom: 4,
       right: 4,
     },
     "& .rdtPicker td.rdtActive, & .rdtPicker td.rdtActive:hover": {
-      backgroundColor: "#428bca",
+      backgroundColor: theme.palette.datePicker.selectedDate,
       color: theme.palette.text.maxIntensity,
       textShadow: `0 -1px 0 ${theme.palette.greyAlpha(0.25)}`,
     },

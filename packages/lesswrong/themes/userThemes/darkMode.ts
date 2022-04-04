@@ -36,12 +36,15 @@ export const invertedGreyscale = {
   120: invertHexColor('#f2f2f2'),
   140: invertHexColor("#f0f0f0"),
   250: invertHexColor("#e8e8e8"),
+  310: invertHexColor("#dddddd"),
   315: invertHexColor("#d4d4d4"),
   320: invertHexColor("#d9d9d9"),
   340: invertHexColor("#d0d0d0"),
   410: invertHexColor("#b3b3b3"),
   550: invertHexColor("#999999"),
+  620: invertHexColor("#888888"),
   650: invertHexColor('#808080'),
+  680: invertHexColor('#666666'),
 };
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;

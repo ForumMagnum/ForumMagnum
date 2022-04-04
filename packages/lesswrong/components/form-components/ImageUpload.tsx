@@ -23,11 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   button: {
-    background: "rgba(0,0,0, 0.5)",
+    background: theme.palette.buttons.imageUpload.background,
     "&:hover": {
-      background: "rgba(0,0,0,.35)"
+      background: theme.palette.buttons.imageUpload.hoverBackground,
     },
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
   },
   imageIcon: {
     fontSize: 18,
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 10
   },
   removeButton: {
-    color: "rgba(0,0,0, 0.5)",
+    color: theme.palette.icon.dim,
     marginLeft: 10
   }
 });

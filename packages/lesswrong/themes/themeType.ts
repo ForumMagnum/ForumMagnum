@@ -7,32 +7,35 @@ declare global {
   type ColorString = string;
   
   type ThemeGreyscale = MuiColorShades & {
-      0: ColorString,
-      1000: ColorString,
-      
-      10: ColorString,
-      20: ColorString,
-      25: ColorString,
-      30: ColorString,
-      40: ColorString,
-      55: ColorString,
-      60: ColorString,
-      110: ColorString,
-      120: ColorString,
-      140: ColorString,
-      250: ColorString,
-      315: ColorString,
-      320: ColorString,
-      340: ColorString,
-      410: ColorString,
-      550: ColorString,
-      650: ColorString,
+    0: ColorString,
+    1000: ColorString,
+    
+    10: ColorString,
+    20: ColorString,
+    25: ColorString,
+    30: ColorString,
+    40: ColorString,
+    55: ColorString,
+    60: ColorString,
+    110: ColorString,
+    120: ColorString,
+    140: ColorString,
+    250: ColorString,
+    310: ColorString,
+    315: ColorString,
+    320: ColorString,
+    340: ColorString,
+    410: ColorString,
+    550: ColorString,
+    620: ColorString,
+    650: ColorString,
+    680: ColorString,
   }
   type ThemeShadePalette = {
     grey: MuiColorShades,
     greyAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
-    greyBorder: (thicknes: string, alpha: number) => string,
+    greyBorder: (thickness: string, alpha: number) => string,
     
     fonts: {
       sansSerifStack: string,
@@ -96,8 +99,10 @@ declare global {
       invertedBackgroundText: ColorString,
       invertedBackgroundText2: ColorString,
       invertedBackgroundText3: ColorString,
+      invertedBackgroundText4: ColorString,
       error: ColorString,
       error2: ColorString,
+      red: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
     },
@@ -135,6 +140,7 @@ declare global {
       horizRuleDots: ColorString,
       greenCheckmark: ColorString,
       onTooltip: ColorString,
+      inverted: ColorString,
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
       
@@ -172,6 +178,7 @@ declare global {
       default: ColorString,
       translucent: ColorString,
       translucent2: ColorString,
+      translucent3: ColorString,
       hoverHighlightGrey: ColorString,
       postsItemHover: ColorString,
       formErrors: ColorString,
@@ -252,6 +259,14 @@ declare global {
         background: ColorString,
         icon: ColorString,
       },
+      groupTypesMultiselect: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
+      imageUpload: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
     },
     tag: {
       background: ColorString,
@@ -280,6 +295,9 @@ declare global {
     header: {
       text: ColorString,
       background: ColorString,
+    },
+    datePicker: {
+      selectedDate: ColorString,
     },
     group: ColorString,
     contrastText: ColorString,

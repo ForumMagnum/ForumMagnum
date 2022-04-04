@@ -44,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   instructions: {
     padding: 16,
     marginBottom: 24,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     boxShadow: theme.palette.boxShadow.default,
     [theme.breakpoints.down('sm')]: {
       display: "none"
@@ -96,11 +96,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     zIndex: theme.zIndexes.reviewVotingMenu,
     padding: theme.spacing.unit,
-    background: "#ddd",
-    borderBottom: "solid 1px rgba(0,0,0,.15)",
+    background: theme.palette.grey[310],
+    borderBottom: theme.palette.border.slightlyFaint,
     flexWrap: "wrap"
   },
   menuIcon: {
@@ -208,7 +208,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 6,
     border: theme.palette.border.normal,
     "&:hover": {
-      background: "rgba(0,0,0,.2)",
+      background: theme.palette.panelBackground.darken20,
     }
   },
   votingTitle: {
@@ -219,8 +219,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   postList: {
-    boxShadow: "0 1px 5px 0px rgba(0,0,0,.2)",
-    background: "white",
+    boxShadow: `0 1px 5px 0px ${theme.palette.boxShadowColor(0.2)}`,
+    background: theme.palette.panelBackground.default,
     [theme.breakpoints.down('sm')]: {
       boxShadow: "unset"
     }

@@ -67,7 +67,12 @@ function replacePaletteWithStubs(theme: ThemeType): ThemeType {
   return {
     ...theme,
     typography: objReplaceColors(theme.typography, "fakecolor"),
-    palette: objReplaceColors(theme.palette, "fakecolor"),
+    palette: {
+      ...objReplaceColors(theme.palette, "fakecolor"),
+      greyAlpha: ()=>"fakecolor",
+      boxShadowColor: ()=>"fakecolor",
+      greyBorder: ()=>"fakecolor",
+    },
   };
 }
 
@@ -82,6 +87,9 @@ function stringMentionsAnyColor(str: string): boolean {
   for (let colorWord of colorWords) {
     if (new RegExp(`\\b${colorWord}\\b`).test(str))
       return true;
+  }
+  if (str.match(/theme/)) {
+    return true; // Usually suggests a typo with trying to string-interpolate
   }
   return false;
 }

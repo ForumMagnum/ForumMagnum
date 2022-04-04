@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     ...theme.typography.body2,
     
-    border: "1px solid #aaa",
+    border: `1px solid ${theme.palette.grey["A200"]}`,
     borderRadius: 10,
     boxShadow: theme.palette.boxShadow.recentDiscussionMeetupsPoke,
     
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   locationInput: {
     display: "inline-block",
-    borderBottom: "1px solid rgba(0,0,0,.87)",
+    borderBottom: `1px solid ${theme.palette.text.normal}`,
     width: 350,
     marginTop: 40,
     marginBottom: 40,

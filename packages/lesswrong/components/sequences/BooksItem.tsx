@@ -20,9 +20,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 30,
     "& .posts-item": { // UNUSED (.posts-item isn't a real clas)
       "&:hover": {
-        boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
+        boxShadow: `0 1px 6px ${theme.palette.boxShadowColor(0.12)}, 0 1px 4px ${theme.palette.boxShadowColor(0.12)}`,
       },
-      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.1)",
+      boxShadow: `0 1px 6px ${theme.palette.boxShadowColor(0.06)}, 0 1px 4px ${theme.palette.boxShadowColor(0.12)}`,
       textDecoration: "none",
     }
   },

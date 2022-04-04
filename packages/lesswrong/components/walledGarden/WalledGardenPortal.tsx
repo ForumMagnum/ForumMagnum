@@ -38,12 +38,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     bottom: 0,
     left: toggleEventsOffset,
-    color: "rgba(255,255,255,.8)",
+    color: theme.palette.text.invertedBackgroundText4,
     ...theme.typography.commentStyle,
     display: "flex",
     alignItems: "center",
     cursor: "pointer",
-    textShadow: "0 0 10px rgba(0,0,0,.8)"
+    textShadow: `0 0 10px ${theme.palette.greyAlpha(.8)}`
   },
   closeIcon: {
     height: 48,

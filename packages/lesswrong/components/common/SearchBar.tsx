@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       borderRadius:5,
 
       [theme.breakpoints.down('tiny')]: {
-        backgroundColor: "#eee",
+        backgroundColor: theme.palette.grey[200],
         zIndex: theme.zIndexes.searchBar,
         width:110,
         height:36,

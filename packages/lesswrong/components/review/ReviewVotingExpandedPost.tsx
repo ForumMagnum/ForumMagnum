@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 12,
     paddingRight: 12,
     paddingBottom: 8,
-    border: "solid 1px rgba(0,0,0,.3)",
+    border: theme.palette.border.slightlyIntense2,
     marginBottom: 8,
   },
   reviewPrompt: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   fakeTextfield: {
     marginTop: 5,
     width: "100%",
-    borderBottom: "dashed 1px rgba(0,0,0,.25)",
+    borderBottom: `dashed 1px ${theme.palette.greyAlpha(0.25)}`,
     color: theme.palette.grey[400]
   },
 })

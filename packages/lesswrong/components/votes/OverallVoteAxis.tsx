@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     left:0,
     top:-9,
     position: "absolute",
-    color: "rgba(0,0,0,.2)",
+    color: theme.palette.icon.dim6,
     
   }
 })

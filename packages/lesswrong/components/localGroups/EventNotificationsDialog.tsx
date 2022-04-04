@@ -46,7 +46,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
       maxHeight: "25em",
       padding: 0,
       marginTop: -1,
-      background: "#fff",
+      background: theme.palette.panelBackground.default,
       borderTopWidth: 0,
       overflowX: "hidden",
       overflowY: "auto",
