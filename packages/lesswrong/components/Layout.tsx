@@ -56,13 +56,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: theme.spacing.unit/2,
     },
   },
-  wrapper: {
-    color: theme.palette.text.maxIntensity,
-    "& input": {
-      color: theme.palette.text.maxIntensity,
-      backgroundColor: "transparent",
-    },
-  },
   gridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',

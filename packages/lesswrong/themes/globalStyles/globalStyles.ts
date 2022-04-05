@@ -9,6 +9,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
     boxSizing: "border-box",
     "-webkit-font-smoothing": "antialiased",
     "-moz-osx-font-smoothing": "grayscale",
+    color: theme.palette.text.maxIntensity,
   },
   "*, *::before, *::after": {
     boxSizing: "inherit",
@@ -29,6 +30,8 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
+    color: theme.palette.text.maxIntensity,
+    backgroundColor: "transparent",
   },
   
   button: {
