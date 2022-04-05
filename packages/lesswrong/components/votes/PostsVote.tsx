@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { useVote } from './withVote';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import FavoriteIcon from '@material-ui/icons/Favorite'
-import { goodHeartStartDate } from '../seasonal/AprilFools2022';
+import { enableGoodHeartProject, goodHeartStartDate } from '../seasonal/AprilFools2022';
 
 const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
@@ -87,7 +87,8 @@ const PostsVote = ({ post, classes }: {
     }
   </div>
 
-  const goodHeart = new Date(post.postedAt) > goodHeartStartDate
+  const goodHeartEnabled = enableGoodHeartProject.get()
+  const goodHeart = goodHeartEnabled && new Date(post.postedAt) > goodHeartStartDate
 
   const voteStyling = goodHeart ? <div className={classes.goodHeartWrapper}> 
     <Typography variant="headline" className={classes.voteScore}>${voteProps.baseScore}</Typography>

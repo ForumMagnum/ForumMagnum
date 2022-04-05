@@ -14,6 +14,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import yellow from '@material-ui/core/colors/yellow';
 import green from '@material-ui/core/colors/green';
+import { enableGoodHeartProject } from '../seasonal/AprilFools2022';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -45,6 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const getRankColorAndDescription = (goodHeartRank) => {
+  if (!enableGoodHeartProject.get()) { return {}}
   if (goodHeartRank === -1) { return {}}
   if (goodHeartRank >= 0 && goodHeartRank < 5) { return {rankColor : deepOrange[700], rankDescription :<p>This user has the goodest of hearts</p>}}
   if (goodHeartRank >= 5 && goodHeartRank < 10) { return {rankColor : yellow[900], rankDescription : <p>This user has a good heart</p>}}
