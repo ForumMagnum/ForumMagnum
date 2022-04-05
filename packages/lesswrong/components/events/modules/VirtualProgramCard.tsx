@@ -187,7 +187,12 @@ const VirtualProgramCard = ({program, classes}: {
   return null
 }
 
-const VirtualProgramCardComponent = registerComponent('VirtualProgramCard', VirtualProgramCard, {styles});
+const VirtualProgramCardComponent = registerComponent('VirtualProgramCard', VirtualProgramCard, {
+  styles,
+  
+  // This is based around an image, which doesn't get inverted in dark mode
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

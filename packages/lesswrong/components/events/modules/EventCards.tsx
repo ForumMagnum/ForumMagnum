@@ -45,8 +45,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'absolute',
     top: 15,
     left: 15,
-    backgroundColor: '#CC5500',
-    color: 'white',
+    backgroundColor: theme.palette.buttons.eventCardTag,
+    color: theme.palette.buttons.primaryDarkText,
     fontSize: 12,
     padding: '6px 12px',
     borderRadius: 20

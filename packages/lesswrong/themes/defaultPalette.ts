@@ -379,6 +379,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.greyAlpha(.5),
       hoverBackground: shades.greyAlpha(.35),
     },
+    bookCheckoutButton: "#53a55a",
+    eventCardTag: "#CC5500",
   },
   tag: {
     background: shades.grey[200],
@@ -411,6 +413,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
+  eventsHomeLoadMoreHover: '#085d6c',
+  eaForumGroupsMobileImg: '#e2f1f4',
   
   contrastText: shades.grey[0],
   event: '#2b6a99',

@@ -98,7 +98,10 @@ export const FrontpageBestOfLWWidget = ({classes}: {
   </div>;
 }
 
-const FrontpageBestOfLWWidgetComponent = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {styles});
+const FrontpageBestOfLWWidgetComponent = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
+  styles,
+  allowNonThemeColors: true, // Overlayed on an image
+});
 
 declare global {
   interface ComponentTypes {

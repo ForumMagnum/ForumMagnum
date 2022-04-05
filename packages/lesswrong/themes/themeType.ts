@@ -276,6 +276,8 @@ declare global {
         background: ColorString,
         hoverBackground: ColorString,
       },
+      bookCheckoutButton: ColorString,
+      eventCardTag: ColorString,
     },
     tag: {
       background: ColorString,
@@ -323,6 +325,8 @@ declare global {
     
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
+    eventsHomeLoadMoreHover: ColorString,
+    eaForumGroupsMobileImg: ColorString,
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   

@@ -18,10 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   checkoutButton: {
     ...theme.typography.commentStyle,
     height: '36px',
-    background: "#53a55a", //theme.palette.primary.dark,
+    background: theme.palette.buttons.bookCheckoutButton,
     paddingLeft: 16,
     paddingRight: 16,
-    color: 'white',
+    color: theme.palette.buttons.primaryDarkText,
     fontSize: '14px',
     border: 0,
     fontWeight: '500',
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     marginLeft: 10,
     color: theme.palette.grey[710],
-    border: "1px solid #ccc",
+    border: `1px solid ${theme.palette.greyAlpha(.75)}`,
     
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0,

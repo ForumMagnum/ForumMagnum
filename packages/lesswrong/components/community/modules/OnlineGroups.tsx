@@ -35,7 +35,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 116,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: "rgba(0, 0, 0, 0.1)",
+    borderColor: theme.palette.greyAlpha(.1),
     '&:last-of-type': {
       borderBottom: 'none'
     },
@@ -46,7 +46,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: '#e2f1f4',
+    backgroundColor: theme.palette.eaForumGroupsMobileImg,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -58,7 +58,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     height: 115,
-    background: 'white',
+    background: theme.palette.panelBackground.default,
     backgroundRepeat: 'no-repeat',
     backgroundPositionY: 'center',
     padding: '15px 20px 15px 204px',
@@ -74,7 +74,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
   },
   onlineGroupText: {
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     minWidth: 0,
     padding: '6px 15px',
   },
@@ -92,7 +92,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   onlineGroupDescription: {
     ...theme.typography.commentStyle,
-    color: "rgba(0, 0, 0, 0.6)",
+    color: theme.palette.text.dim60,
     fontSize: 14,
     lineHeight: '1.6em',
     display: '-webkit-box',
@@ -120,7 +120,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: 80,
     ...theme.typography.commentStyle,
     backgroundColor: theme.palette.primary.main,
-    color: 'white',
+    color: theme.palette.buttons.primaryDarkText,
     padding: '10px 16px',
     borderRadius: 4,
   },

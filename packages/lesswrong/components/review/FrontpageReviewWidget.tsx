@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   reviewBlock: {flexGrow: 2, marginRight: 2, flexBasis: 0},
   votingBlock: {flexGrow: 1, flexBasis: 0},
   blockText: {
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     zIndex: 1,
     whiteSpace: "nowrap",
   },
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 12,
     paddingRight: 12,
     borderRadius: 3,
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     ...theme.typography.commentStyle,
     display: "inline-block",
     marginLeft: 12

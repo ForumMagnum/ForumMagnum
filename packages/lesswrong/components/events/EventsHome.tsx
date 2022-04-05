@@ -153,7 +153,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 16,
     padding: 0,
     '&:hover': {
-      color: '#085d6c',
+      color: theme.palette.eventsHomeLoadMoreHover,
     }
   },
   loading: {

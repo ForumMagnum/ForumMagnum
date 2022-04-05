@@ -54,7 +54,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: '#e2f1f4',
+    backgroundColor: theme.palette.eaForumGroupsMobileImg,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
