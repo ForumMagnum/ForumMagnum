@@ -94,6 +94,9 @@ module.exports = {
       { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
+    ],
+    patterns: [
+      "@material-ui/core/colors/*"
     ]}],
 
     // Warn on missing await

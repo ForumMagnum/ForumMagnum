@@ -11,9 +11,6 @@ import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from '../../lib/crud/withMulti';
-import deepOrange from '@material-ui/core/colors/deepOrange';
-import yellow from '@material-ui/core/colors/yellow';
-import green from '@material-ui/core/colors/green';
 
 
 const styles = (theme: ThemeType): JssStyles => ({

@@ -1,4 +1,3 @@
-import indigo from '@material-ui/core/colors/indigo';
 import type { PartialDeep } from 'type-fest'
 
 const sansSerifStack = [
