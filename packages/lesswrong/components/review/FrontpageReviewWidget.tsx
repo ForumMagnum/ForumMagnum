@@ -43,23 +43,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     marginBottom: 2,
     padding: 4,
-    backgroundColor: 'rgba(0,0,0,0.14)',
+    backgroundColor: theme.palette.greyAlpha(.14),
     display: 'flex',
     justifyContent: 'space-between',
     '&:hover': {
-      boxShadow: "0px 0px 10px rgba(0,0,0,.1)",
+      boxShadow: `0px 0px 10px ${theme.palette.boxShadowColor(0.1)}`,
       opacity: 0.9
     }
   },
   activeProgress: {
-    backgroundColor: isEAForum ? theme.palette.primary.main : 'rgba(127, 175, 131, 0.5)'
+    backgroundColor: isEAForum ? theme.palette.primary.main : theme.palette.review.activeProgress,
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: isEAForum ? theme.palette.lwTertiary.main : 'rgba(127, 175, 131, 0.7)'
+    backgroundColor: isEAForum ? theme.palette.lwTertiary.main : theme.palette.review.progressBar,
   },
   nominationDate: {},
   actionButtonRow: {
@@ -93,8 +93,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 12
   },
   adminButton: {
-    border: `solid 1px rgba(200,150,100)`,
-    color: 'rgba(200,150,100)'
+    border: `solid 1px ${theme.palette.review.adminButton}`,
+    color: theme.palette.review.adminButton,
   },
   buttonWrapper: {
     flexGrow: 0,

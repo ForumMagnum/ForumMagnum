@@ -41,14 +41,44 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit,
     lineHeight: "1.3rem",
-  }
+  },
+  
+  orange: {
+    color: theme.palette.text.aprilFools.orange,
+  },
+  yellow: {
+    color: theme.palette.text.aprilFools.yellow,
+  },
+  green: {
+    color: theme.palette.text.aprilFools.green,
+  },
 })
 
-const getRankColorAndDescription = (goodHeartRank) => {
-  if (goodHeartRank === -1) { return {}}
-  if (goodHeartRank >= 0 && goodHeartRank < 5) { return {rankColor : deepOrange[700], rankDescription :<p>This user has the goodest of hearts</p>}}
-  if (goodHeartRank >= 5 && goodHeartRank < 10) { return {rankColor : yellow[900], rankDescription : <p>This user has a good heart</p>}}
-  if (goodHeartRank >= 10 && goodHeartRank < 15) { return {rankColor : green[900], rankDescription : <p>This user has a kinda good heart</p>}}
+const getRankColorAndDescription = (goodHeartRank: number, classes: ClassesType): {
+  rankClass?: string,
+  rankDescription?: React.ReactNode,
+} => {
+  if (goodHeartRank === -1) {
+    return {}
+  }
+  if (goodHeartRank >= 0 && goodHeartRank < 5) {
+    return {
+      rankClass: classes.orange,
+      rankDescription: <p>This user has the goodest of hearts</p>
+    }
+  }
+  if (goodHeartRank >= 5 && goodHeartRank < 10) {
+    return {
+      rankClass: classes.yellow,
+      rankDescription: <p>This user has a good heart</p>
+    }
+  }
+  if (goodHeartRank >= 10 && goodHeartRank < 15) {
+    return {
+      rankClass: classes.green,
+      rankDescription: <p>This user has a kinda good heart</p>
+    }
+  }
   return {}
 }
 
@@ -79,7 +109,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   const { htmlBio } = user
 
   const goodHeartRank = results && results.findIndex(u => u._id === user._id)
-  const {rankColor = "", rankDescription = <></>} = getRankColorAndDescription(goodHeartRank)
+  const {rankClass="", rankDescription=<></>} = getRankColorAndDescription(goodHeartRank, classes)
 
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = userGetPostCount(user)
@@ -106,10 +136,9 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   return <span {...eventHandlers} className={className}>
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
-      <Link to={userGetProfileUrl(user)} className={classes.userName}
-          {...(nofollow ? {rel:"nofollow"} : {})}
-          style={{color:rankColor}}
-        >
+      <Link to={userGetProfileUrl(user)} className={classNames(classes.userName, rankClass)}
+        {...(nofollow ? {rel:"nofollow"} : {})}
+      >
         {userGetDisplayName(user)}
       </Link>
     </LWTooltip>

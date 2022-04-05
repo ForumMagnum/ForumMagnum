@@ -9,8 +9,8 @@ import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/revie
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
 
 const styles = (theme: ThemeType) => {
-  const downvoteColor = "rgba(125,70,70, .87)"
-  const upvoteColor = forumTypeSetting.get() === "EAForum" ? theme.palette.primary.main : "rgba(70,125,70, .87)"
+  const downvoteColor = theme.palette.text.reviewDownvote;
+  const upvoteColor = forumTypeSetting.get() === "EAForum" ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
   
   return {
     root: { 
@@ -29,18 +29,18 @@ const styles = (theme: ThemeType) => {
       ...theme.typography.smallText,
       ...theme.typography.commentStyle,
       cursor: "pointer",
-      background: "white",
+      background: theme.palette.panelBackground.default,
       '&:hover': {
-        backgroundColor: "rgba(0,0,0,.075)",
+        backgroundColor: theme.palette.greyAlpha(.075),
       }
     },
     selectionHighlight: {
-      backgroundColor: "rgba(0,0,0,.5)",
-      color: "white",
+      backgroundColor: theme.palette.greyAlpha(.5),
+      color: theme.palette.text.invertedBackgroundText,
       borderRadius: 3
     },
     defaultHighlight: {
-      backgroundColor: "rgba(0,0,0,.075)",
+      backgroundColor: theme.palette.greyAlpha(.075),
       borderRadius: 3
     },
     0: {},

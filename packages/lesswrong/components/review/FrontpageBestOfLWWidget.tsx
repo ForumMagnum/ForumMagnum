@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useSingle } from '../../lib/crud/withSingle';

@@ -15,7 +15,7 @@ describe('JSS', () => {
     for (let componentName of _.sortBy(Object.keys(ComponentsTable), x=>x)) {
       const styleGetter = ComponentsTable[componentName].options?.styles;
       const styles = (typeof styleGetter === 'function') ? styleGetter(fakeTheme) : styleGetter;
-      if (styles) {
+      if (styles && !ComponentsTable[componentName].options?.allowNonThemeColors) {
         assertNoNonPaletteColors(componentName, styles, nonPaletteColors);
       }
     }

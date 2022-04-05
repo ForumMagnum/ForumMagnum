@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 60,
     left: -12,
     top: -12,
-    color: "rgba(0,0,0,.1)"
+    color: theme.palette.greyAlpha(.1),
   }
 })
 

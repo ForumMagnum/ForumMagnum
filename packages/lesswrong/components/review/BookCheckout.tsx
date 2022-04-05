@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     letterSpacing: '0.6',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    boxShadow: '0px 4px 5.5px 0px rgba(0, 0, 0, 0.07)',
+    boxShadow: `0px 4px 5.5px 0px ${theme.palette.greyAlpha(0.07)}`,
     '&:hover': {
       opacity: 0.8
     },
@@ -43,9 +43,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   intlButton: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginLeft: 10,
-    color: "#606060",
+    color: theme.palette.grey[710],
     border: "1px solid #ccc",
     
     [theme.breakpoints.down('xs')]: {

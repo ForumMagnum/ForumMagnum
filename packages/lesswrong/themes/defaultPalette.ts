@@ -132,11 +132,14 @@ export const grey = {
   315: "#d4d4d4",
   320: "#d9d9d9",
   340: "#d0d0d0",
+  405: "#bbbbbb",
   410: "#b3b3b3",
   550: "#999999",
   620: "#888888",
   650: "#808080",
   680: "#666666",
+  710: "#606060",
+  750: "#5e5e5e",
 }
 
 export const defaultShadePalette = (): ThemeShadePalette => {
@@ -195,6 +198,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     red: "#ff0000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: "rgba(255,255,255,.5)",
+    
+    reviewUpvote: "rgba(70,125,70, .87)",
+    reviewDownvote: "rgba(125,70,70, .87)",
+    
+    aprilFools: {
+      orange: "#e64a19",
+      yellow: "#f57f17",
+      green: "#1b5e20",
+    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -383,6 +395,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dropdownActiveText: "#fff",
     dropdownHoveredBackground: "#f5f5f5",
     dropdownActiveHoveredBackground: "#ccc",
+  },
+  review: {
+    activeProgress: 'rgba(127, 175, 131, 0.5)',
+    progressBar: 'rgba(127, 175, 131, 0.7)',
+    adminButton: "rgba(200,150,100)",
   },
   header: {
     text: shades.greyAlpha(.87),

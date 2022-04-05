@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   userRow: {
     display: "flex",
     ...theme.typography.commentStyle,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginBottom: 2,
     alignItems: "center",
     boxShadow: theme.palette.boxShadow.default,
@@ -49,26 +49,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   goodestHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: "#e64a19",
+    color: theme.palette.text.aprilFools.orange,
   },
   orange: {
-    color: "#e64a19",
+    color: theme.palette.text.aprilFools.orange,
   },
   veryGoodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: "#f57f17",
+    color: theme.palette.text.aprilFools.yellow,
   },
   yellow: {
-    color: "#f57f17",
+    color: theme.palette.text.aprilFools.yellow,
   },
   goodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: "#1b5e20",
+    color: theme.palette.text.aprilFools.green,
   },
   green: {
-    color: "#1b5e20",
+    color: theme.palette.text.aprilFools.green,
   },
 });
 

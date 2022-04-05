@@ -497,7 +497,13 @@ const Book2018Landing = ({classes}: {
   )
 }
 
-const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018Landing, {styles});
+const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018Landing, {
+  styles,
+  
+  // (Manually checked that there are no horrible contrast problems in dark mode.
+  // This page has a fair amount of very-no-reusable styling.)
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

@@ -105,6 +105,15 @@ declare global {
       red: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
+    
+      reviewUpvote: ColorString,
+      reviewDownvote: ColorString,
+      
+      aprilFools: {
+        orange: ColorString,
+        yellow: ColorString,
+        green: ColorString,
+      },
     },
     linkHover: {
       dim: ColorString,
@@ -283,6 +292,11 @@ declare global {
       dropdownActiveText: ColorString,
       dropdownHoveredBackground: ColorString,
       dropdownActiveHoveredBackground: ColorString,
+    },
+    review: {
+      activeProgress: ColorString,
+      progressBar: ColorString,
+      adminButton: ColorString,
     },
     background: {
       default: ColorString

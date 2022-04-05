@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "title",
     position: "sticky",
     top: 0,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     height: 171,
     display: "flex",
     flexDirection: "column",
@@ -125,7 +125,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   essaysBy: {
     alignItems: "flex-end",
     fontSize: "20px",
-    color: "grey"
+    color: theme.palette.grey[650],
   },
 
   bookCheckout: {
@@ -145,7 +145,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   authorList: {
-    color: "grey",
+    color: theme.palette.grey[650],
     [theme.breakpoints.up('sm')]: {
       width: "60%",
     }
@@ -175,7 +175,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "mainQuoteAuthor",
     fontSize: "22px",
     lineHeight: "1.4em",
-    color: "grey"
+    color: theme.palette.grey[650],
   },
 
   failure: {
