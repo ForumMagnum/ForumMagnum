@@ -57,6 +57,13 @@ export const darkModeTheme: UserThemeSpecification = {
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
+    text: {
+      aprilFools: {
+        orange: "#ff7144",
+        yellow: "#ffba7d",
+        green: "#7ee486",
+      },
+    },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
     },
