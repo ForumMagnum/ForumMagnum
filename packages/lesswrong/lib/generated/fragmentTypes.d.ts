@@ -1593,6 +1593,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly noindex: boolean,
   readonly paymentEmail: string,
   readonly paymentInfo: string,
+  readonly goodHeartTokens: number,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
