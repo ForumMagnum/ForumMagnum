@@ -24,7 +24,7 @@ export interface AlgoliaIndexedCollection<T extends AlgoliaIndexedDbObject> exte
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
-const COMMENT_MAX_SEARCH_CHARACTERS = 2000
+const COMMENT_MAX_SEARCH_CHARACTERS = 18000
 const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
