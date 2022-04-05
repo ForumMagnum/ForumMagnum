@@ -30,8 +30,18 @@ export const alignmentForumTheme: SiteThemeSpecification = {
     },
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
-    primary: indigo,
-    secondary: indigo,
+    primary: {
+      main: "#3f51b5",
+      dark: "#303f9f",
+      light: "#7986cb",
+      contrastText: shadePalette.grey[0],
+    },
+    secondary: {
+      main: "#3f51b5",
+      dark: "#303f9f",
+      light: "#7986cb",
+      contrastText: shadePalette.grey[0],
+    },
     lwTertiary: {
       main: "#607e88",
       dark: "#607e88",

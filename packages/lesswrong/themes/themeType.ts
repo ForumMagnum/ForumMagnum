@@ -43,13 +43,13 @@ declare global {
     },
   }
   type ThemeComponentPalette = {
-    primary: Partial<MuiColorShades> & {
+    primary: {
       main: ColorString,
       light: ColorString,
       dark: ColorString,
       contrastText: ColorString
     },
-    secondary: Partial<MuiColorShades> & {
+    secondary: {
       main: ColorString,
       light: ColorString,
       dark: ColorString, //UNUSED
