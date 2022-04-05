@@ -11,6 +11,8 @@ import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel  from '@material-ui/core/FormControlLabel';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
@@ -24,6 +26,7 @@ import Search from '@material-ui/icons/Search';
 import classNames from 'classnames';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { Link } from '../../lib/reactRouterWrapper';
+import { include } from 'underscore';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -183,7 +186,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   addGroup: {
     marginTop: 40
-  }
+  },
+  inactiveGroups: {
+    ...theme.typography.commentStyle,
+  },
 }))
 
 
@@ -200,6 +206,7 @@ const Community = ({classes}: {
   const [tab, setTab] = useState('local')
   const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
   const [keywordSearch, setKeywordSearch] = useState('')
+  const [includeInactive, setIncludeInactive] = useState(false)
   
   useEffect(() => {
     // unfortunately the hash is unavailable on the server, so we check it here instead
@@ -397,8 +404,9 @@ const Community = ({classes}: {
               </Button>
             </div>
           </div>
+          <FormControlLabel control={<Checkbox checked={includeInactive} onChange={() => setIncludeInactive(!includeInactive)}/>} label="Include inactive groups" className={classes.inactiveGroups}/>
           
-          <LocalGroups keywordSearch={keywordSearch} userLocation={userLocation} distanceUnit={distanceUnit} />
+          <LocalGroups keywordSearch={keywordSearch} userLocation={userLocation} distanceUnit={distanceUnit} includeInactive={includeInactive}/>
           
           <div className={classes.localGroupsBtns}>
             <Button href="https://resources.eagroups.org/" variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}>
@@ -423,8 +431,9 @@ const Community = ({classes}: {
                 className={classes.keywordSearchInput}
               />
             </div>
+            <FormControlLabel control={<Checkbox checked={includeInactive} onChange={() => setIncludeInactive(!includeInactive)}/>} label="Include inactive groups" className={classes.inactiveGroups}/>
           </div>
-          <OnlineGroups keywordSearch={keywordSearch} />
+          <OnlineGroups keywordSearch={keywordSearch} includeInactive={includeInactive}/>
         </div>}
         
         <div className={classes.eventsPageLinkRow}>

@@ -137,14 +137,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const OnlineGroups = ({keywordSearch, classes}: {
+const OnlineGroups = ({keywordSearch, includeInactive, classes}: {
   keywordSearch: string,
+  includeInactive: boolean,
   classes: ClassesType,
 }) => {
   const { CloudinaryImage2 } = Components
   
   const { results, loading } = useMulti({
-    terms: {view: 'online'},
+    terms: {view: 'online', includeInactive},
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     fetchPolicy: 'cache-and-network',

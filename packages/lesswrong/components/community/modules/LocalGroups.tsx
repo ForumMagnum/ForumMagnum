@@ -115,7 +115,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: {
+const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
     lat: number,
@@ -124,6 +124,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
     loading: boolean,
   },
   distanceUnit: 'km'|'mi',
+  includeInactive: boolean,
   classes: ClassesType,
 }) => {
   const { CommunityMapWrapper, CloudinaryImage2 } = Components
@@ -153,8 +154,10 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
     view: 'nearby',
     lat: userLocation.lat,
     lng: userLocation.lng,
+    includeInactive,
   } : {
     view: 'local',
+    includeInactive,
   }
   
   const { results, loading } = useMulti({

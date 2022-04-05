@@ -10,6 +10,7 @@ declare global {
     userId?: string
     lng?: number
     lat?: number
+    includeInactive?: boolean
   }
 }
 
@@ -23,7 +24,7 @@ Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
   return {
     selector: {
       ...selector,
-      inactive: false,
+      inactive: terms.includeInactive ? null : false,
       deleted: false
     }
   };
