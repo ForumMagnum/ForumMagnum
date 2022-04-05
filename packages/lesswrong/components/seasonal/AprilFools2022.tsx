@@ -5,10 +5,12 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import yellow from '@material-ui/core/colors/yellow';
 import green from '@material-ui/core/colors/green';
+import { Link } from '../../lib/reactRouterWrapper';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject', false) // enables UI for 2022 LW April Fools
 export const goodHeartStartDate = new Date("01/01/2022")
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -70,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const AprilFools2022 = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, UsersNameDisplay } = Components
+  const { SingleColumnSection, SectionTitle, UsersNameDisplay, SectionFooter } = Components
 
   const {results} = useMulti({
       terms: {view: 'usersByGoodHeartTokens'},
@@ -119,6 +121,9 @@ export const AprilFools2022 = ({classes}: {
         </div>)}
       </div>
     </div>
+    <SectionFooter>
+      <Link to="/posts/mz3hwS4c9bc9EHAm9/replacing-karma-with-good-heart-tokens-worth-usd1"><em>What's this about?</em></Link>
+    </SectionFooter>
   </SingleColumnSection>;
 }
 

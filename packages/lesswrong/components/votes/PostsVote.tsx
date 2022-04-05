@@ -24,6 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
   },
+  voteScoreGoodHeart: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    fontSize: '45%',
+    textAlign: "center",
+  },
   secondaryVoteScore: {
     fontSize: '35%',
     marginBottom: 2,
@@ -91,7 +97,7 @@ const PostsVote = ({ post, classes }: {
   const goodHeart = goodHeartEnabled && new Date(post.postedAt) > goodHeartStartDate
 
   const voteStyling = goodHeart ? <div className={classes.goodHeartWrapper}> 
-    <Typography variant="headline" className={classes.voteScore}>${voteProps.baseScore}</Typography>
+    <Typography variant="headline" className={classNames(classes.voteScore, classes.voteScoreGoodHeart)}>${voteProps.baseScore}</Typography>
     <FavoriteIcon className={classes.goodHeartIcon}/>
   </div> : <div> 
     {/* Have to make sure to wrap this in a div because Tooltip requires a child that takes refs */}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
+import { makeAbsolute } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -15,6 +16,7 @@ import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
+import './emailComponents/EmailUsernameByID';
 import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
@@ -382,4 +384,38 @@ export const NewRSVPNotification = serverRegisterNotificationType({
       </p>
     </div>
   },
+});
+
+export const NewCommentOnDraftNotification = serverRegisterNotificationType({
+  name: "newCommentOnDraft",
+  canCombineEmails: true,
+  
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const firstNotification = notifications[0];
+    const post = await Posts.findOne({_id: firstNotification.documentId});
+    if (notifications.length===1) {
+      const { senderUserID, commentHtml } = firstNotification.extraData;
+      const senderUser = await Users.findOne({_id: senderUserID});
+      
+      return `${senderUser?.displayName} commented on ${post?.title}`;
+    } else {
+      return `${notifications.length} comments on ${post?.title}`;
+    }
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const firstNotification = notifications[0];
+    const post = await Posts.findOne({_id: firstNotification.documentId});
+    const postTitle = post?.title;
+    const postLink = makeAbsolute(`/editPost?postId=${firstNotification.documentId}`);
+    const { EmailUsernameByID } = Components;
+    
+    return <div>
+      {notifications.map((notification,i) => <div key={i}>
+        <div><EmailUsernameByID userID={notification.extraData?.senderUserID}/> commented on <a href={postLink}>{postTitle}</a>:</div>
+        <div>
+          <blockquote dangerouslySetInnerHTML={{__html: notification.extraData?.commentHtml}}/>
+        </div>
+      </div>)}
+    </div>
+  }
 });

@@ -9,8 +9,6 @@ import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 
 
-// EXAMPLE-FORUM Helpers
-
 //////////////////
 // Link Helpers //
 //////////////////
@@ -119,6 +117,15 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   }
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
+
+export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSharingKey?: string): string {
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+  if (linkSharingKey) {
+    return `${prefix}/editPost?postId=${postId}&key=${linkSharingKey}`;
+  } else {
+    return `${prefix}/editPost?postId=${postId}`;
+  }
+}
 
 export const postGetCommentCount = (post: PostsBase|DbPost): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
