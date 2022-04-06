@@ -80,4 +80,3 @@ declare global {
     ChaptersItem: typeof ChaptersItemComponent
   }
 }
-

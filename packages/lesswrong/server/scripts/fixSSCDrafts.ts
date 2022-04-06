@@ -68,7 +68,7 @@ if (runSSCFix) {
       allCodexPostIds = allCodexPostIds.map((post) => post._id);
       //eslint-disable-next-line no-console
       console.log(allCodexPostIds)
-      await Posts.update({_id: {$in: allCodexPostIds}}, {$set: {draft: false}}, {multi: true})
+      await Posts.rawUpdateMany({_id: {$in: allCodexPostIds}}, {$set: {draft: false}}, {multi: true})
       //eslint-disable-next-line no-console
       console.log("Updated codex draft status");
     }

@@ -28,8 +28,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 const FormComponentDateTime = ({ path, value, name, label, classes, position }, context) => {
-  const updateDate = (date) => {
-    context.updateCurrentValues({[path]: date});
+  const updateDate = (date: Date | undefined) => {
+    if (date) context.updateCurrentValues({[path]: date})
   }
 
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;

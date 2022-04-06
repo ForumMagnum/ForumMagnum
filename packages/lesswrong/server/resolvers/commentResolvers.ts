@@ -30,7 +30,7 @@ const specificResolvers = {
           set.deletedByUserId = null;
         }
         let modifier = { $set: set };
-        await context.Comments.update({_id: commentId}, modifier);
+        await context.Comments.rawUpdateOne({_id: commentId}, modifier);
         const updatedComment = await context.Comments.findOne(commentId)
         await moderateCommentsPostUpdate(updatedComment!, currentUser);
         return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);

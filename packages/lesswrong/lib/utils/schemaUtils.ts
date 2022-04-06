@@ -288,7 +288,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     const createCallback = async (newDoc, {currentUser, collection, context}) => {
       if (newDoc[foreignFieldName] && filter(newDoc)) {
         const collection = getCollection(collectionName);
-        await collection.update(newDoc[foreignFieldName], {
+        await collection.rawUpdateOne(newDoc[foreignFieldName], {
           $inc: { [fieldName]: 1 }
         });
       }
@@ -302,18 +302,18 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     // out, or we may need to both but on different documents.
     addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
       async (newDoc, {oldDocument, currentUser, collection}) => {
-        const countingCollection: any = getCollection(collectionName);
+        const countingCollection = getCollection(collectionName);
         if (filter(newDoc) && !filter(oldDocument)) {
           // The old doc didn't count, but the new doc does. Increment on the new doc.
           if (newDoc[foreignFieldName]) {
-            await countingCollection.update(newDoc[foreignFieldName], {
+            await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
               $inc: { [fieldName]: 1 }
             });
           }
         } else if (!filter(newDoc) && filter(oldDocument)) {
           // The old doc counted, but the new doc doesn't. Decrement on the old doc.
           if (oldDocument[foreignFieldName]) {
-            await countingCollection.update(oldDocument[foreignFieldName], {
+            await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
               $inc: { [fieldName]: -1 }
             });
           }
@@ -321,12 +321,12 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
           // The old and new doc both count, but the reference target has changed.
           // Decrement on one doc and increment on the other.
           if (oldDocument[foreignFieldName]) {
-            await countingCollection.update(oldDocument[foreignFieldName], {
+            await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
               $inc: { [fieldName]: -1 }
             });
           }
           if (newDoc[foreignFieldName]) {
-            await countingCollection.update(newDoc[foreignFieldName], {
+            await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
               $inc: { [fieldName]: 1 }
             });
           }
@@ -338,7 +338,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
       async ({document, currentUser, collection}) => {
         if (document[foreignFieldName] && filter(document)) {
           const countingCollection = getCollection(collectionName);
-          await countingCollection.update(document[foreignFieldName], {
+          await countingCollection.rawUpdateOne(document[foreignFieldName], {
             $inc: { [fieldName]: -1 }
           });
         }

@@ -213,7 +213,7 @@ async function saveOrUpdateDocumentRevision(postId: string, html: string) {
     // eslint-disable-next-line no-console
     console.log("Updating rev "+previousRev._id);
     // Update the existing rev
-    await Revisions.update(
+    await Revisions.rawUpdateOne(
       {_id: previousRev._id},
       {$set: {
         editedAt: new Date(),

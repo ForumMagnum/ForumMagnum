@@ -5,6 +5,11 @@ import groupBy from 'lodash/groupBy';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import moment from 'moment';
+import theme from '../../themes/forumTheme';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import fs from 'fs';
+
+const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const getCost = (vote) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote, total) => getCostData({costTotal:total})[vote.qualitativeScore].value
@@ -63,7 +68,7 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log("Updating all karma...")
     for (let postId in postsAllUsers) {
-      await Posts.update({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         finalReviewVotesAllKarma: postsAllUsers[postId].sort((a,b) => b - a), 
         finalReviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
       }})
@@ -72,7 +77,7 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log("Updating high karma...")
     for (let postId in postsHighKarmaUsers) {
-      await Posts.update({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a,b) => b - a),
         finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
       }})
@@ -80,21 +85,46 @@ registerMigration({
     // eslint-disable-next-line no-console
     console.log("Updating AF...")
     for (let postId in postsAFUsers) {
-      await Posts.update({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         finalReviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
         finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
        }})
     }
 
-    const finalPosts = await Posts.find({reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}, postedAt: {$gte: moment(`${REVIEW_YEAR}-01-01`).toDate()}}, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch()
-
+    const finalPosts = isLW ?
+      await Posts.find({
+        reviewCount: {$gt: 0},
+        finalReviewVoteScoreHighKarma: {$exists: true},
+        postedAt: {$gte: moment(`${REVIEW_YEAR}-01-01`).toDate()}
+      }, {sort: {finalReviewVoteScoreHighKarma: -1}}).fetch() :
+      await Posts.aggregate([
+        {$match: {reviewCount: {$gt: 0}, finalReviewVoteScoreHighKarma: {$exists: true}}},
+        {$project: {
+          _id : 1,
+          slug : 1,
+          title : 1,
+          userId : 1,
+          finalReviewVotesHighKarma: 1,
+          finalReviewVoteScore: 1,
+          finalReviewVoteScoreHighKarma: 1,
+          finalReviewVoteScoreAllKarma: 1,
+          combinedScore : {
+            $sum : [
+              {$multiply: ['$finalReviewVoteScoreHighKarma', 2]},
+              '$finalReviewVoteScoreAllKarma',
+            ]
+          }
+        }},
+        {$sort : {combinedScore : -1}},
+      ]).toArray()
+    
     const authorIds = finalPosts.map(post => post.userId)
 
-    const authors = await Users.find({_id: {$in:authorIds}}).fetch() 
+    const authors = await Users.find({_id: {$in:authorIds}}).fetch()
 
     const getAuthor = (post) => authors.filter(author => author._id === post.userId)[0]
 
-    const primaryColor = "#5f9b65" // ea-forum-look-here
+    const primaryColor = theme.palette.primary.main;
     const errorColor = "#bf360c"
 
     const voteColor = vote => {
@@ -108,7 +138,7 @@ registerMigration({
       return size < 3 ? 3 : size
     }
 
-    const voteDot = (vote) => { 
+    const voteDot = (vote) => {
       if (vote !== 0) {
         return `<span title="${vote}" class="dot" style="
           height:${voteSize(vote)}px;
@@ -120,13 +150,13 @@ registerMigration({
       }
     }
 
-    const donateButton = (post) => `<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
+    const donateButton = (post) => isLW ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
     <input type="hidden" name="cmd" value="_s-xclick" />
     <input type="hidden" name="item_name" value='Best of LessWrong Prize, with special appreciation for ${getAuthor(post).displayName}, author of "${post.title}".' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />
     <input type="submit" value="Donate" border="0" name="submit" title="Donate via PayPal" alt="Donate with PayPal button" class="donate-button"/>
     <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
-    </form>`
+    </form></td>` : ""
 
     const postTableRow = (post, i) => `<tr>
         <td class="item-count">${i}</td>
@@ -142,11 +172,11 @@ registerMigration({
 
             </div>
             <div class="dots-row">
-              ${post.finalReviewVotesHighKarma.sort((x,y) => x - y).map(vote=>voteDot(vote)).join("")}
+              ${(post.finalReviewVotesHighKarma || []).sort((x,y) => x - y).map(vote=>voteDot(vote)).join("")}
             </div>
           </div>
         </td>
-        <td>${donateButton(post)}</td>
+        ${donateButton(post)}
       </tr>`
     
     const html = `<div>
@@ -213,7 +243,6 @@ registerMigration({
         </table>
       </div>`
 
-    // eslint-disable-next-line no-console
-    console.log(html)
+    fs.writeFileSync('review-vote-table.html', html)
   },
 });

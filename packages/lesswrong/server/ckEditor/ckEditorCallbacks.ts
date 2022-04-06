@@ -53,7 +53,7 @@ defineMutation({
     }
     
     if (!_.contains(post.linkSharingKeyUsedBy, currentUser._id)) {
-      await Posts.update(
+      await Posts.rawUpdateOne(
         {_id: postId},
         {$set: {
           linkSharingKeyUsedBy: [...post.linkSharingKeyUsedBy, currentUser._id]
@@ -95,7 +95,7 @@ defineQuery({
     ) {
       // Add the user to linkSharingKeyUsedBy, if not already there
       if (!post.linkSharingKeyUsedBy || !_.contains(post.linkSharingKeyUsedBy, currentUser._id)) {
-        await Posts.update(
+        await Posts.rawUpdateOne(
           {_id: post._id},
           {$addToSet: {linkSharingKeyUsedBy: currentUser._id}}
         );

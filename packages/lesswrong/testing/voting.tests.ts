@@ -18,7 +18,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
-      await Posts.update(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
+      await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
       await batchUpdateScore({collection: Posts});
       const updatedPost = await Posts.find({_id: post._id}).fetch();
@@ -69,7 +69,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
-      await Posts.update(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
+      await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 

@@ -46,7 +46,18 @@ const embedConfig = {
 		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
 		    </div>
 		  `
-		}
+		},
+		{
+			name: 'OWID',
+			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
+			html: ([match, slug]) => {
+				return `
+					<div data-owid-slug="${slug}" class="owid-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
 	]
 }
 

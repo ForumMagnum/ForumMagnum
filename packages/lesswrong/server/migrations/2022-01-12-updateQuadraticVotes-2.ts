@@ -71,7 +71,7 @@ registerMigration({
         if (!vote.qualitativeScore) continue
         
         totalUserPoints += getCost(vote)
-        await ReviewVotes.update({_id:vote._id}, {$set: {quadraticScore: getValue(vote)}})
+        await ReviewVotes.rawUpdateOne({_id:vote._id}, {$set: {quadraticScore: getValue(vote)}})
         
         updatePost(postsAllUsers, vote)
 
@@ -88,19 +88,19 @@ registerMigration({
     }
 
     for (let postId in postsAllUsers) {
-      await Posts.update({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         reviewVotesAllKarma2: postsAllUsers[postId].sort((a,b) => b - a), 
         reviewVoteScoreAllKarma2: postsAllUsers[postId].reduce((x, y) => x + y, 0) 
       }})
     }
     for (let postId in postsHighKarmaUsers) {
-      await Posts.update({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         reviewVotesHighKarma2: postsHighKarmaUsers[postId].sort((a,b) => b - a),
         reviewVoteScoreHighKarma2: postsHighKarmaUsers[postId].reduce((x, y) => x + y, 0),
       }})
     }
     for (let postId in postsAFUsers) {
-      await Posts.update({_id:postId}, {$set: { 
+      await Posts.rawUpdateOne({_id:postId}, {$set: { 
         reviewVotesAF: postsAFUsers[postId].sort((a,b) => b - a),
         reviewVoteScoreAF: postsAFUsers[postId].reduce((x, y) => x + y, 0),
        }})
