@@ -11,7 +11,7 @@ registerMigration({
     
     for (let sharedPost of sharedPosts) {
       if (!sharedPost.linkSharingKey) {
-        await Posts.update(
+        await Posts.rawUpdateOne(
           {_id: sharedPost._id},
           {$set: {
             linkSharingKey: generateLinkSharingKey(),
