@@ -91,7 +91,7 @@ const PostsEditForm = ({ documentId, classes }: {
   
   // If we have access to the post but only readonly access and only because
   // it's published, don't show the edit form.
-  if (document.userId !== currentUser?._id && !userIsSharedOn(currentUser, document)) {
+  if (document.userId !== currentUser?._id && !userIsSharedOn(currentUser, document) && !userIsAdmin(currentUser)) {
     return <Components.ErrorAccessDenied/>
   }
   
