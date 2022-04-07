@@ -5,8 +5,10 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import yellow from '@material-ui/core/colors/yellow';
 import green from '@material-ui/core/colors/green';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
+export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject',false) // enables UI for 2022 LW April Fools
 
 export const goodHeartStartDate = new Date("04/01/2022")
 
@@ -79,6 +81,9 @@ export const AprilFools2022 = ({classes}: {
       enableTotal: false,
       limit: 15,
     });
+
+  if (!enableGoodHeartProject.get()) return null
+
   return <SingleColumnSection>
     <SectionTitle title="The Good Heart Project"/>
     <div className={classes.row}>
