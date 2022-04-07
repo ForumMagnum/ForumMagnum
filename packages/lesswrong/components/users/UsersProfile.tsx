@@ -11,7 +11,6 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
-import FavoriteIcon from '@material-ui/icons/Favorite'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -125,7 +124,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const renderMeta = () => {
     const document = getUserFromResults(results)
     if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount, goodHeartTokens } = document;
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = document;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -133,14 +132,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const userCommentCount = forumTypeSetting.get() !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
-        { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${goodHeartTokens} Good Heart Tokens`}>
-          <span className={classes.userMetaInfo}>
-            <FavoriteIcon className={classNames(classes.icon, classes.specificalz)}/>
-            <Components.MetaInfo title="GoodHeartTokens">
-              {goodHeartTokens || 0}
-            </Components.MetaInfo>
-          </span>
-        </Tooltip>}
 
         { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
           <span className={classes.userMetaInfo}>
@@ -193,7 +184,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -225,7 +216,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
 
 
-    const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: user._id, limit: 5, sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt" }
+    const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
@@ -239,15 +230,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
     terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
-    
-    //Terms for Drafts List
-    const currentDraftSorting = query.sortDraftsBy || query.view || currentUser?.draftsListSorting || "lastModified"
-    const currentIncludeArchived = !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived
-    const currentIncludeShared = !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false)
-    draftTerms.includeArchived = currentIncludeArchived
-    draftTerms.sortDraftsBy = currentDraftSorting
-    draftTerms.includeShared = currentIncludeShared
-    
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
@@ -312,8 +294,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
+            <SectionTitle title="My Drafts">
+              <Link to={"/newPost"}>
+                <SectionButton>
+                  <DescriptionIcon /> New Blog Post
+                </SectionButton>
+              </Link>
+            </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
-              <Components.DraftsList terms={draftTerms}/>
+              <Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <Components.LocalGroupsList
