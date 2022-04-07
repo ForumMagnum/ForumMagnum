@@ -245,7 +245,11 @@ class Form extends Component<any,any> {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacksList({ callbacks: this.submitFormCallbacks, iterator: data, properties: { form: this } });
+    data = runCallbacksList({
+      callbacks: this.submitFormCallbacks,
+      iterator: data,
+      properties: [this],
+    });
 
     return data;
   };
@@ -892,9 +896,7 @@ class Form extends Component<any,any> {
     document = runCallbacksList({
       callbacks: this.successFormCallbacks,
       iterator: document,
-      properties: {
-        form: this
-      }
+      properties: [this, submitOptions],
     });
 
     // run success callback if it exists
@@ -916,7 +918,11 @@ class Form extends Component<any,any> {
     console.log(JSON.stringify(error));
 
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
-    runCallbacksList({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });
+    runCallbacksList({
+      callbacks: this.failureFormCallbacks,
+      iterator: error,
+      properties: [error, this],
+    });
 
     if (!_.isEmpty(error)) {
       // add error to state
