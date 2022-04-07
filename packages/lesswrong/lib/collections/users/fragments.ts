@@ -60,7 +60,6 @@ registerFragment(`
     noindex
     paymentEmail
     paymentInfo
-    goodHeartTokens
   }
 `);
 
