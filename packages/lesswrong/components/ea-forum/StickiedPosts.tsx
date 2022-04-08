@@ -7,6 +7,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...sectionTitleStyle(theme),
     display: "inline",
     marginRight: "auto",
+    [theme.breakpoints.down("sm")]: {
+      marginTop: theme.spacing.unit*3,
+    },
   },
 });
 
@@ -17,8 +20,8 @@ const StickiedPosts = ({
 }) => {
   const { SingleColumnSection, PostsList2, SectionTitle } = Components;
 
-  return <SingleColumnSection className={classes.section}>
-    <SectionTitle title="Pinned Posts" className={classes.title} />
+  return <SingleColumnSection>
+    <SectionTitle title="Pinned Posts" noTopMargin className={classes.title} />
     <PostsList2
       terms={{view:"stickied", limit:100}}
       showNoResults={false}

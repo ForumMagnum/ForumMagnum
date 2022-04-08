@@ -353,7 +353,7 @@ addFieldsDict(Users, {
     order: 40,
     form: {
       hintText:"Bio",
-      rows:4,
+      rows: 12,
       multiLine:true,
       fullWidth:true,
     },
@@ -369,6 +369,12 @@ addFieldsDict(Users, {
 
   // Karma field
   karma: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+  },
+
+  goodHeartTokens: {
     type: Number,
     optional: true,
     canRead: ['guests'],

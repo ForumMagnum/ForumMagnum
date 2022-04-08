@@ -25,7 +25,7 @@ registerMigration({
           const descendentCount = subtreeFiltered.length-1;
           if (descendentCount !== comment.descendentCount || !comment.lastSubthreadActivity) {
             updates.updated++;
-            await Comments.update(
+            await Comments.rawUpdateOne(
               {_id: comment._id},
               {$set: {
                 descendentCount,

@@ -649,6 +649,7 @@ interface DbTag extends DbObject {
   lesswrongWikiImportCompleted: boolean
   htmlWithContributorAnnotations: string
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
+  introSequenceId: string
   description: EditableFieldContents
 }
 
@@ -692,6 +693,7 @@ interface DbUser extends DbObject {
   bio: string
   htmlBio: string
   karma: number
+  goodHeartTokens: number
   website: string
   moderationStyle: string
   moderatorAssistance: boolean

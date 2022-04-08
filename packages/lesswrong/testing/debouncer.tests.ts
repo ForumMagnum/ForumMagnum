@@ -14,7 +14,7 @@ describe('EventDebouncer', () => {
     
     try {
       // Clear the DebouncerEvents table
-      await DebouncerEvents.remove({});
+      await DebouncerEvents.rawRemove({});
       
       let numEventsHandled = 0;
       let numEventBatchesHandled = 0;
@@ -98,4 +98,3 @@ describe('EventDebouncer', () => {
     getWeeklyBatchTimeAfter(new Date("1980-01-01 03:20:00Z"), 3, "Tuesday").toString().should.equal(new Date("1980-01-08 03:00:00Z").toString());
   });
 });
-

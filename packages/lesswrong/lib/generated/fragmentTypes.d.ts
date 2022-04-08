@@ -267,6 +267,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly htmlWithContributorAnnotations: string,
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly introSequenceId: string,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1407,6 +1408,7 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
+  readonly sequence: SequencesPageFragment|null,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
@@ -1577,6 +1579,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly noindex: boolean,
   readonly paymentEmail: string,
   readonly paymentInfo: string,
+  readonly goodHeartTokens: number,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users

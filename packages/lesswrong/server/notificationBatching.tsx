@@ -36,7 +36,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   
   const user = await getUser(userId);
   if (!user) throw new Error(`Missing user: ID ${userId}`);
-  await Notifications.update(
+  await Notifications.rawUpdateMany(
     { _id: {$in: notificationIds} },
     { $set: { waitingForBatch: false } },
     { multi: true }

@@ -213,7 +213,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = await self._collection.insert(jobHistory);
+        jobHistory._id = await self._collection.rawInsert(jobHistory);
       } catch(e) {
         // http://www.mongodb.org/about/contributors/error-codes/
         // 11000 == duplicate key error
@@ -233,7 +233,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 
       log.info('Finished "' + entry.name + '".');
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             result: output
@@ -243,7 +243,7 @@ SyncedCron._entryWrapper = function(entry: any) {
     } catch(e) {
       log.info('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             error: (e && e.stack) ? e.stack : e
@@ -257,7 +257,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 // for tests
 SyncedCron._reset = async function() {
   this._entries = {};
-  await this._collection.remove({});
+  await this._collection.rawRemove({});
   this.running = false;
 }
 
