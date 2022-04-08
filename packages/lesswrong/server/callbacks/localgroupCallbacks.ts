@@ -17,8 +17,11 @@ getCollectionHooks("Localgroups").updateValidate.add((validationErrors: Array<an
   return validationErrors;
 });
 
-getCollectionHooks("Localgroups").updateAfter.add(async (newDoc: DbLocalgroup, {oldDocument}: {oldDocument: DbLocalgroup}) => {
-  const newOrganizerIds = difference(newDoc.organizerIds, oldDocument.organizerIds)
-  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: newDoc._id})
-  return newDoc
+getCollectionHooks("Localgroups").createAsync.add(async ({document}: {document: DbLocalgroup}) => {
+  await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
+})
+
+getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}: {document: DbLocalgroup, oldDocument: DbLocalgroup}) => {
+  const newOrganizerIds = difference(document.organizerIds, oldDocument.organizerIds)
+  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
 })

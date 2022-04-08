@@ -20,7 +20,7 @@ import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
-import { siteNameWithArticleSetting } from '../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 
 interface ServerNotificationType {
   name: string,
@@ -408,7 +408,10 @@ export const NewGroupOrganizerNotification = serverRegisterNotificationType({
         You've been assigned as a group organizer for <a href={groupLink}>{localGroup.name}</a> on {siteNameWithArticleSetting.get()}.
       </p>
       <p>
-        - {capitalize(siteNameWithArticleSetting.get())} Team
+        We recommend you check the group's info and update it if necessary. You can also post your group's events on the forum, which get advertised to users based on relevance.
+      </p>
+      <p>
+        - The {forumTitleSetting.get()} Team
       </p>
     </div>
   },
