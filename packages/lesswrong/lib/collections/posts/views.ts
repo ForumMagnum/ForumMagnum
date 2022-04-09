@@ -1305,7 +1305,7 @@ ensureIndex(Posts,
 Posts.addView("stickied", (terms: PostsViewTerms, _, context: ResolverContext) => ({
     selector: {
       sticky: true,
-      ...(context.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
+      ...(context?.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
     },
     options: {
       sort: {
@@ -1320,7 +1320,7 @@ Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: Reso
   return {
     selector: {
       _id: {$in: terms.postIds},
-      userId: {$ne: context.currentUser?._id,},
+      userId: {$ne: context?.currentUser?._id,},
       isEvent: false
     },
     options: {
