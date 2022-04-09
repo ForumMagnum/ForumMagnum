@@ -1,4 +1,6 @@
 import { getCollectionHooks } from '../mutationCallbacks';
+import difference from 'lodash/difference';
+import { createNotifications } from '../notificationCallbacksHelpers';
 
 
 getCollectionHooks("Localgroups").createValidate.add((validationErrors: Array<any>, {document: group}: {document: DbLocalgroup}) => {
@@ -14,3 +16,12 @@ getCollectionHooks("Localgroups").updateValidate.add((validationErrors: Array<an
   
   return validationErrors;
 });
+
+getCollectionHooks("Localgroups").createAsync.add(async ({document}: {document: DbLocalgroup}) => {
+  await createNotifications({userIds: document.organizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
+})
+
+getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}: {document: DbLocalgroup, oldDocument: DbLocalgroup}) => {
+  const newOrganizerIds = difference(document.organizerIds, oldDocument.organizerIds)
+  await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
+})
