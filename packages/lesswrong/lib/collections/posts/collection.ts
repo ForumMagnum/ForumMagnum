@@ -8,6 +8,7 @@ import { userIsPostGroupOrganizer } from './helpers';
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
     if (!user) return false;
+    if (user.deleted) return false;
     return userCanDo(user, 'posts.new')
   },
 
