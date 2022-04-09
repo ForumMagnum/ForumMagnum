@@ -1302,7 +1302,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("stickied", (terms: PostsViewTerms, _, context: ResolverContext) => ({
+Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) => ({
     selector: {
       sticky: true,
       ...(context?.currentUser?._id ? {_id: {$ne: startHerePostIdSetting.get()}} : {}),
@@ -1316,7 +1316,7 @@ Posts.addView("stickied", (terms: PostsViewTerms, _, context: ResolverContext) =
 ));
 
 // used to find a user's upvoted posts, so they can nominate them for the Review
-Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context: ResolverContext) => {
+Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: ResolverContext) => {
   return {
     selector: {
       _id: {$in: terms.postIds},
