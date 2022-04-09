@@ -39,7 +39,7 @@ Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , be
   return {
     selector: {
       collectionName: collectionName,
-      userId: context.currentUser?._id,
+      userId: context?.currentUser?._id,
       voteType: voteType,
       cancelled: false,
       isUnvote: false,
