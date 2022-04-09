@@ -75,7 +75,9 @@ export const AprilFools2022 = ({classes}: {
   const { SingleColumnSection, SectionTitle, UsersNameDisplay, SectionFooter } = Components
 
   const {results} = useMulti({
-      terms: {view: 'usersByGoodHeartTokens'},
+      terms: {
+        // view: 'usersByGoodHeartTokens'
+      },
       collectionName: "Users",
       fragmentName: 'UsersProfile',
       enableTotal: false,
