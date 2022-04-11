@@ -60,6 +60,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
+  inactiveGroupTag: {
+    color: theme.palette.grey[500],
+    marginRight: 10
+  },
   notifyMe: {
     justifyContent: 'flex-end',
     margin: '8px 4px 20px',
@@ -377,7 +381,9 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       <SingleColumnSection>
         <div className={classes.titleRow}>
           <div>
-            <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin />
+            <SectionTitle title={
+              <span>{group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}{group.name}</span>
+              } noTopMargin />
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}

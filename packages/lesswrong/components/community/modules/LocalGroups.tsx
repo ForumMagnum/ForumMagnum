@@ -88,6 +88,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginBottom: 0
   },
+  inactiveGroupTag: {
+    color: theme.palette.grey[500],
+    marginRight: 10
+  },
   localGroupDistance: {
     flex: 'none',
     ...theme.typography.commentStyle,
@@ -166,7 +170,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
     fragmentName: 'localGroupsHomeFragment',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 200,
+    limit: 300,
     skip: userLocation.loading
   });
   
@@ -210,7 +214,10 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
             </Link>
             <div className={classes.localGroupContent} style={rowStyle}>
               <div className={classes.localGroupNameRow}>
-                <Link to={`/groups/${group._id}`} className={classes.localGroupName}>{group.name}</Link>
+                <Link to={`/groups/${group._id}`} className={classes.localGroupName}>
+                  {group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}
+                  {group.name}
+                </Link>
                 <div className={classes.localGroupDistance}>
                   {distanceToGroup}
                 </div>

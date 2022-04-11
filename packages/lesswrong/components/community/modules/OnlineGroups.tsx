@@ -90,6 +90,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.headline,
     fontSize: 20,
   },
+  inactiveGroupTag: {
+    color: theme.palette.grey[500],
+    marginRight: 10
+  },
   onlineGroupDescription: {
     ...theme.typography.commentStyle,
     color: "rgba(0, 0, 0, 0.6)",
@@ -115,25 +119,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   onlineGroupBtn: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    width: 80,
     ...theme.typography.commentStyle,
-    backgroundColor: theme.palette.primary.main,
-    color: 'white',
-    padding: '10px 16px',
+    color: theme.palette.primary.main,
+    padding: '10px 14px',
     borderRadius: 4,
   },
-  onlineGroupBtnIcon: {
-    fontSize: 13,
-    marginRight: 8
-  },
-  onlineGroupBtnIconWebsite: {
-    transform: "translateY(3px) rotate(-45deg)",
-    fontSize: 15,
-    marginTop: -7,
-    marginRight: 8
-  }
 }))
 
 
@@ -182,25 +172,6 @@ const OnlineGroups = ({keywordSearch, includeInactive, classes}: {
           } : {
             backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_200,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 200px)'
           }
-          // try to highlight to the most relevant link for the group
-          // (eventually we should let the group pick a link)
-          let cta;
-          if (group.facebookLink) {
-            cta = <a href={group.facebookLink} className={classes.onlineGroupBtn}>
-              <FacebookIcon className={classes.onlineGroupBtnIcon} />
-              <div>Join</div>
-            </a>
-          } else if (group.slackLink) {
-            cta = <a href={group.slackLink} className={classes.onlineGroupBtn}>
-              <SlackIcon className={classes.onlineGroupBtnIcon} />
-              <div>Join</div>
-            </a>
-          } else if (group.website) {
-            cta = <a href={group.website} className={classes.onlineGroupBtn}>
-              <LinkIcon className={classes.onlineGroupBtnIconWebsite} />
-              <div>Join</div>
-            </a>
-          }
           
           return <div key={group._id} className={classes.onlineGroup}>
             <Link to={`/groups/${group._id}`} className={classes.mobileImg}>
@@ -211,12 +182,17 @@ const OnlineGroups = ({keywordSearch, includeInactive, classes}: {
             <div className={classes.onlineGroupContent} style={rowStyle}>
               <div className={classes.onlineGroupText}>
                 <div className={classes.onlineGroupNameRow}>
-                  <Link to={`/groups/${group._id}`} className={classes.onlineGroupName}>{group.name}</Link>
+                  <Link to={`/groups/${group._id}`} className={classes.onlineGroupName}>
+                    {group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}
+                    {group.name}
+                  </Link>
                 </div>
                 <div className={classes.onlineGroupDescription}>{group.contents?.plaintextDescription}</div>
               </div>
               <div className={classes.onlineGroupJoin}>
-                {cta}
+                <Link to={`/groups/${group._id}`} className={classes.onlineGroupBtn}>
+                  Learn More
+                </Link>
               </div>
             </div>
           </div>
