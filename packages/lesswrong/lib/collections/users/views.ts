@@ -173,7 +173,6 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
   }
 })
 
-
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",
   "iEe7eacQU9TLDrB+bkEDW5/Ti6EkZzNfsHvE/0rlRE8=",

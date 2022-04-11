@@ -15,6 +15,9 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
+import { forumTypeSetting } from '../../lib/instanceSettings';
+
+const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -148,10 +151,11 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, PermanentRedirect,
-    HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography, TagPageButtonRow, ToCColumn,
-    TableOfContents, TableOfContentsRow, TagContributorsList, SubscribeButton, CloudinaryImage,
-    TagIntroSequence, SectionTitle
+  const {
+    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
+    TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
+    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle
    } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -241,7 +245,7 @@ const TagPage = ({classes}: {
   }
 
   const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  const description = (truncated && !tag.wikiOnly)
+  const description = (truncated && !tag.wikiOnly && !isEAForum)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
@@ -265,10 +269,10 @@ const TagPage = ({classes}: {
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}
     {tag.bannerImageId && <div className={classes.imageContainer}>
-      <CloudinaryImage
+      <CloudinaryImage2
         publicId={tag.bannerImageId}
-        width="auto"
         height={300}
+        fullWidthHeader
       />
     </div>}
     <div className={tag.bannerImageId ? classes.rootGivenImage : ''}>

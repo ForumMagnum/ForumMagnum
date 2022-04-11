@@ -60,6 +60,7 @@ registerFragment(`
     noindex
     paymentEmail
     paymentInfo
+    goodHeartTokens
   }
 `);
 
@@ -328,6 +329,7 @@ registerFragment(`
     notificationEventInRadius
     notificationRSVPs
     notificationPostsNominatedReview
+    notificationGroupAdministration
 
     hideFrontpageMap
     hideTaggingProgressBar
