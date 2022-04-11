@@ -94,12 +94,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2
   },
   groupCategory: {
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     color: theme.palette.grey[600],
     padding: '6px 12px',
-    border: '1px solid white',
+    border: `1px solid ${theme.palette.grey[0]}`,
     borderColor: theme.palette.grey[300],
     borderRadius: 4
   },
