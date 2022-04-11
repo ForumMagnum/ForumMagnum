@@ -5,13 +5,13 @@ import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -61,6 +61,13 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   const { captureEvent } = useTracking()
   const { LWTooltip, AddTagButton } = Components
 
+  // [Epistemic status - two years later guessing] This loads the tagrels via a
+  // database query instead of using the denormalized field on posts. This
+  // causes a shift of the tag in non-SSR contexts. I believe without
+  // empirically testing this, that it's to allow the mutation to seamlessly
+  // reorder the tags, by updating the result of this query. But you could
+  // imagine that this could start with the ordering of the tags on the post
+  // object, and then use the result from the database once we have it.
   const { results, loading, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",
@@ -109,7 +116,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
     }
   }
   
-  const contentTypeInfo = contentTypes[forumTypeSetting.get()];
+  const contentTypeInfo = forumSelect(contentTypes);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't

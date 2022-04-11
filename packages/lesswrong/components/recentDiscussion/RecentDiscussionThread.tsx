@@ -150,7 +150,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
 
-  const { PostsItemMeta, CommentsNode, PostsHighlight, PostsPageActions } = Components
+  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostsPageActions } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -182,6 +182,7 @@ const RecentDiscussionThread = ({
       <div className={classes.root}>
         <div className={classes.post}>
           <div className={classes.postItem}>
+            {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
             <div className={classes.titleAndActions}>
               <Link to={postGetPageUrl(post)} className={classes.title}>
                 {post.title}

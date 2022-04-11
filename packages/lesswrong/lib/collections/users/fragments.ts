@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    previousDisplayName
     fullName
     karma
     afKarma
@@ -56,6 +57,10 @@ registerFragment(`
     reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
+    noindex
+    paymentEmail
+    paymentInfo
+    goodHeartTokens
   }
 `);
 
@@ -79,6 +84,7 @@ registerFragment(`
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
+    allPostsIncludeEvents
     allPostsOpenSettings
     lastNotificationsCheck
     bannedUserIds
@@ -132,8 +138,10 @@ registerFragment(`
     noExpandUnreadCommentsReview
     reviewVotesQuadratic
     reviewVotesQuadratic2019
+    reviewVotesQuadratic2020
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     abTestKey
     abTestOverrides
@@ -143,6 +151,7 @@ registerFragment(`
     reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
+    lastUsedTimezone
     ...SharedUserBooleans
   }
 `);
@@ -262,6 +271,7 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    beta
 
     # Emails
     email
@@ -318,10 +328,13 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationPostsNominatedReview
+    notificationGroupAdministration
 
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
+    hideFrontpageBook2019Ad
 
     deleted
   }
@@ -341,3 +354,11 @@ registerFragment(`
     karma
   }
 `);
+
+registerFragment(`
+  fragment UsersWithReviewInfo on User {
+    ...UsersMinimumInfo
+    reviewVoteCount
+    email
+  }
+`)

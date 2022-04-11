@@ -57,7 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   questionWidth: {
     width: 640,
     [theme.breakpoints.down('sm')]: {
-      width: 'inherit'
+      width: '100%'
     }
   },
   postEditorHeight: {
@@ -152,6 +152,7 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   placeholder: string,
   label: string,
   commentStyles: boolean,
+  collectionName: string
 }
 interface EditorFormComponentState {
   editorOverride: any,
@@ -540,6 +541,9 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
 
   getCurrentEditorType = () => {
+    // Tags can only be edited via CKEditor
+    if (this.props.collectionName === 'Tags') return "ckEditorMarkup"
+    
     const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
 
     // If there is an override, return that
@@ -615,19 +619,23 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   renderEditorTypeSelect = () => {
-    const { currentUser, classes, form } = this.props
+    const { collectionName, currentUser, classes, form } = this.props
     const { LWTooltip } = Components
 
     if (form.hideControls) return null
     if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
+    
+    const tooltip = collectionName === 'Tags' ? `Tags can only be edited in the ${ckEditorName} editor` : "Warning! Changing format will erase your content"
+    
     return (
-      <LWTooltip title="Warning! Changing format will erase your content" placement="left">
+      <LWTooltip title={tooltip} placement="left">
         <Select
           className={classes.select}
           value={this.getCurrentEditorType()}
           onChange={(e) => this.setEditorType(e.target.value)}
           disableUnderline
+          disabled={collectionName === 'Tags'}
           >
             {editors.map((editorType, i) =>
               <MenuItem value={editorType} key={i}>
@@ -784,7 +792,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   render() {
     const { editorOverride, loading } = this.state
-    const { document, currentUser, formType, classes } = this.props
+    const { document, currentUser, formType, classes, collectionName } = this.props
     const { Loading } = Components
     const currentEditorType = this.getCurrentEditorType()
 
@@ -793,6 +801,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const editorWarning =
       !editorOverride
       && formType !== "new"
+      && collectionName !== 'Tags'
       && this.getInitialEditorType() !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
     return <div>

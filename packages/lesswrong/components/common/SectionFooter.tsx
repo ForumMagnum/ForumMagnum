@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
@@ -33,12 +34,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SectionFooter = ({ children, classes }: {
+const SectionFooter = ({ children, className, classes }: {
   children: React.ReactNode,
+  className?: string,
   classes: ClassesType,
 }) => {
   return (
-    <Components.Typography variant="body2" className={classes.root}>
+    <Components.Typography variant="body2" className={classNames(classes.root, className)}>
       { children }
     </Components.Typography>
   )

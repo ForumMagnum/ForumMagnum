@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
@@ -10,6 +10,7 @@ import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/PersonPin';
+import classNames from 'classnames';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -63,15 +64,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, showHideMap = false, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showUsers, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
-  eventTerms: PostsViewTerms,
+  eventTerms?: PostsViewTerms,
+  keywordSearch?: string,
   initialOpenWindows: Array<any>,
   center?: {lat: number, lng: number},
   zoom: number,
   classes: ClassesType,
+  className?: string,
   showUsers?: boolean,
   showHideMap?: boolean,
+  hideLegend?: boolean,
   petrovButton?: boolean,
 }) => {
   const { query } = useLocation()
@@ -89,21 +93,30 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
   const [ showEvents, setShowEvents ] = useState(true)
   const [ showGroups, setShowGroups ] = useState(true)
-  const [ showIndividuals, setShowIndividuals ] = useState(true)
+  const [ showIndividuals, setShowIndividuals ] = useState(!!showUsers)
   const [ showMap, setShowMap ] = useState(true)
 
   const [ viewport, setViewport ] = useState({
     latitude: center.lat,
     longitude: center.lng,
-    zoom: 2
+    zoom: zoom
   })
   
+  // when getting the location from the browser, we want to re-center the map
+  useEffect(() => {
+    setViewport({
+      latitude: center.lat,
+      longitude: center.lng,
+      zoom: zoom
+    })
+  }, [center.lat, center.lng, zoom])
 
   const { results: events = [] } = useMulti({
-    terms: eventTerms,
+    terms: eventTerms || {view: 'events'},
     collectionName: "Posts",
     fragmentName: "PostsList",
     limit: 500,
+    skip: !eventTerms
   });
 
   const { results: groups = [] } = useMulti({
@@ -112,12 +125,20 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
   })
+  // filter the list of groups if the user has typed in a keyword
+  let visibleGroups = groups
+  if (keywordSearch) {
+    visibleGroups = groups.filter(group => (
+      `${group.name.toLowerCase()} ${group.location?.toLowerCase()}`.includes(keywordSearch.toLowerCase())
+    ))
+  }
 
   const { results: users = [] } = useMulti({
     terms: {view: "usersMapLocations"},
     collectionName: "Users",
     fragmentName: "UsersMapEntry",
     limit: 500,
+    skip: !showUsers
   })
 
   const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -125,9 +146,9 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
       {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      {!isEAForum && showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-      <div className={classes.mapButtons}>
+      {showGroups && <LocalGroupsMapMarkers groups={visibleGroups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showIndividuals && <Components.PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {!hideLegend && <div className={classes.mapButtons}>
         <Components.CommunityMapFilter 
           showHideMap={showHideMap} 
           toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
@@ -136,13 +157,13 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
           showIndividuals={showIndividuals}
           setShowMap={setShowMap}
         />
-      </div>
+      </div>}
     </React.Fragment>
-  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap, isEAForum])
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, visibleGroups, showIndividuals, users, classes.mapButtons, showHideMap, hideLegend])
 
   if (!showMap) return null
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, {[className]: className})}>
       <Helmet> 
         <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
       </Helmet>
@@ -164,7 +185,7 @@ const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
   icon: {
     height: 20,
     width: 20,
-    fill: '#3f51b5',
+    fill: theme.palette.individual,
     opacity: 0.8
   }
 })
@@ -259,4 +280,3 @@ declare global {
     PersonalMapLocationMarkers: typeof PersonalMapLocationMarkersTypes
   }
 }
-

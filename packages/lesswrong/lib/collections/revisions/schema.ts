@@ -62,6 +62,27 @@ const schema: SchemaType<DbRevision> = {
     viewableBy: ['guests'],
     optional: true,
   },
+  
+  // Whether this revision is a draft (ie unpublished). This is here so that
+  // after a post is published, we have a sensible way for users to save edits
+  // that they don't want to publish just yet. Note that this is redundant with
+  // posts' draft field, and does *not* have to be in sync; the latest revision
+  // can be a draft even though the document is published (ie, there's a saved
+  // but unpublished edit), and the latest revision can be not-a-draft even
+  // though the document itself is marked as a draft (eg, if the post was moved
+  // back to drafts after it was published).
+  //
+  // This field will not normally be edited after insertion.
+  //
+  // The draftiness of a revision used to be implicit in the version number,
+  // with 0.x meaning draft and 1.x meaning non-draft, except for tags/wiki
+  // where 0.x means imported from the old wiki instead.
+  draft: {
+    type: Boolean,
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+  },
   originalContents: {
     type: ContentType,
     viewableBy: ['guests'],

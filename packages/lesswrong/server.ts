@@ -32,8 +32,10 @@ import './server/scripts/debuggingScripts';
 import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
+import './server/scripts/fillUserEmail';
 
 import './server/scripts/oneOffBanSpammers'
+import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
 import './server/scripts/legacyKarma_aggregate2';
 import './server/scripts/removeObsoleteIndexes';
@@ -42,6 +44,7 @@ import './server/scripts/recomputeDenormalized';
 import './server/scripts/validateDatabase';
 import './server/scripts/validateMakeEditableDenormalization';
 import './server/scripts/mergeAccounts';
+import "./server/scripts/testPostDescription";
 import './server/migrations';
 import './server/migrations/migrationsDashboardGraphql';
 
@@ -66,6 +69,7 @@ import './server/updateScores';
 import './server/siteAdminMetadata';
 import './server/callbacks';
 import './server/notificationCallbacks';
+import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
 import './server/emails/emailTokens';
@@ -78,6 +82,7 @@ import './server/tagging/tagCallbacks';
 import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
+import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
@@ -94,8 +99,6 @@ import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
-
-import './server/callbacks/localgroupCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';

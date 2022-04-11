@@ -1,6 +1,7 @@
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import * as _ from 'underscore';
+import SimpleSchema from 'simpl-schema';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { forumTypeSetting } from '../../instanceSettings';
@@ -9,12 +10,23 @@ import { accessFilterMultiple, accessFilterSingle, addFieldsDict, arrayOfForeign
 import { Utils } from '../../vulcan-lib';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
-import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
+import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { Posts } from './collection';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
+import { userOverNKarmaFunc } from "../../vulcan-users";
+
+export const EVENT_TYPES = [
+  {value: 'presentation', label: 'Presentation'},
+  {value: 'discussion', label: 'Discussion'},
+  {value: 'workshop', label: 'Workshop'},
+  {value: 'social', label: 'Social'},
+  {value: 'coworking', label: 'Coworking'},
+  {value: 'course', label: 'Course'},
+  {value: 'conference', label: 'Conference'},
+]
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 function eaFrontpageDate (document: Partial<DbPost>) {
@@ -39,8 +51,8 @@ addFieldsDict(Posts, {
     hidden: false,
     defaultValue: false,
     viewableBy: ['guests'],
-    editableBy: ['admin'],
-    insertableBy: ['admin'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
     control: "checkbox",
     order: 12,
     group: formGroups.adminOptions,
@@ -223,8 +235,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
     optional: true,
     label: "Co-Authors",
     control: "UsersListEditor",
@@ -297,7 +309,8 @@ addFieldsDict(Posts, {
       // work out of the box with the id-resolver generators
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
-        return await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
+        return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
     },
   },
@@ -511,7 +524,7 @@ addFieldsDict(Posts, {
     ...schemaDefaultValue(false),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: true,
   },
 
@@ -521,7 +534,7 @@ addFieldsDict(Posts, {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     label: "Publish to meta",
@@ -581,7 +594,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     group: formGroups.moderationGroup,
     insertableBy: [userCanModeratePost],
-    editableBy: ['sunshines', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
@@ -614,7 +627,7 @@ addFieldsDict(Posts, {
     }),
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
     control: "UsersListEditor",
@@ -636,11 +649,30 @@ addFieldsDict(Posts, {
       nullable: true,
     }),
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
-    hidden: true,
+    order: 1,
+    control: 'SelectLocalgroup',
+    label: 'Group',
     group: formGroups.event,
+    hidden: (props) => !props.eventForm,
+  },
+  
+  eventType: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    hidden: (props) => !props.eventForm,
+    control: 'select',
+    group: formGroups.event,
+    optional: true,
+    order: 2,
+    label: 'Event Format',
+    form: {
+      options: EVENT_TYPES
+    },
   },
 
   isEvent: {
@@ -684,12 +716,14 @@ addFieldsDict(Posts, {
     type: Date,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "Start Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
+    tooltip: 'For courses/programs, this is the application deadline.'
   },
 
   localStartTime: {
@@ -699,30 +733,72 @@ addFieldsDict(Posts, {
 
   endTime: {
     type: Date,
-    hidden: (props) => !props.eventForm,
+    hidden: (props) => !props.eventForm || props.document.eventType === 'course',
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     control: 'datetime',
     label: "End Time",
     group: formGroups.event,
     optional: true,
+    nullable: true,
   },
 
   localEndTime: {
     type: Date,
     viewableBy: ['guests'],
   },
+  
+  eventRegistrationLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Event Registration Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
+  joinEventLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Join Online Event Link",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
 
   onlineEvent: {
     type: Boolean,
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     optional: true,
     group: formGroups.event,
     order: 0,
+    ...schemaDefaultValue(false),
+  },
+  
+  globalEvent: {
+    type: Boolean,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    group: formGroups.event,
+    label: "This event is intended for a global audience",
+    tooltip: 'By default, events are only advertised to people who are located nearby (for both in-person and online events). Check this to advertise it people located anywhere.',
     ...schemaDefaultValue(false),
   },
 
@@ -736,6 +812,7 @@ addFieldsDict(Posts, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (post) => {
         if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation)
+        return null
       }
     }),
   },
@@ -745,7 +822,7 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -756,7 +833,7 @@ addFieldsDict(Posts, {
   location: {
     type: String,
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
     hidden: true,
     optional: true
@@ -769,7 +846,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Contact Info",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
   },
@@ -779,11 +856,27 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     label: "Facebook Event",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/events/...'
+  },
+  
+  meetupLink: {
+    type: String,
+    hidden: (props) => !props.eventForm,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    label: "Meetup.com Event",
+    control: "MuiTextField",
+    optional: true,
+    group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
   },
 
   website: {
@@ -791,17 +884,32 @@ addFieldsDict(Posts, {
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    control: "MuiInput",
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    control: "MuiTextField",
     optional: true,
     group: formGroups.event,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
+  },
+  
+  eventImageId: {
+    type: String,
+    optional: true,
+    hidden: (props) => !props.eventForm || !isEAForum,
+    label: "Event Image",
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: "ImageUpload",
+    group: formGroups.event,
+    tooltip: "Recommend 1920x1080 px, 16:9 aspect ratio (same as Facebook)"
   },
 
   types: {
     type: Array,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     hidden: (props) => isEAForum || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
@@ -840,12 +948,25 @@ addFieldsDict(Posts, {
     }
   },
 
+  sharingSettings: {
+    type: Object,
+    order: 16,
+    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    editableBy: [userOwns, 'admins'],
+    insertableBy: ['members'],
+    optional: true,
+    label: "Sharing Settings",
+    group: formGroups.title,
+    blackbox: true,
+    hidden: true,
+  },
+  
   shareWithUsers: {
     type: Array,
     order: 15,
     viewableBy: ['guests'],
     insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     control: "UsersListEditor",
     label: "Share draft with users",
@@ -948,7 +1069,7 @@ addFieldsDict(Posts, {
     group: formGroups.moderationGroup,
     label: "Style",
     viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     insertableBy: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
@@ -1028,6 +1149,11 @@ makeEditable({
     formGroup: formGroups.content,
     order: 25,
     pingbacks: true,
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
+      insertableBy: ['members']
+    },
   }
 })
 
@@ -1043,7 +1169,7 @@ makeEditable({
     fieldName: "moderationGuidelines",
     permissions: {
       viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      editableBy: ['members', 'sunshineRegiment', 'admins'],
       insertableBy: [userHasModerationGuidelines]
     },
   }

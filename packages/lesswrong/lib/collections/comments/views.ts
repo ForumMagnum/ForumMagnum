@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 
@@ -20,6 +21,7 @@ declare global {
     sortBy?: string,
     before?: Date|string|null,
     after?: Date|string|null,
+    reviewYear?: ReviewYear
   }
 }
 
@@ -211,8 +213,11 @@ Comments.addView("afSubmissions", (terms: CommentsViewTerms) => {
   };
 });
 
+// As of 2021-10, JP is unsure if this is used
 Comments.addView("recentDiscussionThread", (terms: CommentsViewTerms) => {
-  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+  // The forum has fewer comments, and so wants a more expansive definition of
+  // "recent"
+  const eighteenHoursAgo = moment().subtract(forumTypeSetting.get() === 'EAForum' ? 36 : 18, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -340,7 +345,7 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     } }
     : null
   );
-  
+
   return {
     selector: {
       shortform: true,
@@ -445,6 +450,22 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
     }
   };
 });
+
+// TODO: try to refactor this
+Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}) {
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      reviewingForReview: reviewYear+"",
+      deleted: false
+    },
+    options: {
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+    }
+  };
+});
+
 // Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
 ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),

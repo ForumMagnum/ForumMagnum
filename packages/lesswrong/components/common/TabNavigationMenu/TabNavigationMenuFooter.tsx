@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,8 +21,8 @@ const TabNavigationMenuFooter = ({classes}) => {
   return (
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
-          {menuTabs[forumTypeSetting.get()].map(tab => {
-            if (!tab.showOnMobileStandalone) {
+          {forumSelect(menuTabs).map(tab => {
+            if (!('showOnMobileStandalone' in tab) || !tab.showOnMobileStandalone) {
               return
             }
             // NB: No support for custom components or dividers on footer

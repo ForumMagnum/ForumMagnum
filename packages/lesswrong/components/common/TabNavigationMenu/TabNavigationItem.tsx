@@ -4,6 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
+import { MenuTabRegular } from './menuTabs';
 
 export const iconWidth = 30
 
@@ -61,19 +62,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const TabNavigationItem = ({tab, onClick, classes}) => {
+type TabNavigationItemProps = {
+  tab: MenuTabRegular,
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
+  classes: ClassesType,
+}
+
+const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
   const { TabNavigationSubItem, LWTooltip } = Components
   const { pathname } = useLocation()
   
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
-  // Case to any to work around it, to be able to pass a "to" parameter.
+  // Cast to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
   
   // React router links don't handle external URLs, so use a
   // normal HTML a tag if the URL is external
   const externalLink = /https?:\/\//.test(tab.link);
-  const Element = externalLink ? 
+  const Element = externalLink ?
     ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
     : Link;
 

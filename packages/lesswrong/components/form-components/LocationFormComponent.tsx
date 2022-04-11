@@ -15,11 +15,13 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
   },
   
   "& .geosuggest__input": {
+    backgroundColor: 'transparent',
     border: "2px solid transparent",
     borderBottom: "1px solid rgba(0,0,0,.87)",
-    padding: ".5em 1em 0.5em 0em !important",
+    padding: ".5em .5em 0.5em 0em !important",
     width: 350,
     fontSize: 13,
+    color: theme.palette.primary.main,
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
@@ -111,7 +113,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
   classes: ClassesType,
 }) => {
   const location = document?.location || ""
-  const [ mapsLoaded ] = useGoogleMaps("LocationFormComponent")
+  const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
   useEffect(() => {
     updateCurrentValues({
       location: (document && document.location) || "",
@@ -119,6 +121,16 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  
+  const handleCheckClear = (value) => {
+    // clear location fields if the user deletes the input text
+    if (value === '') {
+      updateCurrentValues({
+        location: null,
+        googleLocation: null,
+      })
+    }
+  }
 
   const handleSuggestSelect = (suggestion) => {
     if (suggestion && suggestion.gmaps) {
@@ -134,6 +146,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
     return <div className={classes.root}>
       <Geosuggest
         placeholder="Location"
+        onChange={handleCheckClear}
         onSuggestSelect={handleSuggestSelect}
         initialValue={location}
       />

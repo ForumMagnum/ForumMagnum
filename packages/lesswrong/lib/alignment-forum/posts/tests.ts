@@ -6,42 +6,7 @@ testStartup();
 
 describe('AlignmentForum PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();
-  
-  it("fails when an alignmentForum user edits a post title", async () => {
-    const user = await createDummyUser({groups:['alignmentForum']})
-    const post = await createDummyPost()
 
-    const newTitle = "New Test Title"
-
-    const query = `
-      mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"},,data:{title:"${newTitle}"}) {
-          data {
-            title
-          }
-        }
-      }
-    `;
-    const response = runQuery(query,{},{currentUser:user})
-    await (response as any).should.be.rejected;
-    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
-  });
-  it("fails when an alignmentForum user edits a post's content field", async () => {
-    const user = await createDummyUser({groups:['alignmentForum']})
-    const post = await createDummyPost()
-    const query = `
-      mutation PostsEdit {
-        updatePost(selector: {_id:"${post._id}"} ,data:{ contents: { originalContents: {type: "markdown", data: "test"} } }) {
-          data {
-            title
-          }
-        }
-      }
-    `;
-    const response = runQuery(query,{},{currentUser:user})
-    await (response as any).should.be.rejected;
-    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
-  });
   it("succeeds when alignmentForum user edits the suggestForAlignmentUserIds field", async () => {
     const user = await createDummyUser({groups:['alignmentForum']})
     const post = await createDummyPost()

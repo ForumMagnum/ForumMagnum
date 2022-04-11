@@ -74,3 +74,10 @@ globalConfig.json
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
+cypress/screenshots/*
+cypress/videos/*
+!cypress/screenshots/.keep
+!cypress/videos/.keep
+
+myLocalDatabase
+myLocalDatabase/*

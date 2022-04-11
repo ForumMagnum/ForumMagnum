@@ -4,6 +4,8 @@ import { IClient } from "pg-promise/typescript/pg-subset";
 import { DatabaseServerSetting } from "../databaseSettings";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 
+export const pgPromiseLib = pgp({});
+
 export const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null);
 
 export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
@@ -28,6 +30,6 @@ export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
     }
     return null;
   }
-  if (!analyticsConnectionPool) analyticsConnectionPool = pgp({})(connectionString);
+  if (!analyticsConnectionPool) analyticsConnectionPool = pgPromiseLib(connectionString);
   return analyticsConnectionPool;
 };

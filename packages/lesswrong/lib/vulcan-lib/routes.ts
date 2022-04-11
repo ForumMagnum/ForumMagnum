@@ -41,6 +41,7 @@ export type Route = {
   sunshineSidebar?: boolean
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
+  standalone?: boolean // if true, this page has no header / intercom
 };
 
 // populated by calls to addRoute

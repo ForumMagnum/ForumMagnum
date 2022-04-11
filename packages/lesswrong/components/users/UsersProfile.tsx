@@ -184,7 +184,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, SubscribeTo, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -228,6 +228,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
+    const currentIncludeEvents = (query.includeEvents === 'true')
+    terms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
@@ -238,7 +240,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
           description={metaDescription}
-          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0}
+          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
         />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
@@ -263,7 +265,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton>}
-              { currentUser && currentUser._id !== user._id && <SubscribeTo
+              { currentUser && currentUser._id !== user._id && <NotifyMeButton
                 document={user}
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
@@ -329,12 +331,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentSorting={currentSorting}
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
+              currentIncludeEvents={currentIncludeEvents}
               sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
               <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
+          {/* Groups Section */
+            (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
+                view: 'userActiveGroups',
+                userId: user?._id,
+                limit: 300
+              }} heading="Organizer of" showNoResults={false} />
+          }
           {/* Wiki Section */}
           <SingleColumnSection>
             <SectionTitle title={"Wiki Contributions"}>

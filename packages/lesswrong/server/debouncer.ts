@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
-import { forumTypeSetting, PublicInstanceSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
@@ -113,7 +113,7 @@ export class EventDebouncer<KeyType,ValueType>
     const { newDelayTime, newUpperBoundTime } = this.parseTiming(timingRule);
     
     // On rawCollection because minimongo doesn't support $max/$min on Dates
-    await DebouncerEvents.rawCollection().update({
+    await DebouncerEvents.rawCollection().updateOne({
       name: this.name,
       af: af,
       key: JSON.stringify(key),
@@ -243,7 +243,7 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
-        await DebouncerEvents.update({
+        await DebouncerEvents.rawUpdateOne({
           _id: eventToHandle._id
         }, {
           $set: { failed: true }
@@ -282,14 +282,14 @@ export const forcePendingEvents = async (upToDate=null) => {
     // Keep checking for more events to handle so long as one was handled.
   } while (eventToHandle);
 }
+
 Vulcan.forcePendingEvents = forcePendingEvents;
 
-export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
 if (!testServerSetting.get()) {
   addCronJob({
     name: "Debounced event handler",
     // Once per minute, on the minute
-    cronStyleSchedule: '* * * * * *',
+    cronStyleSchedule: '* * * * *',
     job() {
       void dispatchPendingEvents();
     }

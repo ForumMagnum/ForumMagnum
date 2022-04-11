@@ -85,20 +85,21 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
+        {/* TODO: Re-enable on the EA Forum once we hire Bbron */}
         {forumTypeSetting.get() !== "EAForum" && currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
-                className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
-                onClick={() => {
-                  captureEvent("feedbackRequestButtonClicked")
-                  if (!!document.title) {
-                    updateCurrentValues({draft: true});
-                    // eslint-disable-next-line
-                    (window as any).Intercom(
-                      'trackEvent',
-                      'requested-feedback',
-                      {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
-                    )
-                  }
-                }}
+          className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
+          onClick={() => {
+            captureEvent("feedbackRequestButtonClicked")
+            if (!!document.title) {
+              updateCurrentValues({draft: true});
+              // eslint-disable-next-line
+              (window as any).Intercom(
+                'trackEvent',
+                'requested-feedback',
+                {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
+              )
+            }
+          }}
         >
           {feedbackLabel}
         </Button>}

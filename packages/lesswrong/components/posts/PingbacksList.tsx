@@ -38,7 +38,7 @@ const PingbacksList = ({classes, postId}: {
     collectionName: "Posts",
     fragmentName: "PostsList",
     limit: 5,
-    enableTotal: false,
+    enableTotal: true,
   });
 
   const pingbackIds = (results||[]).map((pingback) => pingback._id)
@@ -51,7 +51,7 @@ const PingbacksList = ({classes, postId}: {
       return <div className={classes.root}>
         <div className={classes.title}>
           <LWTooltip title="Posts that linked to this post" placement="right">
-            <span>Pingbacks</span>
+            <span>Mentioned in</span>
           </LWTooltip>
         </div>
         <div className={classes.list}>

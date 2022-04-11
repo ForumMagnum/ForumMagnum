@@ -1,9 +1,31 @@
+import SimpleSchema from 'simpl-schema';
 import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
+
+export const GROUP_CATEGORIES = [
+  {value: 'national', label: 'National'},
+  {value: 'regional', label: 'Regional'},
+  {value: 'city', label: 'City'},
+  {value: 'university', label: 'University'},
+  {value: 'high-school', label: 'High School'},
+  {value: 'workplace', label: 'Workplace'},
+  {value: 'professional', label: 'Professional'},
+  {value: 'cause-area', label: 'Cause Area'},
+  {value: 'affiliation', label: 'Affiliation'},
+]
+
+const formGroups: Partial<Record<string,FormGroup>> = {
+  advancedOptions: {
+    name: "advancedOptions",
+    order: 2,
+    label: "Advanced Options",
+    startCollapsed: true,
+  },
+};
 
 const schema: SchemaType<DbLocalgroup> = {
   createdAt: {
@@ -19,8 +41,8 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     order:10,
     insertableBy: ['members'],
-    control: "MuiInput",
-    label: "Local Group Name"
+    control: "MuiTextField",
+    label: "Group Name"
   },
 
   organizerIds: {
@@ -74,16 +96,45 @@ const schema: SchemaType<DbLocalgroup> = {
     type: String,
     optional: true,
   },
+  
+  categories: {
+    type: Array,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: 'FormComponentMultiSelect',
+    placeholder: "Group type / intended audience",
+    form: {
+      options: GROUP_CATEGORIES
+    },
+  },
+  
+  'categories.$': {
+    type: String,
+    optional: true,
+  },
+  
+  isOnline: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "This is an online group",
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
 
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],
     hidden: true,
+    optional: true,
     blackbox: true,
     ...denormalizedField({
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (localgroup) => {
         if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation)
+        return null
       }
     }),
   },
@@ -96,6 +147,8 @@ const schema: SchemaType<DbLocalgroup> = {
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
+    hidden: data => data.document.isOnline,
+    optional: true,
   },
 
   location: {
@@ -104,6 +157,7 @@ const schema: SchemaType<DbLocalgroup> = {
     editableBy: ['members'],
     insertableBy: ['members'],
     hidden: true,
+    optional: true,
   },
 
   contactInfo: {
@@ -112,18 +166,56 @@ const schema: SchemaType<DbLocalgroup> = {
     insertableBy: ['members'],
     editableBy: ['members'],
     label: "Contact Info",
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
   },
 
-  facebookLink: {
+  facebookLink: { // FB Group link
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    label: "Facebook group",
-    control: "MuiInput",
+    label: "Facebook Group",
+    control: "MuiTextField",
     optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/groups/...'
+  },
+  
+  facebookPageLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Facebook Page",
+    control: "MuiTextField",
+    optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.facebook.com/...'
+  },
+  
+  meetupLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Meetup.com Group",
+    control: "MuiTextField",
+    optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://www.meetup.com/...'
+  },
+  
+  slackLink: {
+    type: String,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    label: "Slack Workspace",
+    control: "MuiTextField",
+    optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
 
   website: {
@@ -131,10 +223,24 @@ const schema: SchemaType<DbLocalgroup> = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
-    control: "MuiInput",
+    control: "MuiTextField",
     optional: true,
+    regEx: SimpleSchema.RegEx.Url,
+    tooltip: 'https://...'
   },
-
+  
+  // Cloudinary image id for the banner image (high resolution)
+  bannerImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    label: "Banner Image",
+    control: "ImageUpload",
+    tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)"
+  },
+  
   inactive: {
     type: Boolean,
     viewableBy: ['guests'],
@@ -143,7 +249,18 @@ const schema: SchemaType<DbLocalgroup> = {
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
-  }
+  },
+  
+  deleted: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    tooltip: "Make sure you want to delete the group - it will be completely hidden from the forum.",
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

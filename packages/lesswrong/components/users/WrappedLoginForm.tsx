@@ -12,6 +12,7 @@ import { useLocation } from '../../lib/routeUtil';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...commentBodyStyles(theme, true),
+    wordBreak: "normal",
     padding: 16,
     marginTop: 0,
     marginBottom: 0,
@@ -66,6 +67,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '0.9em',
     padding: 6,
     textTransform: 'uppercase'
+  },
+  primaryBtn: {
+    background: theme.palette.primary.main,
+    color: 'white !important',
+    fontSize: '0.9em',
+    padding: '6px 12px',
+    textTransform: 'uppercase',
+    borderRadius: 4
   },
   toggle: {
     cursor: 'pointer',
@@ -175,28 +184,28 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
         { currentAction === "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
         { currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span> }
       </div>
-      <div className={classes.oAuthComment}>...or continue with</div>
-      <div className={classes.oAuthBlock}>
-        <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
-        <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
-        <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
-        {/* Temporarily here for EA Forum testing */}
-        {/* <a className={classes.oAuthLink} href="/auth/auth0">AUTH 0</a> */}
-      </div>
-      {/* <a href="/auth/facebook"><FacebookIcon /></a>
-      <a href="/auth/github"><GithubIcon /></a> */}
+      {forumTypeSetting.get() !== 'EAForum' && <>
+        <div className={classes.oAuthComment}>...or continue with</div>
+        <div className={classes.oAuthBlock}>
+          <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
+          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
+          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+        </div>
+      </>}
       {error && <div className={classes.error}>{error.message}</div>}
     </form>
   </React.Fragment>;
 }
 
-const WrappedLoginFormEA = ({classes}: WrappedLoginFormProps) => {
+const WrappedLoginFormEA = ({startingState, classes}: WrappedLoginFormProps) => {
   const { pathname } = useLocation()
   
   return <div className={classes.root}>
     <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
-      <a className={classes.oAuthLink} href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
-      <a className={classes.oAuthLink} href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
+      <a className={startingState === 'login' ? classes.primaryBtn : classes.oAuthLink}
+        href={`/auth/auth0?returnTo=${pathname}`}>Login</a>
+      <a className={startingState === 'signup' ? classes.primaryBtn : classes.oAuthLink}
+        href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>Sign Up</a>
     </div>
   </div>
 }

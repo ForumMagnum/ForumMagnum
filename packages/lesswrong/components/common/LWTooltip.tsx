@@ -65,4 +65,3 @@ declare global {
     LWTooltip: typeof LWTooltipComponent
   }
 }
-

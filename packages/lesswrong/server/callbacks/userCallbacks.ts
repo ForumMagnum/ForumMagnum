@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { updateMutator } from '../vulcan-lib/mutators';
@@ -10,16 +12,20 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { userFindByEmail } from '../../lib/vulcan-users/helpers';
+import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
+import { forumTypeSetting } from "../../lib/instanceSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpAPIKeySetting } from "../../server/serverSettings";
+import { userGetLocation } from "../../lib/collections/users/helpers";
+import { captureException } from "@sentry/core";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
-import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { forumTypeSetting } from "../../lib/instanceSettings";
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
-    await Users.update(user._id, {$push: {groups: 'trustLevel1'}});
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
@@ -30,7 +36,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
   if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
-    await Users.update(user._id, {$push: {groups: 'canModeratePersonal'}});
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")
     //eslint-disable-next-line no-console
@@ -72,7 +78,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // reset the postedAt for comments, since those are by default visible
     // almost everywhere. This can bypass the mutation system fine, because the
     // flag doesn't control whether they're indexed in Algolia.
-    await Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
+    await Comments.rawUpdateMany({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 });
 
@@ -122,7 +128,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
 getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
   if (!user.abTestKey) {
     const abTestKey = user.profile?.clientId || randomId();
-    await Users.update(user._id, {$set: {abTestKey: abTestKey}});
+    await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
   }
 });
 
@@ -194,4 +200,92 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     }
   }
   return modifier;
+});
+
+getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
+  if (
+    isAnyTest ||
+    forumTypeSetting.get() !== 'EAForum' ||
+    newUser.subscribedToDigest === oldUser.subscribedToDigest
+  ) {
+    return;
+  }
+
+  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+  const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
+  if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
+    return;
+  }
+  if (!newUser.email) {
+    captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
+    return;
+  }
+  const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
+  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
+  
+  const emailHash = md5(newUser.email.toLowerCase());
+
+  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      email_address: newUser.email,
+      email_type: 'html', 
+      ...(known && {location: {
+        latitude,
+        longitude,
+      }}),
+      merge_fields: {
+        FNAME: newUser.displayName,
+      },
+      status,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `API_KEY ${mailchimpAPIKey}`,
+    },
+  }).catch(e => {
+    captureException(e);
+    // eslint-disable-next-line no-console
+    console.log(e);
+  });
+});
+
+/**
+ * This callback adds all new users to an audience in Mailchimp which will be used for a forthcoming
+ * (as of 2021-08-11) drip campaign.
+ */
+getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudience(user: DbUser) {
+  if (isAnyTest || forumTypeSetting.get() !== 'EAForum') {
+    return;
+  }
+  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+  const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
+  if (!mailchimpAPIKey || !mailchimpEAForumListId) {
+    return;
+  }
+  if (!user.email) {
+    captureException(new Error(`Subscription to EA Forum audience failed: no email for user ${user.displayName}`))
+    return;
+  }
+  const { lat: latitude, lng: longitude, known } = userGetLocation(user);
+  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email_address: user.email,
+      email_type: 'html', 
+      ...(known && {location: {
+        latitude,
+        longitude,
+      }}),
+      status: "subscribed",
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `API_KEY ${mailchimpAPIKey}`,
+    },
+  }).catch(e => {
+    captureException(e);
+    // eslint-disable-next-line no-console
+    console.log(e);
+  });
 });

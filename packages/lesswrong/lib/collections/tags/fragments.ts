@@ -25,8 +25,12 @@ registerFragment(`
     defaultOrder
     reviewedByUserId
     wikiGrade
+    bannerImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
+    sequence {
+      ...SequencesPageFragment
+    }
   }
 `);
 

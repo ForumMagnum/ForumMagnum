@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
-  post: PostsBase,
+  post: PostsDetails,
   refetch: ()=>void,
   classes: ClassesType,
 }) => {

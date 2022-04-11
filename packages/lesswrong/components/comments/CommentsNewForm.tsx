@@ -131,6 +131,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
       </Button>}
       <Button
         type="submit"
+        id="new-comment-submit"
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
@@ -172,6 +173,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, parentComment, success
             ev.preventDefault()
           }}>
             <WrappedSmartForm
+              id="new-comment-form"
               collection={Comments}
               mutationFragment={getFragment(fragment)}
               successCallback={wrappedSuccessCallback}
@@ -212,4 +214,3 @@ declare global {
     CommentsNewForm: typeof CommentsNewFormComponent,
   }
 }
-

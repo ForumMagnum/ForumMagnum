@@ -43,6 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 60,
     width: "100vw",
     height: 380,
+    zIndex: theme.zIndexes.sequenceBanner,
     [legacyBreakpoints.maxTiny]: {
       top: 40,
     },
@@ -193,4 +194,3 @@ declare global {
     SequencesPage: typeof SequencesPageComponent
   }
 }
-

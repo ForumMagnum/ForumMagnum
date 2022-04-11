@@ -140,7 +140,6 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
         <TextField
           label='Email'
           inputRef={emailInput}
-          // onChange={(event) => setNewEmail(event.target.value)}
         />
       </div>}
       

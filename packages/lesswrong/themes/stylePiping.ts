@@ -69,6 +69,16 @@ const metaculusPreviewStyles = () => ({
   }
 })
 
+const owidPreviewStyles = () => ({
+  '& div.owid-preview': {
+    '& iframe': {
+      width: '100%',
+      height: 400,
+      border: 'none'
+    }
+  }
+})
+
 const youtubePreviewStyles = () => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
@@ -131,6 +141,24 @@ const hrStyles = {
     content: '"•••"',
   }
 }
+
+const footnoteStyles = () => ({
+  '& .footnote-item > *': {
+    verticalAlign: "text-top",
+  },
+  '& .footnote-back-link': {
+    position: "relative",
+    top: "-0.2em",
+  },
+  '& .footnotes .footnote-back-link > sup': {
+    marginRight: 0,
+  },
+ '& .footnote-content': {
+    display: "inline-block",
+    padding: "0 0.3em",
+    width: '95%',
+  },
+});
 
 const baseBodyStyles = (theme: ThemeType) => ({
   ...theme.typography.body1,
@@ -234,7 +262,9 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(),
+    ...owidPreviewStyles(),
     ...youtubePreviewStyles(),
+    ...footnoteStyles(),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -291,6 +321,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
 
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(),
+    ...owidPreviewStyles(),
     ...youtubePreviewStyles(),
     '& blockquote': {
       ...theme.typography.commentBlockquote,

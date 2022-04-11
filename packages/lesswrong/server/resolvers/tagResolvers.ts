@@ -3,7 +3,8 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Tags } from '../../lib/collections/tags/collection';
 import { Votes } from '../../lib/collections/votes/collection';
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
+import { Users } from '../../lib/collections/users/collection';
+import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
@@ -27,6 +28,7 @@ addGraphQLSchema(`
     lastCommentedAt: Date
     added: Int
     removed: Int
+    users: [User!]
   }
 `);
 
@@ -57,13 +59,21 @@ addGraphQLResolvers({
         tagId: {$exists: true, $ne: null},
       }).fetch();
       
+      const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])
+      const usersAll = await context.loaders.Users.loadMany(userIds)
+      const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
+      const usersById = keyBy(users, u => u._id);
+      
       // Get the tags themselves
       const tagIds = _.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]);
-      const tags = await context.loaders.Tags.loadMany(tagIds);
+      const tagsUnfiltered = await context.loaders.Tags.loadMany(tagIds);
+      const tags = await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
       
       return tags.map(tag => {
         const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
         const relevantRootComments = _.filter(rootComments, c=>c.tagId===tag._id);
+        const relevantUsersIds = _.uniq([...relevantRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]);
+        const relevantUsers = _.map(relevantUsersIds, userId=>usersById[userId]);
         
         return {
           tag,
@@ -74,6 +84,7 @@ addGraphQLResolvers({
           lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
           added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
           removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
+          users: relevantUsers,
         };
       });
     },
@@ -104,7 +115,8 @@ addGraphQLResolvers({
 
       // Get the tags themselves, keyed by the id
       const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
-      const tags = (await context.loaders.Tags.loadMany(tagIds)).reduce( (acc, tag) => {
+      const tagsUnfiltered = (await context.loaders.Tags.loadMany(tagIds));
+      const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc, tag) => {
         acc[tag._id] = tag;
         return acc;
       }, {});
@@ -152,7 +164,9 @@ augmentFieldsDict(Tags, {
       }> => {
         const contributionStatsByUserId = await getContributorsList(tag, version||null);
         const contributorUserIds = Object.keys(contributionStatsByUserId);
-        const usersById = keyBy(await context.loaders.Users.loadMany(contributorUserIds), u => u._id);
+        const contributorUsersUnfiltered = await context.loaders.Users.loadMany(contributorUserIds);
+        const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
+        const usersById = keyBy(contributorUsers, u => u._id);
   
         const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
         
@@ -257,7 +271,7 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   const contributionStats = await buildContributorsList(tag, null);
   
   if (JSON.stringify(tag.contributionStats) !== JSON.stringify(contributionStats)) {
-    await Tags.update({_id: tag._id}, {$set: {
+    await Tags.rawUpdateOne({_id: tag._id}, {$set: {
       contributionStats: contributionStats,
     }});
   }
@@ -267,9 +281,8 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
 
 export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
   const html = await annotateAuthors(tag._id, "Tags", "description");
-  await Tags.update({_id: tag._id}, {$set: {
+  await Tags.rawUpdateOne({_id: tag._id}, {$set: {
     htmlWithContributorAnnotations: html,
   }});
   return html;
 }
-

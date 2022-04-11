@@ -24,7 +24,7 @@ export interface AlgoliaIndexedCollection<T extends AlgoliaIndexedDbObject> exte
   toAlgolia: (document: T) => Promise<Array<AlgoliaDocument>|null>
 }
 
-const COMMENT_MAX_SEARCH_CHARACTERS = 2000
+const COMMENT_MAX_SEARCH_CHARACTERS = 18000
 const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
@@ -171,7 +171,11 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
       postBatch.push(_.clone({
         ...algoliaMetaInfo,
         objectID: post._id + "_" + paragraphCounter,
-        body: paragraph,
+        
+        // Algolia limits text to 20 KB. They don't say what encoding they use though. 
+        // Some random tests seem to imply that they use UTF-8, which means between 1 and 4 bytes per character.
+        // So limit to 18,000 characters under the assumption that we have ~1.1 bytes/character.
+        body: paragraph.slice(0, 18000),
       }));
     })
   } else {

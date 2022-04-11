@@ -22,7 +22,7 @@ registerMigration({
   idempotent: true,
   action: async () => {
     // Ensure that the tagId field is not missing (ie replace missing with null)
-    await ReadStatuses.update({tagId: {$exists: false}}, {$set: {tagId: null}}, {multi: true})
+    await ReadStatuses.rawUpdateMany({tagId: {$exists: false}}, {$set: {tagId: null}}, {multi: true})
     
     // Download all ReadStatuses, and identify the duplicates
     const allReadStatuses = await ReadStatuses.find().fetch();
@@ -45,7 +45,7 @@ registerMigration({
     console.log(`${idsToRemove.length} duplicate read status entries found`);
     
     // Remove duplicate read statuses, then add index to prevent them in the future
-    await ReadStatuses.remove({_id: {$in: idsToRemove}});
+    await ReadStatuses.rawRemove({_id: {$in: idsToRemove}});
     await ensureIndexAsync(ReadStatuses, {userId:1, postId:1, tagId:1}, {unique: true})
   }
 })

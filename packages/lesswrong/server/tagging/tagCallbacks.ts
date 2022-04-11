@@ -28,7 +28,7 @@ export async function updatePostDenormalizedTags(postId: string) {
       tagRelDict[tagRel.tagId] = tagRel.baseScore;
   }
   
-  await Posts.update({_id:postId}, {$set: {tagRelevance: tagRelDict}});
+  await Posts.rawUpdateOne({_id:postId}, {$set: {tagRelevance: tagRelDict}});
 }
 
 getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {
@@ -78,7 +78,7 @@ getCollectionHooks("Tags").updateAfter.add(async (newDoc: DbTag, {oldDocument}: 
   // If this is soft deleting a tag, then cascade to also soft delete any
   // tagRels that go with it.
   if (newDoc.deleted && !oldDocument.deleted) {
-    await TagRels.update({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
+    await TagRels.rawUpdateMany({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
   }
   return newDoc;
 });

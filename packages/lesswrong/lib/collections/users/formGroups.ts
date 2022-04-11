@@ -31,6 +31,12 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     name: "emails",
     label: "Emails"
   },
+  paymentInfo: {
+    name: "paymentInfo",
+    label: "Prize/Payment Info",
+    order: 35,
+    startCollapsed: false,
+  },
   adminOptions: {
     name: "adminOptions",
     order: 25,

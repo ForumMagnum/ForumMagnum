@@ -133,7 +133,7 @@ augmentFieldsDict(Revisions, {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToText
-          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true})
+          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true, wordwrap: false })
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }
@@ -150,7 +150,7 @@ augmentFieldsDict(Revisions, {
             nonTextTags: ['blockquote', 'img', 'style'],
             
             exclusiveFilter: function(element: IFrame) {
-              return (element.attribs?.class === 'spoilers');
+              return (element.attribs?.class === 'spoilers' || element.attribs?.class === 'spoiler' || element.attribs?.class === "spoiler-v2");
             }
           }
         )

@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { registerComponent } from '../../lib/vulcan-lib'
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings'
+import { isClient } from '../../lib/executionEnvironment';
 
 const reCaptchaSiteKey = reCaptchaSiteKeySetting.get()
 
@@ -47,7 +48,7 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
       ready: isReady()
     }
 
-    if (!this.state.ready) {
+    if (isClient && !this.state.ready) {
       readyCheck = setInterval(this._updateReadyState.bind(this), 1000)
     }
   }

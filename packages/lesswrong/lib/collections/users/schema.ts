@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib/utils';
 import { userGetProfileUrl } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin } from '../../vulcan-users/permissions';
+import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 
@@ -144,13 +144,25 @@ const schema: SchemaType<DbUser> = {
     type: String,
     optional: true,
     input: 'text',
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins', userHasntChangedName],
     canCreate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     order: 10,
     onCreate: ({ document: user }) => {
       return user.displayName || createDisplayName(user);
     },
+    group: formGroups.default,
+  },
+  /**
+   Used for tracking changes of displayName
+   */
+  previousDisplayName: {
+    type: String,
+    optional: true,
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    order: 11,
     group: formGroups.default,
   },
   /**
@@ -206,6 +218,19 @@ const schema: SchemaType<DbUser> = {
       }
     }
   },
+  
+  noindex: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    order: 48,
+    group: formGroups.adminOptions,
+    label: "No Index",
+    tooltip: "Hide this user's profile from search engines",
+  },
+  
   /**
     Groups
   */
@@ -277,7 +302,16 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true, 
     canRead: ['guests'],
-  }
+  },
+  
+  lastUsedTimezone: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: [userOwns],
+    canUpdate: [userOwns],
+  },
 };
 
 export default schema;

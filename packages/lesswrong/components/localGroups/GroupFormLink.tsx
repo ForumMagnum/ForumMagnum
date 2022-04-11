@@ -5,6 +5,7 @@ import withDialog from '../common/withDialog'
 
 interface ExternalProps {
   documentId?: string,
+  isOnline?: boolean
 }
 interface GroupFormLinkProps extends ExternalProps, WithDialogProps {
 }
@@ -13,7 +14,7 @@ class GroupFormLink extends Component<GroupFormLinkProps> {
   handleOpenGroupForm = () => {
     this.props.openDialog({
       componentName: "GroupFormDialog",
-      componentProps: {documentId: this.props.documentId}
+      componentProps: {documentId: this.props.documentId, isOnline: this.props.isOnline}
     })
   }
 

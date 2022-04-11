@@ -14,10 +14,13 @@ interface UsersDefaultFragment { // fragment on Users
   readonly isAdmin: boolean,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/|null,
   readonly displayName: string,
+  readonly previousDisplayName: string,
   readonly email: string|null,
   readonly slug: string,
+  readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
+  readonly lastUsedTimezone: string|null,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
@@ -78,6 +81,28 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly order: number,
 }
 
+interface LocalgroupsDefaultFragment { // fragment on Localgroups
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly organizerIds: Array<string>,
+  readonly lastActivity: Date,
+  readonly types: Array<string>,
+  readonly categories: Array<string>,
+  readonly isOnline: boolean,
+  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly location: string,
+  readonly contactInfo: string,
+  readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
+  readonly slackLink: string,
+  readonly website: string,
+  readonly bannerImageId: string,
+  readonly inactive: boolean,
+  readonly deleted: boolean,
+}
+
 interface TagRelsDefaultFragment { // fragment on TagRels
   readonly createdAt: Date,
   readonly tagId: string,
@@ -85,6 +110,7 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly deleted: boolean,
   readonly userId: string,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -118,12 +144,30 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly nominationCount2019: number,
   readonly reviewCount2018: number,
   readonly reviewCount2019: number,
+  readonly reviewCount: number,
+  readonly reviewVoteCount: number,
+  readonly positiveReviewVoteCount: number,
+  readonly reviewVoteScoreAF: number,
+  readonly reviewVotesAF: Array<number>,
+  readonly reviewVoteScoreHighKarma: number,
+  readonly reviewVotesHighKarma: Array<number>,
+  readonly reviewVoteScoreAllKarma: number,
+  readonly reviewVotesAllKarma: Array<number>,
+  readonly finalReviewVoteScoreHighKarma: number,
+  readonly finalReviewVotesHighKarma: Array<number>,
+  readonly finalReviewVoteScoreAllKarma: number,
+  readonly finalReviewVotesAllKarma: Array<number>,
+  readonly finalReviewVoteScoreAF: number,
+  readonly finalReviewVotesAF: Array<number>,
   readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly noIndex: boolean,
   readonly rsvps: Array<any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"name":{"type":{"definitions":[{}]},"optional":false,"label":"Name"},"email":{"optional":true,"type":{"definitions":[{}]},"label":"Email"},"nonPublic":{"optional":true,"type":{"definitions":[{}]},"label":"Non public"},"response":{"type":{"definitions":[{"allowedValues":["yes","maybe","no"]}]},"optional":false,"label":"Response"},"userId":{"optional":true,"type":{"definitions":[{}]},"label":"User ID"},"createdAt":{"optional":true,"type":{"definitions":[{}]},"label":"Created at"}},"_depsLabels":{},"_schemaKeys":["name","email","nonPublic","response","userId","createdAt"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["name","email","nonPublic","response","userId","createdAt"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/>,
   readonly activateRSVPs: boolean,
   readonly nextDayReminderSent: boolean,
+  readonly onlyVisibleToLoggedIn: boolean,
+  readonly onlyVisibleToEstablishedAccounts: boolean,
+  readonly votingSystem: string,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -132,6 +176,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly userId: string|null,
   readonly authorId: string,
   readonly voteType: string,
+  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly power: number|null,
   readonly afPower: number|null,
   readonly cancelled: boolean,
@@ -192,6 +237,7 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly isDeleted: boolean,
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
+  readonly hideFromAuthorPage: boolean,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -214,6 +260,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
+  readonly bannerImageId: string,
   readonly tagFlagsIds: Array<string>,
   readonly lesswrongWikiImportRevision: string,
   readonly lesswrongWikiImportSlug: string,
@@ -221,6 +268,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly htmlWithContributorAnnotations: string,
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly introSequenceId: string,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -232,6 +280,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly version: string,
   readonly commitMessage: string,
   readonly userId: string,
+  readonly draft: boolean,
   readonly originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
   readonly html: string,
   readonly markdown: string,
@@ -252,6 +301,13 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean|null,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
+  readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
+  readonly userId: string,
+}
+
+interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
+  readonly _id: string,
+  readonly qualitativeScore: number,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -265,9 +321,11 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly shareWithUsers: Array<string>,
+  readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/|null,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly unlisted: boolean,
   readonly score: number,
   readonly lastVisitedAt: Date,
@@ -285,15 +343,22 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly onlineEvent: boolean,
-  readonly startTime: Date,
-  readonly endTime: Date,
+  readonly globalEvent: boolean,
+  readonly startTime: Date | null,
+  readonly endTime: Date | null,
   readonly localStartTime: Date,
   readonly localEndTime: Date,
+  readonly eventRegistrationLink: string,
+  readonly joinEventLink: string,
   readonly facebookLink: string,
+  readonly meetupLink: string,
   readonly website: string,
   readonly contactInfo: string,
   readonly isEvent: boolean,
+  readonly eventImageId: string,
+  readonly eventType: string,
   readonly types: Array<string>,
+  readonly groupId: string,
   readonly reviewedByUserId: string,
   readonly suggestForCuratedUserIds: Array<string>|null,
   readonly suggestForCuratedUsernames: string|null,
@@ -303,6 +368,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly suggestForAlignmentUserIds: Array<string>|null,
   readonly reviewForAlignmentUserId: string,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afCommentCount: number,
   readonly afLastCommentedAt: Date,
   readonly afSticky: boolean,
@@ -310,24 +376,48 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly moderationStyle: string,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
+  readonly onlyVisibleToLoggedIn: boolean,
+  readonly reviewCount: number,
+  readonly reviewVoteCount: number,
+  readonly positiveReviewVoteCount: number,
+  readonly reviewVoteScoreAllKarma: number,
+  readonly reviewVotesAllKarma: Array<number>,
+  readonly reviewVoteScoreHighKarma: number,
+  readonly reviewVotesHighKarma: Array<number>,
+  readonly reviewVoteScoreAF: number,
+  readonly reviewVotesAF: Array<number>,
+  readonly finalReviewVoteScoreHighKarma: number,
+  readonly finalReviewVotesHighKarma: Array<number>,
+  readonly finalReviewVoteScoreAllKarma: number,
+  readonly finalReviewVotesAllKarma: Array<number>,
+  readonly finalReviewVoteScoreAF: number,
+  readonly finalReviewVotesAF: Array<number>,
+  readonly group: PostsBase_group|null,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
-  readonly group: PostsBase_group|null,
 }
 
 interface PostsBase_group { // fragment on Localgroups
   readonly _id: string,
   readonly name: string,
+  readonly organizerIds: Array<string>,
 }
 
 interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
+interface PostsReviewVotingList extends PostsListBase { // fragment on Posts
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -384,6 +474,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number|null,
   readonly socialPreviewImageUrl: string,
+  readonly tagRelevance: any /*{"definitions":[{}]}*/,
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
   readonly canonicalPrevPostSlug: string,
@@ -397,6 +488,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
   readonly feedLink: string,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
@@ -443,6 +535,16 @@ interface PostsExpandedHighlight { // fragment on Posts
 interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface PostsPlaintextDescription { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsPlaintextDescription_contents|null,
+}
+
+interface PostsPlaintextDescription_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly plaintextDescription: string,
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
@@ -536,6 +638,7 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
 
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
 }
@@ -564,9 +667,12 @@ interface WithVotePost { // fragment on Posts
   readonly __typename: string,
   readonly _id: string,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
   readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly voteCount: number,
 }
 
@@ -596,13 +702,16 @@ interface CommentsList { // fragment on Comments
   readonly hideAuthor: boolean,
   readonly user: UsersMinimumInfo|null,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
   readonly baseScore: number|null,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/|null,
   readonly score: number,
   readonly voteCount: number,
   readonly af: boolean,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly suggestForAlignmentUserIds: Array<string>|null,
   readonly reviewForAlignmentUserId: string,
   readonly needsReview: boolean,
@@ -619,6 +728,7 @@ interface CommentsList { // fragment on Comments
   readonly promoted: boolean,
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
+  readonly votingSystem: string,
 }
 
 interface CommentsList_contents { // fragment on Revisions
@@ -674,9 +784,12 @@ interface WithVoteComment { // fragment on Comments
   readonly __typename: string,
   readonly _id: string,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
   readonly baseScore: number|null,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/|null,
   readonly score: number,
   readonly afBaseScore: number,
+  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly voteCount: number,
 }
 
@@ -716,8 +829,10 @@ interface RevisionMetadata { // fragment on Revisions
   readonly userId: string,
   readonly score: number,
   readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly voteCount: number,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
@@ -739,7 +854,9 @@ interface WithVoteRevision { // fragment on Revisions
   readonly __typename: string,
   readonly _id: string,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
   readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly voteCount: number,
 }
@@ -1070,19 +1187,13 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly reactions: Array<string>,
 }
 
-interface LocalgroupsDefaultFragment { // fragment on Localgroups
-  readonly createdAt: Date,
-  readonly name: string,
-  readonly organizerIds: Array<string>,
-  readonly lastActivity: Date,
-  readonly types: Array<string>,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly location: string,
-  readonly contactInfo: string,
-  readonly facebookLink: string,
-  readonly website: string,
-  readonly inactive: boolean,
+interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on ReviewVotes
+  readonly user: reviewVoteWithUserAndPost_user|null,
+  readonly post: PostsMinimumInfo|null,
+}
+
+interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
+  readonly email: string|null,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -1092,14 +1203,21 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>|null,
   readonly lastActivity: Date,
   readonly name: string,
+  readonly isOnline: boolean,
   readonly location: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly types: Array<string>,
+  readonly categories: Array<string>,
   readonly contactInfo: string,
   readonly facebookLink: string,
+  readonly facebookPageLink: string,
+  readonly meetupLink: string,
+  readonly slackLink: string,
   readonly website: string,
+  readonly bannerImageId: string,
   readonly inactive: boolean,
+  readonly deleted: boolean,
 }
 
 interface localGroupsHomeFragment extends localGroupsBase { // fragment on Localgroups
@@ -1108,6 +1226,12 @@ interface localGroupsHomeFragment extends localGroupsBase { // fragment on Local
 
 interface localGroupsEdit extends localGroupsBase { // fragment on Localgroups
   readonly contents: RevisionEdit|null,
+}
+
+interface localGroupsIsOnline { // fragment on Localgroups
+  readonly _id: string,
+  readonly name: string,
+  readonly isOnline: boolean,
 }
 
 interface ChaptersFragment { // fragment on Chapters
@@ -1142,6 +1266,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly draft: boolean,
   readonly isDeleted: boolean,
   readonly hidden: boolean,
+  readonly hideFromAuthorPage: boolean,
   readonly curatedOrder: number,
   readonly userProfileOrder: number,
   readonly af: boolean,
@@ -1209,6 +1334,7 @@ interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
   readonly score: number,
   readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afBaseScore: number,
   readonly voteCount: number,
   readonly userId: string,
@@ -1220,6 +1346,7 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly post: PostsList|null,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1232,6 +1359,7 @@ interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRel
   readonly tag: TagPreviewFragment|null,
   readonly post: TagRelCreationFragment_post|null,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
@@ -1242,6 +1370,7 @@ interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
@@ -1250,9 +1379,11 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly userId: string,
   readonly score: number,
   readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly afBaseScore: number,
   readonly voteCount: number,
   readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface TagBasicInfo { // fragment on Tags
@@ -1276,8 +1407,10 @@ interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
   readonly defaultOrder: number,
   readonly reviewedByUserId: string,
   readonly wikiGrade: number,
+  readonly bannerImageId: string,
   readonly lesswrongWikiImportSlug: string,
   readonly lesswrongWikiImportRevision: string,
+  readonly sequence: SequencesPageFragment|null,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
@@ -1402,6 +1535,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly createdAt: Date,
   readonly username: string,
   readonly displayName: string,
+  readonly previousDisplayName: string,
   readonly fullName: string,
   readonly karma: number,
   readonly afKarma: number,
@@ -1444,6 +1578,10 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly petrovPressedButtonDate: Date,
   readonly sortDrafts: string|null,
   readonly reenableDraftJs: boolean,
+  readonly noindex: boolean,
+  readonly paymentEmail: string|null,
+  readonly paymentInfo: string|null,
+  readonly goodHeartTokens: number,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
@@ -1463,6 +1601,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allPostsSorting: string|null,
   readonly allPostsFilter: string|null,
   readonly allPostsShowLowKarma: boolean|null,
+  readonly allPostsIncludeEvents: boolean|null,
   readonly allPostsOpenSettings: boolean|null,
   readonly lastNotificationsCheck: Date|null,
   readonly bannedUserIds: Array<string>,
@@ -1510,14 +1649,17 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly noExpandUnreadCommentsReview: boolean,
   readonly reviewVotesQuadratic: boolean,
   readonly reviewVotesQuadratic2019: boolean,
+  readonly reviewVotesQuadratic2020: boolean,
   readonly hideTaggingProgressBar: boolean|null,
   readonly hideFrontpageBookAd: boolean|null,
+  readonly hideFrontpageBook2019Ad: boolean|null,
   readonly abTestKey: string|null,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/|null,
   readonly sortDrafts: string|null,
   readonly reenableDraftJs: boolean,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
+  readonly lastUsedTimezone: string|null,
 }
 
 interface UserKarmaChanges { // fragment on Users
@@ -1589,6 +1731,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
+  readonly beta: boolean,
   readonly email: string|null,
   readonly whenConfirmationEmailSent: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
@@ -1628,9 +1771,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly notificationAlignmentSubmissionApproved: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/|null,
   readonly notificationEventInRadius: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/|null,
   readonly notificationRSVPs: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/|null,
+  readonly notificationPostsNominatedReview: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/|null,
+  readonly notificationGroupAdministration: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/|null,
   readonly hideFrontpageMap: boolean|null,
   readonly hideTaggingProgressBar: boolean|null,
   readonly hideFrontpageBookAd: boolean|null,
+  readonly hideFrontpageBook2019Ad: boolean|null,
   readonly deleted: boolean,
 }
 
@@ -1647,6 +1793,11 @@ interface UsersAdmin { // fragment on Users
   readonly karma: number,
 }
 
+interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
+  readonly reviewVoteCount: number|null,
+  readonly email: string|null,
+}
+
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
@@ -1659,6 +1810,23 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
   readonly userId: string,
+}
+
+interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
+}
+
+interface FeaturedResourcesFragment { // fragment on FeaturedResources
+  readonly _id: string,
+  readonly title: string,
+  readonly body: string,
+  readonly ctaText: string,
+  readonly ctaUrl: string,
+  readonly expiresAt: Date,
 }
 
 interface TagRelVotes { // fragment on Votes
@@ -1674,6 +1842,18 @@ interface TagRelVotes { // fragment on Votes
 
 interface TagVotingActivity extends TagRelVotes { // fragment on Votes
   readonly tagRel: TagRelFragment|null,
+}
+
+interface UserVotes { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string|null,
+  readonly voteType: string,
+  readonly power: number|null,
+  readonly cancelled: boolean,
+  readonly documentId: string,
+  readonly votedAt: Date|null,
+  readonly isUnvote: boolean,
+  readonly collectionName: string,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -1695,6 +1875,7 @@ interface FragmentTypes {
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
+  LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
@@ -1707,12 +1888,14 @@ interface FragmentTypes {
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
+  PostsReviewVotingList: PostsReviewVotingList
   PostsAuthors: PostsAuthors
   PostsListBase: PostsListBase
   PostsList: PostsList
   PostsListTag: PostsListTag
   PostsDetails: PostsDetails
   PostsExpandedHighlight: PostsExpandedHighlight
+  PostsPlaintextDescription: PostsPlaintextDescription
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
@@ -1766,10 +1949,11 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   reviewVoteFragment: reviewVoteFragment
-  LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
+  reviewVoteWithUserAndPost: reviewVoteWithUserAndPost
   localGroupsBase: localGroupsBase
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsEdit: localGroupsEdit
+  localGroupsIsOnline: localGroupsIsOnline
   ChaptersFragment: ChaptersFragment
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
@@ -1815,10 +1999,14 @@ interface FragmentTypes {
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
   UsersAdmin: UsersAdmin
+  UsersWithReviewInfo: UsersWithReviewInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
+  FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
+  FeaturedResourcesFragment: FeaturedResourcesFragment
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
+  UserVotes: UserVotes
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -1830,6 +2018,7 @@ interface CollectionNamesByFragmentName {
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
   PostRelationsDefaultFragment: "PostRelations"
+  LocalgroupsDefaultFragment: "Localgroups"
   TagRelsDefaultFragment: "TagRels"
   PostsDefaultFragment: "Posts"
   VotesDefaultFragment: "Votes"
@@ -1842,12 +2031,14 @@ interface CollectionNamesByFragmentName {
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
+  PostsReviewVotingList: "Posts"
   PostsAuthors: "Posts"
   PostsListBase: "Posts"
   PostsList: "Posts"
   PostsListTag: "Posts"
   PostsDetails: "Posts"
   PostsExpandedHighlight: "Posts"
+  PostsPlaintextDescription: "Posts"
   PostsRevision: "Posts"
   PostsRevisionEdit: "Posts"
   PostsWithNavigationAndRevision: "Posts"
@@ -1901,10 +2092,11 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   ReviewVotesDefaultFragment: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
-  LocalgroupsDefaultFragment: "Localgroups"
+  reviewVoteWithUserAndPost: "ReviewVotes"
   localGroupsBase: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsEdit: "Localgroups"
+  localGroupsIsOnline: "Localgroups"
   ChaptersFragment: "Chapters"
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
@@ -1950,12 +2142,16 @@ interface CollectionNamesByFragmentName {
   UsersMapEntry: "Users"
   UsersEdit: "Users"
   UsersAdmin: "Users"
+  UsersWithReviewInfo: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
+  FeaturedResourcesDefaultFragment: "FeaturedResources"
+  FeaturedResourcesFragment: "FeaturedResources"
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
+  UserVotes: "Votes"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 

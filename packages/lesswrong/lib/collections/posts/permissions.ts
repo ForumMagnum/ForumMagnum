@@ -4,6 +4,7 @@ import { guestsGroup, membersGroup, adminsGroup, userCanDo, userOwns } from '../
 import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canCommentLockGroup } from '../../permissions';
 import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
+import { userIsPostGroupOrganizer } from './helpers';
 
 const guestsActions = [
   'posts.view.approved'
@@ -33,10 +34,15 @@ adminsGroup.can(adminActions);
 
 // LessWrong Permissions
 
-Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null): Promise<boolean> => {
+Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: ResolverContext|null, outReasonDenied: {reason?: string}): Promise<boolean> => {
+  if (post.onlyVisibleToLoggedIn && !currentUser) {
+    if (outReasonDenied)
+      outReasonDenied.reason = "This post is only visible to logged-in users.";
+    return false;
+  }
   if (userCanDo(currentUser, 'posts.view.all')) {
     return true
-  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post)) {
+  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post)) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;

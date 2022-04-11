@@ -74,7 +74,7 @@ const emailGlobalCss = `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: #5f9b65
+    color: ${forumTypeSetting.get() === 'EAForum' ? '#0C869B' : '#5f9b65'}
   }
   blockquote {
     border-left: solid 3px #e0e0e0;
@@ -152,9 +152,10 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     dangerouslyUseGlobalCSS: true
   });
   
-  // TODO: Keep track of individual users' preferred time zone, and set this
-  // accordingly so that time zones on posts/comments/etc are in that timezone.
-  const timezone = moment.tz.guess();
+  // Use the user's last-used timezone, which is the timezone of their browser
+  // the last time they visited the site. Potentially null, if they haven't
+  // visited since before that feature was implemented.
+  const timezone = user?.lastUsedTimezone || null
   
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>

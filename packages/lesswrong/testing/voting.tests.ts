@@ -2,8 +2,9 @@ import { testStartup } from './testMain';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
-import { createDummyUser, createDummyPost, } from './utils'
+import { createDummyUser, createDummyPost, createDummyComment } from './utils'
 import { Posts } from '../lib/collections/posts'
+import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
@@ -17,7 +18,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
-      await Posts.update(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
+      await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
       const preUpdatePost = await Posts.find({_id: post._id}).fetch();
       await batchUpdateScore({collection: Posts});
       const updatedPost = await Posts.find({_id: post._id}).fetch();
@@ -68,7 +69,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: yesterday})
-      await Posts.update(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
+      await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
@@ -122,6 +123,62 @@ describe('Voting', function() {
 
       (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
       (updatedPost[0].baseScore as any).should.be.equal(2);
+    });
+    describe('twoAxis agreement voting', () => {
+      it('increases agreement score after upvoting', async () => {
+        const user = await createDummyUser();
+        const otherUser = await createDummyUser();
+        const yesterday = new Date().getTime()-(1*24*60*60*1000)
+        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const comment = await createDummyComment(user, {postId: post._id})
+        const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
+        const updatedComment = await Comments.find({_id: comment._id}).fetch();
+  
+        (updatedComment[0].extendedScore.agreement as any).should.be.above(preUpdateComment[0].extendedScore.agreement);
+        (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore) // confirm it doesn't alter regular overall votes
+      });
+      it('decreases agreement score after downvoting', async () => {
+        const user = await createDummyUser();
+        const otherUser = await createDummyUser();
+        const yesterday = new Date().getTime()-(1*24*60*60*1000)
+        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const comment = await createDummyComment(user, {postId: post._id})
+        const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
+        const updatedComment = await Comments.find({_id: comment._id}).fetch();
+  
+        (updatedComment[0].extendedScore.agreement as any).should.be.below(preUpdateComment[0].extendedScore.agreement);
+        (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore)
+      });
+      it('cancels upvote if downvoted after previous upvote', async () => {
+        const user = await createDummyUser();
+        const otherUser = await createDummyUser();
+        const yesterday = new Date().getTime()-(1*24*60*60*1000)
+        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const comment = await createDummyComment(user, {postId: post._id})
+        const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
+        const updatedComment = await Comments.find({_id: comment._id}).fetch();
+
+        (updatedComment[0].extendedScore.agreement as any).should.be.below(preUpdateComment[0].extendedScore.agreement);
+        (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore)
+      });
+      it('cancels downvote if upvoted after previous upvote', async () => {
+        const user = await createDummyUser();
+        const otherUser = await createDummyUser();
+        const yesterday = new Date().getTime()-(1*24*60*60*1000)
+        const post = await createDummyPost(user, {postedAt: yesterday, votingSystem: 'twoAxis'})
+        const comment = await createDummyComment(user, {postId: post._id})
+        const preUpdateComment = await Comments.find({_id: comment._id}).fetch();
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallDownvote'}, collection: Comments, user: otherUser })
+        await performVoteServer({ documentId: comment._id, voteType: 'neutral', extendedVote: { agreement: 'smallUpvote'}, collection: Comments, user: otherUser })
+        const updatedComment = await Comments.find({_id: comment._id}).fetch();
+
+        (updatedComment[0].extendedScore.agreement as any).should.be.above(preUpdateComment[0].extendedScore.agreement);
+        (updatedComment[0].baseScore as any).should.be.equal(preUpdateComment[0].baseScore)
+      });
     });
   })
   describe('getKarmaChanges', () => {

@@ -73,14 +73,16 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   const { LWPopper } = Components
 
   const renderPreview = () => {
-    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
     const parsedPath = parseRouteWithErrors(notification.link)
-
+    if (notification.type == "postNominated") {
+      return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
+    }
     switch (notification.documentType) {
       case 'tagRel':
         return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
       case 'post':
-        return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
+        return <Card><PostsPreviewTooltipSingle postId={notification.documentId}/></Card>
       case 'comment':
         const postId = parsedPath?.params?._id
         if (!postId) return null

@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: -1,
     marginRight: 6
-  }
+  },
 })
 
 const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10" xmlns="http://www.w3.org/2000/svg">
@@ -121,7 +121,8 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
-  const shouldRenderEventsTag = pathname !== communityPath;
+  const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
+    !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
   const url = postLink || postGetPageUrl(post)
   
@@ -146,7 +147,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
       [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
       [classes.adminRead]: read && userHasBoldPostItems(currentUser),
     })}>
-      {curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
+      {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <CuratedIcon/>
       </span>}
       {isLink ? <Link to={url}>{title}</Link> : title }

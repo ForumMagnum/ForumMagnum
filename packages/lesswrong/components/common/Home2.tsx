@@ -1,20 +1,31 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { reviewIsActive } from '../../lib/reviewUtils';
+import { useCurrentUser } from './withUser';
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection } = Components
+
+  const currentUser = useCurrentUser()
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <RecommendationsAndCurated configName="frontpage" />
+
+          {(!reviewIsActive() || !currentUser) && <RecommendationsAndCurated configName="frontpage" />}
+        
+          {reviewIsActive() && currentUser && <SingleColumnSection>
+            <FrontpageReviewWidget />
+          </SingleColumnSection>}
+          
           <AnalyticsInViewTracker
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+
           <AnalyticsContext pageSectionContext="recentDiscussion">
             <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
               <RecentDiscussionFeed

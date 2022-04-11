@@ -1,5 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   spinner: {
@@ -20,6 +21,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       "-webkit-animation": "sk-bouncedelay 1.4s infinite ease-in-out both",
       animation: "sk-bouncedelay 1.4s infinite ease-in-out both",
     },
+  },
+  whiteSpinner: {
+    "& div": {
+      backgroundColor: "white",
+    }
   },
   bounce1: {
     animationDelay: "-0.32s !important",
@@ -44,9 +50,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const Loading = ({classes}: {classes: ClassesType}) => {
+const Loading = ({classes, className, white}: {
+  classes: ClassesType,
+  className?: string,
+  white?: boolean
+}) => {
   return (
-    <div className={`${classes.spinner}`}>
+    <div className={classNames(classes.spinner, className, {[classes.whiteSpinner]: white})}>
       <div className={classes.bounce1}></div>
       <div className={classes.bounce2}></div>
       <div className={classes.bounce3}></div>

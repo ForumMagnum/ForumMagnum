@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
 import DateTimePicker from 'react-datetime';
+import moment from '../../lib/moment-timezone';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
@@ -19,19 +20,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .rdtPicker': {
       bottom: 30,
     }
+  },
+  timezone: {
+    marginLeft: 4
   }
 })
 
 
 const FormComponentDateTime = ({ path, value, name, label, classes, position }, context) => {
-  const updateDate = (date) => {
-    context.updateCurrentValues({[path]: date});
+  const updateDate = (date: Date | undefined) => {
+    if (date) context.updateCurrentValues({[path]: date})
   }
 
   const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
+  // since tz abbrev can depend on the date (i.e. EST vs EDT),
+  // we try to use the selected date to determine the tz (and default to now)
+  const tzDate = date ? moment(date) : moment();
 
   return <FormControl>
-    <InputLabel className={classes.label}>{ label }</InputLabel>
+    <InputLabel className={classes.label}>
+      { label } <span className={classes.timezone}>({tzDate.tz(moment.tz.guess()).zoneAbbr()})</span>
+    </InputLabel>
     <DateTimePicker
       className={classes.wrapper}
       value={date}

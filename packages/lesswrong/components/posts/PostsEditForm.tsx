@@ -11,6 +11,7 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
 
 const PostsEditForm = ({ documentId, eventForm, classes }: {
   documentId: string,
@@ -29,7 +30,7 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
   const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
   const EditPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
@@ -45,10 +46,35 @@ const PostsEditForm = ({ documentId, eventForm, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
-
+  
+  function isCollaborative(post): boolean {
+    if (!post) return false;
+    if (!post._id) return false;
+    if (post?.shareWithUsers) return true;
+    if (post?.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+      return true;
+    return false;
+  }
+  
+  
+  if (
+    !testServerSetting.get() &&
+    isCollaborative(document) &&
+    ['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
+  ) {
+    return <Components.SingleColumnSection>
+      <p>This post has experimental collaborative editing enabled.</p>
+      <p>It can only be edited on the development server.</p>
+      <a className={classes.collaborativeRedirectLink} href={`https://www.lessestwrong.com/editPost?postId=${document?._id}`}>
+        <h1>EDIT THE POST HERE</h1>
+      </a>     
+    </Components.SingleColumnSection>
+  }
+      
   
   return (
     <div className={classes.postForm}>
+      <HeadTags title={document?.title} />
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}
@@ -93,4 +119,3 @@ declare global {
     PostsEditForm: typeof PostsEditFormComponent
   }
 }
-

@@ -9,7 +9,8 @@ import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
 import { getCollectionHooks } from '../mutationCallbacks';
-import { postsUndraftNotification, postPublishedCallback } from '../notificationCallbacks';
+import { postPublishedCallback } from '../notificationCallbacks';
+import moment from 'moment';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -18,12 +19,6 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
     data = postsSetPostedAt(data);
   }
   return data;
-});
-
-getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
-  if (!newPost.draft && oldPost.draft) {
-    void postsUndraftNotification(newPost);
-  }
 });
 
 // set postedAt when a post is moved out of drafts
@@ -49,7 +44,7 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       if (!post.scoreExceeded75Date && post.baseScore >= 75) {
         thresholdTimestamp.scoreExceeded75Date = new Date();
       }
-      await Posts.update({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
+      await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
 });
@@ -121,7 +116,7 @@ getCollectionHooks("Posts").newAfter.add(function PostsNewPostRelation (post) {
 getCollectionHooks("Posts").editAsync.add(async function UpdatePostShortform (newPost, oldPost) {
   if (!!newPost.shortform !== !!oldPost.shortform) {
     const shortform = !!newPost.shortform;
-    await Comments.update(
+    await Comments.rawUpdateMany(
       { postId: newPost._id },
       { $set: {
         shortform: shortform
@@ -154,7 +149,7 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
 export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment) {
   const author = await Users.findOne(document.userId);
   if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
-    await Users.update({_id:author._id}, {$set:{needsReview: true}})
+    await Users.rawUpdateOne({_id:author._id}, {$set:{needsReview: true}})
   }
   return document
 }
@@ -167,14 +162,18 @@ getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
 });
 
 getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
-  // Is this a non-draft post that was awaiting moderator review, which just got
-  // approved?
-  if (!newPost.draft && oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed) {
-    await postPublishedCallback.runCallbacksAsync([newPost]);
-  }
+  // ignore draft posts
+  if (newPost.draft) return
+
   // Is this a post being undrafted?
-  if (!newPost.draft && oldPost.draft) {
+  if (oldPost.draft) {
     await newDocumentMaybeTriggerReview(newPost)
+  }
+  
+  // if the post author is already approved and the post is getting undrafted,
+  // or the post author is getting approved,
+  // then we consider this "publishing" the post
+  if ((oldPost.draft && !newPost.authorIsUnreviewed) || (oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed)) {
     await postPublishedCallback.runCallbacksAsync([newPost]);
   }
 });
@@ -197,7 +196,7 @@ async function extractSocialPreviewImage (post: DbPost) {
   // returned value
   // It's important to run this regardless of whether or not we found an image,
   // as removing an image should remove the social preview for that image
-  await Posts.update({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
+  await Posts.rawUpdateOne({ _id: post._id }, {$set: { socialPreviewImageAutoUrl }})
   
   return {...post, socialPreviewImageAutoUrl}
   
@@ -214,7 +213,50 @@ getCollectionHooks("Posts").newAfter.add(extractSocialPreviewImage)
 async function oldPostsLastCommentedAt (post: DbPost) {
   if (post.commentCount) return
 
-  await Posts.update({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
+  await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
 }
 
 getCollectionHooks("Posts").editAsync.add(oldPostsLastCommentedAt)
+
+getCollectionHooks("Posts").newSync.add(async function FixEventStartAndEndTimes(post: DbPost): Promise<DbPost> {
+  // make sure courses/programs have no end time
+  // (we don't want them listed for the length of the course, just until the application deadline / start time)
+  if (post.eventType === 'course') {
+    return {
+      ...post,
+      endTime: null
+    }
+  }
+
+  // If the post has an end time but no start time, move the time given to the startTime
+  // slot, and leave the end time blank
+  if (post?.endTime && !post?.startTime) {
+    return {
+      ...post,
+      startTime: post.endTime,
+      endTime: null,
+    };
+  }
+  
+  // If both start time and end time are given but they're swapped, swap them to
+  // the right order
+  if (post.startTime && post.endTime && moment(post.startTime).isAfter(post.endTime)) {
+    return {
+      ...post,
+      startTime: post.endTime,
+      endTime: post.startTime,
+    };
+  }
+  
+  return post;
+});
+
+getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modifier: MongoModifier<DbPost>, post: DbPost): Promise<MongoModifier<DbPost>> {
+  // make sure courses/programs have no end time
+  // (we don't want them listed for the length of the course, just until the application deadline / start time)
+  if (post.eventType === 'course') {
+    modifier.$set.endTime = null;
+  }
+  
+  return modifier
+})

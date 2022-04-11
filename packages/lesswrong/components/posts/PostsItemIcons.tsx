@@ -84,7 +84,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon}: {
       </LWTooltip>
     </span>}
 
-    {!post.frontpageDate && <span className={classes.postIcon}>
+    {!post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
         <PersonIcon className={classes.icon}/>
       </LWTooltip>

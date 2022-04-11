@@ -11,6 +11,7 @@ import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -91,10 +92,10 @@ const notificationTypeSettingsField = (overrideSettings?: any) => ({
   type: notificationTypeSettings,
   optional: true,
   group: formGroups.notifications,
-  control: "NotificationTypeSettings",
-  canRead: [userOwns, 'admins'],
-  canUpdate: [userOwns, 'admins'],
-  canCreate: ['members', 'admins'],
+  control: "NotificationTypeSettings" as keyof ComponentTypes,
+  canRead: [userOwns, 'admins'] as FieldPermissions,
+  canUpdate: [userOwns, 'admins'] as FieldPermissions,
+  canCreate: ['members', 'admins'] as FieldCreatePermissions,
   ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
@@ -314,6 +315,14 @@ addFieldsDict(Users, {
     canCreate: 'guests',
     hidden: true,
   },
+  allPostsIncludeEvents: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   allPostsOpenSettings: {
     type: Boolean,
     optional: true,
@@ -344,7 +353,7 @@ addFieldsDict(Users, {
     order: 40,
     form: {
       hintText:"Bio",
-      rows:4,
+      rows: 12,
       multiLine:true,
       fullWidth:true,
     },
@@ -360,6 +369,12 @@ addFieldsDict(Users, {
 
   // Karma field
   karma: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+  },
+
+  goodHeartTokens: {
     type: Number,
     optional: true,
     canRead: ['guests'],
@@ -404,7 +419,7 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
-    label: "I'm happy for LW site moderators to help enforce my policy",
+    label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -685,6 +700,17 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationGroupAdministration: {
+    label: "Group administration notifications",
+    hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationPostsNominatedReview: {
+    label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
+    // Hide this while review is inactive
+    hidden: true,
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
@@ -830,6 +856,7 @@ addFieldsDict(Users, {
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (user) => {
         if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
+        return null
       }
     }),
   },
@@ -979,12 +1006,25 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageBookAd: {
+    // this was for the 2018 book, no longer relevant
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    // canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 46,
+    hidden: forumTypeSetting.get() === "EAForum",
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
+  hideFrontpageBook2019Ad: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    order: 46,
+    order: 47,
     hidden: forumTypeSetting.get() === "EAForum",
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
@@ -1265,6 +1305,25 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: true
   },
+  reviewVoteCount:resolverOnlyField({
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    resolver: async (document, args, context: ResolverContext) => {
+      const { ReviewVotes } = context;
+      const voteCount = await ReviewVotes.find({
+        userId: document._id,
+        year: REVIEW_YEAR+""
+      }).count();
+      return voteCount
+    }
+  }),
+  reviewVotesQuadratic2020: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
   petrovPressedButtonDate: {
     type: Date,
     optional: true,
@@ -1458,7 +1517,25 @@ addFieldsDict(Users, {
     hidden: true,
     canUpdate: ['sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
-  }
+  },
+  paymentEmail: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    label: "Payment Contact Email",
+    tooltip: "An email you'll definitely check where you can receive information about receiving payments",
+    group: formGroups.paymentInfo,
+  },
+  paymentInfo: {
+    type: String,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    label: "PayPal Info",
+    tooltip: "Your PayPal account info, for sending small payments",
+    group: formGroups.paymentInfo,
+  },
 });
 
 makeEditable({

@@ -16,7 +16,7 @@ addCronJob({
     // update posts found
     if (!_.isEmpty(postsToUpdate)) {
       const postsIds = _.pluck(postsToUpdate, '_id');
-      await Posts.update({_id: {$in: postsIds}}, {$set: {isFuture: false}}, {multi: true});
+      await Posts.rawUpdateMany({_id: {$in: postsIds}}, {$set: {isFuture: false}}, {multi: true});
 
       // log the action
       console.log('// Scheduled posts approved:', postsIds); // eslint-disable-line

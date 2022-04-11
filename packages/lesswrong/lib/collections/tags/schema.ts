@@ -7,6 +7,7 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -19,7 +20,7 @@ const formGroups: Partial<Record<string,FormGroup>> = {
 
 addGraphQLSchema(`
   type TagContributor {
-    user: User!
+    user: User
     contributionScore: Int!
     numCommits: Int!
     voteCount: Int!
@@ -250,6 +251,20 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  
+  // Cloudinary image id for the banner image (high resolution)
+  bannerImageId: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Banner Image",
+    control: "ImageUpload",
+    tooltip: "Minimum 200x600 px",
+    group: formGroups.advancedOptions,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+  },
 
   tagFlagsIds: {
     ...arrayOfForeignKeysField({
@@ -370,6 +385,21 @@ export const schema: SchemaType<DbTag> = {
     hidden: true,
     viewableBy: ['guests'],
     denormalized: true,
+  },
+  
+  introSequenceId: {
+    ...foreignKeyField({
+      idFieldName: "introSequenceId",
+      resolverName: "sequence",
+      collectionName: "Sequences",
+      type: "Sequence",
+      nullable: true,
+    }),
+    optional: true,
+    group: formGroups.advancedOptions,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
   },
 }
 

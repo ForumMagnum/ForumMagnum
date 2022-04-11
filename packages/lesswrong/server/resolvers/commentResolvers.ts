@@ -12,11 +12,11 @@ const specificResolvers = {
       const {currentUser} = context;
       const comment = await context.Comments.findOne(commentId)
       if (!comment) throw new Error("Invalid commentId");
-      const post = comment.postId && await context.Posts.findOne(comment.postId)
-      if (!post) throw new Error("Cannot find post");
+      const post = comment.postId ? await context.Posts.findOne(comment.postId) : null;
+      const tag = comment.tagId ? await context.Tags.findOne(comment.tagId) : null;
       
-      if (currentUser && userCanModerateComment(currentUser, post, comment)) {
-
+      if (currentUser && userCanModerateComment(currentUser, post, tag, comment))
+      {
         let set: Record<string,any> = {deleted: deleted}
         if (deleted) {
           set.deletedPublic = deletedPublic;
@@ -30,7 +30,7 @@ const specificResolvers = {
           set.deletedByUserId = null;
         }
         let modifier = { $set: set };
-        await context.Comments.update({_id: commentId}, modifier);
+        await context.Comments.rawUpdateOne({_id: commentId}, modifier);
         const updatedComment = await context.Comments.findOne(commentId)
         await moderateCommentsPostUpdate(updatedComment!, currentUser);
         return await accessFilterSingle(context.currentUser, context.Comments, updatedComment, context);
