@@ -10,8 +10,6 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import classNames from 'classnames';
 import type { VotingProps } from './withVote';
-import FavoriteIcon from '@material-ui/icons/Favorite'
-import { goodHeartStartDate } from '../seasonal/AprilFools2022';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -49,29 +47,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipHelp: {
     fontSize: '1rem',
     fontStyle: "italic"
-  },
-  goodHeartScoreWrapper: {
-    position: "relative",
-    width: 45,
-    display: "inline-block",
-    textAlign: "center"
-  },
-  goodHeartIcon: {
-    height: 45,
-    width: 45,
-    opacity: .35,
-    left:0,
-    top:-9,
-    position: "absolute",
-    color: theme.palette.icon.dim6,
-    
   }
 })
-
-const isPostOrComment = (document: VoteableTypeClient) : document is (PostsDetails | CommentsList) => {
-  if ((document as any)?.postedAt) return true 
-  return false
-}
 
 const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
   document: VoteableTypeClient,
@@ -114,8 +91,6 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
     </div>
   )
 
-  const goodHeart = isPostOrComment(document) && new Date(document.postedAt) > goodHeartStartDate
-
   return (
     <span className={classes.vote} {...eventHandlers}>
       {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
@@ -150,27 +125,16 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
               {...voteProps}
             />
           </LWTooltip>
-          {/* regular voting UI, disabled during April Fools */}
-          {hideKarma && <LWTooltip title={'The author of this post has disabled karma visibility'}>
+          {hideKarma ?
+            <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
-            </LWTooltip>}
-          
-          {!hideKarma && !goodHeart && <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-                  <span className={classes.voteScore}>
-                    {karma} 
-                  </span>
-              </LWTooltip> 
-          }
-
-          {!hideKarma && goodHeart && <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> Good Heart Tokens ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-              <span className={classes.goodHeartScoreWrapper}>
-                <span className={classes.voteScore}>
-                  ${karma} 
-                </span>
-                <FavoriteIcon className={classes.goodHeartIcon}/>
+            </LWTooltip> :
+            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+              <span className={classes.voteScore}>
+                {karma}
               </span>
-            </LWTooltip>}
-
+            </LWTooltip>
+          }
           <LWTooltip
             title={<div><b>Overall Karma: upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"

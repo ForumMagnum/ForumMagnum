@@ -10,8 +10,6 @@ import { BookIcon } from '../icons/bookIcon'
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useMulti } from '../../lib/crud/withMulti';
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
@@ -39,45 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit,
     lineHeight: "1.3rem",
   },
-  
-  orange: {
-    color: theme.palette.text.aprilFools.orange,
-  },
-  yellow: {
-    color: theme.palette.text.aprilFools.yellow,
-  },
-  green: {
-    color: theme.palette.text.aprilFools.green,
-  },
 })
-
-const getRankColorAndDescription = (goodHeartRank: number, classes: ClassesType): {
-  rankClass?: string,
-  rankDescription?: React.ReactNode,
-} => {
-  if (goodHeartRank === -1) {
-    return {}
-  }
-  if (goodHeartRank >= 0 && goodHeartRank < 5) {
-    return {
-      rankClass: classes.orange,
-      rankDescription: <p>This user has the goodest of hearts</p>
-    }
-  }
-  if (goodHeartRank >= 5 && goodHeartRank < 10) {
-    return {
-      rankClass: classes.yellow,
-      rankDescription: <p>This user has a good heart</p>
-    }
-  }
-  if (goodHeartRank >= 10 && goodHeartRank < 15) {
-    return {
-      rankClass: classes.green,
-      rankDescription: <p>This user has a kinda good heart</p>
-    }
-  }
-  return {}
-}
 
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
@@ -91,22 +51,11 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
 }) => {
   const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
 
-  const {results} = useMulti({
-    terms: {view: 'usersByGoodHeartTokens'},
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
-    limit: 15,
-  });
-
   if (!user || user.deleted) {
     return <Components.UserNameDeleted/>
   }
   const { FormatDate, LWTooltip } = Components
   const { htmlBio } = user
-
-  const goodHeartRank = results && results.findIndex(u => u._id === user._id)
-  const {rankClass="", rankDescription=<></>} = getRankColorAndDescription(goodHeartRank, classes)
 
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = userGetPostCount(user)
@@ -123,7 +72,6 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comment{commentCount !== 1 && 's'}</div>}
     { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } wiki contribution{wikiContributionCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
-    {rankDescription}
   </span>
 
   if (simple) {
@@ -133,7 +81,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
   return <span {...eventHandlers} className={className}>
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
-      <Link to={userGetProfileUrl(user)} className={classNames(classes.userName, rankClass)}
+      <Link to={userGetProfileUrl(user)} className={classes.userName}
         {...(nofollow ? {rel:"nofollow"} : {})}
       >
         {userGetDisplayName(user)}
