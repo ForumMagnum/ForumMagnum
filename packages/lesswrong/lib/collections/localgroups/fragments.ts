@@ -15,6 +15,7 @@ registerFragment(`
     googleLocation
     mongoLocation
     types
+    categories
     contactInfo
     facebookLink
     facebookPageLink

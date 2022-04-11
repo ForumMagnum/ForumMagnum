@@ -550,6 +550,7 @@ importComponent("FormComponentRadioGroup", () => require('../components/form-com
 importComponent("SectionFooterCheckbox", () => require('../components/form-components/SectionFooterCheckbox'));
 importComponent("FormComponentDefault", () => require('../components/form-components/FormComponentDefault'));
 importComponent("FormComponentSelect", () => require('../components/form-components/FormComponentSelect'));
+importComponent("FormComponentMultiSelect", () => require('../components/form-components/FormComponentMultiSelect'));
 importComponent("FormComponentDate", () => require('../components/form-components/FormComponentDate'));
 importComponent("FormComponentDateTime", () => require('../components/form-components/FormComponentDateTime'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
@@ -562,7 +563,7 @@ importComponent("PetrovDayWrapper", () => require('../components/seasonal/Petrov
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
-importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
+// importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
 
 
 importComponent("AFApplicationForm", () => require('../components/alignment-forum/AFApplicationForm'));
