@@ -17,6 +17,8 @@ import * as _ from 'underscore';
 import { createMutator } from './vulcan-lib/mutators';
 import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
+import { getSiteUrl } from '../lib/vulcan-lib/utils';
+import Localgroups from '../lib/collections/localgroups/collection';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
@@ -141,7 +143,9 @@ const getDocument = async (documentType: string|null, documentId: string|null) =
       return await Users.findOne(documentId);
     case "message":
       return await Messages.findOne(documentId);
-    case "tagRel": 
+    case "localgroup":
+      return await Localgroups.findOne(documentId);
+    case "tagRel":
       return await TagRels.findOne(documentId)
     default:
       //eslint-disable-next-line no-console
@@ -174,6 +178,8 @@ const getLink = async (notificationTypeName: string, documentType: string|null, 
       return userGetProfileUrl(document as DbUser);
     case "message":
       return messageGetLink(document as DbMessage);
+    case "localgroup":
+      return `/groups/${documentId}`
     case "tagRel":
       const post = await Posts.findOne({_id: (document as DbTagRel).postId})
       return postGetPageUrl(post as DbPost);

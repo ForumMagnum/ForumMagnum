@@ -10,11 +10,6 @@ import { BookIcon } from '../icons/bookIcon'
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useMulti } from '../../lib/crud/withMulti';
-import deepOrange from '@material-ui/core/colors/deepOrange';
-import yellow from '@material-ui/core/colors/yellow';
-import green from '@material-ui/core/colors/green';
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
@@ -44,14 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const getRankColorAndDescription = (goodHeartRank) => {
-  if (goodHeartRank === -1) { return {}}
-  if (goodHeartRank >= 0 && goodHeartRank < 5) { return {rankColor : deepOrange[700], rankDescription :<p>This user has the goodest of hearts</p>}}
-  if (goodHeartRank >= 5 && goodHeartRank < 10) { return {rankColor : yellow[900], rankDescription : <p>This user has a good heart</p>}}
-  if (goodHeartRank >= 10 && goodHeartRank < 15) { return {rankColor : green[900], rankDescription : <p>This user has a kinda good heart</p>}}
-  return {}
-}
-
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
 const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipPlacement = "left", className}: {
@@ -64,22 +51,11 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
 }) => {
   const {eventHandlers} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
 
-  const {results} = useMulti({
-    terms: {view: 'usersByGoodHeartTokens'},
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
-    limit: 15,
-  });
-
   if (!user || user.deleted) {
     return <Components.UserNameDeleted/>
   }
   const { FormatDate, LWTooltip } = Components
   const { htmlBio } = user
-
-  const goodHeartRank = results && results.findIndex(u => u._id === user._id)
-  const {rankColor = "", rankDescription = <></>} = getRankColorAndDescription(goodHeartRank)
 
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = userGetPostCount(user)
@@ -96,7 +72,6 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comment{commentCount !== 1 && 's'}</div>}
     { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } wiki contribution{wikiContributionCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
-    {rankDescription}
   </span>
 
   if (simple) {
@@ -108,7 +83,6 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}
           {...(nofollow ? {rel:"nofollow"} : {})}
-          style={{color:rankColor}}
         >
         {userGetDisplayName(user)}
       </Link>
