@@ -9,7 +9,7 @@ import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
