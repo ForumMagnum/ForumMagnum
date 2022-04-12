@@ -68,7 +68,13 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   } else if (loading) {
     return <Components.Loading/>
   } else {
-    return <div className={classes.empty}> You don't have any notifications yet!</div>
+    const modifier =
+        (terms.type === undefined) ? (<></>)
+      : (terms.type === 'newPost') ? (<b>new post</b>)
+      : (terms.type === 'newComment') ? (<b>new comment</b>)
+      : (terms.type === 'newMessage') ? (<b>new message</b>)
+      : "of these";
+    return <div className={classes.empty}> You don't have any {modifier} notifications yet!</div>
   }
 }
 
