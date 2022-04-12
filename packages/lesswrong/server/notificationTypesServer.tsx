@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { makeAbsolute } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -21,7 +21,6 @@ import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
-import { capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 
 interface ServerNotificationType {
