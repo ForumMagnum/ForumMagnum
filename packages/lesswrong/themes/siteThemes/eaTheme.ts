@@ -40,9 +40,12 @@ export const eaForumTheme: SiteThemeSpecification = {
     primary: {
       main: '#0c869b',
       light: '#00b2be',
+      dark: '#085d6c'
     },
     secondary: {
       main: '#0c869b',
+      light: '#00b2be',
+      dark: '#085d6c'
     },
     lwTertiary: {
       main: "#137283",
@@ -52,7 +55,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       main: "bf360c",
     },
     background: {
-      default: '#f6f8f9'
+      default: '#f6f8f9' // TODO: why is this slightly different from LW? need to figure out what to do for dark mode
     },
     header: {
       text: "rgba(0,0,0,.87)",
