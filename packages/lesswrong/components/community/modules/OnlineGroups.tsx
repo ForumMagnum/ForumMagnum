@@ -1,12 +1,11 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import LinkIcon from '@material-ui/icons/Link';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
-import { FacebookIcon, SlackIcon } from '../../localGroups/GroupLinks';
+import Button from '@material-ui/core/Button';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -23,6 +22,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventsLink: {
     color: theme.palette.primary.main,
+  },
+  includeInactiveBtn: {
+    textTransform: 'none',
+    fontSize: 14,
   },
   onlineGroups: {
     marginTop: 20,
@@ -124,12 +127,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     padding: '10px 14px',
     borderRadius: 4,
   },
+  postGroupsCTA: {
+    textAlign: 'center',
+    padding: 20
+  },
 }))
 
 
-const OnlineGroups = ({keywordSearch, includeInactive, classes}: {
+const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   includeInactive: boolean,
+  toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType,
 }) => {
   const { CloudinaryImage2 } = Components
@@ -156,9 +164,11 @@ const OnlineGroups = ({keywordSearch, includeInactive, classes}: {
     return <div className={classes.noResults}>
       <div className={classes.noResultsText}>No online groups matching your search</div>
       <div className={classes.noResultsCTA}>
-        <Link to={'/events'} className={classes.eventsLink}>
-          Find an online event
-        </Link>
+        {includeInactive ? <Link to={'/events'} className={classes.eventsLink}>
+            Find an online event
+          </Link> : <Button color="primary" onClick={toggleIncludeInactive} className={classes.includeInactiveBtn}>
+            Search inactive groups
+          </Button>}
       </div>
     </div>
   }
@@ -197,6 +207,11 @@ const OnlineGroups = ({keywordSearch, includeInactive, classes}: {
             </div>
           </div>
         })}
+        {!includeInactive && <div className={classes.postGroupsCTA}>
+          <Button color="primary" onClick={toggleIncludeInactive} className={classes.includeInactiveBtn}>
+            Search inactive groups
+          </Button>
+        </div>}
       </div>
     </div>
   )

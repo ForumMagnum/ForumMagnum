@@ -25,6 +25,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import Chip from '@material-ui/core/Chip';
 
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -66,7 +67,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     columnGap: 10,
     rowGap: '15px',
     minHeight: 47,
-    marginTop: 10,
+    marginTop: 15,
     '@media (max-width: 1200px)': {
       padding: '0 20px',
     },
@@ -74,11 +75,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       padding: '0 6px',
     },
   },
-  moreSearchFilters: {
-    marginTop: 0,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 10
-    },
+  activeFilterChip: {
+    marginTop: 5
   },
   keywordSearch: {
     maxWidth: '100%',
@@ -422,15 +420,17 @@ const Community = ({classes}: {
               </Button>
             </div>
           </div>
-          <div className={classNames(classes.filtersRow, classes.moreSearchFilters)}>
-            <FormControlLabel
-              control={<Checkbox checked={includeInactive} onChange={handleToggleIncludeInactive} />}
-              label="Include inactive groups"
-              className={classes.inactiveGroups}
-            />
-          </div>
+          {includeInactive && <div className={classes.filtersRow}>
+            <Chip variant="outlined" color="primary" label="Include inactive groups" onDelete={handleToggleIncludeInactive} className={classes.activeFilterChip} />
+          </div>}
           
-          <LocalGroups keywordSearch={keywordSearch} userLocation={userLocation} distanceUnit={distanceUnit} includeInactive={includeInactive}/>
+          <LocalGroups
+            keywordSearch={keywordSearch}
+            userLocation={userLocation}
+            distanceUnit={distanceUnit}
+            includeInactive={includeInactive}
+            toggleIncludeInactive={handleToggleIncludeInactive}
+          />
           
           <div className={classes.localGroupsBtns}>
             <Button href="https://resources.eagroups.org/"
@@ -447,6 +447,10 @@ const Community = ({classes}: {
             </Button>
           </div>
           
+          <div className={classes.eventsPageLinkRow}>
+            <div className={classes.eventsPagePrompt}>Want to see what's happening now?</div>
+            <Link to="/events" className={classes.eventsPageLink}>Explore all upcoming events</Link>
+          </div>
         </div>}
         
         {tab === 'online' && <div key="online">
@@ -461,21 +465,12 @@ const Community = ({classes}: {
               />
             </div>
           </div>
-          <div className={classNames(classes.filtersRow, classes.moreSearchFilters)}>
-            <FormControlLabel
-              control={<Checkbox checked={includeInactive} onChange={handleToggleIncludeInactive} />}
-              label="Include inactive groups"
-              className={classes.inactiveGroups}
-            />
-          </div>
+          {includeInactive && <div className={classes.filtersRow}>
+            <Chip variant="outlined" color="primary" label="Include inactive groups" onDelete={handleToggleIncludeInactive} className={classes.activeFilterChip} />
+          </div>}
           
-          <OnlineGroups keywordSearch={keywordSearch} includeInactive={includeInactive}/>
+          <OnlineGroups keywordSearch={keywordSearch} includeInactive={includeInactive} toggleIncludeInactive={handleToggleIncludeInactive} />
         </div>}
-        
-        <div className={classes.eventsPageLinkRow}>
-          <div className={classes.eventsPagePrompt}>Want to see what's happening now?</div>
-          <Link to="/events" className={classes.eventsPageLink}>Explore all upcoming events</Link>
-        </div>
         
         {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
           <GroupFormLink isOnline={tab === 'online'} />
