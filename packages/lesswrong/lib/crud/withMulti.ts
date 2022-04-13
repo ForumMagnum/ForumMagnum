@@ -287,7 +287,6 @@ export function useMulti<
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  // TODO: Should be nullable
   results: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
@@ -390,8 +389,8 @@ export function useMulti<
     hidden: !showLoadMore,
   };
   
-  let results = data?.[resolverName]?.results;
-  if (results && results.length > limit) {
+  let results = data?.[resolverName]?.results ?? [];
+  if (results.length > limit) {
     results = _.take(results, limit);
   }
   
