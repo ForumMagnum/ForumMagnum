@@ -297,12 +297,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
       subItem: true,
     }, {
-      id: 'takeAction',
-      title: 'Take Action',
-      link: '/tag/take-action',
-      iconComponent: PlaylistAddCheck,
-      tooltip: "Opportunities to get involved with impactful work",
-    }, {
       id: 'events',
       title: 'Events',
       link: '/events',
@@ -321,6 +315,21 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: 'Join a group near you or meet others online',
       showOnMobileStandalone: false,
       showOnCompressed: true
+    }, {
+      id: 'local-groups',
+      title: 'Local Groups',
+      link: '/community',
+      subItem: true,
+    }, {
+      id: 'online-groups',
+      title: 'Online Groups',
+      link: '/community#online',
+      subItem: true,
+    }, {
+      id: 'community-members',
+      title: 'Community Members',
+      link: '/community#individuals',
+      subItem: true,
     }, {
       id: 'divider',
       divider: true,

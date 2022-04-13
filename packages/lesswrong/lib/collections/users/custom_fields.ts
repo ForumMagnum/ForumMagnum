@@ -896,6 +896,20 @@ addFieldsDict(Users, {
     optional: true,
     order: 43,
   },
+  
+  mapMongoLocation: {
+    type: Object,
+    canRead: ['guests'],
+    blackbox: true,
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('mapLocation' in data),
+      getValue: async (user) => {
+        if (user.mapLocation) return googleLocationToMongoLocation(user.mapLocation)
+        return null
+      }
+    }),
+  },
 
   mapLocationSet: {
     type: Boolean,

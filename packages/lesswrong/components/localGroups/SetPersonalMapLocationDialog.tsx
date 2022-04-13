@@ -20,8 +20,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   ...sharedStyles(theme),
 }))
 
-const SetPersonalMapLocationDialog = ({ onClose, classes }: {
+const SetPersonalMapLocationDialog = ({ onClose, onSubmit, classes }: {
   onClose: ()=>void,
+  onSubmit?: ()=>void,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -62,8 +63,8 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
             initialValue={label}
           /> : <Loading/>}
         </div>
-        <TextField
-            label={`Description${isEAForum ? '' : ' (Make sure to mention whether you want to organize events)'}`}
+        {!isEAForum && <TextField
+            label={`Description (Make sure to mention whether you want to organize events)}`}
             className={classes.modalTextField}
             value={mapText}
             onChange={e => setMapText(e.target.value)}
@@ -71,16 +72,18 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
             multiline
             rows={4}
             rowsMax={100}
-          />
+          />}
         <DialogActions className={classes.actions}>
           {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({mapLocation: null})
+            if (onSubmit) onSubmit()
             onClose()
           }}>
             Remove me from the map
           </a>}
           <a className={classes.submitButton} onClick={()=>{
             void updateCurrentUser({mapLocation: location, mapMarkerText: mapText})
+            if (onSubmit) onSubmit()
             onClose()
           }}>
             Submit

@@ -1752,6 +1752,8 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly location: string,
+  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly mapMongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly reviewedByUserId: string,
   readonly reviewForAlignmentForumUserId: string,
   readonly groups: Array<string>,

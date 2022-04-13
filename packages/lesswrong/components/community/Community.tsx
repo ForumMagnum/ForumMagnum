@@ -126,7 +126,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginRight: 6
   },
   tabs: {
-    marginBottom: 40,
+    maxWidth: 634,
+    margin: '0 auto 40px',
     '& .MuiTab-labelContainer': {
       fontSize: '1rem'
     }
@@ -196,7 +197,7 @@ const Community = ({classes}: {
   const { location } = useLocation();
   const { captureEvent } = useTracking();
   
-  // local or online
+  // local, online, or individuals
   const [tab, setTab] = useState('local')
   const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
   const [keywordSearch, setKeywordSearch] = useState('')
@@ -205,6 +206,8 @@ const Community = ({classes}: {
     // unfortunately the hash is unavailable on the server, so we check it here instead
     if (location.hash === '#online') {
       setTab('online')
+    } else if (location.hash === '#individuals') {
+      setTab('individuals')
     }
     //No exhaustive deps because this is supposed to run only on mount
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -309,7 +312,13 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityBanner, LocalGroups, OnlineGroups, GroupFormLink, DistanceUnitToggle } = Components
+  const openSetPersonalLocationForm = () => {
+    openDialog({
+      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
+    });
+  }
+  
+  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink, DistanceUnitToggle } = Components
   
   const handleChangeTab = (e, value) => {
     setTab(value)
@@ -347,9 +356,10 @@ const Community = ({classes}: {
       <CommunityBanner />
 
       <div className={classes.section}>
-        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} centered aria-label='view local or online groups'>
+        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} scrollable aria-label='view local or online groups, or individual community members'>
           <Tab label="Local Groups" value="local" />
           <Tab label="Online Groups" value="online" />
+          <Tab label="Community Members" value="individuals" />
         </Tabs>
         
         {tab === 'local' && <div key="local">
@@ -426,6 +436,54 @@ const Community = ({classes}: {
           </div>
           <OnlineGroups keywordSearch={keywordSearch} />
         </div>}
+        
+        {tab === 'individuals' && <div key="individuals">
+          <div className={classes.filters}>
+            {/* <div className={classes.keywordSearch}>
+              <OutlinedInput
+                labelWidth={0}
+                startAdornment={<Search className={classes.searchIcon}/>}
+                placeholder="Search people"
+                onChange={handleKeywordSearch}
+                className={classes.keywordSearchInput}
+              />
+            </div> */}
+
+            <div>
+              <div className={classes.where}>
+                <span className={classes.whereTextDesktop}>People near</span>
+                <span className={classes.whereTextMobile}>Near</span>
+                {mapsLoaded
+                  && <div className={classes.geoSuggest}>
+                      <Geosuggest
+                        placeholder="search for a location"
+                        onSuggestSelect={(suggestion) => {
+                          if (suggestion?.location) {
+                            saveUserLocation({
+                              ...suggestion.location,
+                              gmaps: suggestion.gmaps
+                            })
+                          }
+                        }}
+                        initialValue={userLocation?.label}
+                      />
+                    </div>
+                }
+              </div>
+              {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} />}
+            </div>
+          </div>
+          
+          <CommunityMembers keywordSearch={keywordSearch} userLocation={userLocation} distanceUnit={distanceUnit} currentUser={currentUser} />
+          
+          {/* <div className={classes.localGroupsBtns}>
+            <Button variant="outlined" color="primary" className={classes.localGroupsBtn} onClick={openSetPersonalLocationForm}>
+              {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
+            </Button>
+          </div> */}
+          
+        </div>}
+        
         
         <div className={classes.eventsPageLinkRow}>
           <div className={classes.eventsPagePrompt}>Want to see what's happening now?</div>
