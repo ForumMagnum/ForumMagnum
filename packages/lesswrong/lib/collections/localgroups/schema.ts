@@ -99,6 +99,7 @@ const schema: SchemaType<DbLocalgroup> = {
   
   categories: {
     type: Array,
+    optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
