@@ -1,18 +1,28 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../../common/withUser';
-import { useDialog } from '../../common/withDialog';
-import Button from '@material-ui/core/Button';
 import { getSearchClient } from '../../../lib/algoliaUtil';
-import { Configure, connectSearchBox, Hits, InstantSearch, SearchBox } from 'react-instantsearch-dom';
+import { Configure, connectSearchBox, Hits, InstantSearch } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
+  filters: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+    columnGap: 10,
+    rowGap: '20px',
+    marginTop: 10,
+    '@media (max-width: 1200px)': {
+      padding: '0 20px',
+    },
+    [theme.breakpoints.down('sm')]: {
+      padding: 0
+    },
+  },
   keywordSearch: {
     maxWidth: '100%',
   },
@@ -47,7 +57,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   people: {
     display: 'grid',
-    gridTemplateColumns: '2fr 3fr',
+    gridTemplateColumns: '1fr 1fr',
     marginTop: 20,
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '1fr',
@@ -69,7 +79,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.grey[300],
   },
   content: {
-    padding: 16,
+    padding: 20,
     [theme.breakpoints.down('xs')]: {
       paddingBottom: 30
     },
@@ -122,25 +132,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       display: 'none'
     },
   },
-  bottomBtns: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    '@media (max-width: 1200px)': {
-      padding: '0 20px',
-    },
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    },
-  },
-  bottomBtn: {
-    textTransform: 'none',
-    fontSize: 12
-  },
 }))
 
 
-const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', currentUser, classes}: {
+const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locationFilterNode, classes}: {
   keywordSearch: string,
   userLocation: {
     lat: number,
@@ -149,18 +144,10 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', curre
     loading: boolean,
   },
   distanceUnit: 'km'|'mi',
-  currentUser: UsersCurrent | null,
+  locationFilterNode: ReactNode,
   classes: ClassesType,
 }) => {
-  const { openDialog } = useDialog()
   const { CommunityMapWrapper } = Components
-  
-  const openSetPersonalLocationForm = () => {
-    openDialog({
-      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
-      componentProps: {onSubmit: () => {console.log('refetch');refetch()}}
-    });
-  }
   
   /**
    * Calculates the distance between the query location and the given lat/lng, as the crow flies
@@ -223,7 +210,10 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', curre
     indexName={'test_users'}
     searchClient={getSearchClient()}
   >
-    <CustomSearchBox />
+    <div className={classes.filters}>
+      <CustomSearchBox />
+      {locationFilterNode}
+    </div>
     <div className={classes.people} >
       <Hits hitComponent={CommunityMember} />
       <div className={classes.map}>
@@ -238,84 +228,6 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', curre
     </div>
     <Configure aroundLatLng={`${userLocation?.lat}, ${userLocation.lng}`} />
   </InstantSearch>
-
-  let usersListTerms: UsersViewTerms = {}
-  usersListTerms = userLocation.known ? {
-    view: 'nearby',
-    lat: userLocation.lat,
-    lng: userLocation.lng,
-  } : {
-    view: 'usersMapLocations',
-  }
-  
-  const { results, loading, refetch } = useMulti({
-    terms: usersListTerms,
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-    fetchPolicy: 'no-cache',
-    nextFetchPolicy: 'no-cache',
-    limit: 200,
-    skip: userLocation.loading
-  });
-    
-  // filter the list of people if the user has typed in a keyword
-  let people = results
-  if (results && keywordSearch) {
-    people = results.filter(person => (
-      `${person.displayName.toLowerCase()} ${person.bio?.toLowerCase()}`.includes(keywordSearch.toLowerCase())
-    ))
-  }
-
-  return (
-    <>
-    <div className={classes.people}>
-      {(!loading && !people?.length) ? <div className={classes.noResults}>
-        <div className={classes.noResultsText}>No community members matching your search</div>
-        <div className={classes.noResultsCTA}>
-          <Link to={'/events'} className={classes.eventsLink}>
-            Join an upcoming event near you
-          </Link>
-        </div>
-      </div> : <div className={classes.peopleList}>
-        {people?.map(person => {
-          // the distance from the user's location to the person's location
-          let distanceToPerson;
-          if (userLocation.known && person.mapLocation.geometry.location) {
-            distanceToPerson = `${distance(person.mapLocation.geometry.location.lat, person.mapLocation.geometry.location.lng)} ${distanceUnit}`
-          }
-          
-          return <div key={person._id} className={classes.person}>
-            <div className={classes.content}>
-              <div className={classes.nameRow}>
-                <Link to={`/users/${person.slug}`} className={classes.displayName}>{person.displayName}</Link>
-                <div className={classes.distance}>
-                  {distanceToPerson}
-                </div>
-              </div>
-              <div className={classes.location}>{person.mapLocation.formatted_address}</div>
-              {person.bio && <div className={classes.description}>{person.bio}</div>}
-            </div>
-          </div>
-        })}
-      </div>}
-      <div className={classes.map}>
-        <CommunityMapWrapper
-          mapOptions={userLocation.known ? {center: userLocation, zoom: 9} : {zoom: 1}}
-          keywordSearch={keywordSearch}
-          hideLegend
-          showLocalGroups={false}
-          showUsers
-        />
-      </div>
-    </div>
-    
-    <div className={classes.bottomBtns}>
-      <Button variant="outlined" color="primary" className={classes.bottomBtn} onClick={openSetPersonalLocationForm}>
-        {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
-      </Button>
-    </div>
-    </>
-  )
 }
 
 const CommunityMembersComponent = registerComponent('CommunityMembers', CommunityMembers, {styles});

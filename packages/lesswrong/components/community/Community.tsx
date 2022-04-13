@@ -438,61 +438,54 @@ const Community = ({classes}: {
         </div>}
         
         {tab === 'individuals' && <div key="individuals">
-          <div className={classes.filters}>
-            {/* <div className={classes.keywordSearch}>
-              <OutlinedInput
-                labelWidth={0}
-                startAdornment={<Search className={classes.searchIcon}/>}
-                placeholder="Search people"
-                onChange={handleKeywordSearch}
-                className={classes.keywordSearchInput}
-              />
-            </div> */}
-
-            <div>
-              <div className={classes.where}>
-                <span className={classes.whereTextDesktop}>People near</span>
-                <span className={classes.whereTextMobile}>Near</span>
-                {mapsLoaded
-                  && <div className={classes.geoSuggest}>
-                      <Geosuggest
-                        placeholder="search for a location"
-                        onSuggestSelect={(suggestion) => {
-                          if (suggestion?.location) {
-                            saveUserLocation({
-                              ...suggestion.location,
-                              gmaps: suggestion.gmaps
-                            })
-                          }
-                        }}
-                        initialValue={userLocation?.label}
-                      />
-                    </div>
-                }
+          <CommunityMembers
+            keywordSearch={keywordSearch}
+            userLocation={userLocation}
+            distanceUnit={distanceUnit}
+            locationFilterNode={(
+              <div>
+                <div className={classes.where}>
+                  <span className={classes.whereTextDesktop}>People near</span>
+                  <span className={classes.whereTextMobile}>Near</span>
+                  {mapsLoaded
+                    && <div className={classes.geoSuggest}>
+                        <Geosuggest
+                          placeholder="search for a location"
+                          onSuggestSelect={(suggestion) => {
+                            if (suggestion?.location) {
+                              saveUserLocation({
+                                ...suggestion.location,
+                                gmaps: suggestion.gmaps
+                              })
+                            }
+                          }}
+                          initialValue={userLocation?.label}
+                        />
+                      </div>
+                  }
+                </div>
+                {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} />}
               </div>
-              {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} />}
-            </div>
-          </div>
+            )}
+          />
           
-          <CommunityMembers keywordSearch={keywordSearch} userLocation={userLocation} distanceUnit={distanceUnit} currentUser={currentUser} />
-          
-          {/* <div className={classes.localGroupsBtns}>
+          <div className={classes.localGroupsBtns}>
             <Button variant="outlined" color="primary" className={classes.localGroupsBtn} onClick={openSetPersonalLocationForm}>
               {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
             </Button>
-          </div> */}
+          </div>
+        </div>}
+        
+        {tab !== 'individuals' && <>
+          <div className={classes.eventsPageLinkRow}>
+            <div className={classes.eventsPagePrompt}>Want to see what's happening now?</div>
+            <Link to="/events" className={classes.eventsPageLink}>Explore all upcoming events</Link>
+          </div>
           
-        </div>}
-        
-        
-        <div className={classes.eventsPageLinkRow}>
-          <div className={classes.eventsPagePrompt}>Want to see what's happening now?</div>
-          <Link to="/events" className={classes.eventsPageLink}>Explore all upcoming events</Link>
-        </div>
-        
-        {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
-          <GroupFormLink isOnline={tab === 'online'} />
-        </div>}
+          {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
+            <GroupFormLink isOnline={tab === 'online'} />
+          </div>}
+        </>}
       </div>
     </AnalyticsContext>
   )

@@ -20,9 +20,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   ...sharedStyles(theme),
 }))
 
-const SetPersonalMapLocationDialog = ({ onClose, onSubmit, classes }: {
+const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   onClose: ()=>void,
-  onSubmit?: ()=>void,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -76,14 +75,12 @@ const SetPersonalMapLocationDialog = ({ onClose, onSubmit, classes }: {
         <DialogActions className={classes.actions}>
           {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({mapLocation: null})
-            if (onSubmit) onSubmit()
             onClose()
           }}>
             Remove me from the map
           </a>}
           <a className={classes.submitButton} onClick={()=>{
             void updateCurrentUser({mapLocation: location, mapMarkerText: mapText})
-            if (onSubmit) onSubmit()
             onClose()
           }}>
             Submit

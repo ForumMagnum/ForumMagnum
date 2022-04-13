@@ -741,7 +741,6 @@ interface DbUser extends DbObject {
   googleLocation: any /*{"definitions":[{"blackbox":true}]}*/
   location: string
   mapLocation: any /*{"definitions":[{"blackbox":true}]}*/
-  mapMongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
   mapLocationSet: boolean
   mapMarkerText: string
   htmlMapMarkerText: string

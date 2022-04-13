@@ -149,23 +149,6 @@ Users.addView("usersMapLocations", function () {
 })
 ensureIndex(Users, {mapLocationSet: 1})
 
-// Users.addView("nearby", function (terms: UsersViewTerms) {
-//   return {
-//     selector: {
-//       mapLocationSet: true,
-//       mapMongoLocation: {
-//         $near: {
-//           $geometry: {
-//             type: "Point" ,
-//             coordinates: [ terms.lng, terms.lat ]
-//           },
-//         },
-//       }
-//     },
-//   };
-// });
-// ensureIndex(Users, { mapLocationSet: 1, mapMongoLocation: "2dsphere" });
-
 Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
   return {
     selector: {
