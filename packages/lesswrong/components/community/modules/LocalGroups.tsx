@@ -114,6 +114,28 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
+/**
+   * Calculates the distance between the starting location and the ending location, as the crow flies
+   *
+   * @param {Object} start - the starting location
+   * @param {number} start.lat - the starting location's latitude
+   * @param {number} start.lng - the starting location's longitude
+   * @param {Object} end - the ending location
+   * @param {number} end.lat - the ending location's latitude
+   * @param {number} end.lng - the ending location's longitude
+   * @param {'km'|'mi'} distanceUnit - whether the result should be in km or miles
+   * @returns {number}
+   */
+ export const distance = (start: {lat: number, lng: number}, end: {lat: number, lng: number}, distanceUnit: 'km'|'mi') => {
+  const toRad = (num) => num * Math.PI / 180
+  
+  const dLat = toRad(end.lat - start.lat)
+  const dLng = toRad(end.lng - start.lng)
+  const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(start.lat)) * Math.cos(toRad(end.lat)))
+  const distanceInKm = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371
+
+  return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
+}
 
 const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: {
   keywordSearch: string,
@@ -127,26 +149,6 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
   classes: ClassesType,
 }) => {
   const { CommunityMapWrapper, CloudinaryImage2 } = Components
-  
-  /**
-   * Calculates the distance between the query location and the given lat/lng, as the crow flies
-   *
-   * @param {number} lat - latitude
-   * @param {number} lng - longitude
-   * @returns {number}
-   */
-  const distance = (lat, lng) => {
-    if (!userLocation) return null
-    
-    const toRad = (num) => num * Math.PI / 180
-    
-    const dLat = toRad(lat - userLocation.lat)
-    const dLng = toRad(lng - userLocation.lng)
-    const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(userLocation.lat)) * Math.cos(toRad(lat)))
-    const distanceInKm = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371
-  
-    return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
-  }
 
   let groupsListTerms: LocalgroupsViewTerms = {}
   groupsListTerms = userLocation.known ? {
@@ -196,7 +198,11 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
           // the distance from the user's location to the group's location
           let distanceToGroup;
           if (userLocation.known && group.mongoLocation?.coordinates) {
-            distanceToGroup = `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} ${distanceUnit}`
+            const groupLocation = {
+              lat: group.mongoLocation.coordinates[1],
+              lng: group.mongoLocation.coordinates[0]
+            }
+            distanceToGroup = `${distance(userLocation, groupLocation, distanceUnit)} ${distanceUnit}`
           }
           
           return <div key={group._id} className={classes.localGroup}>

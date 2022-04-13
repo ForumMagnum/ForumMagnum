@@ -7,6 +7,7 @@ import { getSearchClient } from '../../../lib/algoliaUtil';
 import { Configure, connectSearchBox, Hits, InstantSearch } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
+import { distance } from './LocalGroups';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -149,26 +150,6 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locat
 }) => {
   const { CommunityMapWrapper } = Components
   
-  /**
-   * Calculates the distance between the query location and the given lat/lng, as the crow flies
-   *
-   * @param {number} lat - latitude
-   * @param {number} lng - longitude
-   * @returns {number}
-   */
-  const distance = (lat, lng) => {
-    if (!userLocation) return null
-    
-    const toRad = (num) => num * Math.PI / 180
-    
-    const dLat = toRad(lat - userLocation.lat)
-    const dLng = toRad(lng - userLocation.lng)
-    const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(userLocation.lat)) * Math.cos(toRad(lat)))
-    const distanceInKm = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371
-  
-    return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
-  }
-  
   const SearchBox = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
       <OutlinedInput
@@ -188,8 +169,8 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locat
   }) => {
     // the distance from the user's location to the person's location
     let distanceToPerson;
-    if (userLocation.known) {
-      distanceToPerson = `${distance(hit._geoloc?.lat, hit._geoloc?.lng)} ${distanceUnit}`
+    if (userLocation.known && hit._geoloc) {
+      distanceToPerson = `${distance(userLocation, hit._geoloc, distanceUnit)} ${distanceUnit}`
     }
     
     return <div className={classes.person}>
