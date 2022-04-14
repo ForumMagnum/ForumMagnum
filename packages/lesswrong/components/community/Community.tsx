@@ -117,16 +117,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     marginLeft: 6
   },
-  inactiveGroups: {
-    '& .MuiIconButton-label': {
-      color: theme.palette.grey[600],
-    },
-    '& .MuiFormControlLabel-label': {
-      ...theme.typography.commentStyle,
-      color: theme.palette.grey[600],
-      fontSize: 13
-    }
-  },
   notifications: {
     flex: '1 0 0',
     textAlign: 'right',
