@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { makeAbsolute } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
@@ -21,6 +21,7 @@ import { taggedPostMessage } from '../lib/notificationTypes';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { REVIEW_NAME_TITLE } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
 
 interface ServerNotificationType {
   name: string,
@@ -381,6 +382,37 @@ export const NewRSVPNotification = serverRegisterNotificationType({
       </p>
       <p>
         <a href={postGetPageUrl(post,true)}>Event Link</a>
+      </p>
+    </div>
+  },
+});
+
+export const NewGroupOrganizerNotification = serverRegisterNotificationType({
+  name: "newGroupOrganizer",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const localGroup = await Localgroups.findOne(notifications[0].documentId)
+    if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
+    return `You've been added as an organizer of ${localGroup.name}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const localGroup = await Localgroups.findOne(notifications[0].documentId)
+    if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
+    
+    const groupLink = `${getSiteUrl().slice(0,-1)}/groups/${localGroup._id}`
+    
+    return <div>
+      <p>
+        Hi {user.displayName},
+      </p>
+      <p>
+        You've been assigned as a group organizer for <a href={groupLink}>{localGroup.name}</a> on {siteNameWithArticleSetting.get()}.
+      </p>
+      <p>
+        We recommend you check the group's info and update it if necessary. You can also post your group's events on the forum, which get advertised to users based on relevance.
+      </p>
+      <p>
+        - The {forumTitleSetting.get()} Team
       </p>
     </div>
   },

@@ -5,6 +5,19 @@ import { schemaDefaultValue } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
+const isLW = forumTypeSetting.get() === 'LessWrong';
+
+export const GROUP_CATEGORIES = [
+  {value: 'national', label: 'National'},
+  {value: 'regional', label: 'Regional'},
+  {value: 'city', label: 'City'},
+  {value: 'university', label: 'University'},
+  {value: 'high-school', label: 'High School'},
+  {value: 'workplace', label: 'Workplace'},
+  {value: 'professional', label: 'Professional'},
+  {value: 'cause-area', label: 'Cause Area'},
+  {value: 'affiliation', label: 'Affiliation'},
+]
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -81,6 +94,25 @@ const schema: SchemaType<DbLocalgroup> = {
   },
 
   'types.$': {
+    type: String,
+    optional: true,
+  },
+  
+  categories: {
+    type: Array,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    control: 'FormComponentMultiSelect',
+    placeholder: "Group type / intended audience",
+    form: {
+      options: GROUP_CATEGORIES
+    },
+    hidden: isLW,
+  },
+  
+  'categories.$': {
     type: String,
     optional: true,
   },
