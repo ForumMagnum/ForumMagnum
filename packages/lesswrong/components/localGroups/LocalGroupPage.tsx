@@ -279,7 +279,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
   // by default, we try to show the map at the top if the group has a location
-  let topSection = group.googleLocation ? <CommunityMapWrapper
+  let topSection = (group.googleLocation && !group.isOnline) ? <CommunityMapWrapper
     className={classes.topSectionMap}
     terms={{view: "events", groupId: groupId}}
     groupQueryTerms={{view: "single", groupId: groupId}}
@@ -292,7 +292,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     topSection = <div className={classes.imageContainer}>
       <CloudinaryImage2 imgProps={{ar: '191:100', w: '765'}} publicId={group.bannerImageId} className={classes.bannerImg} />
     </div>
-    smallMap = group.googleLocation && <CommunityMapWrapper
+    smallMap = (group.googleLocation && !group.isOnline) && <CommunityMapWrapper
       className={classes.mapContainer}
       terms={{view: "events", groupId: groupId}}
       groupQueryTerms={{view: "single", groupId: groupId}}
