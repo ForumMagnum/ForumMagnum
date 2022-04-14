@@ -5,6 +5,7 @@ import { updateCacheAfterDelete } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 import { gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
+import type { MutationResult } from '@apollo/client/react';
 
 // Delete mutation query used on the client. Eg:
 //
@@ -50,7 +51,7 @@ export const withDelete = options => {
 
   const mutationWrapper = (Component) => (props) => (
     <Mutation mutation={query}>
-      {(mutate, { data }) => (
+      {(mutate, mutationResult: MutationResult<any>) => (
         <Component
           {...props}
           mutate={mutate}

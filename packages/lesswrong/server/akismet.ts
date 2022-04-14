@@ -63,7 +63,7 @@ async function constructAkismetReport({document, type = "post"}) {
     }
 }
 
-async function checkForAkismetSpam({document, type = "post"}) {
+async function checkForAkismetSpam({document, type}) {
   try {
     if (document?.contents?.html?.indexOf("spam-test-string-123") >= 0) {
       // eslint-disable-next-line no-console
@@ -81,30 +81,6 @@ async function checkForAkismetSpam({document, type = "post"}) {
     return false
   }
 }
-
-getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkismet(post: DbPost, currentUser: DbUser|null) {
-  if (!currentUser) throw new Error("Submitted post has no associated user");
-  
-  if (akismetKeySetting.get()) {
-    const spam = await checkForAkismetSpam({document: post,type: "post"})
-    if (spam) {
-      if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
-        // eslint-disable-next-line no-console
-        console.log("Deleting post from user below spam threshold", post)
-        await updateMutator({
-          collection: Posts,
-          documentId: post._id,
-          set: {status: postStatuses.STATUS_SPAM},
-          validate: false,
-        });
-      }
-    } else {
-      //eslint-disable-next-line no-console
-      console.log('Post marked as not spam', post._id);
-    }
-  }
-  return post
-});
 
 getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
