@@ -68,7 +68,10 @@ Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
                coordinates: [ terms.lng, terms.lat ]
           },
         },
-      }
+      },
+      $or: [
+        {isOnline: false}, {isOnline: {$exists: false}}
+      ]
     },
     options: {
       sort: {
@@ -78,7 +81,7 @@ Localgroups.addView("nearby", function (terms: LocalgroupsViewTerms) {
     }
   };
 });
-ensureIndex(Localgroups, { mongoLocation: "2dsphere", inactive: 1, deleted: 1 });
+ensureIndex(Localgroups, { mongoLocation: "2dsphere", isOnline: 1, inactive: 1, deleted: 1 });
 
 Localgroups.addView("single", function (terms: LocalgroupsViewTerms) {
   return {
