@@ -1,10 +1,11 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import Button from '@material-ui/core/Button';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -21,6 +22,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventsLink: {
     color: theme.palette.primary.main,
+  },
+  includeInactiveBtn: {
+    textTransform: 'none',
+    fontSize: 14,
   },
   localGroups: {
     display: 'grid',
@@ -88,6 +93,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginBottom: 0
   },
+  inactiveGroupTag: {
+    color: theme.palette.grey[500],
+    marginRight: 10
+  },
   localGroupDistance: {
     flex: 'none',
     ...theme.typography.commentStyle,
@@ -111,6 +120,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+  },
+  postGroupsCTA: {
+    textAlign: 'center',
+    padding: 20
   },
 }))
 
@@ -137,7 +150,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
 }
 
-const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: {
+const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
     lat: number,
@@ -146,6 +159,8 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
     loading: boolean,
   },
   distanceUnit: 'km'|'mi',
+  includeInactive: boolean,
+  toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType,
 }) => {
   const { CommunityMapWrapper, CloudinaryImage2 } = Components
@@ -155,8 +170,10 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
     view: 'nearby',
     lat: userLocation.lat,
     lng: userLocation.lng,
+    includeInactive,
   } : {
     view: 'local',
+    includeInactive,
   }
   
   const { results, loading } = useMulti({
@@ -165,7 +182,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
     fragmentName: 'localGroupsHomeFragment',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 200,
+    limit: 300,
     skip: userLocation.loading
   });
   
@@ -184,9 +201,11 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
       {(!loading && !localGroups?.length) ? <div className={classes.noResults}>
         <div className={classes.noResultsText}>No local groups matching your search</div>
         <div className={classes.noResultsCTA}>
-          <Link to={'/events'} className={classes.eventsLink}>
+          {includeInactive ? <Link to={'/events'} className={classes.eventsLink}>
             Find an upcoming event near you
-          </Link>
+          </Link> : <Button color="primary" onClick={toggleIncludeInactive} className={classes.includeInactiveBtn}>
+            Search inactive groups
+          </Button>}
         </div>
       </div> : <div className={classes.localGroupsList}>
         {localGroups?.map(group => {
@@ -213,7 +232,10 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
             </Link>
             <div className={classes.localGroupContent} style={rowStyle}>
               <div className={classes.localGroupNameRow}>
-                <Link to={`/groups/${group._id}`} className={classes.localGroupName}>{group.name}</Link>
+                <Link to={`/groups/${group._id}`} className={classes.localGroupName}>
+                  {group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}
+                  {group.name}
+                </Link>
                 <div className={classes.localGroupDistance}>
                   {distanceToGroup}
                 </div>
@@ -222,6 +244,11 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
             </div>
           </div>
         })}
+        {!includeInactive && <div className={classes.postGroupsCTA}>
+          <Button color="primary" onClick={toggleIncludeInactive} className={classes.includeInactiveBtn}>
+            Search inactive groups
+          </Button>
+        </div>}
       </div>}
       <div className={classes.localGroupsMap}>
         <CommunityMapWrapper

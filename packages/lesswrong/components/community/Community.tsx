@@ -1,29 +1,29 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import React, { useState, useEffect, useRef } from 'react';
+import { createStyles } from '@material-ui/core/styles';
+import Geosuggest from 'react-geosuggest';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
-import { useDialog } from '../common/withDialog'
-import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
-import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
-import Geosuggest from 'react-geosuggest';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useDialog } from '../common/withDialog'
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
+import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { Link } from '../../lib/reactRouterWrapper';
+
 import Button from '@material-ui/core/Button';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import EmailIcon from '@material-ui/icons/MailOutline';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
-import classNames from 'classnames';
-import { userIsAdmin } from '../../lib/vulcan-users';
-import { Link } from '../../lib/reactRouterWrapper';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import Chip from '@material-ui/core/Chip';
+
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -57,19 +57,23 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginLeft: 0
     },
   },
-  filters: {
+  filtersRow: {
     display: 'flex',
     flexWrap: 'wrap',
     alignItems: 'baseline',
     columnGap: 10,
-    rowGap: '20px',
-    marginTop: 10,
+    rowGap: '15px',
+    minHeight: 47,
+    marginTop: 15,
     '@media (max-width: 1200px)': {
       padding: '0 20px',
     },
     [theme.breakpoints.down('sm')]: {
-      padding: 0
+      padding: '0 6px',
     },
+  },
+  activeFilterChip: {
+    marginTop: 5
   },
   keywordSearch: {
     maxWidth: '100%',
@@ -91,7 +95,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     ...theme.typography.commentStyle,
     fontSize: 13,
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.grey[700],
     paddingLeft: 3
   },
   whereTextDesktop: {
@@ -184,7 +188,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   addGroup: {
     marginTop: 40
-  }
+  },
 }))
 
 
@@ -194,13 +198,14 @@ const Community = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { history } = useNavigation();
-  const { location } = useLocation();
+  const { location, query } = useLocation();
   const { captureEvent } = useTracking();
   
   // local, online, or individuals
   const [tab, setTab] = useState('local')
   const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
   const [keywordSearch, setKeywordSearch] = useState('')
+  const [includeInactive, setIncludeInactive] = useState(query?.includeInactive === 'true')
   
   useEffect(() => {
     // unfortunately the hash is unavailable on the server, so we check it here instead
@@ -337,6 +342,11 @@ const Community = ({classes}: {
     )
   }
   
+  const handleToggleIncludeInactive = () => {
+    setIncludeInactive(!includeInactive)
+    history.replace({...location, search: `?includeInactive=${!includeInactive}`})
+  }
+  
   const canCreateGroups = currentUser && userIsAdmin(currentUser)
 
   return (
@@ -363,7 +373,7 @@ const Community = ({classes}: {
         </Tabs>
         
         {tab === 'local' && <div key="local">
-          <div className={classes.filters}>
+          <div className={classes.filtersRow}>
             <div className={classes.keywordSearch}>
               <OutlinedInput
                 labelWidth={0}
@@ -407,23 +417,41 @@ const Community = ({classes}: {
               </Button>
             </div>
           </div>
+          {includeInactive && <div className={classes.filtersRow}>
+            <Chip variant="outlined" color="primary" label="Include inactive groups" onDelete={handleToggleIncludeInactive} className={classes.activeFilterChip} />
+          </div>}
           
-          <LocalGroups keywordSearch={keywordSearch} userLocation={userLocation} distanceUnit={distanceUnit} />
+          <LocalGroups
+            keywordSearch={keywordSearch}
+            userLocation={userLocation}
+            distanceUnit={distanceUnit}
+            includeInactive={includeInactive}
+            toggleIncludeInactive={handleToggleIncludeInactive}
+          />
           
           <div className={classes.localGroupsBtns}>
-            <Button href="https://resources.eagroups.org/" variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}>
+            <Button href="https://resources.eagroups.org/"
+              variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}
+            >
               Start your own group
               <OpenInNewIcon className={classes.localGroupsBtnIcon} />
             </Button>
-            <Button href="/contact" color="primary" className={classes.localGroupsBtn}>
-              Is your group missing? <EmailIcon className={classes.localGroupsBtnEmailIcon} /> Contact us
+            <Button href="https://docs.google.com/forms/d/e/1FAIpQLScMolewy1P1z9XNyFIN1mQFZQ1LE64QXJrIaX6enrfItWR9LQ/viewform"
+              color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}
+            >
+              Claim your group, or add a missing group
+              <OpenInNewIcon className={classes.localGroupsBtnIcon} />
             </Button>
           </div>
           
+          <div className={classes.eventsPageLinkRow}>
+            <div className={classes.eventsPagePrompt}>Want to see what's happening now?</div>
+            <Link to="/events" className={classes.eventsPageLink}>Explore all upcoming events</Link>
+          </div>
         </div>}
         
         {tab === 'online' && <div key="online">
-          <div className={classes.filters}>
+          <div className={classes.filtersRow}>
             <div className={classes.keywordSearch}>
               <OutlinedInput
                 labelWidth={0}
@@ -434,7 +462,11 @@ const Community = ({classes}: {
               />
             </div>
           </div>
-          <OnlineGroups keywordSearch={keywordSearch} />
+          {includeInactive && <div className={classes.filtersRow}>
+            <Chip variant="outlined" color="primary" label="Include inactive groups" onDelete={handleToggleIncludeInactive} className={classes.activeFilterChip} />
+          </div>}
+          
+          <OnlineGroups keywordSearch={keywordSearch} includeInactive={includeInactive} toggleIncludeInactive={handleToggleIncludeInactive} />
         </div>}
         
         {tab === 'individuals' && <div key="individuals">
@@ -477,11 +509,6 @@ const Community = ({classes}: {
         </div>}
         
         {tab !== 'individuals' && <>
-          <div className={classes.eventsPageLinkRow}>
-            <div className={classes.eventsPagePrompt}>Want to see what's happening now?</div>
-            <Link to="/events" className={classes.eventsPageLink}>Explore all upcoming events</Link>
-          </div>
-          
           {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
             <GroupFormLink isOnline={tab === 'online'} />
           </div>}
