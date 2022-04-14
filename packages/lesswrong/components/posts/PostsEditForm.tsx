@@ -12,7 +12,6 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import {forumTypeSetting, testServerSetting} from "../../lib/instanceSettings";
 import { isCollaborative } from '../editor/EditorFormComponent';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
@@ -33,6 +32,14 @@ const PostsEditForm = ({ documentId, classes }: {
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
+  
+  const saveDraftLabel: string = ((post) => {
+    if (!post) return "Save Draft"
+    if (!post.draft) return "Move to Drafts"
+    if (isCollaborative(post, "contents")) return "Preview"
+    return "Save Draft"
+  })(document)
+  
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
@@ -96,7 +103,7 @@ const PostsEditForm = ({ documentId, classes }: {
     return <div className={classes.formSubmit}>
       {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
-        saveDraftLabel={isDraft ? "Preview" : "Move to Drafts"}
+        saveDraftLabel={saveDraftLabel} 
         feedbackLabel={"Get Feedback"}
         {...props}
       />
