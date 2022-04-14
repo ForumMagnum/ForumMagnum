@@ -144,6 +144,29 @@ export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|n
   return false;
 };
 
+export const guestsCanReadField = <T extends DbObject>(collection: CollectionBase<T>, fieldName: string): boolean => {
+  const schema = getSchema(collection);
+  const field = schema[fieldName];
+  if (!field) {
+    return false;
+  }
+  const canRead = field.canRead || field.viewableBy; //OpenCRUD backwards compatibility
+  if (!canRead) {
+    return false;
+  }
+  if (canRead === "guests") {
+    return true;
+  }
+  if (Array.isArray(canRead)) {
+    for (let i=0; i<canRead.length; i++) {
+      if (canRead[i]==="guests") {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // @summary Get a list of fields viewable by a user
 // @param {Object} user - The user performing the action
 // @param {Object} collection - The collection
