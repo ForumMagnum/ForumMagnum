@@ -26,7 +26,7 @@ export const userHasCkCollaboration = disabled;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
-export const userHasNewTagSubscriptions =  isEAForum ? optInOnly : disabled
+export const userHasNewTagSubscriptions =  isEAForum ? shippedFeature : disabled
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
