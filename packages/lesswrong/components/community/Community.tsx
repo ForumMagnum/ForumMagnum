@@ -214,6 +214,13 @@ const Community = ({classes}: {
     } else if (location.hash === '#individuals') {
       setTab('individuals')
     }
+    
+    // only US and UK default to miles - everyone else defaults to km
+    // (this is checked here to allow SSR to work properly)
+    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
+      setDistanceUnit('mi')
+    }
+    
     //No exhaustive deps because this is supposed to run only on mount
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -405,7 +412,7 @@ const Community = ({classes}: {
                     </div>
                 }
               </div>
-              {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} />}
+              {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} skipDefaultEffect />}
             </div>
               
             <div className={classes.notifications}>
@@ -430,7 +437,7 @@ const Community = ({classes}: {
           />
           
           <div className={classes.localGroupsBtns}>
-            <Button href="https://resources.eagroups.org/"
+            <Button href="https://resources.eagroups.org/start-a-group"
               variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}
             >
               Start your own group
@@ -471,7 +478,6 @@ const Community = ({classes}: {
         
         {tab === 'individuals' && <div key="individuals">
           <CommunityMembers
-            keywordSearch={keywordSearch}
             userLocation={userLocation}
             distanceUnit={distanceUnit}
             locationFilterNode={(
@@ -496,7 +502,7 @@ const Community = ({classes}: {
                       </div>
                   }
                 </div>
-                {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} />}
+                {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} skipDefaultEffect />}
               </div>
             )}
           />

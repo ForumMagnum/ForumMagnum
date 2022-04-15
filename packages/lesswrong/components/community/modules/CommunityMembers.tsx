@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { ReactNode } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/algoliaUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch } from 'react-instantsearch-dom';
@@ -127,8 +126,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locationFilterNode, classes}: {
-  keywordSearch: string,
+const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, classes}: {
   userLocation: {
     lat: number,
     lng: number,

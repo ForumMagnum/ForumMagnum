@@ -23,7 +23,7 @@ async function algoliaExport(collection: AlgoliaIndexedCollection<AlgoliaIndexed
   // The EA Forum needs to use less algolia resources on Dev and Staging, so we
   // time-bound our queries
   const timeBound = forumTypeSetting.get() === 'EAForum' && !isProductionDBSetting.get() ?
-    { createdAt: { $gte: moment().subtract(10, 'months').toDate() } } :
+    { createdAt: { $gte: moment().subtract(3, 'months').toDate() } } :
     {}
   const computedSelector = {...selector, ...timeBound}
   
