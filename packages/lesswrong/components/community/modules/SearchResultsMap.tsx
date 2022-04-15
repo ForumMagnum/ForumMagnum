@@ -8,6 +8,7 @@ import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { Hit } from 'react-instantsearch-core';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -46,7 +47,7 @@ const defaultCenter = {lat: 39.5, lng: -43.636047}
 const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
   center: {lat: number, lng: number},
   zoom: number,
-  hits: Array<AlgoliaUser>,
+  hits: Array<Hit<AlgoliaUser>>,
   classes: ClassesType,
 }) => {
   const [activeResultId, setActiveResultId] = useState('')
