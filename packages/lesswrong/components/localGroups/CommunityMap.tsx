@@ -64,7 +64,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showLocalGroups = true, showUsers, showHideMap = false, hideLegend, petrovButton }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showUsers, showHideMap = false, hideLegend, petrovButton }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
@@ -73,7 +73,6 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   zoom: number,
   classes: ClassesType,
   className?: string,
-  showLocalGroups?: boolean,
   showUsers?: boolean,
   showHideMap?: boolean,
   hideLegend?: boolean,
@@ -93,7 +92,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   )
 
   const [ showEvents, setShowEvents ] = useState(true)
-  const [ showGroups, setShowGroups ] = useState(!!showLocalGroups)
+  const [ showGroups, setShowGroups ] = useState(true)
   const [ showIndividuals, setShowIndividuals ] = useState(!!showUsers)
   const [ showMap, setShowMap ] = useState(true)
 
@@ -125,11 +124,10 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     collectionName: "Localgroups",
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
-    skip: !showGroups
   })
   // filter the list of groups if the user has typed in a keyword
   let visibleGroups = groups
-  if (keywordSearch && showGroups) {
+  if (keywordSearch) {
     visibleGroups = groups.filter(group => (
       `${group.name.toLowerCase()} ${group.location?.toLowerCase()}`.includes(keywordSearch.toLowerCase())
     ))

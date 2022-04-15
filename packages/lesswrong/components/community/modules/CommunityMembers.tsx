@@ -105,7 +105,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontSize: 12,
     fontStyle: 'italic',
-    overflow: 'hidden',
     marginTop: 4,
   },
   description: {
@@ -121,7 +120,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 12,
   },
   map: {
-    marginTop: 50,
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
@@ -141,7 +139,7 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locat
   locationFilterNode: ReactNode,
   classes: ClassesType,
 }) => {
-  const { CommunityMapWrapper } = Components
+  const { SearchResultsMap } = Components
   
   const SearchBox = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
@@ -187,6 +185,11 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locat
     </div>
   }
   
+  // if the user hasn't selected a location, we show the whole map
+  const mapOptions = userLocation.known ? {center: userLocation, zoom: 9} : {zoom: 1}
+  // if the user hasn't selected a location, we just show all users who have a map location (ordered by karma desc)
+  const searchOptions = userLocation.known ? {aroundLatLng: `${userLocation?.lat}, ${userLocation.lng}`} : {filters: "_geoloc.lat>-100"}
+  
   return <InstantSearch
     indexName={'test_users'}
     searchClient={getSearchClient()}
@@ -201,16 +204,10 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locat
         <Hits hitComponent={CommunityMember} />
       </div>
       <div className={classes.map}>
-        <CommunityMapWrapper
-          mapOptions={userLocation.known ? {center: userLocation, zoom: 9} : {zoom: 1}}
-          keywordSearch={keywordSearch}
-          hideLegend
-          showLocalGroups={false}
-          showUsers
-        />
+        <SearchResultsMap {...mapOptions} />
       </div>
     </div>
-    <Configure aroundLatLng={`${userLocation?.lat}, ${userLocation.lng}`} />
+    <Configure {...searchOptions} />
   </InstantSearch>
 }
 
