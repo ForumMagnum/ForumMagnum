@@ -4,7 +4,7 @@ import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/algoliaUtil';
-import { Configure, connectSearchBox, Hits, InstantSearch } from 'react-instantsearch-dom';
+import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
 import { distance } from './LocalGroups';
@@ -48,13 +48,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   noResultsText: {
     marginTop: 16
-  },
-  noResultsCTA: {
-    fontSize: 14,
-    marginTop: 20
-  },
-  eventsLink: {
-    color: theme.palette.primary.main,
   },
   people: {
     display: 'grid',
@@ -164,6 +157,13 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locat
   }
   const CustomSearchBox = connectSearchBox(SearchBox)
   
+  const StateResults = ({ searchResults }) => {
+    return (!searchResults || !searchResults.nbHits) ? <div className={classes.noResults}>
+      <div className={classes.noResultsText}>No public profiles matching your search</div>
+    </div> : null
+  }
+  const CustomStateResults = connectStateResults(StateResults)
+  
   const CommunityMember = ({hit}: {
     hit: AlgoliaUser,
   }) => {
@@ -195,8 +195,11 @@ const CommunityMembers = ({keywordSearch, userLocation, distanceUnit='km', locat
       <CustomSearchBox />
       {locationFilterNode}
     </div>
-    <div className={classes.people} >
-      <Hits hitComponent={CommunityMember} />
+    <div className={classes.people}>
+      <div className={classes.peopleList}>
+        <CustomStateResults />
+        <Hits hitComponent={CommunityMember} />
+      </div>
       <div className={classes.map}>
         <CommunityMapWrapper
           mapOptions={userLocation.known ? {center: userLocation, zoom: 9} : {zoom: 1}}

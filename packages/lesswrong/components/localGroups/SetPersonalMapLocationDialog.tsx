@@ -50,7 +50,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2">
-            Is this the location you want to display for yourself on the map?
+            This information will be publicly visible
         </Typography>
         <div className={classes.geoSuggest}>
           {mapsLoaded ? <Geosuggest
