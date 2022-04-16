@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor } from '../../lib/wrapCkEditor';
+import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
@@ -164,7 +164,8 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
-          documentId: getCKEditorDocumentId(documentId, userId, formType)
+          documentId: getCKEditorDocumentId(documentId, userId, formType),
+          bundleVersion: ckEditorBundleVersion,
         } : undefined,
         collaboration: ckEditorCloudConfigured ? {
           channelId: getCKEditorDocumentId(documentId, userId, formType)
