@@ -137,9 +137,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         else
           return submission;
       });
-      const cleanupSuccessForm = context.addToSuccessForm((result) => {
+      const cleanupSuccessForm = context.addToSuccessForm((result, form, submitOptions) => {
         getLocalStorageHandlers(currentEditorType).reset();
-        if (editorRef.current) {
+        if (editorRef.current && !submitOptions.redirectToEditor) {
           wrappedSetContents({
             contents: getBlankEditorContents(initialEditorType),
             autosave: false,
@@ -200,7 +200,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hasCommitMessages={hasCommitMessages}
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
-    {!hideControls && collectionName==="Posts" && fieldName==="contents" &&
+    {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         postId={document?._id}
       />

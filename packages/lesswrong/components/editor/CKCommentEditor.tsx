@@ -1,7 +1,7 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor } from '../../lib/wrapCkEditor';
+import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
@@ -41,6 +41,7 @@ const CKCommentEditor = ({ data, collectionName, fieldName, onSave, onChange, on
           // or `documentId` is provided.
           tokenUrl: generateTokenRequest(collectionName, fieldName),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+          bundleVersion: ckEditorBundleVersion,
         } : undefined,
         autosave: {
           save (editor) {
