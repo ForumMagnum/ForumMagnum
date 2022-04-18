@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/algoliaUtil';
-import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch } from 'react-instantsearch-dom';
+import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
 import { distance } from './LocalGroups';
@@ -123,6 +123,26 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       display: 'none'
     },
   },
+  pagination: {
+    ...theme.typography.commentStyle,
+    fontSize: 16,
+    marginTop: 6,
+    '& li': {
+      padding: 8
+    },
+    '& .ais-Pagination-item': {
+      color: theme.palette.primary.main,
+    },
+    '& .ais-Pagination-item--page': {
+      fontWeight: 'bold'
+    },
+    '& .ais-Pagination-item--selected': {
+      color: theme.palette.grey[900]
+    },
+    '& .ais-Pagination-item--disabled': {
+      color: theme.palette.grey[500]
+    }
+  }
 }))
 
 
@@ -200,13 +220,14 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
       <div className={classes.peopleList}>
         <CustomStateResults />
         <Hits hitComponent={CommunityMember} />
+        <Pagination className={classes.pagination} />
       </div>
       <div className={classes.map}>
         {/* search result hits are provided by InstantSearch, which is probably a provider */}
         <SearchResultsMap {...mapOptions} />
       </div>
     </div>
-    <Configure {...searchOptions} />
+    <Configure hitsPerPage={100} {...searchOptions} />
   </InstantSearch>
 }
 
