@@ -41,6 +41,7 @@ import { ForumOptions } from '../../../lib/forumTypeUtils';
 //   showOnMobileStandalone: boolean; show in (2) Standalone Footer Menu
 //   showOnCompressed: boolean; show in (4) Drawer Collapsed Menu
 //   subitem: boolean; display title in smaller text
+//   loggedOutOnly: boolean; only visible to logged out users
 //   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
@@ -67,7 +68,8 @@ export type MenuTabRegular = {
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
-  subItem?: boolean
+  subItem?: boolean,
+  loggedOutOnly?: boolean
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -296,6 +298,13 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/s/isENJuPdB3fhjWYHd',
       tooltip: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
       subItem: true,
+    }, {
+      id: 'takeAction',
+      title: 'Take Action',
+      link: '/tag/take-action',
+      iconComponent: PlaylistAddCheck,
+      tooltip: "Opportunities to get involved with impactful work",
+      loggedOutOnly: true
     }, {
       id: 'events',
       title: 'Events',

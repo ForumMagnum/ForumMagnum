@@ -72,43 +72,43 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
   const isEAForum = forumTypeSetting.get() === 'EAForum'
   
   return <div className={classes.root}>
-      <Helmet>
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
-      </Helmet>
-      <ReactMapGL
-        {...viewport}
-        width="100%"
-        height="100%"
-        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
-        onViewportChange={viewport => setViewport(viewport)}
-        mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
-      >
-        {hits.map(hit => {
-          if (!hit._geoloc) return null
-          
-          return <React.Fragment key={hit._id}>
-            <Marker
-              latitude={hit._geoloc.lat}
-              longitude={hit._geoloc.lng}
-              offsetLeft={-8}
-              offsetTop={-20}
-            >
-              <PersonIcon className={classes.icon} onClick={() => setActiveResultId(hit._id)} />
-            </Marker>
-            {(activeResultId === hit._id) && <StyledMapPopup
-              lat={hit._geoloc.lat}
-              lng={hit._geoloc.lng}
-              link={userGetProfileUrl(hit)}
-              title={hit.displayName}
-              onClose={() => setActiveResultId('')}
-              hideBottomLinks
-            >
-              <div className={classes.popupAddress}>{hit.mapLocationAddress}</div>
-              <div className={classes.popupBio}>{hit.bio}</div>
-            </StyledMapPopup>}
-          </React.Fragment>
-        })}
-      </ReactMapGL>
+    <Helmet>
+      <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
+    </Helmet>
+    <ReactMapGL
+      {...viewport}
+      width="100%"
+      height="100%"
+      mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+      onViewportChange={viewport => setViewport(viewport)}
+      mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
+    >
+      {hits.map(hit => {
+        if (!hit._geoloc) return null
+        
+        return <React.Fragment key={hit._id}>
+          <Marker
+            latitude={hit._geoloc.lat}
+            longitude={hit._geoloc.lng}
+            offsetLeft={-8}
+            offsetTop={-20}
+          >
+            <PersonIcon className={classes.icon} onClick={() => setActiveResultId(hit._id)} />
+          </Marker>
+          {(activeResultId === hit._id) && <StyledMapPopup
+            lat={hit._geoloc.lat}
+            lng={hit._geoloc.lng}
+            link={userGetProfileUrl(hit)}
+            title={hit.displayName}
+            onClose={() => setActiveResultId('')}
+            hideBottomLinks
+          >
+            <div className={classes.popupAddress}>{hit.mapLocationAddress}</div>
+            <div className={classes.popupBio}>{hit.bio}</div>
+          </StyledMapPopup>}
+        </React.Fragment>
+      })}
+    </ReactMapGL>
   </div>
 }
 

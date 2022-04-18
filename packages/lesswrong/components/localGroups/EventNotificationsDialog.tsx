@@ -31,6 +31,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
     textTransform: 'uppercase'
   },
   actions: {
+    ...theme.typography.commentStyle,
     marginTop: 24
   },
   geoSuggest: {
@@ -53,6 +54,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
       listStyle: "none",
       zIndex: 5,
       transition: "max-height 0.2s, border 0.2s",
+      ...theme.typography.commentStyle,
     },
     "& .geosuggest__input": {
       border: "2px solid transparent",
