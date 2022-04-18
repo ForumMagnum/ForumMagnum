@@ -48,6 +48,11 @@ interface AlgoliaUser {
   website: string,
   groups: Array<string>,
   af: boolean,
+  _geoloc?: {
+    lat: number,
+    lng: number
+  },
+  mapLocationAddress?: string
 }
 
 interface AlgoliaPost {
