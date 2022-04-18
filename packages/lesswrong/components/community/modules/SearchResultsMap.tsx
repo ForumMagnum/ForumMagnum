@@ -112,6 +112,9 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
   </div>
 }
 
+// connectHits is probably nothing but a consumer acting as a HoC, like this:
+// const connectHits = (C) => { const hits = useHits(); return (args) => C({...args, hits}); }
+// It consumes the data provided by InstantSearch, which should be a parent of us
 const SearchResultsMapComponent = registerComponent("SearchResultsMap", connectHits(SearchResultsMap), { styles });
 
 declare global {
