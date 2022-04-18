@@ -202,6 +202,7 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
         <Hits hitComponent={CommunityMember} />
       </div>
       <div className={classes.map}>
+        {/* search result hits are provided by InstantSearch, which is probably a provider */}
         <SearchResultsMap {...mapOptions} />
       </div>
     </div>
