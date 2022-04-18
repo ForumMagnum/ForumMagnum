@@ -1,6 +1,3 @@
-/**
- * The App + relevant wrappers
- */
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 // eslint-disable-next-line no-restricted-imports
@@ -11,16 +8,17 @@ import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../.
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import type { CompleteTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
+import type { TimeOverride } from '../../../../lib/utils/timeUtil';
 
-// The client-side App will instead use <BrowserRouter>
-// see client-side vulcan:core/lib/client/start.jsx implementation
-// we do the same server side
-
-const AppGenerator = ({ req, apolloClient, serverRequestStatus, abTestGroupsUsed }: {
+// Server-side wrapper around the app. There's another AppGenerator which is
+// the client-side version, which differs in how it sets up the wrappers for
+// routing and cookies and such. See client/start.tsx.
+const AppGenerator = ({ req, apolloClient, serverRequestStatus, abTestGroupsUsed, timeOverride }: {
   req: any
   apolloClient: any
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
+  timeOverride: TimeOverride,
 }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
@@ -28,7 +26,7 @@ const AppGenerator = ({ req, apolloClient, serverRequestStatus, abTestGroupsUsed
       <StaticRouter location={req.url} context={{}}>
         <CookiesProvider cookies={getAllCookiesFromReq(req)}>
           <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-            <Components.App apolloClient={apolloClient} serverRequestStatus={serverRequestStatus}/>
+            <Components.App apolloClient={apolloClient} serverRequestStatus={serverRequestStatus} timeOverride={timeOverride}/>
           </ABTestGroupsUsedContext.Provider>
         </CookiesProvider>
       </StaticRouter>

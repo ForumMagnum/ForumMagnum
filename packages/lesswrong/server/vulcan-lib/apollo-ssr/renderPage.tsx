@@ -25,6 +25,7 @@ import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appCont
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
+import type { TimeOverride } from '../../../lib/utils/timeUtil';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -43,6 +44,7 @@ export type RenderResult = {
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
+  renderedAt: Date,
   timings: RenderTimings
 }
 
@@ -156,10 +158,13 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // the render will be omitted, which is the point.)
   let abTestGroups: RelevantTestGroupAllocation = {};
   
+  const now = new Date();
+  const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
     req={req} apolloClient={client}
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroups}
+    timeOverride={timeOverride}
   />;
 
   const WrappedApp = wrapWithMuiTheme(App, context);
@@ -217,6 +222,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
     allAbTestGroups: getAllUserABTestGroups(user, clientId),
+    renderedAt: now,
     timings,
   };
 }

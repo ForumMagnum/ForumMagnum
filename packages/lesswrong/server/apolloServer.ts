@@ -191,7 +191,7 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     const renderResult = await renderWithCache(request, response);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, allAbTestGroups} = renderResult;
+    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
     const {bundleHash} = getClientBundle();
 
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
@@ -217,6 +217,7 @@ export function startWebserver() {
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody
         +'</body>\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt)
         + serializedApolloState)
     }
   })
