@@ -50,7 +50,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2">
-            Is this the location you want to display for yourself on the map?
+            This information will be publicly visible
         </Typography>
         <div className={classes.geoSuggest}>
           {mapsLoaded ? <Geosuggest
@@ -62,8 +62,8 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
             initialValue={label}
           /> : <Loading/>}
         </div>
-        <TextField
-            label={`Description${isEAForum ? '' : ' (Make sure to mention whether you want to organize events)'}`}
+        {!isEAForum && <TextField
+            label={`Description (Make sure to mention whether you want to organize events)}`}
             className={classes.modalTextField}
             value={mapText}
             onChange={e => setMapText(e.target.value)}
@@ -71,7 +71,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
             multiline
             rows={4}
             rowsMax={100}
-          />
+          />}
         <DialogActions className={classes.actions}>
           {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({mapLocation: null})

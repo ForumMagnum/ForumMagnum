@@ -6,16 +6,18 @@ import Conversations from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useDialog } from '../common/withDialog';
 
 // Button used to start a new conversation for a given user
 const NewConversationButton = ({ user, currentUser, children, templateCommentId }: {
   user: UsersMinimumInfo,
-  currentUser: UsersCurrent,
+  currentUser: UsersCurrent|null,
   templateCommentId?: string,
   children: any
 }) => {
   
   const { history } = useNavigation();
+  const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
     collection: Conversations,
     fragmentName: 'newConversationFragment',
@@ -54,16 +56,11 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
     conversationExists ? undefined : void newConversation(search);
   }
   
-
-  if (currentUser) {
-    return (
-      <div onClick={existingConversationCheck}>
-        {children}
-      </div>
-    )
-  } else {
-    return <Components.Loading />
-  }
+  return (
+    <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>
+      {children}
+    </div>
+  )
 }
 
 const NewConversationButtonComponent = registerComponent('NewConversationButton', NewConversationButton);

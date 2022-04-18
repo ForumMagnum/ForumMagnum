@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import React, { useState, useEffect, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 import Geosuggest from 'react-geosuggest';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -16,8 +15,6 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { Link } from '../../lib/reactRouterWrapper';
 
 import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel  from '@material-ui/core/FormControlLabel';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
@@ -133,7 +130,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginRight: 6
   },
   tabs: {
-    marginBottom: 40,
+    maxWidth: 634,
+    margin: '0 auto 40px',
     '& .MuiTab-labelContainer': {
       fontSize: '1rem'
     }
@@ -203,7 +201,7 @@ const Community = ({classes}: {
   const { location, query } = useLocation();
   const { captureEvent } = useTracking();
   
-  // local or online
+  // local, online, or individuals
   const [tab, setTab] = useState('local')
   const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
   const [keywordSearch, setKeywordSearch] = useState('')
@@ -213,7 +211,16 @@ const Community = ({classes}: {
     // unfortunately the hash is unavailable on the server, so we check it here instead
     if (location.hash === '#online') {
       setTab('online')
+    } else if (location.hash === '#individuals') {
+      setTab('individuals')
     }
+    
+    // only US and UK default to miles - everyone else defaults to km
+    // (this is checked here to allow SSR to work properly)
+    if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
+      setDistanceUnit('mi')
+    }
+    
     //No exhaustive deps because this is supposed to run only on mount
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -317,7 +324,13 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityBanner, LocalGroups, OnlineGroups, GroupFormLink, DistanceUnitToggle } = Components
+  const openSetPersonalLocationForm = () => {
+    openDialog({
+      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
+    });
+  }
+  
+  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink, DistanceUnitToggle } = Components
   
   const handleChangeTab = (e, value) => {
     setTab(value)
@@ -360,9 +373,10 @@ const Community = ({classes}: {
       <CommunityBanner />
 
       <div className={classes.section}>
-        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} centered aria-label='view local or online groups'>
+        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} scrollable aria-label='view local or online groups, or individual community members'>
           <Tab label="Local Groups" value="local" />
           <Tab label="Online Groups" value="online" />
+          <Tab label="Community Members" value="individuals" />
         </Tabs>
         
         {tab === 'local' && <div key="local">
@@ -398,7 +412,7 @@ const Community = ({classes}: {
                     </div>
                 }
               </div>
-              {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} />}
+              {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} skipDefaultEffect />}
             </div>
               
             <div className={classes.notifications}>
@@ -423,7 +437,7 @@ const Community = ({classes}: {
           />
           
           <div className={classes.localGroupsBtns}>
-            <Button href="https://resources.eagroups.org/"
+            <Button href="https://resources.eagroups.org/start-a-group"
               variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}
             >
               Start your own group
@@ -462,9 +476,49 @@ const Community = ({classes}: {
           <OnlineGroups keywordSearch={keywordSearch} includeInactive={includeInactive} toggleIncludeInactive={handleToggleIncludeInactive} />
         </div>}
         
-        {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
-          <GroupFormLink isOnline={tab === 'online'} />
+        {tab === 'individuals' && <div key="individuals">
+          <CommunityMembers
+            userLocation={userLocation}
+            distanceUnit={distanceUnit}
+            locationFilterNode={(
+              <div>
+                <div className={classes.where}>
+                  <span className={classes.whereTextDesktop}>People near</span>
+                  <span className={classes.whereTextMobile}>Near</span>
+                  {mapsLoaded
+                    && <div className={classes.geoSuggest}>
+                        <Geosuggest
+                          placeholder="search for a location"
+                          onSuggestSelect={(suggestion) => {
+                            if (suggestion?.location) {
+                              saveUserLocation({
+                                ...suggestion.location,
+                                gmaps: suggestion.gmaps
+                              })
+                            }
+                          }}
+                          initialValue={userLocation?.label}
+                        />
+                      </div>
+                  }
+                </div>
+                {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} skipDefaultEffect />}
+              </div>
+            )}
+          />
+          
+          <div className={classes.localGroupsBtns}>
+            <Button variant="outlined" color="primary" className={classes.localGroupsBtn} onClick={openSetPersonalLocationForm}>
+              {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
+            </Button>
+          </div>
         </div>}
+        
+        {tab !== 'individuals' && <>
+          {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
+            <GroupFormLink isOnline={tab === 'online'} />
+          </div>}
+        </>}
       </div>
     </AnalyticsContext>
   )

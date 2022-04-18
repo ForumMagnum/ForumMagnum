@@ -19,6 +19,8 @@ declare global {
     },
     userId?: string,
     slug?: string,
+    lng?: number
+    lat?: number
   }
 }
 
