@@ -41,6 +41,10 @@ declare global {
       sansSerifStack: string,
       serifStack: string,
     },
+    
+    // Used by material-UI for picking some of its own colors, and also by site
+    // themes
+    type: "light"|"dark",
   }
   type ThemeComponentPalette = {
     primary: {
@@ -319,9 +323,6 @@ declare global {
     contrastText: ColorString,
     individual: ColorString,
     event: ColorString,
-    
-    // Used by material-UI for picking some of its own colors
-    type: "light"|"dark",
     
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,

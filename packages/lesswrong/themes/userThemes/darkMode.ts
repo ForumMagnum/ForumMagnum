@@ -55,6 +55,7 @@ export const darkModeTheme: UserThemeSpecification = {
     greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+    type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     text: {
@@ -67,6 +68,5 @@ export const darkModeTheme: UserThemeSpecification = {
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
     },
-    type: "dark",
   }),
 };

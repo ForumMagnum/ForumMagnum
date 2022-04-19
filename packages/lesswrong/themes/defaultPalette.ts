@@ -155,6 +155,8 @@ export const defaultShadePalette = (): ThemeShadePalette => {
       sansSerifStack: "sans-serif",
       serifStack: "serif",
     },
+    
+    type: "light",
   }
 }
 
@@ -420,7 +422,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   event: '#2b6a99',
   group: '#588f27',
   individual: '#3f51b5',
-  type: "light",
   
   primary: {
     main: "#5f9b65",
