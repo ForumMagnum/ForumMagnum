@@ -14,6 +14,7 @@ import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
+import { useDialog } from '../common/withDialog';
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -64,6 +65,7 @@ const NotifyMeButton = ({
   componentIfSubscribed?: JSX.Element,
 }) => {
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog()
   const { flash } = useMessages();
   const { create: createSubscription } = useCreate({
     collection: Subscriptions,
@@ -109,6 +111,11 @@ const NotifyMeButton = ({
     });
   }
   const onSubscribe = async (e) => {
+    if (!currentUser) {
+      openDialog({componentName: "LoginPopup"})
+      return
+    }
+    
     try {
       e.preventDefault();
       const subscriptionState = isSubscribed() ? 'suppressed' : 'subscribed'
@@ -130,7 +137,7 @@ const NotifyMeButton = ({
   }
   
   // can't subscribe to yourself
-  if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
+  if (collectionName === 'Users' && document._id === currentUser?._id) {
     return null;
   }
   if (hideIfNotificationsDisabled && !isSubscribed()) {

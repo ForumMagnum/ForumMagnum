@@ -118,7 +118,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
-      <Link to={`/tag/${tag.slug}`} className={!!isTopTag && classes.flexContainer}>
+      <Link to={`/tag/${tag.slug}`} className={!!isTopTag ? classes.flexContainer : null}>
         {!!isTopTag && <TopTagIcon tag={tag} />}
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}

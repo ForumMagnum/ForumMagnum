@@ -113,7 +113,12 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     slug: user.slug,
     website: user.website,
     groups: user.groups,
-    af: user.groups && user.groups.includes('alignmentForum')
+    af: user.groups && user.groups.includes('alignmentForum'),
+    ...(user.mapLocation?.geometry?.location?.lat && {_geoloc: {
+      lat: user.mapLocation.geometry.location.lat,
+      lng: user.mapLocation.geometry.location.lng,
+    }}),
+    ...(user.mapLocation?.formatted_address && {mapLocationAddress: user.mapLocation.formatted_address})
   }
   return [algoliaUser];
 }

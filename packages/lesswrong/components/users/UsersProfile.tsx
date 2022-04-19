@@ -262,10 +262,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser && currentUser._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton>}
-              { currentUser && currentUser._id !== user._id && <NotifyMeButton
+              { <NotifyMeButton
                 document={user}
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"

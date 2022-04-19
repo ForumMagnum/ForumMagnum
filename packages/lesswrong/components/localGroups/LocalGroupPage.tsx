@@ -60,6 +60,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
+  inactiveGroupTag: {
+    color: theme.palette.grey[500],
+    marginRight: 10
+  },
   notifyMe: {
     justifyContent: 'flex-end',
     margin: '8px 4px 20px',
@@ -275,7 +279,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
   // by default, we try to show the map at the top if the group has a location
-  let topSection = group.googleLocation ? <CommunityMapWrapper
+  let topSection = (group.googleLocation && !group.isOnline) ? <CommunityMapWrapper
     className={classes.topSectionMap}
     terms={{view: "events", groupId: groupId}}
     groupQueryTerms={{view: "single", groupId: groupId}}
@@ -288,7 +292,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     topSection = <div className={classes.imageContainer}>
       <CloudinaryImage2 imgProps={{ar: '191:100', w: '765'}} publicId={group.bannerImageId} className={classes.bannerImg} />
     </div>
-    smallMap = group.googleLocation && <CommunityMapWrapper
+    smallMap = (group.googleLocation && !group.isOnline) && <CommunityMapWrapper
       className={classes.mapContainer}
       terms={{view: "events", groupId: groupId}}
       groupQueryTerms={{view: "single", groupId: groupId}}
@@ -377,7 +381,9 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       <SingleColumnSection>
         <div className={classes.titleRow}>
           <div>
-            <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin />
+            <SectionTitle title={
+              <span>{group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}{group.name}</span>
+              } noTopMargin />
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}

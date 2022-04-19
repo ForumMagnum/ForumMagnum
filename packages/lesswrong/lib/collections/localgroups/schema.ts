@@ -5,6 +5,7 @@ import { schemaDefaultValue } from '../../collectionUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
+const isLW = forumTypeSetting.get() === 'LessWrong';
 
 export const GROUP_CATEGORIES = [
   {value: 'national', label: 'National'},
@@ -99,6 +100,7 @@ const schema: SchemaType<DbLocalgroup> = {
   
   categories: {
     type: Array,
+    optional: true,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
@@ -107,6 +109,7 @@ const schema: SchemaType<DbLocalgroup> = {
     form: {
       options: GROUP_CATEGORIES
     },
+    hidden: isLW,
   },
   
   'categories.$': {
