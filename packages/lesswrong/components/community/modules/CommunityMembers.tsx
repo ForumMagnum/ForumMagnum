@@ -111,7 +111,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[800],
     fontSize: 14,
     lineHeight: '1.8em',
-    whiteSpace: 'pre-wrap',
     display: '-webkit-box',
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
@@ -198,7 +197,7 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
           </div>
         </div>
         <div className={classes.location}>{hit.mapLocationAddress}</div>
-        {hit.bio && <div className={classes.description}>{hit.bio}</div>}
+        {hit.htmlBio && <div className={classes.description} dangerouslySetInnerHTML={{__html: hit.htmlBio}} />}
       </div>
     </div>
   }
