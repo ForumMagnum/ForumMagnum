@@ -104,7 +104,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
             hideBottomLinks
           >
             <div className={classes.popupAddress}>{hit.mapLocationAddress}</div>
-            <div className={classes.popupBio}>{hit.bio}</div>
+            {hit.htmlBio && <div className={classes.popupBio} dangerouslySetInnerHTML={{__html: hit.htmlBio}} />}
           </StyledMapPopup>}
         </React.Fragment>
       })}

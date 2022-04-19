@@ -43,6 +43,7 @@ interface AlgoliaUser {
   createdAt: Date,
   isAdmin: boolean,
   bio: string,
+  htmlBio: string,
   karma: number,
   slug: string,
   website: string,
