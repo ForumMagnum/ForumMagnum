@@ -673,6 +673,8 @@ interface DbUser extends DbObject {
   groups: Array<string>
   lwWikiImport: boolean
   lastUsedTimezone: string
+  openToMeetInPerson: boolean
+  openToMeetOnline: boolean
   whenConfirmationEmailSent: Date
   legacy: boolean
   commentSorting: string

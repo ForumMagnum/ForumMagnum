@@ -21,6 +21,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
   readonly lastUsedTimezone: string,
+  readonly openToMeetInPerson: boolean,
+  readonly openToMeetOnline: boolean,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents

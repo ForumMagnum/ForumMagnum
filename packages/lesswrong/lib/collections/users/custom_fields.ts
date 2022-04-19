@@ -868,7 +868,6 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
     hidden: !hasEventsSetting.get(),
-    label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -889,12 +888,12 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
+    group: formGroups.publicProfile,
     label: "Your location on the community map",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 43,
+    order: 1,
   },
 
   mapLocationSet: {

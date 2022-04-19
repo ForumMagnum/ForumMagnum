@@ -107,37 +107,55 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
 
 
 
-const LocationFormComponent = ({document, updateCurrentValues, classes}: {
+const LocationFormComponent = ({document, path, label, value, updateCurrentValues, classes}: {
   document: any,
+  path: any,
+  label: string,
+  value: any,
   updateCurrentValues: any,
   classes: ClassesType,
 }) => {
-  const location = document?.location || ""
+  console.log(path)
+  const location = (path === 'googleLocation') ? document?.location || "" : value?.formatted_address || ""
   const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
   useEffect(() => {
-    updateCurrentValues({
-      location: (document && document.location) || "",
-      googleLocation: document && document.googleLocation,
-    })
+    if (path === 'googleLocation') {
+      updateCurrentValues({
+        location: (document && document.location) || "",
+        googleLocation: document && document.googleLocation,
+      })
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
   const handleCheckClear = (value) => {
     // clear location fields if the user deletes the input text
     if (value === '') {
-      updateCurrentValues({
-        location: null,
-        googleLocation: null,
-      })
+      if (path === 'googleLocation') {
+        updateCurrentValues({
+          location: null,
+          googleLocation: null,
+        })
+      } else {
+        updateCurrentValues({
+          [path]: null
+        })
+      }
     }
   }
 
   const handleSuggestSelect = (suggestion) => {
     if (suggestion && suggestion.gmaps) {
-      updateCurrentValues({
-        location: suggestion.label,
-        googleLocation: suggestion.gmaps,
-      })
+      if (path === 'googleLocation') {
+        updateCurrentValues({
+          location: suggestion.label,
+          googleLocation: suggestion.gmaps,
+        })
+      } else {
+        updateCurrentValues({
+          [path]: suggestion.gmaps
+        })
+      }
     }
   }
 
@@ -145,7 +163,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}: {
   if (document && mapsLoaded) {
     return <div className={classes.root}>
       <Geosuggest
-        placeholder="Location"
+        placeholder={label || "Location"}
         onChange={handleCheckClear}
         onSuggestSelect={handleSuggestSelect}
         initialValue={location}

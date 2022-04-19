@@ -312,6 +312,32 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns],
     canUpdate: [userOwns],
   },
+  
+  openToMeetInPerson: {
+    order: 2,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    group: formGroups.publicProfile,
+    control: 'checkbox',
+    label: "I'm open to meeting in-person"
+  },
+  
+  openToMeetOnline: {
+    order: 3,
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    group: formGroups.publicProfile,
+    control: 'checkbox',
+    label: "I'm open to meeting online"
+  },
 };
 
 export default schema;

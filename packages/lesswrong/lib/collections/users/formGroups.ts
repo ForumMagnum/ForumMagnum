@@ -15,6 +15,11 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Site Customizations",
     name: "siteCustomizations"
   },
+  publicProfile: {
+    order: 2,
+    label: "Public Profile Options",
+    name: "publicProfile"
+  },
   banUser: {
     order:50,
     name: "banUser",
