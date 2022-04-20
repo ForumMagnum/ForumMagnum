@@ -19,6 +19,8 @@ declare global {
     },
     userId?: string,
     slug?: string,
+    lng?: number
+    lat?: number
   }
 }
 
@@ -172,19 +174,6 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
     }
   }
 })
-
-Users.addView("usersByGoodHeartTokens", function (terms: UsersViewTerms) {
-  return {
-    options: {
-      sort: {
-        goodHeartTokens: -1, 
-        karma: -1
-      }
-    }
-  }
-})
-ensureIndex(Users, {goodHeartTokens: 1, karma: 1})
-
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",

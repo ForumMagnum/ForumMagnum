@@ -109,11 +109,17 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
     bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    htmlBio: user.htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
     website: user.website,
     groups: user.groups,
-    af: user.groups && user.groups.includes('alignmentForum')
+    af: user.groups && user.groups.includes('alignmentForum'),
+    ...(user.mapLocation?.geometry?.location?.lat && {_geoloc: {
+      lat: user.mapLocation.geometry.location.lat,
+      lng: user.mapLocation.geometry.location.lng,
+    }}),
+    ...(user.mapLocation?.formatted_address && {mapLocationAddress: user.mapLocation.formatted_address})
   }
   return [algoliaUser];
 }

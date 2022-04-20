@@ -46,6 +46,8 @@ const TabNavigationMenu = ({onClickSection, classes}: {
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
           {forumSelect(menuTabs).map(tab => {
+            if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUser) return null
+            
             if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
             }

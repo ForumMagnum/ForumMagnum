@@ -58,13 +58,13 @@ const DistanceUnitToggle = ({distanceUnit='km', onChange, skipDefaultEffect, cla
   
   return <div className={classes.root}>
     <input type="radio" id="km" name="distanceUnit" value="km" className={classes.radio}
-      checked={distanceUnit === 'km'} onClick={() => onChange('km')} />
+      checked={distanceUnit === 'km'} onChange={() => onChange('km')} />
     <label htmlFor="km" className={classNames(classes.label, 'left', {'selected': distanceUnit === 'km'})}>
       km
     </label>
 
     <input type="radio" id="mi" name="distanceUnit" value="mi" className={classes.radio}
-      checked={distanceUnit === 'mi'} onClick={() => onChange('mi')} />
+      checked={distanceUnit === 'mi'} onChange={() => onChange('mi')} />
     <label htmlFor="mi" className={classNames(classes.label, 'right', {'selected': distanceUnit === 'mi'})}>
       mi
     </label>

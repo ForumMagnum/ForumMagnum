@@ -29,7 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   answerHeader: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2
+    marginBottom: theme.spacing.unit*2,
+    flexWrap: "wrap",
   },
   author: {
     display: 'inline-block',
@@ -39,12 +40,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   date: {
     display: 'inline-block',
     marginLeft: 10,
+    flexGrow: 0,
+    flexShrink: 0,
   },
   vote: {
     display: 'inline-block',
     marginLeft: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.grey[500],
+    flexShrink: 0,
     flexGrow: 1,
     position: "relative",
     top: -4
