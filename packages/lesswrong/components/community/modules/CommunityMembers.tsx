@@ -111,7 +111,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[800],
     fontSize: 14,
     lineHeight: '1.8em',
-    whiteSpace: 'pre-wrap',
     display: '-webkit-box',
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
