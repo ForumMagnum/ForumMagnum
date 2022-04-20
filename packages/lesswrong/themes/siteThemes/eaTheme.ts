@@ -1,5 +1,6 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 import type { PartialDeep } from 'type-fest'
+import { themeMetadata } from '../themeNames';
 
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -55,11 +56,11 @@ export const eaForumTheme: SiteThemeSpecification = {
       main: "bf360c",
     },
     background: {
-      default: '#f6f8f9' // TODO: why is this slightly different from LW? need to figure out what to do for dark mode
+      default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
     },
     header: {
-      text: "rgba(0,0,0,.87)",
-      background: "white",
+      text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),
+      background: shadePalette.type === 'light' ? '#ffffff' : shadePalette.grey[30],
     },
     event: '#0C869B',
     group: '#538747',
@@ -294,7 +295,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             maxWidth: 900,
           },
           portal: {
-            background: 'white',
+            background: palette.grey[0],
             marginTop: 'unset',
             marginBottom: 'unset',
             padding: '20px',
