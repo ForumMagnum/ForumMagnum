@@ -6,6 +6,7 @@
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
     "tsc": "tsc --noEmit --skipLibCheck",
+    "tsc-cypress": "tsc --noEmit --skipLibCheck --project cypress/tsconfig.json",
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "build": "./build.js",
     "start": "NODE_OPTIONS=--max_old_space_size=8192 ./build.js --no-clear -run -watch --settings settings.json",
