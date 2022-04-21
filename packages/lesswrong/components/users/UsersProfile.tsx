@@ -93,7 +93,7 @@ const sortings: Partial<Record<string,string>> = {
   top: "Top"
 }
 
-export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null): T|null => {
+export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }

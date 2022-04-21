@@ -205,10 +205,10 @@ const TagPage = ({classes}: {
   const [nextTagPosition, setNextTagPosition] = useState<number | null>(null);
   useEffect(() => {
     // Initial list position setting
-    if (tagPositionInList >= 0) {
+    if (tagPositionInList && tagPositionInList >= 0) {
       setNextTagPosition(tagPositionInList + 1)
     }
-    if (nextTagPosition !== null && tagPositionInList < 0) {
+    if (nextTagPosition !== null && tagPositionInList && tagPositionInList < 0) {
       // Here we want to decrement the list positions by one, because we removed the original tag and so
       // all the indices are moved to the next
       setNextTagPosition(nextTagPosition => (nextTagPosition || 1) - 1)
