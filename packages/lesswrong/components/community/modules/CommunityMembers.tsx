@@ -187,7 +187,7 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
     if (userLocation.known && hit._geoloc) {
       distanceToPerson = `${distance(userLocation, hit._geoloc, distanceUnit)} ${distanceUnit}`
     }
-    
+        
     return <div className={classes.person}>
       <div className={classes.content}>
         <div className={classes.nameRow}>
@@ -197,7 +197,7 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
           </div>
         </div>
         <div className={classes.location}>{hit.mapLocationAddress}</div>
-        {hit.htmlBio && <div className={classes.description} dangerouslySetInnerHTML={{__html: hit.htmlBio}} />}
+        {hit.htmlBio && <div className={classes.description} dangerouslySetInnerHTML={{__html: `${hit.htmlBio.split('</p>')[0]}</p>`}} />}
       </div>
     </div>
   }
