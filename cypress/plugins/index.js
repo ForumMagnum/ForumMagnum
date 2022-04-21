@@ -44,30 +44,26 @@ module.exports = (on, config) => {
         dbConnection = new MongoClient(config.env.TESTING_DB_URL);
         await dbConnection.connect();
       }
-      try{
-        const isProd = (await dbConnection.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
-        if(isProd) {
-          throw new Error('Cannot run tests on production DB.');
-        }
-
-        const db = await dbConnection.db();
-
-        await Promise.all((await db.collections()).map(collection => {
-          if(collection.collectionName  !== "databasemetadata") {
-            return collection.deleteMany({});
-          }
-        }));
-
-        await Promise.all([
-          db.collection('comments').insertMany(seedComments),
-          db.collection('users').insertMany(seedUsers),
-          db.collection('conversations').insertMany(seedConversations),
-          db.collection('posts').insertMany(seedPosts),
-          db.collection('messages').insertMany(seedMessages),
-        ]);
-      } finally {
-        await dbConnection.close();
+      const isProd = (await dbConnection.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
+      if(isProd) {
+        throw new Error('Cannot run tests on production DB.');
       }
+
+      const db = await dbConnection.db();
+
+      await Promise.all((await db.collections()).map(collection => {
+        if(collection.collectionName  !== "databasemetadata") {
+          return collection.deleteMany({});
+        }
+      }));
+
+      await Promise.all([
+        db.collection('comments').insertMany(seedComments),
+        db.collection('users').insertMany(seedUsers),
+        db.collection('conversations').insertMany(seedConversations),
+        db.collection('posts').insertMany(seedPosts),
+        db.collection('messages').insertMany(seedMessages),
+      ]);
       return null;
     },
     async associateLoginToken({user, loginToken}) {
@@ -75,19 +71,15 @@ module.exports = (on, config) => {
         dbConnection = new MongoClient(config.env.TESTING_DB_URL);
         await dbConnection.connect();
       }
-      try{
-        const db = await dbConnection.db();
-        await db.collection('users').updateOne({_id: user._id}, {
-          $addToSet: {
-            "services.resume.loginTokens": {
-              when: new Date(),
-              hashedToken: hashLoginToken(loginToken),
-            },
+      const db = await dbConnection.db();
+      await db.collection('users').updateOne({_id: user._id}, {
+        $addToSet: {
+          "services.resume.loginTokens": {
+            when: new Date(),
+            hashedToken: hashLoginToken(loginToken),
           },
-        });
-      } finally {
-        await dbConnection.close();
-      }
+        },
+      });
       return null;
     },
   });
