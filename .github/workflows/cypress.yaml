@@ -25,7 +25,7 @@ jobs:
         TESTING_DB_URL: ${{ secrets.TESTING_DB_URL }} 
       with:
           start: yarn ea-start-testing-db
-          command: yarn ea-cypress-run
+          command: for i in {1..10}; do yarn ea-cypress-run; done
       
     - uses: actions/upload-artifact@v1
       if: failure()
