@@ -187,7 +187,7 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
     if (userLocation.known && hit._geoloc) {
       distanceToPerson = `${distance(userLocation, hit._geoloc, distanceUnit)} ${distanceUnit}`
     }
-        
+    
     return <div className={classes.person}>
       <div className={classes.content}>
         <div className={classes.nameRow}>
