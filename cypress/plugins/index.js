@@ -15,11 +15,13 @@ function hashLoginToken(loginToken) {
   return hash.digest('base64');
 };
 
+let dbConnection = null;
+
 /**
  * Note: 
  * There are 2 broad ways to connect MongoClient to a database:
- * 1. using a callback, e.g. MongoClient.connect(url, (err, client) => {...})
- * 2. using a promise, e.g. const client = await MongoClient.connect(url)
+ * 1. using a callback, e.g. MongoClient.connect(url, (err, dbConnection) => {...})
+ * 2. using a promise, e.g. const dbConnection = await MongoClient.connect(url)
  * 
  * For reasons I haven't pinned down, the callback version fails in the current
  * setup, despite previously working in a prior implementation that used an
@@ -27,8 +29,8 @@ function hashLoginToken(loginToken) {
  * the document of the current user.
  * 
  * Note that there are also instance method versions of both approaches above:
- * 1. (new MongoClient(url)).connect((err, client) => {...})
- * 2. const client = await (new Mongoclient(url)).connect()
+ * 1. (new MongoClient(url)).connect((err, dbConnection) => {...})
+ * 2. const dbConnection = await (new Mongoclient(url)).connect()
  * These show the same behavior: the callback version fails, and the promise version succeeds.
  * 
  * 
@@ -38,19 +40,21 @@ function hashLoginToken(loginToken) {
 module.exports = (on, config) => {
   on('task', {
     async dropAndSeedDatabase() {
-      const client = new MongoClient(config.env.TESTING_DB_URL);
+      if (!dbConnection) {
+        dbConnection = new MongoClient(config.env.TESTING_DB_URL);
+        await dbConnection.connect();
+      }
       try{
-        await client.connect();
-        const isProd = (await client.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
+        const isProd = (await dbConnection.db().collection('databasemetadata').findOne({name: 'publicSettings'}))?.value?.isProductionDB;
         if(isProd) {
           throw new Error('Cannot run tests on production DB.');
         }
 
-        const db = await client.db();
+        const db = await dbConnection.db();
 
         await Promise.all((await db.collections()).map(collection => {
           if(collection.collectionName  !== "databasemetadata") {
-            return db.collection(collection.collectionName).drop();
+            return collection.deleteMany({});
           }
         }));
 
@@ -62,15 +66,17 @@ module.exports = (on, config) => {
           db.collection('messages').insertMany(seedMessages),
         ]);
       } finally {
-        await client.close();
+        await dbConnection.close();
       }
       return null;
     },
     async associateLoginToken({user, loginToken}) {
-      const client = new MongoClient(config.env.TESTING_DB_URL);
+      if (!dbConnection) {
+        dbConnection = new MongoClient(config.env.TESTING_DB_URL);
+        await dbConnection.connect();
+      }
       try{
-        await client.connect();
-        const db = await client.db();
+        const db = await dbConnection.db();
         await db.collection('users').updateOne({_id: user._id}, {
           $addToSet: {
             "services.resume.loginTokens": {
@@ -80,7 +86,7 @@ module.exports = (on, config) => {
           },
         });
       } finally {
-        await client.close();
+        await dbConnection.close();
       }
       return null;
     },
