@@ -197,7 +197,7 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
           </div>
         </div>
         <div className={classes.location}>{hit.mapLocationAddress}</div>
-        {hit.htmlBio && <div className={classes.description} dangerouslySetInnerHTML={{__html: `${hit.htmlBio.split('</p>')[0]}</p>`}} />}
+        {hit.htmlBio && <div className={classes.description}><div dangerouslySetInnerHTML={{__html: hit.htmlBio}} /></div>}
       </div>
     </div>
   }
