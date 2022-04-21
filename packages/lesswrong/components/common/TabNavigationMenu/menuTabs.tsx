@@ -354,7 +354,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'intro',
       title: 'About EA',
-      link: '/intro',
+      link: 'https://www.effectivealtruism.org',
       subItem: true,
     }, {
       id: 'about',
