@@ -41,6 +41,7 @@ import { ForumOptions } from '../../../lib/forumTypeUtils';
 //   showOnMobileStandalone: boolean; show in (2) Standalone Footer Menu
 //   showOnCompressed: boolean; show in (4) Drawer Collapsed Menu
 //   subitem: boolean; display title in smaller text
+//   loggedOutOnly: boolean; only visible to logged out users
 //   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
@@ -67,7 +68,8 @@ export type MenuTabRegular = {
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
-  subItem?: boolean
+  subItem?: boolean,
+  loggedOutOnly?: boolean
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -302,6 +304,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/tag/take-action',
       iconComponent: PlaylistAddCheck,
       tooltip: "Opportunities to get involved with impactful work",
+      loggedOutOnly: true
     }, {
       id: 'events',
       title: 'Events',
@@ -322,6 +325,21 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {
+      id: 'local-groups',
+      title: 'Local Groups',
+      link: '/community',
+      subItem: true,
+    }, {
+      id: 'online-groups',
+      title: 'Online Groups',
+      link: '/community#online',
+      subItem: true,
+    }, {
+      id: 'community-members',
+      title: 'Community Members',
+      link: '/community#individuals',
+      subItem: true,
+    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
@@ -336,7 +354,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'intro',
       title: 'About EA',
-      link: '/intro',
+      link: 'https://www.effectivealtruism.org',
       subItem: true,
     }, {
       id: 'about',

@@ -29,7 +29,7 @@ export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userHasRedesignedSettingsPage = disabled;
 export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => (moderatorOnly(user) || (optInOnly(user) && karmaGated(20)(user)))
-export const userHasNewTagSubscriptions =  isEAForum ? optInOnly : disabled
+export const userHasNewTagSubscriptions =  isEAForum ? shippedFeature : disabled
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

@@ -306,6 +306,9 @@ registerFragment(`
     mongoLocation
     googleLocation
     location
+    
+    # Map Location (public)
+    mapLocation
 
     # Admin & Review
     reviewedByUserId

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Components,
-  registerComponent
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu';
@@ -80,6 +78,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.item.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
+  const now = useCurrentTime();
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     setAnchorEl(event.currentTarget);
@@ -96,7 +95,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
 
   const renderTitleComponent = () => {
     const { CommentsListMeta, Typography } = Components
-    const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
+    const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
     return <CommentsListMeta>
       <Typography
@@ -123,7 +122,7 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         {highlightDate && !newCommentsSinceDate && "No new comments since "}
         {!highlightDate && "Click to highlight new comments since: "}
         <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate || new Date()}/>
+          <Components.CalendarDate date={highlightDate || now}/>
         </a>
         <Menu
           anchorEl={anchorEl}

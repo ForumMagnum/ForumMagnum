@@ -295,7 +295,9 @@ importComponent("Community", () => require('../components/community/Community'))
 importComponent("CommunityBanner", () => require('../components/community/modules/CommunityBanner'));
 importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
 importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
+importComponent("CommunityMembers", () => require('../components/community/modules/CommunityMembers'));
 importComponent("DistanceUnitToggle", () => require('../components/community/modules/DistanceUnitToggle'));
+importComponent("SearchResultsMap", () => require('../components/community/modules/SearchResultsMap'));
 // this is the previous Community page, used by LW
 importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
 importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));

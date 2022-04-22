@@ -158,7 +158,7 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Edit Settings
+                Edit Account
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>

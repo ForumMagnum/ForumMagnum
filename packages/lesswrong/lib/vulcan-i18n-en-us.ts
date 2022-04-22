@@ -49,7 +49,7 @@ addStrings('en', {
 
   'settings': 'Settings',
   'settings.json_message': 'Note: settings already provided in your <code>settings.json</code> file will be disabled.',
-  'settings.edit': 'Edit Settings',
+  'settings.edit': 'Edit Account',
   'settings.edited': 'Settings edited (please reload).',
   'settings.title': 'Title',
   'settings.siteUrl': 'Site URL',

@@ -50,7 +50,7 @@ import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } f
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
-
+import { inspect }  from "util";
 
 
 // props that should trigger a form reset
@@ -914,9 +914,19 @@ class Form extends Component<any,any> {
 
     // eslint-disable-next-line no-console
     console.log('// graphQL Error');
+    // Error is sometimes actually a ApolloError which wraps a real 
+    // error, and displaying this is surprisingly hard. See this:
+    // https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
     // eslint-disable-next-line no-console
-    console.log(JSON.stringify(error));
-
+    console.log(JSON.stringify(error, (key, value) => 
+      (value instanceof Error) ?
+        Object.getOwnPropertyNames(value).reduce((ac, propName) => {
+          ac[propName] = value[propName];
+          return ac;
+        }, {})
+        : value
+    ))
+  
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
     runCallbacksList({
       callbacks: this.failureFormCallbacks,
