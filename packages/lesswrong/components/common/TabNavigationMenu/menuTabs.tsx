@@ -270,7 +270,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       mobileTitle: taggingNamePluralCapitalSetting.get(),
       link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
-      tooltip: 'Collaboratively edited Tags and Wiki Articles',
+      tooltip: `EA concepts directory that anyone can edit. Each ${taggingNameSetting.get()} also has a list of posts that have been tagged with it.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

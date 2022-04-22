@@ -7,7 +7,7 @@ type GetUrlOptions = {
 
 export const tagGetUrl = (tag: DbTag|TagBasicInfo|AlgoliaTag, urlOptions?: GetUrlOptions) => {
   const { flagId, edit } = urlOptions || {};
-  const url = `/${taggingNameSetting}/${tag.slug}`
+  const url = `/${taggingNameSetting.get()}/${tag.slug}`
   if (flagId && edit) return `${url}?flagId=${flagId}&edit=${edit}`
   if (flagId) return `${url}?flagId=${flagId}`
   if (edit) return `${url}?edit=${edit}`

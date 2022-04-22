@@ -84,7 +84,7 @@ const AllTagsPage = ({classes}: {
             <SectionTitle title={sectionTitle}>
               <SectionButton>
                 {currentUser
-                  ? <Link to={`/${taggingNameSetting}/create`}>
+                  ? <Link to={`/${taggingNameSetting.get()}/create`}>
                       <AddBoxIcon className={classes.addTagButton}/>
                       New {taggingNameCapitalSetting.get()}
                     </Link>

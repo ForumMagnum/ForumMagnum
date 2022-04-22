@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -102,10 +103,10 @@ const AddTag = ({onTagSelected, classes}: {
     </InstantSearch>
     <Divider/>
     <Link target="_blank" to="/tags/all" className={classes.newTag}>
-      All Tags
+      All {taggingNamePluralCapitalSetting.get()}
     </Link>
     {userCanCreateTags(currentUser) && <Link target="_blank" to="/tag/create" className={classes.newTag}>
-      Create Tag
+      Create {taggingNameCapitalSetting.get()}
     </Link>}
   </div>
 }

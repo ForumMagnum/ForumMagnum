@@ -17,7 +17,7 @@ const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
-const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
+const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
@@ -334,17 +334,6 @@ addRoute(
 if (taggingNameIsSet.get()) {
   addRoute(
     {
-      name: 'tagsAllCustomName',
-      path: `/${taggingNamePluralSetting}/all`,
-      componentName: 'AllTagsPage',
-      title: `${taggingNamePluralSetting} — Main Page`,
-    },
-    {
-      name: "tagsRedirectCustomName",
-      path:'/tags/all',
-      redirect: () => `/${taggingNamePluralSetting}/all`,
-    },
-    {
       name: 'tagsSingleCustomName',
       path: `/${taggingNamePluralSetting.get()}/:slug`,
       componentName: 'TagPage',
@@ -356,6 +345,17 @@ if (taggingNameIsSet.get()) {
       name: 'tagsSingleRedirectCustomName',
       path: '/tag/:slug',
       redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+    },
+    {
+      name: 'tagsAllCustomName',
+      path: `/${taggingNamePluralSetting.get()}/all`,
+      componentName: 'AllTagsPage',
+      title: `${taggingNamePluralSetting.get()} — Main Page`,
+    },
+    {
+      name: "tagsRedirectCustomName",
+      path:'/tags/all',
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`,
     },
     {
       name: 'tagDiscussionCustomName',
@@ -422,7 +422,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagActivityCustomName',
       path: `/${taggingNamePluralSetting.get()}Activity`,
       componentName: 'TagVoteActivity',
-      title: `${taggingNamePluralCapitalSetting} Voting Activity`
+      title: `${taggingNamePluralCapitalSetting.get()} Voting Activity`
     },
     {
       name: 'tagActivityCustomNameRedirect',
@@ -433,12 +433,24 @@ if (taggingNameIsSet.get()) {
       name: 'tagFeedCustomName',
       path: `/${taggingNamePluralSetting.get()}Feed`,
       componentName: 'TagActivityFeed',
-      title: `${taggingNamePluralCapitalSetting} Activity`
+      title: `${taggingNamePluralCapitalSetting.get()} Activity`
     },
     {
       name: 'tagFeedCustomNameRedirect',
       path: '/tagFeed',
       redirect: () => `/${taggingNamePluralSetting.get()}Feed`
+    },
+    {
+      name: 'taggingDashboardCustomName',
+      path: `/${taggingNamePluralSetting.get()}/dashboard`,
+      componentName: "TaggingDashboard",
+      title: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tagging'} Dashboard`,
+      ...taggingDashboardSubtitle
+    },
+    {
+      name: 'taggingDashboardCustomNameRedirect',
+      path: '/tags/dashboard',
+      redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
     },
   )
 } else {
@@ -504,6 +516,13 @@ if (taggingNameIsSet.get()) {
       path: '/tagFeed',
       componentName: 'TagActivityFeed',
       title: 'Tag Activity'
+    },
+    {
+      name: 'taggingDashboard',
+      path: '/tags/dashboard',
+      componentName: "TaggingDashboard",
+      title: "Tagging Dashboard",
+      ...taggingDashboardSubtitle
     },
   )
 }
@@ -1156,13 +1175,6 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
-  {
-    name: 'taggingDashboard',
-    path: '/tags/dashboard',
-    componentName: "TaggingDashboard",
-    title: "Tagging Dashboard",
-    ...taggingDashboardSubtitle
-  }
 );
 
 addRoute(
