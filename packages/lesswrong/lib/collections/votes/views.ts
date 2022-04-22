@@ -35,11 +35,11 @@ Votes.addView("tagVotes", function () {
 })
 ensureIndex(Votes, {collectionName: 1, votedAt: 1})
 
-Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , before */}, _, context: ResolverContext) {
+Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , before */}, _, context?: ResolverContext) {
   return {
     selector: {
       collectionName: collectionName,
-      userId: context.currentUser?._id,
+      userId: context?.currentUser?._id,
       voteType: voteType,
       cancelled: false,
       isUnvote: false,

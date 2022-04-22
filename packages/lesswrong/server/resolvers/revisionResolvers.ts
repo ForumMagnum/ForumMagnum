@@ -150,7 +150,7 @@ augmentFieldsDict(Revisions, {
             nonTextTags: ['blockquote', 'img', 'style'],
             
             exclusiveFilter: function(element: IFrame) {
-              return (element.attribs?.class === 'spoilers');
+              return (element.attribs?.class === 'spoilers' || element.attribs?.class === 'spoiler' || element.attribs?.class === "spoiler-v2");
             }
           }
         )

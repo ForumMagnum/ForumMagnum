@@ -11,7 +11,7 @@ import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
-import { REVIEW_YEAR } from '../../reviewUtils';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -203,6 +203,19 @@ addFieldsDict(Users, {
       }
     },
   },
+  
+  showHideKarmaOption: {
+    type: Boolean,
+    optional: true,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    order: 69,
+  },
 
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
@@ -255,6 +268,45 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() !== 'AlignmentForum',
     label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
+  },
+  
+  noSingleLineComments: {
+    order: 91,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
+  },
+
+  noCollapseCommentsPosts: {
+    order: 92,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (in large threads on Post Pages)"
+  },
+
+  noCollapseCommentsFrontpage: {
+    order: 93,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (on home page)"
   },
 
   hideNavigationSidebar: {
@@ -353,7 +405,7 @@ addFieldsDict(Users, {
     order: 40,
     form: {
       hintText:"Bio",
-      rows:4,
+      rows: 12,
       multiLine:true,
       fullWidth:true,
     },
@@ -369,6 +421,12 @@ addFieldsDict(Users, {
 
   // Karma field
   karma: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+  },
+
+  goodHeartTokens: {
     type: Number,
     optional: true,
     canRead: ['guests'],
@@ -431,19 +489,6 @@ addFieldsDict(Users, {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 56,
-  },
-
-  showHideKarmaOption: {
-    type: Boolean,
-    optional: true,
-    label: "Enable option on posts to hide karma visibility",
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: forumTypeSetting.get() !== 'EAForum',
-    control: 'checkbox',
-    group: formGroups.default,
-    order: 72,
   },
 
   // bannedUserIds: users who are not allowed to comment on this user's posts
@@ -694,8 +739,15 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationGroupAdministration: {
+    label: "Group administration notifications",
+    hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
   notificationPostsNominatedReview: {
-    label: "Nominations of my posts for the annual LessWrong Review",
+    label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
+    // Hide this while review is inactive
+    hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -1190,45 +1242,6 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment'],
     hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get()),
     order: 39,
-  },
-
-  noSingleLineComments: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not collapse comments to Single Line"
-  },
-
-  noCollapseCommentsPosts: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (in large threads on Post Pages)"
-  },
-
-  noCollapseCommentsFrontpage: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (on home page)"
   },
 
   shortformFeedId: {

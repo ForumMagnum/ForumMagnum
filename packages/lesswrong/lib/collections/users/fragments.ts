@@ -60,6 +60,7 @@ registerFragment(`
     noindex
     paymentEmail
     paymentInfo
+    goodHeartTokens
   }
 `);
 
@@ -301,6 +302,9 @@ registerFragment(`
     mongoLocation
     googleLocation
     location
+    
+    # Map Location (public)
+    mapLocation
 
     # Admin & Review
     reviewedByUserId
@@ -328,6 +332,7 @@ registerFragment(`
     notificationEventInRadius
     notificationRSVPs
     notificationPostsNominatedReview
+    notificationGroupAdministration
 
     hideFrontpageMap
     hideTaggingProgressBar

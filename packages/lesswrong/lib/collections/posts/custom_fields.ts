@@ -684,6 +684,20 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     optional: true,
     ...schemaDefaultValue(false),
+    
+    onCreate: ({newDocument}: {newDocument: DbInsertion<DbPost>}) => {
+      // HACK: This replaces the `onCreate` that normally comes with
+      // `schemaDefaultValue`. In addition to enforcing that the field must
+      // be present (not undefined), it also enforces that it cannot be null.
+      // There is a bug where GreaterWrong somehow submits posts with isEvent
+      // set to null (instead of false), which causes some post-views to filter
+      // it out (because they filter for non-events using isEvent:false which
+      // does not match null).
+      if (newDocument.isEvent===undefined || newDocument.isEvent===null)
+        return false;
+      else
+        return undefined;
+    }
   },
 
   reviewedByUserId: {

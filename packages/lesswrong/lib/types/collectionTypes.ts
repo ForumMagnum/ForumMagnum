@@ -29,11 +29,12 @@ interface CollectionBase<
   _schemaFields: SchemaType<T>
   _simpleSchema: any
   
-  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, update: any}
+  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
   checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
   findOneArbitrary: () => Promise<T|null>
+  
   /**
    * Update without running callbacks. Consider using updateMutator, which wraps
    * this.
@@ -48,7 +49,9 @@ interface CollectionBase<
    * We then decided to maintain compatibility with meteor when we switched
    * away.
    */
-  rawUpdate: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  rawUpdateOne: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  rawUpdateMany: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
+  
   /** Remove without running callbacks. Consider using deleteMutator, which
    * wraps this. */
   rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>

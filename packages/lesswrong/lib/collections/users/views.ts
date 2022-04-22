@@ -19,6 +19,8 @@ declare global {
     },
     userId?: string,
     slug?: string,
+    lng?: number
+    lat?: number
   }
 }
 
@@ -172,7 +174,6 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
     }
   }
 })
-
 
 export const hashedPetrovLaunchCodes = [
   "KEDzA2lmOdFDFweWi6jWe9kerEYXGn4qvXjrI41S4bc=",
