@@ -902,12 +902,15 @@ addFieldsDict(Users, {
 
   googleLocation: {
     type: Object,
+    form: {
+      stringVersionFieldName: "location",
+    },
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
-    hidden: !hasEventsSetting.get(),
-    label: "Group Location",
+    hidden: false,
+    label: "Location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -928,7 +931,8 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
+    group: formGroups.default,
+    hidden: false,
     label: "Your location on the community map",
     control: 'LocationFormComponent',
     blackbox: true,
