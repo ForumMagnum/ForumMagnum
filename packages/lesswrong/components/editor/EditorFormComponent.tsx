@@ -139,7 +139,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       });
       const cleanupSuccessForm = context.addToSuccessForm((result, form, submitOptions) => {
         getLocalStorageHandlers(currentEditorType).reset();
-        if (editorRef.current && !submitOptions.redirectToEditor) {
+        if (editorRef.current && !submitOptions?.redirectToEditor) {
           wrappedSetContents({
             contents: getBlankEditorContents(initialEditorType),
             autosave: false,
