@@ -886,6 +886,10 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
+  // Should match googleLocation/location
+  // Determines which events are considered nearby for default sorting on the community page
+  // Determines where the community map is centered/zoomed in on by default
+  // Publicly readable but not shown to other users
   mongoLocation: {
     type: Object,
     canRead: ['guests'],
@@ -900,6 +904,8 @@ addFieldsDict(Users, {
     }),
   },
 
+  // Is the canonical value for denormalized mongoLocation and location
+  // Edited from the /events page to choose where to show events near
   googleLocation: {
     type: Object,
     form: {
@@ -926,6 +932,8 @@ addFieldsDict(Users, {
     optional: true
   },
 
+  // Used to place a map marker pin on the where-are-other-users map.
+  // Public.
   mapLocation: {
     type: Object,
     canRead: ['guests'],
@@ -980,6 +988,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
 
+  // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
     type: Object,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
