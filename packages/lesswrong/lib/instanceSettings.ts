@@ -117,8 +117,12 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
-// TODO; doc
-// We assume this is a single word currently
+/**
+ * Name of the tagging feature on your site. The EA Forum is going to try
+ * calling them topics. You should set this setting with the lowercase singular
+ * form of the name. We assume this is a single word currently. Spaces will
+ * cause issues.
+ */
 export const taggingNameSetting = new PublicInstanceSetting<string>('taggingName', 'tag', 'optional')
 export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSetting.get())}
 export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
