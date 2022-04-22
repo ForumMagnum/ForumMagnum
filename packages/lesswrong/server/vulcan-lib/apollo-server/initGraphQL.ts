@@ -27,7 +27,7 @@ import {
   deleteMutationTemplate,
 } from './graphqlTemplates';
 import type { GraphQLScalarType } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib/utils';
+import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';

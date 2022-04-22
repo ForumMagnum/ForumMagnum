@@ -6,7 +6,7 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection } from '../vulcan-lib';
-import { pluralize, camelCaseify } from '../vulcan-lib/utils';
+import { pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
 
 // Multi query used on the client

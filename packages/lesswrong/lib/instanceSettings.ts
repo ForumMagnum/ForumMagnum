@@ -1,6 +1,6 @@
 import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
-import { pluralize } from './vulcan-lib/utils';
+import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase'
 
 const getNestedProperty = function (obj, desc) {
