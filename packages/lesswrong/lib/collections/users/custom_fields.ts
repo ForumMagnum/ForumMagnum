@@ -889,10 +889,10 @@ addFieldsDict(Users, {
   // Should match googleLocation/location
   // Determines which events are considered nearby for default sorting on the community page
   // Determines where the community map is centered/zoomed in on by default
-  // Publicly readable but not shown to other users
+  // Not shown to other users
   mongoLocation: {
     type: Object,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
@@ -911,12 +911,12 @@ addFieldsDict(Users, {
     form: {
       stringVersionFieldName: "location",
     },
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
-    hidden: false,
-    label: "Location",
+    hidden: !hasEventsSetting.get(),
+    label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -925,7 +925,7 @@ addFieldsDict(Users, {
 
   location: {
     type: String,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     hidden: true,
@@ -940,8 +940,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
-    hidden: false,
-    label: "Your location on the community map",
+    label: "Public location (used for your public profile)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,

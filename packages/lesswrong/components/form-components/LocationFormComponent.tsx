@@ -78,7 +78,11 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...geoSuggestStyles(theme)
+    ...geoSuggestStyles(theme),
+    ...theme.typography.commentStyle
+  },
+  label: {
+    fontSize: 10
   }
 });
 
@@ -89,7 +93,6 @@ let onMapsLoaded: Array<()=>void> = [];
 
 export const useGoogleMaps = (): [boolean, any] => {
   const [isMapsLoaded, setIsMapsLoaded] = useState(false);
-  const libraries = ["places"];
   
   useEffect(() => {
     if (isClient) {
@@ -101,12 +104,12 @@ export const useGoogleMaps = (): [boolean, any] => {
         });
       }
       
-      if (mapsLoadingState==="unloaded") {
+      if (mapsLoadingState === "unloaded") {
         mapsLoadingState = "loading";
         
         var tag = document.createElement('script');
         tag.async = false;
-        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=${libraries}&callback=googleMapsFinishedLoading`;
+        tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&callback=googleMapsFinishedLoading`;
         (window as any).googleMapsFinishedLoading = () => {
           mapsLoadingState = "loaded";
           let callbacks = onMapsLoaded;
@@ -118,7 +121,7 @@ export const useGoogleMaps = (): [boolean, any] => {
         document.body.appendChild(tag);
       }
     }
-  });
+  }, []);
   
   if (!isMapsLoaded) return [false, null];
   return [true, (window as any)?.google?.maps];
@@ -129,19 +132,22 @@ const getLocationString = (googleLocation: any): string => {
   return googleLocation?.["formatted_address"];
 }
 
-const LocationFormComponent = ({document, path, label, placeholder, updateCurrentValues, stringVersionFieldName, classes}: {
+const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
   document: any,
   path: string,
   label: string,
-  placeholder: string,
+  value: string,
   updateCurrentValues: any,
   stringVersionFieldName?: string|null,
   classes: ClassesType,
 }) => {
+  // if this location field has a matching field that just stores the string version of the location,
+  // make sure to update the matching field along with this one
   const locationFieldName: string|null = stringVersionFieldName || null;
+
   const location =
     (locationFieldName && document?.[locationFieldName])
-    || getLocationString(document?.[path])
+    || document?.[path]?.formatted_address
     || ""
   const [ mapsLoaded ] = useGoogleMaps()
   
@@ -169,9 +175,9 @@ const LocationFormComponent = ({document, path, label, placeholder, updateCurren
 
   if (document && mapsLoaded) {
     return <div className={classes.root}>
-      <FormLabel>{label}</FormLabel>
+      {value && <FormLabel className={classes.label}>{label}</FormLabel>}
       <Geosuggest
-        placeholder={placeholder}
+        placeholder={label}
         onChange={handleCheckClear}
         onSuggestSelect={handleSuggestSelect}
         initialValue={location}
