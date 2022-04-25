@@ -16,7 +16,7 @@ import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 
@@ -169,7 +169,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </span>
         </Tooltip>
 
-        <Tooltip title={`${tagRevisionCount||0} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
+        <Tooltip title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`}>
           <span className={classes.userMetaInfo}>
             <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo>
@@ -347,8 +347,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Wiki Section */}
           <SingleColumnSection>
-            <SectionTitle title={"Wiki Contributions"}>
-            </SectionTitle>
+            <SectionTitle title={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki'} Contributions`} />
             <AnalyticsContext listContext={"userPageWiki"}>
               <TagEditsByUser
                 userId={user._id}

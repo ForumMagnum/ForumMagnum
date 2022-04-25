@@ -15,7 +15,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -285,7 +285,9 @@ const TagPage = ({classes}: {
                   title={tag.name}
                   onClickSection={expandAll}
                 />
-                <Link to="/tags/random" className={classes.randomTagLink}>Random Tag</Link>
+                <Link to="/tags/random" className={classes.randomTagLink}>
+                  Random {taggingNameCapitalSetting.get()}
+                </Link>
                 <TableOfContentsRow href="#" divider={true}/>
                 <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
               </span>
