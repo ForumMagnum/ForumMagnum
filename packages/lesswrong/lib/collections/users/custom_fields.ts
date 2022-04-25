@@ -886,9 +886,13 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
+  // Should match googleLocation/location
+  // Determines which events are considered nearby for default sorting on the community page
+  // Determines where the community map is centered/zoomed in on by default
+  // Not shown to other users
   mongoLocation: {
     type: Object,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
@@ -900,14 +904,19 @@ addFieldsDict(Users, {
     }),
   },
 
+  // Is the canonical value for denormalized mongoLocation and location
+  // Edited from the /events page to choose where to show events near
   googleLocation: {
     type: Object,
-    canRead: ['guests'],
+    form: {
+      stringVersionFieldName: "location",
+    },
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
     hidden: !hasEventsSetting.get(),
-    label: "Group Location",
+    label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -916,20 +925,22 @@ addFieldsDict(Users, {
 
   location: {
     type: String,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     hidden: true,
     optional: true
   },
 
+  // Used to place a map marker pin on the where-are-other-users map.
+  // Public.
   mapLocation: {
     type: Object,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
-    label: "Your location on the community map",
+    group: formGroups.default,
+    label: "Public location (used for your public profile)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -976,6 +987,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
 
+  // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
     type: Object,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],

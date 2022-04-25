@@ -837,7 +837,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
-    label: "Group Location",
+    label: "Event Location",
     control: 'LocationFormComponent',
     blackbox: true,
     group: formGroups.event,
