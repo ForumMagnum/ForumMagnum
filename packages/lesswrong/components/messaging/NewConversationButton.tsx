@@ -10,7 +10,9 @@ import { useDialog } from '../common/withDialog';
 
 // Button used to start a new conversation for a given user
 const NewConversationButton = ({ user, currentUser, children, templateCommentId }: {
-  user: UsersMinimumInfo,
+  user: {
+    _id: string
+  },
   currentUser: UsersCurrent|null,
   templateCommentId?: string,
   children: any
@@ -31,7 +33,6 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
     collectionName: "Conversations",
     fragmentName: 'conversationsListFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 1,
   });
   
   const newConversation = useCallback(async (search) =>  {
@@ -45,15 +46,14 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   }, [createConversation, user, currentUser, history]);
 
   const existingConversationCheck = () => {
-    let conversationExists = false;
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
-    results?.forEach(conversation => {
+    for (let conversation of results) {
       if (conversation.title === null && conversation.participants.some(participant => participant._id === user._id)){
         history.push({pathname: `/inbox/${conversation._id}`, ...search})
-        conversationExists = true;
+        return
       }
-    })
-    conversationExists ? undefined : void newConversation(search);
+    }
+    void newConversation(search);
   }
   
   return (

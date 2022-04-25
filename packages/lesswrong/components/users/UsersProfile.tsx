@@ -11,6 +11,7 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
+import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -40,6 +41,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0
+  },
+  mapLocation: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 4,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    color: theme.palette.grey[800],
+    marginBottom: 20
+  },
+  locationIcon: {
+    fontSize: 14,
   },
   userInfo: {
     display: "flex",
@@ -246,6 +259,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Bio Section */}
           <SingleColumnSection>
             <div className={classes.usernameTitle}>{username}</div>
+            {user.mapLocation && <div className={classes.mapLocation}>
+              <LocationIcon className={classes.locationIcon} />
+              {user.mapLocation.formatted_address}
+            </div>}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
