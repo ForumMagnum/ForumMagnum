@@ -43,6 +43,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   linkSharingDescriptionPart: {
     display: "block",
   },
+  warning: {
+    color: theme.palette.error.main
+  }
 });
 
 const PostSharingSettings = ({document, formType, value, path, label, classes}: {
@@ -110,7 +113,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
     return null;
   
   return <div className={classes.shareButtonSection}>
-    <Button variant="contained" color="primary" onClick={onClickShare}>
+    <Button variant="outlined"  onClick={onClickShare}>
       <div>
         Share<br/>
         <span className={classes.betaLabel}>(Beta)</span>
@@ -183,6 +186,8 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
   return <LWDialog open={true}>
     <div className={classes.sharingSettingsDialog}>
       <h2>Sharing Settings</h2>
+
+      <p className={classes.warning}>WARNING: Collaborative editing currently has significant bugs.<br/>Message us on intercom if you experience issues. </p>
       
       <p>Shared With Users:</p>
       <EditableUsersList

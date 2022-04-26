@@ -979,8 +979,8 @@ addFieldsDict(Posts, {
     type: Array,
     order: 15,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members', 'sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     optional: true,
     hidden: false, //Temporary while testing new collab editing
     control: "UsersListEditor",
