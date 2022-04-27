@@ -229,7 +229,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
-      <p className={classes.warning}>Collaborative editing is in beta. Message us on intercom if you experience issues.</p>
+      <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom if you experience issues.</p>
 
       <div className={classes.buttonRow}>
         {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId &&
