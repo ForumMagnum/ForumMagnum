@@ -1,5 +1,5 @@
 import React from 'react';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
 
@@ -70,7 +70,10 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
         />
       </div>
       {newlyVoted && <span className={classes.removeButton}>
-        <LWTooltip title={"Remove your relevance vote from this tag"} placement="top">
+        <LWTooltip
+          title={`Remove your relevance vote from this ${taggingNameSetting.get()}`}
+          placement="top"
+        >
           <TagRelevanceButton
             label={`Remove ${taggingNameCapitalSetting.get()}`}
             {...voteProps}
