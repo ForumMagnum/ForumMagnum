@@ -20,7 +20,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { useDialog } from '../../common/withDialog';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -250,7 +250,7 @@ const PostActions = ({post, closeMenu, classes}: {
             <ListItemIcon>
               <LocalOfferOutlinedIcon />
             </ListItemIcon>
-            Edit Tags
+            Edit {taggingNamePluralCapitalSetting.get()}
           </MenuItem>
         </div>
         { isRead

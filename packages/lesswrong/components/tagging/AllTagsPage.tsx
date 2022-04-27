@@ -9,7 +9,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -84,7 +84,7 @@ const AllTagsPage = ({classes}: {
             <SectionTitle title={sectionTitle}>
               <SectionButton>
                 {currentUser
-                  ? <Link to={`/${taggingNameSetting.get()}/create`}>
+                  ? <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
                       <AddBoxIcon className={classes.addTagButton}/>
                       New {taggingNameCapitalSetting.get()}
                     </Link>
