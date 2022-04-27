@@ -18,6 +18,7 @@ import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -159,7 +160,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.tagRevisions.map(tagChange => (
               <MenuItemUntyped className={classes.votedItemRow}
                 component={Link} key={tagChange._id}
-                to={`/tag/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
+                to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>

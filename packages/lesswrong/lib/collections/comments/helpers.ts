@@ -1,4 +1,4 @@
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
@@ -22,7 +22,7 @@ export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = f
     const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
     const tag = await mongoFindOne("Tags", {_id:comment.tagId});
     if (!tag) throw Error(`Unable to find tag for comment: ${comment._id}`)
-    return `${prefix}/tag/${tag.slug}/discussion#${comment._id}`;
+    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${comment._id}`;
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
   }
@@ -33,7 +33,7 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
     return `${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tag) {
     const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-    return `${prefix}/tag/${comment.tag.slug}/discussion#${comment._id}`;
+    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${comment.tag.slug}/discussion#${comment._id}`;
   } else {
     throw new Error(`Unable to find document for comment: ${comment._id}`);
   }
@@ -55,7 +55,7 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, 
       return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
     }
   } else if (tagSlug) {
-    return `${prefix}/tag/${tagSlug}/discussion#${commentId}`;
+    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion#${commentId}`;
   } else {
     //throw new Error("commentGetPageUrlFromIds needs a post or tag");
     return "/"

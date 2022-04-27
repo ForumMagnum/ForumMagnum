@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { wikiGradeDefinitions } from '../../lib/collections/tags/schema';
 import StarIcon from '@material-ui/icons/Star';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,7 +25,10 @@ const WikiGradeDisplay = ({wikiGrade, classes}: {wikiGrade:number, classes: any}
   const { LWTooltip } = Components
   if (forumTypeSetting.get() === 'EAForum' || wikiGrade === 0) return null
   return <LWTooltip title={wikiGradeDescriptions[wikiGrade]}>
-    <Link className={classes.root} to={"/tag/tag-grading-scheme"}>
+    <Link
+      className={classes.root}
+      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/tag-grading-scheme`}
+    >
       <StarIcon/>{wikiGradeDefinitions[wikiGrade]}
     </Link>
   </LWTooltip>

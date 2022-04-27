@@ -302,7 +302,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'takeAction',
       title: 'Take Action',
-      link: '/tag/take-action',
+      link: `/${taggingNamePluralCapitalSetting.get()}/take-action`,
       iconComponent: PlaylistAddCheck,
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
