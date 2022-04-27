@@ -7,6 +7,7 @@ declare global {
   interface ConversationsViewTerms extends ViewTermsBase {
     view?: ConversationsViewName
     userId?: string
+    otherUserId?: string
     showArchive?: boolean
   }
 }
@@ -33,6 +34,14 @@ Conversations.addView("userConversations", function (terms: ConversationsViewTer
 ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
 Conversations.addView("userUntitledConversations", function (terms: ConversationsViewTerms) {
-  return { selector: {participantIds: terms.userId, title: viewFieldNullOrMissing}, archivedByIds: {$ne: terms.userId}};
+  const participantIdFilter = terms.otherUserId ? {$all: [terms.userId, terms.otherUserId]} : terms.userId
+  
+  return {
+    selector: {
+      participantIds: participantIdFilter,
+      title: viewFieldNullOrMissing,
+      archivedByIds: {$ne: terms.userId}
+    },
+  };
 });
 ensureIndex(Conversations, { participantIds: 1, title: 1 })

@@ -27,12 +27,17 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   
   
   // Checks if unnamed conversation between the two users exists
-  const terms: ConversationsViewTerms = {view: 'userUntitledConversations', userId: currentUser?._id};
+  const terms: ConversationsViewTerms = {
+    view: 'userUntitledConversations',
+    userId: currentUser?._id,
+    otherUserId: user._id
+  };
   const { results } = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'conversationIdFragment',
     fetchPolicy: 'cache-and-network',
+    limit: 1
   });
   
   const newConversation = useCallback(async (search) =>  {
@@ -48,10 +53,8 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   const existingConversationCheck = () => {
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
     for (let conversation of results) {
-      if (conversation.title === null && conversation.participants.some(participant => participant._id === user._id)){
-        history.push({pathname: `/inbox/${conversation._id}`, ...search})
-        return
-      }
+      history.push({pathname: `/inbox/${conversation._id}`, ...search})
+      return
     }
     void newConversation(search);
   }
