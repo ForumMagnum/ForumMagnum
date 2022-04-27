@@ -478,6 +478,7 @@ const Community = ({classes}: {
         
         {tab === 'individuals' && <div key="individuals">
           <CommunityMembers
+            currentUser={currentUser}
             userLocation={userLocation}
             distanceUnit={distanceUnit}
             locationFilterNode={(
