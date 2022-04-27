@@ -12,7 +12,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -116,10 +116,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
-      {(tag && !isMobile()) ? <Link to={`tag/${tag?.slug}`}>
-        {tagLabel}
-      </Link>
-      : tagLabel
+      {(tag && !isMobile()) ?
+        <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag?.slug}`}>
+          {tagLabel}
+        </Link> :
+        tagLabel
       }
       <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start"
         modifiers={{
