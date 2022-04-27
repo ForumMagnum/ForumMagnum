@@ -979,13 +979,10 @@ addFieldsDict(Posts, {
     type: Array,
     order: 15,
     viewableBy: ['guests'],
-    // insertableBy: ['sunshineRegiment', 'admins'],
-    // editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['members'],
+    editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: false, //Temporary while testing new collab editing
-    control: "UsersListEditor",
-    label: "Share draft with users",
-    group: formGroups.options
+    hidden: true, 
   },
 
   'shareWithUsers.$': {
