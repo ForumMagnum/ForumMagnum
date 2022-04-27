@@ -44,7 +44,10 @@ getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCal
 });
 
 getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.displayName !== oldUser.displayName) {
+  // if the user is setting up their profile and their username changes from that form,
+  // we don't want this action to count toward their one username change
+  const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
+  if (user.displayName !== oldUser.displayName && !isSettingUsername) {
     await updateMutator({
       collection: Users,
       documentId: user._id,

@@ -6,6 +6,7 @@ import { voteCallbacks } from '../../lib/voting/vote';
 import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
+import { taggingNameSetting } from '../../lib/instanceSettings';
 
 function isValidTagName(name: string) {
   return true;
@@ -35,7 +36,7 @@ getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any
   if (!tag.name || !tag.name.length)
     throw new Error("Name is required");
   if (!isValidTagName(tag.name))
-    throw new Error("Invalid tag name (use only letters, digits and dash)");
+    throw new Error(`Invalid ${taggingNameSetting.get()} name (use only letters, digits and dash)`);
   
   // If the name starts with a hash, strip it off
   const normalizedName = normalizeTagName(tag.name);
@@ -49,7 +50,7 @@ getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any
   // Name must be unique
   const existing = await Tags.find({name: normalizedName, deleted:false}).fetch();
   if (existing.length > 0)
-    throw new Error("A tag by that name already exists");
+    throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
   
   return validationErrors;
 });
@@ -58,11 +59,11 @@ getCollectionHooks("Tags").updateValidate.add(async (validationErrors: Array<any
   const newName = normalizeTagName(newDocument.name);
   if (oldDocument.name !== newName) { // Tag renamed?
     if (!isValidTagName(newDocument.name))
-      throw new Error("Invalid tag name");
+      throw new Error(`Invalid ${taggingNameSetting.get()} name`);
     
     const existing = await Tags.find({name: newName, deleted:false}).fetch();
     if (existing.length > 0)
-      throw new Error("A tag by that name already exists");
+      throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);
   }
   
   if (newDocument.name !== newName) {
