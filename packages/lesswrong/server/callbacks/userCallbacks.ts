@@ -82,10 +82,10 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").editSync.add(function mapLocationMayTriggerReview(modifier, user: DbUser) {
-  // if mapLocation is being modified and the user is not reviewed, mark them for review
-  if (modifier.$set && modifier.$set.mapLocation && !user.reviewedByUserId) {
-    modifier.$set.needsReview = true
+getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
+  // if the user has a mapLocation and they have not been reviewed, mark them for review
+  if (newUser.mapLocation && !newUser.reviewedByUserId && !newUser.needsReview) {
+    void Users.rawUpdateOne({_id: newUser._id}, {$set: {needsReview: true}})
   }
 })
 
