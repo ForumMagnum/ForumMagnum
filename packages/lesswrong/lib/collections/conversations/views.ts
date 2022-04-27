@@ -34,7 +34,7 @@ Conversations.addView("userConversations", function (terms: ConversationsViewTer
 ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
 Conversations.addView("userGroupUntitledConversations", function (terms: ConversationsViewTerms) {
-  // returns a list of conversations where the participant list is exactly terms.userIds
+  // returns a list of conversations where the participant list is exactly terms.participantIds
   return {
     selector: {
       participantIds: terms.participantIds,
