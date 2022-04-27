@@ -1,5 +1,5 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
@@ -350,7 +350,7 @@ if (taggingNameIsSet.get()) {
       name: 'tagsAllCustomName',
       path: `/${taggingNamePluralSetting.get()}/all`,
       componentName: 'AllTagsPage',
-      title: `${taggingNamePluralSetting.get()} — Main Page`,
+      title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
     },
     {
       name: "tagsRedirectCustomName",
@@ -398,8 +398,8 @@ if (taggingNameIsSet.get()) {
     {
       name: 'tagCreateCustomName',
       path: `/${taggingNamePluralSetting.get()}/create`,
+      title: `New ${taggingNameCapitalSetting.get()}`,
       componentName: 'NewTagPage',
-      title: "New Tag",
       subtitleComponentName: 'TagPageTitle',
       background: "white"
     },
@@ -444,7 +444,7 @@ if (taggingNameIsSet.get()) {
       name: 'taggingDashboardCustomName',
       path: `/${taggingNamePluralSetting.get()}/dashboard`,
       componentName: "TaggingDashboard",
-      title: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tagging'} Dashboard`,
+      title: `${taggingNamePluralCapitalSetting.get()} Dashboard`,
       ...taggingDashboardSubtitle
     },
     {

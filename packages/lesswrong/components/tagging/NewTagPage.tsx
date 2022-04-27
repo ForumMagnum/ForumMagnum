@@ -4,7 +4,7 @@ import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
 import { Tags } from '../../lib/collections/tags/collection';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const NewTagPage = () => {
   const { history } = useNavigation();
@@ -14,9 +14,9 @@ const NewTagPage = () => {
   if (!currentUser) {
     return (
       <SingleColumnSection>
-        <SectionTitle title={`New ${taggingNamePluralCapitalSetting.get()}`}/>
+        <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
         <div>
-          You must be logged in to define new tags.
+          You must be logged in to define new {taggingNamePluralSetting.get()}.
         </div>
       </SingleColumnSection>
     );
@@ -24,7 +24,7 @@ const NewTagPage = () => {
   
   return (
     <SingleColumnSection>
-      <SectionTitle title={`New ${taggingNamePluralCapitalSetting.get()}`}/>
+      <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
       <WrappedSmartForm
         collection={Tags}
         mutationFragment={getFragment('TagFragment')}
