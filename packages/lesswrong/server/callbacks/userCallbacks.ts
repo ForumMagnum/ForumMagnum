@@ -82,6 +82,13 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
+getCollectionHooks("Users").editSync.add(function mapLocationMayTriggerReview(modifier, user: DbUser) {
+  // if mapLocation is being modified and the user is not reviewed, mark them for review
+  if (modifier.$set && modifier.$set.mapLocation && !user.reviewedByUserId) {
+    modifier.$set.needsReview = true
+  }
+})
+
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.
