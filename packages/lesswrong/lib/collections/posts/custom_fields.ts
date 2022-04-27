@@ -964,14 +964,14 @@ addFieldsDict(Posts, {
 
   sharingSettings: {
     type: Object,
-    order: 16,
+    order: 15,
     viewableBy: [userOwns, userIsSharedOn, 'admins'],
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: formGroups.options,
     blackbox: true,
   },
   
@@ -979,8 +979,8 @@ addFieldsDict(Posts, {
     type: Array,
     order: 15,
     viewableBy: ['guests'],
-    insertableBy: ['sunshineRegiment', 'admins'],
-    editableBy: ['sunshineRegiment', 'admins'],
+    // insertableBy: ['sunshineRegiment', 'admins'],
+    // editableBy: ['sunshineRegiment', 'admins'],
     optional: true,
     hidden: false, //Temporary while testing new collab editing
     control: "UsersListEditor",

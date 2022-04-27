@@ -12,6 +12,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import PropTypes from 'prop-types';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -37,6 +38,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     display: "flex",
   },
+  buttonIcon: {
+    cursor: "pointer"
+  },
   spacer: {
     flexGrow: 1,
   },
@@ -57,6 +61,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   classes: ClassesType
 }, context) => {
   const {updateCurrentValues, submitForm} = context;
+  const { LWTooltip } = Components
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
   const hasUnsavedPermissionsChanges = false;
@@ -112,14 +117,9 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   if (!userCanUseSharing(currentUser))
     return null;
   
-  return <div className={classes.shareButtonSection}>
-    <Button variant="outlined"  onClick={onClickShare}>
-      <div>
-        Share<br/>
-        <span className={classes.betaLabel}>(Beta)</span>
-      </div>
-    </Button>
-  </div>
+  return <LWTooltip title="Share this document (Beta)">
+      <PersonAddIcon className={classes.buttonIcon} onClick={onClickShare}/>
+    </LWTooltip>
 }
 
 (PostSharingSettings as any).contextTypes = {
@@ -187,7 +187,6 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
     <div className={classes.sharingSettingsDialog}>
       <h2>Sharing Settings</h2>
 
-      <p className={classes.warning}>WARNING: Collaborative editing currently has significant bugs.<br/>Message us on intercom if you experience issues. </p>
       
       <p>Shared With Users:</p>
       <EditableUsersList
@@ -214,6 +213,8 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
+      <p className={classes.warning}>Collaborative editing is in beta. Message us on intercom if you experience issues.</p>
+
       <div className={classes.sharingPermissionsRow}>
         <span className={classes.sharingPermissionsLabel}>Anyone with the link can:</span>
         <Select
