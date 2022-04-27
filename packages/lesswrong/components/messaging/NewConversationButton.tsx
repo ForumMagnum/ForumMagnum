@@ -28,9 +28,9 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   
   // Checks if unnamed conversation between the two users exists
   const terms: ConversationsViewTerms = {
-    view: 'userUntitledConversations',
+    view: 'userGroupUntitledConversations',
     userId: currentUser?._id,
-    otherUserId: user._id
+    participantIds: [currentUser?._id, user._id]
   };
   const { results } = useMulti({
     terms,
