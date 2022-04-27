@@ -5,7 +5,8 @@ import { DatabasePublicSetting } from '../publicSettings';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
-import { pluralize, camelCaseify } from './utils';
+import { camelCaseify } from './utils';
+import { pluralize } from './pluralize';
 export * from './getCollection';
 import { loggerConstructor } from '../utils/logging'
 

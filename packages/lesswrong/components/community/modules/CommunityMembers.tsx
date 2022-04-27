@@ -6,6 +6,7 @@ import { getSearchClient } from '../../../lib/algoliaUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
+import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -117,6 +118,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginTop: 12,
   },
+  buttonRow: {
+    display: 'flex',
+    justifyContent: 'right',
+    marginTop: 14
+  },
+  messageBtn: {
+    boxShadow: 'none'
+  },
   map: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
@@ -145,7 +154,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, classes}: {
+const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
+  currentUser,
   userLocation: {
     lat: number,
     lng: number,
@@ -156,7 +166,7 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
   locationFilterNode: ReactNode,
   classes: ClassesType,
 }) => {
-  const { SearchResultsMap } = Components
+  const { NewConversationButton, SearchResultsMap } = Components
   
   const SearchBox = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
@@ -198,6 +208,11 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
         </div>
         <div className={classes.location}>{hit.mapLocationAddress}</div>
         {hit.htmlBio && <div className={classes.description}><div dangerouslySetInnerHTML={{__html: hit.htmlBio}} /></div>}
+        {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
+          <NewConversationButton user={hit} currentUser={currentUser}>
+            <Button variant="contained" color="primary" className={classes.messageBtn}>Message</Button>
+          </NewConversationButton>
+        </div>}
       </div>
     </div>
   }

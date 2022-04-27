@@ -22,3 +22,9 @@ registerFragment(`
     participantIds
   }
 `);
+
+registerFragment(`
+  fragment conversationIdFragment on Conversation {
+    _id
+  }
+`);

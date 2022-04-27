@@ -5,6 +5,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const TagHistoryPageTitle = ({isSubtitle, classes, siteName}: {
   isSubtitle: boolean,
@@ -18,7 +19,7 @@ const TagHistoryPageTitle = ({isSubtitle, classes, siteName}: {
   
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
-      <Link to="/tags/all">Tags</Link>
+      <Link to={`/${taggingNamePluralSetting.get()}/all`}>{taggingNamePluralCapitalSetting.get()}</Link>
     </span>);
   } else if (!tag) {
     return null;
