@@ -15,13 +15,13 @@ export const tagGetUrl = (tag: DbTag|TagBasicInfo|AlgoliaTag, urlOptions?: GetUr
 }
 
 export const tagGetDiscussionUrl = (tag: DbTag|TagBasicInfo) => {
-  return `/tag/${tag.slug}/discussion`
+  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`
 }
 
 export const tagGetCommentLink = (tag: DbTag|TagBasicInfo, commentId: string): string => {
-  return `/tag/${tag.slug}/discussion#${commentId}`
+  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${commentId}`
 }
 
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string): string => {
-  return `/tag/${tag.slug}?version=${versionNumber}`;
+  return `/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}?version=${versionNumber}`;
 }

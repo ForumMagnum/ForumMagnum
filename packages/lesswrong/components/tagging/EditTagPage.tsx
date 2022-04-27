@@ -5,6 +5,7 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 export const EditTagForm = ({tag, successCallback, cancelCallback}: {
   tag: TagFragment,
@@ -36,7 +37,7 @@ const EditTagPage = () => {
   
   return (
     <Components.SingleColumnSection>
-      <Components.SectionTitle title={`Edit Tag #${tag.name}`}/>
+      <Components.SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
         successCallback={ async (tag) => {
