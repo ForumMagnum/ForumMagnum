@@ -213,8 +213,6 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
-      <p className={classes.warning}>Collaborative editing is in beta. Message us on intercom if you experience issues.</p>
-
       <div className={classes.sharingPermissionsRow}>
         <span className={classes.sharingPermissionsLabel}>Anyone with the link can:</span>
         <Select
@@ -231,6 +229,8 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
+      <p className={classes.warning}>Collaborative editing is in beta. Message us on intercom if you experience issues.</p>
+
       <div className={classes.buttonRow}>
         {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId &&
           <CopyToClipboard
