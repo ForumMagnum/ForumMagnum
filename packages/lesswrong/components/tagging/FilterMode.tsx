@@ -12,6 +12,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
+import { taggingNameSetting } from '../../lib/instanceSettings';
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -194,12 +195,12 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 function filterModeToTooltip(mode: FilterMode): React.ReactNode {
   switch (mode) {
     case "Required":
-      return <div><em>Required.</em> ONLY posts with this tag will appear in Latest Posts.</div>
+      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in Latest Posts.</div>
     case "Hidden":
-      return <div><em>Hidden.</em> Posts with this tag will be not appear in Latest Posts.</div>
+      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in Latest Posts.</div>
     case 0:
     case "Default":
-      return <div><em>+0.</em> This tag will be ignored for filtering and sorting.</div>
+      return <div><em>+0.</em> This {taggingNameSetting.get()} will be ignored for filtering and sorting.</div>
     default:
       if (mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
