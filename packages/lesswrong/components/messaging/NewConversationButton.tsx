@@ -30,14 +30,15 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   const terms: ConversationsViewTerms = {
     view: 'userGroupUntitledConversations',
     userId: currentUser?._id,
-    participantIds: [currentUser?._id, user._id]
+    participantIds: [currentUser?._id || '', user._id]
   };
   const { results } = useMulti({
     terms,
     collectionName: "Conversations",
     fragmentName: 'conversationIdFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 1
+    limit: 1,
+    skip: !currentUser
   });
   
   const newConversation = useCallback(async (search) =>  {
