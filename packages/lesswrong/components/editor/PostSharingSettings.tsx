@@ -229,7 +229,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
-      <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom or email team@lesswrong.com if you experience issues.</p>
+      <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom or email us at team@lesswrong.com if you experience issues</p>
 
       <div className={classes.buttonRow}>
         {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId &&
