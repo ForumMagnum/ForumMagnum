@@ -37,11 +37,11 @@ Conversations.addView("userGroupUntitledConversations", function (terms: Convers
   // returns a list of conversations where the participant list is exactly terms.participantIds
   return {
     selector: {
-      participantIds: terms.participantIds,
+      participantIds: terms.participantIds ? {$size: terms.participantIds.length, $all: terms.participantIds} : terms.userId,
       title: viewFieldNullOrMissing,
       // pass in a terms.userId to exclude conversations that this user archived
       archivedByIds: {$ne: terms.userId}
     },
   };
 });
-ensureIndex(Conversations, { participantIds: 1, title: 1 })
+ensureIndex(Conversations, { participantIds: 1, title: 1, archivedByIds: 1 })

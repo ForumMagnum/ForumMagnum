@@ -15,7 +15,7 @@ module.exports = {
         userId : "test-other-user",
         wordCount : 3
     },
-    participantIds : ["test-other-user", "test-user"],
+    userId : "test-other-user",
     noEmail : false,
     schemaVersion : 1
 }
