@@ -1,5 +1,5 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/algoliaUtil';
@@ -8,6 +8,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
+import { useTracking } from '../../../lib/analyticsEvents';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -166,6 +167,9 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   locationFilterNode: ReactNode,
   classes: ClassesType,
 }) => {
+  const { captureEvent } = useTracking()
+  const keywordSearchTimer = useRef<any>(null)
+
   const { NewConversationButton, SearchResultsMap } = Components
   
   const SearchBox = ({currentRefinement, refine}) => {
@@ -175,7 +179,16 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         startAdornment={<Search className={classes.searchIcon}/>}
         placeholder="Search people"
         value={currentRefinement}
-        onChange={e => refine(e.currentTarget.value)}
+        onChange={e => {
+          const newKeyword = e.target.value
+          refine(newKeyword)
+          // log the event after typing has stopped for 1 second
+          clearTimeout(keywordSearchTimer.current)
+          keywordSearchTimer.current = setTimeout(
+            () => captureEvent(`keywordSearchCommunityMembers`, {keyword: newKeyword}),
+            1000
+          )
+        }}
         className={classes.keywordSearchInput}
       />
     </div>
