@@ -100,7 +100,7 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
   }
 
   render() {
-    const { classes, label='Moderators may promote to Frontpage', tooltip } = this.props
+    const { classes, label='Post on Frontpage by default', tooltip } = this.props
 
     const displayedTooltip = tooltip || defaultTooltip({classes})
 

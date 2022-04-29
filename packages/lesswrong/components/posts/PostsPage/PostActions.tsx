@@ -282,7 +282,7 @@ const PostActions = ({post, closeMenu, classes}: {
                 <Tooltip placement="left" title={
                   post.submitToFrontpage ?
                     '' :
-                    'user did not select "Moderators may promote to Frontpage" option'
+                    'user did not select "Post on Frontpage by default" option'
                 }>
                   <MenuItem>
                     Move to Frontpage
