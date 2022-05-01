@@ -16,7 +16,7 @@ const ShortformPage = ({classes}: {
   return (
     <SingleColumnSection>
       <div className={classes.column}>
-        <SectionTitle title="Shortform Content [Beta]"/>
+        <SectionTitle title="Shortform"/>
         <ShortformThreadList />
       </div>
     </SingleColumnSection>
