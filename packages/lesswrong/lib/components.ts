@@ -239,7 +239,6 @@ importComponent("LocalgroupPageTitle", () => require('../components/titles/Local
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));
 importComponent("RepliesToCommentList", () => require('../components/shortform/RepliesToCommentList'));
-importComponent("NewShortformDialog", () => require('../components/shortform/NewShortformDialog'));
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 

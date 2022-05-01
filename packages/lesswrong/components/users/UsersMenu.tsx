@@ -118,9 +118,9 @@ const UsersMenu = ({color="rgba(0, 0, 0, 0.6)", classes}: {
                 <MenuItem>New Post</MenuItem>
               </Link>
             </div>
-            {showNewButtons && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-               New Shortform
-            </MenuItem> }
+            {showNewButtons &&<Link to={`/shortform`}>
+              <MenuItem>New Shortform</MenuItem>
+            </Link>}
             {showNewButtons && <Divider/>}
             {showNewButtons &&
               <Link to={`/newPost?eventForm=true`}>
