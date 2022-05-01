@@ -159,7 +159,7 @@ const UsersMenu = ({classes}: {
                 <ListItemIcon>
                   <SettingsButton className={classes.icon}/>
                 </ListItemIcon>
-                Edit Settings
+                Edit Account
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>

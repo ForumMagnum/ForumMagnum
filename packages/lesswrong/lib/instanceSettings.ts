@@ -1,5 +1,7 @@
 import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { pluralize } from './vulcan-lib/pluralize';
+import startCase from 'lodash/startCase'
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -115,6 +117,18 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
+
+/**
+ * Name of the tagging feature on your site. The EA Forum is going to try
+ * calling them topics. You should set this setting with the lowercase singular
+ * form of the name. We assume this is a single word currently. Spaces will
+ * cause issues.
+ */
+export const taggingNameSetting = new PublicInstanceSetting<string>('taggingName', 'tag', 'optional')
+export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSetting.get())}
+export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
+export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
+export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
 
 // NB: Now that neither LW nor the EAForum use this setting, it's a matter of
 // time before it falls out of date. Nevertheless, I expect any newly-created

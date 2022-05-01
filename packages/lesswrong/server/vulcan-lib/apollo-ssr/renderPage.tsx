@@ -26,6 +26,7 @@ import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, ThemeOptions } from '../../../themes/themeNames';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
+import type { TimeOverride } from '../../../lib/utils/timeUtil';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -45,6 +46,7 @@ export type RenderResult = {
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
   themeOptions: ThemeOptions,
+  renderedAt: Date,
   timings: RenderTimings
 }
 
@@ -158,10 +160,13 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // the render will be omitted, which is the point.)
   let abTestGroups: RelevantTestGroupAllocation = {};
   
+  const now = new Date();
+  const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
     req={req} apolloClient={client}
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroups}
+    timeOverride={timeOverride}
   />;
 
   const themeCookie = getCookieFromReq(req, "theme");
@@ -242,6 +247,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     relevantAbTestGroups: abTestGroups,
     allAbTestGroups: getAllUserABTestGroups(user, clientId),
     themeOptions: themeOptions,
+    renderedAt: now,
     timings,
   };
 }

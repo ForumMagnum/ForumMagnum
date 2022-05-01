@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -107,19 +108,21 @@ const TaggingDashboard = ({classes}: {
   });
 
   const { openDialog } = useDialog();
+  
+  const dashboardTagsNameAlt = taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tags'
 
   return <div>
     <div className={classes.root}>
       <div className={classes.navigationLinks}>
         <div className={classes.navigationLinksDivider}/>
-        <p><a href="#Pages_in_need_of_work">Wiki-Tags in Need of Work</a></p>
-        <p><a href="#Newest_tags">Newest Tags</a></p>
-        <p><a href="#Tag_voting_activity">Tag Voting Activity</a></p>
-        <p><a href="#Tag_activity_feed">Combined Wiki-Tag Activity Feed</a></p>
+        <p><a href="#Pages_in_need_of_work">{dashboardTagsNameAlt} in Need of Work</a></p>
+        <p><a href="#Newest_tags">Newest {taggingNameCapitalSetting.get()}</a></p>
+        <p><a href="#Tag_voting_activity">{taggingNameCapitalSetting.get()} Voting Activity</a></p>
+        <p><a href="#Tag_activity_feed">Combined {dashboardTagsNameAlt} Activity Feed</a></p>
         <div className={classes.navigationLinksDivider}/>
       </div>
       <div id="Pages_in_need_of_work">
-        <SectionTitle title="Wiki-Tags in Need of Work">
+        <SectionTitle title={`${dashboardTagsNameAlt} in Need of Work`}>
           <SectionButton>
             {query.focus && <QueryLink query={{}}> Reset Filter </QueryLink>}
             {currentUser?.isAdmin &&
@@ -127,7 +130,9 @@ const TaggingDashboard = ({classes}: {
                   componentName: "TagFlagEditAndNewForm",
                   componentProps: query.focus ? {tagFlagId: query.focus} : {}
                 })}>
-                  {query.focus ? "Edit Tag Flag" : "New Tag Flag"}
+                  {query.focus ?
+                    `Edit ${taggingNameCapitalSetting.get()} Flag` :
+                    `New ${taggingNameCapitalSetting.get()} Flag`}
                 </span>
             }
             <a
@@ -141,7 +146,7 @@ const TaggingDashboard = ({classes}: {
                  }
                  }
               }
-            > {collapsed ? "Uncollapse" : "Collapse"} Tags </a>
+            > {collapsed ? "Uncollapse" : "Collapse"} {taggingNamePluralCapitalSetting.get()}</a>
           </SectionButton>
         </SectionTitle>
         <div className={classes.flagList}>
@@ -169,11 +174,11 @@ const TaggingDashboard = ({classes}: {
     </div>
     <SingleColumnSection>
       <div id="Newest_tags" className={classes.sectionPositioning}>
-        <SectionTitle title="Newest Tags"/>
+        <SectionTitle title={`Newest ${taggingNamePluralCapitalSetting.get()}`}/>
         <NewTagsList showHeaders={false}/>
       </div>
       <div id="Tag_voting_activity" className={classes.sectionPositioning}>
-        <SectionTitle title="Tag Voting Activity"/>
+        <SectionTitle title={`${taggingNameCapitalSetting.get()} Voting Activity`}/>
         <TagVoteActivity showHeaders={false} showNewTags={false} limit={10} itemsPerPage={100}/>
       </div>
       <div id="Tag_activity_feed" className={classes.sectionPositioning}>

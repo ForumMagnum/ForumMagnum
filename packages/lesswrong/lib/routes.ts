@@ -1,5 +1,5 @@
 import { Posts } from './collections/posts/collection';
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, PingbackDocument, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
@@ -17,7 +17,7 @@ const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
-const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: "Wiki-Tag Dashboard"}
+const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
 const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
@@ -299,57 +299,7 @@ addRoute(
     title: 'Bookmarks',
   },
 
-  // Tags
-  {
-    name: 'tags.single',
-    path: '/tag/:slug',
-    componentName: 'TagPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-    previewComponentName: 'TagHoverPreview',
-  },
-  {
-    name: 'tagDiscussion',
-    path: '/tag/:slug/discussion',
-    componentName: 'TagDiscussionPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-    previewComponentName: 'TagHoverPreview',
-    background: "white"
-  },
-  {
-    name: 'tagHistory',
-    path: '/tag/:slug/history',
-    componentName: 'TagHistoryPage',
-    titleComponentName: 'TagHistoryPageTitle',
-    subtitleComponentName: 'TagHistoryPageTitle',
-  },
-  {
-    name: 'tagEdit',
-    path: '/tag/:slug/edit',
-    componentName: 'EditTagPage',
-    titleComponentName: 'TagPageTitle',
-    subtitleComponentName: 'TagPageTitle',
-  },
-  {
-    name: 'tagCreate',
-    path: '/tag/create',
-    componentName: 'NewTagPage',
-    title: "New Tag",
-    subtitleComponentName: 'TagPageTitle',
-    background: "white"
-  },
-  {
-    name: 'randomTag',
-    path: '/tags/random',
-    componentName: 'RandomTagPage',
-  },
-  {
-    name: 'allTags',
-    path: '/tags/all',
-    componentName: 'AllTagsPage',
-    title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
-  },
+  // Tags redirects
   {
     name: "TagsAll",
     path:'/tags',
@@ -365,18 +315,7 @@ addRoute(
     path: '/tagVoting',
     redirect: () => `/tagActivity`,
   },
-  {
-    name: 'tagActivity',
-    path: '/tagActivity',
-    componentName: 'TagVoteActivity',
-    title: 'Tag Voting Activity'
-  },
-  {
-    name: 'tagFeed',
-    path: '/tagFeed',
-    componentName: 'TagActivityFeed',
-    title: 'Tag Activity'
-  },
+
   {
     name: 'search',
     path: '/search',
@@ -391,6 +330,202 @@ addRoute(
     title: "Your Past Votes"
   },
 );
+
+if (taggingNameIsSet.get()) {
+  addRoute(
+    {
+      name: 'tagsSingleCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug`,
+      componentName: 'TagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+    },
+    {
+      name: 'tagsSingleRedirectCustomName',
+      path: '/tag/:slug',
+      redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
+    },
+    {
+      name: 'tagsAllCustomName',
+      path: `/${taggingNamePluralSetting.get()}/all`,
+      componentName: 'AllTagsPage',
+      title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
+    },
+    {
+      name: "tagsRedirectCustomName",
+      path:'/tags/all',
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`,
+    },
+    {
+      name: 'tagDiscussionCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug/discussion`,
+      componentName: 'TagDiscussionPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      background: "white"
+    },
+    {
+      name: 'tagDiscussionCustomNameRedirect',
+      path: '/tag/:slug/discussion',
+      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/discussion`
+    },
+    {
+      name: 'tagHistoryCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug/history`,
+      componentName: 'TagHistoryPage',
+      titleComponentName: 'TagHistoryPageTitle',
+      subtitleComponentName: 'TagHistoryPageTitle',
+    },
+    {
+      name: 'tagHistoryCustomNameRedirect',
+      path: '/tag/:slug/history',
+      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/history`
+    },
+    {
+      name: 'tagEditCustomName',
+      path: `/${taggingNamePluralSetting.get()}/:slug/edit`,
+      componentName: 'EditTagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+    },
+    {
+      name: 'tagEditCustomNameRedirect',
+      path: '/tag/:slug/edit',
+      redirect: ({params}) => `/${taggingNamePluralSetting.get()}/${params.slug}/edit`
+    },
+    {
+      name: 'tagCreateCustomName',
+      path: `/${taggingNamePluralSetting.get()}/create`,
+      title: `New ${taggingNameCapitalSetting.get()}`,
+      componentName: 'NewTagPage',
+      subtitleComponentName: 'TagPageTitle',
+      background: "white"
+    },
+    {
+      name: 'tagCreateCustomNameRedirect',
+      path: '/tag/create',
+      redirect: () => `/${taggingNamePluralSetting.get()}/create`
+    },
+    {
+      name: 'randomTagCustomName',
+      path: `/${taggingNamePluralSetting.get()}/random`,
+      componentName: 'RandomTagPage',
+    },
+    {
+      name: 'randomTagCustomNameRedirect',
+      path: '/tags/random',
+      redirect: () => `/${taggingNamePluralSetting.get()}/random`
+    },
+    {
+      name: 'tagActivityCustomName',
+      path: `/${taggingNamePluralSetting.get()}Activity`,
+      componentName: 'TagVoteActivity',
+      title: `${taggingNamePluralCapitalSetting.get()} Voting Activity`
+    },
+    {
+      name: 'tagActivityCustomNameRedirect',
+      path: '/tagActivity',
+      redirect: () => `/${taggingNamePluralSetting.get()}Activity`
+    },
+    {
+      name: 'tagFeedCustomName',
+      path: `/${taggingNamePluralSetting.get()}Feed`,
+      componentName: 'TagActivityFeed',
+      title: `${taggingNamePluralCapitalSetting.get()} Activity`
+    },
+    {
+      name: 'tagFeedCustomNameRedirect',
+      path: '/tagFeed',
+      redirect: () => `/${taggingNamePluralSetting.get()}Feed`
+    },
+    {
+      name: 'taggingDashboardCustomName',
+      path: `/${taggingNamePluralSetting.get()}/dashboard`,
+      componentName: "TaggingDashboard",
+      title: `${taggingNamePluralCapitalSetting.get()} Dashboard`,
+      ...taggingDashboardSubtitle
+    },
+    {
+      name: 'taggingDashboardCustomNameRedirect',
+      path: '/tags/dashboard',
+      redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
+    },
+  )
+} else {
+  addRoute(
+    {
+      name: 'allTags',
+      path: '/tags/all',
+      componentName: 'AllTagsPage',
+      title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
+    },
+    {
+      name: 'tags.single',
+      path: '/tag/:slug',
+      componentName: 'TagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+    },
+    {
+      name: 'tagDiscussion',
+      path: '/tag/:slug/discussion',
+      componentName: 'TagDiscussionPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+      previewComponentName: 'TagHoverPreview',
+      background: "white"
+    },
+    {
+      name: 'tagHistory',
+      path: '/tag/:slug/history',
+      componentName: 'TagHistoryPage',
+      titleComponentName: 'TagHistoryPageTitle',
+      subtitleComponentName: 'TagHistoryPageTitle',
+    },
+    {
+      name: 'tagEdit',
+      path: '/tag/:slug/edit',
+      componentName: 'EditTagPage',
+      titleComponentName: 'TagPageTitle',
+      subtitleComponentName: 'TagPageTitle',
+    },
+    {
+      name: 'tagCreate',
+      path: '/tag/create',
+      componentName: 'NewTagPage',
+      title: "New Tag",
+      subtitleComponentName: 'TagPageTitle',
+      background: "white"
+    },
+    {
+      name: 'randomTag',
+      path: '/tags/random',
+      componentName: 'RandomTagPage',
+    },
+    {
+      name: 'tagActivity',
+      path: '/tagActivity',
+      componentName: 'TagVoteActivity',
+      title: 'Tag Voting Activity'
+    },
+    {
+      name: 'tagFeed',
+      path: '/tagFeed',
+      componentName: 'TagActivityFeed',
+      title: 'Tag Activity'
+    },
+    {
+      name: 'taggingDashboard',
+      path: '/tags/dashboard',
+      componentName: "TaggingDashboard",
+      title: "Tagging Dashboard",
+      ...taggingDashboardSubtitle
+    },
+  )
+}
 
 onStartup(() => {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
@@ -1040,13 +1175,6 @@ addRoute(
     path: '/debug/notificationEmailPreview',
     componentName: 'NotificationEmailPreviewPage'
   },
-  {
-    name: 'taggingDashboard',
-    path: '/tags/dashboard',
-    componentName: "TaggingDashboard",
-    title: "Tagging Dashboard",
-    ...taggingDashboardSubtitle
-  }
 );
 
 addRoute(

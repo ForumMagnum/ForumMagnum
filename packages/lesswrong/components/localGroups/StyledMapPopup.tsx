@@ -44,7 +44,7 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
 const StyledMapPopup = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
-  onClose, offsetTop=-20
+  onClose, offsetTop=-20, hideBottomLinks
 }: {
   children?: React.ReactNode,
   classes: ClassesType,
@@ -56,6 +56,7 @@ const StyledMapPopup = ({
   lng: number,
   onClose: any,
   offsetTop?: number,
+  hideBottomLinks?: boolean
 }) => {
   return <Popup
     latitude={lat}
@@ -71,10 +72,10 @@ const StyledMapPopup = ({
         <Link to={link}><h5 className={classes.groupMarkerName}> {title} </h5></Link>
         <div className={classes.markerBody}>{children}</div>
         {metaInfo && <div className={classes.contactInfo}>{metaInfo}</div>}
-        <div className={classes.linksWrapper}>
+        {!hideBottomLinks && <div className={classes.linksWrapper}>
           <Link className={classes.markerPageLink} to={link}> Full link </Link>
           <div>{cornerLinks}</div>
-        </div>
+        </div>}
       </div>
   </Popup>
 }

@@ -13,6 +13,7 @@ import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -139,6 +140,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(false);
+  const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
 
@@ -214,7 +216,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const renderCommentBottom = () => {
     const { CommentBottomCaveats } = Components
 
-    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
     const showReplyButton = (
       !hideReply &&

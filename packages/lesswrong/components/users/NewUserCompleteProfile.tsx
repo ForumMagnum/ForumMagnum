@@ -146,8 +146,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
       {forumTypeSetting.get() === 'EAForum' && <div className={classes.section}>
         <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          The EA Forum Digest is a weekly summary of the best content, curated by
-          Aaron Gertler from the Forum's moderation team.
+          The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
         </Typography>
         <FormControlLabel
           control={

@@ -4,6 +4,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
+import { taggingNameIsSet, taggingNamePluralSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
@@ -55,7 +56,11 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
     enableTotal: true,
   });
   
-  return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
+  return <Link
+    className={classes.discussionButton}
+    to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`}
+    {...eventHandlers}
+  >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
     <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
     {!loading && <span className={classes.discussionCount}>&nbsp;{`(${totalCount || 0})`}</span>}

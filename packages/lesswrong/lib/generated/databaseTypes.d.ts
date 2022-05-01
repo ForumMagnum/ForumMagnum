@@ -678,10 +678,14 @@ interface DbUser extends DbObject {
   legacy: boolean
   commentSorting: string
   sortDrafts: string
+  showHideKarmaOption: boolean
   hideIntercom: boolean
   markDownPostEditor: boolean
   hideElicitPredictions: boolean
   hideAFNonMemberInitialWarning: boolean
+  noSingleLineComments: boolean
+  noCollapseCommentsPosts: boolean
+  noCollapseCommentsFrontpage: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
@@ -700,7 +704,6 @@ interface DbUser extends DbObject {
   moderationStyle: string
   moderatorAssistance: boolean
   collapseModerationGuidelines: boolean
-  showHideKarmaOption: boolean
   bannedUserIds: Array<string>
   bannedPersonalUserIds: Array<string>
   bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
@@ -767,9 +770,6 @@ interface DbUser extends DbObject {
   bigUpvoteCount: number
   bigDownvoteCount: number
   fullName: string
-  noSingleLineComments: boolean
-  noCollapseCommentsPosts: boolean
-  noCollapseCommentsFrontpage: boolean
   shortformFeedId: string
   viewUnreviewedComments: boolean
   partiallyReadSequences: Array<any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"sequenceId":{"foreignKey":"Sequences","optional":true,"type":{"definitions":[{}]},"label":"Sequence ID"},"collectionId":{"foreignKey":"Collections","optional":true,"type":{"definitions":[{}]},"label":"Collection ID"},"lastReadPostId":{"foreignKey":"Posts","type":{"definitions":[{}]},"optional":false,"label":"Last read post ID"},"nextPostId":{"foreignKey":"Posts","type":{"definitions":[{}]},"optional":false,"label":"Next post ID"},"numRead":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Num read"},"numTotal":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Num total"},"lastReadTime":{"optional":true,"type":{"definitions":[{}]},"label":"Last read time"}},"_depsLabels":{},"_schemaKeys":["sequenceId","collectionId","lastReadPostId","nextPostId","numRead","numTotal","lastReadTime"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["sequenceId","collectionId","lastReadPostId","nextPostId","numRead","numTotal","lastReadTime"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/>

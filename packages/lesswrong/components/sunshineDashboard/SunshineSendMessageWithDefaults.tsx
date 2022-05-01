@@ -7,6 +7,7 @@ import {Components, registerComponent} from "../../lib/vulcan-lib";
 import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
@@ -95,7 +96,9 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
             </LWTooltip>
           </div>)}
         </Menu>
-      <Link to={`/tag/${tagSlug}/discussion`}><EditIcon className={classes.editIcon}/></Link>
+      <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion`}>
+        <EditIcon className={classes.editIcon}/>
+      </Link>
     </div>
   )
 }

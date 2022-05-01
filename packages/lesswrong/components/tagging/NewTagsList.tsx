@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
+import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -42,7 +43,7 @@ const NewTagsList = ({classes, showHeaders = true}:{
   });
 
   return <div className={classes.root}>
-    {showHeaders && <h2>New Tags</h2>}
+    {showHeaders && <h2>New {taggingNamePluralCapitalSetting.get()}</h2>}
     <table>
       <tbody>
         {results?.map(tag => <tr key={tag._id}>

@@ -11,12 +11,14 @@ import { Components, registerComponent, Strings } from '../../lib/vulcan-lib';
 import { userIdentifiedCallback } from '../../lib/analyticsEvents';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
+import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 
 const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
 
 interface ExternalProps {
   apolloClient: any
   serverRequestStatus?: ServerRequestStatusContextType
+  timeOverride: TimeOverride
 }
 interface AppProps extends ExternalProps {
   // From withRouter
@@ -97,7 +99,7 @@ class App extends PureComponent<AppProps,any> {
   render() {
     const { flash } = this;
     const { messages } = this.state;
-    const { currentUser, serverRequestStatus } = this.props;
+    const { currentUser, serverRequestStatus, timeOverride } = this.props;
 
     // Parse the location into a route/params/query/etc.
     const location = parseRoute({location: this.props.location});
@@ -136,6 +138,7 @@ class App extends PureComponent<AppProps,any> {
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
       <NavigationContext.Provider value={this.navigationContext}>
       <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
+      <TimeContext.Provider value={timeOverride}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
@@ -145,6 +148,7 @@ class App extends PureComponent<AppProps,any> {
           </Components.Layout>
         </MessageContext.Provider>
       </IntlProvider>
+      </TimeContext.Provider>
       </ServerRequestStatusContext.Provider>
       </NavigationContext.Provider>
       </SubscribeLocationContext.Provider>

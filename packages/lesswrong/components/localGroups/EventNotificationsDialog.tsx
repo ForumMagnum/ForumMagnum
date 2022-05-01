@@ -31,6 +31,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
     textTransform: 'uppercase'
   },
   actions: {
+    ...theme.typography.commentStyle,
     marginTop: 24
   },
   geoSuggest: {
@@ -53,6 +54,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
       listStyle: "none",
       zIndex: 5,
       transition: "max-height 0.2s, border 0.2s",
+      ...theme.typography.commentStyle,
     },
     "& .geosuggest__input": {
       border: "2px solid transparent",
@@ -112,7 +114,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
-  const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
+  const [ mapsLoaded ] = useGoogleMaps()
   const [ location, setLocation ] = useState(nearbyEventsNotificationsLocation || mapLocation || googleLocation)
   const [ label, setLabel ] = useState(nearbyEventsNotificationsLocation?.formatted_address || mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ distance, setDistance ] = useState(nearbyEventsNotificationsRadius || 50)

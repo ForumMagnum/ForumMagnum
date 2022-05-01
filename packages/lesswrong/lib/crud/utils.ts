@@ -1,4 +1,4 @@
-import { camelCaseify, pluralize } from '../vulcan-lib/utils';
+import { camelCaseify, pluralize } from '../vulcan-lib';
 import * as _ from 'underscore';
 
 export const getMultiQueryName = (typeName: string) => `multi${typeName}Query`;
