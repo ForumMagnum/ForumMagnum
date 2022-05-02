@@ -7,6 +7,7 @@ import { filteringStyles } from './FilterMode';
 import Card from '@material-ui/core/Card';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -146,7 +147,7 @@ const TagFilterSettings = ({
       />
     }
 
-    {<LWTooltip title="Add Tag Filter">
+    {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
         <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
           if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
             const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"

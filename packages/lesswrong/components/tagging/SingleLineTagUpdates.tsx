@@ -6,6 +6,7 @@ import { tagGetUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpe
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 export const POSTED_AT_WIDTH = 38
 
@@ -139,7 +140,10 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
     
     {expanded && <div className={classes.expandedBody}>
       {revisionIds.length>0 && 
-        <Link to={`/tag/${tag.slug}/history`} className={classes.history}>
+        <Link
+          to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+          className={classes.history}
+        >
           <TagHistory className={classes.icon}  />
           <span>History</span>
         </Link>}

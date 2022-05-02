@@ -6,16 +6,20 @@ import Conversations from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useDialog } from '../common/withDialog';
 
 // Button used to start a new conversation for a given user
 const NewConversationButton = ({ user, currentUser, children, templateCommentId }: {
-  user: UsersMinimumInfo,
-  currentUser: UsersCurrent,
+  user: {
+    _id: string
+  },
+  currentUser: UsersCurrent|null,
   templateCommentId?: string,
   children: any
 }) => {
   
   const { history } = useNavigation();
+  const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
     collection: Conversations,
     fragmentName: 'newConversationFragment',
@@ -23,13 +27,18 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   
   
   // Checks if unnamed conversation between the two users exists
-  const terms: ConversationsViewTerms = {view: 'userUntitledConversations', userId: currentUser?._id};
+  const terms: ConversationsViewTerms = {
+    view: 'userGroupUntitledConversations',
+    userId: currentUser?._id,
+    participantIds: [currentUser?._id || '', user._id]
+  };
   const { results } = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'conversationIdFragment',
     fetchPolicy: 'cache-and-network',
     limit: 1,
+    skip: !currentUser
   });
   
   const newConversation = useCallback(async (search) =>  {
@@ -43,27 +52,19 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
   }, [createConversation, user, currentUser, history]);
 
   const existingConversationCheck = () => {
-    let conversationExists = false;
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
-    results?.forEach(conversation => {
-      if (conversation.title === null && conversation.participants.some(participant => participant._id === user._id)){
-        history.push({pathname: `/inbox/${conversation._id}`, ...search})
-        conversationExists = true;
-      }
-    })
-    conversationExists ? undefined : void newConversation(search);
+    for (let conversation of results) {
+      history.push({pathname: `/inbox/${conversation._id}`, ...search})
+      return
+    }
+    void newConversation(search);
   }
   
-
-  if (currentUser) {
-    return (
-      <div onClick={existingConversationCheck}>
-        {children}
-      </div>
-    )
-  } else {
-    return <Components.Loading />
-  }
+  return (
+    <div onClick={currentUser ? existingConversationCheck : () => openDialog({componentName: "LoginPopup"})}>
+      {children}
+    </div>
+  )
 }
 
 const NewConversationButtonComponent = registerComponent('NewConversationButton', NewConversationButton);

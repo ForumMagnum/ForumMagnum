@@ -57,7 +57,7 @@ const CommunityHome = ({classes}: {
   
   // if the current user provides their browser location and they do not yet have a location in their user settings,
   // assign their browser location to their user settings location
-  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
+  const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
   const updateUserLocation = useCallback(async ({lat, lng, known}) => {
     if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {

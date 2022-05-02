@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 
 const INITIAL_LIMIT = 5
 
@@ -70,7 +71,10 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
     return null;
   return <div className={classes.root}>
     <div className={classes.subtitle}>
-      <ContentType type="tags" label="Wiki/Tag Page Edits and Discussion"/>
+      <ContentType
+        type="tags"
+        label={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki/Tag'} Page Edits and Discussion`}
+      />
     </div>
     {tagUpdatesInTimeBlock.map(tagUpdates => <SingleLineTagUpdates
       key={tagUpdates.tag._id}

@@ -4,6 +4,7 @@ import { useLocation } from '../../lib/routeUtil'
 import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -30,7 +31,8 @@ const TagDiscussionPage = ({classes}: {
     <SingleColumnSection>
       { tag && <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
       <ContentStyles contentType="comment" className={classes.description}>
-        Discuss the wiki-tag on this page. Here is the place to ask questions and propose changes.
+        Discuss the {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki-tag'} on this page.
+        Here is the place to ask questions and propose changes.
       </ContentStyles>
       {tag && <TagDiscussionSection
         tag={tag}

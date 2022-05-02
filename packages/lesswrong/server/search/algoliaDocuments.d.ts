@@ -43,11 +43,17 @@ interface AlgoliaUser {
   createdAt: Date,
   isAdmin: boolean,
   bio: string,
+  htmlBio: string,
   karma: number,
   slug: string,
   website: string,
   groups: Array<string>,
   af: boolean,
+  _geoloc?: {
+    lat: number,
+    lng: number
+  },
+  mapLocationAddress?: string
 }
 
 interface AlgoliaPost {

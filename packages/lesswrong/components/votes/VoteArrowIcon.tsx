@@ -100,7 +100,7 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted,
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon
-            style={{color: bigVoteCompleted && theme.palette[color].light}}
+            style={bigVoteCompleted ? {color: theme.palette[color].light} : undefined}
             className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
             color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
             viewBox='6 6 12 12'

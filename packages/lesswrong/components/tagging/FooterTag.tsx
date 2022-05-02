@@ -6,6 +6,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import Public from '@material-ui/icons/Public'
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -118,7 +119,10 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
 
   return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem" {...sectionContextMaybe}>
     <span {...eventHandlers} className={classNames(classes.root, {[classes.topTag]: isTopTag, [classes.core]: tag.core, [classes.smallText]: smallText})}>
-      <Link to={`/tag/${tag.slug}`} className={classNames({[classes.flexContainer]: isTopTag})}>
+      <Link
+        to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`}
+        className={!!isTopTag ? classes.flexContainer : null}
+      >
         {!!isTopTag && <TopTagIcon tag={tag} />}
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
