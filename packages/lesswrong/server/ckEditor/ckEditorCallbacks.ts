@@ -2,8 +2,14 @@ import { randomSecret } from '../../lib/random';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
+import { postCanEdit } from '../../lib/collections/posts/helpers';
+import { Revisions } from '../../lib/collections/revisions/collection';
+import { isCollaborative } from '../../components/editor/EditorFormComponent';
 import { defineQuery, defineMutation } from '../utils/serverGraphqlUtil';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { buildRevision, revisionIsChange } from '../editor/make_editable_callbacks';
+import { updateMutator } from '../vulcan-lib/mutators';
+import { pushRevisionToCkEditor } from './ckEditorWebhook';
 import * as _ from 'underscore';
 import crypto from 'crypto';
 
@@ -103,7 +109,7 @@ defineQuery({
       
       // Return the post
       const filteredPost = await accessFilterSingle(currentUser, Posts, post, context);
-      return post;
+      return filteredPost;
     } else {
       throw new Error("Invalid postId or not shared with you");
     }
@@ -121,3 +127,63 @@ function constantTimeCompare(a: string, b: string) {
     return false;
   }
 }
+
+defineMutation({
+  name: "revertPostToRevision",
+  resultType: "Post",
+  argTypes: "(postId: String!, revisionId: String!)",
+  fn: async (root: void, {postId, revisionId}: {postId: string, revisionId: string}, context: ResolverContext): Promise<DbPost> => {
+    // Check permissions
+    const { currentUser } = context;
+    if (!currentUser) {
+      throw new Error("Must be logged in");
+    }
+    
+    // Post must exist
+    const post = await Posts.findOne({_id: postId});
+    
+    if (!post) {
+      throw new Error("Invalid postId or not shared with you");
+    }
+    
+    // Must have write access to the post
+    if (!postCanEdit(currentUser, post)) {
+      throw new Error("You don't have write access to this post");
+    }
+    
+    // Revision must exist and be a revision of the right post
+    const revision = await Revisions.findOne({_id: revisionId});
+    if (!revision) throw new Error("Invalid revision ID");
+    if (revision.documentId !== post._id) throw new Error("Revision is not for this post");
+    
+    // Is the selected revision a CkEditor collaborative editing revision?
+    if (revision.originalContents.type === "ckEditorMarkup" && isCollaborative(post, "contents")) {
+      console.log("Reverting to a CkEditor collaborative revision");
+      await pushRevisionToCkEditor(post._id, revision.originalContents.data);
+    } else {
+      console.log("Reverting to a non-collaborative revision");
+      if (revisionIsChange(revision, "contents")) {
+        // Edit the document to set contents to match this revision. Edit callbacks
+        // take care of the rest.
+        await updateMutator({
+          collection: Posts,
+          context,
+          documentId: post._id,
+          data: {
+            contents: {
+              originalContents: revision.originalContents,
+            },
+          },
+          currentUser,
+          validate: false,
+        });
+      } else {
+        console.log("Not creating a new revision (it already matches the head revision");
+      }
+    }
+    
+    const filteredPost = await accessFilterSingle(currentUser, Posts, post, context);
+    console.log("Finished revertPostToRevision");
+    return filteredPost!;
+  }
+});
