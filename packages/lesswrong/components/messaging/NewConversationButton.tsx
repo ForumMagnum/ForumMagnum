@@ -53,7 +53,7 @@ const NewConversationButton = ({ user, currentUser, children, templateCommentId 
 
   const existingConversationCheck = () => {
     const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
-    for (let conversation of results) {
+    for (let conversation of (results ?? [])) {
       history.push({pathname: `/inbox/${conversation._id}`, ...search})
       return
     }
@@ -74,4 +74,3 @@ declare global {
     NewConversationButton: typeof NewConversationButtonComponent
   }
 }
-
