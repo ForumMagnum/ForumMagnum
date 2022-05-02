@@ -1548,6 +1548,14 @@ addFieldsDict(Users, {
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
   },
+  
+  linkedInProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+  }
 });
 
 makeEditable({

@@ -153,6 +153,8 @@ registerFragment(`
     petrovLaunchCodeDate
     lastUsedTimezone
     ...SharedUserBooleans
+    
+    linkedInProfileURL
   }
 `);
 

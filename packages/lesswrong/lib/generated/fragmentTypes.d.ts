@@ -1664,6 +1664,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
   readonly lastUsedTimezone: string,
+  readonly linkedInProfileURL: string,
 }
 
 interface UserKarmaChanges { // fragment on Users
