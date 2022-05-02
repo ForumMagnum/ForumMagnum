@@ -28,7 +28,7 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
     }
   });
   
-  if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
+  if (!currentUser?.isAdmin) return null
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
   
   return <>

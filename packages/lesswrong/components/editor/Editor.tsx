@@ -137,7 +137,6 @@ export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'mark
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
-  if (user?.reenableDraftJs) return "draftJS"
   return "ckEditorMarkup"
 }
 

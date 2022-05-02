@@ -149,7 +149,6 @@ const NewUsersEditForm = ({currentUser, terms, classes}: {
         
         <h2>Editor</h2>
         <FormCheckbox form={form} fieldName="markDownPostEditor" label="Activate Markdown editor"/>
-        <FormCheckbox form={form} fieldName="reenableDraftJs" label="Use the previous WYSIWYG editor"/>
 
         <h2>Comment Truncation Options</h2>
         <FormCheckbox form={form} fieldName="noSingleLineComments" label="Do not collapse comments to Single Line"/>
