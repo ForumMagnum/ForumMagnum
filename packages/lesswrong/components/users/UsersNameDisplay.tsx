@@ -10,7 +10,7 @@ import { BookIcon } from '../icons/bookIcon'
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
@@ -71,7 +71,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
       </div>}
     { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } post{postCount !== 1 && 's'}</div>}
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comment{commentCount !== 1 && 's'}</div>}
-    { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } {taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'wiki'} contribution{wikiContributionCount !== 1 && 's'}</div>}
+    { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} contribution{wikiContributionCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </span>
 

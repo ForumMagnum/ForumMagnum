@@ -57,7 +57,8 @@ const TagDiscussion = ({classes, tag}: {
         postPage: true,
       }}
       totalComments={totalCount}
-      comments={nestedComments}
+      // Will be defined if results is defined, and we know results is truthy
+      comments={nestedComments!}
     />}
     <Link
       to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`}

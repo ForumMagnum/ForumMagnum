@@ -143,7 +143,7 @@ const PostsList2 = ({
   const maybeMorePosts = !!(results?.length && (results.length >= limit)) || alwaysShowLoadMore;
 
   let orderedResults = results
-  if (defaultToShowUnreadComments) {
+  if (defaultToShowUnreadComments && results) {
     orderedResults = _.sortBy(results, (post) => {
       return !post.lastVisitedAt || (post.lastVisitedAt >=  postGetLastCommentedAt(post));
     })
@@ -172,7 +172,9 @@ const PostsList2 = ({
             tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
             defaultToShowUnreadComments, showPostedAt,
             showQuestionTag: terms.filter!=="questions",
-            showBottomBorder: showFinalBottomBorder || ((orderedResults.length > 1) && i < (orderedResults.length - 1))
+            // I don't know why TS is not narrowing orderedResults away from
+            // undefined given the truthy check above
+            showBottomBorder: showFinalBottomBorder || ((orderedResults!.length > 1) && i < (orderedResults!.length - 1))
           };
 
           if (!(hidePosts && hidePosts[i])) {
@@ -210,4 +212,3 @@ declare global {
     PostsList2: typeof PostsList2Component
   }
 }
-
