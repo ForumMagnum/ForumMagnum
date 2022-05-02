@@ -27,6 +27,8 @@ const TagDiscussionSection = ({classes, tag}: {
   
   const nestedComments = !!results && unflattenComments(results);
   
+  if (!nestedComments) return null
+  
   return (
     <CommentsListSection
       comments={nestedComments} tag={tag ? tag : undefined}

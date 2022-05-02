@@ -298,7 +298,7 @@ const ReviewVotingPage2019 = ({classes}: {
     score: number,
     reactions?: string[],
   }) => {
-    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+    const existingVote = _id ? dbVotes?.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
     return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false, reactions: newReactions}})
   }, [submitVote, dbVotes]);
@@ -311,7 +311,7 @@ const ReviewVotingPage2019 = ({classes}: {
     set?: number,
     reactions?: string[],
   }) => {
-    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+    const existingVote = _id ? dbVotes?.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
     await submitVote({
       variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions, dummy: false},
@@ -369,7 +369,7 @@ const ReviewVotingPage2019 = ({classes}: {
   
   // TODO: Redundancy here due to merge
   const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0
-  const voteAverage = posts?.length > 0 ? voteSum/posts?.length : 0
+  const voteAverage = (posts && posts.length > 0) ? voteSum/posts?.length : 0
 
   const renormalizeVotes = (quadraticVotes:quadraticVote[], voteAverage: number) => {
     const voteAdjustment = -Math.trunc(voteAverage)
@@ -424,7 +424,7 @@ const ReviewVotingPage2019 = ({classes}: {
                 <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
                 <p>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details.</p></div>}>
                 <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
-                  Avg: {(voteSum / posts.length).toFixed(2)}
+                  Avg: {posts ? (voteSum / posts.length).toFixed(2) : 0}
                 </div>
             </LWTooltip>}
             <Button disabled={!expandedPost} onClick={()=>{
@@ -523,7 +523,8 @@ const ReviewVotingPage2019 = ({classes}: {
   );
 }
 
-function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
+function getPostOrder(posts: Array<PostsList> | undefined, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
+  if (!posts) return []
   const randomPermutation = generatePermutation(posts.length, currentUser);
   const result = posts.map(
     (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
@@ -562,7 +563,7 @@ const qualitativeScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: string, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
+const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[] | undefined):{postId: string, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
   const sumScaled = sumBy(votes, vote => Math.abs(qualitativeScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
     if (vote) {
@@ -598,7 +599,8 @@ const computeTotalVote = (votes: ReviewVote[]) => {
   return sumBy(votes, ({score}) => score)
 }
 
-function createPostVoteTuples<K extends HasIdType,T extends ReviewVote> (posts: K[], votes: T[]):[K, T | undefined][] {
+function createPostVoteTuples<K extends HasIdType,T extends ReviewVote> (posts: K[] | undefined, votes: T[]):[K, T | undefined][] {
+  if (!posts) return []
   return posts.map(post => {
     const voteForPost = votes.find(vote => vote.postId === post._id)
     return [post, voteForPost]

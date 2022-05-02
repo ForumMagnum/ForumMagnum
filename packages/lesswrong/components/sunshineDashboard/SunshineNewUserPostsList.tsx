@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
-  posts: SunshinePostsList[],
+  posts?: SunshinePostsList[],
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
@@ -69,4 +69,3 @@ declare global {
     SunshineNewUserPostsList: typeof SunshineNewUserPostsListComponent
   }
 }
-

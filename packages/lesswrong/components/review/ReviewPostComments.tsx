@@ -55,7 +55,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   }
   
   const lastCommentId = results && results[0]?._id
-  const nestedComments = unflattenComments(results);
+  const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)
 
   return (
