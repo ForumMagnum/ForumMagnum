@@ -18,6 +18,8 @@ const PostsCommentsThread = ({ post, terms, newForm=true }: {
   
   if (loading && !results) {
     return <Components.Loading/>
+  } else if (!results) {
+    return null
   } else {
     const nestedComments = unflattenComments(results);
     return (
@@ -45,4 +47,3 @@ declare global {
     PostsCommentsThread: typeof PostsCommentsThreadComponent
   }
 }
-

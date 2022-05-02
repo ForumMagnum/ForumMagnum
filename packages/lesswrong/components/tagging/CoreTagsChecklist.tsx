@@ -46,7 +46,7 @@ const CoreTagsChecklist = ({onSetTagsSelected, classes, post}: {
     return <Loading/>
   
   return <div className={classes.root}>
-    {results.map(tag => <span key={tag._id} className={classes.tag}>
+    {results?.map(tag => <span key={tag._id} className={classes.tag}>
       <Checkbox
         className={classes.checkbox}
         checked={selections[tag._id]}
@@ -69,4 +69,3 @@ declare global {
     CoreTagsChecklist: typeof CoreTagsChecklistComponent
   }
 }
-
