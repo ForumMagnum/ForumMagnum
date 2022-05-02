@@ -99,7 +99,15 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
         <div className={classes.editor}>
           <WrappedSmartForm
             collection={Messages}
-            prefilledProps={ {conversationId: conversation._id, contents: { ckEditorMarkup: template?.contents?.html}}}
+            prefilledProps={{
+              conversationId: conversation._id,
+              contents: {
+                originalContents: {
+                  type: "ckEditorMarkup",
+                  data: template?.contents?.html,
+                }
+              }
+            }}
             mutationFragment={getFragment("messageListFragment")}
             errorCallback={(message: any) => {
               //eslint-disable-next-line no-console
