@@ -228,13 +228,14 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 onChange={ (event, value) => this.selectThreshold(value) }
                 className={classes.thresholdSelector}
               >
-                { [2, 30, 45, 75].map(t => t.toString()).map(threshold =>
+                { [2, 30, 75, 125, 200].map(t => t.toString()).map(threshold =>
                   <FormControlLabel
-                      control={<Radio />}
-                      label={threshold}
-                      value={threshold}
-                      key={`labelKarmaThreshold${threshold}`}
-                      className={classes.thresholdButton} />
+                    control={<Radio />}
+                    label={threshold}
+                    value={threshold}
+                    key={`labelKarmaThreshold${threshold}`}
+                    className={classes.thresholdButton}
+                  />
                 ) }
               </RadioGroup>
             </div>}
