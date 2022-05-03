@@ -21,6 +21,7 @@ import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -172,6 +173,11 @@ const PostActions = ({post, closeMenu, classes}: {
 
   const isRead = (post._id in postsRead) ? postsRead[post._id] : post.isRead;
 
+  const defaultLabel = forumSelect({
+    EAForum:'This post may appear on the Frontpage',
+    default: 'Moderators may promote to Frontpage'
+  })
+
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <MenuItem> component. In particular,
   // do NOT wrap a <MenuItem> around something that has its own
@@ -282,7 +288,7 @@ const PostActions = ({post, closeMenu, classes}: {
                 <Tooltip placement="left" title={
                   post.submitToFrontpage ?
                     '' :
-                    'user did not select "Moderators may promote to Frontpage" option'
+                    `user did not select ${defaultLabel} option`
                 }>
                   <MenuItem>
                     Move to Frontpage
