@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -8,6 +9,7 @@ import classNames from 'classnames';
 import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import {useMessages} from "../common/withMessages";
+import { useMutation, gql } from '@apollo/client';
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -77,6 +79,16 @@ const PostVersionHistory = ({postId, onClose, classes}: {
 }) => {
   const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
+  const [revertInProgress,setRevertInProgress] = useState(false);
+  const [revertMutation] = useMutation(gql`
+    mutation revertToRevision($postId: String!, $revisionId: String!) {
+      revertPostToRevision(postId: $postId, revisionId: $revisionId) {
+        ...PostsEdit
+      }
+    }
+    ${fragmentTextForQuery("PostsEdit")}
+  `);
+  const [revertLoading, setRevertLoading] = useState(false);
   
   const {flash} = useMessages();
   
@@ -86,7 +98,7 @@ const PostVersionHistory = ({postId, onClose, classes}: {
       documentId: postId,
       fieldName: "contents",
     },
-    fetchPolicy: "cache-then-network" as any,
+    fetchPolicy: "cache-and-network" as any,
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
   });
@@ -126,13 +138,26 @@ const PostVersionHistory = ({postId, onClose, classes}: {
       </div>
       <div className={classes.selectedRevisionDisplay}>
         {revision && <div className={classes.restoreButton}>
-          <Button 
-            onClick={()=>flash({messageString: "Restore button is not yet functional. Use copy/paste."})}
-            variant="contained"
-            color="primary"
-          >
-            RESTORE THIS VERSION
-          </Button>
+          {revertLoading
+            ? <Loading/>
+            : <Button variant="contained" color="primary" onClick={async () => {
+                console.log(`Attempting revert to revision ${selectedRevisionId}`);
+                setRevertInProgress(true);
+                await revertMutation({
+                  variables: {
+                    postId: postId,
+                    revisionId: selectedRevisionId,
+                  },
+                });
+                console.log("Revert finished");
+                // Hard-refresh the page to get things back in sync
+                location.reload();
+              }}
+            >
+              RESTORE THIS VERSION{" "}
+              {revertInProgress && <Loading/>}
+            </Button>
+          }
         </div>}
         {revision && <ContentItemBody
           dangerouslySetInnerHTML={{__html: revision.html}}
