@@ -252,6 +252,7 @@ async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Promise<st
 // overwriting whatever's currently there.
 // (This is used when reverting through the revision-history UI.)
 export async function pushRevisionToCkEditor(postId: string, html: string) {
+  // eslint-disable-next-line no-console
   console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html}`);
   const ckEditorId = postIdToCkEditorDocumentId(postId);
   
