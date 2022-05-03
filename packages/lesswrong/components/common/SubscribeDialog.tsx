@@ -55,27 +55,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-// Estimated number of hours of reading per week in a frontpage/community feed
-// with the given karma threshold. Calculated based on the average number of
-// words posted per week on LW2 as of August 2018.
-const hoursPerWeek = {
-  2: "3 hours",
-  30: "2 hours",
-  45: "1 hour",
-  75: "half an hour"
-};
-
-// Estimated number of posts per week in a frontpage/community feed with the
-// given karma threshold. Calculated based on the average number of posts per
-// week on LW2 as of August 2018.
-// ^^^ Lol
-const postsPerWeek = {
-  2: 20,
-  30: 11,
-  45: 7,
-  75: 3
-};
-
 const viewNames = {
   'frontpage': 'Frontpage',
   'curated': 'Curated Content',
@@ -258,9 +237,6 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                       className={classes.thresholdButton} />
                 ) }
               </RadioGroup>
-              <DialogContentText className={classes.estimate}>
-                That's roughly { postsPerWeek[threshold] } posts per week ({ hoursPerWeek[threshold] } of reading)
-              </DialogContentText>
             </div>}
 
             <TextField
