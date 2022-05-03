@@ -432,18 +432,6 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
-  // Website
-  website: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: "text",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    order: 50,
-  },
-
   moderationStyle: {
     type: String,
     optional: true,
@@ -1553,9 +1541,42 @@ addFieldsDict(Users, {
     type: String,
     hidden: true,
     optional: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
-    canUpdate: [userOwns, 'admins'],
-  }
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+  facebookProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+  twitterProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+  githubProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
+  website: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  },
 });
 
 makeEditable({

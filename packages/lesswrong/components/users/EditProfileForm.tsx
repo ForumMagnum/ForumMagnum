@@ -17,6 +17,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 800,
     margin: '0 auto'
   },
+  formControl: {
+    display: 'block'
+  },
   inputAdornment: {
     marginRight: 0
   },
@@ -58,9 +61,9 @@ const EditProfileForm = ({classes}: {
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}>Edit Profile</Typography>
       <form onSubmit={handleSubmit}>
-        <div>Social Media</div>
+        <Typography variant="title" className={classes.header}>Social Media</Typography>
         
-        <FormControl>
+        <FormControl className={classes.formControl}>
           <Input
             name="linkedInProfileURL"
             startAdornment={
@@ -75,7 +78,7 @@ const EditProfileForm = ({classes}: {
           />
         </FormControl>
         
-        <Button type="submit">Save</Button>
+        <Button type="submit" color="primary" variant="contained">Save</Button>
       </form>
       
     </div>
