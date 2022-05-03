@@ -1,6 +1,8 @@
 /**
  * This file is copied from https://github.com/CultureHQ/add-to-calendar/blob/master/src/makeUrls.ts
  * (I deleted Yahoo since no one uses that)
+ *
+ * License: https://github.com/CultureHQ/add-to-calendar/blob/master/LICENSE
  */
 
 export interface CalendarEvent {
