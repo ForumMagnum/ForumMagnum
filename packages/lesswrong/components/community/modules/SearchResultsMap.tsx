@@ -75,12 +75,13 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
       if (!hit._geoloc || locations[hit._id]) return
       
       // within about a quarter mile radius
-      const lat = (Math.random() - 0.5) * 0.01 + hit._geoloc.lat
-      const lng = (Math.random() - 0.5) * 0.01 + hit._geoloc.lng
+      const lat = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lat
+      const lng = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lng
 
       locations[hit._id] = {lat, lng}
     })
     setMarkerLocations(locations)
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hits])
   
   
