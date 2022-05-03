@@ -125,7 +125,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { AddToCalendarIcon, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard } = Components
+  const { AddToCalendarButton, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard } = Components
   
   // while the data is loading, show some placeholder empty cards
   if (loading && !events.length) {
@@ -159,7 +159,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
           <Link to={`/groups/${event.group._id}`}>{event.group.name}</Link>
         </div>}
         <div className={classes.addToCal}>
-          <AddToCalendarIcon post={event} />
+          <AddToCalendarButton post={event} />
         </div>
       </CardContent>
     </Card>
