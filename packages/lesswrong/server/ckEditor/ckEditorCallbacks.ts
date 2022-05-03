@@ -158,9 +158,11 @@ defineMutation({
     
     // Is the selected revision a CkEditor collaborative editing revision?
     if (revision.originalContents.type === "ckEditorMarkup" && isCollaborative(post, "contents")) {
+      // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
       await pushRevisionToCkEditor(post._id, revision.originalContents.data);
     } else {
+      // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");
       if (revisionIsChange(revision, "contents")) {
         // Edit the document to set contents to match this revision. Edit callbacks
@@ -178,12 +180,12 @@ defineMutation({
           validate: false,
         });
       } else {
+        // eslint-disable-next-line no-console
         console.log("Not creating a new revision (it already matches the head revision");
       }
     }
     
     const filteredPost = await accessFilterSingle(currentUser, Posts, post, context);
-    console.log("Finished revertPostToRevision");
     return filteredPost!;
   }
 });

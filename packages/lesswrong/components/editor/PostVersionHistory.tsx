@@ -141,7 +141,6 @@ const PostVersionHistory = ({postId, onClose, classes}: {
           {revertLoading
             ? <Loading/>
             : <Button variant="contained" color="primary" onClick={async () => {
-                console.log(`Attempting revert to revision ${selectedRevisionId}`);
                 setRevertInProgress(true);
                 await revertMutation({
                   variables: {
@@ -149,7 +148,6 @@ const PostVersionHistory = ({postId, onClose, classes}: {
                     revisionId: selectedRevisionId,
                   },
                 });
-                console.log("Revert finished");
                 // Hard-refresh the page to get things back in sync
                 location.reload();
               }}
