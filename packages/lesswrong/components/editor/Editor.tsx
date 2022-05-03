@@ -132,7 +132,7 @@ export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix
   draftJS: {name: 'Draft-JS'},
 }
 
-export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown', 'draftJS']
+export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
 export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
