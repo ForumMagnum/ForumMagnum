@@ -22,6 +22,7 @@ import { withTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const isEAForum = forumTypeSetting.get() === "EAForum";
 
@@ -54,6 +55,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     textDecoration: "underline"
   },
 });
+
+const thresholds = forumSelect({
+  LessWrong: [2, 30, 45, 75, 125],
+  AlignmentForum: [2, 30, 45, 75, 125],
+  EAForum: [2, 30, 75, 125, 200],
+  // We default you off pretty low, you can add more once you get more high
+  // karma posts
+  default: [2, 30, 45, 75]
+})
 
 const viewNames = {
   'frontpage': 'Frontpage',
@@ -228,7 +238,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 onChange={ (event, value) => this.selectThreshold(value) }
                 className={classes.thresholdSelector}
               >
-                { [2, 30, 75, 125, 200].map(t => t.toString()).map(threshold =>
+                { thresholds.map(t => t.toString()).map(threshold =>
                   <FormControlLabel
                     control={<Radio />}
                     label={threshold}
