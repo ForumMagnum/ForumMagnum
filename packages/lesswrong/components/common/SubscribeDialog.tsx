@@ -58,12 +58,49 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const thresholds = forumSelect({
   LessWrong: [2, 30, 45, 75, 125],
-  AlignmentForum: [2, 30, 45, 75, 125],
+  AlignmentForum: [2, 30, 45],
   EAForum: [2, 30, 75, 125, 200],
   // We default you off pretty low, you can add more once you get more high
   // karma posts
   default: [2, 30, 45, 75]
 })
+
+/**
+ * Calculated based on the average number of words posted per post on LW2 as of
+ * August 2018.
+ */
+function timePerWeekFromPosts(posts: number) {
+  const minutes = posts * 11
+  if (minutes < 60) {
+    return `${minutes} minutes`
+  }
+  return `${Math.round(minutes / 60)} hours`
+}
+
+/** Posts per week as of May 2022 */
+const postsPerWeek = forumSelect({
+  EAForum: {
+    2: 119,
+    30: 24,
+    45: 20,
+    75: 10,
+    125: 4,
+    200: 1,
+  },
+  // (JP) I eyeballed these, you could query your db for better numbers
+  LessWrong: {
+    2: 80,
+    30: 16,
+    45: 13,
+    75: 7,
+    125: 2,
+  },
+  AlignmentForum: {
+    2: 10,
+    30: 2,
+    45: 1,
+  },
+});
 
 const viewNames = {
   'frontpage': 'Frontpage',
@@ -248,6 +285,10 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                   />
                 ) }
               </RadioGroup>
+              <DialogContentText className={classes.estimate}>
+                That's roughly { postsPerWeek[threshold] } posts per week
+                ({ timePerWeekFromPosts(postsPerWeek[threshold]) } of reading)
+              </DialogContentText>
             </div>}
 
             <TextField
