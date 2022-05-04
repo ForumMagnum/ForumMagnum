@@ -1541,6 +1541,7 @@ addFieldsDict(Users, {
     type: String,
     hidden: true,
     optional: true,
+    control: 'PrefixedInput',
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],

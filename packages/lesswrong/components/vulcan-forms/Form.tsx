@@ -304,13 +304,11 @@ class Form extends Component<any,any> {
     return groups;
   };
 
-  /*
-
-  Get a list of the fields to be included in the current form
-
-  Note: when submitting the form (getData()), do not include any extra fields.
-
-  */
+  /**
+   * Get a list of the fields to be included in the current form
+   *
+   * Note: when submitting the form (getData()), do not include any extra fields
+   */
   getFieldNames = (args?: any) => {
     // we do this to avoid having default values in arrow functions, which breaks MS Edge support. See https://github.com/meteor/meteor/issues/10171
     let args0 = args || {};
@@ -325,13 +323,17 @@ class Form extends Component<any,any> {
 
     // get all editable/insertable fields (depending on current form type)
     let relevantFields = this.getMutableFields(schema);
+    console.log('🚀 ~ file: Form.tsx ~ line 326 ~ Form ~ relevantFields', relevantFields)
 
+    console.log('🚀 ~ file: Form.tsx ~ line 330 ~ Form ~ fields', fields)
     // if "fields" prop is specified, restrict list of fields to it
     if (typeof fields !== 'undefined' && fields.length > 0) {
       relevantFields = _.intersection(relevantFields, fields);
+      console.log('🚀 ~ file: Form.tsx ~ line 330 ~ Form ~ relevantFields', relevantFields)
     }
 
     // if "hideFields" prop is specified, remove its fields
+    console.log('🚀 ~ file: Form.tsx ~ line 336 ~ Form ~ excludeRemovedFields', excludeRemovedFields)
     if (excludeRemovedFields) {
       // OpenCRUD backwards compatibility
       const removeFields = this.props.removeFields || this.props.hideFields;
@@ -341,6 +343,8 @@ class Form extends Component<any,any> {
     }
 
     // if "addFields" prop is specified, add its fields
+    console.log('🚀 ~ file: Form.tsx ~ line 350 ~ Form ~ addExtraFields', addExtraFields)
+    console.log('🚀 ~ file: Form.tsx ~ line 349 ~ Form ~ addFields', addFields)
     if (
       addExtraFields &&
       typeof addFields !== 'undefined' &&
@@ -350,6 +354,7 @@ class Form extends Component<any,any> {
     }
 
     // remove all hidden fields
+    console.log('🚀 ~ file: Form.tsx ~ line 357 ~ Form ~ excludeHiddenFields', excludeHiddenFields)
     if (excludeHiddenFields) {
       const document = this.getDocument();
       relevantFields = _.reject(relevantFields, fieldName => {
@@ -358,10 +363,12 @@ class Form extends Component<any,any> {
           ? hidden({ ...this.props, document })
           : hidden;
       });
+      console.log('🚀 ~ file: Form.tsx ~ line 360 ~ Form ~ relevantFields', relevantFields)
     }
 
     // remove any duplicates
     relevantFields = uniq(relevantFields);
+    console.log('🚀 ~ file: Form.tsx ~ line 370 ~ Form ~ relevantFields', relevantFields)
 
     return relevantFields;
   };

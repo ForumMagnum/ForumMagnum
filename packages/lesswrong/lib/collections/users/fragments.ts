@@ -367,3 +367,10 @@ registerFragment(`
     email
   }
 `)
+
+registerFragment(`
+  fragment UsersProfileEdit on User {
+    _id
+    linkedInProfileURL
+  }
+`)
