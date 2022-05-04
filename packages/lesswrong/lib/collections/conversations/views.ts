@@ -44,4 +44,4 @@ Conversations.addView("userGroupUntitledConversations", function (terms: Convers
     },
   };
 });
-ensureIndex(Conversations, { participantIds: 1, title: 1, archivedByIds: 1 })
+ensureIndex(Conversations, { participantIds: 1, title: 1 })
