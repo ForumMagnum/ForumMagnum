@@ -1116,6 +1116,12 @@ addFieldsDict(Users, {
     optional: true,
     ...schemaDefaultValue(false),
   },
+  nextReviewContentCount: {
+    type: Number,
+    canRead: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(0),
+    optional: true
+  },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does
   // not imply approval, the user might have been banned

@@ -11,9 +11,9 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator, Globals } from '../vulcan-lib';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
-import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { triggerReviewIfNeeded } from './userCallbacks';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -321,14 +321,6 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   return {...comment, ...votedComment} as DbComment;
 });
 
-getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview (comment: DbComment) {
-  const user = await Users.findOne({_id:comment.userId})
-  const karma = user?.karma || 0
-  if (karma < 100) {
-    await Comments.rawUpdateOne({_id:comment._id}, {$set: {needsReview: true}});
-  }
-});
-
 getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
   if (modifier.$set) {
     const { deleted, deletedPublic, deletedReason } = modifier.$set
@@ -448,7 +440,16 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
   return comment;
 });
 
+// This function and the latter function seem redundant. TODO decide whether/where the karma < 100 clause should live
+getCollectionHooks("Comments").newAsync.add(async function NewCommentNeedsReview (comment: DbComment) {
+  const user = await Users.findOne({_id:comment.userId})
+  const karma = user?.karma || 0
+  if (karma < 100) {
+    await triggerReviewIfNeeded(comment.userId);
+  }
+});
+
 getCollectionHooks("Comments").createAfter.add(async (document: DbComment) => {
-  await newDocumentMaybeTriggerReview(document);
+  await triggerReviewIfNeeded(document.userId);
   return document;
 })

@@ -82,11 +82,28 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
+export async function triggerReviewIfNeeded(userId: string) {
+  const user = await Users.findOne({_id: userId})
+  if (!user) throw new Error("user is null")
+
+  let needsReview = false
+  if (user.reviewedByUserId && !user.nextReviewContentCount) {
+    needsReview = false
+
+  } else if (!user.reviewedByUserId) {
+    needsReview = (user.voteCount > 20) || user.mapLocation || user.postCount || user.commentCount
+
+  } else if (user.reviewedByUserId && user.nextReviewContentCount) {
+    const contentCount = user.postCount + user.commentCount
+    needsReview = contentCount > user.nextReviewContentCount
+  }
+
+  void Users.rawUpdateOne({_id:user._id}, {$set:{needsReview: needsReview}})
+}
+
 getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
   // if the user has a mapLocation and they have not been reviewed, mark them for review
-  if (newUser.mapLocation && !newUser.reviewedByUserId && !newUser.needsReview) {
-    void Users.rawUpdateOne({_id: newUser._id}, {$set: {needsReview: true}})
-  }
+  triggerReviewIfNeeded(newUser._id)
 })
 
 // When the very first user account is being created, add them to Sunshine

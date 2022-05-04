@@ -163,7 +163,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     }
   }
 
-  const handleSnooze = () => {
+  const handleSnooze = (contentCount) => {
     updateUser({
       selector: {_id: user._id},
       data: {
@@ -171,7 +171,8 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
         reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
         sunshineSnoozed: true,
-        sunshineNotes: notes
+        sunshineNotes: notes,
+        nextReviewContentCount: user.postCount + user.commentCount + contentCount
       }
     })
 

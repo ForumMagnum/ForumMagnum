@@ -3,6 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
+import { triggerReviewIfNeeded } from './userCallbacks';
 
 /**
  * @summary Update the karma of the item's owner
@@ -44,11 +45,7 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
 });
 
 voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
-  const voter = await Users.findOne(document.vote.userId);
-  // voting should only be triggered once (after getting snoozed, they will not re-trigger for sunshine review)
-  if (voter && voter.voteCount >= 20 && !voter.reviewedByUserId) {
-    void Users.rawUpdateOne({_id:voter._id}, {$set:{needsReview: true}})
-  }
+  triggerReviewIfNeeded(document.vote.userId)
 });
 
 

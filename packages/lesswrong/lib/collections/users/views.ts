@@ -4,6 +4,7 @@ import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarn
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
+import { viewFieldNullOrMissing } from "../../vulcan-lib";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {

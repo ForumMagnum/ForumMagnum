@@ -760,6 +760,7 @@ interface DbUser extends DbObject {
   sunshineFlagged: boolean
   needsReview: boolean
   sunshineSnoozed: boolean
+  nextReviewContentCount: number
   reviewedByUserId: string
   reviewedAt: Date
   afKarma: number

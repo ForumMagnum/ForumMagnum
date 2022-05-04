@@ -11,6 +11,7 @@ import cheerio from 'cheerio'
 import { getCollectionHooks } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
+import { triggerReviewIfNeeded } from './userCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -156,19 +157,16 @@ export async function newDocumentMaybeTriggerReview (document: DbPost|DbComment)
 
 getCollectionHooks("Posts").newAfter.add(async (document: DbPost) => {
   if (!document.draft) {
-    await newDocumentMaybeTriggerReview(document);
+    triggerReviewIfNeeded(document.userId)
   }
   return document;
 });
 
 getCollectionHooks("Posts").editAsync.add(async function updatedPostMaybeTriggerReview (newPost, oldPost) {
-  // ignore draft posts
-  if (newPost.draft) return
 
-  // Is this a post being undrafted?
-  if (oldPost.draft) {
-    await newDocumentMaybeTriggerReview(newPost)
-  }
+  await newDocumentMaybeTriggerReview(newPost)
+  
+  if (newPost.draft) return 
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,

@@ -219,10 +219,12 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
+    
     needsReview
     sunshineSnoozed
     sunshineNotes
     sunshineFlagged
+    nextReviewContentCount
   }
 `);
 
