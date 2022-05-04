@@ -7,7 +7,6 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
-import addToCalendarStyles from '../styles/addToCalendarStyles';
 import datetimeStyles from '../styles/datetimeStyles';
 import draftjsStyles from '../styles/draftjsStyles';
 import miscStyles from '../styles/miscStyles';
@@ -37,7 +36,6 @@ const generateMergedStylesheet = (): string => {
   const jssStylesheet = context.sheetsRegistry.toString()
   
   return [
-    addToCalendarStyles,
     datetimeStyles,
     draftjsStyles,
     miscStyles,
