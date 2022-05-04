@@ -35,6 +35,7 @@ async function fetchSuggestions(searchString: string) {
   const convertedSearchResults = searchResults.hits.map(hit =>{
    return {id: postMarker+hit._id, link: hit.slug, userId: '37775', name: hit.title, }
   })
+  console.log(convertedSearchResults)
   return convertedSearchResults
 }
 

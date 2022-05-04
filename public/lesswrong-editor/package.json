@@ -26,7 +26,7 @@
   ],
   "scripts": {
 	"build": "webpack --config webpack-client.config.js --mode production; webpack --config webpack-cloud.config.js --mode production",
-	"build-dev": "webpack --mode development --watch",
+	"build-dev": "webpack --mode development --watch --config webpack-client.config.js",
 	"lint": "eslint --quiet '**/*.js'",
 	"preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
   },

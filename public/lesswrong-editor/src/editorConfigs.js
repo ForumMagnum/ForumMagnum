@@ -50,11 +50,142 @@ const embedConfig = {
 	]
 }
 
+
+//For development purposes, ensure deletion later
+const fetchSuggestions = () => {
+  return [
+	  {
+		"id": "#iuNSrBoX2W5qHCAAo",
+		"link": "notes-from-an-apocalypse",
+		"userId": "37775",
+		"name": "Notes From an Apocalypse"
+	  },
+	  {
+		"id": "#rCP5iTYLtfcoC8NXd",
+		"link": "self-organised-neural-networks-a-simple-natural-and",
+		"userId": "37775",
+		"name": "Self-Organised Neural Networks:\nA simple, natural and efficient way to intelligence"
+	  },
+	  {
+		"id": "#895quRDaK6gR2rM82",
+		"link": "diseased-thinking-dissolving-questions-about-disease",
+		"userId": "37775",
+		"name": "Diseased thinking: dissolving questions about disease"
+	  },
+	  {
+		"id": "#CpvyhFy9WvCNsifkY",
+		"link": "discussion-with-eliezer-yudkowsky-on-agi-interventions",
+		"userId": "37775",
+		"name": "Discussion with Eliezer Yudkowsky on AGI interventions"
+	  },
+	  {
+		"id": "#bshZiaLefDejvPKuS",
+		"link": "dying-outside",
+		"userId": "37775",
+		"name": "Dying Outside"
+	  },
+	  {
+		"id": "#mTGrrX8SZJ2tQDuqz",
+		"link": "deepmind-generally-capable-agents-emerge-from-open-ended",
+		"userId": "37775",
+		"name": "DeepMind: Generally capable agents emerge from open-ended play"
+	  },
+	  {
+		"id": "#4DBBQkEQvNEWafkek",
+		"link": "dark-arts-of-rationality",
+		"userId": "37775",
+		"name": "Dark Arts of Rationality"
+	  },
+	  {
+		"id": "#xF7gBJYsy6qenmmCS",
+		"link": "don-t-die-with-dignity-instead-play-to-your-outs",
+		"userId": "37775",
+		"name": "Don't die with dignity; instead play to your outs"
+	  },
+	  {
+		"id": "#rNFzvii8LtCL5joJo",
+		"link": "dark-matters",
+		"userId": "37775",
+		"name": "Dark Matters"
+	  },
+	  {
+		"id": "#vbWBJGWyWyKyoxLBe",
+		"link": "darpa-digital-tutor-four-months-to-total-technical-expertise",
+		"userId": "37775",
+		"name": "DARPA Digital Tutor: Four Months to Total Technical Expertise?"
+	  },
+	  {
+		"id": "#WxW6Gc6f2z3mzmqKs",
+		"link": "debate-on-instrumental-convergence-between-lecun-russell",
+		"userId": "37775",
+		"name": "Debate on Instrumental Convergence between LeCun, Russell, Bengio, Zador, and More"
+	  },
+	  {
+		"id": "#XCtFBWoMeFwG8myYh",
+		"link": "dalle2-comments",
+		"userId": "37775",
+		"name": "dalle2 comments"
+	  },
+	  {
+		"id": "#KrJfoZzpSDpnrv9va",
+		"link": "draft-report-on-ai-timelines",
+		"userId": "37775",
+		"name": "Draft report on AI timelines"
+	  },
+	  {
+		"id": "#CeZXDmp8Z363XaM6b",
+		"link": "discontinuous-progress-in-history-an-update",
+		"userId": "37775",
+		"name": "Discontinuous progress in history: an update"
+	  },
+	  {
+		"id": "#fri4HdDkwhayCYFaE",
+		"link": "do-a-cost-benefit-analysis-of-your-technology-usage",
+		"userId": "37775",
+		"name": "Do a cost-benefit analysis of your technology usage"
+	  },
+	  {
+		"id": "#fwNskn4dosKng9BCB",
+		"link": "dear-self-we-need-to-talk-about-social-media",
+		"userId": "37775",
+		"name": "Dear Self; We Need To Talk About Social Media"
+	  },
+	  {
+		"id": "#r8stxYL29NF9w53am",
+		"link": "doing-your-good-deed-for-the-day",
+		"userId": "37775",
+		"name": "Doing your good deed for the day"
+	  },
+	  {
+		"id": "#exa5kmvopeRyfJgCy",
+		"link": "double-crux-a-strategy-for-mutual-understanding",
+		"userId": "37775",
+		"name": "Double Crux — A Strategy for Mutual Understanding"
+	  },
+	  {
+		"id": "#wW9mcj8GP5avS5ovW",
+		"link": "dangers-of-steelmanning-principle-of-charity",
+		"userId": "37775",
+		"name": "Dangers of steelmanning / principle of charity"
+	  },
+	  {
+		"id": "#4FcxgdvdQP45D6Skg",
+		"link": "disguised-queries",
+		"userId": "37775",
+		"name": "Disguised Queries"
+	  }
+  ]
+}
+
+
+
+
+
 const mentionConfig = {
   feeds: [
 	{
-	  marker: '@',
-	  feed: [ '@Barney', '@Lily', '@Marry Ann', '@Marshall', '@Robin', '@Ted' ],
+	  marker: '#',
+	  feed: fetchSuggestions, //[ '@Barney', '@Lily', '@Marry Ann', '@Marshall', '@Robin', '@Ted', '@Vlad' ],
 	  minimumCharacters: 1
 	}
   ]
