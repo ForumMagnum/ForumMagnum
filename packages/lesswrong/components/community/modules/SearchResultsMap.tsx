@@ -66,6 +66,25 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
     })
   }, [center.lat, center.lng, zoom])
   
+  // to make sure that map markers with exactly the same lat/lng don't appear exactly on top of each other,
+  // we slightly shift all markers by a random distance
+  const [markerLocations, setMarkerLocations] = useState({})
+  useEffect(() => {
+    const locations = {...markerLocations}
+    hits.forEach(hit => {
+      if (!hit._geoloc || locations[hit._id]) return
+      
+      // within about a quarter mile radius
+      const lat = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lat
+      const lng = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lng
+
+      locations[hit._id] = {lat, lng}
+    })
+    setMarkerLocations(locations)
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hits])
+  
+  
   const { StyledMapPopup } = Components
   
   const isEAForum = forumTypeSetting.get() === 'EAForum'
@@ -83,20 +102,20 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
       mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
     >
       {hits.map(hit => {
-        if (!hit._geoloc) return null
+        if (!hit._geoloc || !markerLocations[hit._id]) return null
         
         return <React.Fragment key={hit._id}>
           <Marker
-            latitude={hit._geoloc.lat}
-            longitude={hit._geoloc.lng}
+            latitude={markerLocations[hit._id].lat}
+            longitude={markerLocations[hit._id].lng}
             offsetLeft={-8}
             offsetTop={-20}
           >
             <PersonIcon className={classes.icon} onClick={() => setActiveResultId(hit._id)} />
           </Marker>
           {(activeResultId === hit._id) && <StyledMapPopup
-            lat={hit._geoloc.lat}
-            lng={hit._geoloc.lng}
+            lat={markerLocations[hit._id].lat}
+            lng={markerLocations[hit._id].lng}
             link={userGetProfileUrl(hit)}
             title={hit.displayName}
             onClose={() => setActiveResultId('')}
