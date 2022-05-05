@@ -1,5 +1,5 @@
 import React from 'react';
-import { hydrateRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import AppGenerator from './AppGenerator';
 import { onStartup } from '../lib/executionEnvironment';
 import type { TimeOverride } from '../lib/utils/timeUtil';
@@ -26,10 +26,11 @@ onStartup(() => {
     <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} timeOverride={timeOverride}/>
   );
   
-  const container = document.getElementById('react-app');
-  const root = hydrateRoot(container!, <Main/>);
-  setTimeout(() => {
-    apolloClient.disableNetworkFetches = false;
-    timeOverride.currentTime = null;
-  }, 0);
+  ReactDOM.hydrate(
+    <Main />,
+    document.getElementById('react-app'),
+    () => {
+      apolloClient.disableNetworkFetches = false;
+    }
+  );
 });

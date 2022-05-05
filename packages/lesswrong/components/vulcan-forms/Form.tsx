@@ -245,7 +245,11 @@ class Form extends Component<any,any> {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacksList({ callbacks: this.submitFormCallbacks, iterator: data, properties: { form: this } });
+    data = runCallbacksList({
+      callbacks: this.submitFormCallbacks,
+      iterator: data,
+      properties: [this],
+    });
 
     return data;
   };
@@ -265,10 +269,11 @@ class Form extends Component<any,any> {
 
   */
   getFieldGroups = () => {
+    let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
     let fields: Array<any> = this.getFieldNames().map((fieldName: string) => {
       // get schema for the current field
-      return this.createField(fieldName, this.state.schema);
+      return this.createField(fieldName, this.state.schema, mutableFields);
     });
 
     fields = _.sortBy(fields, 'order');
@@ -426,14 +431,14 @@ class Form extends Component<any,any> {
 
     return field;
   };
-  handlePermissions = (field, fieldName, schema) => {
+  handlePermissions = (field, fieldName, mutableFields) => {
     // if field is not creatable/updatable, disable it
-    if (!this.getMutableFields(schema).includes(fieldName)) {
+    if (!mutableFields.includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field, fieldName, fieldSchema, schema) => {
+  handleFieldChildren = (field, fieldName, fieldSchema, mutableFields) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -441,7 +446,7 @@ class Form extends Component<any,any> {
       field.arrayField = this.createArraySubField(
         fieldName,
         field.arrayFieldSchema,
-        schema
+        mutableFields
       );
 
       //field.nestedInput = true
@@ -459,6 +464,7 @@ class Form extends Component<any,any> {
         return this.createField(
           subFieldName,
           field.nestedSchema,
+          mutableFields,
           fieldName,
           field.path
         );
@@ -472,22 +478,22 @@ class Form extends Component<any,any> {
   complete field object to be passed to the component
 
   */
-  createField = (fieldName, schema, parentFieldName?: any, parentPath?: any) => {
+  createField = (fieldName, schema, mutableFields, parentFieldName?: any, parentPath?: any) => {
     const fieldSchema = schema[fieldName];
     let field = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
-    field = this.handlePermissions(field, fieldName, schema);
-    field = this.handleFieldChildren(field, fieldName, fieldSchema, schema);
+    field = this.handlePermissions(field, fieldName, mutableFields);
+    field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields);
     return field;
   };
-  createArraySubField = (fieldName, subFieldSchema, schema) => {
+  createArraySubField = (fieldName, subFieldSchema, mutableFields) => {
     const subFieldName = `${fieldName}.$`;
     let subField = this.initField(subFieldName, subFieldSchema);
     // array subfield has the same path and permissions as its parent
     // so we use parent name (fieldName) and not subfieldName
     subField = this.handleFieldPath(subField, fieldName);
-    subField = this.handlePermissions(subField, fieldName, schema);
+    subField = this.handlePermissions(subField, fieldName, mutableFields);
     // we do not allow nesting yet
     //subField = this.handleFieldChildren(field, fieldSchema)
     return subField;
@@ -564,36 +570,41 @@ class Form extends Component<any,any> {
     }));
   };
 
-  // add a callback to the form submission
+  // Add a callback to the form submission. Return a cleanup function which,
+  // when run, removes that callback.
   addToSubmitForm = callback => {
     this.submitFormCallbacks.push(callback);
+    return () => {
+      const index = this.submitFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.submitFormCallbacks.splice(index, 1);
+    };
   };
 
-  // add a callback to form submission success
+  // Add a callback to form submission success. Return a cleanup function which,
+  // when run, removes that callback.
   addToSuccessForm = callback => {
     this.successFormCallbacks.push(callback);
+    return () => {
+      const index = this.successFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.successFormCallbacks.splice(index, 1);
+    };
   };
 
-  // add a callback to form submission failure
+  // Add a callback to form submission failure. Return a cleanup function which,
+  // when run, removes that callback.
   addToFailureForm = callback => {
     this.failureFormCallbacks.push(callback);
+    return () => {
+      const index = this.failureFormCallbacks.indexOf(callback);
+      if (index >= 0)
+        this.failureFormCallbacks.splice(index, 1);
+    };
   };
 
   setFormState = fn => {
     this.setState(fn);
-  };
-
-  submitFormContext = newValues => {
-    // keep the previous ones and extend (with possible replacement) with new ones
-    this.setState(
-      prevState => ({
-        currentValues: {
-          ...prevState.currentValues,
-          ...newValues
-        } // Submit form after setState update completed
-      }),
-      () => this.submitForm()
-    );
   };
 
   // pass on context to all child components
@@ -603,7 +614,7 @@ class Form extends Component<any,any> {
       clearForm: this.clearForm,
       refetchForm: this.refetchForm,
       isChanged: this.isChanged,
-      submitForm: this.submitFormContext, //Change in name because we already have a function
+      submitForm: this.submitForm, //Change in name because we already have a function
       // called submitForm, but no reason for the user to know
       // about that
       addToDeletedValues: this.addToDeletedValues,
@@ -640,58 +651,54 @@ class Form extends Component<any,any> {
     }
   }
 
-  /*
-
-  Manually update the current values of one or more fields(i.e. on change or blur).
-
-  */
-  updateCurrentValues = (newValues, options: any = {}) => {
+  // Manually update the current values of one or more fields(i.e. on change or blur).
+  // Return a promise that resolves when the change is fully applied. Since this is
+  // a React state update, this is not immediate.
+  updateCurrentValues = async (newValues, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
     const { changeCallback } = this.props;
 
     // keep the previous ones and extend (with possible replacement) with new ones
-    this.setState(prevState => {
-      // keep only the relevant properties
-      const { currentValues, currentDocument, deletedValues } = cloneDeep(
-        prevState
-      );
-      const newState = {
-        currentValues,
-        currentDocument,
-        deletedValues,
-        foo: {}
-      };
-
-      Object.keys(newValues).forEach(key => {
-        const path = key;
-        let value = newValues[key];
-
-        if (isEmptyValue(value)) {
-          // delete value
-          unset(newState.currentValues, path);
-          set(newState.currentDocument, path, null);
-          newState.deletedValues = [...prevState.deletedValues, path];
-        } else {
-
-          // 1. update currentValues
-          set(newState.currentValues, path, value);
-
-          // 2. update currentDocument
-          // For arrays and objects, give option to merge instead of overwrite
-          if (mode === 'merge' && (Array.isArray(value) || isObject(value))) {
-            const oldValue = get(newState.currentDocument, path);
-            set(newState.currentDocument, path, merge(oldValue, value));
+    return new Promise<void>((resolve, reject) => {
+      this.setState(prevState => {
+        // keep only the relevant properties
+        const newState = {
+          currentValues: cloneDeep(prevState.currentValues),
+          currentDocument: cloneDeep(prevState.currentDocument),
+          deletedValues: prevState.deletedValues,
+        };
+  
+        Object.keys(newValues).forEach(key => {
+          const path = key;
+          let value = newValues[key];
+  
+          if (isEmptyValue(value)) {
+            // delete value
+            unset(newState.currentValues, path);
+            set(newState.currentDocument, path, null);
+            newState.deletedValues = [...prevState.deletedValues, path];
           } else {
-            set(newState.currentDocument, path, value);
+  
+            // 1. update currentValues
+            set(newState.currentValues, path, value);
+  
+            // 2. update currentDocument
+            // For arrays and objects, give option to merge instead of overwrite
+            if (mode === 'merge' && (Array.isArray(value) || isObject(value))) {
+              const oldValue = get(newState.currentDocument, path);
+              set(newState.currentDocument, path, merge(oldValue, value));
+            } else {
+              set(newState.currentDocument, path, value);
+            }
+  
+            // 3. in case value had previously been deleted, "undelete" it
+            newState.deletedValues = _.without(prevState.deletedValues, path);
           }
-
-          // 3. in case value had previously been deleted, "undelete" it
-          newState.deletedValues = _.without(prevState.deletedValues, path);
-        }
-      });
-      if (changeCallback) changeCallback(newState.currentDocument);
-      return newState;
+        });
+        if (changeCallback) changeCallback(newState.currentDocument);
+        return newState;
+      }, resolve)
     });
   };
 
@@ -752,8 +759,10 @@ class Form extends Component<any,any> {
   }
   // check for browser closing
   checkBrowserClosing = () => {
-    //check for closing the browser with unsaved changes too
-    (window as any).onbeforeunload = this.handlePageLeave;
+    if (this.getWarnUnsavedChanges()) {
+      //check for closing the browser with unsaved changes too
+      (window as any).onbeforeunload = this.handlePageLeave;
+    }
   }
 
   /*
@@ -852,20 +861,23 @@ class Form extends Component<any,any> {
 
   */
   formKeyDown = event => {
+    //Ctrl+Enter or Cmd+Enter submits the form
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-      this.submitForm();
+      if (!this.props.noSubmitOnCmdEnter) {
+        void this.submitForm();
+      }
     }
   };
 
-  newMutationSuccessCallback = result => {
-    this.mutationSuccessCallback(result, 'new');
+  newMutationSuccessCallback = (result, submitOptions) => {
+    this.mutationSuccessCallback(result, 'new', submitOptions);
   };
 
-  editMutationSuccessCallback = result => {
-    this.mutationSuccessCallback(result, 'edit');
+  editMutationSuccessCallback = (result, submitOptions) => {
+    this.mutationSuccessCallback(result, 'edit', submitOptions);
   };
 
-  mutationSuccessCallback = (result, mutationType) => {
+  mutationSuccessCallback = (result, mutationType, submitOptions) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -881,10 +893,19 @@ class Form extends Component<any,any> {
     }
 
     // run document through mutation success callbacks
-    document = runCallbacksList({ callbacks: this.successFormCallbacks, iterator: document, properties: { form: this } });
+    document = runCallbacksList({
+      callbacks: this.successFormCallbacks,
+      iterator: document,
+      properties: [this, submitOptions],
+    });
 
     // run success callback if it exists
-    if (this.props.successCallback) this.props.successCallback(document, { form: this });
+    if (this.props.successCallback) {
+      this.props.successCallback(document, {
+        form: this,
+        submitOptions
+      });
+    }
   };
 
   // catch graphql errors
@@ -907,7 +928,11 @@ class Form extends Component<any,any> {
     ))
   
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
-    runCallbacksList({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });
+    runCallbacksList({
+      callbacks: this.failureFormCallbacks,
+      iterator: error,
+      properties: [error, this],
+    });
 
     if (!_.isEmpty(error)) {
       // add error to state
@@ -929,7 +954,7 @@ class Form extends Component<any,any> {
   Submit form handler
 
   */
-  submitForm = (event?: any) => {
+  submitForm = async (event?: any, submitOptions?: any) => {
 
     event && event.preventDefault();
 
@@ -952,18 +977,24 @@ class Form extends Component<any,any> {
 
     if (this.getFormType() === 'new') {
       // create document form
-      this.props[`create${this.props.typeName}`]({ data })
-        .then(this.newMutationSuccessCallback)
-        .catch(error => this.mutationErrorCallback(document, error));
+      try {
+        const result = await this.props[`create${this.props.typeName}`]({ data });
+        this.newMutationSuccessCallback(result, submitOptions);
+      } catch(error) {
+        this.mutationErrorCallback(document, error);
+      }
     } else {
       // update document form
       const documentId = this.getDocument()._id;
-      this.props[`update${this.props.typeName}`]({
-        selector: { documentId },
-        data
-      })
-        .then(this.editMutationSuccessCallback)
-        .catch(error => this.mutationErrorCallback(document, error));
+      try {
+        const result = await this.props[`update${this.props.typeName}`]({
+          selector: { documentId },
+          data
+        });
+        this.editMutationSuccessCallback(result, submitOptions);
+      } catch(error) {
+        this.mutationErrorCallback(document, error);
+      }
     }
   };
 
@@ -1098,6 +1129,7 @@ class Form extends Component<any,any> {
   cancelLabel: PropTypes.node,
   revertLabel: PropTypes.node,
   repeatErrors: PropTypes.bool,
+  noSubmitOnCmdEnter: PropTypes.bool,
   warnUnsavedChanges: PropTypes.bool,
   formComponents: PropTypes.object,
 
@@ -1111,6 +1143,7 @@ class Form extends Component<any,any> {
   layout: 'horizontal',
   prefilledProps: {},
   repeatErrors: false,
+  noSubmitOnCmdEnter: false,
   showRemove: true
 };
 
