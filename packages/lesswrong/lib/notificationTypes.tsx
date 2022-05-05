@@ -357,6 +357,20 @@ export const NewRSVPNotification = registerNotificationType({
   }
 })
 
+export const NewGroupOrganizerNotification = registerNotificationType({
+  name: "newGroupOrganizer",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'localgroup') throw new Error("documentType must be localgroup")
+    const localGroup = await Localgroups.findOne(documentId)
+    if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
+    return `You've been added as an organizer of ${localGroup.name}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
 export const NewCommentOnDraftNotification = registerNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",
@@ -381,17 +395,3 @@ export const NewCommentOnDraftNotification = registerNotificationType({
     return `/editPost?postId=${documentId}`;
   },
 });
-
-export const NewGroupOrganizerNotification = registerNotificationType({
-  name: "newGroupOrganizer",
-  userSettingField: "notificationGroupAdministration",
-  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
-    if (documentType !== 'localgroup') throw new Error("documentType must be localgroup")
-    const localGroup = await Localgroups.findOne(documentId)
-    if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
-    return `You've been added as an organizer of ${localGroup.name}`
-  },
-  getIcon() {
-    return <SupervisedUserCircleIcon style={iconStyles} />
-  }
-})

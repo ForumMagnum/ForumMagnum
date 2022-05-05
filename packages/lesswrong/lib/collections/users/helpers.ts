@@ -6,8 +6,8 @@ import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFind, mongoAggregate } from '../../mongoQueries';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import { useEffect, useState } from 'react';
-import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import * as _ from 'underscore';
+import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {

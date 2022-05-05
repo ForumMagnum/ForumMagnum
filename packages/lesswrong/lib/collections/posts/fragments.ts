@@ -32,6 +32,7 @@ registerFragment(`
     status
     frontpageDate
     meta
+    deletedDraft
 
     shareWithUsers
     sharingSettings
@@ -204,6 +205,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
+    deletedDraft
     contents {
       _id
       htmlHighlight

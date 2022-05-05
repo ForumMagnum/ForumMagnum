@@ -140,7 +140,7 @@ const NewUsersEditForm = ({currentUser, terms, classes}: {
         
         <h2>Sorting</h2>
         <FormDropdown form={form} fieldName="commentSorting" label="Comment Sorting" collectionName="Users" />
-        <FormDropdown form={form} fieldName="sortDrafts" label="Sort Drafts by" collectionName="Users" />
+        <FormDropdown form={form} fieldName="sortDraftsBy" label="Sort Drafts by" collectionName="Users" />
         
         <h2>Hide Elements</h2>
         <FormCheckbox form={form} fieldName="hideTaggingProgressBar" label="Hide the tagging progress bar"/>
@@ -149,7 +149,6 @@ const NewUsersEditForm = ({currentUser, terms, classes}: {
         
         <h2>Editor</h2>
         <FormCheckbox form={form} fieldName="markDownPostEditor" label="Activate Markdown editor"/>
-        <FormCheckbox form={form} fieldName="reenableDraftJs" label="Use the previous WYSIWYG editor"/>
 
         <h2>Comment Truncation Options</h2>
         <FormCheckbox form={form} fieldName="noSingleLineComments" label="Do not collapse comments to Single Line"/>

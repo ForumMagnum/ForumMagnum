@@ -320,6 +320,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly status: number,
   readonly frontpageDate: Date,
   readonly meta: boolean,
+  readonly deletedDraft: boolean,
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -454,6 +455,7 @@ interface PostsListBase_lastPromotedComment { // fragment on Comments
 }
 
 interface PostsList extends PostsListBase { // fragment on Posts
+  readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
 }
 
@@ -1594,8 +1596,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly petrovPressedButtonDate: Date,
-  readonly sortDrafts: string,
-  readonly reenableDraftJs: boolean,
+  readonly sortDraftsBy: string,
   readonly noindex: boolean,
   readonly paymentEmail: string,
   readonly paymentInfo: string,
@@ -1621,6 +1622,9 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allPostsShowLowKarma: boolean,
   readonly allPostsIncludeEvents: boolean,
   readonly allPostsOpenSettings: boolean,
+  readonly draftsListSorting: string,
+  readonly draftsListShowArchived: boolean,
+  readonly draftsListShowShared: boolean,
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
@@ -1673,8 +1677,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideFrontpageBook2019Ad: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
-  readonly sortDrafts: string,
-  readonly reenableDraftJs: boolean,
+  readonly sortDraftsBy: string,
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
   readonly lastUsedTimezone: string,
