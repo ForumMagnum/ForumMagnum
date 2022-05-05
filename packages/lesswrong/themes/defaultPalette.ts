@@ -86,7 +86,7 @@ import type { Color as MuiColorShades } from '@material-ui/core';
 //   RGB 0-255 with alpha 0-1: "rgba(r,g,b,a)",
 // Avoid:
 //   Any color words (including "black" and "white"). If used in the theme in
-//   a place where material-UI uses the, material-UI will crash.
+//   a place where material-UI uses them, material-UI will crash.
 //
 //   HSL, HSLA, HWB, Lab, and LCH color specifiers, eg "hsl(60 100% 50%)"
 //   Functional notation without commas, eg "rgba(0 0 0 / 10%)"

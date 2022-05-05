@@ -292,25 +292,3 @@ export const baseTheme: BaseThemeSpecification = {
     }
   }
 };
-
-// Create a theme and merge it with the default theme.
-/*export const createTheme = (themeOptions: ThemeOptions, theme: PartialDeep<ThemeType>) => {
-  const typography = theme.typography || {}
-  const palette = getBasePalette(themeOptions);
-  const grey = palette.grey;
-
-  // TODO: Make this ThemeType rather than PartialDeep<ThemeType> so that every
-  // theme is guaranteed to be complete
-  const defaultTheme: PartialDeep<ThemeType> = {
-
-  const mergedTheme = deepmerge(
-    defaultTheme,
-    {
-      ...theme,
-      themeName: themeOptions.name,
-      forumType: getForumType(themeOptions)
-    },
-    {isMergeableObject:isPlainObject}
-  )
-  return createMuiTheme(mergedTheme)
-}*/
