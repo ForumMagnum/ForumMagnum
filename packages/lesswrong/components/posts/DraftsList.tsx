@@ -95,9 +95,8 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
       currentIncludeShared={!!terms.includeShared}
       sortings={sortings}
     />}
-    {(!results && loading) ? <Loading /> : <>
-      {results
-        .map((post: PostsList, i: number) =>
+    {(!results && loading) && <Loading />}
+    {results && results.map((post: PostsList, i: number) =>
         <PostsItem2
           key={post._id} 
           post={post}
@@ -109,8 +108,8 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
           showBottomBorder={i < results.length-1}
           strikethroughTitle={post.deletedDraft}
         />
-      )}
-    </>}
+      )
+    }
     <Components.LoadMore { ...loadMoreProps }/>
   </>
 }
