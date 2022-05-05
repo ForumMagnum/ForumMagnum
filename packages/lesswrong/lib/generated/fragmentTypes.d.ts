@@ -1664,7 +1664,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
   readonly lastUsedTimezone: string,
-  readonly linkedInProfileURL: string,
 }
 
 interface UserKarmaChanges { // fragment on Users
@@ -1806,7 +1805,12 @@ interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
 
 interface UsersProfileEdit { // fragment on Users
   readonly _id: string,
-  readonly linkedInProfileURL: string,
+  readonly linkedinProfileURL: string,
+  readonly facebookProfileURL: string,
+  readonly twitterProfileURL: string,
+  readonly githubProfileURL: string,
+  readonly youtubeProfileURL: string,
+  readonly website: string,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs

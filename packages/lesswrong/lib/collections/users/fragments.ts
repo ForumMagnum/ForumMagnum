@@ -153,8 +153,6 @@ registerFragment(`
     petrovLaunchCodeDate
     lastUsedTimezone
     ...SharedUserBooleans
-    
-    linkedInProfileURL
   }
 `);
 
@@ -371,6 +369,12 @@ registerFragment(`
 registerFragment(`
   fragment UsersProfileEdit on User {
     _id
-    linkedInProfileURL
+    slug
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
+    youtubeProfileURL
+    website
   }
 `)

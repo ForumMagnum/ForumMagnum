@@ -1537,7 +1537,7 @@ addFieldsDict(Users, {
     group: formGroups.paymentInfo,
   },
   
-  linkedInProfileURL: {
+  linkedinProfileURL: {
     type: String,
     hidden: true,
     optional: true,
@@ -1545,38 +1545,69 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'linkedin.com/in/'
+    }
   },
   facebookProfileURL: {
     type: String,
     hidden: true,
     optional: true,
+    control: 'PrefixedInput',
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'facebook.com/'
+    }
   },
   twitterProfileURL: {
     type: String,
     hidden: true,
     optional: true,
+    control: 'PrefixedInput',
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'twitter.com/'
+    }
   },
   githubProfileURL: {
     type: String,
     hidden: true,
     optional: true,
+    control: 'PrefixedInput',
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'github.com/'
+    }
+  },
+  youtubeProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'youtube.com/'
+    }
   },
   website: {
     type: String,
     hidden: true,
     optional: true,
+    control: 'PrefixedInput',
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'https://'
+    }
   },
 });
 

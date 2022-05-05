@@ -226,6 +226,7 @@ class Form extends Component<any,any> {
 
     // only keep relevant fields
     const fields = this.getFieldNames(args);
+    console.log('fields', fields)
     let data = pick(this.getDocument(), ...fields);
 
     // compact deleted values
@@ -266,7 +267,7 @@ class Form extends Component<any,any> {
   */
   getFieldGroups = () => {
     // build fields array by iterating over the list of field names
-    let fields: Array<any> = this.getFieldNames().map((fieldName: string) => {
+    let fields: Array<any> = this.getFieldNames(this.props).map((fieldName: string) => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema);
     });
@@ -323,17 +324,13 @@ class Form extends Component<any,any> {
 
     // get all editable/insertable fields (depending on current form type)
     let relevantFields = this.getMutableFields(schema);
-    console.log('🚀 ~ file: Form.tsx ~ line 326 ~ Form ~ relevantFields', relevantFields)
 
-    console.log('🚀 ~ file: Form.tsx ~ line 330 ~ Form ~ fields', fields)
     // if "fields" prop is specified, restrict list of fields to it
     if (typeof fields !== 'undefined' && fields.length > 0) {
       relevantFields = _.intersection(relevantFields, fields);
-      console.log('🚀 ~ file: Form.tsx ~ line 330 ~ Form ~ relevantFields', relevantFields)
     }
 
     // if "hideFields" prop is specified, remove its fields
-    console.log('🚀 ~ file: Form.tsx ~ line 336 ~ Form ~ excludeRemovedFields', excludeRemovedFields)
     if (excludeRemovedFields) {
       // OpenCRUD backwards compatibility
       const removeFields = this.props.removeFields || this.props.hideFields;
@@ -343,8 +340,6 @@ class Form extends Component<any,any> {
     }
 
     // if "addFields" prop is specified, add its fields
-    console.log('🚀 ~ file: Form.tsx ~ line 350 ~ Form ~ addExtraFields', addExtraFields)
-    console.log('🚀 ~ file: Form.tsx ~ line 349 ~ Form ~ addFields', addFields)
     if (
       addExtraFields &&
       typeof addFields !== 'undefined' &&
@@ -354,7 +349,6 @@ class Form extends Component<any,any> {
     }
 
     // remove all hidden fields
-    console.log('🚀 ~ file: Form.tsx ~ line 357 ~ Form ~ excludeHiddenFields', excludeHiddenFields)
     if (excludeHiddenFields) {
       const document = this.getDocument();
       relevantFields = _.reject(relevantFields, fieldName => {
@@ -363,12 +357,10 @@ class Form extends Component<any,any> {
           ? hidden({ ...this.props, document })
           : hidden;
       });
-      console.log('🚀 ~ file: Form.tsx ~ line 360 ~ Form ~ relevantFields', relevantFields)
     }
 
     // remove any duplicates
     relevantFields = uniq(relevantFields);
-    console.log('🚀 ~ file: Form.tsx ~ line 370 ~ Form ~ relevantFields', relevantFields)
 
     return relevantFields;
   };
@@ -956,6 +948,7 @@ class Form extends Component<any,any> {
     if (this.props.submitCallback) {
       data = this.props.submitCallback(data) || data;
     }
+    console.log('submit data', data)
 
     if (this.getFormType() === 'new') {
       // create document form
