@@ -210,6 +210,19 @@ addFieldsDict(Users, {
       }
     },
   },
+  
+  showHideKarmaOption: {
+    type: Boolean,
+    optional: true,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    order: 69,
+  },
 
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
@@ -262,6 +275,45 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() !== 'AlignmentForum',
     label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
+  },
+  
+  noSingleLineComments: {
+    order: 91,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
+  },
+
+  noCollapseCommentsPosts: {
+    order: 92,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (in large threads on Post Pages)"
+  },
+
+  noCollapseCommentsFrontpage: {
+    order: 93,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (on home page)"
   },
 
   hideNavigationSidebar: {
@@ -444,19 +496,6 @@ addFieldsDict(Users, {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 56,
-  },
-
-  showHideKarmaOption: {
-    type: Boolean,
-    optional: true,
-    label: "Enable option on posts to hide karma visibility",
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: forumTypeSetting.get() !== 'EAForum',
-    control: 'checkbox',
-    group: formGroups.default,
-    order: 72,
   },
 
   // bannedUserIds: users who are not allowed to comment on this user's posts
@@ -858,9 +897,13 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
+  // Should match googleLocation/location
+  // Determines which events are considered nearby for default sorting on the community page
+  // Determines where the community map is centered/zoomed in on by default
+  // Not shown to other users
   mongoLocation: {
     type: Object,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
@@ -872,14 +915,19 @@ addFieldsDict(Users, {
     }),
   },
 
+  // Is the canonical value for denormalized mongoLocation and location
+  // Edited from the /events page to choose where to show events near
   googleLocation: {
     type: Object,
-    canRead: ['guests'],
+    form: {
+      stringVersionFieldName: "location",
+    },
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.default,
     hidden: !hasEventsSetting.get(),
-    label: "Group Location",
+    label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -888,20 +936,22 @@ addFieldsDict(Users, {
 
   location: {
     type: String,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     hidden: true,
     optional: true
   },
 
+  // Used to place a map marker pin on the where-are-other-users map.
+  // Public.
   mapLocation: {
     type: Object,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
-    label: "Your location on the community map",
+    group: formGroups.default,
+    label: "Public location (used for your public profile)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -948,6 +998,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
 
+  // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
     type: Object,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1214,45 +1265,6 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment'],
     hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get()),
     order: 39,
-  },
-
-  noSingleLineComments: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not collapse comments to Single Line"
-  },
-
-  noCollapseCommentsPosts: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (in large threads on Post Pages)"
-  },
-
-  noCollapseCommentsFrontpage: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (on home page)"
   },
 
   shortformFeedId: {

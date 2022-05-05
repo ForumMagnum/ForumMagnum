@@ -949,6 +949,10 @@ interface newConversationFragment { // fragment on Conversations
   readonly participantIds: Array<string>,
 }
 
+interface conversationIdFragment { // fragment on Conversations
+  readonly _id: string,
+}
+
 interface RSSFeedMinimumInfo { // fragment on RSSFeeds
   readonly _id: string,
   readonly userId: string,
@@ -1950,6 +1954,7 @@ interface FragmentTypes {
   messageListFragment: messageListFragment
   conversationsListFragment: conversationsListFragment
   newConversationFragment: newConversationFragment
+  conversationIdFragment: conversationIdFragment
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   newRSSFeedFragment: newRSSFeedFragment
   RSSFeedMutationFragment: RSSFeedMutationFragment
@@ -2095,6 +2100,7 @@ interface CollectionNamesByFragmentName {
   messageListFragment: "Messages"
   conversationsListFragment: "Conversations"
   newConversationFragment: "Conversations"
+  conversationIdFragment: "Conversations"
   RSSFeedMinimumInfo: "RSSFeeds"
   newRSSFeedFragment: "RSSFeeds"
   RSSFeedMutationFragment: "RSSFeeds"

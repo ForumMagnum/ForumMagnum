@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   blockedReplies: {
@@ -11,7 +12,8 @@ const CommentBottomCaveats = ({comment, classes}: {
   comment: CommentsList,
   classes: ClassesType,
 }) => {
-  const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+  const now = useCurrentTime();
+  const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
   
   return <>
     { blockedReplies &&

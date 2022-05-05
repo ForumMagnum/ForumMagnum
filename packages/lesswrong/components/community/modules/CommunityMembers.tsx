@@ -1,12 +1,14 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/algoliaUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Search from '@material-ui/icons/Search';
+import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
+import { useTracking } from '../../../lib/analyticsEvents';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -111,12 +113,19 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[800],
     fontSize: 14,
     lineHeight: '1.8em',
-    whiteSpace: 'pre-wrap',
     display: '-webkit-box',
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
     marginTop: 12,
+  },
+  buttonRow: {
+    display: 'flex',
+    justifyContent: 'right',
+    marginTop: 14
+  },
+  messageBtn: {
+    boxShadow: 'none'
   },
   map: {
     [theme.breakpoints.down('sm')]: {
@@ -146,7 +155,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 
-const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, classes}: {
+const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
+  currentUser,
   userLocation: {
     lat: number,
     lng: number,
@@ -157,7 +167,10 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
   locationFilterNode: ReactNode,
   classes: ClassesType,
 }) => {
-  const { SearchResultsMap } = Components
+  const { captureEvent } = useTracking()
+  const keywordSearchTimer = useRef<any>(null)
+
+  const { NewConversationButton, SearchResultsMap } = Components
   
   const SearchBox = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
@@ -166,7 +179,16 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
         startAdornment={<Search className={classes.searchIcon}/>}
         placeholder="Search people"
         value={currentRefinement}
-        onChange={e => refine(e.currentTarget.value)}
+        onChange={e => {
+          const newKeyword = e.target.value
+          refine(newKeyword)
+          // log the event after typing has stopped for 1 second
+          clearTimeout(keywordSearchTimer.current)
+          keywordSearchTimer.current = setTimeout(
+            () => captureEvent(`keywordSearchCommunityMembers`, {keyword: newKeyword}),
+            1000
+          )
+        }}
         className={classes.keywordSearchInput}
       />
     </div>
@@ -198,7 +220,12 @@ const CommunityMembers = ({userLocation, distanceUnit='km', locationFilterNode, 
           </div>
         </div>
         <div className={classes.location}>{hit.mapLocationAddress}</div>
-        {hit.bio && <div className={classes.description}>{hit.bio}</div>}
+        {hit.htmlBio && <div className={classes.description}><div dangerouslySetInnerHTML={{__html: hit.htmlBio}} /></div>}
+        {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
+          <NewConversationButton user={hit} currentUser={currentUser}>
+            <Button variant="contained" color="primary" className={classes.messageBtn}>Message</Button>
+          </NewConversationButton>
+        </div>}
       </div>
     </div>
   }

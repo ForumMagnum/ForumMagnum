@@ -5,6 +5,7 @@ export * from './callbacks';
 export * from './graphql';
 export * from './routes';
 export * from './utils';
+export * from './pluralize';
 export * from './fragments';
 export * from './admin';
 export * from './errors';

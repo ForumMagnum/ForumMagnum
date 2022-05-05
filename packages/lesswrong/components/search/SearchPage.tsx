@@ -4,6 +4,7 @@ import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements } 
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
+import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -180,7 +181,7 @@ const SearchPage = ({classes}:{
             <Index indexName={getAlgoliaIndexName("Tags")}>
               <div className={classes.header}>
                 <Typography variant="body1">
-                  Tags and Wiki
+                  {taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'}
                 </Typography>
                 <SearchPagination />
               </div>

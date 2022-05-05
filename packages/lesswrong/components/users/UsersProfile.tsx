@@ -11,12 +11,13 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
+import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 
@@ -40,6 +41,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0
+  },
+  mapLocation: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 4,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    color: theme.palette.grey[800],
+    marginBottom: 20
+  },
+  locationIcon: {
+    fontSize: 14,
   },
   userInfo: {
     display: "flex",
@@ -93,7 +106,7 @@ const sortings: Partial<Record<string,string>> = {
   top: "Top"
 }
 
-export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null): T|null => {
+export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
@@ -169,7 +182,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </span>
         </Tooltip>
 
-        <Tooltip title={`${tagRevisionCount||0} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
+        <Tooltip title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`}>
           <span className={classes.userMetaInfo}>
             <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo>
@@ -246,6 +259,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Bio Section */}
           <SingleColumnSection>
             <div className={classes.usernameTitle}>{username}</div>
+            {user.mapLocation && <div className={classes.mapLocation}>
+              <LocationIcon className={classes.locationIcon} />
+              {user.mapLocation.formatted_address}
+            </div>}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
@@ -347,8 +364,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Wiki Section */}
           <SingleColumnSection>
-            <SectionTitle title={"Wiki Contributions"}>
-            </SectionTitle>
+            <SectionTitle title={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki'} Contributions`} />
             <AnalyticsContext listContext={"userPageWiki"}>
               <TagEditsByUser
                 userId={user._id}

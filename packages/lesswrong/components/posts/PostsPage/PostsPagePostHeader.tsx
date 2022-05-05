@@ -114,7 +114,7 @@ const PostsPagePostHeader = ({post, classes}: {
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate,
     PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarIcon, PostsPageTopTag} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, PostsPageTopTag} = Components;
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -158,7 +158,7 @@ const PostsPagePostHeader = ({post, classes}: {
           </div>}
           <a className={classes.commentsLink} href={"#comments"}>{ postGetCommentCountStr(post)}</a>
           <div className={classes.commentsLink}>
-            <AddToCalendarIcon post={post} label="Add to Calendar" hideTooltip={true} />
+            <AddToCalendarButton post={post} label="Add to Calendar" hideTooltip={true} />
           </div>
           <span className={classes.actions}>
             <AnalyticsContext pageElementContext="tripleDotMenu">

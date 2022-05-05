@@ -100,7 +100,11 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
   }
 
   render() {
-    const { classes, label='Moderators may promote to Frontpage', tooltip } = this.props
+    const defaultLabel = forumSelect({
+      EAForum:'This post may appear on the Frontpage',
+      default: 'Moderators may promote to Frontpage'
+    })
+    const { classes, label = defaultLabel, tooltip } = this.props
 
     const displayedTooltip = tooltip || defaultTooltip({classes})
 

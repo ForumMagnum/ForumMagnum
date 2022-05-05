@@ -19,6 +19,7 @@ import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -264,12 +265,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'wiki',
-      title: 'Wiki',
-      mobileTitle: 'Wiki',
-      link: '/tags/all',
+      id: taggingNamePluralSetting.get(),
+      title: taggingNamePluralCapitalSetting.get(),
+      mobileTitle: taggingNamePluralCapitalSetting.get(),
+      link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
-      tooltip: 'Collaboratively edited Tags and Wiki Articles',
+      tooltip: `EA concepts directory that anyone can edit. Each ${taggingNameSetting.get()} also has a list of posts that have been tagged with it.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -301,7 +302,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'takeAction',
       title: 'Take Action',
-      link: '/tag/take-action',
+      link: `/${taggingNamePluralSetting.get()}/take-action`,
       iconComponent: PlaylistAddCheck,
       tooltip: "Opportunities to get involved with impactful work",
       loggedOutOnly: true
@@ -354,7 +355,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'intro',
       title: 'About EA',
-      link: '/intro',
+      link: 'https://www.effectivealtruism.org',
       subItem: true,
     }, {
       id: 'about',

@@ -44,7 +44,7 @@ export type Route = {
   standalone?: boolean // if true, this page has no header / intercom
 };
 
-// populated by calls to addRoute
+/** Populated by calls to addRoute */
 export const Routes: Record<string,Route> = {};
 
 // Add a route to the routes table.

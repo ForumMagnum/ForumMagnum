@@ -23,7 +23,7 @@ const PostsByVoteWrapper = ({voteType, year}: {voteType: string, year: number | 
 
   if (loading) return <div><Loading/><Typography variant="body2">Loading Votes</Typography></div>
     
-  const postIds = votes.map(vote=>vote.documentId)
+  const postIds = (votes ?? []).map(vote=>vote.documentId)
 
   return <ErrorBoundary>
     <PostsByVote postIds={postIds} year={year}/>
