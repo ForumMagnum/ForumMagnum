@@ -1518,11 +1518,11 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
   },
+  // This is deprecated.
   reenableDraftJs: {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",

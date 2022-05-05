@@ -54,7 +54,6 @@ registerFragment(`
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
     sortDraftsBy
-    reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
@@ -151,7 +150,6 @@ registerFragment(`
 
     sortDraftsBy
 
-    reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
     lastUsedTimezone
