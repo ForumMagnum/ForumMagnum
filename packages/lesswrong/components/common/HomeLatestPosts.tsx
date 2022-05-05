@@ -8,7 +8,7 @@ import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents'
 import * as _ from 'underscore';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -74,7 +74,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           <AnalyticsContext pageSectionContext="tagFilterSettings">
               <div className={classes.toggleFilters}>
                 <SettingsButton 
-                  label={filterSettingsVisible  ? "Hide Filters" : "Show Tag Filters"}
+                  label={filterSettingsVisible ?
+                    "Hide Filters" :
+                    `Show ${taggingNameCapitalSetting.get()} Filters`}
                   showIcon={false}
                   onClick={() => {
                     setFilterSettingsVisible(!filterSettingsVisible)

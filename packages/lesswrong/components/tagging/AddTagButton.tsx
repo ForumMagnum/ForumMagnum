@@ -5,6 +5,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
@@ -41,7 +42,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
     }}
     className={classes.addTagButton}
   >
-    {children ? children : <span className={classes.defaultButton}>+ Add Tag</span>}
+    {children ? children : <span className={classes.defaultButton}>+ Add {taggingNameCapitalSetting.get()}</span>}
 
     <LWPopper
       open={isOpen}
