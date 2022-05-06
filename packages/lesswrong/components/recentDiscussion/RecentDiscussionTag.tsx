@@ -8,6 +8,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -105,6 +106,21 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
     condensed: true,
   }
   
+  let metadataWording = ''
+  if (taggingNameIsSet.get()) {
+    if (tag.wikiOnly) {
+      metadataWording = `${taggingNameCapitalSetting.get()} page`
+    } else {
+      metadataWording = `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`
+    }
+  } else {
+    if (tag.wikiOnly) {
+      metadataWording = `Wiki page`
+    } else {
+      metadataWording = `Tag page - ${tag.postCount} posts`
+    }
+  }
+  
   return <div className={classes.root}>
     <div className={classes.tag}>
       <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
@@ -112,10 +128,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
       </Link>
       
       <div className={classes.metadata}>
-        {tag.wikiOnly
-          ? <span>Wiki page</span>
-          : <span>Tag page - {tag.postCount} posts</span>
-        }
+        <span>{metadataWording}</span>
       </div>
       
       <div onClick={clickExpandDescription} className={classes.tagDescription}>

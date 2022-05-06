@@ -5,8 +5,7 @@ import { useState } from 'react';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
-import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection } from '../vulcan-lib';
-import { pluralize, camelCaseify } from '../vulcan-lib/utils';
+import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation, useNavigation } from '../routeUtil';
 
 // Multi query used on the client
@@ -287,8 +286,7 @@ export function useMulti<
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  // TODO: Should be nullable
-  results: Array<FragmentTypes[FragmentTypeName]>,
+  results?: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
   error: ApolloError|undefined,

@@ -20,7 +20,18 @@ import {
   insertNewLineBoth,
 } from '../utils/insertNewLine';
 
-export default class DividerButton extends Component {
+interface DividerButtonProps {
+  getEditorState: () => any;
+  setEditorState: (any) => any;
+  blockType: any,
+  theme: any
+}
+
+export default class DividerButton extends Component<DividerButtonProps> {
+  constructor(props: DividerButtonProps) {
+    super(props);
+  }
+
   addDivider = (event) => {
     event.preventDefault();
 

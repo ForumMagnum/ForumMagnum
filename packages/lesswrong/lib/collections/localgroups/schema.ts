@@ -144,6 +144,9 @@ const schema: SchemaType<DbLocalgroup> = {
 
   googleLocation: {
     type: Object,
+    form: {
+      stringVersionFieldName: "location",
+    },
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],

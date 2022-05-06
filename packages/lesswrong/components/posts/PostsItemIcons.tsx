@@ -8,7 +8,7 @@ import DetailsIcon from '@material-ui/icons/Details';
 import LinkIcon from '@material-ui/icons/Link';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
@@ -93,7 +93,9 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
 
     {post.meta && <span className={classes.postIcon}>
       <LWTooltip title={<div>Meta <div><em>(Click to view all meta content)</em></div></div>} placement="right">
-        <Link to={"/tag/site-meta"}><DetailsIcon className={classes.icon}/></Link>
+        <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/site-meta`}>
+          <DetailsIcon className={classes.icon}/>
+        </Link>
       </LWTooltip>
     </span>}
 

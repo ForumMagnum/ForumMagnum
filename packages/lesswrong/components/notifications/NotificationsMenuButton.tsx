@@ -52,7 +52,7 @@ const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: 
     fetchPolicy: 'cache-and-network',
   });
   
-  let filteredResults: Array<NotificationsList> = results && _.filter(results,
+  let filteredResults: Array<NotificationsList> | undefined = results && _.filter(results,
     (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
   );
 
@@ -84,4 +84,3 @@ declare global {
     NotificationsMenuButton: typeof NotificationsMenuButtonComponent
   }
 }
-

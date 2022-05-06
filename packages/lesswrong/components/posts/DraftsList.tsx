@@ -95,7 +95,8 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
       currentIncludeShared={!!terms.includeShared}
       sortings={sortings}
     />}
-    {(!results && loading) ? <Loading /> : <>
+    {!results && loading && <Loading/>}
+    {!!results && <>
       {results
         .map((post: PostsList, i: number) =>
         <PostsItem2

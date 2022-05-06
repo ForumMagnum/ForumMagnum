@@ -8,6 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
 import { commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
+import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,23 +72,23 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   
-  
+  const tagsNameAlt = taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tags'
   
   const tagFlagDescription = {
     tagFlagId:`tagFlag ${tagFlag?._id}`,
     allPages:"All Pages",
-    userPages: "User Wiki-Tags"
+    userPages: `User ${tagsNameAlt}`
   }
   const tagFlagText = {
     tagFlagId: tagFlag?.name,
-    allPages: "All Wiki-Tags",
-    userPages: "My Wiki-Tags"
+    allPages: `All ${tagsNameAlt}`,
+    userPages: `My ${tagsNameAlt}`
   }
   const hoverText = {
     tagFlagId: tagFlag?.contents?.html || "",
-    allPages: "All Wiki-Tags sorted by most recently created, including those with no flags set.",
-    userPages: "Wiki-Tags you created, including those with no flags set."
-  } 
+    allPages: `All ${tagsNameAlt} sorted by most recently created, including those with no flags set.`,
+    userPages: `${tagsNameAlt} you created, including those with no flags set.`
+  }
     
   return <span {...eventHandlers} className={rootStyles}>
     <LWPopper

@@ -3,7 +3,7 @@ module.exports = {
     createdAt: new Date(),
     latestActivity: new Date(),
     participantIds : [ 
-        "test-other-user", 
+        "test-other-user",
         "test-user",
     ],
     schemaVersion : 1,
