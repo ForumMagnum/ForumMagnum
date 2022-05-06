@@ -66,7 +66,16 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       Contributors
     </div>
     
-    {tag.contributors && nonMissingContributors.map(contributor => <div key={contributor.user._id} className={classes.contributorRow} >
+    {tag.contributors && nonMissingContributors.map(contributor => <div
+      key={contributor.user._id}
+      className={classes.contributorRow}
+      onMouseEnter={ev => {
+        onHoverUser(contributor.user._id);
+      }}
+      onMouseLeave={ev => {
+        onHoverUser(null);
+      }}
+    >
       <LWTooltip
         className={classes.contributorScore}
         placement="left"
@@ -76,15 +85,8 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       >
         {contributor.contributionScore}
       </LWTooltip>
-      <span className={classes.contributorName}
-        onMouseEnter={ev => {
-          onHoverUser(contributor.user._id);
-        }}
-        onMouseLeave={ev => {
-          onHoverUser(null);
-        }}
-      >
-        <UsersNameDisplay user={contributor.user}/>
+      <span className={classes.contributorName}>
+        <UsersNameDisplay user={contributor.user} link={`/tag/${tag.slug}/history?user=${contributor.user.slug}`} />
       </span>
     </div>)}
     {expandLoadMore && loadingMore && <Loading/>}

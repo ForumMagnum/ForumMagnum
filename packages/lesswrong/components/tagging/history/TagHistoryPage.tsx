@@ -59,7 +59,7 @@ const TagHistoryPage = ({classes}: {
             />
           </div>,
         },
-        tagApplied: {
+        ...(focusedUser ? {} : {tagApplied: {
           fragmentName: "TagRelHistoryFragment",
           render: (application: TagRelHistoryFragment) => {
             if (!application.post)
@@ -71,7 +71,7 @@ const TagHistoryPage = ({classes}: {
               <UsersName user={application.user}/> at <FormatDate date={application.createdAt}/>
             </SingleLineFeedEvent>
           }
-        },
+        }}),
         tagDiscussionComment: {
           fragmentName: "CommentsList",
           render: (comment: CommentsList) => <div>
@@ -79,6 +79,7 @@ const TagHistoryPage = ({classes}: {
               treeOptions={{ tag }}
               comment={comment}
               loadChildrenSeparately={true}
+              forceSingleLine={!!focusedUser}
             />
           </div>
         }
