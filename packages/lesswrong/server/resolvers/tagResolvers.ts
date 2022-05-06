@@ -17,6 +17,7 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
+import { maxBy } from 'lodash';
 
 addGraphQLSchema(`
   type TagUpdates {
@@ -257,10 +258,14 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       const excludedPower = selfVoteAdjustment?.excludedPower || 0;
       const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
       
+      const contribution = maxBy(revisionsByThisUser, (rev) => rev.editedAt)
+      console.log(contribution)
+      
       return {
         contributionScore: totalRevisionScore - excludedPower,
         numCommits: revisionsByThisUser.length,
         voteCount: sumBy(revisionsByThisUser, r=>r.voteCount) - excludedVoteCount,
+        mostRecentContribution: contribution
       };
     }
   );

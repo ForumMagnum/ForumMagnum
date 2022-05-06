@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
+import Revisions from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -41,7 +42,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   onHoverUser: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
-  const { UsersNameDisplay, Loading, LWTooltip } = Components;
+  const { UsersNameDisplay, Loading, LWTooltip, SmallSideVote } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const {document: tagWithExpandedList, loading: loadingMore} = useSingle({
@@ -85,6 +86,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       >
         {contributor.contributionScore}
       </LWTooltip>
+      {contributor.mostRecentContribution && <SmallSideVote document={contributor.mostRecentContribution} collection={Revisions} />}
       <span className={classes.contributorName}>
         <UsersNameDisplay user={contributor.user} link={`/tag/${tag.slug}/history?user=${contributor.user.slug}`} />
       </span>

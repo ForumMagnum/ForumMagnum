@@ -174,6 +174,9 @@ registerFragment(`
         contributionScore
         numCommits
         voteCount
+        mostRecentContribution {
+          _id
+        }
       }
     }
   }

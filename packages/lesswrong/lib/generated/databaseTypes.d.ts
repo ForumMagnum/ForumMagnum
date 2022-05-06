@@ -652,6 +652,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   description: EditableFieldContents
+  pingbacks: any /*{"definitions":[{}]}*/
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {
