@@ -130,6 +130,13 @@ const partiallyReadSequenceItem = new SimpleSchema({
   },
 });
 
+export const socialMediaProfileFields = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+
 addFieldsDict(Users, {
   // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
@@ -391,32 +398,6 @@ addFieldsDict(Users, {
     canCreate: 'guests',
     hidden: true,
     logChanges: false,
-  },
-
-  // Bio (Markdown version)
-  bio: {
-    type: String,
-    optional: true,
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.default,
-    order: 40,
-    form: {
-      hintText:"Bio",
-      rows: 12,
-      multiLine:true,
-      fullWidth:true,
-    },
-  },
-
-  // Bio (HTML version)
-  htmlBio: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
   },
 
   // Karma field
@@ -927,12 +908,13 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
-    label: "Public location (used for your public profile)",
+    group: formGroups.aboutMe,
+    order: 2,
+    label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 43,
+    hidden: true
   },
 
   mapLocationSet: {
@@ -1537,66 +1519,34 @@ addFieldsDict(Users, {
     group: formGroups.paymentInfo,
   },
   
-  linkedinProfileURL: {
+  // Bio (Markdown version)
+  bio: {
     type: String,
-    hidden: true,
     optional: true,
-    control: 'PrefixedInput',
+    hidden: true,
+    control: "MuiTextField",
     canCreate: ['members'],
-    canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    group: formGroups.aboutMe,
+    order: 1,
     form: {
-      inputPrefix: 'linkedin.com/in/'
-    }
+      variant: 'outlined',
+      hintText: "Bio",
+      rows: 12,
+      multiLine: true,
+      fullWidth: true,
+    },
   },
-  facebookProfileURL: {
+
+  // Bio (HTML version)
+  htmlBio: {
     type: String,
-    hidden: true,
+    denormalized: true,
     optional: true,
-    control: 'PrefixedInput',
-    canCreate: ['members'],
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    form: {
-      inputPrefix: 'facebook.com/'
-    }
   },
-  twitterProfileURL: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: 'PrefixedInput',
-    canCreate: ['members'],
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    form: {
-      inputPrefix: 'twitter.com/'
-    }
-  },
-  githubProfileURL: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: 'PrefixedInput',
-    canCreate: ['members'],
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    form: {
-      inputPrefix: 'github.com/'
-    }
-  },
-  youtubeProfileURL: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: 'PrefixedInput',
-    canCreate: ['members'],
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    form: {
-      inputPrefix: 'youtube.com/'
-    }
-  },
+  
   website: {
     type: String,
     hidden: true,
@@ -1607,7 +1557,62 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
       inputPrefix: 'https://'
-    }
+    },
+    group: formGroups.aboutMe,
+    order: 3
+  },
+  
+  linkedinProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: socialMediaProfileFields.linkedinProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  facebookProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: socialMediaProfileFields.facebookProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  twitterProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: socialMediaProfileFields.twitterProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  githubProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: socialMediaProfileFields.githubProfileURL
+    },
+    group: formGroups.socialMedia
   },
 });
 

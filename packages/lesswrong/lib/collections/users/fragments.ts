@@ -31,6 +31,10 @@ registerFragment(`
     groups
     bio
     website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
     frontpagePostCount
     afSequenceCount
     afSequenceDraftCount
@@ -370,11 +374,13 @@ registerFragment(`
   fragment UsersProfileEdit on User {
     _id
     slug
+    bio
+    htmlBio
+    mapLocation
+    website
     linkedinProfileURL
     facebookProfileURL
     twitterProfileURL
     githubProfileURL
-    youtubeProfileURL
-    website
   }
 `)

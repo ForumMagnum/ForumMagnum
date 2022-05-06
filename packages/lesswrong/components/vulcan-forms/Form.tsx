@@ -226,7 +226,6 @@ class Form extends Component<any,any> {
 
     // only keep relevant fields
     const fields = this.getFieldNames(args);
-    console.log('fields', fields)
     let data = pick(this.getDocument(), ...fields);
 
     // compact deleted values
@@ -948,7 +947,6 @@ class Form extends Component<any,any> {
     if (this.props.submitCallback) {
       data = this.props.submitCallback(data) || data;
     }
-    console.log('submit data', data)
 
     if (this.getFormType() === 'new') {
       // create document form

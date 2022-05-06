@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   fullWidth: {
-    width:"100%",
+    width: "100%",
   }
 })
 
@@ -32,9 +32,10 @@ class MuiTextField extends PureComponent<any> {
   }
 
   render() {
-    const { classes, value, select, children, label, multiLine, rows, fullWidth, type, defaultValue, InputLabelProps } = this.props
+    const { classes, value, select, children, label, multiLine, variant, rows, fullWidth, type, defaultValue, InputLabelProps } = this.props
 
     return <TextField
+        variant={variant || 'standard'}
         select={select}
         value={value||""}
         defaultValue={defaultValue}
@@ -50,7 +51,7 @@ class MuiTextField extends PureComponent<any> {
         }}
         className={classnames(
           classes.textField,
-          {fullWidth:fullWidth}
+          {[classes.fullWidth]: fullWidth}
         )}
       >
         {children}

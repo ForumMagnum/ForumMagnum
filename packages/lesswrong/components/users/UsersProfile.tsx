@@ -20,6 +20,9 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { socialMediaIconPaths } from '../form-components/PrefixedInput';
+import { socialMediaProfileFields } from '../../lib/collections/users/custom_fields';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -31,10 +34,29 @@ export const sectionFooterLeftStyles = {
 
 const styles = (theme: ThemeType): JssStyles => ({
   profilePage: {
+    display: 'grid',
+    gridTemplateColumns: `1fr ${SECTION_WIDTH}px 1fr`,
+    gridTemplateAreas: `
+      '. center right'
+    `,
+    justifyContent: 'center',
+    columnGap: 40,
     marginLeft: "auto",
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: `${SECTION_WIDTH}px 1fr`,
+      gridTemplateAreas: `
+        'center right'
+      `,
+      paddingLeft: 20,
+      paddingRight: 20
+    },
     [theme.breakpoints.down('sm')]: {
+      display: 'block',
       margin: 0,
     }
+  },
+  centerColumnWrapper: {
+    gridArea: 'center'
   },
   usernameTitle: {
     fontSize: "3rem",
@@ -95,7 +117,47 @@ const styles = (theme: ThemeType): JssStyles => ({
   specificalz: {},
   userMetaInfo: {
     display: "inline-flex"
-  }
+  },
+  
+  rightSidebar: {
+    gridArea: 'right',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    paddingTop: theme.spacing.unit * 3,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    }
+  },
+  mobileRightSidebar: {
+    display: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    marginTop: 30,
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+    }
+  },
+  socialMediaIcons: {
+    display: 'flex',
+    columnGap: 14,
+    marginBottom: 30
+  },
+  socialMediaIcon: {
+    height: 30,
+    fill: theme.palette.grey[700],
+  },
+  website: {
+    display: 'inline-flex',
+    justifyContent: 'center',
+    marginLeft: 4
+  },
+  websiteIcon: {
+    height: 20,
+    fill: theme.palette.grey[700],
+    marginRight: 6
+  },
 })
 
 const sortings: Partial<Record<string,string>> = {
@@ -248,6 +310,29 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
+    
+    const userHasSocialMedia = Object.keys(socialMediaProfileFields).some(field => user[field])
+    
+    const socialMediaIcon = (field) => {
+      if (!user[field]) return null
+      return <a href={`https://${socialMediaProfileFields[field]}${user[field]}`} target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
+      </a>
+    }
+    
+    // the data in the righthand sidebar on desktop moves under the bio on mobile
+    const sidebarInfoNode = <>
+      {userHasSocialMedia && <>
+        <Typography variant="body2" gutterBottom>Social Media</Typography>
+        <div className={classes.socialMediaIcons}>
+          {Object.keys(socialMediaProfileFields).map(field => socialMediaIcon(field))}
+        </div>
+      </>}
+      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
+        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
+        {user.website}
+      </a>}
+    </>
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -256,6 +341,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
         />
         <AnalyticsContext pageContext={"userPage"}>
+          <div className={classes.centerColumnWrapper}>
           {/* Bio Section */}
           <SingleColumnSection>
             <div className={classes.usernameTitle}>{username}</div>
@@ -276,6 +362,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
+              { currentUser && currentUser._id === user._id && <Link to="/profile/edit">
+                Edit Profile
+              </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
@@ -293,6 +382,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </Typography>
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+            
+            {(userHasSocialMedia || user.website) && <div className={classes.mobileRightSidebar}>
+              {sidebarInfoNode}
+            </div>}
           </SingleColumnSection>
 
           <SingleColumnSection>
@@ -388,6 +481,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
+          </div>
+          
+          <div className={classes.rightSidebar}>
+            {sidebarInfoNode}
+          </div>
         </AnalyticsContext>
       </div>
     )

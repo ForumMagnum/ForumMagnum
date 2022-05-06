@@ -1560,6 +1560,10 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly groups: Array<string>,
   readonly bio: string,
   readonly website: string,
+  readonly linkedinProfileURL: string,
+  readonly facebookProfileURL: string,
+  readonly twitterProfileURL: string,
+  readonly githubProfileURL: string,
   readonly frontpagePostCount: number,
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
@@ -1805,12 +1809,15 @@ interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
 
 interface UsersProfileEdit { // fragment on Users
   readonly _id: string,
+  readonly slug: string,
+  readonly bio: string,
+  readonly htmlBio: string,
+  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
   readonly twitterProfileURL: string,
   readonly githubProfileURL: string,
-  readonly youtubeProfileURL: string,
-  readonly website: string,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
