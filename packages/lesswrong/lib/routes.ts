@@ -144,6 +144,12 @@ addRoute(
     background: "white"
   },
   {
+    name: 'EditProfile',
+    path: '/profile/edit',
+    componentName: 'EditProfileForm',
+    title: 'Edit Profile'
+  },
+  {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     componentName: 'ViewSubscriptionsPage',
@@ -625,12 +631,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Community',
       ...communitySubtitle
     },
-    {
-      name: 'EditProfile',
-      path: '/profile/edit',
-      componentName: 'EditProfileForm',
-      title: 'Edit Profile'
-    }
   ],
   LessWrong: [
     {

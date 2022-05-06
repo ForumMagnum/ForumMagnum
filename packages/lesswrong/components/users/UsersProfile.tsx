@@ -62,7 +62,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "3rem",
     ...theme.typography.display3,
     ...theme.typography.postStyle,
-    marginTop: 0
+    marginTop: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20
+    }
   },
   mapLocation: {
     display: 'flex',

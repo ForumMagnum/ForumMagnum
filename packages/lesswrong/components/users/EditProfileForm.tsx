@@ -61,9 +61,6 @@ const EditProfileForm = ({classes}: {
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}
         mutationFragment={getFragment('UsersProfileEdit')}
-        // formComponents={{
-        //   FormSubmit: () => <Button type="submit" variant="contained" color="primary" onClick={e => e.preventDefault()}>Save</Button>
-        // }}
         successCallback={async (user) => {
           history.push(userGetProfileUrl(user))
         }}
