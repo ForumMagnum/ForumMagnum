@@ -28,7 +28,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
   const { Loading, Typography, LWDialog } = Components
   
-  const [ mapsLoaded ] = useGoogleMaps("CommunityHome")
+  const [ mapsLoaded ] = useGoogleMaps()
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ mapText, setMapText ] = useState(mapMarkerText || bio)

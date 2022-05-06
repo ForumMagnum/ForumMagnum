@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   voteRow: {
@@ -105,13 +106,13 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   return <SingleColumnSection>
     {showNewTags && <NewTagsList />}
     <div className={classes.tagVotingTable}>
-      {showHeaders && <h2>Tag Voting</h2>}
+      {showHeaders && <h2>{taggingNameCapitalSetting.get()} Voting</h2>}
       <table>
         <tbody>
           <tr className={classes.headerRow}>
             <td className={classes.headerCell}> User </td>
             <td className={classes.headerCell}> Post Title </td>
-            <td className={classes.headerCell}> Tag </td>
+            <td className={classes.headerCell}> {taggingNameCapitalSetting.get()} </td>
             <td className={classes.headerCell}> Pow </td>
             <td className={classes.headerCell}> When </td>
             <td className={classes.headerCell}> Vote </td>
@@ -132,4 +133,3 @@ declare global {
     TagVoteActivity: typeof TagVoteActivityComponent
   }
 }
-

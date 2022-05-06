@@ -269,7 +269,7 @@ const Community = ({classes}: {
   
   // if the current user provides their browser location and we don't have a location saved for them,
   // save it accordingly
-  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
+  const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
   const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
     if (
@@ -478,6 +478,7 @@ const Community = ({classes}: {
         
         {tab === 'individuals' && <div key="individuals">
           <CommunityMembers
+            currentUser={currentUser}
             userLocation={userLocation}
             distanceUnit={distanceUnit}
             locationFilterNode={(

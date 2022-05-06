@@ -93,7 +93,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
   const { Typography } = Components
 
   useEffect(() => {
-    if (loading || !results.length) {
+    if (loading || !results?.length) {
       return;
     }
 

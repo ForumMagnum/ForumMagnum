@@ -7,6 +7,7 @@ import { conversationGetTitle } from '../../lib/collections/conversations/helper
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -50,6 +51,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   const loading = loadingMessages || loadingConversation;
 
   const { query } = useLocation()
+  const { captureEvent } = useTracking()
 
   const { document: template, loading: loadingTemplate } = useSingle({
     documentId: query.templateCommentId,
@@ -109,6 +111,14 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
               }
             }}
             mutationFragment={getFragment("messageListFragment")}
+            successCallback={() => {
+              captureEvent('messageSent', {
+                conversationId: conversation._id,
+                sender: currentUser._id,
+                participantIds: conversation.participantIds,
+                messageCount: (conversation.messageCount || 0) + 1
+              })
+            }}
             errorCallback={(message: any) => {
               //eslint-disable-next-line no-console
               console.error("Failed to send", message)

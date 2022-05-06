@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -102,7 +102,9 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
           <div className={classes.searchList}>
             <Index indexName={getAlgoliaIndexName("Tags")}>
               <div className={classes.header}>
-                <Typography variant="body1">Tags and Wiki</Typography>
+                <Typography variant="body1">
+                  {taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'}
+                </Typography>
               </div>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />

@@ -128,7 +128,7 @@ export const useFilterSettings = () => {
   }, [setFilterSettings, filterSettings, captureEvent])
   
   const removeTagFilter = useCallback((tagId: string) => {
-    if (suggestedTags.find(tag => tag._id === tagId)) {
+    if (suggestedTags && suggestedTags.find(tag => tag._id === tagId)) {
       throw new Error("Can't remove suggested tag")
     }
     captureEvent("tagRemovedFromFilters", {tagId});

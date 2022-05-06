@@ -1523,11 +1523,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@culturehq/add-to-calendar@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@culturehq/add-to-calendar/-/add-to-calendar-1.1.2.tgz#e0fbe95b828478045065a03753907fdb072ae8fc"
-  integrity sha512-x3Z4UuJdWIHwptmExMkgka6HWxbPRv5rKWAEevCMJQXzfWRK6utJp523d3xb7VGeXHnSTL2xleY0kjswMRS5yQ==
-
 "@cypress/request@^2.88.5":
   version "2.88.6"
   resolved "https://registry.yarnpkg.com/@cypress/request/-/request-2.88.6.tgz#a970dd675befc6bdf8a8921576c01f51cc5798e9"
