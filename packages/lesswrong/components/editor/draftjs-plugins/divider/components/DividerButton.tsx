@@ -20,7 +20,7 @@ import {
   insertNewLineBoth,
 } from '../utils/insertNewLine';
 
-interface DividerButtonProps extends WithStylesProps {
+interface DividerButtonProps {
   getEditorState: () => any;
   setEditorState: (any) => any;
   blockType: any,
