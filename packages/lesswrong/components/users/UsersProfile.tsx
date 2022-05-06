@@ -144,6 +144,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block',
     }
   },
+  bold: {
+    fontWeight: 'bold'
+  },
   socialMediaIcons: {
     display: 'flex',
     columnGap: 14,
@@ -316,17 +319,24 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
     
-    const userHasSocialMedia = Object.keys(socialMediaProfileFields).some(field => user[field])
     
+    // extra profile data that appears on the EA Forum
+    const jobTitle = user.jobTitle && <span className={classes.bold}>{user.jobTitle}</span>
+    const org = user.organization && <span className={classes.bold}>{user.organization}</span>
+    const currentRole = <>
+      {jobTitle} {org}
+    </>
+    
+    const userHasSocialMedia = Object.keys(socialMediaProfileFields).some(field => user[field])
     const socialMediaIcon = (field) => {
       if (!user[field]) return null
       return <a href={`https://${socialMediaProfileFields[field]}${user[field]}`} target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
-    
     // the data in the righthand sidebar on desktop moves under the bio on mobile
     const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
+      {currentRole}
       {userHasSocialMedia && <>
         <Typography variant="body2" gutterBottom>Social Media</Typography>
         <div className={classes.socialMediaIcons}>

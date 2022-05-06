@@ -1559,6 +1559,8 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly oldSlugs: Array<string>,
   readonly groups: Array<string>,
   readonly bio: string,
+  readonly jobTitle: string,
+  readonly organization: string,
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
@@ -1810,6 +1812,8 @@ interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
 interface UsersProfileEdit { // fragment on Users
   readonly _id: string,
   readonly slug: string,
+  readonly jobTitle: string,
+  readonly organization: string,
   readonly bio: string,
   readonly htmlBio: string,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,

@@ -30,6 +30,8 @@ registerFragment(`
     oldSlugs
     groups
     bio
+    jobTitle
+    organization
     website
     linkedinProfileURL
     facebookProfileURL
@@ -374,6 +376,8 @@ registerFragment(`
   fragment UsersProfileEdit on User {
     _id
     slug
+    jobTitle
+    organization
     bio
     htmlBio
     mapLocation

@@ -50,6 +50,8 @@ const EditProfileForm = ({classes}: {
         collection={Users}
         documentId={currentUser._id}
         fields={[
+          'jobTitle',
+          'organization',
           'bio',
           'mapLocation',
           'website',

@@ -794,6 +794,8 @@ interface DbUser extends DbObject {
   usernameUnset: boolean
   paymentEmail: string
   paymentInfo: string
+  jobTitle: string
+  organization: string
   bio: string
   htmlBio: string
   website: string

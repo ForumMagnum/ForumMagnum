@@ -909,7 +909,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 2 : 43,
+    order: forumTypeSetting.get() === "EAForum" ? 4 : 43,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1519,6 +1519,29 @@ addFieldsDict(Users, {
     group: formGroups.paymentInfo,
   },
   
+  jobTitle: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 1,
+    label: 'Role'
+  },
+  
+  organization: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 2,
+  },
+  
   // Bio (Markdown version)
   bio: {
     type: String,
@@ -1529,7 +1552,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
+    order: forumTypeSetting.get() === "EAForum" ? 3 : 40,
     form: {
       variant: 'outlined',
       hintText: "Bio",
@@ -1559,7 +1582,7 @@ addFieldsDict(Users, {
       inputPrefix: 'https://'
     },
     group: formGroups.aboutMe,
-    order: 3
+    order: 5
   },
   
   linkedinProfileURL: {
