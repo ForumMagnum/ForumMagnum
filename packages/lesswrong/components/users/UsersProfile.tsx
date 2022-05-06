@@ -43,12 +43,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 40,
     marginLeft: "auto",
     [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: `${SECTION_WIDTH}px 1fr`,
-      gridTemplateAreas: `
-        'center right'
-      `,
-      paddingLeft: 20,
-      paddingRight: 20
+      ...(forumTypeSetting.get() === "EAForum" ? {
+        gridTemplateColumns: `${SECTION_WIDTH}px 1fr`,
+        gridTemplateAreas: `
+          'center right'
+        `,
+      } : {}),
+      paddingLeft: 5,
+      paddingRight: 5
     },
     [theme.breakpoints.down('sm')]: {
       display: 'block',
@@ -324,7 +326,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
     
     // the data in the righthand sidebar on desktop moves under the bio on mobile
-    const sidebarInfoNode = <>
+    const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
       {userHasSocialMedia && <>
         <Typography variant="body2" gutterBottom>Social Media</Typography>
         <div className={classes.socialMediaIcons}>
@@ -365,7 +367,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
-              { currentUser && currentUser._id === user._id && <Link to="/profile/edit">
+              { forumTypeSetting.get() === "EAForum" && currentUser && currentUser._id === user._id && <Link to="/profile/edit">
                 Edit Profile
               </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">

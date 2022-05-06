@@ -908,13 +908,13 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
-    order: 2,
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    order: forumTypeSetting.get() === "EAForum" ? 2 : 43,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    hidden: true
+    hidden: forumTypeSetting.get() === "EAForum"
   },
 
   mapLocationSet: {
@@ -1523,13 +1523,13 @@ addFieldsDict(Users, {
   bio: {
     type: String,
     optional: true,
-    hidden: true,
+    hidden: forumTypeSetting.get() === "EAForum",
     control: "MuiTextField",
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
-    group: formGroups.aboutMe,
-    order: 1,
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
     form: {
       variant: 'outlined',
       hintText: "Bio",
