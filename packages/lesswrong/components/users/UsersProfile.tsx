@@ -41,6 +41,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     `,
     justifyContent: 'center',
     columnGap: 40,
+    paddingLeft: 10,
+    paddingRight: 10,
     marginLeft: "auto",
     [theme.breakpoints.down('md')]: {
       ...(forumTypeSetting.get() === "EAForum" ? {
@@ -49,11 +51,12 @@ const styles = (theme: ThemeType): JssStyles => ({
           'center right'
         `,
       } : {}),
-      paddingLeft: 5,
-      paddingRight: 5
+      marginTop: -20
     },
     [theme.breakpoints.down('sm')]: {
       display: 'block',
+      paddingLeft: 5,
+      paddingRight: 5,
       margin: 0,
     }
   },
@@ -66,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginTop: 0,
     [theme.breakpoints.down('sm')]: {
-      marginTop: 20
+      marginTop: 15
     }
   },
   mapLocation: {
@@ -144,13 +147,27 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block',
     }
   },
-  bold: {
-    fontWeight: 'bold'
+  currentRole: {
+    lineHeight: '26px',
+    marginBottom: 30
+  },
+  currentRoleSep: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    marginRight: 5
+  },
+  jobTitle: {
+    fontWeight: 'bold',
+    color: theme.palette.grey[800],
+    marginRight: 5
+  },
+  organization: {
+    fontWeight: 'bold',
+    color: theme.palette.grey[800],
   },
   socialMediaIcons: {
     display: 'flex',
     columnGap: 14,
-    marginBottom: 30
   },
   socialMediaIcon: {
     height: 30,
@@ -159,7 +176,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   website: {
     display: 'inline-flex',
     justifyContent: 'center',
-    marginLeft: 4
+    color: theme.palette.primary.main,
+    marginBottom: 30
   },
   websiteIcon: {
     height: 20,
@@ -321,11 +339,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     
     // extra profile data that appears on the EA Forum
-    const jobTitle = user.jobTitle && <span className={classes.bold}>{user.jobTitle}</span>
-    const org = user.organization && <span className={classes.bold}>{user.organization}</span>
-    const currentRole = <>
-      {jobTitle} {org}
-    </>
+    const jobTitle = user.jobTitle && <span className={classes.jobTitle}>{user.jobTitle}</span>
+    const currentRoleSep = user.organization ? <span className={classes.currentRoleSep}>
+      {!jobTitle && 'Works '}at
+    </span> : ''
+    const org = user.organization && <span className={classes.organization}>{user.organization}</span>
+    const currentRole = (jobTitle || org) && <div className={classes.currentRole}>
+      {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
+    </div>
     
     const userHasSocialMedia = Object.keys(socialMediaProfileFields).some(field => user[field])
     const socialMediaIcon = (field) => {
@@ -337,16 +358,16 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // the data in the righthand sidebar on desktop moves under the bio on mobile
     const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
       {currentRole}
+      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
+        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
+        {user.website}
+      </a>}
       {userHasSocialMedia && <>
         <Typography variant="body2" gutterBottom>Social Media</Typography>
         <div className={classes.socialMediaIcons}>
           {Object.keys(socialMediaProfileFields).map(field => socialMediaIcon(field))}
         </div>
       </>}
-      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
-        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
-        {user.website}
-      </a>}
     </>
 
     return (
@@ -398,9 +419,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
             
-            {(userHasSocialMedia || user.website) && <div className={classes.mobileRightSidebar}>
+            <div className={classes.mobileRightSidebar}>
               {sidebarInfoNode}
-            </div>}
+            </div>
           </SingleColumnSection>
 
           <SingleColumnSection>
