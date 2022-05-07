@@ -41,6 +41,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     `,
     justifyContent: 'center',
     columnGap: 40,
+    paddingLeft: 10,
+    paddingRight: 10,
     marginLeft: "auto",
     [theme.breakpoints.down('md')]: {
       ...(forumTypeSetting.get() === "EAForum" ? {
@@ -49,11 +51,12 @@ const styles = (theme: ThemeType): JssStyles => ({
           'center right'
         `,
       } : {}),
-      paddingLeft: 5,
-      paddingRight: 5
+      marginTop: -20
     },
     [theme.breakpoints.down('sm')]: {
       display: 'block',
+      paddingLeft: 5,
+      paddingRight: 5,
       margin: 0,
     }
   },
@@ -66,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginTop: 0,
     [theme.breakpoints.down('sm')]: {
-      marginTop: 20
+      marginTop: 15
     }
   },
   mapLocation: {
