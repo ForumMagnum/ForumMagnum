@@ -286,8 +286,7 @@ export function useMulti<
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  // TODO: Should be nullable
-  results: Array<FragmentTypes[FragmentTypeName]>,
+  results?: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
   error: ApolloError|undefined,

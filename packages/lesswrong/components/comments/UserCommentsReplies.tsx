@@ -24,7 +24,7 @@ const UserCommentsReplies = ({ classes }) => {
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
-  const user = getUserFromResults(userResults)
+  const user = getUserFromResults(userResults ?? null)
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms: {view: 'allRecentComments', authorIsUnreviewed: null, limit: 50, userId: user?._id},
     collectionName: "Comments",

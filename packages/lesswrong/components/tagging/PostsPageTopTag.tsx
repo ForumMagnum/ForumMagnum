@@ -19,7 +19,7 @@ const TopTagInner = ({ post, tag }: {post: PostsDetails, tag: TagPreviewFragment
   });
 
   let tagRel: TagRelMinimumFragment | null = null
-  if(!loading && results.filter(tagRelResult => tagRelResult.tagId === tag._id).length > 0) {
+  if(!loading && results && results.filter(tagRelResult => tagRelResult.tagId === tag._id).length > 0) {
     tagRel = results.filter(tagRelResult => tagRelResult.tagId === tag._id)[0]
   }
   return <FooterTag tag={tag} tagRel={tagRel || undefined} hideScore isTopTag />
