@@ -212,7 +212,7 @@ const authenticationResolvers = {
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
       
-      if (await userFindByEmail(email)) {
+      if (await await Users.findOne({email})) {
         throw Error("Email address is already taken");
       }
       if (await mongoFindOne("Users", { username })) {
@@ -261,7 +261,7 @@ const authenticationResolvers = {
     },
     async resetPassword(root: void, { email }: {email: string}, context: ResolverContext) {
       if (!email) throw Error("Email is required for resetting passwords")
-      const user = await Users.findOne({'emails.address': email})
+      const user = await Users.findOne({email})
       if (!user) throw Error("Can't find user with given email address")
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
       const emailSucceeded = await wrapAndSendEmail({
