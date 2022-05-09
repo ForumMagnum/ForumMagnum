@@ -112,6 +112,8 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     htmlBio: user.htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
+    jobTitle: user.jobTitle,
+    organization: user.organization,
     website: user.website,
     groups: user.groups,
     af: user.groups && user.groups.includes('alignmentForum'),
