@@ -65,6 +65,9 @@ export const eaForumTheme: SiteThemeSpecification = {
     event: '#0C869B',
     group: '#538747',
     individual: '#BF577D',
+    icon: {
+      navigationSidebarIcon: shadePalette.greyAlpha(0.5),
+    }
   }),
   make: (palette: ThemePalette) => {
     const basicText = {
