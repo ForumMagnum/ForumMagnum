@@ -96,8 +96,7 @@ const DraftsList = ({terms, title="My Drafts", showAllDraftsLink=true, classes}:
       sortings={sortings}
     />}
     {(!results && loading) ? <Loading /> : <>
-      {results
-        .map((post: PostsList, i: number) =>
+      {results && results.map((post: PostsList, i: number) =>
         <PostsItem2
           key={post._id} 
           post={post}
