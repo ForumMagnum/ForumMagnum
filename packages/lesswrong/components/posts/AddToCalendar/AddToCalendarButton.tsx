@@ -1,5 +1,5 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { useSingle } from '../../../lib/crud/withSingle';
@@ -30,14 +30,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8
   },
   dropdown: {
-    position: 'absolute',
-    left: 6,
     background: '#FFF',
     color: theme.palette.grey[700],
+    fontFamily: theme.typography.fontFamily,
     padding: '4px 0',
     borderRadius: 4,
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
-    zIndex: 1
   },
   option: {
     display: 'block',
@@ -63,6 +61,7 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
 }) => {
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false)
+  const buttonRef = useRef(null)
   
   // close the dropdown when clicking on the page
   useEffect(() => {
@@ -82,6 +81,8 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
     }
     setOpen(!open)
   }
+  
+  const { LWPopper } = Components
   
   // we use the Facebook link as the default event details text
   let eventDetails = post.facebookLink;
@@ -117,7 +118,7 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   
   const calendarIconNode = (
     <div className={classes.root}>
-      <button className={classes.button} onClick={handleClick}>
+      <button ref={buttonRef} className={classes.button} onClick={handleClick}>
         {!hideIcon && <AddToCalendarIcon className={classNames(classes.icon, iconClassName)} />}
         {label && (
           <span className={classes.label}>
@@ -125,20 +126,22 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
           </span>
         )}
       </button>
-      {open && <div className={classes.dropdown}>
-        <a href={urls.google} target="_blank" rel="noopener noreferrer" className={classes.option}>
-          Google
-        </a>
-        <a download="download" href={urls.ics} className={classes.option}>
-          Apple Calendar
-        </a>
-        <a download="download" href={urls.ics} className={classes.option}>
-          Outlook
-        </a>
-        <a href={urls.outlook} target="_blank" rel="noopener noreferrer" className={classes.option}>
-          Outlook Web App
-        </a>
-      </div>}
+      <LWPopper open={open} anchorEl={buttonRef.current} placement="bottom-start">
+        <div className={classes.dropdown}>
+          <a href={urls.google} target="_blank" rel="noopener noreferrer" className={classes.option}>
+            Google
+          </a>
+          <a download="download" href={urls.ics} className={classes.option}>
+            Apple Calendar
+          </a>
+          <a download="download" href={urls.ics} className={classes.option}>
+            Outlook
+          </a>
+          <a href={urls.outlook} target="_blank" rel="noopener noreferrer" className={classes.option}>
+            Outlook Web App
+          </a>
+        </div>
+      </LWPopper>
     </div>
   );
   
