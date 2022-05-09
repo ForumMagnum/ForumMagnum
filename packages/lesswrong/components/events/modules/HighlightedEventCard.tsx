@@ -24,10 +24,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     backgroundPosition: 'center',
     background: theme.palette.primary.main,
     textAlign: 'center',
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     overflow: 'visible',
     borderRadius: 0,
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: theme.palette.boxShadow.moreFocused,
     margin: 'auto',
     [theme.breakpoints.down('xs')]: {
       marginLeft: -4,
@@ -53,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   addToCalIcon: {
-    fill: 'white'
+    fill: theme.palette.icon.inverted,
   },
   content: {
     position: 'relative',
@@ -70,9 +70,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     justifyContent: 'center',
     height: '100%'
   },
-  spinner: {
+  spinner: { //UNUSED
     "& div": {
-      backgroundColor: 'white',
+      backgroundColor: theme.palette.panelBackground.default,
     }
   },
   row: {
@@ -85,7 +85,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     ...theme.typography.headline,
     fontSize: 36,
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     marginTop: 0,
     marginBottom: 10,
     [theme.breakpoints.down('sm')]: {

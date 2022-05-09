@@ -31,6 +31,8 @@ export const userHasRedesignedSettingsPage = disabled;
 export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => (moderatorOnly(user) || karmaGated(1)(user))
 export const userHasNewTagSubscriptions =  isEAForum ? shippedFeature : disabled
 
+export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;

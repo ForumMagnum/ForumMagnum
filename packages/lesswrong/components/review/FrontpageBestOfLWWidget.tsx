@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -7,6 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,10 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     // This is how much text-shadow you need in order to have the black text reliably show up against complex dark backgrounds
-    textShadow: "0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250), 0 0 35px rgb(250 255 250)"
+    textShadow: _.times(16, i=>"0 0 35px rgb(250 255 250)").join(", ")
   },
   viewResultsCTA: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: 8,
     paddingLeft: 16,
     paddingRight: 16,
@@ -99,7 +98,10 @@ export const FrontpageBestOfLWWidget = ({classes}: {
   </div>;
 }
 
-const FrontpageBestOfLWWidgetComponent = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {styles});
+const FrontpageBestOfLWWidgetComponent = registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
+  styles,
+  allowNonThemeColors: true, // Overlayed on an image
+});
 
 declare global {
   interface ComponentTypes {

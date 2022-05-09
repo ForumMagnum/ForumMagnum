@@ -15,7 +15,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   label: {
     padding: '5px 10px',
     cursor: 'pointer',
-    border: '1px solid #d4d4d4',
+    border: `1px solid ${theme.palette.grey[315]}`,
     '&.left': {
       borderRightColor: theme.palette.primary.dark,
       borderRadius: '4px 0 0 4px',
@@ -26,12 +26,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
     '&.selected': {
       backgroundColor: theme.palette.primary.main,
-      color: 'white',
+      color: theme.palette.text.invertedBackgroundText,
       borderColor: theme.palette.primary.dark,
     },
     '&:hover': {
       backgroundColor: theme.palette.primary.dark,
-      color: 'white',
+      color: theme.palette.text.invertedBackgroundText,
       borderColor: theme.palette.primary.dark,
     }
   },

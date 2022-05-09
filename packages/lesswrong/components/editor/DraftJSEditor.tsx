@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -130,7 +131,7 @@ const initializePlugins = (commentEditor) => {
 }
 
 interface DraftJSEditorProps {
-  theme: ThemeType,
+  theme?: ThemeType,
   editorState: any,
   onChange: any,
   commentEditor: boolean,
@@ -171,7 +172,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
             spellCheck
             plugins={this.plugins}
             keyBindingFn={myKeyBindingFn}
-            customStyleMap={styleMap(theme)}
+            customStyleMap={styleMap(theme!)}
             blockStyleFn={customBlockStyleFn}
             blockRenderMap={blockRenderMap}
             ref={(ref) => { this._ref = ref }}
@@ -191,4 +192,11 @@ const blockRenderMap = Map({
   }
 });
 
-export default withTheme()(DraftJSEditor);
+const DraftJSEditorComponent = registerComponent("DraftJSEditor", DraftJSEditor, {
+  hocs: [withTheme()]
+});
+declare global {
+  interface ComponentTypes {
+    DraftJSEditor: typeof DraftJSEditorComponent
+  }
+}

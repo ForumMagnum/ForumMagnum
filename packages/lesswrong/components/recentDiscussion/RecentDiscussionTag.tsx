@@ -5,7 +5,6 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
@@ -15,9 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   title: {
     ...theme.typography.display2,
@@ -32,12 +31,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     borderRadius: 3,
     marginBottom:4
-  },
-  tagDescription: {
-    ...commentBodyStyles(theme),
   },
   content: {
     marginLeft: 4,
@@ -56,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   metadata: {
     fontSize: "1.1rem",
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     ...theme.typography.commentStyle,
   },
 });
@@ -67,7 +63,7 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
   expandAllThreads?: boolean
   classes: ClassesType
 }) => {
-  const { CommentsNode, ContentItemBody } = Components;
+  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
@@ -131,12 +127,14 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
         <span>{metadataWording}</span>
       </div>
       
-      <div onClick={clickExpandDescription} className={classes.tagDescription}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
-          description={`tag ${tag.name}`}
-          className={classes.description}
-        />
+      <div onClick={clickExpandDescription}>
+        <ContentStyles contentType="comment">
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
+            description={`tag ${tag.name}`}
+            className={classes.description}
+          />
+        </ContentStyles>
       </div>
     </div>
     

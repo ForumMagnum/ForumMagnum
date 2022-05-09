@@ -4,7 +4,7 @@ import { ExpandedDate } from '../../common/FormatDate';
 
 const styles = (theme: ThemeType): JssStyles => ({
   date: {
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
   },

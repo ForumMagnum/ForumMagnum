@@ -1,10 +1,8 @@
 import React from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib';
-import {postBodyStyles} from "../../themes/stylePiping";
 
 const styles = (theme: ThemeType): JssStyles => ({
   messageStyling: {
-    ...postBodyStyles(theme),
     marginTop: "100px",
     maxWidth: 620
   },
@@ -15,9 +13,11 @@ const WalledGardenMessage = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType
 }) => {
-  const { SingleColumnSection } = Components
+  const { SingleColumnSection, ContentStyles } = Components
   return <SingleColumnSection className={classes.messageStyling}>
-    {children}
+    <ContentStyles contentType="post">
+      {children}
+    </ContentStyles>
   </SingleColumnSection>
 }
 

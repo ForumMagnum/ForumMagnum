@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Headroom from '../../lib/react-headroom'
-import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { styles } from './Header';
@@ -20,7 +19,7 @@ const HeaderWithBackButton = ({label, onBack, theme, classes}: {
   classes,
 }) => {
   return <Headroom>
-    <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
+    <header className={classes.appBar}>
       <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
         <IconButton className={classes.menuButton} color="inherit" aria-label="Back" onClick={onBack}>
           <ArrowBackIcon />
@@ -29,7 +28,7 @@ const HeaderWithBackButton = ({label, onBack, theme, classes}: {
           {label}
         </div>
       </Toolbar>
-    </AppBar>
+    </header>
   </Headroom>
 }
 

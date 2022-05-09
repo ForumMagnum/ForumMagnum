@@ -3,17 +3,13 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltipSingle';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit*1.5,
     width: POST_PREVIEW_WIDTH,
-  },
-  text: {
-    ...commentBodyStyles(theme),
   },
   loading: {
     ...notificationLoadingStyles(theme)
@@ -26,7 +22,7 @@ const styles = theme => ({
 
 const PostNominatedNotification = ({classes, postId}:{classes:ClassesType, postId:string}) => {
 
-  const { Loading, PostsTitle, ReviewPostButton, LWTooltip } = Components
+  const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
 
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
@@ -43,7 +39,7 @@ const PostNominatedNotification = ({classes, postId}:{classes:ClassesType, postI
 
   return <div className={classes.root}>
     <PostsTitle post={post}/>
-    <div className={classes.text}>
+    <ContentStyles contentType="comment">
       <p>Your post has been nominated for the {REVIEW_NAME_IN_SITU}.</p>
       <p>You're encouraged to write a self-review, exploring how you think about the post today. Do you still endorse it? Have you learned anything new that adds more depth? How might you improve the post? What further work do you think should be done exploring the ideas here?</p>
       <div className={classes.reviewButton}>
@@ -51,7 +47,7 @@ const PostNominatedNotification = ({classes, postId}:{classes:ClassesType, postI
             <div className={classes.reviewButton}>Write a Review</div>
           </LWTooltip>}/>
       </div>
-    </div>
+    </ContentStyles>
   </div>
 }
 

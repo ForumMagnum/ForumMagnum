@@ -23,7 +23,7 @@ export function FormLocation<T extends HasGoogleLocation, FN extends keyof T>({f
   const classes = useStyles(styles, "FormLocation");
   const {value,setValue} = useFormComponentContext<string,T>(form, fieldName);
   const {value: googleLocationValue, setValue: setGoogleLocationValue} = useFormComponentContext<any,T>(form, "googleLocation");
-  const [mapsLoaded] = useGoogleMaps("LocationFormComponent")
+  const [mapsLoaded] = useGoogleMaps()
   const {Loading} = Components;
   
   const handleSuggestSelect = (suggestion) => {

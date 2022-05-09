@@ -1,13 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { truncate } from '../../lib/editor/ellipsize';
 import { useNavigation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme),
     "& a.read-more": {
       fontSize: ".85em",
       color: theme.palette.grey[600]
@@ -20,7 +18,7 @@ const TagPreviewDescription = ({tag, classes}: {
   tag: TagPreviewFragment,
   classes: ClassesType
 }) => {
-  const { ContentItemBody } = Components;
+  const { ContentItemBody, ContentStyles } = Components;
   const { history } = useNavigation();
 
   if (!tag) return null
@@ -36,11 +34,13 @@ const TagPreviewDescription = ({tag, classes}: {
         }
       }}
     >
-      <ContentItemBody
-        className={classes.root}
-        dangerouslySetInnerHTML={{__html: highlight}}
-        description={`tag ${tag.name}`}
-      />
+      <ContentStyles contentType="comment">
+        <ContentItemBody
+          className={classes.root}
+          dangerouslySetInnerHTML={{__html: highlight}}
+          description={`tag ${tag.name}`}
+        />
+      </ContentStyles>
     </div>
   }
   return <div className={classes.root}><b>{tag.name}</b></div>

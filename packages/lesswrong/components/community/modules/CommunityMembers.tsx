@@ -68,7 +68,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
   },
   person: {
-    background: '#FFFFFF',
+    background: theme.palette.panelBackground.default,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
     borderColor: theme.palette.grey[300],

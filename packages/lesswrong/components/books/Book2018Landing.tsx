@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1.4em',
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`,
     lineHeight: '1.45',
-    color: 'rgba(0,0,0,0.7)',
+    color: theme.palette.text.slightlyDim2,
     textAlign: "justify",
     '& a': {
       color: theme.palette.primary.main
@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   essaysBy: {
     alignItems: "flex-end",
     fontSize: "20px",
-    color: "grey",
+    color: theme.palette.text.grey,
     marginBottom: "18px"
   },
 
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   authorList: {
     gridArea: "authorList",
-    color: "grey"
+    color: theme.palette.text.grey,
   },
 
   mainQuoteContainer: {
@@ -97,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: "mainQuoteAuthor",
     fontSize: "22px",
     lineHeight: "1.4em",
-    color: "grey"
+    color: theme.palette.text.grey,
   },
 
   buyButton: {
@@ -118,7 +118,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   interludeBigQuote: {
     gridArea: "interludeQuote",
     fontSize: "1.6em",
-    color: "rgba(0,0,0,0.87)",
+    color: theme.palette.text.normal,
     textAlign: 'justify'
   },
   interludeQuoteAuthor: {
@@ -167,7 +167,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     height: 36,
     fontSize: '0.83rem',
-    color: 'rgba(0,0,0,0.6)'
+    color: theme.palette.text.dim60,
   },
   mobileParagraph: {
     display: "none",
@@ -201,7 +201,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1.2rem',
     marginLeft: 16,
     marginRight: 16,
-    color: 'rgba(0,0,0,0.6)'
+    color: theme.palette.text.dim60,
   },
   [theme.breakpoints.down('xs')]: {
     bookContentContainer: {
@@ -497,7 +497,13 @@ const Book2018Landing = ({classes}: {
   )
 }
 
-const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018Landing, {styles});
+const Book2018LandingComponent = registerComponent('Book2018Landing', Book2018Landing, {
+  styles,
+  
+  // (Manually checked that there are no horrible contrast problems in dark mode.
+  // This page has a fair amount of very-no-reusable styling.)
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

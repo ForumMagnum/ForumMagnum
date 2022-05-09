@@ -4,7 +4,6 @@ import type { FilterSettings, FilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import Card from '@material-ui/core/Card';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
@@ -24,11 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     marginBottom: 4,
     marginRight: 4,
-    border: `solid 1px rgba(0,0,0,.25)`,
-    backgroundColor: "white"
+    border: theme.palette.border.slightlyIntense,
+    backgroundColor: theme.palette.tag.hollowTagBackground,
   },
   addButton: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.tag.addTagButtonBackground,
     paddingLeft: 9,
     paddingTop: 5,
     paddingBottom: 5,
@@ -40,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   personalTooltip: {
     ...filteringStyles(theme),
-    ...commentBodyStyles(theme)
   }
 });
 
@@ -99,13 +97,15 @@ const TagFilterSettings = ({
   removeTagFilter: (tagId: string) => void,
   classes: ClassesType,
 }) => {
-  const { AddTagButton, FilterMode, Loading, LWTooltip } = Components
+  const { AddTagButton, FilterMode, Loading, LWTooltip, ContentStyles } = Components
   const currentUser = useCurrentUser()
 
-  const personalBlogpostCard = <Card><div className={classes.personalTooltip}>
-    <p><em>Click to show personal blogposts</em></p>
-    <div>{personalBlogpostTooltip}</div>
-  </div></Card>
+  const personalBlogpostCard = <Card>
+    <ContentStyles contentType="comment" className={classes.personalTooltip}>
+      <p><em>Click to show personal blogposts</em></p>
+      <div>{personalBlogpostTooltip}</div>
+    </ContentStyles>
+  </Card>
 
   const showPersonalBlogpostsButton = (currentUser && (filterSettings.personalBlog === "Hidden"))
 

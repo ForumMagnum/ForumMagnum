@@ -14,7 +14,7 @@ import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import  theme  from '../../themes/forumTheme'
+import { useTheme } from '../themes/useTheme'
 import moment from 'moment'
 
 const isEAForum = forumTypeSetting.get()
@@ -75,6 +75,8 @@ function PostsAnalyticsGraphs (
   { classes, uniqueClientViewsSeries }: { classes: ClassesType, uniqueClientViewsSeries: { date: string, uniqueClientViews: number }[] | undefined }
 ) {
   const { Typography } = Components
+  const theme = useTheme();
+  
   if (!uniqueClientViewsSeries?.length || uniqueClientViewsSeries.length === 1) {
     return (<Typography variant="body1" className={classes.notEnoughDataMessage}>
       <em>Not enough data for a graph, check back tomorrow.</em>

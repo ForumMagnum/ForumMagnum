@@ -45,6 +45,7 @@ importComponent("EditorTypeSelect", () => require('../components/editor/EditorTy
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
+importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
@@ -65,6 +66,7 @@ importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
+importComponent("ContentStyles", () => require('../components/common/ContentStyles'));
 importComponent("FormatDate", () => require('../components/common/FormatDate'));
 importComponent("BetaTag", () => require('../components/common/BetaTag'));
 importComponent("FlashMessages", () => require('../components/common/FlashMessages'));
@@ -142,6 +144,7 @@ importComponent("HoverPreviewLink", () => require('../components/linkPreview/Hov
 importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ArbitalPreview", "FootnotePreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
+importComponent("ThemePickerMenu", () => require('../components/themes/ThemePickerMenu'));
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("DraftsPage", () => require('../components/users/DraftsPage'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));

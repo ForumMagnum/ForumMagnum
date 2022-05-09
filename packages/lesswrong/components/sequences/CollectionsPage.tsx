@@ -5,11 +5,10 @@ import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
     padding: 32,
     [theme.breakpoints.down('md')]: {
       paddingTop: 70,
@@ -22,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 50,
   },
   startReadingButton: {
-    background: "rgba(0,0,0, 0.05)",
+    background: theme.palette.buttons.startReadingButtonBackground,
 
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
@@ -41,12 +40,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0,
   },
   description: {
-    fontSize: 20,
     marginTop: 30,
     marginBottom: 25,
     lineHeight: 1.25,
     maxWidth: 700,
-    ...postBodyStyles(theme),
   },
 });
 
@@ -70,7 +67,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -97,9 +94,9 @@ const CollectionsPage = ({ documentId, classes }: {
 
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
 
-          <div className={classes.description}>
+          <ContentStyles contentType="post" className={classes.description}>
             {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
-          </div>
+          </ContentStyles>
 
           <ButtonUntyped
             className={classes.startReadingButton}

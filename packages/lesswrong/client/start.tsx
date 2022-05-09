@@ -23,7 +23,7 @@ onStartup(() => {
   }
 
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} timeOverride={timeOverride}/>
+    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} themeOptions={(window as any).themeOptions} timeOverride={timeOverride} />
   );
   
   ReactDOM.hydrate(
@@ -31,6 +31,7 @@ onStartup(() => {
     document.getElementById('react-app'),
     () => {
       apolloClient.disableNetworkFetches = false;
+      timeOverride.currentTime = null;
     }
   );
 });

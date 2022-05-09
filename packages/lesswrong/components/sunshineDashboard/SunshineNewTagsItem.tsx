@@ -9,12 +9,10 @@ import { useHover } from '../common/withHover'
 import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { commentBodyStyles, } from '../../themes/stylePiping'
 import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   tagInfo: {
-    ...commentBodyStyles(theme),
     marginTop: 0,
     marginBottom: 0
   },
@@ -68,7 +66,7 @@ const SunshineNewTagsItem = ({tag, classes}: {
     })
   }
 
-  const { SidebarActionMenu, TagSmallPostLink, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, Loading } = Components
+  const { SidebarActionMenu, TagSmallPostLink, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, Loading, ContentStyles } = Components
 
   const { results, loading } = useMulti({
     skip: !(tag._id),
@@ -85,12 +83,12 @@ const SunshineNewTagsItem = ({tag, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <div className={classes.tagInfo}>
+          <ContentStyles contentType="comment" className={classes.tagInfo}>
             <Link to={tagGetUrl(tag)}>
               <b>{tag.name}</b>
             </Link>
             <ContentItemBody dangerouslySetInnerHTML={{__html: tag.description?.html || ""}} description={`tag ${tag._id}`}/>
-          </div>
+          </ContentStyles>
           <div className={classes.postCount}>
             {tag.postCount} posts
           </div>

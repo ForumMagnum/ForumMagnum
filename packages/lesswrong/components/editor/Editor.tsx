@@ -1,12 +1,11 @@
 import React, { Component, MutableRefObject } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import withUser from '../common/withUser';
 import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import DraftJSEditor from './DraftJSEditor';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
@@ -26,7 +25,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
   },
   postBodyStyles: {
-    ...editorStyles(theme, postBodyStyles),
+    ...editorStyles(theme),
     cursor: "text",
     padding: 0,
     '& li .public-DraftStyleDefault-block': {
@@ -35,7 +34,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 
   answerStyles: {
-    ...editorStyles(theme, answerStyles),
+    ...editorStyles(theme),
     cursor: "text",
     maxWidth:620,
     '& li .public-DraftStyleDefault-block': {
@@ -44,12 +43,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 
   commentBodyStyles: {
-    ...editorStyles(theme, commentBodyStyles),
+    ...editorStyles(theme),
     cursor: "text",
     marginTop: 0,
     marginBottom: 0,
     padding: 0,
     pointerEvents: 'auto'
+  },
+  ckEditorStyles: {
+    ...ckEditorStyles(theme),
   },
   questionWidth: {
     width: 640,
@@ -409,18 +411,19 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   renderPlaceholder = (showPlaceholder, isCollaborative) => {
     const { _classes: classes, placeholder } = this.props
+    const {className, contentType} = this.getBodyStyles();
 
     if (showPlaceholder) {
-      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: isCollaborative})}>
+      return <Components.ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: isCollaborative})}>
         { placeholder }
-      </div>
+      </Components.ContentStyles>
     }
   }
   
   renderCkEditor = (contents: EditorContents) => {
     const { ckEditorReference } = this.state
     const value = (typeof contents?.value === 'string') ? contents.value : ckEditorReference?.getData();
-    const { documentId, collectionName, fieldName, currentUser, commentEditor, formType, isCollaborative } = this.props
+    const { documentId, collectionName, fieldName, currentUser, commentEditor, formType, isCollaborative, _classes: classes } = this.props
     const { Loading } = Components
     const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
     if (!CKEditor) {
@@ -456,7 +459,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
       const showPlaceholder = isBlank({type: "ckEditorMarkup", value});
 
-      return <div className={this.getHeightClass()}>
+      return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
         { this.renderPlaceholder(showPlaceholder, isCollaborative)}
         { isCollaborative
           ? <Components.CKPostEditor key="ck-collaborate"
@@ -485,22 +488,25 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   renderPlaintextEditor = (contents: EditorContents) => {
     const { markdownImgErrs } = this.state
     const { _classes: classes, commentStyles, questionStyles } = this.props
+    const {className, contentType} = this.getBodyStyles();
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <Input
-        className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles})}
-        value={value}
-        onChange={(ev) => {
-          this.setContents(contents.type, ev.target.value);
-        }}
-        multiline={true}
-        rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
-        rowsMax={99999}
-        fullWidth={true}
-        disableUnderline={true}
-      />
-    {markdownImgErrs && contents.type === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
+      <Components.ContentStyles contentType={contentType}>
+        <Input
+          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles})}
+          value={value}
+          onChange={(ev) => {
+            this.setContents(contents.type, ev.target.value);
+          }}
+          multiline={true}
+          rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
+          rowsMax={99999}
+          fullWidth={true}
+          disableUnderline={true}
+        />
+      </Components.ContentStyles>
+      {markdownImgErrs && contents.type === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
         Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
         connection. You should update all links to images so that they are served over a{' '}
         secure HTTPS connection (i.e. the links should start with <em>https://</em>).
@@ -512,28 +518,42 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const draftJSValue = contents.value;
     const { questionStyles, commentEditor, _classes: classes } = this.props
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
+    const {className, contentType} = this.getBodyStyles();
 
     return <div>
       { this.renderPlaceholder(showPlaceholder, false) }
-      {draftJSValue && <DraftJSEditor
+      {draftJSValue && <Components.ContentStyles contentType={contentType}><Components.DraftJSEditor
         editorState={draftJSValue}
         onChange={(value) => this.setContents("draftJS", value)}
         commentEditor={commentEditor||false}
         className={classNames(
-          this.getBodyStyles(),
+          className,
           this.getHeightClass(),
           {[classes.questionWidth]: questionStyles}
         )}
-      />}
+      /></Components.ContentStyles>}
     </div>
   }
   
 
-  getBodyStyles = () => {
+  getBodyStyles = (): {className: string, contentType: "comment"|"answer"|"post"} => {
     const { _classes: classes, commentStyles, answerStyles } = this.props
-    if (commentStyles && answerStyles) return classes.answerStyles
-    if (commentStyles) return classes.commentBodyStyles
-    return classes.postBodyStyles
+    if (commentStyles && answerStyles) {
+      return {
+        className: classes.answerStyles,
+        contentType: "answer",
+      }
+    }
+    if (commentStyles) {
+      return {
+        className: classes.commentBodyStyles,
+        contentType: "comment",
+      }
+    }
+    return {
+      className: classes.postBodyStyles,
+      contentType: "post",
+    }
   }
 
   getHeightClass = () => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import grey from '@material-ui/core/colors/grey';
 import { Link } from '../../lib/reactRouterWrapper';
 
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -9,7 +8,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: 'uppercase',
-    borderLeft: `1px solid ${grey[400]}`,
+    borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
 });
 

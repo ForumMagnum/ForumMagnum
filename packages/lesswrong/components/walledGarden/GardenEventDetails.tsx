@@ -10,7 +10,7 @@ import { makeLinkAbsolute } from "./GardenCodesItem";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 30,
-    background: "white"
+    background: theme.palette.panelBackground.default,
   },
   title: {
     ...theme.typography.display3,

@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   topAuthorIcon: {
     width: 12,
     height: 12,
-    color: "#d0d0d0",
+    color: theme.palette.icon.topAuthor,
     position: "relative",
     top: 2,
     marginRight: 4,

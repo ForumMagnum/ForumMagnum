@@ -84,7 +84,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // Pre-standard Firefox-specific scrollbar styling. See
     // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Scrollbars.
     scrollbarWidth: "thin",
-    scrollbarColor: `rgba(255,255,255,0) ${theme.palette.grey[300]}`,
+    scrollbarColor: theme.palette.tocScrollbarColors,
 
     [theme.breakpoints.down('sm')]:{
       display:'none'
