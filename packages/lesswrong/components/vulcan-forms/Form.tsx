@@ -50,8 +50,8 @@ import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } f
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
-import { inspect }  from "util";
 
+type FieldTodoUnfinished<T extends DbObject> = Partial<CollectionFieldSpecification<T>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
@@ -137,7 +137,7 @@ const getInitialStateFromProps = nextProps => {
 /**
  * Note: Only use this through WrappedSmartForm
  */
-class Form extends Component<any,any> {
+class Form<T extends DbObject> extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -364,10 +364,11 @@ class Form extends Component<any,any> {
     return relevantFields;
   };
 
-  initField = (fieldName, fieldSchema) => {
+  initField = (fieldName: string, fieldSchema: ) => {
+    let field0: FieldTodoUnfinished = _.pick(fieldSchema, formProperties)
     // intialize properties
-    let field: any = {
-      ..._.pick(fieldSchema, formProperties),
+    let field: FieldTodoUnfinished = {
+      // ..._.pick(fieldSchema, formProperties as Mutable<typeof formProperties>),
       document: this.state.initialDocument,
       name: fieldName,
       datatype: fieldSchema.type,
@@ -375,15 +376,6 @@ class Form extends Component<any,any> {
       input: fieldSchema.input || fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
-    // // replace value by prefilled value if value is empty
-    // const prefill = fieldSchema.prefill || (fieldSchema.form && fieldSchema.form.prefill);
-    // if (prefill) {
-    //   const prefilledValue = typeof prefill === 'function' ? prefill.call(fieldSchema) : prefill;
-    //   if (!!prefilledValue && !field.value) {
-    //     field.prefilledValue = prefilledValue;
-    //     field.value = prefilledValue;
-    //   }
-    // }
 
     // if options are a function, call it
     if (typeof field.options === 'function') {
@@ -465,14 +457,13 @@ class Form extends Component<any,any> {
     return field;
   };
 
-  /*
-  Given a field's name, the containing schema, and parent, create the
-  complete field object to be passed to the component
-
-  */
-  createField = (fieldName, schema, parentFieldName?: any, parentPath?: any) => {
+  /**
+   * Given a field's name, the containing schema, and parent, create the
+   * complete field object to be passed to the component
+   */
+  createField = (fieldName: string, schema: SchemaType<T>, parentFieldName?: any, parentPath?: any) => {
     const fieldSchema = schema[fieldName];
-    let field = this.initField(fieldName, fieldSchema);
+    let field: FieldTodoUnfinished = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, schema);

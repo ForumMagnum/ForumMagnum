@@ -234,4 +234,4 @@ export const formProperties = [
   'query',
   'fieldProperties',
   'tooltip'
-];
+] as const;
