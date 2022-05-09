@@ -574,14 +574,15 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   render() {
     const { loading } = this.state
     const { currentUser, initialEditorType, formType, _classes: classes } = this.props
-    const { Loading } = Components
+    const { Loading, ContentStyles } = Components
     const currentEditorType = this.getCurrentEditorType()
+    const {className, contentType} = this.getBodyStyles();
 
     return <div>
-      <div className={classNames(classes.editor, this.getBodyStyles())}>
+      <ContentStyles className={classNames(classes.editor, className)} contentType={contentType}>
         { loading ? <Loading/> : this.renderEditorComponent(this.props.value) }
         { this.renderUpdateTypeSelect() }
-      </div>
+      </ContentStyles>
       { this.renderCommitMessageInput() }
     </div>
   }
