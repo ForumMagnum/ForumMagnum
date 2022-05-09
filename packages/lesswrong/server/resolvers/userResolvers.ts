@@ -15,6 +15,24 @@ augmentFieldsDict(Users, {
       }
     })
   },
+  htmlHowOthersCanHelpMe: {
+    ...denormalizedField({
+      needsUpdate: (data: Partial<DbUser>) => ('howOthersCanHelpMe' in data),
+      getValue: async (user: DbUser) => {
+        if (!user.howOthersCanHelpMe) return "";
+        return await markdownToHtml(user.howOthersCanHelpMe);
+      }
+    })
+  },
+  htmlHowICanHelpOthers: {
+    ...denormalizedField({
+      needsUpdate: (data: Partial<DbUser>) => ('howICanHelpOthers' in data),
+      getValue: async (user: DbUser) => {
+        if (!user.howICanHelpOthers) return "";
+        return await markdownToHtml(user.howICanHelpOthers);
+      }
+    })
+  },
   htmlMapMarkerText: {
     ...denormalizedField({
       needsUpdate: (data: Partial<DbUser>) => ('mapMarkerText' in data),

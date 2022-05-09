@@ -1585,6 +1585,63 @@ addFieldsDict(Users, {
     order: 5
   },
   
+  // How others can help me (Markdown version)
+  howOthersCanHelpMe: {
+    type: String,
+    optional: true,
+    hidden: true,
+    control: "MuiTextField",
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    group: formGroups.aboutMe,
+    order: 6,
+    form: {
+      variant: 'outlined',
+      hintText: "How others can help me",
+      rows: 12,
+      multiLine: true,
+      fullWidth: true,
+    },
+  },
+
+  // How others can help me (HTML version)
+  htmlHowOthersCanHelpMe: {
+    type: String,
+    denormalized: true,
+    optional: true,
+    canRead: ['guests'],
+  },
+  
+  // How I can help others (Markdown version)
+  howICanHelpOthers: {
+    type: String,
+    optional: true,
+    hidden: true,
+    control: "MuiTextField",
+    label: 'How I can help others',
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    group: formGroups.aboutMe,
+    order: 7,
+    form: {
+      variant: 'outlined',
+      hintText: "How I can help others",
+      rows: 12,
+      multiLine: true,
+      fullWidth: true,
+    },
+  },
+
+  // How I can help others (HTML version)
+  htmlHowICanHelpOthers: {
+    type: String,
+    denormalized: true,
+    optional: true,
+    canRead: ['guests'],
+  },
+  
   linkedinProfileURL: {
     type: String,
     hidden: true,

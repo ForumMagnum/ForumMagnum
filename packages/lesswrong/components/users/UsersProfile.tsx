@@ -110,8 +110,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bio: {
     marginTop: theme.spacing.unit*3,
-    marginLeft: theme.spacing.unit/2,
-    marginRight: theme.spacing.unit,
+    ...postBodyStyles(theme)
+  },
+  helpFieldHeading: {
+    fontFamily: theme.typography.fontFamily,
+    marginTop: theme.spacing.unit*4,
+  },
+  helpField: {
     ...postBodyStyles(theme)
   },
   primaryColor: {
@@ -418,6 +423,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </Typography>
 
             { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+            { user.htmlHowOthersCanHelpMe && <>
+              <h2 className={classes.helpFieldHeading}>How others can help me</h2>
+              <ContentItemBody className={classes.helpField} dangerouslySetInnerHTML={{__html: user.htmlHowOthersCanHelpMe }} />
+            </> }
+            { user.htmlHowICanHelpOthers && <>
+              <h2 className={classes.helpFieldHeading}>How I can help others</h2>
+              <ContentItemBody className={classes.helpField} dangerouslySetInnerHTML={{__html: user.htmlHowICanHelpOthers }} />
+            </> }
             
             <div className={classes.mobileRightSidebar}>
               {sidebarInfoNode}

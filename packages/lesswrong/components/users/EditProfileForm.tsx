@@ -55,6 +55,8 @@ const EditProfileForm = ({classes}: {
           'bio',
           'mapLocation',
           'website',
+          'howOthersCanHelpMe',
+          'howICanHelpOthers',
           'linkedinProfileURL',
           'facebookProfileURL',
           'twitterProfileURL',

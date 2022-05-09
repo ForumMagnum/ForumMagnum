@@ -799,6 +799,10 @@ interface DbUser extends DbObject {
   bio: string
   htmlBio: string
   website: string
+  howOthersCanHelpMe: string
+  htmlHowOthersCanHelpMe: string
+  howICanHelpOthers: string
+  htmlHowICanHelpOthers: string
   linkedinProfileURL: string
   facebookProfileURL: string
   twitterProfileURL: string
