@@ -67,6 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&::-webkit-scrollbar": {
       display: "none",
     },
+    scrollbarWidth: "none",
   }
 });
 

@@ -589,6 +589,20 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 75 ? new Date() : null
   },
+  // The timestamp when the post's maxBaseScore first exceeded 125
+  scoreExceeded125Date: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: document => document.baseScore >= 125 ? new Date() : null
+  },
+  // The timestamp when the post's maxBaseScore first exceeded 200
+  scoreExceeded200Date: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: document => document.baseScore >= 200 ? new Date() : null
+  },
   bannedUserIds: {
     type: Array,
     viewableBy: ['guests'],
@@ -833,6 +847,9 @@ addFieldsDict(Posts, {
 
   googleLocation: {
     type: Object,
+    form: {
+      stringVersionFieldName: "location",
+    },
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],

@@ -128,10 +128,6 @@ export const useGoogleMaps = (): [boolean, any] => {
 }
 
 
-const getLocationString = (googleLocation: any): string => {
-  return googleLocation?.["formatted_address"];
-}
-
 const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
   document: any,
   path: string,

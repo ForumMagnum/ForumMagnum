@@ -45,7 +45,6 @@
   "dependencies": {
     "@apollo/client": "^3.2.0",
     "@babel/runtime": "^7.12.1",
-    "@culturehq/add-to-calendar": "^1.1.2",
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "@lesswrong/lesswrong-editor": "./public/lesswrong-editor",
     "@material-ui/core": "3.1.2",
