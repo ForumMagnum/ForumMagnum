@@ -53,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   addToCalIcon: {
-    fill: 'white'
+    fill: theme.palette.icon.inverted,
   },
   content: {
     position: 'relative',
