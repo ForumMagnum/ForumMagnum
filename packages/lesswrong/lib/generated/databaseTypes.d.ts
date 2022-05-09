@@ -418,6 +418,8 @@ interface DbPost extends DbObject {
   scoreExceeded30Date: Date
   scoreExceeded45Date: Date
   scoreExceeded75Date: Date
+  scoreExceeded125Date: Date
+  scoreExceeded200Date: Date
   bannedUserIds: Array<string>
   commentsLocked: boolean
   organizerIds: Array<string>
