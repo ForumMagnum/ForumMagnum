@@ -44,6 +44,12 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       if (!post.scoreExceeded75Date && post.baseScore >= 75) {
         thresholdTimestamp.scoreExceeded75Date = new Date();
       }
+      if (!post.scoreExceeded125Date && post.baseScore >= 125) {
+        thresholdTimestamp.scoreExceeded125Date = new Date();
+      }
+      if (!post.scoreExceeded200Date && post.baseScore >= 200) {
+        thresholdTimestamp.scoreExceeded200Date = new Date();
+      }
       await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
