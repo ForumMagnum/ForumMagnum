@@ -28,6 +28,8 @@ export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userHasNewTagSubscriptions =  isEAForum ? shippedFeature : disabled
 
+export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;

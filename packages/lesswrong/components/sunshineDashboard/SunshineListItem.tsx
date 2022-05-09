@@ -5,7 +5,7 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position:"relative",
-    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderTop: theme.palette.border.faint,
     paddingTop: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit,

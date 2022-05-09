@@ -5,7 +5,7 @@ import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { withTheme } from '@material-ui/core/styles';
+import { useTheme } from '../themes/useTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -75,12 +75,12 @@ export interface VoteArrowIconProps {
   bigVoted: boolean,
   bigVoteCompleted: boolean,
   alwaysColored: boolean,
-  theme?: ThemeType,
 }
 
-const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, theme, classes }: VoteArrowIconProps & {
+const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
+  const theme = useTheme();
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
   
   return (

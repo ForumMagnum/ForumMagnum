@@ -2,18 +2,18 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Chip from '@material-ui/core/Chip';
 
-const styles = {
+const styles = (theme: ThemeType): JssStyles => ({
   chip: {
     marginLeft: 4,
     marginRight: 4,
     marginBottom: 4,
-    backgroundColor: "rgba(0,0,0,0.05)"
+    backgroundColor: theme.palette.background.usersListItem,
   },
   wrapper: {
     display: 'flex',
     flexWrap: 'wrap',
   },
-};
+});
 
 const SingleUsersItem = ({document, removeItem, classes }: {
   document: UsersProfile,

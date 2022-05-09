@@ -23,7 +23,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginLeft: -8
     },
     position: "relative",
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   },
   communityMap: {},
   mapButton: {

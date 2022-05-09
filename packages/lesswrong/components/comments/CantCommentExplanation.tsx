@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textDecoration: "underline !important",
   
     "&:hover": {
-      color: "rgba(0,0,0,.5)"
+      color: theme.palette.link.dim,
     }
   },
 });

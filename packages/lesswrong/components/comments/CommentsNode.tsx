@@ -19,14 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     height:"100%",
     cursor:"pointer",
     '&:hover': {
-      backgroundColor: "rgba(0,0,0,.075)"
+      backgroundColor: theme.palette.commentParentScrollerHover,
     }
   },
   children: {
     position: "relative"
   },
   gapIndicator: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,

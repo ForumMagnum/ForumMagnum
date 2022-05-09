@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentsLink: {
     marginRight: SECONDARY_SPACING,
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     display: "inline-block",
     fontSize: theme.typography.body2.fontSize,
@@ -46,13 +46,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   wordCount: {
     display: 'inline-block',
     marginRight: SECONDARY_SPACING,
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
   },
   actions: {
     display: 'inline-block',
-    color: theme.palette.grey[600],
+    color: theme.palette.icon.dim600,
   },
   authors: {
     display: 'inline-block',
@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body2.fontSize,
     marginRight: SECONDARY_SPACING,
     display: 'inline-block',
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -74,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   divider: {
     marginTop: theme.spacing.unit*2,
     marginLeft:0,
-    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderTop: theme.palette.border.faint,
     borderLeft: 'transparent'
   },
 });

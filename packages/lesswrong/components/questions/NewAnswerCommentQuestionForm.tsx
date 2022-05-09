@@ -10,7 +10,7 @@ import { useDialog } from "../common/withDialog";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    borderTop: "solid 2px rgba(0,0,0,.5)",
+    borderTop: theme.palette.border.intense,
     maxWidth:650 + (theme.spacing.unit*4),
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
@@ -32,13 +32,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: theme.spacing.unit*1.5,
     cursor: "pointer",
     '&:hover': {
-      color: "rgba(0,0,0,.87)",
-      borderBottom: "solid 1px rgba(0,0,0,.2)"
+      color: theme.palette.text.normal,
+      borderBottom: theme.palette.border.normal,
     }
   },
   selected: {
-    color: "rgba(0,0,0,.87)",
-    borderBottom: "solid 1px rgba(0,0,0,.4)"
+    color: theme.palette.text.normal,
+    borderBottom: theme.palette.border.slightlyIntense3,
   },
   form: {
     position: "relative",
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 3000,
     top: 0,
     height: 5000,
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     zIndex: theme.zIndexes.questionPageWhitescreen,
   },
   displayWhitescreen: {

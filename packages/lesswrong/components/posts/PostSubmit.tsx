@@ -20,12 +20,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 5,
     fontWeight: 500,
     "&:hover": {
-      background: "rgba(0,0,0, 0.05)",
+      background: theme.palette.buttons.hoverGrayHighlight,
     }
   },
 
   secondaryButton: {
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
   },
 
   submitButtons: {

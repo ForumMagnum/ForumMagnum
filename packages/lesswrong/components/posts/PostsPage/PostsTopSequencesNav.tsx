@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: 'small-caps',
     fontFamily: theme.typography.uiSecondary.fontFamily,
     lineHeight: '24px',
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
   }
 })
 

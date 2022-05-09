@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   headingLink: {
-    color: "black",
+    color: theme.palette.text.maxIntensity,
     textDecoration: "none",
     fontWeight: "normal",
     fontFamily: "Arial, sans-serif"
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 210,
     height: 0,
     borderTop: "none",
-    borderBottom: "1px solid #aaa",
+    borderBottom: theme.palette.border.emailHR,
     marginTop: 50,
     marginBottom: 35,
   },

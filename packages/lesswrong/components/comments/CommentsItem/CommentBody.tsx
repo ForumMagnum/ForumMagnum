@@ -1,19 +1,16 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { commentBodyStyles, answerStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
-    ...commentBodyStyles(theme),
     maxWidth: "100%",
     overflowX: "hidden",
     overflowY: "hidden",
   },
   answerStyling: {
-    ...answerStyles(theme),
     maxWidth: "100%",
     overflowX: "hidden",
     overflowY: "hidden",
@@ -43,7 +40,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata } = Components
+  const { ContentItemBody, CommentDeletedMetadata, ContentStyles } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -58,13 +55,13 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
 
   return (
-    <div className={classes.root}>
+    <ContentStyles contentType={comment.answer ? "answer" : "comment"} className={classes.root}>
       <ContentItemBody
         className={bodyClasses}
         dangerouslySetInnerHTML={{__html: innerHtml }}
         description={`comment ${comment._id}`}
       />
-    </div>
+    </ContentStyles>
   )
 }
 

@@ -2,9 +2,7 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import deepOrange from '@material-ui/core/colors/deepOrange';
-import yellow from '@material-ui/core/colors/yellow';
-import green from '@material-ui/core/colors/green';
+import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -32,10 +30,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   userRow: {
     display: "flex",
     ...theme.typography.commentStyle,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginBottom: 2,
     alignItems: "center",
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   },
   index: {
     width: 20,
@@ -55,17 +53,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   goodestHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: deepOrange[700]
-  },  
+    color: theme.palette.text.aprilFools.orange,
+  },
+  orange: {
+    color: theme.palette.text.aprilFools.orange,
+  },
   veryGoodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: yellow[900]
+    color: theme.palette.text.aprilFools.yellow,
+  },
+  yellow: {
+    color: theme.palette.text.aprilFools.yellow,
   },
   goodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: green[900]
+    color: theme.palette.text.aprilFools.green,
+  },
+  green: {
+    color: theme.palette.text.aprilFools.green,
   },
 });
 
@@ -92,9 +99,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.goodestHeartIcon}/>
-          <span style={{color:deepOrange[700]}}>Goodest Hearts</span>
+          <span className={classes.orange}>Goodest Hearts</span>
         </div>
-        {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:deepOrange[700]}}>
+        {results?.slice(0,5).map((user, i)=> <div key={user._id} className={classNames(classes.userRow, classes.orange)}>
           <span className={classes.index}>{ i+1 }</span>
           <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
@@ -103,9 +110,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.veryGoodHeartIcon}/>
-          <span style={{color:yellow[900]}}>Good Hearts</span>
+          <span className={classes.yellow}>Good Hearts</span>
         </div>
-        {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:yellow[900]}}>
+        {results?.slice(5,10).map((user, i)=> <div key={user._id} className={classNames(classes.userRow, classes.yellow)}>
           <span className={classes.index}>{ i+6 }</span>
           <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>
@@ -114,9 +121,9 @@ export const AprilFools2022 = ({classes}: {
       <div className={classes.column}>
         <div className={classes.columnHeading}>
           <FavoriteIcon className={classes.goodHeartIcon}/>
-          <span style={{color:green[900]}}>Kinda Good Hearts</span>
+          <span className={classes.green}>Kinda Good Hearts</span>
         </div>
-        {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classes.userRow} style={{color:green[900]}}>
+        {results?.slice(10,15).map((user, i)=> <div key={user._id} className={classNames(classes.userRow, classes.green)}>
           <span className={classes.index}>{ i+11 }</span>
           <span className={classes.username}><UsersNameDisplay user={user}/></span>
           <span className={classes.goodHeartTokens}>${user.goodHeartTokens || 0}</span>

@@ -14,12 +14,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, inlineBlock=true}: {
+const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=false, inlineBlock=true}: {
   children?: any,
   title?: any,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
+  clickable?: boolean,
   inlineBlock?: boolean,
   classes: ClassesType,
   className?: string
@@ -46,7 +47,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
           enabled: flip
         }
       }}
-      clickable={false}
+      clickable={clickable}
     >
       <div className={tooltip ? classes.tooltip : null}>{title}</div>
     </LWPopper>}

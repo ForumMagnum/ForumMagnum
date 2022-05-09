@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
-import { postBodyStyles } from '../../themes/stylePiping'
 import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -88,7 +87,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: "flex",
     columnGap: 5,
     alignItems: 'center',
-    color: "rgba(0,0,0,0.7)",
+    color: theme.palette.text.slightlyDim2,
   },
   groupLocationIcon: {
     fontSize: 20
@@ -99,12 +98,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2
   },
   groupCategory: {
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     color: theme.palette.grey[600],
     padding: '6px 12px',
-    border: '1px solid white',
+    border: `1px solid ${theme.palette.grey[0]}`,
     borderColor: theme.palette.grey[300],
     borderRadius: 4
   },
@@ -116,7 +115,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   groupDescriptionBody: {
-    ...postBodyStyles(theme),
     padding: theme.spacing.unit,
   },
   contactUsSection: {
@@ -217,7 +215,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore
+    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -418,13 +416,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           </div>
         </div>
         
-        <div className={classes.groupDescription}>
+        <ContentStyles contentType="post" className={classes.groupDescription}>
           {group.contents && <ContentItemBody
             dangerouslySetInnerHTML={htmlBody}
             className={classes.groupDescriptionBody}
             description={`group ${groupId}`}
           />}
-        </div>
+        </ContentStyles>
 
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
         

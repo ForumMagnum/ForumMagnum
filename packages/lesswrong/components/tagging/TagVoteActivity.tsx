@@ -39,11 +39,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center"
   },
   tagVotingTable: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: 12,
     paddingTop: 2,
     ...theme.typography.commentStyle,
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   }
 })
 
