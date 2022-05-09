@@ -29,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     font: 'inherit',
     color: 'inherit',
+    background: theme.palette.grey[200],
     display: 'block',
     textTransform: 'uppercase',
     width: '100%',
