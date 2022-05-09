@@ -14,6 +14,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
 import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import deepmerge from 'deepmerge';
 
 
 const suggestionToGoogleMapsLocation = (suggestion) => {
@@ -39,33 +40,16 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16,
     width: 400,
     maxWidth: '100%',
-    ...geoSuggestStyles(theme),
-    "& .geosuggest__suggests": {
-      top: "100%",
-      left: 0,
-      right: 0,
-      maxHeight: "25em",
-      padding: 0,
-      marginTop: -1,
-      background: theme.palette.panelBackground.default,
-      borderTopWidth: 0,
-      overflowX: "hidden",
-      overflowY: "auto",
-      listStyle: "none",
-      zIndex: 5,
-      transition: "max-height 0.2s, border 0.2s",
-      ...theme.typography.commentStyle,
-    },
-    "& .geosuggest__input": {
-      border: "2px solid transparent",
-      borderBottom: `1px solid ${theme.palette.text.normal}`,
-      padding: ".5em 1em 0.5em 0em !important",
-      width: '100%',
-      fontSize: 13,
-      [theme.breakpoints.down('sm')]: {
-        width: "100%"
+    ...deepmerge(geoSuggestStyles(theme), {
+      "& .geosuggest__suggests": {
+        ...theme.typography.commentStyle,
       },
-    },
+      "& .geosuggest__input": {
+        padding: ".5em 1em 0.5em 0em !important",
+        width: '100%',
+        fontSize: 13,
+      },
+    }),
   },
 })
 
