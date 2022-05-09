@@ -42,6 +42,7 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
     maxHeight: "25em",
     padding: 0,
     marginTop: -1,
+    color: theme.palette.geosuggest.dropdownText,
     background: theme.palette.geosuggest.dropdownBackground,
     borderTopWidth: 0,
     overflowX: "hidden",

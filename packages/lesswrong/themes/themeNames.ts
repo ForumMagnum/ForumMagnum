@@ -65,3 +65,4 @@ export function getForumType(themeOptions: ThemeOptions) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
+export const defaultThemeOptions = {"name":"default"};
