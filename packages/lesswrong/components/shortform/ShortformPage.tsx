@@ -1,29 +1,14 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  column: {
-    maxWidth:680,
-    margin:"auto"
-  }
-})
-
+// Currently this page is a bit redundant with ShortformThreadList, but I expect to eventually use ShortformThreadList to also be user's shortform page
 const ShortformPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
-
-  return (
-    <SingleColumnSection>
-      <div className={classes.column}>
-        <SectionTitle title="Shortform"/>
-        <ShortformThreadList />
-      </div>
-    </SingleColumnSection>
-  )
+  return  <Components.ShortformThreadList />
 }
 
-const ShortformPageComponent = registerComponent('ShortformPage', ShortformPage, {styles});
+const ShortformPageComponent = registerComponent('ShortformPage', ShortformPage);
 
 declare global {
   interface ComponentTypes {
