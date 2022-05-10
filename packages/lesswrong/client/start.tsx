@@ -23,9 +23,9 @@ onStartup(() => {
   }
 
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} timeOverride={timeOverride}/>
+    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} themeOptions={(window as any).themeOptions} timeOverride={timeOverride} />
   );
-  
+
   const container = document.getElementById('react-app');
   const root = hydrateRoot(container!, <Main/>);
   setTimeout(() => {

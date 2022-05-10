@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ais-Pagination-item:hover': {
       background: "transparent",
       '& .ais-Pagination-link': {
-        color: "rgba(0,0,0,0.87)",
+        color: theme.palette.text.normal,
       }
     },
     '& .ais-Pagination-item--nextPage .ais-Pagination-link':{

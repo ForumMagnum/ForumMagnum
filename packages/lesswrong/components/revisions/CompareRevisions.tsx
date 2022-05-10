@@ -5,11 +5,11 @@ import { useQuery, gql } from '@apollo/client';
 const styles = (theme: ThemeType): JssStyles => ({
   differences: {
     "& ins": {
-      background: "#d4ead4",
+      background: theme.palette.background.diffInserted,
       textDecoration: "none",
     },
     "& del": {
-      background: "#f0d3d3",
+      background: theme.palette.background.diffDeleted,
       textDecoration: "none",
     },
   },

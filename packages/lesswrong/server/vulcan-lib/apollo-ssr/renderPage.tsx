@@ -23,6 +23,7 @@ import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/setting
 import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions } from '../../../themes/themeNames';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
@@ -44,6 +45,7 @@ export type RenderResult = {
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
+  themeOptions: ThemeOptions,
   renderedAt: Date,
   timings: RenderTimings
 }
@@ -167,7 +169,13 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     timeOverride={timeOverride}
   />;
 
-  const WrappedApp = wrapWithMuiTheme(App, context);
+  const themeCookie = getCookieFromReq(req, "theme");
+  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
+  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
+  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
+  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
+
+  const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   
   let htmlContent = '';
   try {
@@ -192,9 +200,24 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
   // context.
   const sheetsRegistry = context.sheetsRegistry;
+  
+  // Experimental handling to make default theme (dark mode or not) depend on
+  // the user's system setting. Currently doesn't work because, while this does
+  // successfully customize everything that goes through our merged stylesheet,
+  // it can't handle the material-UI stuff that gets stuck into the page header.
+  /*const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
+  const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
     +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${getMergedStylesheet().url}">`
+    +'<style>'
+    +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
+    +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
+    +'</style>'*/
+  
+  const stylesheet = getMergedStylesheet(themeOptions);
+  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
+    +'<style id="jss-insertion-point"></style>'
+    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
   
   const finishedTime = new Date();
   const timings: RenderTimings = {
@@ -222,6 +245,7 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
     allAbTestGroups: getAllUserABTestGroups(user, clientId),
+    themeOptions: themeOptions,
     renderedAt: now,
     timings,
   };

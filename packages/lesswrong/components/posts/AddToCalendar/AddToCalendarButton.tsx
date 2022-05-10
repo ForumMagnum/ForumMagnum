@@ -30,12 +30,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8
   },
   dropdown: {
-    background: '#FFF',
+    background: theme.palette.panelBackground.default,
     color: theme.palette.grey[700],
     fontFamily: theme.typography.fontFamily,
     padding: '4px 0',
     borderRadius: 4,
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+    boxShadow: `0 1px 3px ${theme.palette.boxShadowColor(0.2)}`,
   },
   option: {
     display: 'block',

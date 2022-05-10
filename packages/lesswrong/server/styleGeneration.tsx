@@ -7,11 +7,13 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
 import crypto from 'crypto'; //nodejs core library
-import datetimeStyles from '../styles/datetimeStyles';
-import draftjsStyles from '../styles/draftjsStyles';
-import miscStyles from '../styles/miscStyles';
+import draftjsStyles from '../themes/globalStyles/draftjsStyles';
+import miscStyles from '../themes/globalStyles/miscStyles';
+import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
+import { forumTypeSetting } from '../lib/instanceSettings';
+import { getForumTheme } from '../themes/forumTheme';
 
-const generateMergedStylesheet = (): string => {
+const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
   importAllComponents();
   
   const context: any = {};
@@ -30,41 +32,70 @@ const generateMergedStylesheet = (): string => {
       return <StyledComponent key={componentName}/>
     })}
   </div>
-  const WrappedTree = wrapWithMuiTheme(DummyTree, context);
+  const WrappedTree = wrapWithMuiTheme(DummyTree, context, themeOptions);
   
   ReactDOM.renderToString(WrappedTree);
   const jssStylesheet = context.sheetsRegistry.toString()
+  const theme = getForumTheme(themeOptions);
   
   return [
-    datetimeStyles,
-    draftjsStyles,
-    miscStyles,
+    draftjsStyles(theme),
+    miscStyles(theme),
     jssStylesheet
   ].join("\n");
 }
 
-let mergedStylesheet: string|null = null;
-let stylesheetHash: string|null = null;
+type StylesheetAndHash = {
+  css: string
+  hash: string
+}
 
-export const getMergedStylesheet = (): {css: string, url: string, hash: string} => {
-  if (!mergedStylesheet)
-    mergedStylesheet = generateMergedStylesheet();
-  if (!stylesheetHash)
-    stylesheetHash = crypto.createHash('sha256').update(mergedStylesheet, 'utf8').digest('hex');
+const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash => {
+  const stylesheet = generateMergedStylesheet(theme);
+  const hash = crypto.createHash('sha256').update(stylesheet, 'utf8').digest('hex');
   return {
-    css: mergedStylesheet,
-    url: `/allStyles?hash=${stylesheetHash}`,
-    hash: stylesheetHash,
+    css: stylesheet,
+    hash: hash,
+  }
+}
+
+// Serialized ThemeOptions (string) -> StylesheetAndHash
+const mergedStylesheets: Partial<Record<string, StylesheetAndHash>> = {};
+
+export const getMergedStylesheet = (theme: ThemeOptions): {css: string, url: string, hash: string} => {
+  const actualForumType = forumTypeSetting.get();
+  const themeKey = JSON.stringify({
+    name: theme.name,
+    forumTheme: getForumType(theme),
+  });
+  
+  if (!mergedStylesheets[themeKey]) {
+    mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);
+  }
+  const mergedStylesheet = mergedStylesheets[themeKey]!;
+  
+  return {
+    css: mergedStylesheet.css,
+    url: `/allStyles?hash=${mergedStylesheet.hash}&theme=${encodeURIComponent(JSON.stringify(theme))}`,
+    hash: mergedStylesheet.hash,
   };
 }
 
 addStaticRoute("/allStyles", ({query}, req, res, next) => {
   const expectedHash = query?.hash;
-  const {hash: stylesheetHash, css} = getMergedStylesheet();
+  const encodedThemeOptions = query?.theme;
+  const serializedThemeOptions = decodeURIComponent(encodedThemeOptions);
+  const validThemeOptions = isValidSerializedThemeOptions(serializedThemeOptions) ? JSON.parse(serializedThemeOptions) : {name:"default"}
+  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions);
   
-  if (!expectedHash || expectedHash === stylesheetHash) {
+  if (!expectedHash) {
+    res.writeHead(302, {
+      'Location': `/allStyles?theme=${encodedThemeOptions}&hash=${stylesheetHash}`
+    })
+    res.end('')
+  } else if (expectedHash === stylesheetHash) {
     res.writeHead(200, {
-      "Cache-Control": "public, max-age=604800, immutable",
+      "Cache-Control": expectedHash ? "public, max-age=604800, immutable" : "public, max-age=604800",
       "Content-Type": "text/css; charset=utf-8"
     });
     res.end(css);

@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     color: theme.palette.grey[500],
     fontSize: '1rem',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0
   },

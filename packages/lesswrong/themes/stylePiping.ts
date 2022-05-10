@@ -1,20 +1,18 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
-export const metaculusBackground = "#2c3947"
-
-const hideSpoilers = {
-  backgroundColor: 'black',
-  color: 'black',
+const hideSpoilers = (theme: ThemeType): JssStyles => ({
+  backgroundColor: theme.palette.panelBackground.spoilerBlock,
+  color: theme.palette.panelBackground.spoilerBlock,
   '& a, & a:hover, & a:focus, & a::after': {
-    color: 'black'
+    color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
-    backgroundColor: 'black',
+    backgroundColor: theme.palette.panelBackground.spoilerBlock,
   }
-}
+});
 
-const spoilerStyles = (theme: ThemeType) => ({
+const spoilerStyles = (theme: ThemeType): JssStyles => ({
   '& p.spoiler': {
     margin: 0,
   },
@@ -26,7 +24,7 @@ const spoilerStyles = (theme: ThemeType) => ({
       margin: 0,
     },
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
-      ...hideSpoilers,
+      ...hideSpoilers(theme),
     }
   },
   // Note: ".spoiler" is the old class Oli originally used. ".spoilers" is a new class 
@@ -36,10 +34,10 @@ const spoilerStyles = (theme: ThemeType) => ({
     margin: '1em 0',
     overflow: 'auto',
     '&:not(:hover)': {
-      ...hideSpoilers,
+      ...hideSpoilers(theme),
     },
     '&:hover': {
-      background: 'rgba(0,0,0,.12)' // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
+      background: theme.palette.panelBackground.revealedSpoilerBlock, // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
     },
     '& > p' : {
       margin: '0 !important',
@@ -54,13 +52,13 @@ const spoilerStyles = (theme: ThemeType) => ({
     backgroundColor: 'transparent'
   },
   '& .spoilers > p:hover ~ p': {
-    ...hideSpoilers
+    ...hideSpoilers(theme),
   }
 })
 
-const metaculusPreviewStyles = () => ({
+const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.metaculus-preview': {
-    backgroundColor: metaculusBackground,
+    backgroundColor: theme.palette.panelBackground.metaculusBackground,
     '& iframe': {
       width: '100%',
       height: 400,
@@ -69,7 +67,7 @@ const metaculusPreviewStyles = () => ({
   }
 })
 
-const owidPreviewStyles = () => ({
+const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.owid-preview': {
     '& iframe': {
       width: '100%',
@@ -79,7 +77,7 @@ const owidPreviewStyles = () => ({
   }
 })
 
-const youtubePreviewStyles = () => ({
+const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
     height: 0,
@@ -95,20 +93,20 @@ const youtubePreviewStyles = () => ({
   }
 })
 
-const tableStyles = {
+const tableStyles = (theme: ThemeType): JssStyles => ({
   borderCollapse: "collapse",
   borderSpacing: 0,
-  border: "1px double #b3b3b3",
+  border: theme.palette.border.table,
   margin: "auto",
   height: "100%",
   textAlign: "left",
   width: '100%'
-}
+});
 
-const tableCellStyles = {
+const tableCellStyles = (theme: ThemeType): JssStyles => ({
   minWidth: "2em",
   padding: ".4em",
-  border: "1px double #d9d9d9",
+  border: theme.palette.border.tableCell,
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em'
@@ -116,14 +114,14 @@ const tableCellStyles = {
   '& p:first-of-type': {
     marginTop: 0
   }
-}
+});
 
-const tableHeadingStyles = {
-  background: "#fafafa",
+const tableHeadingStyles = (theme: ThemeType): JssStyles => ({
+  background: theme.palette.panelBackground.tableHeading,
   fontWeight: 700
-}
+});
 
-const hrStyles = {
+const hrStyles = (theme: ThemeType): JssStyles => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -135,14 +133,14 @@ const hrStyles = {
   textAlign: "center",
   '&:after': {
     marginLeft: 12,
-    color: "rgba(0, 0, 0, 0.26)", /* pick a color */
+    color: theme.palette.icon.horizRuleDots,
     fontSize: "1rem",
     letterSpacing: "12px", /* increase space between dots */
     content: '"•••"',
   }
-}
+});
 
-const footnoteStyles = () => ({
+const footnoteStyles = (theme: ThemeType): JssStyles => ({
   '& .footnote-item > *': {
     verticalAlign: "text-top",
   },
@@ -160,7 +158,7 @@ const footnoteStyles = () => ({
   },
 });
 
-const baseBodyStyles = (theme: ThemeType) => ({
+const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
   wordBreak: "break-word",
@@ -235,17 +233,17 @@ const baseBodyStyles = (theme: ThemeType) => ({
     }
   },
   '& table': {
-    ...tableStyles
+    ...tableStyles(theme)
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
     display: 'table'
   },
   '& td, & th': {
-    ...tableCellStyles
+    ...tableCellStyles(theme)
   },
   '& th': {
-    ...tableHeadingStyles
+    ...tableHeadingStyles(theme)
   },
   '& figure': {
     margin: '1em auto',
@@ -257,20 +255,20 @@ const baseBodyStyles = (theme: ThemeType) => ({
   }
 })
 
-export const postBodyStyles = (theme: ThemeType) => {
+export const postBodyStyles = (theme: ThemeType): JssStyles => {
   return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(),
-    ...owidPreviewStyles(),
-    ...youtubePreviewStyles(),
-    ...footnoteStyles(),
+    ...metaculusPreviewStyles(theme),
+    ...owidPreviewStyles(theme),
+    ...youtubePreviewStyles(theme),
+    ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: 'solid 1px rgba(0,0,0,0.2)',
+      borderTop: theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -295,12 +293,12 @@ export const postBodyStyles = (theme: ThemeType) => {
       display: 'none'
     },
     '& hr': {
-      ...hrStyles,
+      ...hrStyles(theme),
     }
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean): JssStyles => {
   // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
 
   const pointerEvents = dontIncludePointerEvents ?
@@ -319,10 +317,6 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    ...spoilerStyles(theme),
-    ...metaculusPreviewStyles(),
-    ...owidPreviewStyles(),
-    ...youtubePreviewStyles(),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -341,42 +335,18 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     // but it's the only way I was able to make this weird stuff work.
     ...pointerEvents,
     '& > *:hover ~ .spoiler': {
-      color: 'black'
+      color: theme.palette.panelBackground.spoilerBlock,
     },
     '& > *:hover ~ .spoiler:before': {
       content: '"spoiler (hover/select to reveal)"',
-      color: 'white',
+      color: theme.palette.text.spoilerBlockNotice,
     },
     '& hr': {
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*1.5
     }
   }
-  return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
-}
-
-export const tagBodyStyles = (theme: ThemeType) => {
-  return {
-    ...commentBodyStyles(theme),
-    '&& h1': {
-      fontSize: '2rem',
-      marginTop: '3rem',
-      fontWeight:600,
-      ...theme.typography.commentStyle
-    }, 
-    '&& h2': {
-      fontSize: '1.7rem',
-      marginTop: '1.5rem',
-      fontWeight:500,
-      ...theme.typography.commentStyle
-    }, 
-    '&& h3': {
-      fontSize: '1.3rem',
-      marginTop: '1.5rem',
-      fontWeight:500,
-      ...theme.typography.commentStyle
-    }
-  }
+  return commentBodyStyles;
 }
 
 // FIXME: Emails currently don't use this, because the expectations around font size and
@@ -385,46 +355,29 @@ export const tagBodyStyles = (theme: ThemeType) => {
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-const smallPostStyles = (theme: ThemeType) => ({
-  ...theme.typography.body2,
-  fontSize: "1.28rem",
-  lineHeight: "1.75rem",
-  ...theme.typography.postStyle,
-  '& blockquote': {
+export const smallPostStyles = (theme: ThemeType) => {
+  return {
     ...theme.typography.body2,
-    ...theme.typography.postStyle
-  },
-  '& ul': {
-    paddingInlineStart: 30
-  },
-  '& li': {
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
     fontSize: "1.28rem",
-    lineHeight: "1.8rem",
-  },
-})
-
-export const postHighlightStyles = (theme: ThemeType) => {
-  const postHighlightStyles = {
-    ...smallPostStyles(theme),
-    '& h1, & h2, & h3': {
-      fontSize: "1.6rem",
-      // Cancel out a negative margin which would cause clipping
-      marginBlickStart: "0 !important",
+    lineHeight: "1.75rem",
+    ...theme.typography.postStyle,
+    '& blockquote': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle
     },
-  }
-  return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
+    '& ul': {
+      paddingInlineStart: 30
+    },
+    '& li': {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
+      fontSize: "1.28rem",
+      lineHeight: "1.8rem",
+    },
+  };
 }
 
-export const answerStyles = (theme: ThemeType) => {
-  const answerStyles = {
-    ...smallPostStyles(theme)
-  }
-  return deepmerge(postBodyStyles(theme), answerStyles, {isMergeableObject:isPlainObject})
-}
-
-export const pBodyStyle = {
+export const pBodyStyle = (theme: ThemeType): JssStyles => ({
   marginTop: "1em",
   marginBottom: "1em",
   '&:first-child': {
@@ -436,9 +389,9 @@ export const pBodyStyle = {
   '&:last-child': {
     marginBottom: 0,
   }
-}
+});
 
-export const ckEditorStyles = (theme: ThemeType) => {
+export const ckEditorStyles = (theme: ThemeType): JssStyles => {
   return {
     '& .ck': {
       '& code .public-DraftStyleDefault-block': {
@@ -449,7 +402,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         fontStyle: "unset",
         ...theme.typography.blockquote,
         '& p': {
-          ...pBodyStyle,
+          ...pBodyStyle(theme),
         },
         '& .public-DraftStyleDefault-block': {
           marginTop: 0,
@@ -460,7 +413,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
       '&.ck-content': {
         marginLeft: -theme.spacing.unit,
         '--ck-focus-outer-shadow-geometry': "none",
-        '--ck-focus-ring': "solid 1px rgba(0,0,0,0)",
+        '--ck-focus-ring': theme.palette.border.transparent,
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
         '& p': {
@@ -471,13 +424,13 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .table table': {
-          ...tableStyles
+          ...tableStyles(theme)
         },
         '& .table table td, & .table table th': {
-          ...tableCellStyles
+          ...tableCellStyles(theme)
         },
         '& .table table th': {
-          ...tableHeadingStyles
+          ...tableHeadingStyles(theme)
         },
         '& .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
           outline: "none"
@@ -487,7 +440,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           backgroundColor: "unset",
         },
         '& hr': {
-          ...hrStyles
+          ...hrStyles(theme)
         },
       },
       '&.ck-sidebar, &.ck-presence-list': {
@@ -503,7 +456,9 @@ export const ckEditorStyles = (theme: ThemeType) => {
           display:"none"
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
-          ...commentBodyStyles(theme),
+          ...theme.typography.body2,
+          ...theme.typography.commentStyle,
+    
           marginTop: 0,
           alignItems: "flex-start",
           marginBottom: 12
@@ -531,7 +486,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           width : "100%"
         },
         '& .ck-comment__wrapper': {
-          borderTop: 'solid 1px rgba(0,0,0,.15)',
+          borderTop: theme.palette.border.slightlyFaint,
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time': {
           color: theme.palette.grey[600],
@@ -541,12 +496,14 @@ export const ckEditorStyles = (theme: ThemeType) => {
           display: "none"
         },
         '--ck-color-comment-count': theme.palette.primary.main
-      } 
+      },
+      
+      '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
     }
   }
 }
 
-export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)=>any) => ({
+export const editorStyles = (theme: ThemeType) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
       marginBottom: '1em',  
@@ -566,8 +523,6 @@ export const editorStyles = (theme: ThemeType, styleFunction: (theme: ThemeType)
     // This selector isn't necessary on rendered posts/comments, just the draft-js editor.
     // To minimize potential damage from */important it's only applied here.
     '& .spoiler:not(:hover) *': {
-      backgroundColor: "black !important"
+      backgroundColor: `${theme.palette.panelBackground.spoilerBlock} !important`
     },
-    ...styleFunction(theme),
-    ...ckEditorStyles(theme)
 })

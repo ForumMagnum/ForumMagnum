@@ -12,13 +12,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.sunshineSidebar,
     position: "relative",
     display:"none",
-    background: "white",
+    background: theme.palette.panelBackground.default,
     [theme.breakpoints.up('lg')]: {
       display:"block"
     }
   },
   background: {
-    background: "white"
+    background: theme.palette.panelBackground.default,
   },
   toggle: {
     position: "relative",

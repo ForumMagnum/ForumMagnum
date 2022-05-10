@@ -19,7 +19,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: "rgba(0,0,0,0.87)",
+      color: theme.palette.link.unmarked,
     }
   },
 });

@@ -180,7 +180,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     fontSize: 13,
     padding: '8px 16px',
     borderRadius: 4,

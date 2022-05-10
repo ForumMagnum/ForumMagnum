@@ -67,9 +67,9 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="body2">
             { userHasSelfSuggested && <div>
-              <span className={classes.afSubmissionHeaderText}>
+              <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
                 AF Submission
-              </span>
+              </Components.ContentStyles>
               <Components.SunshineSendMessageWithDefaults user={comment.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
             </div>}
             {comment.post && <Link to={postGetPageUrl(comment.post) + "#" + comment._id}>

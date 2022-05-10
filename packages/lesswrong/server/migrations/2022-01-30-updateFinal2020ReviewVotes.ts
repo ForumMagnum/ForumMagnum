@@ -5,7 +5,7 @@ import groupBy from 'lodash/groupBy';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import moment from 'moment';
-import theme from '../../themes/forumTheme';
+import { getForumTheme } from '../../themes/forumTheme';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import fs from 'fs';
 
@@ -124,6 +124,7 @@ registerMigration({
 
     const getAuthor = (post) => authors.filter(author => author._id === post.userId)[0]
 
+    const theme = getForumTheme({name: "default", siteThemeOverride: {}});
     const primaryColor = theme.palette.primary.main;
     const errorColor = "#bf360c"
 

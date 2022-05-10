@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "none"
   },
   background: {
-    background: "rgba(255,255,255,.75)"
+    background: theme.palette.panelBackground.translucent3,
   }
 })
 

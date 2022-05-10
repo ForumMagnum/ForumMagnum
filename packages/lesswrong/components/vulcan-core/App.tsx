@@ -167,7 +167,7 @@ class App extends PureComponent<AppProps,any> {
 const AppComponent = registerComponent<ExternalProps>('App', App, {
   hocs: [
     withCurrentUser,
-    withRouter
+    withRouter,
   ]
 });
 

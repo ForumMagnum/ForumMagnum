@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     width:55,
     backgroundColor: theme.palette.grey[100],
-    borderRight: "solid 1px rgba(0,0,0,.1)",
+    borderRight: theme.palette.border.faint,
     height:"100%",
     color: theme.palette.grey[600],
   },

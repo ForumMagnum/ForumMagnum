@@ -38,6 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
+      fill: "currentColor",
     }
   },
   navText: {

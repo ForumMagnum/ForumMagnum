@@ -12,7 +12,6 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
-import { getHeaderTextColor } from '../common/Header';
 import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -34,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: getHeaderTextColor(theme),
+    color: theme.palette.header.text,
   },
   title: {
     display: 'block',

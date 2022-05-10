@@ -102,7 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: "12px 24px 8px 12px"
   },
   hidden: {
