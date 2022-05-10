@@ -154,7 +154,7 @@ const CommentsNode = ({ treeOptions, comment, startThreadTruncated, truncated, s
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const passedThroughItemProps = { comment, collapsed }
-
+  
   return <div className={comment.gapIndicator && classes.gapIndicator}>
     <CommentFrame
       comment={comment}

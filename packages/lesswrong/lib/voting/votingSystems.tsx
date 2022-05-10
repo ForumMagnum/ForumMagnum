@@ -7,9 +7,19 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 
+export type VoteWidgetOptions = {
+  // Hide the karma score. Used if the `hideCommentKarma` option is set on a post.
+  hideKarma?: boolean,
+  
+  // Offset the displayed karma by a given amount. Used in tag contributor lists,
+  // when you're voting on the user's most recent revision but the displayed score
+  // is the sum of all of the revisions they've made to the tag.
+  displayKarmaOffset?: number,
+}
+
 export type CommentVotingComponentProps = {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
-  hideKarma?: boolean,
+  options: VoteWidgetOptions,
   collection: any,
   votingSystem: VotingSystem,
 }
