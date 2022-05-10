@@ -10,6 +10,7 @@ import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import {useMessages} from "../common/withMessages";
 import { useMutation, gql } from '@apollo/client';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -60,8 +61,11 @@ const PostVersionHistoryButton = ({postId, classes}: {
   classes: ClassesType
 }) => {
   const { openDialog } = useDialog();
+  const { captureEvent } = useTracking()
+
   return <Button
     onClick={() => {
+      captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
         componentName: "PostVersionHistory",
         componentProps: {postId},
@@ -114,7 +118,8 @@ const PostVersionHistory = ({postId, onClose, classes}: {
     fetchPolicy: "cache-first",
     fragmentName: "RevisionDisplay",
   });
-  
+
+  const { captureEvent } = useTracking()
   
   return <LWDialog open={true} maxWidth={false} onClose={onClose}>
     <div className={classes.root}>
@@ -141,6 +146,7 @@ const PostVersionHistory = ({postId, onClose, classes}: {
           {revertLoading
             ? <Loading/>
             : <Button variant="contained" color="primary" onClick={async () => {
+                captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
                 setRevertInProgress(true);
                 await revertMutation({
                   variables: {
