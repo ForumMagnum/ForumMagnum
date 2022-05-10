@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { combineUrls, Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -21,7 +21,7 @@ import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
-import { socialMediaProfileFields } from '../../lib/collections/users/custom_fields';
+import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       '. center right'
     `,
     justifyContent: 'center',
-    columnGap: 40,
+    columnGap: 50,
     paddingLeft: 10,
     paddingRight: 10,
     marginLeft: "auto",
@@ -151,15 +151,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 30
   },
   socialMediaIcon: {
+    flex: 'none',
     height: 30,
     fill: theme.palette.grey[700],
   },
   website: {
     display: 'inline-flex',
     justifyContent: 'center',
+    wordBreak: 'break-all',
     marginLeft: 4
   },
   websiteIcon: {
+    flex: 'none',
     height: 20,
     fill: theme.palette.grey[700],
     marginRight: 6
@@ -317,11 +320,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
     
-    const userHasSocialMedia = Object.keys(socialMediaProfileFields).some(field => user[field])
+    const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
     
     const socialMediaIcon = (field) => {
       if (!user[field]) return null
-      return <a href={`https://${socialMediaProfileFields[field]}${user[field]}`} target="_blank" rel="noopener noreferrer">
+      return <a href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
@@ -329,9 +332,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // the data in the righthand sidebar on desktop moves under the bio on mobile
     const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
       {userHasSocialMedia && <>
-        <Typography variant="body2" gutterBottom>Social Media</Typography>
         <div className={classes.socialMediaIcons}>
-          {Object.keys(socialMediaProfileFields).map(field => socialMediaIcon(field))}
+          {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
         </div>
       </>}
       {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
