@@ -51,7 +51,10 @@ import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
-type FieldTodoUnfinished<T extends DbObject> = Partial<CollectionFieldSpecification<T>>
+type FieldTodo<T extends DbObject> = CollectionFieldSpecification<T> & {
+  //
+}
+type FieldTodoUnfinished<T extends DbObject> = Partial<FieldTodo<T>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
@@ -364,11 +367,10 @@ class Form<T extends DbObject> extends Component<any,any> {
     return relevantFields;
   };
 
-  initField = (fieldName: string, fieldSchema: ) => {
-    let field0: FieldTodoUnfinished = _.pick(fieldSchema, formProperties)
+  initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<T>) => {
     // intialize properties
-    let field: FieldTodoUnfinished = {
-      // ..._.pick(fieldSchema, formProperties as Mutable<typeof formProperties>),
+    let field: FieldTodoUnfinished<T> = {
+      ...pick(fieldSchema, formProperties),
       document: this.state.initialDocument,
       name: fieldName,
       datatype: fieldSchema.type,
@@ -463,7 +465,7 @@ class Form<T extends DbObject> extends Component<any,any> {
    */
   createField = (fieldName: string, schema: SchemaType<T>, parentFieldName?: any, parentPath?: any) => {
     const fieldSchema = schema[fieldName];
-    let field: FieldTodoUnfinished = this.initField(fieldName, fieldSchema);
+    let field: FieldTodoUnfinished<T> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, schema);
