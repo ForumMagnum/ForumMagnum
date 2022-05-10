@@ -11,14 +11,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
   },
   contributorsHeading: {
-    paddingBottom: 12,
+    paddingBottom: 6,
     paddingTop: 4,
   },
   contributorRow: {
-    paddingLeft: 8,
+    paddingLeft: 0,
     fontSize: "1.1rem",
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingTop: 0,
+    paddingBottom: 2,
     color: theme.palette.grey[600],
     
     "&:hover, &:hover a": {
@@ -31,6 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
   },
   contributorName: {
+    marginLeft: 4,
   },
   loadMore: {
     paddingTop: 8,
@@ -95,7 +96,7 @@ const TagContributorRow = ({contributor, tag, onHover, classes}: {
   const voteWidgetOptions = useMemo(() => ({
     hideKarma: false,
     displayKarmaOffset,
-  }), []);
+  }), [displayKarmaOffset]);
   
   return <div
     className={classes.contributorRow}
