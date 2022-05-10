@@ -52,6 +52,13 @@ import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
 type FieldTodo<T extends DbObject> = CollectionFieldSpecification<T> & {
+  document: any,
+  name: string,
+  datatype: any,
+  layout: string,
+  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"] 
+  label: string,
+  help: string
   //
 }
 type FieldTodoUnfinished<T extends DbObject> = Partial<FieldTodo<T>>
@@ -489,7 +496,7 @@ class Form<T extends DbObject> extends Component<any,any> {
    Get a field's label
 
    */
-  getLabel = (fieldName, fieldLocale?: any) => {
+  getLabel = (fieldName: string, fieldLocale?: any): string => {
     const collectionName = this.props.collectionName.toLowerCase();
     const label = this.context.intl.formatLabel({
       fieldName: fieldName,

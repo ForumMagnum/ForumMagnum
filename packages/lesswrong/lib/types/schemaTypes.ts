@@ -55,6 +55,7 @@ interface CollectionFieldSpecification<T extends DbObject> {
   
   form?: any,
   input?: any,
+  inputProperties?: any, //TODO;
   beforeComponent?: keyof ComponentTypes,
   order?: number,
   label?: string,
