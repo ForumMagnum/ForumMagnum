@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
+import { forumTypeSetting } from '../../lib/instanceSettings'
 import CommentIcon from '@material-ui/icons/ModeComment';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.commentsBubble.noUnread,
   },
   unreadComments: {
-    color: theme.palette.secondary.light,
+    color: forumTypeSetting.get() === 'EAForum' ? theme.palette.primary.main : theme.palette.secondary.light,
   },
   newPromotedComments: {
     color: theme.palette.icon.commentsBubble.newPromoted,
