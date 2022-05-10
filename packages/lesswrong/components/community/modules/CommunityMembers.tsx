@@ -71,7 +71,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: theme.palette.grey[300],
+    borderColor: theme.palette.greyAlpha(.1),
   },
   content: {
     padding: 20,
