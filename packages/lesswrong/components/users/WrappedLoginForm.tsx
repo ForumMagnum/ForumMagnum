@@ -29,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     font: 'inherit',
     color: 'inherit',
+    background: theme.palette.grey[200],
     display: 'block',
     textTransform: 'uppercase',
     width: '100%',
@@ -157,7 +158,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
     }
   }
 
-  return <React.Fragment>
+  return <Components.ContentStyles contentType="commentExceptPointerEvents">
     {reCaptchaSiteKeySetting.get()
       && <Components.ReCaptcha verifyCallback={(token) => setReCaptchaToken(token)} action="login/signup"/>}
     <form className={classes.root} onSubmit={submitFunction}>
@@ -192,7 +193,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
       </>}
       {error && <div className={classes.error}>{error.message}</div>}
     </form>
-  </React.Fragment>;
+  </Components.ContentStyles>;
 }
 
 const WrappedLoginFormEA = ({startingState, classes}: WrappedLoginFormProps) => {
