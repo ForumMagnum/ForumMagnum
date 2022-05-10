@@ -496,7 +496,9 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
           display: "none"
         },
         '--ck-color-comment-count': theme.palette.primary.main
-      } 
+      },
+      
+      '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
     }
   }
 }
