@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       borderRadius:5,
 
       [theme.breakpoints.down('tiny')]: {
-        backgroundColor: "#eee",
+        backgroundColor: theme.palette.grey[200],
         zIndex: theme.zIndexes.searchBar,
         width:110,
         height:36,
@@ -90,10 +90,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   alignmentForum: {
     "& .ais-SearchBox-input": {
-      color: "white",
+      color: theme.palette.panelBackground.default,
     },
     "& .ais-SearchBox-input::placeholder": {
-      color: "rgba(255,255,255, 0.5)",
+      color: theme.palette.text.invertedBackgroundText3,
     },
   },  
 })

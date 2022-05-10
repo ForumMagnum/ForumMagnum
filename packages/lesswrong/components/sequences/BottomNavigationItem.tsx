@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     "&:hover, &:visited, &:focus": {
-      color: "rgba(0,0,0, 0.5)",
+      color: theme.palette.link.dim,
     },
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   meta: {
-    color: "rgba(0,0,0,.5)",
+    color: theme.palette.text.dim,
     fontSize: 12,
   },
   

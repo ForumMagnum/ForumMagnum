@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     fontWeight: 'bold',
     fontSize: 17,
-    borderBottom: '2px solid black',
+    borderBottom: theme.palette.border.tableHeadingDivider,
     marginBottom: theme.spacing.unit / 2,
   }
 });

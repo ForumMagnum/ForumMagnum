@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   bannerText: {
     maxWidth: 1200,
-    color: 'white',
+    color: theme.palette.text.invertedBackgroundText,
     margin: '0 auto'
   },
   bannerQuote: {
@@ -70,7 +70,12 @@ const CommunityBanner = ({classes}: {
   </div>
 }
 
-const CommunityBannerComponent = registerComponent('CommunityBanner', CommunityBanner, {styles});
+const CommunityBannerComponent = registerComponent('CommunityBanner', CommunityBanner, {
+  styles,
+  
+  // This is based around an image, so it doesn't get inverted in dark mdoe
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

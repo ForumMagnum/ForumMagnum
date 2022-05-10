@@ -96,14 +96,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   hr: {
     height: 0,
     borderTop: "none",
-    borderBottom: "1px solid #ccc"
+    borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
   },
   editIcon: {
     width: 20,
     color: theme.palette.grey[400]
   },
   notes: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
     borderRadius: 2,
     paddingLeft: 8,
     paddingRight: 8,
@@ -112,11 +112,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     marginBottom: 8
   },
-  defaultMessage: {
+  defaultMessage: { //UNUSED
     maxWidth: 500,
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     padding:12,
-    boxShadow: "0 0 10px rgba(0,0,0,0.5)"
+    boxShadow: theme.palette.boxShadow.sunshineSendMessage,
   }
 })
 const SunshineNewUsersInfo = ({ user, classes, updateUser }: {

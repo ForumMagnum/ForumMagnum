@@ -17,12 +17,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   normal: {
     "& svg": {
-      color: "rgba(0,0,0, 0.5) !important"
+      color: `${theme.palette.icon.dim} !important`,
     }
   },
   disabled: {
     "& svg": {
-      color: "rgba(0,0,0, 0.2) !important"
+      color: `${theme.palette.icon.dim6} !important`,
     }
   },
 });

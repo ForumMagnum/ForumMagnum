@@ -17,7 +17,6 @@ const isEAForum = forumTypeSetting.get() === "EAForum"
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
     ...theme.typography.body2,
-    ...theme.typography.uiStyle,
     marginTop: 2,
     marginBottom: 16,
     color: theme.palette.grey[700],

@@ -9,7 +9,6 @@ import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useRecordPostView } from '../common/withRecordPostView';
 
-import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -20,18 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   postStyle: theme.typography.postStyle,
-  postBody: {
-    ...postHighlightStyles(theme),
-    marginBottom:theme.spacing.unit*2,
-    maxWidth: "100%",
-    overflowX: "auto",
-    overflowY: "hidden",
-  },
   postItem: {
     // position: "absolute",
     // right: "100%",
@@ -47,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:theme.spacing.unit*2,
   },
   postHighlight: {
-    ...postHighlightStyles(theme),
     overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
@@ -85,7 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     borderRadius: 3,
     marginBottom:4
   },
@@ -163,7 +154,7 @@ const RecentDiscussionThread = ({
     return null
   }
 
-  const highlightClasses = classNames(classes.highlight, classes.postHighlight, {
+  const highlightClasses = classNames(classes.postHighlight, {
     [classes.noComments]: post.commentCount === null
   })
   

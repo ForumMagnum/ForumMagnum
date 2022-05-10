@@ -5,7 +5,7 @@ import React from 'react';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    backgroundColor: "rgba(60,0,0,.08)"
+    backgroundColor: theme.palette.panelBackground.sunshineReportedContent,
   }
 })
 

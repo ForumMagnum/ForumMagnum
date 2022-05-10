@@ -56,7 +56,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: "16px",
     marginLeft: "5px",
     "&:hover": {
-      background: "rgba(0,0,0, 0.05)",
+      background: theme.palette.panelBackground.darken05,
     },
     color: theme.palette.lwTertiary.main
   },

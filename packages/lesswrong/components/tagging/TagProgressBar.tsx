@@ -9,12 +9,12 @@ import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 
 export const progressBarRoot = (theme: ThemeType) => ({
-  background: "white",
+  background: theme.palette.panelBackground.default,
   padding: 10,
   paddingLeft: 12,
   paddingRight: 12,
   fontSize: "1.3rem",
-  boxShadow: theme.boxShadow,
+  boxShadow: theme.palette.boxShadow.default,
   ...theme.typography.postStyle
 })
 
@@ -23,7 +23,7 @@ export const secondaryInfo = (theme: ThemeType) => ({
   ...theme.typography.commentStyle,
   justifyContent: 'space-between',
   fontSize: '1rem',
-  color: 'rgba(0,0,0,0.55)',
+  color: theme.palette.text.dim55,
   marginTop: 8
 })
 
@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main
   },
   personalLink: {
-    color: theme.palette.grey[600]
+    color: theme.palette.text.dim3,
   },
   text: {
     display: "flex",
@@ -65,10 +65,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 5,
   },
   bar2: {
-    backgroundColor: theme.palette.grey[600]
+    backgroundColor: theme.palette.text.dim3,
   },
   bar2Background: {
-    backgroundColor: "rgba(0,0,0,.1)"
+    backgroundColor: theme.palette.panelBackground.tenPercent,
   }
 
 });

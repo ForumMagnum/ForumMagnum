@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     
     "&:hover, &:hover a": {
-      color: "black",
+      color: theme.palette.text.maxIntensity,
     },
   },
   contributorScore: {

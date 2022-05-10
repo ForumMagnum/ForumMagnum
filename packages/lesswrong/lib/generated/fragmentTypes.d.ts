@@ -20,6 +20,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
+  readonly theme: string,
   readonly lastUsedTimezone: string,
 }
 

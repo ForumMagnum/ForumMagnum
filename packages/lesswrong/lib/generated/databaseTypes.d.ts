@@ -418,6 +418,8 @@ interface DbPost extends DbObject {
   scoreExceeded30Date: Date
   scoreExceeded45Date: Date
   scoreExceeded75Date: Date
+  scoreExceeded125Date: Date
+  scoreExceeded200Date: Date
   bannedUserIds: Array<string>
   commentsLocked: boolean
   organizerIds: Array<string>
@@ -673,6 +675,7 @@ interface DbUser extends DbObject {
   noindex: boolean
   groups: Array<string>
   lwWikiImport: boolean
+  theme: string
   lastUsedTimezone: string
   whenConfirmationEmailSent: Date
   legacy: boolean

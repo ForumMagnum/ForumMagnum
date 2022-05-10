@@ -15,7 +15,7 @@ import * as _ from 'underscore';
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     cursor: "pointer",
-    color: theme.palette.grey[400]
+    color: theme.palette.icon.dim3,
   }
 })
 

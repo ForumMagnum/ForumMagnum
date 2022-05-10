@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[100],
     paddingTop: theme.spacing.unit*2,
     paddingBottom: theme.spacing.unit,
-    borderRight: "solid 1px rgba(0,0,0,.1)",
+    borderRight: theme.palette.border.faint,
     height:"100%",
     color: theme.palette.grey[600],
     [theme.breakpoints.up('md')]: {

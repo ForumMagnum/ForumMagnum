@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& div": {
       width: 10,
       height: 10,
-      backgroundColor: "rgba(0,0,0,0.55)",
+      backgroundColor: theme.palette.icon.loadingDots,
   
       borderRadius: "100%",
       display: "inline-block",
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   whiteSpinner: {
     "& div": {
-      backgroundColor: "white",
+      backgroundColor: theme.palette.icon.loadingDotsAlternate,
     }
   },
   bounce1: {

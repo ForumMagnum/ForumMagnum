@@ -14,7 +14,7 @@ import LWEvents from '../../lib/collections/lwevents/collection';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import moment from '../../lib/moment-timezone';
-import forumTheme from '../../themes/forumTheme';
+import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
@@ -161,7 +161,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-    <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
+    <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
