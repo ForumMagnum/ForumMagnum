@@ -132,7 +132,11 @@ const OverallVoteAxis = ({ document, options, voteProps, classes, showBox=false 
             <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
-            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+            <LWTooltip placement="bottom" title={
+              options?.scoreTooltip
+                ? options.scoreTooltip()
+                : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>
+            }>
               <span className={classes.voteScore}>
                 {displayedKarma}
               </span>

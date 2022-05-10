@@ -15,6 +15,10 @@ export type VoteWidgetOptions = {
   // when you're voting on the user's most recent revision but the displayed score
   // is the sum of all of the revisions they've made to the tag.
   displayKarmaOffset?: number,
+  
+  // Tooltip for when score is hovered. Optional, if provided overrides the
+  // default.
+  scoreTooltip?: ({baseScore: number, voteCount: number})=>React.ReactNode,
 }
 
 export type CommentVotingComponentProps = {

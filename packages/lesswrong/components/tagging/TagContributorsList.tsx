@@ -96,6 +96,9 @@ const TagContributorRow = ({contributor, tag, onHover, classes}: {
   const voteWidgetOptions = useMemo(() => ({
     hideKarma: false,
     displayKarmaOffset,
+    scoreTooltip: () => <div>
+      This user has edited the tag.
+    </div>
   }), [displayKarmaOffset]);
   
   return <div
