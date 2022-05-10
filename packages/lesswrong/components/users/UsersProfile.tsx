@@ -22,6 +22,7 @@ import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
+import Button from '@material-ui/core/Button';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -44,16 +45,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 10,
     marginLeft: "auto",
     [theme.breakpoints.down('md')]: {
-      ...(forumTypeSetting.get() === "EAForum" ? {
-        gridTemplateColumns: `${SECTION_WIDTH}px 1fr`,
-        gridTemplateAreas: `
-          'center right'
-        `,
-      } : {}),
+      display: 'block',
       marginTop: -20
     },
     [theme.breakpoints.down('sm')]: {
-      display: 'block',
       paddingLeft: 5,
       paddingRight: 5,
       margin: 0,
@@ -63,6 +58,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'center'
   },
   usernameTitle: {
+    display: 'flex',
+    justifyContent: 'space-between',
     fontSize: "3rem",
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -70,6 +67,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       marginTop: 15
     }
+  },
+  messageBtn: {
+    boxShadow: 'none'
   },
   mapLocation: {
     display: 'flex',
@@ -131,7 +131,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     color: theme.palette.grey[700],
     paddingTop: theme.spacing.unit * 3,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none',
     }
   },
@@ -141,7 +141,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     color: theme.palette.grey[700],
     marginTop: 30,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'block',
     }
   },
@@ -352,7 +352,16 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <div className={classes.centerColumnWrapper}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>{username}</div>
+            <div className={classes.usernameTitle}>
+              <div>{username}</div>
+              {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+                <NewConversationButton user={user} currentUser={currentUser}>
+                  <Button color="primary" variant="contained" className={classes.messageBtn}>
+                    Message
+                  </Button>
+                </NewConversationButton>
+              )}
+            </div>
             {user.mapLocation && <div className={classes.mapLocation}>
               <LocationIcon className={classes.locationIcon} />
               {user.mapLocation.formatted_address}
@@ -376,7 +385,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { forumTypeSetting.get() !== "EAForum" && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
               </NewConversationButton>}
               { <NotifyMeButton
