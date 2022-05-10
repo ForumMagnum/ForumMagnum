@@ -266,7 +266,7 @@ class Form extends Component<any,any> {
   */
   getFieldGroups = () => {
     // build fields array by iterating over the list of field names
-    let fields: Array<any> = this.getFieldNames().map((fieldName: string) => {
+    let fields: Array<any> = this.getFieldNames(this.props).map((fieldName: string) => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema);
     });
@@ -304,13 +304,11 @@ class Form extends Component<any,any> {
     return groups;
   };
 
-  /*
-
-  Get a list of the fields to be included in the current form
-
-  Note: when submitting the form (getData()), do not include any extra fields.
-
-  */
+  /**
+   * Get a list of the fields to be included in the current form
+   *
+   * Note: when submitting the form (getData()), do not include any extra fields
+   */
   getFieldNames = (args?: any) => {
     // we do this to avoid having default values in arrow functions, which breaks MS Edge support. See https://github.com/meteor/meteor/issues/10171
     let args0 = args || {};

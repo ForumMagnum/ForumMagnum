@@ -1561,6 +1561,10 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly groups: Array<string>,
   readonly bio: string,
   readonly website: string,
+  readonly linkedinProfileURL: string,
+  readonly facebookProfileURL: string,
+  readonly twitterProfileURL: string,
+  readonly githubProfileURL: string,
   readonly frontpagePostCount: number,
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
@@ -1804,6 +1808,19 @@ interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
   readonly email: string,
 }
 
+interface UsersProfileEdit { // fragment on Users
+  readonly _id: string,
+  readonly slug: string,
+  readonly bio: string,
+  readonly htmlBio: string,
+  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly website: string,
+  readonly linkedinProfileURL: string,
+  readonly facebookProfileURL: string,
+  readonly twitterProfileURL: string,
+  readonly githubProfileURL: string,
+}
+
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly createdAt: Date,
   readonly launchCode: string,
@@ -2007,6 +2024,7 @@ interface FragmentTypes {
   UsersEdit: UsersEdit
   UsersAdmin: UsersAdmin
   UsersWithReviewInfo: UsersWithReviewInfo
+  UsersProfileEdit: UsersProfileEdit
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -2151,6 +2169,7 @@ interface CollectionNamesByFragmentName {
   UsersEdit: "Users"
   UsersAdmin: "Users"
   UsersWithReviewInfo: "Users"
+  UsersProfileEdit: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"
