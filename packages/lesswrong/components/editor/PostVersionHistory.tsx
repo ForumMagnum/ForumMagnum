@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   selectedRevision: {
-    background: "#eee",
+    background: theme.palette.grey[200],
   },
   versionNumber: {
     color: theme.palette.grey[900],

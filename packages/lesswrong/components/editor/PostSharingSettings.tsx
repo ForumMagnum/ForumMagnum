@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 500,
     padding: 16,
     fontFamily: theme.typography.fontFamily,
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
   },
   sharingPermissionsRow: {
   },

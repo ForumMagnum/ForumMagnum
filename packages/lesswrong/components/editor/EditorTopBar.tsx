@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   editorTopBar: {
     display: "flex",
     width: "100%",
-    background: "#f8f8f8",
+    background: theme.palette.grey[60],
     padding: 4,
     paddingLeft: 8,
     marginBottom: 16,
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     "& .ck-tooltip__text": {
       background: "initial !important",
-      color: "rgba(0,0,0,0.87) !important",
+      color: `${theme.palette.text.normal} !important`,
       left: "0 !important",
     },
     "& .ck-tooltip__text::after": {

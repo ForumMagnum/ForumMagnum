@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
     paddingBottom: 12,
   },
   restoreLink: {
