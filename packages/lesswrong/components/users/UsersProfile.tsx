@@ -356,7 +356,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <div>{username}</div>
               {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
                 <NewConversationButton user={user} currentUser={currentUser}>
-                  <Button color="primary" variant="contained" className={classes.messageBtn}>
+                  <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
                     Message
                   </Button>
                 </NewConversationButton>
@@ -386,7 +386,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 Manage Subscriptions
               </Link>}
               { forumTypeSetting.get() !== "EAForum" && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
-                <a>Message</a>
+                <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton
                 document={user}
