@@ -17,7 +17,7 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
-import { maxBy } from 'lodash';
+import maxBy from 'lodash/maxBy';
 
 addGraphQLSchema(`
   type TagUpdates {
@@ -146,11 +146,13 @@ type ContributorWithStats = {
   contributionScore: number,
   numCommits: number,
   voteCount: number,
+  mostRecentContribution: DbRevision|null,
 };
 type ContributorStats = {
   contributionScore: number,
   numCommits: number,
   voteCount: number,
+  mostRecentContributionId: string|null,
 };
 type ContributorStatsList = Partial<Record<string,ContributorStats>>;
 
@@ -171,10 +173,18 @@ augmentFieldsDict(Tags, {
   
         const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
         
-        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => ({
-          user: usersById[userId],
-          ...contributionStatsByUserId[userId]!,
-        }));
+        const mostRecentContributionIds: string[] = filter(contributorUserIds.map(userId => contributionStatsByUserId[userId]!.mostRecentContributionId!), r=>!!r);
+        const mostRecentContributionsUnfiltered = await context.loaders.Revisions.loadMany(mostRecentContributionIds);
+        const mostRecentContributions = await accessFilterMultiple(context.currentUser, Revisions, mostRecentContributionsUnfiltered, context);
+        const mostRecentContributionsById = keyBy(mostRecentContributions, r => r._id);
+        
+        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => {
+          return {
+            user: usersById[userId],
+            ...contributionStatsByUserId[userId]!,
+            mostRecentContribution: mostRecentContributionsById[contributionStatsByUserId[userId]!.mostRecentContributionId!],
+          }
+        });
         
         if (limit) {
           return {
@@ -259,13 +269,12 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
       
       const contribution = maxBy(revisionsByThisUser, (rev) => rev.editedAt)
-      console.log(contribution)
       
       return {
         contributionScore: totalRevisionScore - excludedPower,
         numCommits: revisionsByThisUser.length,
         voteCount: sumBy(revisionsByThisUser, r=>r.voteCount) - excludedVoteCount,
-        mostRecentContribution: contribution
+        mostRecentContributionId: contribution ? contribution._id : null,
       };
     }
   );

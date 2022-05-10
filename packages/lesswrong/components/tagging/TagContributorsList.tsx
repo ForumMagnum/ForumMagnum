@@ -77,16 +77,21 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
         onHoverUser(null);
       }}
     >
-      <LWTooltip
-        className={classes.contributorScore}
-        placement="left"
-        title={<span>
-          {contributor.contributionScore} total points from {contributor.voteCount} votes on {contributor.numCommits} edits
-        </span>}
-      >
-        {contributor.contributionScore}
-      </LWTooltip>
-      {contributor.mostRecentContribution && <SmallSideVote document={contributor.mostRecentContribution} collection={Revisions} />}
+      {contributor.mostRecentContribution
+        ? <SmallSideVote
+            document={contributor.mostRecentContribution}
+            collection={Revisions}
+          />
+        : <LWTooltip
+            className={classes.contributorScore}
+            placement="left"
+            title={<span>
+              {contributor.contributionScore} total points from {contributor.voteCount} votes on {contributor.numCommits} edits
+            </span>}
+          >
+            {contributor.contributionScore}
+          </LWTooltip>
+      }
       <span className={classes.contributorName}>
         <UsersNameDisplay user={contributor.user} link={`/tag/${tag.slug}/history?user=${contributor.user.slug}`} />
       </span>
