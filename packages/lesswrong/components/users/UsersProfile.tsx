@@ -370,7 +370,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
-              { forumTypeSetting.get() === "EAForum" && currentUser && currentUser._id === user._id && <Link to="/profile/edit">
+              { forumTypeSetting.get() === "EAForum" && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
                 Edit Profile
               </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">

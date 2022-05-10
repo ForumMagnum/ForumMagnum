@@ -3,8 +3,8 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/vulcan-users';
-import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { useNavigation } from '../../lib/routeUtil';
+import { userCanEdit, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -30,25 +30,39 @@ const EditProfileForm = ({classes}: {
 }) => {
   const currentUser = useCurrentUser()
   const { history } = useNavigation()
+  const { params } = useLocation()
   
-  const { Typography, WrappedSmartForm } = Components;
+  const { Typography, WrappedSmartForm } = Components
   
-  if (!currentUser) {
+  const terms: {slug?: string, documentId?: string} = params.slug ?
+    { slug: params.slug } :
+    currentUser ? { documentId: currentUser._id } : {}
+
+  // no matching user
+  if ((!terms.slug && !terms.documentId) || !currentUser) {
     return (
       <div className={classes.root}>
         Log in to edit your profile
       </div>
     );
   }
+  // current user doesn't have edit permission
+  if (!userCanEdit(currentUser, terms.documentId ? {_id: terms.documentId} : {slug: terms.slug})) {
+    return <div className={classes.root}>
+      Sorry, you do not have permission to do this at this time.
+    </div>
+  }
   
   return (
     <div className={classes.root}>
-      <Typography variant="display3" className={classes.heading} gutterBottom>Edit Public Profile</Typography>
+      <Typography variant="display3" className={classes.heading} gutterBottom>
+        Edit Public Profile
+      </Typography>
       <div className={classes.subheading}>All fields are optional</div>
       
       <WrappedSmartForm
         collection={Users}
-        documentId={currentUser._id}
+        {...terms}
         fields={[
           'bio',
           'mapLocation',
