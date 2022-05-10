@@ -72,10 +72,19 @@ const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
 //   }
 // (Not real color values, but real syntax.)
 //
+const safeColorFallbacks = `
+.content td[style*="background-color:"], .content table[style*="background-color:"] {
+  background-color: black !important;
+  border-color: #333 !important;
+}
+`;
+
 const colorReplacements = {
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
   "rgb(255, 247, 222)": "rgb(50,30,0)",
+  "rgb(255, 255, 255)": invertHexColor("#ffffff"),
+  "hsl(0,0%,100%)":     invertHexColor("#ffffff"),
   "#FFEEBB":            invertHexColor("#ffeebb"),
   "rgb(255, 238, 187)": invertColor([255/255.0,238/255.0,187/255.0,1]),
   "rgb(230, 230, 230)": invertColor([230/255.0,230/255.0,230/255.0,1]),
@@ -115,6 +124,9 @@ export const darkModeTheme: UserThemeSpecification = {
     },
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
-    rawCSS: [generateColorOverrides()]
+    rawCSS: [
+      safeColorFallbacks,
+      generateColorOverrides()
+    ]
   }),
 };
