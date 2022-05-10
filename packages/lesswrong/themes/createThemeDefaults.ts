@@ -288,7 +288,8 @@ export const baseTheme: BaseThemeSpecification = {
             wordBreak: "normal",
           }
         }
-      }
+      },
+      rawCSS: [],
     }
   }
 };

@@ -385,6 +385,8 @@ declare global {
     // `theme.palette.boxShadow` which defines shadows semantically rather than
     // with an arbitrary darkness number)
     shadows: string[],
+    
+    rawCSS: string[],
   };
   
   type BaseThemeSpecification = {
