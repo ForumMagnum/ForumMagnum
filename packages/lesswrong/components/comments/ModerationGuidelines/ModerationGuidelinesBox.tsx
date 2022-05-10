@@ -10,24 +10,23 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
-import { commentBodyStyles } from '../../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
   },
-  assistance: {
-    color: 'rgba(0,0,0,0.6)',
+  assistance: { //UNUSED
+    color: theme.palette.text.normal,
   },
   'easy-going': {
-    color: 'rgba(100, 169, 105, 0.9)',
+    color: theme.palette.text.moderationGuidelinesEasygoing,
   },
   'norm-enforcing': {
-    color: '#2B6A99',
+    color: theme.palette.text.moderationGuidelinesNormEnforcing,
   },
   'reign-of-terror': {
-    color: 'rgba(179,90,49,.8)',
+    color: theme.palette.text.moderationGuidelinesReignOfTerror,
   },
   'editButton': {
     cursor: "pointer",
@@ -42,7 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 4,
   },
   moderationGuidelines: {
-    ...commentBodyStyles(theme),
     fontSize: "1.1rem",
     '& p, & ul': {
       marginTop: '.6em',
@@ -150,10 +148,10 @@ const ModerationGuidelinesBox = ({classes, post}: {
           </Tooltip>
         </span>
       }
-      <div className={classes.moderationGuidelines}>
+      <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
         <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
         {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
-      </div>
+      </Components.ContentStyles>
     </div>
   )
 }

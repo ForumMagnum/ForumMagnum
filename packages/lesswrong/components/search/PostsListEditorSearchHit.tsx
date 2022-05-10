@@ -5,15 +5,13 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover';
 import type { Hit } from 'react-instantsearch-core';
 
-import grey from '@material-ui/core/colors/grey';
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit,
     borderBottom: "solid 1px",
-    borderBottomColor: grey[200],
+    borderBottomColor: theme.palette.grey[200],
     '&:hover': {
-      backgroundColor: grey[100],
+      backgroundColor: theme.palette.grey[100],
     },
   },
   postLink: {

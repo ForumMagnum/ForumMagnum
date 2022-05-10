@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   warningHighlight: {
     display:"none",
-    background:"rgba(255,50,0,.2)",
+    background: theme.palette.panelBackground.sunshineWarningHighlight,
     position:"absolute",
     top:0,
     right:0,

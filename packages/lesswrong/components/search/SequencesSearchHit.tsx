@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   meta: {
     display: "inline-block",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     "& div": {
       display: "inline-block",
       marginRight: 5,

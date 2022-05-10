@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "1rem",
     position: "relative",
     top: 2,
-    color: "rgba(255,255,255,.8)"
+    color: theme.palette.icon.tooltipUserMetric,
   },
   bookIcon: {
     filter: "invert(100%)",
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit,
     lineHeight: "1.3rem",
-  }
+  },
 })
 
 // Given a user (which may not be null), render the user name as a link with a
@@ -83,8 +83,8 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}
-          {...(nofollow ? {rel:"nofollow"} : {})}
-        >
+        {...(nofollow ? {rel:"nofollow"} : {})}
+      >
         {userGetDisplayName(user)}
       </Link>
     </LWTooltip>

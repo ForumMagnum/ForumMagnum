@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "calc(100% - 15px)",
       cursor: "unset"
     },
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     padding: 8
   },
   icon: {
@@ -58,13 +58,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   closeIcon: {
     fontSize: '16px',
-    color: 'black',
+    color: theme.palette.icon.maxIntensity,
     cursor: 'pointer'
   },
   addButton: {
     cursor: 'pointer',
     alignItems: 'center',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     display: 'flex'
   },
   postHit: {

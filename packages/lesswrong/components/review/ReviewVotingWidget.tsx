@@ -9,7 +9,7 @@ import { annualReviewAnnouncementPostPathSetting } from '../../lib/publicSetting
 import { overviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme) => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,

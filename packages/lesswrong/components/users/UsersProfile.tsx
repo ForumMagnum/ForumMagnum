@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { combineUrls, Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -15,14 +15,13 @@ import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
-import { socialMediaProfileFields } from '../../lib/collections/users/custom_fields';
+import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -40,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       '. center right'
     `,
     justifyContent: 'center',
-    columnGap: 40,
+    columnGap: 50,
     paddingLeft: 10,
     paddingRight: 10,
     marginLeft: "auto",
@@ -101,7 +100,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     '&$specificalz': {
       fontSize: 18,
-      color: 'rgba(0,0,0,0.5)',
+      color: theme.palette.icon.dim,
       marginRight: 4
     }
   },
@@ -110,14 +109,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bio: {
     marginTop: theme.spacing.unit*3,
-    ...postBodyStyles(theme)
   },
   helpFieldHeading: {
     fontFamily: theme.typography.fontFamily,
     marginTop: theme.spacing.unit*4,
-  },
-  helpField: {
-    ...postBodyStyles(theme)
   },
   primaryColor: {
     color: theme.palette.primary.light
@@ -175,6 +170,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 14,
   },
   socialMediaIcon: {
+    flex: 'none',
     height: 30,
     fill: theme.palette.grey[700],
   },
@@ -182,11 +178,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-flex',
     justifyContent: 'center',
     color: theme.palette.primary.main,
+    wordBreak: 'break-all',
+    marginLeft: 4,
     marginBottom: 30
   },
   websiteIcon: {
+    flex: 'none',
     height: 20,
-    fill: theme.palette.grey[700],
+    fill: theme.palette.primary.dark,
     marginRight: 6
   },
 })
@@ -290,7 +289,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography, ContentStyles } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -342,7 +341,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
     
-    
     // extra profile data that appears on the EA Forum
     const jobTitle = user.jobTitle && <span className={classes.jobTitle}>{user.jobTitle}</span>
     const currentRoleSep = user.organization ? <span className={classes.currentRoleSep}>
@@ -353,10 +351,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
       {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
     </div>
     
-    const userHasSocialMedia = Object.keys(socialMediaProfileFields).some(field => user[field])
+    const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
     const socialMediaIcon = (field) => {
       if (!user[field]) return null
-      return <a href={`https://${socialMediaProfileFields[field]}${user[field]}`} target="_blank" rel="noopener noreferrer">
+      return <a href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
@@ -368,9 +366,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
         {user.website}
       </a>}
       {userHasSocialMedia && <>
-        <Typography variant="body2" gutterBottom>Social Media</Typography>
         <div className={classes.socialMediaIcons}>
-          {Object.keys(socialMediaProfileFields).map(field => socialMediaIcon(field))}
+          {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
         </div>
       </>}
     </>
@@ -422,14 +419,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </Link>}
             </Typography>
 
-            { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+            {user.bio && <ContentStyles contentType="post">
+              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
+            </ContentStyles>}
             { user.htmlHowOthersCanHelpMe && <>
               <h2 className={classes.helpFieldHeading}>How others can help me</h2>
-              <ContentItemBody className={classes.helpField} dangerouslySetInnerHTML={{__html: user.htmlHowOthersCanHelpMe }} />
+              <ContentStyles contentType="post">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.htmlHowOthersCanHelpMe }} />
+              </ContentStyles>
             </> }
             { user.htmlHowICanHelpOthers && <>
               <h2 className={classes.helpFieldHeading}>How I can help others</h2>
-              <ContentItemBody className={classes.helpField} dangerouslySetInnerHTML={{__html: user.htmlHowICanHelpOthers }} />
+              <ContentStyles contentType="post">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.htmlHowICanHelpOthers }} />
+              </ContentStyles>
             </> }
             
             <div className={classes.mobileRightSidebar}>

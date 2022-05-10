@@ -4,7 +4,7 @@ import { useQuery, gql } from '@apollo/client';
 
 const styles = (theme: ThemeType): JssStyles => ({
   indexesTable: {
-    border: "1px solid black",
+    border: theme.palette.border.maxIntensity,
     padding: 5,
     ...theme.typography.code,
   },

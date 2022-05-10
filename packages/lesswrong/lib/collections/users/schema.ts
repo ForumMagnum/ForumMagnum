@@ -304,6 +304,15 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
   },
   
+  theme: {
+    type: String,
+    optional: true, 
+    canCreate: ['members'],
+    canUpdate: ownsOrIsAdmin,
+    canRead: ownsOrIsAdmin,
+    hidden: true,
+  },
+  
   lastUsedTimezone: {
     type: String,
     optional: true,

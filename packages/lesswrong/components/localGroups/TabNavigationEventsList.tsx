@@ -29,7 +29,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: ".85rem",
     position: "relative",
     top: -1,
-    color: "rgba(0,0,0,.92)",
+    color: theme.palette.text.slightlyIntense,
     marginRight: theme.spacing.unit,
   },
   yesterday: {
@@ -70,7 +70,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
   },
   tooltipDivider: {
-    borderTop: "solid 1px rgba(255,255,255,.2)",
+    borderTop: theme.palette.border.tooltipHR,
     width: 25,
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2

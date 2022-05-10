@@ -629,7 +629,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'EditProfile',
       path: '/profile/edit',
       componentName: 'EditProfileForm',
-      title: 'Edit Profile'
+      title: 'Edit Profile',
+      background: 'white',
     },
   ],
   LessWrong: [

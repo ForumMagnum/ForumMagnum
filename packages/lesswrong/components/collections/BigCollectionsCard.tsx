@@ -6,14 +6,14 @@ import type { CoreReadingCollection } from '../sequences/CoreReading';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width:"100%",
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginBottom: 12,
     [theme.breakpoints.down('sm')]: {
       maxWidth: 347,
       marginRight: 12,
     },
     "&:hover": {
-      boxShadow: "0 0 3px rgba(0,0,0,.1)"
+      boxShadow: theme.palette.boxShadow.collectionsCardHover,
     },
   },
   card: {
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:theme.spacing.unit*2,
     width: "100%",
     maxWidth: 307,
-    borderTop: "solid 4px black",
+    borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This color gets overwritten by a content-specific color from the database
     paddingTop: theme.spacing.unit,
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,

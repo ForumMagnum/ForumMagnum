@@ -25,13 +25,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   dragHandle: {
     pointerEvents: "none",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.icon.dim,
     marginRight: theme.spacing.unit,
     cursor: "pointer",
   },
   removeIcon: {
     opacity: 0,
-    color: "rgba(0,0,0,0.3)",
+    color: theme.palette.icon.dim5,
     marginLeft: "auto"
   }
 });

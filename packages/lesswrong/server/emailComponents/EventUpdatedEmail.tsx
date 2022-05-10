@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   headingSection: {
     fontFamily: "Arial, sans-serif",
-    color: "rgba(0, 0, 0, 0.87)",
+    color: theme.palette.text.normal,
     marginBottom: 40
   },
   heading: {
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 12
   },
   label: {
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     fontSize: 14,
     marginBottom: 3
   },

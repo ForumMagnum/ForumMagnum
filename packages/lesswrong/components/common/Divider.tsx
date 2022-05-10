@@ -1,14 +1,17 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import theme from '../../themes/eaTheme';
 
-const styles = () => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: theme.spacing.unit*3,
     marginBottom: theme.spacing.unit*3,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    
+    "& svg": {
+      fill: "currentColor",
+    },
   },
   divider: {
     height: 80,

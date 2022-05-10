@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2
   },
   overallSectionBox: {
-    outline: `1px solid ${theme.palette.commentBorderGrey}`,
+    outline: theme.palette.border.commentBorder,
     textAlign: 'center',
     minWidth: 70
   },

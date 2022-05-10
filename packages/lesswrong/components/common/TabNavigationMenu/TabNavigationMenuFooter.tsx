@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     justifyContent: "space-around",
-    backgroundColor: "#ffffffd4",
+    backgroundColor: theme.palette.panelBackground.mobileNavFooter,
     flexDirection: "row",
   }
 })

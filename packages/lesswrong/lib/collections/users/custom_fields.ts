@@ -130,7 +130,7 @@ const partiallyReadSequenceItem = new SimpleSchema({
   },
 });
 
-export const socialMediaProfileFields = {
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',
   twitterProfileURL: 'twitter.com/',
@@ -1651,7 +1651,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: socialMediaProfileFields.linkedinProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
     },
     group: formGroups.socialMedia
   },
@@ -1664,7 +1664,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: socialMediaProfileFields.facebookProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
     },
     group: formGroups.socialMedia
   },
@@ -1677,7 +1677,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: socialMediaProfileFields.twitterProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
     },
     group: formGroups.socialMedia
   },
@@ -1690,7 +1690,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: socialMediaProfileFields.githubProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
     },
     group: formGroups.socialMedia
   },

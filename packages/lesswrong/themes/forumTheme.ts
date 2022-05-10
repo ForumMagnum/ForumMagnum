@@ -1,19 +1,32 @@
-import { forumTypeSetting } from '../lib/instanceSettings';
-import afTheme from '../themes/alignmentForumTheme'
-import eaTheme from '../themes/eaTheme'
-import lwTheme from '../themes/lesswrongTheme'
+import { getForumType, ThemeOptions } from './themeNames';
+import { baseTheme } from './createThemeDefaults';
+import { createMuiTheme, Theme as MuiThemeType } from '@material-ui/core/styles';
+import { getUserTheme } from './userThemes/index';
+import { getSiteTheme } from './siteThemes/index';
+import deepmerge from 'deepmerge';
 
-let forumTheme
-switch (forumTypeSetting.get()) {
-  case 'AlignmentForum':
-    forumTheme = afTheme
-    break
-  case 'EAForum':
-    forumTheme = eaTheme
-    break
-  default:
-    forumTheme = lwTheme
+export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeType => {
+  const forumType = getForumType(themeOptions);
+  const siteTheme = getSiteTheme(forumType);
+  const userTheme = getUserTheme(themeOptions.name);
+  return buildTheme(userTheme, siteTheme);
 }
 
-const forumThemeExport = forumTheme;
-export default forumThemeExport
+const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification): MuiThemeType&ThemeType => {
+  let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
+  if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
+  if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);
+  
+  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(shadePalette);
+  if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(shadePalette));
+  if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(shadePalette));
+  
+  let palette: ThemePalette = deepmerge(shadePalette, componentPalette);
+  
+  let combinedTheme = baseTheme.make(palette);
+  if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));
+  if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
+  
+  let themeWithPalette = {...combinedTheme, palette};
+  return createMuiTheme(themeWithPalette as any) as MuiThemeType&ThemeType;
+}

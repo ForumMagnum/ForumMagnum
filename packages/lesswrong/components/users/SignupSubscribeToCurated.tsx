@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 16,
     height: 16,
     verticalAlign: "middle",
-    color: "rgba(0,0,0,.4)",
+    color: theme.palette.icon.dim2,
     marginLeft: 6,
   },
 });

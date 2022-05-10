@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: 'space-between',
     marginTop: theme.spacing.unit*2,
     ...theme.typography.postStyle,
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
     [theme.breakpoints.down('xs')]: {
       display: 'block',
     },
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     display: 'flex',
     alignItems: 'center',
-    color: '#c0a688',
+    color: theme.palette.text.eventType,
     fontSize: 12,
     letterSpacing: 0.2,
     marginTop: 12

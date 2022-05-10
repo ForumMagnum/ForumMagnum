@@ -7,10 +7,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
   },
   charsAdded: {
-    color: "#008800",
+    color: theme.palette.text.charsAdded,
   },
   charsRemoved: {
-    color: "#880000",
+    color: theme.palette.text.charsRemoved,
   },
 });
 

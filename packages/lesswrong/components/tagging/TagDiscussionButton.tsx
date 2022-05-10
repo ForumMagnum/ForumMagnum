@@ -10,7 +10,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
-    ...theme.typography.uiStyle,
     color: theme.palette.grey[700],
     display: "flex",
     alignItems: "center",

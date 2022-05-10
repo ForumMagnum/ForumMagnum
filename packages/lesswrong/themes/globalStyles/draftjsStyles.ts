@@ -2,7 +2,7 @@
 // Styles used by DraftJS and its plugins. It's unclear which of these are
 // actually in use.
 //
-export default `
+export default (theme: ThemeType): string => `
 /**
  * Draft v0.10.5
  *
