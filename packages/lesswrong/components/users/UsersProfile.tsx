@@ -147,6 +147,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block',
     }
   },
+  mobileCurrentRole: {
+    display: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    marginTop: 10,
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+    }
+  },
   currentRole: {
     lineHeight: '26px',
     marginBottom: 30
@@ -360,7 +370,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
     // the data in the righthand sidebar on desktop moves under the bio on mobile
     const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
-      {currentRole}
       {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
         <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
         {user.website}
@@ -418,6 +427,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 Edit Account
               </Link>}
             </Typography>
+            
+            {forumTypeSetting.get() === 'EAForum' && <div className={classes.mobileCurrentRole}>{currentRole}</div>}
 
             {user.bio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
@@ -536,6 +547,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </div>
           
           <div className={classes.rightSidebar}>
+            {forumTypeSetting.get() === 'EAForum' && currentRole}
             {sidebarInfoNode}
           </div>
         </AnalyticsContext>
