@@ -45,7 +45,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
     secondary: {
       main: '#0c869b',
-      light: '#00b2be',
+      light: '#3c9eaf',
       dark: '#085d6c'
     },
     lwTertiary: {
