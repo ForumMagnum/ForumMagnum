@@ -8,6 +8,7 @@ import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaU
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
+import { Globals } from '../../lib/vulcan-lib/config';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -300,3 +301,12 @@ export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
   }});
   return html;
 }
+
+
+// Migration to clear the contributor-stats field (which is a cache that gets
+// regenerated on demand). Used for migrations when the shape of that list
+// changes.
+export async function clearAllDenormalizedContributorLists(): Promise<void> {
+  await Tags.rawUpdateMany({}, {$unset: {contributionStats: 1}});
+}
+Globals.clearAllDenormalizedContributorLists = clearAllDenormalizedContributorLists;
