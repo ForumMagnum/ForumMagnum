@@ -63,5 +63,11 @@ export const darkModeTheme: UserThemeSpecification = {
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
     },
+    editor: {
+      commentPanelBackground: shadePalette.grey[200],
+      sideCommentEditorBackground: shadePalette.grey[100],
+      commentMarker: "#80792e",
+      commentMarkerActive: "#cbc14f",
+    },
   }),
 };

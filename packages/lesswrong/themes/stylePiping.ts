@@ -496,7 +496,13 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
           display: "none"
         },
         '--ck-color-comment-count': theme.palette.primary.main
-      } 
+      },
+      
+      "--ck-color-base-background": theme.palette.editor.commentPanelBackground,
+      "--ck-color-annotation-wrapper-background": theme.palette.editor.commentPanelBackground,
+      "--ck-color-comment-background": theme.palette.editor.sideCommentEditorBackground,
+      "--ck-color-comment-marker": theme.palette.editor.commentMarker,
+      "--ck-color-comment-marker-active": theme.palette.editor.commentMarkerActive,
     }
   }
 }

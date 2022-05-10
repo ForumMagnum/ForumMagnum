@@ -320,6 +320,12 @@ declare global {
     datePicker: {
       selectedDate: ColorString,
     },
+    editor: {
+      commentPanelBackground: ColorString,
+      sideCommentEditorBackground: ColorString,
+      commentMarker: ColorString,
+      commentMarkerActive: ColorString,
+    },
     group: ColorString,
     contrastText: ColorString,
     individual: ColorString,
