@@ -78,6 +78,7 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
         throw new Error('OAuth profile does not have a profile ID')
       }
       let user = await Users.findOne({[`${profilePath}.id`]: profileId})
+
       if (!user) {
         const email = profile.emails?.[0]?.value 
         
@@ -88,7 +89,7 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
         // be able to trust that.
         if (email) {
           // Collation here means we're using the case-insensitive index
-          const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
+          const matchingUsers = await Users.find({email}, {collation: {locale: 'en', strength: 2}}).fetch()
           if (matchingUsers.length > 1) {
             throw new Error(`Multiple users found with email ${email}, please contact support`)
           }
