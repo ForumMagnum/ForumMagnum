@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.commentsBubble.noUnread,
   },
   unreadComments: {
-    color: forumTypeSetting.get() === 'EAForum' ? theme.palette.primary.main : theme.palette.secondary.light,
+    color: theme.palette.secondary.light,
   },
   newPromotedComments: {
     color: theme.palette.icon.commentsBubble.newPromoted,
