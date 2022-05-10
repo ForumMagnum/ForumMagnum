@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
-import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, postBodyStyles, ckEditorStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
@@ -20,6 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editor: {
     ...editorStyles(theme),
+    ...ckEditorStyles(theme),
     cursor: "text",
     maxWidth: 640,
     position: "relative",
