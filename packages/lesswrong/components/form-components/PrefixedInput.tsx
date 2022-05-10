@@ -16,6 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     height: 20,
+    fill: theme.palette.icon.normal,
     marginRight: 6
   },
   adornmentText: {
