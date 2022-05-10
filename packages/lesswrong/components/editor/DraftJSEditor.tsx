@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -129,19 +130,19 @@ const initializePlugins = (commentEditor) => {
   return plugins;
 }
 
-interface EditorFormProps {
-  theme: ThemeType,
+interface DraftJSEditorProps {
+  theme?: ThemeType,
   editorState: any,
   onChange: any,
   commentEditor: boolean,
   className: string
 }
 
-class EditorForm extends Component<EditorFormProps,{}> {
+class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
   plugins: any
   _ref: any
   
-  constructor(props: EditorFormProps) {
+  constructor(props: DraftJSEditorProps) {
     super(props);
     this.plugins = initializePlugins(props.commentEditor);
   }
@@ -171,7 +172,7 @@ class EditorForm extends Component<EditorFormProps,{}> {
             spellCheck
             plugins={this.plugins}
             keyBindingFn={myKeyBindingFn}
-            customStyleMap={styleMap(theme)}
+            customStyleMap={styleMap(theme!)}
             blockStyleFn={customBlockStyleFn}
             blockRenderMap={blockRenderMap}
             ref={(ref) => { this._ref = ref }}
@@ -191,4 +192,11 @@ const blockRenderMap = Map({
   }
 });
 
-export default withTheme()(EditorForm);
+const DraftJSEditorComponent = registerComponent("DraftJSEditor", DraftJSEditor, {
+  hocs: [withTheme()]
+});
+declare global {
+  interface ComponentTypes {
+    DraftJSEditor: typeof DraftJSEditorComponent
+  }
+}

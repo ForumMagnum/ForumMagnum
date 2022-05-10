@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 16,
     marginLeft: theme.spacing.unit,
     verticalAlign: "top",
-    color: "rgba(0,0,0,.4)",
+    color: theme.palette.icon.dim2,
   },
   reviewVoting: {
     textAlign: "center",

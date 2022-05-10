@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   snippet: {
     ...theme.typography.body2,
-    color: 'rgba(0,0,0,0.5)'
+    color: theme.palette.text.dim,
   }
 })
 

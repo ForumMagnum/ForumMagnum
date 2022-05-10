@@ -6,7 +6,6 @@ import NoSSR from 'react-no-ssr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
@@ -16,7 +15,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   height: 150,
   width: '100%',
   zIndex: theme.zIndexes.sequencesImageScrim,
-  background: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)'
+  background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -35,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit/2,
     marginBottom: theme.spacing.unit * 2,
-    ...postBodyStyles(theme),
   },
   banner: {
     position: "absolute",
@@ -54,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bannerWrapper: {
     position: "relative",
     height: 380,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: theme.palette.panelBackground.sequencesBanner,
   },
   meta: {
     ...theme.typography.body2,
@@ -66,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     padding: theme.spacing.unit * 4,
     position: 'relative',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     marginTop: -200,
     zIndex: theme.zIndexes.sequencesPageContent,
     [theme.breakpoints.down('sm')]: {
@@ -109,7 +107,7 @@ const SequencesPage = ({ documentId, classes }: {
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
     ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton,
+    ContentItemBody, Typography, SectionButton, ContentStyles,
   } = Components
   
   if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
@@ -168,9 +166,9 @@ const SequencesPage = ({ documentId, classes }: {
           </SectionSubtitle></span>}
         </SectionFooter>
         
-        <div className={classes.description}>
+        <ContentStyles contentType="post" className={classes.description}>
           {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`}/>}
-        </div>
+        </ContentStyles>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
             <ChaptersList sequenceId={document._id} canEdit={canEdit} />

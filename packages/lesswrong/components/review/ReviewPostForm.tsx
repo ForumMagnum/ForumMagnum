@@ -8,7 +8,7 @@ import { REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     width: 600,
     position: "fixed",
     right: theme.spacing.unit,

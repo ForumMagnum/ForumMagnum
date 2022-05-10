@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   maxHeight: {
     maxHeight: 600,
     overflow: "hidden"

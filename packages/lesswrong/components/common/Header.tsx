@@ -4,13 +4,11 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
-import { withTheme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
+import { useTheme } from '../themes/useTheme';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
-import grey from '@material-ui/core/colors/grey';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
@@ -19,21 +17,19 @@ import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSetti
 
 const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const getHeaderTextColor = (theme: ThemeType) => {
-  if (theme.palette.headerType === 'primary') {
-    return theme.palette.primary.contrastText
-  } else if (theme.palette.headerType === 'secondary') {
-    return theme.palette.secondary.contrastText
-  } else if (theme.palette.type === "dark") {
-    return theme.palette.getContrastText(grey[900])
-  } else {
-    return theme.palette.getContrastText(grey[100])
-  }
-}
 
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
-    boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
+    boxShadow: theme.palette.boxShadow.appBar,
+    color: theme.palette.header.text,
+    backgroundColor: theme.palette.header.background,
+    position: "static",
+    width: "100%",
+    display: "flex",
+    zIndex: 1100,
+    boxSizing: "border-box",
+    flexShrink: 0,
+    flexDirection: "column",
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -60,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: getHeaderTextColor(theme),
+    color: theme.palette.header.text,
     fontSize: 19,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
@@ -139,12 +135,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, theme, classes}: {
+const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
   toggleStandaloneNavigation: ()=>void,
   toc: any,
   searchResultsArea: React.RefObject<HTMLDivElement>,
-  theme?: ThemeType,
   classes: ClassesType,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -155,6 +150,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
+  const theme = useTheme();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -272,7 +268,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
         >
-          <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
+          <header className={classes.appBar}>
             <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
               {renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title">
@@ -298,20 +294,19 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                 </NoSSR>
                 {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
                     <AnalyticsContext pageSectionContext="usersMenu">
-                      <UsersMenu color={getHeaderTextColor(theme)} />
+                      <UsersMenu />
                     </AnalyticsContext>
                   </div>}
-                {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
+                {!currentUser && <UsersAccountMenu />}
                 {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
                 {currentUser && <NotificationsMenuButton
-                  color={getHeaderTextColor(theme)}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
                   currentUser={currentUser}
                 />}
               </div>
             </Toolbar>
-          </AppBar>
+          </header>
           <NavigationDrawer
             open={navigationOpen}
             handleOpen={() => setNavigationOpen(true)}
@@ -331,10 +326,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
 
 const HeaderComponent = registerComponent('Header', Header, {
   styles,
-  hocs: [
-    withErrorBoundary,
-    withTheme(),
-  ]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

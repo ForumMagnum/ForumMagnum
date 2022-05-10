@@ -3,7 +3,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const collapsedStyles = theme => ({
+const collapsedStyles = (theme: ThemeType): JssStyles => ({
   [theme.breakpoints.up('lg')]: {
     '& .book-container': {
       left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
@@ -258,7 +258,12 @@ const Book2019Animation = ({ classes, children, successContent }: {
 }
 
 
-const Book2019AnimationComponent = registerComponent('Book2019Animation', Book2019Animation, { styles });
+const Book2019AnimationComponent = registerComponent('Book2019Animation', Book2019Animation, {
+  styles,
+  // This component tries to look like a printed book, which is white, so its colors
+  // don't change in dark mode
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

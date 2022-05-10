@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => {
       marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*2.5,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+      borderBottom: theme.palette.border.normal,
     },
   }
 }

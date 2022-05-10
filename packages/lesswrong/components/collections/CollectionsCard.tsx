@@ -9,10 +9,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     maxWidth: 347,
     marginRight: 12,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginBottom: 12,
     "&:hover": {
-      boxShadow: "0 0 3px rgba(0,0,0,.1)"
+      boxShadow: theme.palette.boxShadow.collectionsCardHover,
     },
   },
   card: {
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
   },
   content: {
-    borderTop: "solid 4px black",
+    borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This gets overwritten by a color from the DB
     paddingTop: theme.spacing.unit*1.5
   },
   mergeTitle: {

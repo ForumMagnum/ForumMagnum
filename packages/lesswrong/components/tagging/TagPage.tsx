@@ -10,7 +10,6 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { tagBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
@@ -47,11 +46,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       right: -4,
     },
   },
-  description: {
-    marginTop: 18,
-    ...tagBodyStyles(theme),
-    marginBottom: 18,
-  },
   centralColumn: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -62,7 +56,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 5,
     paddingLeft: 42,
     paddingRight: 42,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   tableOfContentsWrapper: {
     position: "relative",
@@ -109,7 +103,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 42,
     paddingBottom: 12,
     marginBottom: 24,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   tagHeader: {
     display: "flex",
@@ -155,7 +149,7 @@ const TagPage = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
-    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle
+    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
    } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -339,11 +333,13 @@ const TagPage = ({classes}: {
               cancelCallback={() => setEditing(false)}
             /> :
             <div onClick={clickReadMore}>
-              <ContentItemBody
-                dangerouslySetInnerHTML={{__html: description||""}}
-                description={`tag ${tag.name}`}
-                className={classes.description}
-              />
+              <ContentStyles contentType="tag">
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: description||""}}
+                  description={`tag ${tag.name}`}
+                  className={classes.description}
+                />
+              </ContentStyles>
             </div>}
           </AnalyticsContext>
         </div>

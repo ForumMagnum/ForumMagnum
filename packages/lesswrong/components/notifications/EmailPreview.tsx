@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 800,
     height: 300,
     overflowY: "scroll",
-    border: "1px solid black",
+    border: theme.palette.border.maxIntensity,
     padding: 10,
     whiteSpace: "pre",
   },

@@ -7,7 +7,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { useHover } from '../common/withHover';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     flexGrow: 1,
     flexShrink: 1,

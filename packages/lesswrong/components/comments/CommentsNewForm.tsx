@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   modNote: {
     paddingTop: '4px',
-    color: theme.palette.grey[800]
+    color: theme.palette.text.dim2,
   },
   submit: {
     textAlign: 'right'
@@ -44,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[400]
   },
   moderationGuidelinesWrapper: {
-    backgroundColor: "rgba(0,0,0,.07)",
+    backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
   }
 });
 

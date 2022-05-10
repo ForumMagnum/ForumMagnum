@@ -18,10 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   checkoutButton: {
     ...theme.typography.commentStyle,
     height: '36px',
-    background: "#53a55a", //theme.palette.primary.dark,
+    background: theme.palette.buttons.bookCheckoutButton,
     paddingLeft: 16,
     paddingRight: 16,
-    color: 'white',
+    color: theme.palette.buttons.primaryDarkText,
     fontSize: '14px',
     border: 0,
     fontWeight: '500',
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     letterSpacing: '0.6',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    boxShadow: '0px 4px 5.5px 0px rgba(0, 0, 0, 0.07)',
+    boxShadow: `0px 4px 5.5px 0px ${theme.palette.greyAlpha(0.07)}`,
     '&:hover': {
       opacity: 0.8
     },
@@ -43,10 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   intlButton: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginLeft: 10,
-    color: "#606060",
-    border: "1px solid #ccc",
+    color: theme.palette.grey[710],
+    border: `1px solid ${theme.palette.greyAlpha(.75)}`,
     
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0,

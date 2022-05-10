@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.grey[50],
     padding: 12,
-    border: "solid 1px rgba(0,0,0,.1)"
+    border: theme.palette.border.faint,
   }
 })
 

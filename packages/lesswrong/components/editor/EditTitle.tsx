@@ -12,9 +12,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     resize: "none",
     textAlign: "left",
     marginTop: 0,
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    borderBottom: theme.palette.border.normal,
     '&:focused': {
-      borderBottom: "solid 1px rgba(0,0,0,.2)"
+      borderBottom: theme.palette.border.normal
     },
     "& textarea": {
       overflowY: "hidden",

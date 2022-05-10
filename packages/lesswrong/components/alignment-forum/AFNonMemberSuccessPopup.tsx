@@ -1,17 +1,12 @@
-
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import Card from "@material-ui/core/Card";
 import { useTagBySlug } from '../tagging/useTag';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import Button  from '@material-ui/core/Button'
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
     zIndex: theme.zIndexes.afNonMemberPopup
-  },
-  body: {
-    ...commentBodyStyles(theme),
   },
   popupCard: {
     padding: 30,
@@ -40,7 +35,7 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   classes: ClassesType,
 }) => {
   const [open, setOpen] = useState(true)
-  const { ContentItemBody, LWDialog } = Components
+  const { ContentItemBody, LWDialog, ContentStyles } = Components
   const { tag } = useTagBySlug("af-non-member-submission-success", "TagFragment")
   
   const handleClose = () => {
@@ -61,11 +56,12 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
       }}
     >
       <Card className={classes.popupCard}>
-        <ContentItemBody
-          className={classes.body}
-          dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
-          description={`tag ${tag?.name}`}
-        />
+        <ContentStyles contentType="comment">
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
+            description={`tag ${tag?.name}`}
+          />
+        </ContentStyles>
         <div className={classes.buttonContainer}>
           <Button className={classes.stayHereButton} onClick={() => {
             handleClose()

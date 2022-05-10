@@ -47,7 +47,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
       maxHeight: "25em",
       padding: 0,
       marginTop: -1,
-      background: "#fff",
+      background: theme.palette.panelBackground.default,
       borderTopWidth: 0,
       overflowX: "hidden",
       overflowY: "auto",
@@ -58,7 +58,7 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
     },
     "& .geosuggest__input": {
       border: "2px solid transparent",
-      borderBottom: "1px solid rgba(0,0,0,.87)",
+      borderBottom: `1px solid ${theme.palette.text.normal}`,
       padding: ".5em 1em 0.5em 0em !important",
       width: '100%',
       fontSize: 13,

@@ -21,12 +21,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle
   },
   expanded: {
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
     marginBottom: 20,
     padding: 16
   },
   boxShadow: {
-    boxShadow: "0 1px 5px rgb(0 0 0 / 10%)"
+    boxShadow: theme.palette.boxShadow.faint,
   }
 });
 

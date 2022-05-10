@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexWrap: "wrap"
   },
   settingGroup: {
-    border:"solid 1px rgba(0,0,0,.15)",
+    border: theme.palette.border.slightlyFaint,
     borderRadius: 3,
     padding: 8,
     marginBottom: 10

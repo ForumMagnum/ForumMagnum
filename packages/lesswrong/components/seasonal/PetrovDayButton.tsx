@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,.4)"
+    backgroundColor: theme.palette.panelBackground.darken40,
   },
   panel: {
     backgroundColor: theme.palette.grey[100],
@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   incomingTitle: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
-    color: 'red',
+    color: theme.palette.text.red,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
@@ -93,7 +93,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   keyCode: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit,
-    border: "solid 1px rgba(0,0,0,.1)",
+    border: theme.palette.border.faint,
     height: 50,
     width: "100%",
     borderRadius: 3,

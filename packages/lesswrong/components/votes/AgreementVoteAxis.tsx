@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 24,
     minWidth: 70,
     paddingTop: 2,
-    outline: `1px solid ${theme.palette.commentBorderGrey}`,
+    outline: theme.palette.border.commentBorder,
     textAlign: 'center'
   },
   agreementScore: {
