@@ -23,8 +23,8 @@ const defaultProps = {
 
 const isReady = () =>
   typeof window !== 'undefined' &&
-  typeof (window as any).grecaptcha !== 'undefined' &&
-  typeof (window as any).grecaptcha.execute !== 'undefined'
+  typeof window.grecaptcha !== 'undefined' &&
+  typeof window.grecaptcha.execute !== 'undefined'
 
 let readyCheck
 
@@ -77,7 +77,7 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
     } = this.props
 
     if (this.state.ready) {
-      (window as any).grecaptcha.execute(sitekey, { action })
+      window.grecaptcha.execute(sitekey, { action })
         .then(token => {
 
           if (typeof verifyCallback !== 'undefined') {

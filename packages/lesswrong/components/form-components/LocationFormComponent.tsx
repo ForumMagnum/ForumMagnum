@@ -110,7 +110,7 @@ export const useGoogleMaps = (): [boolean, any] => {
         var tag = document.createElement('script');
         tag.async = false;
         tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&callback=googleMapsFinishedLoading`;
-        (window as any).googleMapsFinishedLoading = () => {
+        window.googleMapsFinishedLoading = () => {
           mapsLoadingState = "loaded";
           let callbacks = onMapsLoaded;
           onMapsLoaded = [];
@@ -124,7 +124,7 @@ export const useGoogleMaps = (): [boolean, any] => {
   }, []);
   
   if (!isMapsLoaded) return [false, null];
-  return [true, (window as any)?.google?.maps];
+  return [true, window?.google?.maps];
 }
 
 

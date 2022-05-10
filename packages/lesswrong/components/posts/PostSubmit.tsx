@@ -93,7 +93,7 @@ const PostSubmit = ({
             if (!!document.title) {
               updateCurrentValues({draft: true});
               // eslint-disable-next-line
-              (window as any).Intercom(
+              window.Intercom(
                 'trackEvent',
                 'requested-feedback',
                 {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
