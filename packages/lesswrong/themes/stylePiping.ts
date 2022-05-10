@@ -503,6 +503,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
       "--ck-color-comment-background": theme.palette.editor.sideCommentEditorBackground,
       "--ck-color-comment-marker": theme.palette.editor.commentMarker,
       "--ck-color-comment-marker-active": theme.palette.editor.commentMarkerActive,
+      '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
     }
   }
 }
