@@ -55,12 +55,10 @@ export const getEditableFields = function<T extends DbObject>(schema: SchemaType
   return fields;
 };
 
-/*
-
-Convert a nested SimpleSchema schema into a JSON object
-If flatten = true, will create a flat object instead of nested tree
-
-*/
+/**
+ * Convert a nested SimpleSchema schema into a JSON object
+ * If flatten = true, will create a flat object instead of nested tree
+ */
 export const convertSchema = <T extends DbObject>(schema: SimpleSchemaType<T>, flatten = false) => {
   if (schema._schema) {
     let jsonSchema = {};
@@ -160,20 +158,14 @@ export const schemaProperties = [
   'type',
   'label',
   'optional',
-  'required',
   'min',
   'max',
-  'exclusiveMin',
-  'exclusiveMax',
   'minCount',
   'maxCount',
   'allowedValues',
   'regEx',
   'blackbox',
-  'trim',
-  'custom',
   'defaultValue',
-  'autoValue',
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // form placeholder
   'inputProperties', // form placeholder
@@ -200,27 +192,20 @@ export const schemaProperties = [
   'placeholder',
   'options',
   'query',
-  'fieldProperties',
   'tooltip'
-];
+] as const;
 
 // TODO;
 export const formProperties = [
   'optional',
-  // 'required',
   'min',
   'max',
-  // 'exclusiveMin',
-  // 'exclusiveMax',
   'minCount',
-  // 'maxCount',
+  'maxCount',
   'allowedValues',
   'regEx',
   'blackbox',
-  // 'trim',
-  // 'custom',
   'defaultValue',
-  // 'autoValue',
   'form', // form placeholder
   'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
@@ -229,10 +214,9 @@ export const formProperties = [
   'group', // form fieldset group
   'description',
   'beforeComponent',
-  // 'afterComponent',
+  'afterComponent',
   'placeholder',
   'options',
   'query',
-  // 'fieldProperties',
   'tooltip'
 ] as const;

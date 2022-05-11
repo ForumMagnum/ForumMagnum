@@ -52,8 +52,11 @@ import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
 
-// TODO: document these types
-type FormField<T extends DbObject> = Pick<CollectionFieldSpecification<T>, typeof formProperties[number]> & {
+/** Field specification for a Form field, created from the collection schema */
+type FormField<T extends DbObject> = Pick<
+  CollectionFieldSpecification<T>,
+  typeof formProperties[number]
+> & {
   document: any
   name: string
   datatype: any
@@ -64,8 +67,14 @@ type FormField<T extends DbObject> = Pick<CollectionFieldSpecification<T>, typeo
   path: string
   parentFieldName?: string
   disabled?: boolean
-  //
+  arrayField: any
+  arrayFieldSchema: any
+  nestedInput: any
+  nestedSchema: any
+  nestedFields: any
 }
+
+/** FormField in the process of being created */
 type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
 
 // props that should trigger a form reset
@@ -73,7 +82,7 @@ const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
   'prefilledProps' // TODO: prefilledProps should be merged instead?
-];
+] as const;
 
 const compactParent = (object, path) => {
   const parentPath = getParentPath(path);
@@ -94,7 +103,6 @@ const getDefaultValues = convertedSchema => {
 
 const getInitialStateFromProps = nextProps => {
   const collection = nextProps.collection;
-  // TODO; maybe type this
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
     : getSimpleSchema(collection);
@@ -129,6 +137,7 @@ const getInitialStateFromProps = nextProps => {
     deletedValues: [],
     currentValues: {},
     // convert SimpleSchema schema into JSON object
+    // TODO: type convertedSchema
     schema: convertedSchema,
     // Also store all field schemas (including nested schemas) in a flat structure
     flatSchema: convertSchema(schema as any, true),
@@ -380,6 +389,9 @@ class Form<T extends DbObject> extends Component<any,any> {
     return relevantFields;
   };
 
+  // TODO: fieldSchema is actually a slightly added-to version of
+  // CollectionFieldSpecification, see convertSchema in schema_utils, but in
+  // this function, it acts like CollectionFieldSpecification
   initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<T>) => {
     // intialize properties
     let field: FormFieldUnfinished<T> = {
@@ -438,8 +450,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     }
     return field;
   };
-  // TODO; fieldSchema is typed wrong
-  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: CollectionFieldSpecification<T>, schema: SchemaType<T>) => {
+  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: any, schema: any) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -475,10 +486,9 @@ class Form<T extends DbObject> extends Component<any,any> {
 
   /**
    * Given a field's name, the containing schema, and parent, create the
-   * complete field object to be passed to the component
+   * complete form-field object to be passed to the component
    */
-  // TODO; check on type of schema
-  createField = (fieldName: string, schema: SchemaType<T>, parentFieldName?: string, parentPath?: string) => {
+  createField = (fieldName: string, schema: any, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
     let field: FormFieldUnfinished<T> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
