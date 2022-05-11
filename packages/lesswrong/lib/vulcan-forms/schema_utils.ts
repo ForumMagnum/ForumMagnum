@@ -204,22 +204,23 @@ export const schemaProperties = [
   'tooltip'
 ];
 
+// TODO;
 export const formProperties = [
   'optional',
-  'required',
+  // 'required',
   'min',
   'max',
-  'exclusiveMin',
-  'exclusiveMax',
+  // 'exclusiveMin',
+  // 'exclusiveMax',
   'minCount',
-  'maxCount',
+  // 'maxCount',
   'allowedValues',
   'regEx',
   'blackbox',
-  'trim',
-  'custom',
+  // 'trim',
+  // 'custom',
   'defaultValue',
-  'autoValue',
+  // 'autoValue',
   'form', // form placeholder
   'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
@@ -228,10 +229,10 @@ export const formProperties = [
   'group', // form fieldset group
   'description',
   'beforeComponent',
-  'afterComponent',
+  // 'afterComponent',
   'placeholder',
   'options',
   'query',
-  'fieldProperties',
+  // 'fieldProperties',
   'tooltip'
 ] as const;

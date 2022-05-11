@@ -51,17 +51,22 @@ import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
-type FieldTodo<T extends DbObject> = CollectionFieldSpecification<T> & {
-  document: any,
-  name: string,
-  datatype: any,
-  layout: string,
-  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"] 
-  label: string,
+
+// TODO: document these types
+type FormField<T extends DbObject> = Pick<CollectionFieldSpecification<T>, typeof formProperties[number]> & {
+  document: any
+  name: string
+  datatype: any
+  layout: string
+  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  label: string
   help: string
+  path: string
+  parentFieldName?: string
+  disabled?: boolean
   //
 }
-type FieldTodoUnfinished<T extends DbObject> = Partial<FieldTodo<T>>
+type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
@@ -89,6 +94,7 @@ const getDefaultValues = convertedSchema => {
 
 const getInitialStateFromProps = nextProps => {
   const collection = nextProps.collection;
+  // TODO; maybe type this
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
     : getSimpleSchema(collection);
@@ -376,7 +382,7 @@ class Form<T extends DbObject> extends Component<any,any> {
 
   initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<T>) => {
     // intialize properties
-    let field: FieldTodoUnfinished<T> = {
+    let field: FormFieldUnfinished<T> = {
       ...pick(fieldSchema, formProperties),
       document: this.state.initialDocument,
       name: fieldName,
@@ -409,7 +415,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     }
     return field;
   };
-  handleFieldPath = (field, fieldName, parentPath?: any) => {
+  handleFieldPath = (field: FormFieldUnfinished<T>, fieldName: string, parentPath?: string): FormFieldUnfinished<T> => {
     const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
     field.path = fieldPath;
     if (field.defaultValue) {
@@ -417,7 +423,7 @@ class Form<T extends DbObject> extends Component<any,any> {
     }
     return field;
   };
-  handleFieldParent = (field, parentFieldName) => {
+  handleFieldParent = (field: FormFieldUnfinished<T>, parentFieldName?: string) => {
     // if field has a parent field, pass it on
     if (parentFieldName) {
       field.parentFieldName = parentFieldName;
@@ -425,14 +431,15 @@ class Form<T extends DbObject> extends Component<any,any> {
 
     return field;
   };
-  handlePermissions = (field, fieldName, schema) => {
+  handlePermissions = (field: FormFieldUnfinished<T>, fieldName: string, schema: SchemaType<T>) => {
     // if field is not creatable/updatable, disable it
     if (!this.getMutableFields(schema).includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field, fieldName, fieldSchema, schema) => {
+  // TODO; fieldSchema is typed wrong
+  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: CollectionFieldSpecification<T>, schema: SchemaType<T>) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -470,9 +477,10 @@ class Form<T extends DbObject> extends Component<any,any> {
    * Given a field's name, the containing schema, and parent, create the
    * complete field object to be passed to the component
    */
-  createField = (fieldName: string, schema: SchemaType<T>, parentFieldName?: any, parentPath?: any) => {
+  // TODO; check on type of schema
+  createField = (fieldName: string, schema: SchemaType<T>, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
-    let field: FieldTodoUnfinished<T> = this.initField(fieldName, fieldSchema);
+    let field: FormFieldUnfinished<T> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, schema);
