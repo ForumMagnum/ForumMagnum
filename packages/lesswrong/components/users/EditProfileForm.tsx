@@ -34,9 +34,12 @@ const EditProfileForm = ({classes}: {
   
   const { Typography, WrappedSmartForm } = Components
   
-  const terms: {slug?: string, documentId?: string} = params.slug ?
-    { slug: params.slug } :
-    currentUser ? { documentId: currentUser._id } : {}
+  let terms: {slug?: string, documentId?: string} = {}
+  if (params.slug) {
+    terms.slug = params.slug
+  } else if (currentUser) {
+    terms.documentId = currentUser._id
+  }
 
   // no matching user
   if ((!terms.slug && !terms.documentId) || !currentUser) {
