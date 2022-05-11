@@ -72,13 +72,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: 'none'
   },
   mapLocation: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
     columnGap: 4,
     ...theme.typography.commentStyle,
     fontSize: 13,
     color: theme.palette.grey[800],
-    marginBottom: 20
+    marginBottom: 12
   },
   locationIcon: {
     fontSize: 14,
@@ -298,7 +298,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
         return <Components.Error404/>
       }
     }
-
+    
+    // on the EA Forum, the user's location links to the Community map
+    let mapLocationNode
+    if (user.mapLocation) {
+      mapLocationNode = forumTypeSetting.get() === 'EAForum' ? <div>
+        <Link to="/community#individuals" className={classes.mapLocation}>
+          <LocationIcon className={classes.locationIcon} />
+          {user.mapLocation.formatted_address}
+        </Link>
+      </div> : <div className={classes.mapLocation}>
+        <LocationIcon className={classes.locationIcon} />
+        {user.mapLocation.formatted_address}
+      </div>
+    }
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
@@ -362,10 +375,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 </NewConversationButton>
               )}
             </div>
-            {user.mapLocation && <div className={classes.mapLocation}>
-              <LocationIcon className={classes.locationIcon} />
-              {user.mapLocation.formatted_address}
-            </div>}
+            {mapLocationNode}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
