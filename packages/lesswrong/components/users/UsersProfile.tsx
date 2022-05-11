@@ -404,7 +404,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Edit Account
+                Account Settings
               </Link>}
             </Typography>
 
