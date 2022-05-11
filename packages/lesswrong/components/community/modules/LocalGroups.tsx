@@ -48,7 +48,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 116,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: theme.palette.border.faint,
+    borderColor: theme.palette.greyAlpha(.1),
     '&:last-of-type': {
       borderBottom: 'none'
     },
