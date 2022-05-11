@@ -10,7 +10,10 @@
 import { Plugin } from 'ckeditor5/src/core';
 
 import MentionEditing from './mentionediting';
-import MentionUI from '@ckeditor/ckeditor5-mention/src/mentionui';
+// TODO: use MentionUI from mainline plugin after updating to v34 (spaces bug)
+// https://github.com/ForumMagnum/ForumMagnum/issues/4906
+// import MentionUI from '@ckeditor/ckeditor5-mention/src/mentionui';
+import MentionUI from './mentionui';
 
 import '../theme/mention.css';
 
