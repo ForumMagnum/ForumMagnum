@@ -10,7 +10,6 @@
 import { Command } from 'ckeditor5/src/core';
 import { CKEditorError, toMap } from 'ckeditor5/src/utils';
 
-import { _addMentionAttributes } from './mentionediting';
 
 /**
  * The mention command.
@@ -63,8 +62,7 @@ export default class MentionCommand extends Command {
 	 * Executes the command.
 	 *
 	 * @param {Object} [options] Options for the executed command.
-	 * @param {Object|String} options.mention The mention object to insert. When a string is passed, it will be used to create a plain
-	 * object with the name attribute that equals the passed string.
+	 * @param {Object} options.mention Must be an object with id and link
 	 * @param {String} options.marker The marker character (e.g. `'@'`).
 	 * @param {String} [options.text] The text of the inserted mention. Defaults to the full mention string composed from `marker` and
 	 * `mention` string or `mention.id` if an object is passed.
@@ -77,14 +75,13 @@ export default class MentionCommand extends Command {
 		const document = model.document;
 		const selection = document.selection;
 
-		const mentionData = typeof options.mention == 'string' ? { id: options.mention } : options.mention;
+		const mentionData = options.mention;
 		const mentionID = mentionData.id;
 
 		const range = options.range || selection.getFirstRange();
 
 		const mentionText = options.text || mentionID;
 
-		const mention = _addMentionAttributes( { _text: mentionText, id: mentionID }, mentionData );
 
 		if ( options.marker.length != 1 ) {
 			/**
@@ -104,6 +101,7 @@ export default class MentionCommand extends Command {
 			);
 		}
 
+		// todo potentially remove this check
 		if ( mentionID.charAt( 0 ) != options.marker ) {
 			/**
 			 * The feed item ID must start with the marker character.
@@ -140,10 +138,7 @@ export default class MentionCommand extends Command {
 			const currentAttributes = toMap( selection.getAttributes() );
 			const attributesWithMention = new Map( currentAttributes.entries() );
 
-			
-			// attributesWithMention.set( 'mention', mention );
-		  	attributesWithMention.set( 'linkHref', mention.link );
-		  
+		  	attributesWithMention.set( 'linkHref', mentionData.link );
 
 			// Replace a range with the text with a mention.
 			model.insertContent( writer.createText( mentionText, attributesWithMention ), range );
