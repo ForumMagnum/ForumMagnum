@@ -25,14 +25,14 @@ getCollectionHooks("Posts").newSync.add(function addLinkSharingKey(post: DbPost)
 });
 
 
-getCollectionHooks("Posts").updateBefore.add(function onEditAddLinkSharingKey(post: Partial<DbPost>): Partial<DbPost> {
-  if (!post.linkSharingKey) {
+getCollectionHooks("Posts").updateBefore.add(function onEditAddLinkSharingKey(data: Partial<DbPost>, {oldDocument}): Partial<DbPost> {
+  if (!oldDocument.linkSharingKey) {
     return {
-      ...post,
+      ...data,
       linkSharingKey: generateLinkSharingKey()
     };
   } else {
-    return post;
+    return data;
   }
 });
 
