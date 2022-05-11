@@ -337,7 +337,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const socialMediaIcon = (field) => {
       if (!user[field]) return null
-      return <a href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
+      return <a key={field} href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
