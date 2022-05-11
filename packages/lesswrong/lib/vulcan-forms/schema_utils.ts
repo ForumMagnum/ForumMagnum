@@ -195,7 +195,6 @@ export const schemaProperties = [
   'tooltip'
 ] as const;
 
-// TODO;
 export const formProperties = [
   'optional',
   'min',

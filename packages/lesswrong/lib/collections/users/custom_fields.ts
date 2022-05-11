@@ -1549,7 +1549,7 @@ addFieldsDict(Users, {
   
   website: {
     type: String,
-    // hidden: true,
+    hidden: true,
     optional: true,
     control: 'PrefixedInput',
     canCreate: ['members'],
