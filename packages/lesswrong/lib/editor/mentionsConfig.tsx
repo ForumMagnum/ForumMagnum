@@ -2,6 +2,7 @@ import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from "
 import {promisify} from "../utils/asyncUtils";
 import ReactDOM from 'react-dom';
 import React from 'react'
+import {getSiteUrl} from "../vulcan-lib";
 
 interface SearchHit {
   title: string,
@@ -14,6 +15,7 @@ interface SearchResults {
 }
 
 const postMarker = '#';
+const linkPrefix = getSiteUrl()
 
 const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
   const searchClient = getSearchClient()
@@ -33,14 +35,18 @@ async function fetchSuggestions(searchString: string) {
   // return searchResults.hits.map(it => postMarker + it.title)
   // return searchResults.hits
   const convertedSearchResults = searchResults.hits.map(hit =>{
-   return {id: postMarker+hit._id, link: hit.slug, userId: '37775', name: hit.title, }
+   return {
+     id: postMarker+hit.title, //what gets displayed in the dropdown results, must have postMarker 
+     link: linkPrefix + 'posts/' + hit._id + '/' + hit.slug, 
+     text: hit.title, 
+   }
   })
   console.log(convertedSearchResults)
   return convertedSearchResults
 }
 
 
-const mentionHitRenderer = (item) => {
+const mentionHitRenderer = (item) => { //TODO;
   const itemElement = document.createElement('span')
   ReactDOM.render(<p>${item.title}</p>, itemElement)
   return itemElement
@@ -51,7 +57,7 @@ export const mentionPluginConfiguration = {
       {
         marker: postMarker,
         feed: fetchSuggestions,
-        itemRenderer: mentionHitRenderer,
+        // itemRenderer: mentionHitRenderer,
         minimumCharacters: 1
       }
     ]
