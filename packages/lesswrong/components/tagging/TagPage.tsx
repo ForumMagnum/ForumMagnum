@@ -228,6 +228,9 @@ const TagPage = ({classes}: {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
 
+  // if no sort order was selected, try to use the tag page's default sort order for posts
+  query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+
   const terms = {
     ...tagPostTerms(tag, query),
     limit: 15
@@ -352,11 +355,11 @@ const TagPage = ({classes}: {
           {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
             {tag.sequence ?
               <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || tag.postsDefaultSortOrder || "relevance"}/>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
               </SectionTitle> :
               <div className={classes.tagHeader}>
                 <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-                <PostsListSortDropdown value={query.sortedBy || tag.postsDefaultSortOrder || "relevance"}/>
+                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
               </div>
             }
             <PostsList2
