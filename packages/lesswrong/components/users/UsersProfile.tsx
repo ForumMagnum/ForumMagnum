@@ -68,8 +68,24 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 15
     }
   },
+  messageBtnDesktop: {
+    display: 'block',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  messageBtnMobile: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  },
   messageBtn: {
-    boxShadow: 'none'
+    boxShadow: 'none',
+    marginLeft: 20,
+    [theme.breakpoints.down('xs')]: {
+      margin: '5px 0 10px'
+    }
   },
   mapLocation: {
     display: 'inline-flex',
@@ -299,6 +315,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
       }
     }
     
+    // on the EA Forum, the "Message" action is styled as a button rather than a link
+    const eaMessageBtn = <NewConversationButton user={user} currentUser={currentUser}>
+      <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
+        Message
+      </Button>
+    </NewConversationButton>
+    
     // on the EA Forum, the user's location links to the Community map
     let mapLocationNode
     if (user.mapLocation) {
@@ -368,21 +391,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
             <div className={classes.usernameTitle}>
               <div>{username}</div>
               {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
-                <NewConversationButton user={user} currentUser={currentUser}>
-                  <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
-                    Message
-                  </Button>
-                </NewConversationButton>
+                <div className={classes.messageBtnDesktop}>{eaMessageBtn}</div>
               )}
             </div>
             {mapLocationNode}
+            {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+              <div className={classes.messageBtnMobile}>{eaMessageBtn}</div>
+            )}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<span>Add RSS</span>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>
