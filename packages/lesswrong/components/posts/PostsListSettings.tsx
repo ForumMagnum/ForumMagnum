@@ -9,8 +9,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { sortings as defaultSortings, timeframes as defaultTimeframes } from './AllPostsPage'
+import { timeframes as defaultTimeframes } from './AllPostsPage'
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 
@@ -201,7 +202,7 @@ const USER_SETTING_NAMES = {
   showEvents: 'allPostsIncludeEvents'
 }
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=defaultSortings, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,

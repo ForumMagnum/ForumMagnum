@@ -352,11 +352,11 @@ const TagPage = ({classes}: {
           {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
             {tag.sequence ?
               <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+                <PostsListSortDropdown value={query.sortedBy || tag.postsDefaultSortOrder || "relevance"}/>
               </SectionTitle> :
               <div className={classes.tagHeader}>
                 <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+                <PostsListSortDropdown value={query.sortedBy || tag.postsDefaultSortOrder || "relevance"}/>
               </div>
             }
             <PostsList2
