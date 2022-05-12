@@ -50,7 +50,7 @@ yarn install
 
 ### If you want to run a local database
 
-(CEA Devs, see the ForumCredentials repository for access to a remote dev database)
+CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
 
 Prerequisites:
 - Install MongoDB: https://docs.mongodb.com/manual/installation/
