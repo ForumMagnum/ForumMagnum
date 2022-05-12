@@ -65,5 +65,8 @@ export const darkModeTheme: UserThemeSpecification = {
       commentBorder: "1px solid rgba(255,255,255,0.16)",
       answerBorder: "2px solid rgba(255,255,255,0.16)",
     },
+    intercom: {
+      buttonBackground: `${shadePalette.grey[400]} !important`,
+    },
   }),
 };
