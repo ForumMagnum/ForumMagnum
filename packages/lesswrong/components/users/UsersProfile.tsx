@@ -68,8 +68,24 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 15
     }
   },
+  messageBtnDesktop: {
+    display: 'block',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  messageBtnMobile: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  },
   messageBtn: {
-    boxShadow: 'none'
+    boxShadow: 'none',
+    marginLeft: 20,
+    [theme.breakpoints.down('xs')]: {
+      margin: '5px 0 10px'
+    }
   },
   mapLocation: {
     display: 'inline-flex',
@@ -368,21 +384,32 @@ const UsersProfileFn = ({terms, slug, classes}: {
             <div className={classes.usernameTitle}>
               <div>{username}</div>
               {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
-                <NewConversationButton user={user} currentUser={currentUser}>
+                <div className={classes.messageBtnDesktop}>
+                  <NewConversationButton user={user} currentUser={currentUser}>
                   <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
                     Message
                   </Button>
                 </NewConversationButton>
+                </div>
               )}
             </div>
             {mapLocationNode}
+            {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+              <div className={classes.messageBtnMobile}>
+                <NewConversationButton user={user} currentUser={currentUser}>
+                  <Button color="primary" variant="contained" className={classes.messageBtn}>
+                    Message
+                  </Button>
+                </NewConversationButton>
+              </div>
+            )}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<span>Add RSS</span>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>
