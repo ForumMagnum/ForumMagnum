@@ -181,7 +181,16 @@ const embedConfig = {
 			`
 		},
 		{
-			name: 'OWID',
+			name: "Manifold",
+			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
+			html: ([match, longslug]) => `
+				<div data-manifold-id="${longslug}" class="manifold-preview">
+					<iframe width="560" height="405" src="https://${match}" frameborder="0" />
+				</div>
+			`
+		},
+		{
+			name: "OWID",
 			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
 			html: ([match, slug]) => {
 				return `
