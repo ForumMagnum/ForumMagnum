@@ -7,7 +7,7 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../posts/schema';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
@@ -111,6 +111,7 @@ export const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     ...schemaDefaultValue(0),
+    tooltip: `Rank this ${taggingNameSetting.get()} higher in lists of ${taggingNamePluralSetting.get()}?`
   },
   descriptionTruncationCount: {
     // number of paragraphs to display above-the-fold
