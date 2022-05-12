@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { sortings } from './AllPostsPage';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,7 +39,7 @@ const PostsListSortDropdown = ({classes, value}:{
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   
   const newSortings = {
-    ...sortings,
+    ...SORT_ORDER_OPTIONS,
     relevance: "Most Relevant"
   }
 
@@ -57,7 +57,7 @@ const PostsListSortDropdown = ({classes, value}:{
             {newSortings["relevance"]}
           </MenuItem>
         </QueryLink>
-        {Object.keys(sortings).map(sorting => (
+        {Object.keys(SORT_ORDER_OPTIONS).map(sorting => (
           <QueryLink key={sorting} query={{sortedBy:sorting}} merge>
             <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
               {newSortings[sorting]}

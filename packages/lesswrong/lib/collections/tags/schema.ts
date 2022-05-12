@@ -8,6 +8,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting } from '../../instanceSettings';
+import { SORT_ORDER_OPTIONS } from '../posts/schema';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -401,6 +402,20 @@ export const schema: SchemaType<DbTag> = {
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
   },
+  
+  postsDefaultSortOrder: {
+    type: String,
+    optional: true,
+    group: formGroups.advancedOptions,
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    control: 'select',
+    options: () => Object.entries(SORT_ORDER_OPTIONS).map(([key, val]) => ({
+      value: key,
+      label: val
+    })),
+  }
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {
