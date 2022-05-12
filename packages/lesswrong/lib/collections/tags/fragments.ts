@@ -131,6 +131,7 @@ registerFragment(`
   fragment TagPageFragment on Tag {
     ...TagWithFlagsFragment
     tableOfContents
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -149,6 +150,7 @@ registerFragment(`
   fragment TagPageWithRevisionFragment on Tag {
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
+    postsDefaultSortOrder
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -183,6 +185,7 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagBasicInfo
     tagFlagsIds
+    postsDefaultSortOrder
     description {
       ...RevisionEdit
     }
