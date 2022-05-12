@@ -32,6 +32,11 @@ addGraphQLSchema(`
   }
 `);
 
+export const TAG_POSTS_SORT_ORDER_OPTIONS = {
+  relevance: 'Most Relevant',
+  ...SORT_ORDER_OPTIONS
+}
+
 export const schema: SchemaType<DbTag> = {
   createdAt: {
     optional: true,
@@ -411,7 +416,7 @@ export const schema: SchemaType<DbTag> = {
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     control: 'select',
-    options: () => Object.entries(SORT_ORDER_OPTIONS).map(([key, val]) => ({
+    options: () => Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).map(([key, val]) => ({
       value: key,
       label: val
     })),
