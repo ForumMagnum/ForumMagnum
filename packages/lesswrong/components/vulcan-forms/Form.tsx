@@ -495,7 +495,8 @@ class Form<T extends DbObject> extends Component<any,any> {
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, schema);
     field = this.handleFieldChildren(field, fieldName, fieldSchema, schema);
-    return field;
+    // Now that it's done being constructed, all the required fields will be set
+    return field as FormField<T>;
   };
   createArraySubField = (fieldName, subFieldSchema, schema) => {
     const subFieldName = `${fieldName}.$`;
