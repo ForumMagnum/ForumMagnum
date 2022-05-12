@@ -315,13 +315,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
       }
     }
     
-    // on the EA Forum, the "Message" action is styled as a button rather than a link
-    const eaMessageBtn = <NewConversationButton user={user} currentUser={currentUser}>
-      <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
-        Message
-      </Button>
-    </NewConversationButton>
-    
     // on the EA Forum, the user's location links to the Community map
     let mapLocationNode
     if (user.mapLocation) {
@@ -391,12 +384,24 @@ const UsersProfileFn = ({terms, slug, classes}: {
             <div className={classes.usernameTitle}>
               <div>{username}</div>
               {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
-                <div className={classes.messageBtnDesktop}>{eaMessageBtn}</div>
+                <div className={classes.messageBtnDesktop}>
+                  <NewConversationButton user={user} currentUser={currentUser}>
+                  <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
+                    Message
+                  </Button>
+                </NewConversationButton>
+                </div>
               )}
             </div>
             {mapLocationNode}
             {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
-              <div className={classes.messageBtnMobile}>{eaMessageBtn}</div>
+              <div className={classes.messageBtnMobile}>
+                <NewConversationButton user={user} currentUser={currentUser}>
+                  <Button color="primary" variant="contained" className={classes.messageBtn}>
+                    Message
+                  </Button>
+                </NewConversationButton>
+              </div>
             )}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
