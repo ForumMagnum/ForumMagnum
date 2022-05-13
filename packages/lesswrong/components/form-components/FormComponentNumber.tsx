@@ -22,7 +22,7 @@ class FormComponentNumber extends PureComponent<any> {
   render() {
     return <Components.MuiTextField
       type="number"
-      {...this.props}
+      {...this.props as any}
     />
   }
 }
@@ -42,5 +42,3 @@ declare global {
     FormComponentNumber: typeof FormComponentNumberComponent
   }
 }
-
-
