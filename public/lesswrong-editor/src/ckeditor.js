@@ -185,7 +185,7 @@ const embedConfig = {
 			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
 			html: ([match, longslug]) => `
 				<div data-manifold-id="${longslug}" class="manifold-preview">
-					<iframe width="560" height="405" src="https://${match}" frameborder="0" />
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}" />
 				</div>
 			`
 		},
