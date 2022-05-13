@@ -1504,6 +1504,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
+  readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
 }
 

@@ -802,11 +802,11 @@ interface DbUser extends DbObject {
   organization: string
   bio: string
   htmlBio: string
-  website: string
   howOthersCanHelpMe: string
   htmlHowOthersCanHelpMe: string
   howICanHelpOthers: string
   htmlHowICanHelpOthers: string
+  website: string
   linkedinProfileURL: string
   facebookProfileURL: string
   twitterProfileURL: string
