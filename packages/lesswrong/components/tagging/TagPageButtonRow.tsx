@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import HistoryIcon from '@material-ui/icons/History';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import LinkIcon from '@material-ui/icons/Link';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
@@ -97,6 +98,10 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
     }
   }
   
+  const createLinkpost = () => {
+    // TODO
+  }
+  
   const editTooltip = <>
     {!!numFlags && <>
       <div>
@@ -143,6 +148,19 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
     <div className={classes.button}>
       <TagDiscussionButton tag={tag} hideLabelOnMobile />
     </div>
+    {!!currentUser && <>
+      <LWTooltip
+        className={classes.buttonTooltip}
+        title="Creates a post based on a snapshot of this page. There is a form after this one to add some context. Use this for wiki pages that are especially well written and deserve some attention."
+      >
+        <a className={classes.button} onClick={createLinkpost}>
+          <LinkIcon/>
+          <span className={classes.buttonLabel}>
+            Linkpost
+          </span>
+        </a>
+      </LWTooltip>
+    </>}
     {!userHasNewTagSubscriptions(currentUser) && <LWTooltip
       className={classes.helpImprove}
       title={editTooltip}
