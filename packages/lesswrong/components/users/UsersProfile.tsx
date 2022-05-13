@@ -148,7 +148,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
     color: theme.palette.grey[700],
-    paddingTop: theme.spacing.unit * 3,
+    paddingTop: theme.spacing.unit * 2,
     [theme.breakpoints.down('md')]: {
       display: 'none',
     }
@@ -169,7 +169,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     color: theme.palette.grey[700],
     marginTop: 10,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'block',
     }
   },
@@ -194,6 +194,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   socialMediaIcons: {
     display: 'flex',
     columnGap: 14,
+    marginBottom: 30
   },
   socialMediaIcon: {
     flex: 'none',
@@ -206,7 +207,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     wordBreak: 'break-all',
     marginLeft: 4,
-    marginBottom: 30
   },
   websiteIcon: {
     flex: 'none',
@@ -399,15 +399,15 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
     // the data in the righthand sidebar on desktop moves under the bio on mobile
     const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
-      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
-        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
-        {user.website}
-      </a>}
       {userHasSocialMedia && <>
         <div className={classes.socialMediaIcons}>
           {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
         </div>
       </>}
+      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
+        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
+        {user.website}
+      </a>}
     </>
 
     return (

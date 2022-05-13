@@ -909,7 +909,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 4 : 43,
+    order: forumTypeSetting.get() === "EAForum" ? 6 : 43,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1570,21 +1570,6 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
   
-  website: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: 'PrefixedInput',
-    canCreate: ['members'],
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    form: {
-      inputPrefix: 'https://'
-    },
-    group: formGroups.aboutMe,
-    order: 5
-  },
-  
   // How others can help me (Markdown version)
   howOthersCanHelpMe: {
     type: String,
@@ -1595,7 +1580,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
     group: formGroups.aboutMe,
-    order: 6,
+    order: 4,
     form: {
       variant: 'outlined',
       hintText: "How others can help me",
@@ -1624,7 +1609,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
     group: formGroups.aboutMe,
-    order: 7,
+    order: 5,
     form: {
       variant: 'outlined',
       hintText: "How I can help others",
@@ -1640,6 +1625,21 @@ addFieldsDict(Users, {
     denormalized: true,
     optional: true,
     canRead: ['guests'],
+  },
+  
+  website: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'https://'
+    },
+    group: formGroups.aboutMe,
+    order: 7
   },
   
   linkedinProfileURL: {
