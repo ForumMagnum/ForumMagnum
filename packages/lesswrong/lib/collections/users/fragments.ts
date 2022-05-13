@@ -32,9 +32,9 @@ registerFragment(`
     bio
     jobTitle
     organization
-    website
     htmlHowOthersCanHelpMe
     htmlHowICanHelpOthers
+    website
     linkedinProfileURL
     facebookProfileURL
     twitterProfileURL
@@ -382,12 +382,12 @@ registerFragment(`
     organization
     bio
     htmlBio
-    mapLocation
-    website
     howOthersCanHelpMe
     htmlHowOthersCanHelpMe
     howICanHelpOthers
     htmlHowICanHelpOthers
+    mapLocation
+    website
     linkedinProfileURL
     facebookProfileURL
     twitterProfileURL

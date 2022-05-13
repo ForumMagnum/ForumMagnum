@@ -312,6 +312,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   }
 
   const { query } = useLocation();
+  
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
 
   const render = () => {
     const user = getUserFromResults(results)
@@ -349,7 +351,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // on the EA Forum, the user's location links to the Community map
     let mapLocationNode
     if (user.mapLocation) {
-      mapLocationNode = forumTypeSetting.get() === 'EAForum' ? <div>
+      mapLocationNode = isEAForum ? <div>
         <Link to="/community#individuals" className={classes.mapLocation}>
           <LocationIcon className={classes.locationIcon} />
           {user.mapLocation.formatted_address}
@@ -398,7 +400,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </a>
     }
     // the data in the righthand sidebar on desktop moves under the bio on mobile
-    const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
+    const sidebarInfoNode = isEAForum && <>
       {userHasSocialMedia && <>
         <div className={classes.socialMediaIcons}>
           {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
@@ -422,7 +424,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.usernameTitle}>
               <div>{username}</div>
-              {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+              {isEAForum && currentUser?._id != user._id && (
                 <div className={classes.messageBtnDesktop}>
                   <NewConversationButton user={user} currentUser={currentUser}>
                     <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
@@ -433,7 +435,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               )}
             </div>
             {mapLocationNode}
-            {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+            {isEAForum && currentUser?._id != user._id && (
               <div className={classes.messageBtnMobile}>
                 <NewConversationButton user={user} currentUser={currentUser}>
                   <Button color="primary" variant="contained" className={classes.messageBtn}>
@@ -455,13 +457,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
-              { forumTypeSetting.get() === "EAForum" && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
+              { isEAForum && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
                 Edit Profile
               </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { forumTypeSetting.get() !== "EAForum" && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { !isEAForum && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton
@@ -474,27 +476,27 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </Link>}
             </Typography>
             
-            {forumTypeSetting.get() === 'EAForum' && <div className={classes.mobileCurrentRole}>{currentRole}</div>}
+            {isEAForum && <div className={classes.mobileCurrentRole}>{currentRole}</div>}
 
             {user.bio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
             </ContentStyles>}
-            { user.htmlHowOthersCanHelpMe && <>
+            {isEAForum && user.htmlHowOthersCanHelpMe && <>
               <h2 className={classes.helpFieldHeading}>How others can help me</h2>
               <ContentStyles contentType="post">
                 <ContentItemBody dangerouslySetInnerHTML={{__html: user.htmlHowOthersCanHelpMe }} />
               </ContentStyles>
-            </> }
-            { user.htmlHowICanHelpOthers && <>
+            </>}
+            {isEAForum && user.htmlHowICanHelpOthers && <>
               <h2 className={classes.helpFieldHeading}>How I can help others</h2>
               <ContentStyles contentType="post">
                 <ContentItemBody dangerouslySetInnerHTML={{__html: user.htmlHowICanHelpOthers }} />
               </ContentStyles>
-            </> }
+            </>}
             
-            <div className={classes.mobileRightSidebar}>
+            {isEAForum && <div className={classes.mobileRightSidebar}>
               {sidebarInfoNode}
-            </div>
+            </div>}
           </SingleColumnSection>
 
           <SingleColumnSection>
@@ -593,7 +595,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </div>
           
           <div className={classes.rightSidebar}>
-            {forumTypeSetting.get() === 'EAForum' && currentRole}
+            {isEAForum && currentRole}
             {sidebarInfoNode}
           </div>
         </AnalyticsContext>

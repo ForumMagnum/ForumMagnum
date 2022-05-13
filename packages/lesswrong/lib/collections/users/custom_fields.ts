@@ -1556,7 +1556,7 @@ addFieldsDict(Users, {
     form: {
       variant: 'outlined',
       hintText: "Bio",
-      rows: 12,
+      rows: 10,
       multiLine: true,
       fullWidth: true,
     },
@@ -1584,7 +1584,7 @@ addFieldsDict(Users, {
     form: {
       variant: 'outlined',
       hintText: "How others can help me",
-      rows: 12,
+      rows: 10,
       multiLine: true,
       fullWidth: true,
     },
@@ -1613,7 +1613,7 @@ addFieldsDict(Users, {
     form: {
       variant: 'outlined',
       hintText: "How I can help others",
-      rows: 12,
+      rows: 10,
       multiLine: true,
       fullWidth: true,
     },
