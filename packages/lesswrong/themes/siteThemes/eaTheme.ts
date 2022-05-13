@@ -53,7 +53,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       dark: "#137283",
     },
     error: {
-      main: "bf360c",
+      main: "#bf360c",
     },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
