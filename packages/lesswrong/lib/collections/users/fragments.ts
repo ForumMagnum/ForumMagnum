@@ -32,6 +32,7 @@ registerFragment(`
     bio
     jobTitle
     organization
+    careerStage
     htmlHowOthersCanHelpMe
     htmlHowICanHelpOthers
     website
@@ -380,6 +381,7 @@ registerFragment(`
     slug
     jobTitle
     organization
+    careerStage
     bio
     htmlBio
     howOthersCanHelpMe

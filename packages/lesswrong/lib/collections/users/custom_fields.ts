@@ -130,6 +130,20 @@ const partiallyReadSequenceItem = new SimpleSchema({
   },
 });
 
+export const CAREER_STAGES = [
+  {value: 'highSchool', label: "In high school"},
+  {value: 'associateDegree', label: "Pursuing an associate's degree"},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree"},
+  {value: 'professionalDegree', label: "Pursuing a professional degree"},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)"},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)"},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma"},
+  {value: 'earlyCareer', label: "Working (0-5 years experience)"},
+  {value: 'midCareer', label: "Working (6-15 years of experience)"},
+  {value: 'lateCareer', label: "Working (15+ years of experience)"},
+  {value: 'retired', label: "Retired"},
+]
+
 export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',
@@ -909,7 +923,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 6 : 43,
+    order: forumTypeSetting.get() === "EAForum" ? 7 : 43,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1542,6 +1556,27 @@ addFieldsDict(Users, {
     order: 2,
   },
   
+  careerStage: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 3,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Career stage",
+    form: {
+      separator: '\r\n',
+      options: CAREER_STAGES
+    },
+  },
+  'careerStage.$': {
+    type: String,
+    optional: true,
+  },
+  
   // Bio (Markdown version)
   bio: {
     type: String,
@@ -1552,7 +1587,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 3 : 40,
+    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
     form: {
       variant: 'outlined',
       hintText: "Bio",
@@ -1580,7 +1615,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
     group: formGroups.aboutMe,
-    order: 4,
+    order: 5,
     form: {
       variant: 'outlined',
       hintText: "How others can help me",
@@ -1609,7 +1644,7 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
     group: formGroups.aboutMe,
-    order: 5,
+    order: 6,
     form: {
       variant: 'outlined',
       hintText: "How I can help others",
@@ -1639,7 +1674,7 @@ addFieldsDict(Users, {
       inputPrefix: 'https://'
     },
     group: formGroups.aboutMe,
-    order: 7
+    order: 8
   },
   
   linkedinProfileURL: {

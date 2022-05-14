@@ -21,7 +21,7 @@ import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
-import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
+import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 import Button from '@material-ui/core/Button';
 
 export const sectionFooterLeftStyles = {
@@ -190,6 +190,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   organization: {
     fontWeight: 'bold',
     color: theme.palette.grey[800],
+  },
+  careerStages: {
+    marginBottom: 30
+  },
+  careerStage: {
+    fontSize: 15,
+    marginBottom: 10
   },
   socialMediaIcons: {
     display: 'flex',
@@ -399,8 +406,19 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
+    console.log(user.careerStage)
     // the data in the righthand sidebar on desktop moves under the bio on mobile
     const sidebarInfoNode = isEAForum && <>
+      {user.careerStage?.length && <>
+        {/* <Typography variant='' gutterBottom>Career Stage</Typography> */}
+        <div className={classes.careerStages}>
+          {user.careerStage.map(stage => {
+            return <div key={stage} className={classes.careerStage}>
+              {CAREER_STAGES.find(s => s.value === stage)?.label}
+            </div>
+          })}
+        </div>
+      </>}
       {userHasSocialMedia && <>
         <div className={classes.socialMediaIcons}>
           {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
