@@ -143,10 +143,8 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           placement="left-start"
           modifiers={{
             flip: {
-              behavior: ["left-start"],
-              boundariesElement: 'viewport'
-            }
-          }}
+              enabled: false
+          }}}
         >
           <span className={classes.preview}>{renderPreview()}</span>
         </LWPopper>

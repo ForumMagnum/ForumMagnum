@@ -207,8 +207,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
         placement="bottom-start"
         modifiers={{
           flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
+            enabled: false
           }
         }}
       >
@@ -247,8 +246,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
         placement="bottom-start"
         modifiers={{
           flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
+            enabled: false
           }
         }}
       >
@@ -320,8 +318,7 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
         placement="bottom-start"
         modifiers={{
           flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
+            enabled: false
           }
         }}
       >

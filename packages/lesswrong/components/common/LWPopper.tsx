@@ -2,6 +2,8 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React, {useState} from 'react';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
+import { usePopper } from 'react-popper';
+import { createPortal } from 'react-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
@@ -29,11 +31,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 // This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
-const LWPopper = ({classes, children, tooltip=false, modifiers, open, clickable = true, ...props}: {
+const LWPopper = ({classes, children, tooltip=false, modifiers, open, anchorEl, placement, clickable = true, ...props}: {
   classes: ClassesType,
   children: any,
   tooltip?: boolean,
-  modifiers?: any,
+  modifiers?: { flip: {boundariesElement?: any, enabled?: boolean, behavior?: PopperPlacementType[]}},
   open: boolean,
   
   // Arguments destructured into ...props
@@ -42,25 +44,41 @@ const LWPopper = ({classes, children, tooltip=false, modifiers, open, clickable 
   className?: string,
   clickable?: boolean
 }) => {
-  const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
-  const [everOpened, setEverOpened] = useState(open);
-  
-  if (open && !everOpened)
-    setEverOpened(true);
-  if (!open && !everOpened)
+  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
+
+  const { styles, attributes } = usePopper(anchorEl, popperElement, {
+    placement,
+    modifiers: [{
+      name: 'eventListeners',
+      options: {
+        scroll: false,
+        resize: false
+      }
+    },{
+      name: 'flip',
+      enabled: modifiers?.flip.enabled !== false, 
+      options: {
+        boundary: modifiers?.flip.boundariesElement,
+        allowedAutoPlacements: modifiers?.flip.behavior
+      }
+    }]
+  });
+
+  if (!open)
     return null;
   
   return (
-    <Popper 
-      className={classNames(classes.popper, {[classes.noMouseEvents]: !clickable})} 
-      modifiers={newModifiers} 
-      open={open}
-      {...props}
-    >
-      <div className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip})}>
+    createPortal(
+      <div
+        ref={setPopperElement}
+        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable})}
+        style={styles.popper}
+        {...attributes.popper}
+      >
         { children }
-      </div>
-    </Popper>
+      </div>,
+      document.body
+    )
   )
 };
 
