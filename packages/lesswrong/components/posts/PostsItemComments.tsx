@@ -11,7 +11,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 4,
     height: 24,
     position: "relative",
-    
+    display: "flex",
+    "justify-content": "center",
+    "align-items": "center",
     "& .MuiSvgIcon-root": {
       height: "100%",
     },
@@ -24,7 +26,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 24,
     cursor: "pointer",
     position: "relative",
-    flexShrink: 0,
+    display: "flex",
+    "justify-content": "center",
+    "align-items": "center",
     top: 2,
     '& div': {
       marginTop: -3,
@@ -49,10 +53,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.commentsBubble.newPromoted,
   },
   commentCountIcon: {
-    position:"absolute",
-    right:"50%",
-    top:"50%",
-    transform:"translate(50%, -50%)",
     width:30,
     height:30,
   },
