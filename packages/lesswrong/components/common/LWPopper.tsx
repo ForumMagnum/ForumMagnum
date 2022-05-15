@@ -31,14 +31,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 // This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
-const LWPopper = ({classes, children, tooltip=false, modifiers, open, anchorEl, placement, clickable = true, ...props}: {
+const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, open, anchorEl, placement, clickable = true}: {
   classes: ClassesType,
   children: any,
   tooltip?: boolean,
-  modifiers?: { flip: {boundariesElement?: any, enabled?: boolean, behavior?: PopperPlacementType[]}},
+  allowOverflow?: boolean,
   open: boolean,
-  
-  // Arguments destructured into ...props
   placement?: PopperPlacementType,
   anchorEl: any,
   className?: string,
@@ -46,22 +44,14 @@ const LWPopper = ({classes, children, tooltip=false, modifiers, open, anchorEl, 
 }) => {
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
+  const preventOverflowModifier = allowOverflow ? [{
+    name: 'preventOverflow',
+    enabled: false, 
+  }] : undefined
+
   const { styles, attributes } = usePopper(anchorEl, popperElement, {
     placement,
-    modifiers: [{
-      name: 'eventListeners',
-      options: {
-        scroll: false,
-        resize: false
-      }
-    },{
-      name: 'flip',
-      enabled: modifiers?.flip.enabled !== false, 
-      options: {
-        boundary: modifiers?.flip.boundariesElement,
-        allowedAutoPlacements: modifiers?.flip.behavior
-      }
-    }]
+    modifiers: preventOverflowModifier
   });
 
   if (!open)
@@ -71,7 +61,7 @@ const LWPopper = ({classes, children, tooltip=false, modifiers, open, anchorEl, 
     createPortal(
       <div
         ref={setPopperElement}
-        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable})}
+        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable}, className)}
         style={styles.popper}
         {...attributes.popper}
       >

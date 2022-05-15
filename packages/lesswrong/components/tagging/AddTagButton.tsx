@@ -48,11 +48,7 @@ const AddTagButton = ({onTagSelected, classes, children}: {
       open={isOpen}
       anchorEl={anchorEl}
       placement="bottom"
-      modifiers={{
-        flip: {
-          enabled: false
-        }
-      }}
+      allowOverflow
     >
       <ClickAwayListener
         onClickAway={() => setIsOpen(false)}

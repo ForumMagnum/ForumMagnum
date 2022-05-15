@@ -141,10 +141,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           open={hover}
           anchorEl={anchorEl}
           placement="left-start"
-          modifiers={{
-            flip: {
-              enabled: false
-          }}}
+          allowOverflow
         >
           <span className={classes.preview}>{renderPreview()}</span>
         </LWPopper>

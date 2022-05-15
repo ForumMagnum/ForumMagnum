@@ -205,11 +205,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            enabled: false
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltip post={post} hash={hash} />
       </LWPopper>
@@ -244,11 +240,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            enabled: false
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltip post={post} comment={comment} />
       </LWPopper>
@@ -316,11 +308,7 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            enabled: false
-          }
-        }}
+        allowOverflow
       >
         <Card>
           <div className={classes.hovercard}>
