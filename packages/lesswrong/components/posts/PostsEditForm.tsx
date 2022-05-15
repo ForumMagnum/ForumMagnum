@@ -44,15 +44,7 @@ const PostsEditForm = ({ documentId, classes }: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
-  
-  // If logged out, show a login form. (Even if link-sharing is enabled, you still
-  // need to be logged into LessWrong with some account.)
-  if (!currentUser) {
-    return <Components.SingleColumnSection>
-      <Components.WrappedLoginForm/>
-    </Components.SingleColumnSection>
-  }
-  
+    
   if (!document && loading) {
     return <Components.Loading/>
   }
@@ -63,7 +55,7 @@ const PostsEditForm = ({ documentId, classes }: {
     && document.userId!==currentUser?._id
     && document.sharingSettings
     && !userIsAdmin(currentUser)
-    && !currentUser.groups?.includes('sunshineRegiment')
+    && !currentUser?.groups?.includes('sunshineRegiment')
   ) {
     return <Components.PermanentRedirect url={`/collaborateOnPost?postId=${documentId}${query.key ? "&key="+query.key : ""}`} status={302}/>
   }

@@ -982,7 +982,7 @@ addFieldsDict(Posts, {
   sharingSettings: {
     type: Object,
     order: 15,
-    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    viewableBy: ['guests'],
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     optional: true,
@@ -1013,7 +1013,7 @@ addFieldsDict(Posts, {
   // of a post. Only populated if some form of link sharing is (or has been) enabled.
   linkSharingKey: {
     type: String,
-    viewableBy: [userOwns, userIsSharedOn, 'admins'],
+    viewableBy: [userOwns, 'admins'],
     editableBy: ['admins'],
     optional: true,
     hidden: true,

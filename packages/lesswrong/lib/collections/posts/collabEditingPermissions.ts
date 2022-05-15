@@ -1,7 +1,6 @@
-import { getCollection } from '../../vulcan-lib/getCollection';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
-import { userIsPostGroupOrganizer } from './helpers';
 import * as _ from 'underscore';
+import { constantTimeCompare } from '../../helpers';
 
 export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";
 
@@ -26,10 +25,20 @@ export function accessLevelCan(accessLevel: CollaborativeEditingAccessLevel, ope
   }
 }
 
-export async function getCollaborativeEditorAccess({formType, post, user, useAdminPowers}: {
+export function getSharingKeyFromContext(context: ResolverContext|null) {
+  const key = context?.req?.query.key;
+  if (typeof key === 'string') {
+    return key;
+  }
+
+  return '';
+}
+
+export async function getCollaborativeEditorAccess({formType, post, user, context, useAdminPowers}: {
   formType: "new"|"edit",
   post: DbPost|null,
   user: DbUser|null,
+  context: ResolverContext|null,
   
   // If true and the user is a moderator/admin, take their admin powers into
   // account. If false, return permissions as they would be given no moderator
@@ -38,25 +47,26 @@ export async function getCollaborativeEditorAccess({formType, post, user, useAdm
 }): Promise<CollaborativeEditingAccessLevel> {
   const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
   const canEdit = post && (userOwns(user, post) || canEditAsAdmin)
-  const canView = post && await getCollection("Posts").checkAccess(user, post, null);
   let accessLevel: CollaborativeEditingAccessLevel = "none";
   
   if (formType === "new" && user && !post) {
     accessLevel = strongerAccessLevel(accessLevel, "edit");
     return "edit";
   }
-  if (!post || !user) {
+  if (!post) {
     return "none";
   }
   
   if (canEdit) {
     accessLevel = strongerAccessLevel(accessLevel, "edit");
-  }
-  
-  accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
-  
-  if (_.contains(post.shareWithUsers, user._id)) {
+  } 
+
+  if (user && _.contains(post.shareWithUsers, user._id)) {
     accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.explicitlySharedUsersCan);
+  } 
+  
+  if (constantTimeCompare(getSharingKeyFromContext(context), post.linkSharingKey)) {
+    accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
   }
   
   return accessLevel;

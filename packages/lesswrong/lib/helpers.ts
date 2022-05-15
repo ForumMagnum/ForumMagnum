@@ -11,6 +11,21 @@ export const messageGetLink = (message: DbMessage): string => {
   return `/inbox/${message.conversationId}`;
 };
 
+
+export function constantTimeCompare(a: string, b: string) {
+  try {
+    const firstArr = a.split('');
+    const secondArr = b.split('');
+
+    const allCharsEqual = firstArr.every((firstArrChar, idx) => secondArr[idx] === firstArrChar);
+    const sameLength = firstArr.length === secondArr.length;
+
+    return allCharsEqual && sameLength;
+  } catch {
+    return false;
+  }
+}
+
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
 Utils.getUnusedSlug = async function <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
   let suffix = '';

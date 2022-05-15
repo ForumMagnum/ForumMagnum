@@ -1,4 +1,4 @@
-import { getUserFromReq } from '../vulcan-lib/apollo-server/context';
+import { computeContextFromUser, getUserFromReq } from '../vulcan-lib/apollo-server/context';
 import { Posts } from '../../lib/collections/posts'
 import { getCollaborativeEditorAccess, CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { getCKEditorDocumentId } from '../../lib/ckEditorUtils'
@@ -7,6 +7,7 @@ import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServer
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import jwt from 'jsonwebtoken'
 import * as _ from 'underscore';
+import { randomId } from '../../lib/random';
 
 function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel): string {
   switch (access) {
@@ -25,6 +26,7 @@ export async function ckEditorTokenHandler (req, res, next) {
   const documentId = req.headers['document-id'];
   const userId = req.headers['user-id'];
   const formType = req.headers['form-type'];
+  const linkSharingKey = req.headers['link-sharing-key'];
   
   if (Array.isArray(collectionName)) throw new Error("Multiple collectionName headers");
   if (Array.isArray(documentId)) throw new Error("Multiple documentId headers");
@@ -32,11 +34,14 @@ export async function ckEditorTokenHandler (req, res, next) {
   if (Array.isArray(formType)) throw new Error("Multiple formType headers");
   
   const user = await getUserFromReq(req);
+  const requestWithKey = {...req, query: {...req?.query, key: linkSharingKey}}
+  const context = await computeContextFromUser(user, requestWithKey, res);
+  const contextWithKey: ResolverContext = {...context, req: context.req}
   
   if (collectionName === "Posts") {
     const ckEditorId = getCKEditorDocumentId(documentId, userId, formType)
     const post = documentId && await Posts.findOne(documentId);
-    const access = documentId ? await getCollaborativeEditorAccess({ formType, post, user, useAdminPowers: true }) : "edit";
+    const access = documentId ? await getCollaborativeEditorAccess({ formType, post, user, context: contextWithKey, useAdminPowers: true }) : "edit";
   
     if (access === "none") {
       res.writeHead(403, {});
@@ -46,10 +51,10 @@ export async function ckEditorTokenHandler (req, res, next) {
     
     const payload = {
       iss: environmentId,
-      user: user ? {
-        id: user._id,
-        name: userGetDisplayName(user)
-      } : null,
+      user: {
+        id: user ? user._id : randomId(),
+        name: user ? userGetDisplayName(user) : "Anonymous"
+      },
       auth: {
         collaboration: {
           [ckEditorId]: {role: permissionsLevelToCkEditorRole(access)}

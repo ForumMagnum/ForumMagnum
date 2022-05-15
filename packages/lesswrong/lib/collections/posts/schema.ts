@@ -923,10 +923,15 @@ const schema: SchemaType<DbPost> = {
   myEditorAccess: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
+      // Since the post at this point is already filtered by fields that this user has access, we have to grab
+      // an unfiltered version of the post from cache
+      const unfilteredPost = await context.loaders["Posts"].load(post._id)
       return getCollaborativeEditorAccess({
         formType: "edit",
-        post, user: context.currentUser,
+        post: unfilteredPost, user: context.currentUser,
+        context, 
         useAdminPowers: false,
       });
     }

@@ -12,6 +12,7 @@ import { updateMutator } from '../vulcan-lib/mutators';
 import { pushRevisionToCkEditor } from './ckEditorWebhook';
 import * as _ from 'underscore';
 import crypto from 'crypto';
+import { constantTimeCompare } from '../../lib/helpers';
 
 export function generateLinkSharingKey(): string {
   return randomSecret();
@@ -76,9 +77,6 @@ defineQuery({
   fn: async (root: void, {postId, linkSharingKey}: {postId: string, linkSharingKey: string}, context: ResolverContext) => {
     // Must be logged in
     const { currentUser } = context;
-    if (!currentUser) {
-      throw new Error("Must be logged in");
-    }
     
     // Post must exist
     const post = await Posts.findOne({_id: postId});
@@ -94,13 +92,13 @@ defineQuery({
     //  * Link-sharing is enabled and this user has provided the correct key in
     //    the past
     if (
-      (post?.shareWithUsers && _.contains(post.shareWithUsers, currentUser._id))
+      (post?.shareWithUsers && _.contains(post.shareWithUsers, currentUser?._id))
       || (linkSharingEnabled(post)
           && (!post.linkSharingKey || constantTimeCompare(post.linkSharingKey, linkSharingKey)))
-      || (linkSharingEnabled(post) && _.contains(post.linkSharingKeyUsedBy, currentUser._id))
+      || (linkSharingEnabled(post) && _.contains(post.linkSharingKeyUsedBy, currentUser?._id))
     ) {
       // Add the user to linkSharingKeyUsedBy, if not already there
-      if (!post.linkSharingKeyUsedBy || !_.contains(post.linkSharingKeyUsedBy, currentUser._id)) {
+      if (currentUser && (!post.linkSharingKeyUsedBy || !_.contains(post.linkSharingKeyUsedBy, currentUser._id))) {
         await Posts.rawUpdateOne(
           {_id: post._id},
           {$addToSet: {linkSharingKeyUsedBy: currentUser._id}}
@@ -118,14 +116,6 @@ defineQuery({
 
 function linkSharingEnabled(post: DbPost) {
   return post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan!=="none";
-}
-
-function constantTimeCompare(a: string, b: string) {
-  try {
-    return crypto.timingSafeEqual(Buffer.from(a, "utf8"), Buffer.from(b, "utf8"));
-  } catch {
-    return false;
-  }
 }
 
 defineMutation({
@@ -164,7 +154,7 @@ defineMutation({
     } else {
       // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");
-      if (revisionIsChange(revision, "contents")) {
+      if (await revisionIsChange(revision, "contents")) {
         // Edit the document to set contents to match this revision. Edit callbacks
         // take care of the rest.
         await updateMutator({

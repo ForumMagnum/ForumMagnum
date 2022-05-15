@@ -7,6 +7,7 @@ import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/colle
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
+import { useLocation } from '../../lib/routeUtil';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -84,6 +85,9 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
+
+  // Get the linkSharingKey, if it exists
+  const { query : { key } } = useLocation();
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -161,7 +165,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           }
         },
         cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType),
+          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType),

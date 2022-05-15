@@ -5,6 +5,8 @@ import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canC
 import { userIsSharedOn } from '../users/helpers'
 import * as _ from 'underscore';
 import { userIsPostGroupOrganizer } from './helpers';
+import { getSharingKeyFromContext } from './collabEditingPermissions';
+import { constantTimeCompare } from '../../helpers';
 
 const guestsActions = [
   'posts.view.approved'
@@ -43,6 +45,8 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
   if (userCanDo(currentUser, 'posts.view.all')) {
     return true
   } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post)) {
+    return true;
+  } else if (!currentUser && constantTimeCompare(getSharingKeyFromContext(context), post.linkSharingKey)) {
     return true;
   } else if (post.isFuture || post.draft) {
     return false;

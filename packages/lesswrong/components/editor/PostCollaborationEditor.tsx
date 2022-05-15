@@ -57,17 +57,6 @@ const PostCollaborationEditor = ({ classes }: {
   });
   const post: PostsPage = data?.getLinkSharedPost;
   
-  // If logged out, show a login form. (Even if link-sharing is enabled, you still
-  // need to be logged into LessWrong with some account.)
-  if (!currentUser) {
-    return <Components.SingleColumnSection>
-      <div>
-        Please log in to access this draft
-      </div>
-      <Components.WrappedLoginForm/>
-    </Components.SingleColumnSection>
-  }
-  
   // Error handling and loading state
   if (error) {
     if (isMissingDocumentError(error)) {
@@ -82,14 +71,8 @@ const PostCollaborationEditor = ({ classes }: {
   
   // If you're the primary author, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
-  if (post?.userId === currentUser._id) {
+  if (post?.userId === currentUser?._id) {
     return <Components.PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
-  }
-  
-  // If the post has a link-sharing key which is not in the URL, redirect to add
-  // the link-sharing key to the URL
-  if (post?.linkSharingKey && !key) {
-    return <Components.PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)} status={302}/>
   }
   
   return <SingleColumnSection>
