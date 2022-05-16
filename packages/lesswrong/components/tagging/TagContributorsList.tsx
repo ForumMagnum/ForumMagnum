@@ -93,13 +93,16 @@ const TagContributorRow = ({contributor, tag, onHover, classes}: {
 }) => {
   const { UsersNameDisplay, LWTooltip, SmallSideVote } = Components;
   const displayKarmaOffset = contributor.contributionScore - contributor.mostRecentContribution?.baseScore;
-  const voteWidgetOptions = useMemo(() => ({
+  const voteCountOffset = contributor.voteCount - contributor.mostRecentContribution?.voteCount;
+  const numCommits = contributor.numCommits;
+  
+  const voteWidgetOptions = useMemo<VoteWidgetOptions>(() => ({
     hideKarma: false,
     displayKarmaOffset,
-    scoreTooltip: () => <div>
-      This user has edited the tag.
+    scoreTooltip: ({baseScore, voteCount}) => <div>
+      {baseScore+displayKarmaOffset} points from {voteCount+voteCountOffset} votes on {numCommits} edits.
     </div>
-  }), [displayKarmaOffset]);
+  }), [displayKarmaOffset, voteCountOffset, numCommits]);
   
   return <div
     className={classes.contributorRow}

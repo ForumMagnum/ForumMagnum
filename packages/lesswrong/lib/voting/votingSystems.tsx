@@ -18,7 +18,7 @@ export type VoteWidgetOptions = {
   
   // Tooltip for when score is hovered. Optional, if provided overrides the
   // default.
-  scoreTooltip?: ({baseScore: number, voteCount: number})=>React.ReactNode,
+  scoreTooltip?: (props: {baseScore: number, voteCount: number})=>React.ReactNode,
 }
 
 export type CommentVotingComponentProps = {

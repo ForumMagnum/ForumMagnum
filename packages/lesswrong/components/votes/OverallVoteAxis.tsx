@@ -134,7 +134,7 @@ const OverallVoteAxis = ({ document, options, voteProps, classes, showBox=false 
             </LWTooltip> :
             <LWTooltip placement="bottom" title={
               options?.scoreTooltip
-                ? options.scoreTooltip()
+                ? options.scoreTooltip({baseScore: karma, voteCount})
                 : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>
             }>
               <span className={classes.voteScore}>
