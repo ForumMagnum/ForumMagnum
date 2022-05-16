@@ -62,6 +62,8 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
+      commentBorder: "1px solid rgba(255,255,255,0.16)",
+      answerBorder: "2px solid rgba(255,255,255,0.16)",
     },
     editor: {
       commentPanelBackground: shadePalette.grey[200],

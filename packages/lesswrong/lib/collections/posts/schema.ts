@@ -22,6 +22,14 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
+export const SORT_ORDER_OPTIONS = {
+  magic: 'Magic (New & Upvoted)',
+  recentComments: 'Recent Comments',
+  new: 'New',
+  old: 'Old',
+  top: 'Top',
+}
+
 export interface RSVPType {
   name: string
   email: string

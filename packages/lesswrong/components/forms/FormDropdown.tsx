@@ -4,6 +4,7 @@ import { useFormComponentContext, formCommonStyles, LWForm } from './formUtil';
 import { getCollection } from '../../lib/vulcan-lib/collections';
 import { getSchema } from '../../lib/utils/getSchema';
 import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
 
 const styles = (theme: ThemeType): JssStyles => ({
   ...formCommonStyles(theme),
@@ -29,14 +30,13 @@ export function FormDropdown<T, FN extends keyof T>({form, fieldName, label, col
       {label}
     </span>
     <span className={classes.rightColumn}>
-      <Components.MuiTextField select
-        value={value}
-        onChange={setValue}
+      <TextField select value={value}
+        onChange={(event) => setValue(event.target.value)}
       >
         {options.map(({value,label: optionLabel}) => <MenuItem key={value} value={value}>
           {optionLabel}
         </MenuItem>)}
-      </Components.MuiTextField>
+      </TextField>
     </span>
   </div>
 }
