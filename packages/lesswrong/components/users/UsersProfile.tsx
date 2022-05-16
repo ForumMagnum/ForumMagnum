@@ -157,22 +157,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   sidebarDivider: {
     margin: '40px 15px'
   },
-  mobileSidebarLower: {
-    display: 'none',
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 16,
-    color: theme.palette.grey[700],
-    marginTop: 30,
-    [theme.breakpoints.down('md')]: {
-      display: 'block',
-    }
-  },
   mobileSidebarUpper: {
     display: 'none',
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
     color: theme.palette.grey[700],
     marginTop: 10,
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+    }
+  },
+  mobileSidebarLower: {
+    display: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    marginTop: 30,
     [theme.breakpoints.down('md')]: {
       display: 'block',
     }
