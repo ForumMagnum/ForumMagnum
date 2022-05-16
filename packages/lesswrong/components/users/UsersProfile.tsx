@@ -23,6 +23,7 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -153,7 +154,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'none',
     }
   },
-  mobileRightSidebar: {
+  sidebarDivider: {
+    margin: '40px 15px'
+  },
+  mobileSidebarLower: {
     display: 'none',
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
@@ -163,7 +167,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block',
     }
   },
-  mobileCurrentRole: {
+  mobileSidebarUpper: {
     display: 'none',
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
@@ -175,7 +179,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   currentRole: {
     lineHeight: '26px',
-    marginBottom: 30
+    marginBottom: 20
   },
   currentRoleSep: {
     fontSize: 14,
@@ -192,7 +196,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[800],
   },
   careerStages: {
-    marginBottom: 30
+    marginBottom: 20
   },
   careerStage: {
     fontSize: 15,
@@ -201,7 +205,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   socialMediaIcons: {
     display: 'flex',
     columnGap: 14,
-    marginBottom: 30
+    marginBottom: 20
   },
   socialMediaIcon: {
     flex: 'none',
@@ -323,14 +327,18 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const isEAForum = forumTypeSetting.get() === 'EAForum'
 
   const render = () => {
-    const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography, ContentStyles } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      Typography, ContentStyles } = Components
+
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
       </div>
     }
 
+    const user = getUserFromResults(results)
     if (!user || !user._id || user.deleted) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
@@ -398,6 +406,21 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentRole = (jobTitle || org) && <div className={classes.currentRole}>
       {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
     </div>
+    const careerStage = user.careerStage?.length && <>
+      <div className={classes.careerStages}>
+        {user.careerStage.map(stage => {
+          return <div key={stage} className={classes.careerStage}>
+            {CAREER_STAGES.find(s => s.value === stage)?.label}
+          </div>
+        })}
+      </div>
+    </>
+    // this data in the righthand sidebar on desktop moves above the bio on mobile
+    const sidebarInfoUpperNode = isEAForum && <>
+      {currentRole}
+      {careerStage}
+      {(currentRole || careerStage) && <Divider className={classes.sidebarDivider} />}
+    </>
     
     const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
     const socialMediaIcon = (field) => {
@@ -406,19 +429,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
-    console.log(user.careerStage)
-    // the data in the righthand sidebar on desktop moves under the bio on mobile
-    const sidebarInfoNode = isEAForum && <>
-      {user.careerStage?.length && <>
-        {/* <Typography variant='' gutterBottom>Career Stage</Typography> */}
-        <div className={classes.careerStages}>
-          {user.careerStage.map(stage => {
-            return <div key={stage} className={classes.careerStage}>
-              {CAREER_STAGES.find(s => s.value === stage)?.label}
-            </div>
-          })}
-        </div>
-      </>}
+    // this data in the righthand sidebar on desktop moves under the bio on mobile
+    const sidebarInfoLowerNode = isEAForum && <>
       {userHasSocialMedia && <>
         <div className={classes.socialMediaIcons}>
           {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
@@ -494,7 +506,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </Link>}
             </Typography>
             
-            {isEAForum && <div className={classes.mobileCurrentRole}>{currentRole}</div>}
+            {isEAForum && <div className={classes.mobileSidebarUpper}>{sidebarInfoUpperNode}</div>}
 
             {user.bio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
@@ -512,8 +524,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </ContentStyles>
             </>}
             
-            {isEAForum && <div className={classes.mobileRightSidebar}>
-              {sidebarInfoNode}
+            {isEAForum && <div className={classes.mobileSidebarLower}>
+              {sidebarInfoLowerNode}
             </div>}
           </SingleColumnSection>
 
@@ -613,8 +625,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </div>
           
           <div className={classes.rightSidebar}>
-            {isEAForum && currentRole}
-            {sidebarInfoNode}
+            {sidebarInfoUpperNode}
+            {sidebarInfoLowerNode}
           </div>
         </AnalyticsContext>
       </div>
