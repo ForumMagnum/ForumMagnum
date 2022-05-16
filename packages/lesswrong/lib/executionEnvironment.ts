@@ -26,7 +26,7 @@ export const getInstanceSettings = (): any => {
       instanceSettings = loadInstanceSettings();
     } else {
       instanceSettings = {
-        public: (window as any).publicInstanceSettings,
+        public: window.publicInstanceSettings,
       };
     }
   }
