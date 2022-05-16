@@ -74,9 +74,20 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       return;
     }
     
-    // HACK: Check whether we're using CkEditor or something else. See wrappedSetCOntents
-    // in EditorFormComponent.
-    if ((document as any).contents_type && (document as any).contents_type !== "ckEditorMarkup") {
+    // Check whether we're using CkEditor, or something else.
+    // HACK: This isn't stored in a reliable place, until you edit.
+    // EditorFormComponent puts it in contents_type for us on edit, but if the
+    // contents haven't been edited yet it's not there. So we check
+    // originalContents.type, which, if it's an edit form (as opposed to a new
+    // form) will have the contents as they were on load. If it's not there
+    // either, it's a new, not-yet-edited post, and we have a separate error
+    // message for that.
+    // See also EditorFormComponent.
+    const editorType = (document as any)?.contents_type || (document as any)?.contents?.originalContents?.type;
+    if (!editorType) {
+      flash("Edit the document first to enable sharing");
+      return;
+    } else if(editorType !== "ckEditorMarkup") {
       flash("Change the editor type to LessWrong Docs to enable sharing");
       return;
     }
