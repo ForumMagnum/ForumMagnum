@@ -228,6 +228,9 @@ const TagPage = ({classes}: {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
 
+  // if no sort order was selected, try to use the tag page's default sort order for posts
+  query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
+
   const terms = {
     ...tagPostTerms(tag, query),
     limit: 15

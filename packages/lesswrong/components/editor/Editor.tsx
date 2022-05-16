@@ -24,6 +24,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     position: 'relative',
   },
+  markdownEditor: {
+    fontSize: "inherit",
+    fontFamily: "inherit",
+  },
   postBodyStyles: {
     ...editorStyles(theme),
     cursor: "text",
@@ -494,7 +498,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       { this.renderPlaceholder(!value, false) }
       <Components.ContentStyles contentType={contentType}>
         <Input
-          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles})}
+          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles}
+          )}
           value={value}
           onChange={(ev) => {
             this.setContents(contents.type, ev.target.value);

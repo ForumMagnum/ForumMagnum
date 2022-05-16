@@ -12,7 +12,7 @@ describe('Messages', function() {
   it('can receive and send messages', function() {
     const testReply = 'Test reply';
     cy.visit(`/users/${this.testOtherUser.slug}`);
-    cy.get('a').contains('Message').click();
+    cy.get('[data-cy=message]').click();
     cy.contains('Test seeded message').should('exist');
     cy.get('.ck-editor__editable').type(testReply);
     cy.contains("Submit").click();

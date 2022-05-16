@@ -181,6 +181,7 @@ importComponent("WrappedLoginForm", () => require('../components/users/WrappedLo
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("NewUserCompleteProfile", () => require('../components/users/NewUserCompleteProfile'))
+importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
@@ -595,6 +596,7 @@ importComponent("WrappedSmartForm", () => require('../components/form-components
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
 importComponent("SelectLocalgroup", () => require('../components/form-components/SelectLocalgroup'));
+importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
 
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));

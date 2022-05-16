@@ -45,7 +45,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
     secondary: {
       main: '#0c869b',
-      light: '#00b2be',
+      light: '#3c9eaf',
       dark: '#085d6c'
     },
     lwTertiary: {
@@ -53,7 +53,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       dark: "#137283",
     },
     error: {
-      main: "bf360c",
+      main: "#bf360c",
     },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
@@ -163,17 +163,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           tooltip: {
             fontSize: "1rem",
             padding: ".7rem",
-          }
-        },
-        MuiMenuItem: {
-          root: {
-            '&.MuiMenuItem-selected': {
-              backgroundColor: palette.primary.main,
-              color: 'white',
-              '&:hover': {
-                backgroundColor: "#679299"
-              }
-            }
           }
         },
         Header: {
