@@ -270,6 +270,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
+  readonly postsDefaultSortOrder: string,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1487,11 +1488,13 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly postsDefaultSortOrder: string,
   readonly contributors: any,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly postsDefaultSortOrder: string,
   readonly contributors: any,
 }
 

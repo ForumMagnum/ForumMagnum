@@ -77,7 +77,7 @@ const UsersEditForm = ({terms, classes}: {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display2" className={classes.header}>Edit Account</Typography>
+      <Typography variant="display2" className={classes.header}>Account Settings</Typography>
       {/* TODO(EA): Need to add a management API call to get the reset password
           link, but for now users can reset their password from the login
           screen */}

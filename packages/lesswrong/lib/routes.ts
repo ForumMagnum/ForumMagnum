@@ -626,8 +626,15 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       ...communitySubtitle
     },
     {
-      name: 'EditProfile',
+      name: 'EditMyProfile',
       path: '/profile/edit',
+      componentName: 'EditProfileForm',
+      title: 'Edit Profile',
+      background: 'white',
+    },
+    {
+      name: 'EditProfile',
+      path: '/profile/:slug/edit',
       componentName: 'EditProfileForm',
       title: 'Edit Profile',
       background: 'white',

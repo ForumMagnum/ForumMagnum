@@ -183,7 +183,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     "& .rdtCounterSeparator": {
-      lineHeight: 100,
+      lineHeight: '100px',
     },
     
     "& .rdtCounter .rdtBtn": {

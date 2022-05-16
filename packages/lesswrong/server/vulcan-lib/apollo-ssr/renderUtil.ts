@@ -1,3 +1,5 @@
+import type { ThemeOptions } from '../../../themes/themeNames';
+
 // Given something serializable (can be JSON.stringify'ed), serialize it into
 // a form that can be embedded into an HTML document. Escapes </script> tags
 // but does *not* wrap it in quotes or escape quotes.
@@ -6,6 +8,6 @@ const toEmbeddableJson = (serializable: any): string => {
     .replace(/<\//g, "<\\/")
 }
 
-export const embedAsGlobalVar = (name: string, value: any): string => {
+export const embedAsGlobalVar = (name: keyof Window, value: any): string => {
   return `<script>window.${name} = ${toEmbeddableJson(value)}</script>`;
 };
