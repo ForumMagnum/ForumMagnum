@@ -47,4 +47,14 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Admin Options",
     startCollapsed: true,
   },
+  aboutMe: {
+    name: 'aboutMe',
+    order: 100,
+    label: 'About Me'
+  },
+  socialMedia: {
+    name: 'socialMedia',
+    order: 110,
+    label: 'My Social Media'
+  }
 }

@@ -31,7 +31,6 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
     border: "none",
     outline: "none",
     color: theme.palette.text.maxIntensity,
-    backgroundColor: "transparent",
   },
   
   button: {

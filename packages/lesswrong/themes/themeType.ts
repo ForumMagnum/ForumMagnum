@@ -294,6 +294,7 @@ declare global {
     },
     geosuggest: {
       dropdownBackground: ColorString,
+      dropdownText: ColorString,
       dropdownActiveBackground: ColorString,
       dropdownActiveText: ColorString,
       dropdownHoveredBackground: ColorString,

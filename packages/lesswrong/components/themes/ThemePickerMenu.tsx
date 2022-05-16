@@ -10,6 +10,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { useCookies } from 'react-cookie'
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   check: {
@@ -61,18 +62,21 @@ const ThemePickerMenu = ({children, classes}: {
 }) => {
   const [cookies, setCookie] = useCookies([THEME_COOKIE_NAME]);
   const { LWTooltip, Typography } = Components;
-  const [currentThemeOptions, setCurrentThemeOptions] = useState((window as any)?.themeOptions as ThemeOptions);
+  const [currentThemeOptions, setCurrentThemeOptions] = useState(window?.themeOptions);
   const setPageTheme = useSetTheme();
   const currentUser = useCurrentUser();
   
   const setTheme = async (themeOptions: ThemeOptions) => {
     setCurrentThemeOptions(themeOptions);
-    if (JSON.stringify((window as any).themeOptions) !== JSON.stringify(themeOptions)) {
-      const oldThemeOptions = (window as any).themeOptions;
+    if (JSON.stringify(window.themeOptions) !== JSON.stringify(themeOptions)) {
+      const oldThemeOptions = window.themeOptions;
       const serializedThemeOptions = JSON.stringify(themeOptions);
-      (window as any).themeOptions = themeOptions;
+      window.themeOptions = themeOptions;
       setPageTheme(themeOptions);
-      setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions));
+      setCookie(THEME_COOKIE_NAME, JSON.stringify(themeOptions), {
+        path: "/",
+        expires: moment().add(9999, 'days').toDate(),
+      });
       addStylesheet(`/allStyles?theme=${encodeURIComponent(serializedThemeOptions)}`, (success: boolean) => {
         if (success) {
           removeStylesheetsMatching(encodeURIComponent(JSON.stringify(oldThemeOptions)));

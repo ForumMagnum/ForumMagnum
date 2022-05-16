@@ -394,6 +394,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     addTagButtonBackground: shades.grey[300],
   },
   geosuggest: {
+    dropdownText: "#000",
     dropdownBackground: "#fff",
     dropdownActiveBackground: "#267dc0",
     dropdownActiveText: "#fff",
