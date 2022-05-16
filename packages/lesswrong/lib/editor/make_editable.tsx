@@ -68,6 +68,10 @@ const defaultOptions: MakeEditableOptions = {
   revisionsHaveCommitMessages: false,
 }
 
+export const defaultEditorPlaceholder = `Write here. Select text for formatting options.
+We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
+You can switch between rich text and markdown in your user settings.`
+
 export const editableCollections = new Set<CollectionNameString>()
 export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
 export const editableCollectionsFieldOptions: Record<CollectionNameString,Record<string,MakeEditableOptions>> = {} as any;

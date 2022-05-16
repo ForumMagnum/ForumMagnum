@@ -281,7 +281,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       markdownImgErrs: false
     }
     
-    this.throttledSetCkEditor = _.throttle((value) => this.setContents("ckEditorMarkup", value), autosaveInterval);
+    this.throttledSetCkEditor = _.debounce((getValue) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
     this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
   }
 
@@ -436,18 +436,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         onChange: (event, editor) => {
-          const data: string = editor.getData();
-          // If transitioning from empty to nonempty or nonempty to empty,
-          // bypass throttling. These cases don't have the performance
-          // implications that motivated having throttling in the first place,
-          // and this prevents an annoying delay in the blank-document
-          // placeholder text appearing/disappeaering.
-          if (isBlank({type: "ckEditorMarkup", value: data}) || isBlank(this.props.value)) {
-            this.throttledSetCkEditor.cancel();
-            this.setContents("ckEditorMarkup", data);
-          } else {
-            this.throttledSetCkEditor(data)
-          }
+          // The getData call needs to be wrapped in a closure to avoid `this` reference errors
+          this.throttledSetCkEditor(() => editor.getData());
         },
         onInit: editor => this.setState({ckEditorReference: editor})
       }
@@ -457,10 +447,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
 
-      const showPlaceholder = isBlank({type: "ckEditorMarkup", value});
-
       return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
-        { this.renderPlaceholder(showPlaceholder, isCollaborative)}
         { isCollaborative
           ? <Components.CKPostEditor key="ck-collaborate"
               {...editorProps}
