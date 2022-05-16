@@ -1,4 +1,9 @@
-import { invertHexColor } from '../colorUtil';
+import type { PartialDeep } from 'type-fest'
+import deepmerge from 'deepmerge';
+// eslint-disable-next-line no-restricted-imports
+import type { Color as MuiColorShades } from '@material-ui/core';
+import { defaultComponentPalette } from '../defaultPalette';
+import { invertHexColor, parseColor, colorToString, invertColor } from '../colorUtil';
 
 export const invertedGreyscale = {
   // Present in @material-ui/core/colors/grey
@@ -44,6 +49,60 @@ export const invertedGreyscale = {
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
 
+// CkEditor allows users to provide colors for table cell backgrounds and
+// borders, which get embedded into the HTML looking like this:
+//   <td style="background-color: rgb(1,2,3)">
+// User-provided colors can be in any format that CSS accepts, and may set
+// the `background-color` and `border` properties on <table> and <td>
+// elements.
+//
+// We don't have any theme-specific HTML postprocessing, so this poses a bit of
+// a problem. Our solution is to override the `background-color` and `border`
+// properties on <td> and <table> to a safe default, to guarantee there won't
+// be any black-on-black or white-on-white text, and then then use CSS
+// attribute matching to replace specific colors that have been used in
+// posts we care about with proper aesthetic replacements. The CSS winds up
+// looking like this:
+//   .content td, .content table {
+//     background-color: black !important;
+//     border-color: #333 !important;
+//   }
+//   .content td[style*="background-color:rgb(230, 230, 230)"], .content table[style*="background-color:rgb(230, 230, 230)"] {
+//     background-color: #202020 !important;
+//   }
+// (Not real color values, but real syntax.)
+//
+const safeColorFallbacks = `
+.content td[style*="background-color:"], .content table[style*="background-color:"] {
+  background-color: black !important;
+  border-color: #333 !important;
+}
+`;
+
+const colorReplacements = {
+  "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
+  "#F2F2F2":            invertHexColor("#f2f2f2"),
+  "rgb(255, 247, 222)": "rgb(50,30,0)",
+  "rgb(255, 255, 255)": invertHexColor("#ffffff"),
+  "hsl(0,0%,100%)":     invertHexColor("#ffffff"),
+  "#FFEEBB":            invertHexColor("#ffeebb"),
+  "rgb(255, 238, 187)": invertColor([255/255.0,238/255.0,187/255.0,1]),
+  "rgb(230, 230, 230)": invertColor([230/255.0,230/255.0,230/255.0,1]),
+};
+function generateColorOverrides(): string {
+  return Object.keys(colorReplacements).map((colorString: string) => {
+    const replacement = colorReplacements[colorString];
+    return `
+      .content td[style*="background-color:${colorString}"], .content table[style*="background-color:${colorString}"] {
+        background-color: ${replacement} !important;
+      }
+      .content td[style*="border-color:${colorString}"], .content table[style*="border-color:${colorString}"] {
+        border-color: ${replacement} !important;
+      }
+    `;
+  }).join('\n');
+}
+
 export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
     grey: invertedGreyscale,
@@ -69,5 +128,11 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
+  }),
+  make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
+    rawCSS: [
+      safeColorFallbacks,
+      generateColorOverrides()
+    ]
   }),
 };
