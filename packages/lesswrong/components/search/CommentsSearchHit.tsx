@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8,
     display: 'flex',
     alignItems: 'center',
-    borderTop: "solid 1px rgba(0,0,0,.1)"
+    borderTop: theme.palette.border.faint
   },
   icon: {
     width: 20,
