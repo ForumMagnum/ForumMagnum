@@ -100,6 +100,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
+    ...(theme.palette.intercom ? {
+      '.intercom-launcher': {
+        backgroundColor: theme.palette.intercom.buttonBackground
+      }
+    } : null),
   },
   searchResultsArea: {
     position: "absolute",
