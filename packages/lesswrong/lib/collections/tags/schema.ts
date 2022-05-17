@@ -25,6 +25,7 @@ addGraphQLSchema(`
     contributionScore: Int!
     numCommits: Int!
     voteCount: Int!
+    mostRecentContribution: Revision
   }
   type TagContributorsList {
     contributors: [TagContributor!]

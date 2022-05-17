@@ -8,6 +8,7 @@ import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaU
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
+import { Globals } from '../../lib/vulcan-lib/config';
 import moment from 'moment';
 import sumBy from 'lodash/sumBy';
 import groupBy from 'lodash/groupBy';
@@ -17,6 +18,7 @@ import mapValues from 'lodash/mapValues';
 import take from 'lodash/take';
 import filter from 'lodash/filter';
 import * as _ from 'underscore';
+import maxBy from 'lodash/maxBy';
 
 addGraphQLSchema(`
   type TagUpdates {
@@ -145,11 +147,13 @@ type ContributorWithStats = {
   contributionScore: number,
   numCommits: number,
   voteCount: number,
+  mostRecentContribution: DbRevision|null,
 };
 type ContributorStats = {
   contributionScore: number,
   numCommits: number,
   voteCount: number,
+  mostRecentContributionId: string|null,
 };
 type ContributorStatsList = Partial<Record<string,ContributorStats>>;
 
@@ -170,10 +174,18 @@ augmentFieldsDict(Tags, {
   
         const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
         
-        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => ({
-          user: usersById[userId],
-          ...contributionStatsByUserId[userId]!,
-        }));
+        const mostRecentContributionIds: string[] = filter(contributorUserIds.map(userId => contributionStatsByUserId[userId]!.mostRecentContributionId!), r=>!!r);
+        const mostRecentContributionsUnfiltered = await context.loaders.Revisions.loadMany(mostRecentContributionIds);
+        const mostRecentContributions = await accessFilterMultiple(context.currentUser, Revisions, mostRecentContributionsUnfiltered, context);
+        const mostRecentContributionsById = keyBy(mostRecentContributions, r => r._id);
+        
+        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => {
+          return {
+            user: usersById[userId],
+            ...contributionStatsByUserId[userId]!,
+            mostRecentContribution: mostRecentContributionsById[contributionStatsByUserId[userId]!.mostRecentContributionId!],
+          }
+        });
         
         if (limit) {
           return {
@@ -257,10 +269,13 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
       const excludedPower = selfVoteAdjustment?.excludedPower || 0;
       const excludedVoteCount = selfVoteAdjustment?.excludedVoteCount || 0;
       
+      const contribution = maxBy(revisionsByThisUser, (rev) => rev.editedAt)
+      
       return {
         contributionScore: totalRevisionScore - excludedPower,
         numCommits: revisionsByThisUser.length,
         voteCount: sumBy(revisionsByThisUser, r=>r.voteCount) - excludedVoteCount,
+        mostRecentContributionId: contribution ? contribution._id : null,
       };
     }
   );
@@ -286,3 +301,12 @@ export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
   }});
   return html;
 }
+
+
+// Migration to clear the contributor-stats field (which is a cache that gets
+// regenerated on demand). Used for migrations when the shape of that list
+// changes.
+export async function clearAllDenormalizedContributorLists(): Promise<void> {
+  await Tags.rawUpdateMany({}, {$unset: {contributionStats: 1}});
+}
+Globals.clearAllDenormalizedContributorLists = clearAllDenormalizedContributorLists;

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import type { VoteWidgetOptions } from '../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
   username: {
@@ -21,6 +22,9 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
 }) => {
   const { FormatDate, UsersName, MetaInfo, LWTooltip, ChangeMetricsDisplay, SmallSideVote } = Components
   const revUrl = tagGetRevisionLink(tag, revision.version);
+  const voteWidgetOptions = useMemo(() => ({
+    hideKarma: false,
+  }), []);
   
   return <>
     <span className={classes.username}>
@@ -49,6 +53,7 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
     <MetaInfo><SmallSideVote
       document={revision}
       collection={Revisions}
+      options={voteWidgetOptions}
     /></MetaInfo>
   </>;
 }

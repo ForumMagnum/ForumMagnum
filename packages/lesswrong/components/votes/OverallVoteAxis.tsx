@@ -10,6 +10,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import classNames from 'classnames';
 import type { VotingProps } from './withVote';
+import type { VoteWidgetOptions } from '../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -50,9 +51,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
+const OverallVoteAxis = ({ document, options, voteProps, classes, showBox=false }: {
   document: VoteableTypeClient,
-  hideKarma?: boolean,
+  options: VoteWidgetOptions,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   showBox?: boolean
@@ -90,6 +91,8 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
       {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>}
     </div>
   )
+  
+  const displayedKarma = karma + (options?.displayKarmaOffset||0);
 
   return (
     <span className={classes.vote} {...eventHandlers}>
@@ -125,13 +128,17 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
               {...voteProps}
             />
           </LWTooltip>
-          {hideKarma ?
+          {options.hideKarma ?
             <LWTooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
             </LWTooltip> :
-            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
+            <LWTooltip placement="bottom" title={
+              options?.scoreTooltip
+                ? options.scoreTooltip({baseScore: karma, voteCount})
+                : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>
+            }>
               <span className={classes.voteScore}>
-                {karma}
+                {displayedKarma}
               </span>
             </LWTooltip>
           }

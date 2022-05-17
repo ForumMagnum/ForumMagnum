@@ -655,6 +655,7 @@ interface DbTag extends DbObject {
   introSequenceId: string
   postsDefaultSortOrder: string
   description: EditableFieldContents
+  pingbacks: any /*{"definitions":[{}]}*/
 }
 
 interface UsersCollection extends CollectionBase<DbUser, "Users"> {

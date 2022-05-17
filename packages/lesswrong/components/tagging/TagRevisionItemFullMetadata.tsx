@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -33,6 +33,9 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
 }) => {
   const { FormatDate, UsersName, ChangeMetricsDisplay, SmallSideVote } = Components
   const tagUrl = tagGetUrl(tag);
+  const voteWidgetOptions = useMemo(() => ({
+    hideKarma: false,
+  }), []);
   
   return <div>
     <div className={classes.tagName}>
@@ -54,6 +57,7 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
       <SmallSideVote
         document={revision}
         collection={Revisions}
+        options={voteWidgetOptions}
       />
       {" "}
       {revision.commitMessage}

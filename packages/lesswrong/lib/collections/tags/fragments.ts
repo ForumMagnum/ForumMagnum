@@ -141,6 +141,9 @@ registerFragment(`
         contributionScore
         numCommits
         voteCount
+        mostRecentContribution {
+          ...RevisionMetadataWithChangeMetrics 
+        }
       }
     }
   }
@@ -160,6 +163,9 @@ registerFragment(`
         contributionScore
         numCommits
         voteCount
+        mostRecentContribution {
+          ...RevisionMetadataWithChangeMetrics 
+        }
       }
     }
   }
@@ -176,6 +182,9 @@ registerFragment(`
         contributionScore
         numCommits
         voteCount
+        mostRecentContribution {
+          ...RevisionMetadataWithChangeMetrics 
+        }
       }
     }
   }
