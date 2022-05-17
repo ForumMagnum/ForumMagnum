@@ -38,7 +38,7 @@ const isLeftClick = (event: MouseEvent): boolean => {
 }
 
 const PostsSearchHit = ({hit, clickAction, classes}: {
-  hit: Hit<AlgoliaPost>,
+  hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
 }) => {

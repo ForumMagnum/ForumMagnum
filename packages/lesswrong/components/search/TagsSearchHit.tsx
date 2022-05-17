@@ -41,7 +41,7 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
   const { LWTooltip } = Components
   const tag = hit as AlgoliaTag;
   return <div className={classes.root}>
-    <LWTooltip title={taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag'}>
+    <LWTooltip title={taggingNameCapitalSetting.get()}>
       <LocalOfferOutlinedIcon className={classes.icon}/>
     </LWTooltip>
     <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
