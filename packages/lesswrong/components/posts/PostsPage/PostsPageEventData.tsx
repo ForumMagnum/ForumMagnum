@@ -14,6 +14,7 @@ import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 8,
   },
   iconWrapper: {
-    paddingTop: 3
+    paddingTop: forumTypeSetting.get() === 'EAForum' ? 3 : 2
   },
   icon: {
     fontSize: 16,
