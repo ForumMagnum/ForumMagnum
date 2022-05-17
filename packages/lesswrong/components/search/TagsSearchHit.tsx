@@ -4,15 +4,25 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginLeft: theme.spacing.unit,
-    marginTop: 6,
-    marginBottom: theme.spacing.unit/2
+    padding: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
+    display: 'flex',
+    alignItems: 'center',
+    borderTop: "solid 1px rgba(0,0,0,.1)"
   },
   name: {
     ...theme.typography.body2,
+  },
+  icon: {
+    width: 20,
+    color: theme.palette.grey[500],
+    marginRight: 12,
+    marginLeft: 4
   },
   snippet: {
     ...theme.typography.body2,
@@ -31,6 +41,7 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
 }) => {
   const tag = hit as AlgoliaTag;
   return <div className={classes.root}>
+    <LocalOfferIcon className={classes.icon}/>
     <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
         {tag.name}

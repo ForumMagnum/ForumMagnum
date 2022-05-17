@@ -2,17 +2,33 @@ import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
+import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    padding: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
+    display: 'flex',
+    alignItems: 'center',
+    borderTop: "solid 1px rgba(0,0,0,.1)"
+  },
   title: {
     display: "inline",
+    ...theme.typography.postStyle,
     fontSize: "1.25rem",
     fontVariant: "small-caps",
     marginRight: 8,
     textDecoration: "none",
     "& a:hover": {
       color: "inherit",
-    }
+    },
+  },
+  icon: {
+    width: 20,
+    color: theme.palette.grey[700],
+    marginRight: 12,
+    marginLeft: 4
   },
   meta: {
     display: "inline-block",
@@ -25,14 +41,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SequencesSearchHit = ({hit, clickAction, classes}: {
-  hit: Hit<AlgoliaSequence>,
+  hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
 }) => {
   const sequence: AlgoliaSequence = hit;
-  const linkProperties = clickAction ? {onClick: () => clickAction(sequence._id)} : {to: "sequences/" + sequence._id};
-  return <div className="search-results-sequences-item sequences-item">
-      <Link {...linkProperties} className="sequence-item-title-link">
+  return <div className={classes.root}>
+      <LocalLibraryIcon className={classes.icon}/>
+      <Link to={"sequences/" + sequence._id} onClick={() => clickAction(sequence._id)}>
         <div className="sequences-item-body ">
           <div className={classes.title}>
             {sequence.title}
