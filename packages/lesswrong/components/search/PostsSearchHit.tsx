@@ -18,11 +18,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     width: 20,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[400],
     marginRight: 12,
     marginLeft: 4
   },
-  postMetadata: {
+  metaData: {
+
+  },
+  snippet: {
+    ...theme.typography.postStyle,
+    lineHeight: "1.3rem",
+    marginTop: 4
+  },
+  title: {
+    marginBottom: 0
   }
 })
 
@@ -36,19 +45,20 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
   classes: ClassesType,
 }) => {
   const post = (hit as AlgoliaPost);
-  const {Typography} = Components;
+  const { Typography, LWTooltip } = Components;
   
-  // If clickAction is provided, disable link and replace with Click of the action
   return <div className={classes.root}>
-    <DescriptionIcon className={classes.icon} />
+    <LWTooltip title="Post">
+      <DescriptionIcon className={classes.icon} />
+    </LWTooltip>
     <Link
       onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       to={postGetPageUrl(post)}
     >
-        <Typography variant="title">
+        <Typography variant="title" className={classes.title}>
           {post.title}
         </Typography>
-        <div className={classes.postMetadata}>
+        <div className={classes.metaData}>
           {post.authorDisplayName && <Components.MetaInfo>
             {post.authorDisplayName}
           </Components.MetaInfo>}
@@ -59,7 +69,7 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
             <Components.FormatDate date={post.postedAt}/>
           </Components.MetaInfo>}
         </div>
-        <div><Snippet attribute="body" hit={post} tagName="mark" /></div>
+        <div className={classes.snippet}><Snippet attribute="body" hit={post} tagName="mark" /></div>
     </Link>
   </div>
 }

@@ -3,7 +3,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import React from 'react';
-import MessageIcon from '@material-ui/icons/Message';
+import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,9 +36,12 @@ const CommentsSearchHit = ({hit, clickAction, classes}: {
   classes: ClassesType,
 }) => {
   const comment = (hit as AlgoliaComment);
+  const { LWTooltip } = Components
   const url = "/posts/" + comment.postId + "/" + comment.postSlug + "#" + comment._id
   return <div className={classes.root}>
-    <MessageIcon className={classes.icon}/>
+    <LWTooltip title="Comment">
+      <ChatBubbleOutlineIcon className={classes.icon}/>
+    </LWTooltip>
     <Link to={url} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>

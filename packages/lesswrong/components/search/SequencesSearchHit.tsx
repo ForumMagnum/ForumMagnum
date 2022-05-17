@@ -3,6 +3,7 @@ import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
+import { Highlight, Snippet } from 'react-instantsearch-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     width: 20,
-    color: theme.palette.grey[700],
+    color: theme.palette.grey[400],
     marginRight: 12,
     marginLeft: 4
   },
@@ -38,6 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: 5,
     }
   },
+  snippet: {
+
+  }
 });
 
 const SequencesSearchHit = ({hit, clickAction, classes}: {
@@ -46,20 +50,27 @@ const SequencesSearchHit = ({hit, clickAction, classes}: {
   classes: ClassesType,
 }) => {
   const sequence: AlgoliaSequence = hit;
+  const { LWTooltip, MetaInfo } = Components
   return <div className={classes.root}>
-      <LocalLibraryIcon className={classes.icon}/>
+      <LWTooltip title="Sequence">
+        <LocalLibraryIcon className={classes.icon}/>
+      </LWTooltip>
       <Link to={"sequences/" + sequence._id} onClick={() => clickAction(sequence._id)}>
         <div className="sequences-item-body ">
           <div className={classes.title}>
             {sequence.title}
           </div>
           <div className={classes.meta}>
-            <div className="sequences-item-author">{sequence.authorDisplayName}</div>
-            <div className="sequences-item-created-date">
+            <MetaInfo>{sequence.authorDisplayName}</MetaInfo>
+            <MetaInfo className="sequences-item-created-date">
               <Components.FormatDate date={sequence.createdAt}/>
-            </div>
+            </MetaInfo>
           </div>
         </div>
+        <div className={classes.snippet}>
+          <Highlight attribute="plaintextDescription" hit={sequence} tagName="mark" />
+        </div>
+
       </Link>
   </div>
 }

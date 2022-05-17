@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,9 +39,12 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => {
+  const { LWTooltip } = Components
   const tag = hit as AlgoliaTag;
   return <div className={classes.root}>
-    <LocalOfferIcon className={classes.icon}/>
+    <LWTooltip title="Tag">
+      <LocalOfferOutlinedIcon className={classes.icon}/>
+    </LWTooltip>
     <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
         {tag.name}

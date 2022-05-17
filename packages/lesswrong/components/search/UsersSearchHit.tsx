@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     width: 20,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
     marginRight: 12,
     marginLeft: 4
   }
@@ -30,19 +30,20 @@ const UsersSearchHit = ({hit, clickAction, classes}: {
   clickAction?: any,
   classes: ClassesType,
 }) => {
+  const { LWTooltip, MetaInfo, FormatDate } = Components
   const user = hit as AlgoliaUser;
   return <div className={classes.root}>
-    <PersonIcon className={classes.icon} />
+    <LWTooltip title="User"><PersonIcon className={classes.icon} /></LWTooltip>
     <Link to={userGetProfileUrl(user)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
-      <Components.MetaInfo>
+      <MetaInfo>
         {user.displayName}
-      </Components.MetaInfo>
-      <Components.MetaInfo>
-        <Components.FormatDate date={user.createdAt}/>
-      </Components.MetaInfo>
-      <Components.MetaInfo>
+      </MetaInfo>
+      <MetaInfo>
+        <FormatDate date={user.createdAt}/>
+      </MetaInfo>
+      <MetaInfo>
         {user.karma||0} points
-      </Components.MetaInfo>
+      </MetaInfo>
     </Link>
   </div>
 }
