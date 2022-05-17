@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useCallback} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -39,37 +39,49 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagContributorsList = ({tag, onHoverUser, classes}: {
+const TagContributorsList = ({tag, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
-  onHoverUser: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
   const { Loading } = Components;
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
+  const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
+  const onHoverUser = useCallback((userId: string) => {
+    setHoveredContributorId(userId);
+  }, []);
+  
+  
   const {document: tagWithExpandedList, loading: loadingMore} = useSingle({
     documentId: tag._id,
     collectionName: "Tags",
     fragmentName: "TagFullContributorsList",
-    skip: !expandLoadMore,
+    skip: tag?.contributors?.contributors && !expandLoadMore,
   });
   const expandedList = tagWithExpandedList?.contributors?.contributors;
   const loadMore = () => setExpandLoadMore(true);
   
-  const contributorsList = expandedList || tag.contributors.contributors;
+  const contributorsList = expandedList || tag?.contributors?.contributors;
+  
+  if (!contributorsList)
+    return <Loading/>
   
   // Filter out tag-contributor entries where the user is null (which happens
   // if the contribution is by a deleted account)
   const nonMissingContributors = contributorsList.filter(c => !!c.user);
   
-  const hasLoadMore = !expandLoadMore && tag.contributors.totalCount > tag.contributors.contributors.length;
+  const hasLoadMore = !expandLoadMore && tag.contributors?.totalCount > tag.contributors?.contributors?.length;
   
   return <div className={classes.root}>
     <div className={classes.contributorsHeading}>
       Contributors
     </div>
     
-    {tag.contributors && nonMissingContributors.map(contributor =>
+    {hoveredContributorId && <style>
+      {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
+    </style>}
+    
+    {contributorsList && nonMissingContributors.map(contributor =>
       <TagContributorRow
         key={contributor.user._id}
         contributor={contributor}

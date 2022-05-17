@@ -1,10 +1,11 @@
 import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useContext } from 'react';
-import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
+import { parseRoute, parsePath, LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
 import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
+import { getSiteUrl } from './vulcan-lib/utils';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -107,6 +108,27 @@ export const getUrlClass = (): typeof URL => {
     return require('url').URL
   } else {
     return URL
+  }
+}
+
+export function linkToParsedRoute(link: string): RouterLocation|null {
+  // HACK: Parse URLs as though relative to example.com because they have to
+  // be the builtin URL parser needs them to be relative to something with a
+  // domain, and the domain doesn't matter at all except in whether or not
+  // it's in the domain whitelist (which it will only be if it's overridden
+  // by an absolute link).
+  const URLClass = getUrlClass()
+  const linkTargetAbsolute = new URLClass(link, getSiteUrl());
+  
+  if (hostIsOnsite(linkTargetAbsolute.host)) {
+    const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+    const parsedUrl = parseRoute({
+      location: parsePath(onsiteUrl),
+      onError: (pathname) => {} // Ignore malformed links
+    });
+    return parsedUrl;
+  } else {
+    return null;
   }
 }
 

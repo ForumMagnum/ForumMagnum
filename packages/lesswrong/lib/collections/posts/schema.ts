@@ -13,6 +13,7 @@ import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getVotingSystems } from '../../voting/votingSystems';
+import { linkToParsedRoute } from '../../routeUtil';
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -926,6 +927,30 @@ const schema: SchemaType<DbPost> = {
       }
     },
   },
+  
+  // Resolver which, if this is a linkpost and the link is to a tag, returns
+  // that tag. See postResolvers.ts for implementation.
+  linkedTag: resolverOnlyField({
+    type: "Tag",
+    graphQLtype: "Tag",
+    viewableBy: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbTag|null> => {
+      if (!post.url) //Not a linkpost
+        return null;
+        
+      const parsedRoute = linkToParsedRoute(post.url);
+      if (!parsedRoute) //Link leads offsite
+        return null;
+      
+      const pingback = await parsedRoute.currentRoute?.getPingback?.(parsedRoute);
+      if (!pingback || pingback.collectionName!=="Tags") //Link does not lead to a tag page
+        return null;
+      
+      const tagId = pingback.documentId;
+      const tag = await context.loaders.Tags.load(tagId);
+      return await accessFilterSingle(context.currentUser, context.Tags, tag, context);
+    },
+  }),
 };
 
 export default schema;

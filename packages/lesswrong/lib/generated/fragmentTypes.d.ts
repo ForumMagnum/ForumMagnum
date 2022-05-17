@@ -563,6 +563,7 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
   readonly tableOfContentsRevision: any,
+  readonly linkedTag: TagFragment|null,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
@@ -611,6 +612,7 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
+  readonly linkedTag: TagFragment|null,
 }
 
 interface PostsEdit extends PostsPage { // fragment on Posts
@@ -1504,6 +1506,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
+  readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
 }
 

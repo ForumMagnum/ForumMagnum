@@ -1,7 +1,8 @@
 import cheerio from 'cheerio';
-import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
+import { parseRoute } from '../lib/vulcan-core/appContext';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
-import { hostIsOnsite, getUrlClass } from '../lib/routeUtil';
+import { linkToParsedRoute } from '../lib/routeUtil';
+import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import * as _ from 'underscore';
 
 // Given an HTML document, extract the links from it and convert them to a set
@@ -11,7 +12,6 @@ import * as _ from 'underscore';
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
 export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName:string, documentId:string}>|null): Promise<Partial<Record<CollectionNameString, Array<string>>>> => {
-  const URLClass = getUrlClass()
   const links = extractLinks(html);
   
   // collection name => array of distinct referenced document IDs in that
@@ -21,19 +21,9 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
   for (let link of links)
   {
     try {
-      // HACK: Parse URLs as though relative to example.com because they have to
-      // be the builtin URL parser needs them to be relative to something with a
-      // domain, and the domain doesn't matter at all except in whether or not
-      // it's in the domain whitelist (which it will only be if it's overridden
-      // by an absolute link).
-      const linkTargetAbsolute = new URLClass(link, getSiteUrl());
+      let parsedUrl = linkToParsedRoute(link);
       
-      if (hostIsOnsite(linkTargetAbsolute.host)) {
-        const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-        const parsedUrl = parseRoute({
-          location: parsePath(onsiteUrl),
-          onError: (pathname) => {} // Ignore malformed links
-        });
+      if (parsedUrl) {
         if (parsedUrl?.currentRoute?.getPingback) {
           const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
           if (pingback) {

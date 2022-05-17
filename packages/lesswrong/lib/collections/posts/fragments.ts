@@ -349,6 +349,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    linkedTag {
+      ...TagFragment
+    }
   }
 `)
 
@@ -400,6 +403,9 @@ registerFragment(`
     version
     contents {
       ...RevisionDisplay
+    }
+    linkedTag {
+      ...TagFragment
     }
   }
 `)

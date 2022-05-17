@@ -172,7 +172,6 @@ const TagPage = ({classes}: {
   
   const [truncated, setTruncated] = useState(true)
   const [editing, setEditing] = useState(!!query.edit)
-  const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
@@ -215,10 +214,6 @@ const TagPage = ({classes}: {
     setTruncated(false)
   }, []);
 
-  const onHoverContributor = useCallback((userId: string) => {
-    setHoveredContributorId(userId);
-  }, []);
-  
   if (loadingTag)
     return <Loading/>
   if (!tag)
@@ -262,9 +257,6 @@ const TagPage = ({classes}: {
     <HeadTags
       description={headTagDescription}
     />
-    {hoveredContributorId && <style>
-      {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
-    </style>}
     {tag.bannerImageId && <div className={classes.imageContainer}>
       <CloudinaryImage2
         publicId={tag.bannerImageId}
@@ -286,7 +278,7 @@ const TagPage = ({classes}: {
                   Random {taggingNameCapitalSetting.get()}
                 </Link>
                 <TableOfContentsRow href="#" divider={true}/>
-                <TagContributorsList onHoverUser={onHoverContributor} tag={tag}/>
+                <TagContributorsList tag={tag}/>
               </span>
             : null
         }

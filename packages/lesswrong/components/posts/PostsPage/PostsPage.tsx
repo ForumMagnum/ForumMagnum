@@ -191,9 +191,11 @@ const PostsPage = ({post, refetch, classes}: {
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
       tableOfContents={
-        sectionData
-          ? <TableOfContents sectionData={sectionData} title={post.title} />
-          : null
+        post.linkedTag
+          ? <Components.TagContributorsList tag={post.linkedTag} />
+          : (sectionData
+              ? <TableOfContents sectionData={sectionData} title={post.title} />
+              : null)
       }
       header={<>
         {!commentId && <HeadTags
@@ -225,6 +227,12 @@ const PostsPage = ({post, refetch, classes}: {
             { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
           </AnalyticsContext>
         </ContentStyles>
+        
+        {/* Tag-linkpost body */}
+        {post.linkedTag && <div className={classes.tagLinkpostTag}>
+          <Components.Divider/>
+          <Components.TagLinkpostBody post={post}/>
+        </div>}
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
@@ -244,6 +252,8 @@ const PostsPage = ({post, refetch, classes}: {
             {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
         </div>
+        {/* Tag-linkpost: Comments from other sources */}
+        {post.linkedTag && <Components.TagLinkpostSupplementalComments post={post}/>}
       </AnalyticsInViewTracker>
     </ToCColumn>
   </AnalyticsContext>);
