@@ -8,11 +8,9 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
     display: 'flex',
     alignItems: 'center',
-    borderTop: theme.palette.border.faint
+    borderBottom: theme.palette.border.faint
   },
   icon: {
     width: 20,

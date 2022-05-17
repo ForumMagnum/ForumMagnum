@@ -3,16 +3,14 @@ import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
-import { Highlight, Snippet } from 'react-instantsearch-dom';
+import { Snippet } from 'react-instantsearch-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
     display: 'flex',
     alignItems: 'center',
-    borderTop: "solid 1px rgba(0,0,0,.1)"
+    borderBottom: theme.palette.border.faint
   },
   title: {
     display: "inline",
@@ -27,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     width: 20,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
     marginRight: 12,
     marginLeft: 4
   },
@@ -40,7 +38,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   snippet: {
-
+    ...theme.typography.postStyle,
+    lineHeight: "1.3rem",
+    marginTop: 4
   }
 });
 
@@ -68,7 +68,7 @@ const SequencesSearchHit = ({hit, clickAction, classes}: {
           </div>
         </div>
         <div className={classes.snippet}>
-          <Highlight attribute="plaintextDescription" hit={sequence} tagName="mark" />
+          <Snippet attribute="plaintextDescription" hit={sequence} tagName="mark" />
         </div>
 
       </Link>

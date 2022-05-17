@@ -50,13 +50,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   usersList: {
-    paddingTop: 4,
-    paddingBottom: 4
+    paddingTop: 6,
+    paddingBottom: 4,
+    borderBottom: theme.palette.border.faint
   },
   seeAll: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
+    marginTop: 10,
+    display: "block",
+    textAlign: "center"
   },
   header: {
     cursor: "pointer",
@@ -76,14 +80,13 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   currentQuery: string,
   classes: ClassesType
 }) => {
-  const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit, Typography } = Components
+  const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 
   return <div className={classes.root}>
     <div className={classes.searchResults}>
         <CurrentRefinements />
         <Components.ErrorBoundary>
           <div className={classes.usersList}>
-
             <Index indexName={getAlgoliaIndexName("Users")}>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} />} />
@@ -114,6 +117,9 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
             <Hits hitComponent={(props) => <SequencesSearchHit clickAction={closeSearch} {...props} />} />
           </Index>
         </Components.ErrorBoundary>
+        <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
+          See all results
+        </Link>
     </div>
   </div>
 }

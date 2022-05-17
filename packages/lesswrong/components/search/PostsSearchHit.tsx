@@ -9,16 +9,14 @@ import DescriptionIcon from '@material-ui/icons/Description';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
     display: 'flex',
     alignItems: 'center',
-    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
     overflowWrap: "break-word"
   },
   icon: {
     width: 20,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
     marginRight: 12,
     marginLeft: 4
   },
@@ -40,13 +38,15 @@ const isLeftClick = (event: MouseEvent): boolean => {
 }
 
 const PostsSearchHit = ({hit, clickAction, classes}: {
-  hit: Hit<any>,
+  hit: Hit<AlgoliaPost>,
   clickAction?: any,
   classes: ClassesType,
 }) => {
   const post = (hit as AlgoliaPost);
   const { Typography, LWTooltip } = Components;
-  
+
+  const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
+
   return <div className={classes.root}>
     <LWTooltip title="Post">
       <DescriptionIcon className={classes.icon} />
@@ -69,7 +69,7 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
             <Components.FormatDate date={post.postedAt}/>
           </Components.MetaInfo>}
         </div>
-        <div className={classes.snippet}><Snippet attribute="body" hit={post} tagName="mark" /></div>
+        {showSnippet && <div className={classes.snippet}><Snippet attribute="body" hit={post} tagName="mark" /></div>}
     </Link>
   </div>
 }

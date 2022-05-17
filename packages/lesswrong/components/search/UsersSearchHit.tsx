@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 2,
     paddingBottom: 2,
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   icon: {
     width: 20,

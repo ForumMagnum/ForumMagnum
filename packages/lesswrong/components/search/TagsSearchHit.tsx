@@ -5,15 +5,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
+import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
     display: 'flex',
     alignItems: 'center',
-    borderTop: "solid 1px rgba(0,0,0,.1)"
+    borderBottom: theme.palette.border.faint
   },
   name: {
     ...theme.typography.body2,
@@ -42,7 +41,7 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
   const { LWTooltip } = Components
   const tag = hit as AlgoliaTag;
   return <div className={classes.root}>
-    <LWTooltip title="Tag">
+    <LWTooltip title={taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag'}>
       <LocalOfferOutlinedIcon className={classes.icon}/>
     </LWTooltip>
     <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>

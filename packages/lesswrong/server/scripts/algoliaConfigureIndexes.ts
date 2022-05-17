@@ -56,7 +56,7 @@ export const algoliaConfigureIndexes = async () => {
       'tags'
     ],
     attributesToHighlight: ['title'],
-    attributesToSnippet: ['body:20'],
+    attributesToSnippet: ['body:10'],
     unretrievableAttributes: [
       'authorUserName',
       'userIP',
@@ -91,7 +91,9 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
     ],
-    advancedSyntax: true
+    advancedSyntax: true,
+    attributesToSnippet: ['body:10'],
+
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
     searchableAttributes: [
