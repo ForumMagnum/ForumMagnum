@@ -68,7 +68,7 @@ const SequencesSearchHit = ({hit, clickAction, classes}: {
           </div>
         </div>
         <div className={classes.snippet}>
-          <Snippet attribute="plaintextDescription" hit={sequence} tagName="mark" />
+          <Snippet attribute="description" hit={sequence} tagName="mark" />
         </div>
 
       </Link>

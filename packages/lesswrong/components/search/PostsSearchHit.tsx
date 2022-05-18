@@ -20,9 +20,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 12,
     marginLeft: 4
   },
-  metaData: {
-
-  },
   snippet: {
     ...theme.typography.postStyle,
     lineHeight: "1.3rem",
@@ -58,7 +55,7 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
         <Typography variant="title" className={classes.title}>
           {post.title}
         </Typography>
-        <div className={classes.metaData}>
+        <div>
           {post.authorDisplayName && <Components.MetaInfo>
             {post.authorDisplayName}
           </Components.MetaInfo>}

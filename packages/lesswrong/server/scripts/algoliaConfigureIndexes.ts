@@ -68,7 +68,6 @@ export const algoliaConfigureIndexes = async () => {
   await algoliaSetIndexSettingsAndWait(usersIndex, {
     searchableAttributes: [
       'unordered(displayName)',
-      'bio',
       'unordered(_id)',
     ],
     ranking: [
@@ -92,7 +91,7 @@ export const algoliaConfigureIndexes = async () => {
       'filterOnly(af)',
     ],
     advancedSyntax: true,
-    attributesToSnippet: ['body:10'],
+    attributesToSnippet: ['description:10'],
 
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
