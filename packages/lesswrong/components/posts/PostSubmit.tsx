@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import {forumTypeSetting} from "../../lib/instanceSettings";
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -60,6 +61,10 @@ interface PostSubmitProps {
   classes: ClassesType
 }
 
+const requestFeedbackKarmaLevel = forumSelect({
+  EAForum: 300,
+  default: 100,
+})
 
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", feedbackLabel = "Request Feedback", cancelCallback, document, collectionName, classes
@@ -85,15 +90,14 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {/* TODO: Re-enable on the EA Forum once we hire Bbron */}
-        {forumTypeSetting.get() !== "EAForum" && currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
+        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <Button type="submit"//treat as draft when draft is null
           className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
           onClick={() => {
             captureEvent("feedbackRequestButtonClicked")
             if (!!document.title) {
               updateCurrentValues({draft: true});
               // eslint-disable-next-line
-              (window as any).Intercom(
+              window.Intercom(
                 'trackEvent',
                 'requested-feedback',
                 {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}

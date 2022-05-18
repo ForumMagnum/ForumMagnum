@@ -50,15 +50,39 @@ import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } f
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
-import { inspect }  from "util";
 
+
+/** Field specification for a Form field, created from the collection schema */
+type FormField<T extends DbObject> = Pick<
+  CollectionFieldSpecification<T>,
+  typeof formProperties[number]
+> & {
+  document: any
+  name: string
+  datatype: any
+  layout: string
+  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  label: string
+  help: string
+  path: string
+  parentFieldName?: string
+  disabled?: boolean
+  arrayField: any
+  arrayFieldSchema: any
+  nestedInput: any
+  nestedSchema: any
+  nestedFields: any
+}
+
+/** FormField in the process of being created */
+type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
   'prefilledProps' // TODO: prefilledProps should be merged instead?
-];
+] as const;
 
 const compactParent = (object, path) => {
   const parentPath = getParentPath(path);
@@ -113,6 +137,7 @@ const getInitialStateFromProps = nextProps => {
     deletedValues: [],
     currentValues: {},
     // convert SimpleSchema schema into JSON object
+    // TODO: type convertedSchema
     schema: convertedSchema,
     // Also store all field schemas (including nested schemas) in a flat structure
     flatSchema: convertSchema(schema as any, true),
@@ -137,7 +162,7 @@ const getInitialStateFromProps = nextProps => {
 /**
  * Note: Only use this through WrappedSmartForm
  */
-class Form extends Component<any,any> {
+class Form<T extends DbObject> extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -364,10 +389,13 @@ class Form extends Component<any,any> {
     return relevantFields;
   };
 
-  initField = (fieldName, fieldSchema) => {
+  // TODO: fieldSchema is actually a slightly added-to version of
+  // CollectionFieldSpecification, see convertSchema in schema_utils, but in
+  // this function, it acts like CollectionFieldSpecification
+  initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<T>) => {
     // intialize properties
-    let field: any = {
-      ..._.pick(fieldSchema, formProperties),
+    let field: FormFieldUnfinished<T> = {
+      ...pick(fieldSchema, formProperties),
       document: this.state.initialDocument,
       name: fieldName,
       datatype: fieldSchema.type,
@@ -375,15 +403,6 @@ class Form extends Component<any,any> {
       input: fieldSchema.input || fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
-    // // replace value by prefilled value if value is empty
-    // const prefill = fieldSchema.prefill || (fieldSchema.form && fieldSchema.form.prefill);
-    // if (prefill) {
-    //   const prefilledValue = typeof prefill === 'function' ? prefill.call(fieldSchema) : prefill;
-    //   if (!!prefilledValue && !field.value) {
-    //     field.prefilledValue = prefilledValue;
-    //     field.value = prefilledValue;
-    //   }
-    // }
 
     // if options are a function, call it
     if (typeof field.options === 'function') {
@@ -408,7 +427,7 @@ class Form extends Component<any,any> {
     }
     return field;
   };
-  handleFieldPath = (field, fieldName, parentPath?: any) => {
+  handleFieldPath = (field: FormFieldUnfinished<T>, fieldName: string, parentPath?: string): FormFieldUnfinished<T> => {
     const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
     field.path = fieldPath;
     if (field.defaultValue) {
@@ -416,7 +435,7 @@ class Form extends Component<any,any> {
     }
     return field;
   };
-  handleFieldParent = (field, parentFieldName) => {
+  handleFieldParent = (field: FormFieldUnfinished<T>, parentFieldName?: string) => {
     // if field has a parent field, pass it on
     if (parentFieldName) {
       field.parentFieldName = parentFieldName;
@@ -424,14 +443,14 @@ class Form extends Component<any,any> {
 
     return field;
   };
-  handlePermissions = (field, fieldName, schema) => {
+  handlePermissions = (field: FormFieldUnfinished<T>, fieldName: string, schema: SchemaType<T>) => {
     // if field is not creatable/updatable, disable it
     if (!this.getMutableFields(schema).includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field, fieldName, fieldSchema, schema) => {
+  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: any, schema: any) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -465,19 +484,19 @@ class Form extends Component<any,any> {
     return field;
   };
 
-  /*
-  Given a field's name, the containing schema, and parent, create the
-  complete field object to be passed to the component
-
-  */
-  createField = (fieldName, schema, parentFieldName?: any, parentPath?: any) => {
+  /**
+   * Given a field's name, the containing schema, and parent, create the
+   * complete form-field object to be passed to the component
+   */
+  createField = (fieldName: string, schema: any, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
-    let field = this.initField(fieldName, fieldSchema);
+    let field: FormFieldUnfinished<T> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, schema);
     field = this.handleFieldChildren(field, fieldName, fieldSchema, schema);
-    return field;
+    // Now that it's done being constructed, all the required fields will be set
+    return field as FormField<T>;
   };
   createArraySubField = (fieldName, subFieldSchema, schema) => {
     const subFieldName = `${fieldName}.$`;
@@ -496,7 +515,7 @@ class Form extends Component<any,any> {
    Get a field's label
 
    */
-  getLabel = (fieldName, fieldLocale?: any) => {
+  getLabel = (fieldName: string, fieldLocale?: any): string => {
     const collectionName = this.props.collectionName.toLowerCase();
     const label = this.context.intl.formatLabel({
       fieldName: fieldName,
