@@ -25,7 +25,7 @@ export const createApolloClient = () => {
       ...apolloCacheVoteablePossibleTypes()
     }
   })
-    .restore((window as any).__APOLLO_STATE__); //ssr
+    .restore(window.__APOLLO_STATE__); //ssr
   
   const httpLink = new BatchHttpLink({
     uri: '/graphql',

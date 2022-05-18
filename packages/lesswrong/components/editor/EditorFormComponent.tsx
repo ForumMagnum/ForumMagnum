@@ -27,6 +27,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     position: 'relative',
   },
+  markdownEditor: {
+    fontFamily: "inherit",
+    fontSize: "inherit",
+  },
   postBodyStyles: {
     ...editorStyles(theme),
     cursor: "text",
