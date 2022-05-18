@@ -16,6 +16,7 @@ import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/b
 import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import FormLabel from '@material-ui/core/FormLabel';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -24,6 +25,11 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
 const styles = (theme: ThemeType): JssStyles => ({
+  label: {
+    display: 'block',
+    fontSize: 10,
+    marginBottom: 6
+  },
   editor: {
     position: 'relative',
   },
@@ -750,7 +756,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue, markdownImgErrs } = this.state
-    const { classes, document, form: { commentStyles }, label } = this.props
+    const { classes, document, form: { commentStyles } } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     const {className, contentType} = this.getBodyStyles();
     
@@ -819,7 +825,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   render() {
     const { editorOverride, loading } = this.state
-    const { document, currentUser, formType, classes, collectionName } = this.props
+    const { document, currentUser, formType, classes, collectionName, label } = this.props
     const { Loading, ContentStyles } = Components
     const currentEditorType = this.getCurrentEditorType()
     const {className, contentType} = this.getBodyStyles();
@@ -833,6 +839,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       && this.getInitialEditorType() !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
     return <div>
+      { label && <FormLabel className={classes.label}>{label}</FormLabel>}
       { editorWarning }
       <ContentStyles contentType={contentType} className={classNames(classes.editor, className)}>
         { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }

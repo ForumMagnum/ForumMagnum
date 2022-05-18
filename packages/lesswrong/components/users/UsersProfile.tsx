@@ -40,10 +40,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       '. center right'
     `,
     justifyContent: 'center',
-    columnGap: 50,
+    columnGap: 60,
     paddingLeft: 10,
     paddingRight: 10,
     marginLeft: "auto",
+    [theme.breakpoints.down('lg')]: {
+      columnGap: 40,
+    },
     [theme.breakpoints.down('md')]: {
       display: 'block',
       marginTop: -20

@@ -1666,18 +1666,13 @@ makeEditable({
     hidden: true,
     order: 4,
     fieldName: 'howOthersCanHelpMe',
-    hintText: "How others can help me",
+    label: "How others can help me",
+    hintText: "Ex: I am looking for opportunities to do...",
     permissions: {
       viewableBy: ['guests'],
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     },
-    // form: {
-    //   variant: 'outlined',
-    //   rows: 10,
-    //   multiLine: true,
-    //   fullWidth: true,
-    // },
   }
 })
 
@@ -1690,18 +1685,13 @@ makeEditable({
     hidden: true,
     order: 5,
     fieldName: 'howICanHelpOthers',
-    hintText: "How I can help others",
+    label: "How I can help others",
+    hintText: "Ex: Reach out to me if you have questions about...",
     permissions: {
       viewableBy: ['guests'],
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     },
-    // form: {
-    //   variant: 'outlined',
-    //   rows: 10,
-    //   multiLine: true,
-    //   fullWidth: true,
-    // },
   }
 })
 

@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   header: {
-    marginTop: 0,
+    marginTop: 0, // override default H1 margin
     marginLeft: theme.spacing.unit * 2,
     marginRight: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,

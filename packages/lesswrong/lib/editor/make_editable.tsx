@@ -28,6 +28,7 @@ export interface MakeEditableOptions {
     insertableBy?: any,
   },
   fieldName?: string,
+  label?: string,
   order?: number,
   hideControls?: boolean,
   hintText?: any,
@@ -89,6 +90,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     formGroup,
     permissions,
     fieldName,
+    label,
     hintText,
     order,
     hidden = false,
@@ -164,6 +166,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         }
       },
       form: {
+        label,
         hintText: hintText,
         fieldName: fieldName || "contents",
         collectionName,
