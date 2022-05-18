@@ -51,6 +51,9 @@ const SequencesSearchHit = ({hit, clickAction, classes}: {
 }) => {
   const sequence: AlgoliaSequence = hit;
   const { LWTooltip, MetaInfo } = Components
+  
+  const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
+
   return <div className={classes.root}>
       <LWTooltip title="Sequence">
         <LocalLibraryIcon className={classes.icon}/>
@@ -67,10 +70,9 @@ const SequencesSearchHit = ({hit, clickAction, classes}: {
             </MetaInfo>
           </div>
         </div>
-        <div className={classes.snippet}>
+        {showSnippet && <div className={classes.snippet}>
           <Snippet attribute="description" hit={sequence} tagName="mark" />
-        </div>
-
+        </div>}
       </Link>
   </div>
 }

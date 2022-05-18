@@ -40,6 +40,9 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
 }) => {
   const { LWTooltip } = Components
   const tag = hit as AlgoliaTag;
+
+  const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
+
   return <div className={classes.root}>
     <LWTooltip title={taggingNameCapitalSetting.get()}>
       <LocalOfferOutlinedIcon className={classes.icon}/>
@@ -48,9 +51,9 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
       <div className={classes.name}>
         {tag.name}
       </div>
-      <div className={classes.snippet}>
+      {showSnippet && <div className={classes.snippet}>
         <Snippet attribute="description" hit={tag} tagName="mark" />
-      </div>
+      </div>}
     </Link>
   </div>
 }
