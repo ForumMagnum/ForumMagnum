@@ -12,10 +12,7 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
         $set: {
           bio: '',
           htmlBio: '',
-          howOthersCanHelpMe: '',
-          htmHowOthersCanHelpMe: '',
-          howICanHelpOthers: '',
-          htmlHowICanHelpOthers: '',
+          // TODO: should we delete howOthersCanHelpMe and howOthersCanHelpMe_latest?
           banned: moment().add(12, 'months').toDate(),
           deleteContent: true,
         },

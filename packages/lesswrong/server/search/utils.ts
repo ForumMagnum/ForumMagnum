@@ -101,6 +101,17 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
   if (user.deleted) return null;
   if (user.deleteContent) return null;
   
+  let howOthersCanHelpMe = ""
+  if (user.howOthersCanHelpMe?.originalContents?.type) {
+    const { data, type } = user.howOthersCanHelpMe.originalContents
+    howOthersCanHelpMe = dataToMarkdown(data, type)
+  }
+  let howICanHelpOthers = ""
+  if (user.howICanHelpOthers?.originalContents?.type) {
+    const { data, type } = user.howICanHelpOthers.originalContents
+    howICanHelpOthers = dataToMarkdown(data, type)
+  }
+  
   const algoliaUser: AlgoliaUser = {
     _id: user._id,
     objectID: user._id,
@@ -110,8 +121,8 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     isAdmin: user.isAdmin,
     bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     htmlBio: user.htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
-    // howOthersCanHelpMe: user.howOthersCanHelpMe?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
-    // howICanHelpOthers: user.howICanHelpOthers?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    howOthersCanHelpMe: howOthersCanHelpMe.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    howICanHelpOthers: howICanHelpOthers.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
     jobTitle: user.jobTitle,
