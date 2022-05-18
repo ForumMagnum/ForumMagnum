@@ -481,16 +481,16 @@ const UsersProfileFn = ({terms, slug, classes}: {
             {user.bio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
             </ContentStyles>}
-            {isEAForum && user.htmlHowOthersCanHelpMe && <>
+            {isEAForum && user.howOthersCanHelpMe && <>
               <h2 className={classes.helpFieldHeading}>How others can help me</h2>
               <ContentStyles contentType="post">
-                <ContentItemBody dangerouslySetInnerHTML={{__html: user.htmlHowOthersCanHelpMe }} />
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
               </ContentStyles>
             </>}
-            {isEAForum && user.htmlHowICanHelpOthers && <>
+            {isEAForum && user.howICanHelpOthers && <>
               <h2 className={classes.helpFieldHeading}>How I can help others</h2>
               <ContentStyles contentType="post">
-                <ContentItemBody dangerouslySetInnerHTML={{__html: user.htmlHowICanHelpOthers }} />
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
               </ContentStyles>
             </>}
             

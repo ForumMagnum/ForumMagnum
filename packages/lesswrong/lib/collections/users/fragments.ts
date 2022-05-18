@@ -32,8 +32,12 @@ registerFragment(`
     bio
     jobTitle
     organization
-    htmlHowOthersCanHelpMe
-    htmlHowICanHelpOthers
+    howOthersCanHelpMe {
+      html
+    }
+    howICanHelpOthers {
+      html
+    }
     website
     linkedinProfileURL
     facebookProfileURL
@@ -382,10 +386,12 @@ registerFragment(`
     organization
     bio
     htmlBio
-    howOthersCanHelpMe
-    htmlHowOthersCanHelpMe
-    howICanHelpOthers
-    htmlHowICanHelpOthers
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
     mapLocation
     website
     linkedinProfileURL

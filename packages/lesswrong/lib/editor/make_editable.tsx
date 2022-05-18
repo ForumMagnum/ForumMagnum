@@ -33,6 +33,7 @@ export interface MakeEditableOptions {
   hintText?: any,
   pingbacks?: boolean,
   revisionsHaveCommitMessages?: boolean,
+  hidden?: boolean,
 }
 
 const defaultOptions: MakeEditableOptions = {
@@ -90,6 +91,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
     fieldName,
     hintText,
     order,
+    hidden = false,
     hideControls = false,
     pingbacks = false
     //revisionsHaveCommitMessages, //unused in this function (but used elsewhere)
@@ -130,6 +132,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       group: formGroup,
       ...permissions,
       order,
+      hidden,
       control: 'EditorFormComponent',
       resolveAs: {
         type: 'Revision',

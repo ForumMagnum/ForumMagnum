@@ -1566,8 +1566,8 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly bio: string,
   readonly jobTitle: string,
   readonly organization: string,
-  readonly htmlHowOthersCanHelpMe: string,
-  readonly htmlHowICanHelpOthers: string,
+  readonly howOthersCanHelpMe: UsersProfile_howOthersCanHelpMe|null,
+  readonly howICanHelpOthers: UsersProfile_howICanHelpOthers|null,
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
@@ -1599,6 +1599,14 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly paymentEmail: string,
   readonly paymentInfo: string,
   readonly goodHeartTokens: number,
+}
+
+interface UsersProfile_howOthersCanHelpMe { // fragment on Revisions
+  readonly html: string,
+}
+
+interface UsersProfile_howICanHelpOthers { // fragment on Revisions
+  readonly html: string,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
@@ -1823,10 +1831,8 @@ interface UsersProfileEdit { // fragment on Users
   readonly organization: string,
   readonly bio: string,
   readonly htmlBio: string,
-  readonly howOthersCanHelpMe: string,
-  readonly htmlHowOthersCanHelpMe: string,
-  readonly howICanHelpOthers: string,
-  readonly htmlHowICanHelpOthers: string,
+  readonly howOthersCanHelpMe: RevisionEdit|null,
+  readonly howICanHelpOthers: RevisionEdit|null,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly website: string,
   readonly linkedinProfileURL: string,

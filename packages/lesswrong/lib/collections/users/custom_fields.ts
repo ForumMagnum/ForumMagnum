@@ -1569,64 +1569,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
   },
-  
-  // How others can help me (Markdown version)
-  howOthersCanHelpMe: {
-    type: String,
-    optional: true,
-    hidden: true,
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.aboutMe,
-    order: 4,
-    form: {
-      variant: 'outlined',
-      hintText: "How others can help me",
-      rows: 10,
-      multiLine: true,
-      fullWidth: true,
-    },
-  },
 
-  // How others can help me (HTML version)
-  htmlHowOthersCanHelpMe: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-  
-  // How I can help others (Markdown version)
-  howICanHelpOthers: {
-    type: String,
-    optional: true,
-    hidden: true,
-    control: "MuiTextField",
-    label: 'How I can help others',
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.aboutMe,
-    order: 5,
-    form: {
-      variant: 'outlined',
-      hintText: "How I can help others",
-      rows: 10,
-      multiLine: true,
-      fullWidth: true,
-    },
-  },
-
-  // How I can help others (HTML version)
-  htmlHowICanHelpOthers: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-  
   website: {
     type: String,
     hidden: true,
@@ -1711,6 +1654,54 @@ makeEditable({
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     }
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 4,
+    fieldName: 'howOthersCanHelpMe',
+    hintText: "How others can help me",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+    // form: {
+    //   variant: 'outlined',
+    //   rows: 10,
+    //   multiLine: true,
+    //   fullWidth: true,
+    // },
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 5,
+    fieldName: 'howICanHelpOthers',
+    hintText: "How I can help others",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+    // form: {
+    //   variant: 'outlined',
+    //   rows: 10,
+    //   multiLine: true,
+    //   fullWidth: true,
+    // },
   }
 })
 
