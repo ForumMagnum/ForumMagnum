@@ -50,7 +50,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   warning: {
     color: theme.palette.error.main,
     '& a': {
-      // textDecoration: "underline",
       color: theme.palette.primary.main
     },
   },
