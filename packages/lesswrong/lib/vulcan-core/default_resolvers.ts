@@ -2,6 +2,7 @@ import { Utils, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
+import { describeTerms } from '../utils/viewUtils';
 
 interface DefaultResolverOptions {
   cacheMaxAge: number
@@ -164,7 +165,10 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
-      { $match: selector },
+      { $match: {
+        ...selector,
+        $comment: describeTerms(terms),
+      }},
       // Second stage: Add computed fields
       { $addFields: parameters.syntheticFields },
       
