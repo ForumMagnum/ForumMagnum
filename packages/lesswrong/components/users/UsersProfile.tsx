@@ -415,7 +415,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
         })}
       </div>
     </>
-    // this data in the righthand sidebar on desktop moves above the bio on mobile
+    // This info is in the righthand sidebar on desktop and moves above the bio on mobile
     const sidebarInfoUpperNode = isEAForum && <>
       {currentRole}
       {careerStage}
