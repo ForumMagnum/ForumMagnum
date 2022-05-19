@@ -429,7 +429,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
-    // this data in the righthand sidebar on desktop moves under the bio on mobile
+    // This data is in the righthand sidebar on desktop and moves under the bio on mobile
     const sidebarInfoLowerNode = isEAForum && <>
       {userHasSocialMedia && <>
         <div className={classes.socialMediaIcons}>
