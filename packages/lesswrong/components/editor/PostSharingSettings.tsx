@@ -48,8 +48,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block",
   },
   warning: {
-    color: theme.palette.error.main
-  }
+    color: theme.palette.error.main,
+    '& a': {
+      // textDecoration: "underline",
+      color: theme.palette.primary.main
+    },
+  },
 });
 
 const PostSharingSettings = ({document, formType, value, path, label, classes}: {
