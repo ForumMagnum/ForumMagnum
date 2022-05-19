@@ -26,6 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   snippet: {
     ...theme.typography.body2,
     color: theme.palette.text.dim,
+    wordBreak: "break-word"
   }
 })
 
@@ -33,10 +34,11 @@ const isLeftClick = (event: MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const TagsSearchHit = ({hit, clickAction, classes}: {
+const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
+  showIcon?: boolean
 }) => {
   const { LWTooltip } = Components
   const tag = hit as AlgoliaTag;
@@ -44,9 +46,9 @@ const TagsSearchHit = ({hit, clickAction, classes}: {
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
   return <div className={classes.root}>
-    <LWTooltip title={taggingNameCapitalSetting.get()}>
+    {showIcon && <LWTooltip title={taggingNameCapitalSetting.get()}>
       <LocalOfferOutlinedIcon className={classes.icon}/>
-    </LWTooltip>
+    </LWTooltip>}
     <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
         {tag.name}

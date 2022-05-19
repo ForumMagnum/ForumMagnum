@@ -25,15 +25,18 @@ const isLeftClick = (event: MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const UsersSearchHit = ({hit, clickAction, classes}: {
+const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
+  showIcon?: boolean
 }) => {
   const { LWTooltip, MetaInfo, FormatDate } = Components
   const user = hit as AlgoliaUser;
   return <div className={classes.root}>
-    <LWTooltip title="User"><PersonIcon className={classes.icon} /></LWTooltip>
+    {showIcon && <LWTooltip title="User">
+      <PersonIcon className={classes.icon} />
+    </LWTooltip>}
     <Link to={userGetProfileUrl(user)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <MetaInfo>
         {user.displayName}

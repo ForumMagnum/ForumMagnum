@@ -20,7 +20,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   snippet: {
     overflowWrap: "break-word",
-    ...theme.typography.body2
+    ...theme.typography.body2,
+    wordBreak: "break-word"
   }
 })
 
@@ -28,18 +29,19 @@ const isLeftClick = (event: MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes}: {
+const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
+  showIcon?: boolean
 }) => {
   const comment = (hit as AlgoliaComment);
   const { LWTooltip } = Components
   const url = "/posts/" + comment.postId + "/" + comment.postSlug + "#" + comment._id
   return <div className={classes.root}>
-    <LWTooltip title="Comment">
+    {showIcon && <LWTooltip title="Comment">
       <ChatBubbleOutlineIcon className={classes.icon}/>
-    </LWTooltip>
+    </LWTooltip>}
     <Link to={url} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>

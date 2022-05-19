@@ -40,14 +40,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   snippet: {
     ...theme.typography.postStyle,
     lineHeight: "1.3rem",
-    marginTop: 4
+    marginTop: 4,
+    wordBreak: "break-word"
   }
 });
 
-const SequencesSearchHit = ({hit, clickAction, classes}: {
+const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
+  showIcon?: boolean
 }) => {
   const sequence: AlgoliaSequence = hit;
   const { LWTooltip, MetaInfo } = Components
@@ -55,9 +57,9 @@ const SequencesSearchHit = ({hit, clickAction, classes}: {
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
   return <div className={classes.root}>
-      <LWTooltip title="Sequence">
+      {showIcon && <LWTooltip title="Sequence">
         <LocalLibraryIcon className={classes.icon}/>
-      </LWTooltip>
+      </LWTooltip>}
       <Link to={"sequences/" + sequence._id} onClick={() => clickAction(sequence._id)}>
         <div className="sequences-item-body ">
           <div className={classes.title}>

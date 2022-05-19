@@ -23,7 +23,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   snippet: {
     ...theme.typography.postStyle,
     lineHeight: "1.3rem",
-    marginTop: 4
+    marginTop: 4,
+    wordBreak: "break-word"
   },
   title: {
     marginBottom: 0
@@ -34,10 +35,11 @@ const isLeftClick = (event: MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const PostsSearchHit = ({hit, clickAction, classes}: {
+const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
   hit: Hit<any>,
   clickAction?: any,
   classes: ClassesType,
+  showIcon?: boolean
 }) => {
   const post = (hit as AlgoliaPost);
   const { Typography, LWTooltip } = Components;
@@ -45,9 +47,9 @@ const PostsSearchHit = ({hit, clickAction, classes}: {
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
   return <div className={classes.root}>
-    <LWTooltip title="Post">
+    {showIcon && <LWTooltip title="Post">
       <DescriptionIcon className={classes.icon} />
-    </LWTooltip>
+    </LWTooltip>}
     <Link
       onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       to={postGetPageUrl(post)}

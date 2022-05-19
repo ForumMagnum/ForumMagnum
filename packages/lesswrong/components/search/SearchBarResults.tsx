@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -89,32 +89,32 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
           <div className={classes.usersList}>
             <Index indexName={getAlgoliaIndexName("Users")}>
               <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} showIcon/>} />
             </Index>
           </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Index indexName={getAlgoliaIndexName("Tags")}>
             <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />
+            <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
           </Index>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Index indexName={getAlgoliaIndexName("Posts")}>
             <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} />} />
+            <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
           </Index>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Index indexName={getAlgoliaIndexName("Comments")}>
             <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} />} />
+            <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
           </Index>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
           <Index indexName={getAlgoliaIndexName("Sequences")}>
             <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <SequencesSearchHit clickAction={closeSearch} {...props} />} />
+            <Hits hitComponent={(props) => <SequencesSearchHit clickAction={closeSearch} {...props} showIcon/>} />
           </Index>
         </Components.ErrorBoundary>
         <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
