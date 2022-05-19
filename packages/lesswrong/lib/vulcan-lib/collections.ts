@@ -9,7 +9,6 @@ import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
 export * from './getCollection';
 import { loggerConstructor } from '../utils/logging'
-import { describeTerms } from '../utils/viewUtils';
 
 // 'Maximum documents per request'
 const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
@@ -115,9 +114,7 @@ export const createCollection = <
     logger('getParameters(), terms:', terms);
 
     let parameters: any = {
-      selector: {
-        $comment: describeTerms(terms),
-      },
+      selector: {},
       options: {},
     };
 

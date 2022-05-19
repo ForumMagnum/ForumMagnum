@@ -189,6 +189,11 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
-    return await Utils.Connectors.find(collection, selector, options);
+    return await Utils.Connectors.find(collection,
+      {
+        ...selector,
+        $comment: describeTerms(terms),
+      },
+      options);
   }
 }
