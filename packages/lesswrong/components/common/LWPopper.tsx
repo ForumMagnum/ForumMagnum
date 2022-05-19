@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, {useState} from 'react';
-import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
+import type { Placement } from '@popperjs/core';
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
@@ -37,7 +37,7 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
   tooltip?: boolean,
   allowOverflow?: boolean,
   open: boolean,
-  placement?: PopperPlacementType,
+  placement?: Placement,
   anchorEl: any,
   className?: string,
   clickable?: boolean
@@ -47,11 +47,19 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
   const preventOverflowModifier = allowOverflow ? [{
     name: 'preventOverflow',
     enabled: false, 
-  }] : undefined
+  }] : []
 
   const { styles, attributes } = usePopper(anchorEl, popperElement, {
     placement,
-    modifiers: preventOverflowModifier
+    modifiers: [
+      ...preventOverflowModifier,
+      {
+        name: 'fallback!',
+        options: {
+          fallbackPlacements: ['bottom-start'],
+        },
+      },
+    ]
   });
 
   if (!open)

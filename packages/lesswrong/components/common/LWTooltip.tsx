@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
-import { PopperPlacementType } from '@material-ui/core/Popper'
+import type { Placement } from '@popperjs/core';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=false, inlineBlock=true}: {
   children?: any,
   title?: any,
-  placement?: PopperPlacementType,
+  placement?: Placement,
   tooltip?: boolean,
   flip?: boolean,
   clickable?: boolean,
