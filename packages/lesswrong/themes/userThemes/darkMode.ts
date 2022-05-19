@@ -60,10 +60,24 @@ export const darkModeTheme: UserThemeSpecification = {
         green: "#7ee486",
       },
     },
+    panelBackground: {
+      translucent: "rgba(0,0,0,.87)",
+      translucent2: "rgba(0,0,0,.8)",
+      translucent3: "rgba(0,0,0,.75)",
+      deletedComment: "#3a0505",
+      commentModeratorHat: "#202719",
+    },
+    background: {
+      diffInserted: "#205120",
+      diffDeleted: "#b92424",
+    },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
-      commentBorder: "1px solid rgba(255,255,255,0.16)",
-      answerBorder: "2px solid rgba(255,255,255,0.16)",
+      commentBorder: "1px solid rgba(255,255,255,.2)",
+      answerBorder: "2px solid rgba(255,255,255,.2)",
+    },
+    intercom: {
+      buttonBackground: `${shadePalette.grey[400]} !important`,
     },
     editor: {
       commentPanelBackground: shadePalette.grey[200],
