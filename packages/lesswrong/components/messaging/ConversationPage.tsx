@@ -8,6 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
+import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
@@ -88,6 +89,20 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
 
   if (loading || (loadingTemplate && query.templateCommentId)) return <Loading />
   if (!conversation) return <Error404 />
+  
+  // try to attribute this sent message to where the user came from
+  let profileViewedFrom = ''
+  if (query.from) {
+    profileViewedFrom = query.from
+  } else if (conversation.participantIds.length === 2) {
+    // if this is a conversation with one other person, see if we have info on where the current user found them
+    const otherUserId = conversation.participantIds.find(id => id !== currentUser._id)
+    const ls = getBrowserLocalStorage()
+    const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+    profileViewedFrom = lastViewedProfiles.find(profile => profile.userId === otherUserId)?.from
+    console.log('lastViewedProfiles', lastViewedProfiles)
+  }
+  console.log('profileViewedFrom', profileViewedFrom)
 
   return (
     <SingleColumnSection>
@@ -108,7 +123,8 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
                 conversationId: conversation._id,
                 sender: currentUser._id,
                 participantIds: conversation.participantIds,
-                messageCount: (conversation.messageCount || 0) + 1
+                messageCount: (conversation.messageCount || 0) + 1,
+                ...(profileViewedFrom && {from: profileViewedFrom})
               })
             }}
             errorCallback={(message: any) => {

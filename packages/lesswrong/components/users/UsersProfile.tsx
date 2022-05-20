@@ -1,6 +1,6 @@
 import { combineUrls, Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -23,6 +23,7 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 import Button from '@material-ui/core/Button';
+import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -204,14 +205,38 @@ const UsersProfileFn = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
-
   const currentUser = useCurrentUser();
+  
   const {loading, results} = useMulti({
     terms,
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
+  
+  const { query } = useLocation()
+  // track profile views in local storage
+  useEffect(() => {
+    const profileUser = getUserFromResults(results)
+    const ls = getBrowserLocalStorage()
+    if (currentUser && profileUser && currentUser._id !== profileUser._id && ls) {
+      let from = query.from
+      let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      console.log('profiles', profiles)
+      // if the profile user is already in the list
+      const profileUserIndex = profiles?.findIndex(profile => profile.userId === profileUser._id)
+      // then remove them
+      if (profiles && profileUserIndex !== -1) {
+        from = from || profiles[profileUserIndex].from
+        profiles.splice(profileUserIndex, 1)
+      }
+      
+      profiles.push({userId: profileUser._id, ...(from && {from})})
+      
+      // save it in local storage
+      ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
+    }
+  }, [currentUser])
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -279,8 +304,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
         </Tooltip>
       </div>
   }
-
-  const { query } = useLocation();
 
   const render = () => {
     const user = getUserFromResults(results)
