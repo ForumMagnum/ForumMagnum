@@ -47,8 +47,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
   }
 
   return <div className={classes.root}>
-    {resultsWithLiveTags.map(tagUpdates =>
-      <Components.SingleLineTagUpdates
+    {resultsWithLiveTags.map(tagUpdates => <Components.SingleLineTagUpdates
       key={tagUpdates.documentId + " " + tagUpdates.editedAt}
       tag={tagUpdates.tag!}
       revisionIds={[tagUpdates._id]}
