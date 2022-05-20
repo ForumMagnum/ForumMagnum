@@ -112,6 +112,10 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     howICanHelpOthers = dataToMarkdown(data, type)
   }
   
+  const bioOriginalContents = user.biography?.originalContents;
+  const bio = bioOriginalContents ? dataToMarkdown(bioOriginalContents.data, bioOriginalContents.type) : "";
+  const htmlBio = user.biography?.html || "";
+  
   const algoliaUser: AlgoliaUser = {
     _id: user._id,
     objectID: user._id,
@@ -119,8 +123,8 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     displayName: user.displayName,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
-    bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
-    htmlBio: user.htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    htmlBio: htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     howOthersCanHelpMe: howOthersCanHelpMe.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     howICanHelpOthers: howICanHelpOthers.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,

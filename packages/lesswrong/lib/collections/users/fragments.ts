@@ -29,7 +29,6 @@ registerFragment(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    bio
     jobTitle
     organization
     howOthersCanHelpMe {
@@ -101,7 +100,11 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    bio
+    biography {
+      originalContents
+      html
+      markdown
+    }
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -214,7 +217,6 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
-    bio
     htmlBio
     createdAt
     email
@@ -384,8 +386,7 @@ registerFragment(`
     slug
     jobTitle
     organization
-    bio
-    htmlBio
+    biography
     howOthersCanHelpMe {
       ...RevisionEdit
     }

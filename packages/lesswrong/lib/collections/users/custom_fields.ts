@@ -1543,7 +1543,7 @@ addFieldsDict(Users, {
   },
   
   // Bio (Markdown version)
-  bio: {
+  /*bio: {
     type: String,
     optional: true,
     hidden: forumTypeSetting.get() === "EAForum",
@@ -1560,14 +1560,25 @@ addFieldsDict(Users, {
       multiLine: true,
       fullWidth: true,
     },
-  },
+  },*/
 
   // Bio (HTML version)
-  htmlBio: {
+  /*htmlBio: {
     type: String,
     denormalized: true,
     optional: true,
     canRead: ['guests'],
+  },*/
+  
+  bio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true, hidden: true,
+  },
+  htmlBio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true, hidden: true,
   },
 
   website: {
@@ -1687,6 +1698,31 @@ makeEditable({
     fieldName: 'howICanHelpOthers',
     label: "How I can help others",
     hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+// biography: Some text the user provides for their profile page and to display
+// when people hover over their name.
+//
+// Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+// which now exist as resolver-only fields for back-compatibility.
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    label: "Bio",
+    hidden: false,
+    order: forumTypeSetting.get() === "EAForum" ? 3 : 40,
+    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    fieldName: "biography",
+    
+    hintText: "",
     permissions: {
       viewableBy: ['guests'],
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],

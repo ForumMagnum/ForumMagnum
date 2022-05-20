@@ -481,7 +481,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             
             {isEAForum && <div className={classes.mobileCurrentRole}>{currentRole}</div>}
 
-            {user.bio && <ContentStyles contentType="post">
+            {user.htmlBio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
             </ContentStyles>}
             {isEAForum && user.howOthersCanHelpMe && <>
