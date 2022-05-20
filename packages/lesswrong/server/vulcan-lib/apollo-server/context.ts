@@ -150,7 +150,7 @@ export const getCollectionsByName = (): CollectionsByName => {
   return result as CollectionsByName;
 }
 
-export const getUserFromReq = async (req) => {
+export const getUserFromReq = async (req): Promise<DbUser|null> => {
   return req.user
   // return getUser(getAuthToken(req));
 }
