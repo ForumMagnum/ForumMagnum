@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -49,17 +49,18 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: "calc(100vh - 64px)",
     },
   },
-  searchList: {
-    borderBottom: theme.palette.border.slightlyIntense2,
-    paddingTop:theme.spacing.unit,
-    paddingBottom:theme.spacing.unit,
-    paddingLeft:theme.spacing.unit*2,
-    paddingRight:theme.spacing.unit*2
+  usersList: {
+    paddingTop: 6,
+    paddingBottom: 4,
+    borderBottom: theme.palette.border.faint
   },
   seeAll: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
+    marginTop: 10,
+    display: "block",
+    textAlign: "center"
   },
   header: {
     cursor: "pointer",
@@ -79,61 +80,46 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   currentQuery: string,
   classes: ClassesType
 }) => {
-  const { PostsSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit, Typography } = Components
+  const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 
   return <div className={classes.root}>
     <div className={classes.searchResults}>
         <CurrentRefinements />
         <Components.ErrorBoundary>
-          <div className={classes.searchList}>
+          <div className={classes.usersList}>
             <Index indexName={getAlgoliaIndexName("Users")}>
-              <div className={classes.header}>
-                <Typography variant="body1">Users</Typography>
-                <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
-                  See all results
-                </Link>
-              </div>
               <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} />} />
+              <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} showIcon/>} />
             </Index>
           </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
-          <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Tags")}>
-              <div className={classes.header}>
-                <Typography variant="body1">
-                  {taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'}
-                </Typography>
-              </div>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </div>
+          <Index indexName={getAlgoliaIndexName("Tags")}>
+            <Configure hitsPerPage={3} />
+            <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+          </Index>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
-          <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Posts")}>
-              <div className={classes.header}>
-                <Typography variant="body1">Posts</Typography>
-              </div>
-
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </div>
+          <Index indexName={getAlgoliaIndexName("Posts")}>
+            <Configure hitsPerPage={3} />
+            <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+          </Index>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
-          <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Comments")}>
-              <div className={classes.header}>
-                <Typography variant="body1">Comments</Typography>
-              </div>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </div>
+          <Index indexName={getAlgoliaIndexName("Comments")}>
+            <Configure hitsPerPage={3} />
+            <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+          </Index>
         </Components.ErrorBoundary>
+        <Components.ErrorBoundary>
+          <Index indexName={getAlgoliaIndexName("Sequences")}>
+            <Configure hitsPerPage={3} />
+            <Hits hitComponent={(props) => <SequencesSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+          </Index>
+        </Components.ErrorBoundary>
+        <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
+          See all results
+        </Link>
     </div>
   </div>
 }
