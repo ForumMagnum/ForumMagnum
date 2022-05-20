@@ -326,6 +326,9 @@ declare global {
       commentMarker: ColorString,
       commentMarkerActive: ColorString,
     },
+    intercom?: { //Optional. If omitted, use defaults from library.
+      buttonBackground: ColorString,
+    },
     group: ColorString,
     contrastText: ColorString,
     individual: ColorString,
