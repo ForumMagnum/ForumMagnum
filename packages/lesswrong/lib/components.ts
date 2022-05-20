@@ -131,7 +131,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ArbitalPreview", "FootnotePreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "ArbitalPreview", "FootnotePreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
 importComponent("ThemePickerMenu", () => require('../components/themes/ThemePickerMenu'));
