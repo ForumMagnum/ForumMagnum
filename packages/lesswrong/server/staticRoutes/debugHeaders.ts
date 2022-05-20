@@ -21,6 +21,6 @@ addStaticRoute('/admin/debugHeaders', async (query,req,res,next) => {
   const headers = JSON.stringify(req.headers);
   const otherIPsources =
     `req.socket.remoteAddress: ${JSON.stringify(req?.socket?.remoteAddress)}\n`
-    +`req.connection.removeAddress: ${JSON.stringify(req?.connection?.remoteAddress)}\n`
+    +`req.connection.remoteAddress: ${JSON.stringify(req?.connection?.remoteAddress)}\n`
   res.end(`${JSON.stringify(req.headers)}\n${otherIPsources}`);
 });

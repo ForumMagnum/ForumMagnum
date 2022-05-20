@@ -54,7 +54,11 @@ export const renderWithCache = async (req: Request, res: Response) => {
   const startTime = new Date();
   const user = await getUserFromReq(req);
   
-  const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
+  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
+  let ip: string = ipOrIpArray.length ? (ipOrIpArray[0]) : (ipOrIpArray as string);
+  if (ip.indexOf(",")>=0)
+    ip = ip.split(",")[0];
+  
   const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
