@@ -55,7 +55,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
   const user = await getUserFromReq(req);
   
   let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
-  let ip: string = ipOrIpArray.length ? (ipOrIpArray[0]) : (ipOrIpArray as string);
+  let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
   if (ip.indexOf(",")>=0)
     ip = ip.split(",")[0];
   
