@@ -81,7 +81,7 @@ const links = [
     image: "https://imgur.com/ItXLARl.png",
     title: "\"Other people are wrong\" vs \"I am right\"",
     snippet: "I’ve recently been spending some time thinking about the rationality mistakes I’ve made in the past. Here’s an interesting one: I think I have historically been too hasty to go from “other people seem very wrong on this topic” to “I am right on this topic”.",
-    url: "/posts/KgqMPhMEBKcJoFoHo/hypothetical-apostasy-exercise",
+    url: "/posts/4QemtxDFaGXyGSrGD/other-people-are-wrong-vs-i-am-right",
     author: "Buck"
   },
   {
@@ -176,9 +176,9 @@ export const EpistemicRecommendations = ({classes, title, start}: {
   const renderedLinks = more ? newLinks : newLinks.slice(0,3)
  
   return <SingleColumnSection>
-    <SectionTitle title={title || "Recommended" }>
-      <LWTooltip title="Customize your recommendations">
-        <SettingsButton showIcon={false} label="Customize"/>
+    <SectionTitle title={title || "Recommended for You" }>
+      <LWTooltip title="Recommendations are generated algorithmically from a hand-curated list. Posts are recommended based on your viewing history and the importance of the posts. Expect to see a mix of all-time classics and the best latest posts. Click here to see a detailed breakdown of the algorithm.">
+        <SettingsButton showIcon={false} label="How we recommend posts"/>
       </LWTooltip>
     </SectionTitle>
     {renderedLinks.map(link =>linkComponent(link))}
