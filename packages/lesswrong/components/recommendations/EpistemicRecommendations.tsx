@@ -116,7 +116,14 @@ const links = [
     title: "Babble challenge: 50 ways of getting to the moon",
     snippet: "Come up with 50 ways of sending something to the moon.\n\nIn less than 1 hour.\n\nI don’t care how stupid they are. My own list included 'Slingshot', 'Massive trampoline' and 'Bird with spacesuit.' What matters is that you actually hit 50.",
     url: "/posts/pDkZitYsJAwf8mHKJ/babble-challenge-50-ways-of-sending-something-to-the-moon",
-    author: "JacobJacob"
+    author: "jacobjacob"
+  },
+  {
+    image: "https://i.imgur.com/A9WKoFH.png",
+    title: "AI Safety Mindset [Wiki]",
+    snippet: '"Good engineering involves thinking about how things can be made to work; the security mindset involves thinking about how things can be made to fail." – Bruce Schneier',
+    href: "https://arbital.com/p/AI_safety_mindset/",
+    author: "Arbital"
   },
   {
     image: "https://imgur.com/OQDbK8v.png",
