@@ -628,6 +628,7 @@ importComponent("RecommendationsAlgorithmPicker", () => require('../components/r
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("EpistemicRecommendations", () => require('../components/recommendations/EpistemicRecommendations'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

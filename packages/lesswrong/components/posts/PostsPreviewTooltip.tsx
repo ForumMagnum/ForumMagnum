@@ -20,7 +20,7 @@ export const highlightSimplifiedStyles = {
   }
 }
 
-const highlightStyles = (theme: ThemeType) => ({
+export const highlightStyles = (theme: ThemeType) => ({
   marginTop: theme.spacing.unit*2.5,
   marginBottom: theme.spacing.unit*1.5,
   marginRight: theme.spacing.unit/2,

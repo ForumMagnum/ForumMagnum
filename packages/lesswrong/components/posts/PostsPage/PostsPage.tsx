@@ -11,6 +11,7 @@ import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
+import { EpistemicRecommendations } from '../../recommendations/EpistemicRecommendations';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -153,7 +154,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
+    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles, EpistemicRecommendations } = Components
 
   useEffect(() => {
     recordPostView({
@@ -240,6 +241,7 @@ const PostsPage = ({post, refetch, classes}: {
         </div>}
         {/* Comments Section */}
         <div className={classes.commentsSection}>
+          <EpistemicRecommendations title="Further Reading" start={3}/>
           <AnalyticsContext pageSectionContext="commentsSection">
             <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
             {(forumTypeSetting.get()=='AlignmentForum') && <AFUnreviewedCommentCount post={post}/>}
