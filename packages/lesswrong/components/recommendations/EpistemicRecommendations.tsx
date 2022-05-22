@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   author: {
     fontStyle: "italic",
     ...smallPostStyles(theme),
-    fontSize: "1rem",
+    fontSize: "1.2rem",
     color: theme.palette.grey[600]
   },
   readMore: {
@@ -177,7 +177,7 @@ export const EpistemicRecommendations = ({classes, title, start}: {
  
   return <SingleColumnSection>
     <SectionTitle title={title || "Recommended for You" }>
-      <LWTooltip title="Recommendations are generated algorithmically from a hand-curated list. Posts are recommended based on your viewing history and the importance of the posts. Expect to see a mix of all-time classics and the best latest posts. Click here to see a detailed breakdown of the algorithm.">
+      <LWTooltip title="Recommendations are algorithmically chosen from a hand-curated list. Posts are recommended to you based on your viewing history and the importance of the posts. Expect to see a mix of all-time classics and the best latest posts. Click here to see a detailed breakdown of the recommendation algorithm.">
         <SettingsButton showIcon={false} label="How we recommend posts"/>
       </LWTooltip>
     </SectionTitle>
