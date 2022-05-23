@@ -6,15 +6,6 @@ import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 
 augmentFieldsDict(Users, {
-  /*htmlBio: {
-    ...denormalizedField({
-      needsUpdate: (data: Partial<DbUser>) => ('bio' in data),
-      getValue: async (user: DbUser) => {
-        if (!user.bio) return "";
-        return await markdownToHtml(user.bio);
-      }
-    })
-  },*/
   htmlMapMarkerText: {
     ...denormalizedField({
       needsUpdate: (data: Partial<DbUser>) => ('mapMarkerText' in data),

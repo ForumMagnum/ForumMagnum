@@ -33,7 +33,6 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
   
   const defaultMapMarkerText = currentUser?.mapMarkerText || currentUser?.biography?.markdown || "";
-  
   const [ mapText, setMapText ] = useState(defaultMapMarkerText)
   
   const updateCurrentUser = useUpdateCurrentUser()

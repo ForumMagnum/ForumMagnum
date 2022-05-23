@@ -1542,43 +1542,17 @@ addFieldsDict(Users, {
     order: 2,
   },
   
-  // Bio (Markdown version)
-  /*bio: {
-    type: String,
-    optional: true,
-    hidden: forumTypeSetting.get() === "EAForum",
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 3 : 40,
-    form: {
-      variant: 'outlined',
-      hintText: "Bio",
-      rows: 10,
-      multiLine: true,
-      fullWidth: true,
-    },
-  },*/
-
-  // Bio (HTML version)
-  /*htmlBio: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },*/
-  
   bio: {
     type: String,
     viewableBy: ['guests'],
-    optional: true, hidden: true,
+    optional: true,
+    hidden: true,
   },
   htmlBio: {
     type: String,
     viewableBy: ['guests'],
-    optional: true, hidden: true,
+    optional: true,
+    hidden: true,
   },
 
   website: {

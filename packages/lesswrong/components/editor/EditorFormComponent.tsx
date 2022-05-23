@@ -693,12 +693,12 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   renderPlaceholder = (showPlaceholder, collaboration) => {
-    const { classes, formProps, hintText, placeholder, label  } = this.props
+    const { classes, formProps, hintText, placeholder  } = this.props
     const {className, contentType} = this.getBodyStyles();
 
     if (showPlaceholder) {
       return <Components.ContentStyles contentType={contentType} className={classNames(className, classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
-        { formProps?.editorHintText || hintText || placeholder || label }
+        { formProps?.editorHintText || hintText || placeholder }
       </Components.ContentStyles>
     }
   }

@@ -31,6 +31,9 @@ registerFragment(`
     groups
     jobTitle
     organization
+    biography {
+      ...RevisionEdit
+    }
     howOthersCanHelpMe {
       html
     }
