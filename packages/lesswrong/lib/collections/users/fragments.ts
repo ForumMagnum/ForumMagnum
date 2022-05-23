@@ -32,7 +32,7 @@ registerFragment(`
     jobTitle
     organization
     biography {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     howOthersCanHelpMe {
       html

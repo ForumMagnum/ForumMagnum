@@ -1565,6 +1565,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly groups: Array<string>,
   readonly jobTitle: string,
   readonly organization: string,
+  readonly biography: RevisionDisplay|null,
   readonly howOthersCanHelpMe: UsersProfile_howOthersCanHelpMe|null,
   readonly howICanHelpOthers: UsersProfile_howICanHelpOthers|null,
   readonly website: string,
@@ -1630,7 +1631,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly biography: UsersCurrent_biography|null,
+  readonly biography: RevisionEdit|null,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
@@ -1684,12 +1685,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly petrovPressedButtonDate: Date,
   readonly petrovLaunchCodeDate: Date,
   readonly lastUsedTimezone: string,
-}
-
-interface UsersCurrent_biography { // fragment on Revisions
-  readonly originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
-  readonly html: string,
-  readonly markdown: string,
 }
 
 interface UserKarmaChanges { // fragment on Users
@@ -1833,7 +1828,7 @@ interface UsersProfileEdit { // fragment on Users
   readonly slug: string,
   readonly jobTitle: string,
   readonly organization: string,
-  readonly biography: Revision|null,
+  readonly biography: RevisionEdit|null,
   readonly howOthersCanHelpMe: RevisionEdit|null,
   readonly howICanHelpOthers: RevisionEdit|null,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
