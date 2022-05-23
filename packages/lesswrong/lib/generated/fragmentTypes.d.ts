@@ -1566,7 +1566,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly jobTitle: string,
   readonly organization: string,
   readonly careerStage: Array<string>,
-  readonly biography: RevisionEdit|null,
+  readonly biography: RevisionDisplay|null,
   readonly howOthersCanHelpMe: UsersProfile_howOthersCanHelpMe|null,
   readonly howICanHelpOthers: UsersProfile_howICanHelpOthers|null,
   readonly website: string,
