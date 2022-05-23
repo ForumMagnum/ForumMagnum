@@ -1690,7 +1690,7 @@ makeEditable({
   options: {
     commentEditor: true,
     commentStyles: true,
-    hidden: false,
+    hidden: forumTypeSetting.get() === "EAForum",
     order: forumTypeSetting.get() === "EAForum" ? 3 : 40,
     formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
