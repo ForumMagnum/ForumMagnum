@@ -13,13 +13,13 @@ registerFragment(`
     descriptionTruncationCount
     createdAt
     wikiOnly
+    deleted
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
-    deleted
     oldSlugs
     isRead
     defaultOrder
