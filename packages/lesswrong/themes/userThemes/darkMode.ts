@@ -80,4 +80,12 @@ export const darkModeTheme: UserThemeSpecification = {
       buttonBackground: `${shadePalette.grey[400]} !important`,
     },
   }),
+  make: (palette: ThemePalette) => ({
+    postImageStyles: {
+      // Override image background color to white (so that transparent isn't
+      // black). Necessary because there are a handful of posts with images that
+      // have black-on-transparent text in them.
+      background: "#ffffff",
+    },
+  })
 };

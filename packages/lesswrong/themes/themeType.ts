@@ -382,6 +382,7 @@ declare global {
     },
     zIndexes: any,
     overrides: any,
+    postImageStyles: JssStyles,
     voting: {strongVoteDelay: number},
     secondary: any,
     
