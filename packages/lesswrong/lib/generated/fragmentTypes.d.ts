@@ -1404,10 +1404,10 @@ interface TagBasicInfo { // fragment on Tags
   readonly descriptionTruncationCount: number,
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
+  readonly deleted: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
-  readonly deleted: boolean,
   readonly oldSlugs: Array<string>,
   readonly isRead: boolean,
   readonly defaultOrder: number,
@@ -1563,12 +1563,12 @@ interface UsersMinimumInfo { // fragment on Users
 interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly groups: Array<string>,
-  readonly bio: string,
   readonly jobTitle: string,
   readonly organization: string,
   readonly careerStage: Array<string>,
-  readonly htmlHowOthersCanHelpMe: string,
-  readonly htmlHowICanHelpOthers: string,
+  readonly biography: RevisionEdit|null,
+  readonly howOthersCanHelpMe: UsersProfile_howOthersCanHelpMe|null,
+  readonly howICanHelpOthers: UsersProfile_howICanHelpOthers|null,
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
@@ -1602,6 +1602,14 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly goodHeartTokens: number,
 }
 
+interface UsersProfile_howOthersCanHelpMe { // fragment on Revisions
+  readonly html: string,
+}
+
+interface UsersProfile_howICanHelpOthers { // fragment on Revisions
+  readonly html: string,
+}
+
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
   readonly beta: boolean,
   readonly email: string,
@@ -1624,7 +1632,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly bio: string,
+  readonly biography: RevisionEdit|null,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
@@ -1694,7 +1702,6 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly karma: number,
-  readonly bio: string,
   readonly htmlBio: string,
   readonly createdAt: Date,
   readonly email: string,
@@ -1823,12 +1830,9 @@ interface UsersProfileEdit { // fragment on Users
   readonly jobTitle: string,
   readonly organization: string,
   readonly careerStage: Array<string>,
-  readonly bio: string,
-  readonly htmlBio: string,
-  readonly howOthersCanHelpMe: string,
-  readonly htmlHowOthersCanHelpMe: string,
-  readonly howICanHelpOthers: string,
-  readonly htmlHowICanHelpOthers: string,
+  readonly biography: RevisionEdit|null,
+  readonly howOthersCanHelpMe: RevisionEdit|null,
+  readonly howICanHelpOthers: RevisionEdit|null,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly website: string,
   readonly linkedinProfileURL: string,

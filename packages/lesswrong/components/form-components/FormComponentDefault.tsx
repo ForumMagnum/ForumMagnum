@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 class FormComponentDefault extends Component {
   render() {
-    return <Components.MuiTextField {...this.props} />
+    return <Components.MuiTextField {...this.props as any} />
   }
 }
 
@@ -14,4 +14,3 @@ declare global {
     FormComponentDefault: typeof FormComponentDefaultComponent
   }
 }
-

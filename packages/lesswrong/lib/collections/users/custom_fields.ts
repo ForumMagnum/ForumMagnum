@@ -897,13 +897,13 @@ addFieldsDict(Users, {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     hidden: !hasEventsSetting.get(),
     label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 42,
+    order: 100,
   },
 
   location: {
@@ -922,8 +922,8 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 7 : 43,
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
+    order: forumTypeSetting.get() === "EAForum" ? 7 : 101,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1577,91 +1577,19 @@ addFieldsDict(Users, {
     optional: true,
   },
   
-  // Bio (Markdown version)
   bio: {
     type: String,
+    viewableBy: ['guests'],
     optional: true,
-    hidden: forumTypeSetting.get() === "EAForum",
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
-    form: {
-      variant: 'outlined',
-      hintText: "Bio",
-      rows: 10,
-      multiLine: true,
-      fullWidth: true,
-    },
+    hidden: true,
   },
-
-  // Bio (HTML version)
   htmlBio: {
     type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-  
-  // How others can help me (Markdown version)
-  howOthersCanHelpMe: {
-    type: String,
+    viewableBy: ['guests'],
     optional: true,
     hidden: true,
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.aboutMe,
-    order: 5,
-    form: {
-      variant: 'outlined',
-      hintText: "How others can help me",
-      rows: 10,
-      multiLine: true,
-      fullWidth: true,
-    },
   },
 
-  // How others can help me (HTML version)
-  htmlHowOthersCanHelpMe: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-  
-  // How I can help others (Markdown version)
-  howICanHelpOthers: {
-    type: String,
-    optional: true,
-    hidden: true,
-    control: "MuiTextField",
-    label: 'How I can help others',
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.aboutMe,
-    order: 6,
-    form: {
-      variant: 'outlined',
-      hintText: "How I can help others",
-      rows: 10,
-      multiLine: true,
-      fullWidth: true,
-    },
-  },
-
-  // How I can help others (HTML version)
-  htmlHowICanHelpOthers: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-  
   website: {
     type: String,
     hidden: true,
@@ -1746,6 +1674,68 @@ makeEditable({
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     }
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 5,
+    fieldName: 'howOthersCanHelpMe',
+    label: "How others can help me",
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 6,
+    fieldName: 'howICanHelpOthers',
+    label: "How I can help others",
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+// biography: Some text the user provides for their profile page and to display
+// when people hover over their name.
+//
+// Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+// which now exist as resolver-only fields for back-compatibility.
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    hidden: forumTypeSetting.get() === "EAForum",
+    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    fieldName: "biography",
+    label: "Bio",
+    hintText: "Tell us about yourself",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
   }
 })
 

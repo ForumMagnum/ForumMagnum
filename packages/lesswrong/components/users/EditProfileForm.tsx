@@ -70,7 +70,7 @@ const EditProfileForm = ({classes}: {
           'jobTitle',
           'organization',
           'careerStage',
-          'bio',
+          'biography',
           'howOthersCanHelpMe',
           'howICanHelpOthers',
           'mapLocation',
