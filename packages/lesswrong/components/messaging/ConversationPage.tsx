@@ -92,17 +92,15 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
   
   // try to attribute this sent message to where the user came from
   let profileViewedFrom = ''
+  const ls = getBrowserLocalStorage()
   if (query.from) {
     profileViewedFrom = query.from
-  } else if (conversation.participantIds.length === 2) {
+  } else if (conversation.participantIds.length === 2 && ls) {
     // if this is a conversation with one other person, see if we have info on where the current user found them
     const otherUserId = conversation.participantIds.find(id => id !== currentUser._id)
-    const ls = getBrowserLocalStorage()
-    const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
-    profileViewedFrom = lastViewedProfiles.find(profile => profile.userId === otherUserId)?.from
-    console.log('lastViewedProfiles', lastViewedProfiles)
+    const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles'))
+    profileViewedFrom = lastViewedProfiles?.find(profile => profile.userId === otherUserId)?.from
   }
-  console.log('profileViewedFrom', profileViewedFrom)
 
   return (
     <SingleColumnSection>
