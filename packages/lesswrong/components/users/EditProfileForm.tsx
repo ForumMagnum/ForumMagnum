@@ -69,7 +69,7 @@ const EditProfileForm = ({classes}: {
         fields={[
           'jobTitle',
           'organization',
-          'bio',
+          'biography',
           'howOthersCanHelpMe',
           'howICanHelpOthers',
           'mapLocation',

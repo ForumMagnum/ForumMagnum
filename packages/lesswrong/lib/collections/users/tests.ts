@@ -94,7 +94,7 @@ describe('updateUser succeeds – ', () => {
     return userUpdateFieldSucceeds({
       user: user,
       document: user,
-      fieldName: 'bio',
+      fieldName: 'biography',
       collectionType: 'User',
     })
   });

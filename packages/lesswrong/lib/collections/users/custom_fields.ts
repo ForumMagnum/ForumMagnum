@@ -1716,13 +1716,12 @@ makeEditable({
   options: {
     commentEditor: true,
     commentStyles: true,
-    label: "Bio",
     hidden: false,
     order: forumTypeSetting.get() === "EAForum" ? 3 : 40,
     formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
-    
-    hintText: "",
+    label: "Bio",
+    hintText: "Tell us about yourself",
     permissions: {
       viewableBy: ['guests'],
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],

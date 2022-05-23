@@ -17,6 +17,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
+import { truncatise } from '../../lib/truncatise';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
@@ -124,7 +125,10 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
     bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
-    htmlBio: htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    htmlBio: truncatise(htmlBio, {
+      TruncateBy: 'characters',
+      TruncateLength: USER_BIO_MAX_SEARCH_CHARACTERS - 500 // some buffer for HTML tags
+    }),
     howOthersCanHelpMe: howOthersCanHelpMe.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     howICanHelpOthers: howICanHelpOthers.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,

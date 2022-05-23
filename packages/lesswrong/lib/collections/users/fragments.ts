@@ -101,9 +101,7 @@ registerFragment(`
     bannedUserIds
     bannedPersonalUserIds
     biography {
-      originalContents
-      html
-      markdown
+      ...RevisionEdit
     }
     moderationStyle
     moderationGuidelines {
@@ -386,7 +384,9 @@ registerFragment(`
     slug
     jobTitle
     organization
-    biography
+    biography {
+      ...RevisionEdit
+    }
     howOthersCanHelpMe {
       ...RevisionEdit
     }
