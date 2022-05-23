@@ -627,11 +627,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </AnalyticsContext>
           </div>
           
-          <div className={classes.rightSidebar}>
+          {isEAForum && <div className={classes.rightSidebar}>
             {sidebarInfoUpperNode}
             {(currentRole || careerStage) && (userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
             {sidebarInfoLowerNode}
-          </div>
+          </div>}
         </AnalyticsContext>
       </div>
     )
