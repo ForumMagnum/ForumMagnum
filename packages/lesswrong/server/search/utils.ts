@@ -135,6 +135,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     slug: user.slug,
     jobTitle: user.jobTitle,
     organization: user.organization,
+    careerStage: user.careerStage,
     website: user.website,
     groups: user.groups,
     af: user.groups && user.groups.includes('alignmentForum'),

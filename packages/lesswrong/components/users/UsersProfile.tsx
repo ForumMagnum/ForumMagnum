@@ -409,20 +409,17 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentRole = (jobTitle || org) && <div className={classes.currentRole}>
       {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
     </div>
-    const careerStage = user.careerStage?.length && <>
-      <div className={classes.careerStages}>
-        {user.careerStage.map(stage => {
-          return <div key={stage} className={classes.careerStage}>
-            {CAREER_STAGES.find(s => s.value === stage)?.label}
-          </div>
-        })}
-      </div>
-    </>
+    const careerStage = user.careerStage?.length && <div className={classes.careerStages}>
+      {user.careerStage.map(stage => {
+        return <div key={stage} className={classes.careerStage}>
+          {CAREER_STAGES.find(s => s.value === stage)?.label}
+        </div>
+      })}
+    </div>
     // This info is in the righthand sidebar on desktop and moves above the bio on mobile
     const sidebarInfoUpperNode = isEAForum && <>
       {currentRole}
       {careerStage}
-      {(currentRole || careerStage) && <Divider className={classes.sidebarDivider} />}
     </>
     
     const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
@@ -509,7 +506,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </Link>}
             </Typography>
             
-            {isEAForum && <div className={classes.mobileSidebarUpper}>{sidebarInfoUpperNode}</div>}
+            {isEAForum && <div className={classes.mobileSidebarUpper}>
+              {sidebarInfoUpperNode}
+              {(currentRole || careerStage) && (user.htmlBio || userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
+            </div>}
 
             {user.htmlBio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
@@ -629,6 +629,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           
           <div className={classes.rightSidebar}>
             {sidebarInfoUpperNode}
+            {(currentRole || careerStage) && (userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
             {sidebarInfoLowerNode}
           </div>
         </AnalyticsContext>
