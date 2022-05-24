@@ -219,7 +219,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
   useEffect(() => {
     const profileUser = getUserFromResults(results)
     const ls = getBrowserLocalStorage()
-    if (currentUser && profileUser && currentUser._id !== profileUser._id && ls) {
+    // currently only used on the EA Forum
+    if (forumTypeSetting.get() === 'EAForum' && currentUser && profileUser && currentUser._id !== profileUser._id && ls) {
       let from = query.from
       let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
       // if the profile user is already in the list, then remove them before re-adding them at the end
