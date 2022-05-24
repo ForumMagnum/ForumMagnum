@@ -10,12 +10,14 @@ import ListItemText from '@material-ui/core/ListItemText';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     '& .MuiOutlinedInput-input': {
+      whiteSpace: 'pre-wrap',
+      lineHeight: '1.8rem',
       paddingRight: 30
     },
   }
 })
 
-const FormComponentMultiSelect = ({ value, classes, placeholder, options, path }, context) => {
+const FormComponentMultiSelect = ({ value, classes, placeholder, separator, options, path }, context) => {
   
   return <Select
     className={classes.root}
@@ -35,7 +37,7 @@ const FormComponentMultiSelect = ({ value, classes, placeholder, options, path }
         return <em className={classes.placeholder}>{placeholder}</em>
       }
       // if any options are selected, display them separated by commas
-      return selected.map(s => options.find(option => option.value === s)?.label).join(', ')
+      return selected.map(s => options.find(option => option.value === s)?.label).join(separator || ', ')
     }}>
       {options.map(option => {
         return <MenuItem key={option.value} value={option.value}>
