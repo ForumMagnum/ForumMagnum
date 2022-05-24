@@ -800,6 +800,7 @@ interface DbUser extends DbObject {
   paymentInfo: string
   jobTitle: string
   organization: string
+  careerStage: Array<string>
   website: string
   linkedinProfileURL: string
   facebookProfileURL: string

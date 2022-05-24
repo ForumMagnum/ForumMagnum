@@ -31,6 +31,7 @@ registerFragment(`
     groups
     jobTitle
     organization
+    careerStage
     biography {
       ...RevisionDisplay
     }
@@ -387,6 +388,7 @@ registerFragment(`
     slug
     jobTitle
     organization
+    careerStage
     biography {
       ...RevisionEdit
     }
