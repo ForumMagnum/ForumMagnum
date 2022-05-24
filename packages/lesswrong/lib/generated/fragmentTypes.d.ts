@@ -1420,10 +1420,10 @@ interface TagBasicInfo { // fragment on Tags
   readonly descriptionTruncationCount: number,
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
+  readonly deleted: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
-  readonly deleted: boolean,
   readonly oldSlugs: Array<string>,
   readonly isRead: boolean,
   readonly defaultOrder: number,
@@ -1520,6 +1520,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
+  readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
 }
 

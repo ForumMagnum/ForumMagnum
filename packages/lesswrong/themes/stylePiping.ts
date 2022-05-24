@@ -67,6 +67,16 @@ const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.manifold-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
 const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.owid-preview': {
     '& iframe': {
@@ -260,6 +270,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
+    ...manifoldPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
