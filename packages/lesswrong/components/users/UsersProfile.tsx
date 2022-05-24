@@ -237,7 +237,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       // save it in local storage
       ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
     }
-  }, [currentUser, results])
+  }, [currentUser, results, query.from])
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
