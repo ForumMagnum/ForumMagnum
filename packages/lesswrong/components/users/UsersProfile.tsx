@@ -222,11 +222,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
     if (currentUser && profileUser && currentUser._id !== profileUser._id && ls) {
       let from = query.from
       let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
-      console.log('profiles', profiles)
-      // if the profile user is already in the list
+      // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === profileUser._id)
-      // then remove them
       if (profiles && profileUserIndex !== -1) {
+        // remember where we originally saw this profile, if necessary
         from = from || profiles[profileUserIndex].from
         profiles.splice(profileUserIndex, 1)
       }
@@ -234,11 +233,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
       profiles.push({userId: profileUser._id, ...(from && {from})})
       // we only bother to save the last 10 profiles
       if (profiles.length > 10) profiles.shift()
-      
       // save it in local storage
       ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
     }
-  }, [currentUser])
+  }, [currentUser, results])
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
