@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   heading: {
     marginTop: 0,
     [theme.breakpoints.down('sm')]: {
-      marginTop: 30
+      paddingTop: 30
     }
   },
   subheading: {
@@ -67,7 +67,11 @@ const EditProfileForm = ({classes}: {
         collection={Users}
         {...terms}
         fields={[
-          'bio',
+          'jobTitle',
+          'organization',
+          'biography',
+          'howOthersCanHelpMe',
+          'howICanHelpOthers',
           'mapLocation',
           'website',
           'linkedinProfileURL',

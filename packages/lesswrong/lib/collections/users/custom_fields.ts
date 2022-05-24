@@ -909,7 +909,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: forumTypeSetting.get() === "EAForum" ? 2 : 101,
+    order: forumTypeSetting.get() === "EAForum" ? 6 : 101,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1519,34 +1519,42 @@ addFieldsDict(Users, {
     group: formGroups.paymentInfo,
   },
   
-  // Bio (Markdown version)
-  bio: {
+  jobTitle: {
     type: String,
+    hidden: true,
     optional: true,
-    hidden: forumTypeSetting.get() === "EAForum",
-    control: "MuiTextField",
     canCreate: ['members'],
+    canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
-    form: {
-      variant: 'outlined',
-      hintText: "Bio",
-      rows: 12,
-      multiLine: true,
-      fullWidth: true,
-    },
-  },
-
-  // Bio (HTML version)
-  htmlBio: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
+    group: formGroups.aboutMe,
+    order: 1,
+    label: 'Role'
   },
   
+  organization: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 2,
+  },
+  
+  bio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+  htmlBio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+
   website: {
     type: String,
     hidden: true,
@@ -1559,7 +1567,7 @@ addFieldsDict(Users, {
       inputPrefix: 'https://'
     },
     group: formGroups.aboutMe,
-    order: 3
+    order: 7
   },
   
   linkedinProfileURL: {
@@ -1631,6 +1639,68 @@ makeEditable({
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     }
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 4,
+    fieldName: 'howOthersCanHelpMe',
+    label: "How others can help me",
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 5,
+    fieldName: 'howICanHelpOthers',
+    label: "How I can help others",
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+// biography: Some text the user provides for their profile page and to display
+// when people hover over their name.
+//
+// Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+// which now exist as resolver-only fields for back-compatibility.
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    hidden: forumTypeSetting.get() === "EAForum",
+    order: forumTypeSetting.get() === "EAForum" ? 3 : 40,
+    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    fieldName: "biography",
+    label: "Bio",
+    hintText: "Tell us about yourself",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
   }
 })
 
