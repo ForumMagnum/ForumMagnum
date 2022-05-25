@@ -63,7 +63,6 @@ import Footnote from './ckeditor5-footnote/src/footnote';
 import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
-import {MentionCustomization} from "./mentions-customization"
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
