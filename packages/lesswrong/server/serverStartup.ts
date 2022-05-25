@@ -61,7 +61,7 @@ async function serverStartup() {
   
   // eslint-disable-next-line no-console
   console.log("Running onStartup functions");
-  runStartupFunctions();
+  await runStartupFunctions();
   
   // define executableSchema
   createVoteableUnionType();

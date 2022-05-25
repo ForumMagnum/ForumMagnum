@@ -2,7 +2,7 @@ import { runStartupFunctions } from '../lib/executionEnvironment';
 
 async function clientStartup() {
   require('../client.js');
-  runStartupFunctions();
+  await runStartupFunctions();
 }
 
 void clientStartup();

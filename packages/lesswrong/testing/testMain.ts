@@ -52,7 +52,7 @@ async function oneTimeSetup() {
   setPublicSettings({});
   
   await ensureDbConnection();
-  runStartupFunctions();
+  await runStartupFunctions();
   
   // define executableSchema
   createVoteableUnionType();
