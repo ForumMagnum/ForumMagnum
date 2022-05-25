@@ -96,6 +96,17 @@ export const createMutator = async <T extends DbObject>({
     newDocument: document as unknown as T, // Pretend this isn't Partial<T>
     schema
   };
+  
+  /*
+
+  Remove undefines from insertion document
+
+  */
+
+  // cast is necessary b/c Ojbect.entries returns [string, any]
+  document = Object.fromEntries(
+    Object.entries(document).filter((_key, value) => value !== undefined)
+  ) as Partial<DbInsertion<T>>
 
   /*
 
@@ -103,6 +114,7 @@ export const createMutator = async <T extends DbObject>({
 
   */
   if (validate) {
+    console.log('create validation??')
     let validationErrors: Array<any> = [];
     validationErrors = validationErrors.concat(validateDocument(document, collection, context));
     // run validation callbacks
@@ -305,7 +317,8 @@ export const updateMutator = async <T extends DbObject>({
   // FIXME: Filtering out null-valued fields here is a very sketchy, probably
   // wrong thing to do. This originates from Vulcan, and it's not clear why it's
   // doing it. Explicit cast to make it type-check anyways.
-  document = pickBy(document, f => f !== null) as any;
+  document = pickBy(document, f => f !== null && f !== undefined) as any;
+  console.log('🚀 ~ file: mutators.ts ~ line 321 ~ document', document)
 
   /*
 
@@ -320,12 +333,15 @@ export const updateMutator = async <T extends DbObject>({
     currentUser, collection, context, schema
   };
 
+  console.log('got here 1.5')
+
   /*
 
   Validation
 
   */
   if (validate) {
+    console.log('validating??')
     let validationErrors: any = [];
 
     validationErrors = validationErrors.concat(validateData(data, document, collection, context));
@@ -362,22 +378,25 @@ export const updateMutator = async <T extends DbObject>({
     let autoValue;
     const schemaField = schema[fieldName];
     if (schemaField.onUpdate) {
-      // eslint-disable-next-line no-await-in-loop
+      console.log('got an onUpdate')
       autoValue = await schemaField.onUpdate({...properties, fieldName});
+      console.log('that completed')
     } else if (schemaField.onEdit) {
+      console.log('got an onedit')
       // OpenCRUD backwards compatibility
-      // eslint-disable-next-line no-await-in-loop
       autoValue = await schemaField.onEdit(
         dataToModifier(clone(data)),
         oldDocument,
         currentUser,
         document
       );
+      console.log('that completed')
     }
     if (typeof autoValue !== 'undefined') {
       data![fieldName] = autoValue;
     }
   }
+  console.log('got here 1.6')
 
   /*
 
@@ -409,10 +428,13 @@ export const updateMutator = async <T extends DbObject>({
       ]
     })
   );
+  
+  console.log('got here 1.7')
 
   // update connector requires a modifier, so get it from data
   const modifier = dataToModifier(data);
 
+  console.log('got here 1.8')
   // remove empty modifiers
   if (isEmpty(modifier.$set)) {
     delete modifier.$set;
@@ -420,12 +442,16 @@ export const updateMutator = async <T extends DbObject>({
   if (isEmpty(modifier.$unset)) {
     delete modifier.$unset;
   }
+  
 
   /*
 
   DB Operation
 
   */
+ 
+  
+  console.log('got here 2')
   if (!isEmpty(modifier)) {
     // update document
     await Connectors.updateOne(collection, selector, modifier, { removeEmptyStrings: false });
@@ -461,6 +487,8 @@ export const updateMutator = async <T extends DbObject>({
       currentUser
     ]
   });
+  
+  console.log('got here 3')
 
   /*
 
