@@ -3,9 +3,9 @@
  * For licensing, see LICENSE.md.
  */
 
-import React from 'react'
-import PropTypes from 'prop-types'
-import {getCkEditor} from '../../lib/wrapCkEditor'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { getCkEditor } from '../../lib/wrapCkEditor';
 
 interface CKEditorProps {
   data?: any,
@@ -17,7 +17,6 @@ interface CKEditorProps {
   onBlur?: any,
   config?: any,
 }
-
 
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
 export default class CKEditor extends React.Component<CKEditorProps,{}> {
@@ -75,13 +74,11 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     
   _initializeEditor() {
     this.watchdog.setCreator((el, config) => {
-
       return this.props.editor
         .create( el , config )
         .then( editor => {
           this.editor = editor;
-
-
+          
           if ( 'disabled' in this.props ) {
             editor.isReadOnly = this.props.disabled;
           }
