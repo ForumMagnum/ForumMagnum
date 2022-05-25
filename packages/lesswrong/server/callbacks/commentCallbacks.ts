@@ -242,7 +242,6 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
 });
 
 export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser: DbUser | undefined) {
-  console.log('made it here cdspma 1')
   if ((!comment.deletedByUserId || comment.deletedByUserId !== comment.userId) && comment.deleted && comment.contents?.html) {
     const onWhat = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
@@ -269,7 +268,6 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     if (comment.deletedReason && moderatingUser) {
       firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
-    console.log('made it here cdspma 2')
 
     const firstMessageData = {
       userId: lwAccount._id,
@@ -294,7 +292,6 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       currentUser: lwAccount,
       validate: false
     })
-    console.log('made it here cdspma 3')
 
     await createMutator({
       collection: Messages,
@@ -302,7 +299,6 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
       currentUser: lwAccount,
       validate: false
     })
-    console.log('made it here cdspma 4')
 
     // eslint-disable-next-line no-console
     console.log("Sent moderation messages for comment", comment)

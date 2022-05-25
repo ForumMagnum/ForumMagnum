@@ -31,7 +31,6 @@ const specificResolvers = {
           set.deletedByUserId = null;
         }
         
-        console.log('got here 1', set)
         const {data: updatedComment} = await updateMutator({
           collection: Comments,
           documentId: commentId,
