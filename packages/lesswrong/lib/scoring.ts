@@ -56,3 +56,50 @@ export const defaultScoreModifiers = () => {
     {$cond: {if: "$curatedDate", then: CURATED_BONUS.get(), else: 0}}
   ];
 };
+
+// Uses post tags for cross-collection lookup
+export const tagsLookup = () => {
+  return [
+    {
+      $addFields: {
+        tagIds: {
+          $map: {
+            input: {$objectToArray: "$tagRelevance"},
+            in: "$$this.k"
+          }
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: "tags",
+        localField: "tagIds",
+        foreignField: "_id",
+        as: "tagDocs"
+      }
+    }
+  ];
+};
+
+// Modify post score by tag multipliers
+export const tagScoreModifier = () => {
+  return {
+    $reduce: {
+      input: "$tagDocs",
+      initialValue: 1,
+      in: {
+        $multiply: [
+          {
+            $cond: {
+              if: "$$this.scoreMultiplier",
+              then: "$$this.scoreMultiplier",
+              else: 1
+            }
+          },
+          "$$value"
+        ]
+      },
+    }
+  };
+};
+

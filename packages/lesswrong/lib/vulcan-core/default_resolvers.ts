@@ -165,13 +165,15 @@ const queryFromViewParameters = async <T extends DbObject>(collection: Collectio
     const pipeline = [
       // First stage: Filter by selector
       { $match: selector },
-      // Second stage: Add computed fields
+      // Second Stage: Lookups from external collections
+      ...(parameters.externalCollectionsLookup ?? []),
+      // Third stage: Add computed fields
       { $addFields: parameters.syntheticFields },
       
-      // Third stage: Filter by computed fields (if applicable)
+      // Fourth stage: Filter by computed fields (if applicable)
       ...(parameters.syntheticFieldSelector || []),
       
-      // Fourth stage: Sort
+      // Fifth stage: Sort
       { $sort: parameters.options.sort },
     ];
     

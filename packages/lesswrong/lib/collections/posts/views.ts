@@ -4,7 +4,7 @@ import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionU
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
 import { getReviewPhase } from '../../reviewUtils';
-import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
+import {defaultScoreModifiers, tagScoreModifier, tagsLookup, timeDecayExpr} from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
@@ -200,6 +200,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
       syntheticFields: { ...params.synetheticFields, ...filterParams.syntheticFields },
+      externalCollectionsLookup: [...(params.externalCollectionsLookup ?? []), ...filterParams.externalCollectionsLookup],
     };
   }
   if (terms.sortedBy) {
@@ -281,21 +282,27 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   let scoreExpr: any = null;
   if (tagsSoftFiltered.length > 0 || frontpageSoftFilter.length > 0) {
     scoreExpr = {
+      externalCollectionsLookup: [
+        ...tagsLookup()
+      ],
       syntheticFields: {
         score: {$divide:[
-          {$add:[
-            "$baseScore",
-            ...tagsSoftFiltered.map(t => ({
-              $multiply: [
-                filterModeToKarmaModifier(t.filterMode),
-                {$ifNull: [
-                  "$tagRelevance."+t.tagId,
-                  0
-                ]}
-              ]
-            })),
-            ...defaultScoreModifiers(),
-            ...frontpageSoftFilter,
+          {$multiply: [
+            {$add:[
+              "$baseScore",
+                ...tagsSoftFiltered.map(t => ({
+                  $multiply: [
+                    filterModeToKarmaModifier(t.filterMode),
+                    {$ifNull: [
+                        "$tagRelevance."+t.tagId,
+                        0
+                      ]}
+                  ]
+                })),
+              ...defaultScoreModifiers(),
+              ...frontpageSoftFilter,
+              ]},
+              tagScoreModifier()
           ]},
           timeDecayExpr()
         ]}
