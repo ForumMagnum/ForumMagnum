@@ -278,7 +278,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   foreignFieldName: string,
   filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName])=>boolean,
 }): CollectionFieldSpecification<SourceType> {
-  const denormalizedLogger = loggerConstructor(`${collectionName.toLowerCase()}-callbacks-denormalized-${fieldName}`)
+  const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
   
   type TargetType = ObjectsByCollectionName[TargetCollectionName];
   const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
