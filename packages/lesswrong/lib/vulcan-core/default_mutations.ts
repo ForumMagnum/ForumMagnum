@@ -142,6 +142,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         );
 
         // call updateMutator boilerplate function
+        // TODO; replace with updateMutator
         return await Utils.updateMutator({
           collection,
           selector,

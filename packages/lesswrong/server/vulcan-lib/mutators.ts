@@ -248,7 +248,6 @@ export const updateMutator = async <T extends DbObject>({
   collection,
   documentId,
   selector,
-  data: dataParam,
   set = {},
   unset = {},
   currentUser=null,
@@ -257,9 +256,9 @@ export const updateMutator = async <T extends DbObject>({
   document: oldDocument,
 }: {
   collection: CollectionBase<T>,
-  documentId: string,
+  // TODO; ts either or w selector
+  documentId?: string,
   selector?: any,
-  data?: Partial<DbInsertion<T>>,
   set?: Partial<DbInsertion<T>>,
   unset?: any,
   currentUser?: DbUser|null,
@@ -279,7 +278,8 @@ export const updateMutator = async <T extends DbObject>({
 
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
-  let data = dataParam || modifierToData({ $set: set, $unset: unset });
+  // TODO; add documentation 
+  let data = modifierToData({ $set: set, $unset: unset });
   
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in LWEvents

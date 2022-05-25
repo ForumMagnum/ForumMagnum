@@ -38,7 +38,7 @@ const removeNotification = async (notificationId: string) => {
   await updateMutator({
     collection: Notifications,
     documentId: notificationId,
-    data: { deleted: true },
+    set: { deleted: true },
     validate: false
   })
 }

@@ -4,7 +4,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { commentGetPageUrlFromDB } from './helpers';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { Utils } from '../../vulcan-lib';
+import { updateMutator } from '../../../server/vulcan-lib';
 
 const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
@@ -304,11 +304,11 @@ const schema: SchemaType<DbComment> = {
       context: ResolverContext,
     }) => {
       if (data?.promoted && !oldDocument.promoted && document.postId) {
-        Utils.updateMutator({
+        void updateMutator({
           collection: context.Posts,
           context,
-          selector: {_id:document.postId},
-          data: { lastCommentPromotedAt: new Date() },
+          documentId: document.postId,
+          set: { lastCommentPromotedAt: new Date() },
           currentUser,
           validate: false
         })

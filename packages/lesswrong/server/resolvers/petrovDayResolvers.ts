@@ -300,7 +300,7 @@ const petrovDayLaunchResolvers = {
         await updateMutator({
           collection: Users,
           documentId: currentUser._id,
-          data: {
+          set: {
             petrovLaunchCodeDate: new Date()
           },
           validate: false
