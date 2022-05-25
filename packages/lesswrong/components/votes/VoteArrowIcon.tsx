@@ -5,7 +5,7 @@ import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { withTheme } from '@material-ui/core/styles';
+import { useTheme } from '../themes/useTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -75,12 +75,12 @@ export interface VoteArrowIconProps {
   bigVoted: boolean,
   bigVoteCompleted: boolean,
   alwaysColored: boolean,
-  theme?: ThemeType,
 }
 
-const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, theme, classes }: VoteArrowIconProps & {
+const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
+  const theme = useTheme();
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
   
   return (
@@ -100,7 +100,7 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted,
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon
-            style={{color: bigVoteCompleted && theme.palette[color].light}}
+            style={bigVoteCompleted ? {color: theme.palette[color].light} : undefined}
             className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
             color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
             viewBox='6 6 12 12'

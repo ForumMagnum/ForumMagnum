@@ -103,15 +103,15 @@ export function startWebserver() {
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', bodyParser.json({ limit: '50mb' }));
-  app.use(pickerMiddleware);
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(pickerMiddleware);
   
   //eslint-disable-next-line no-console
-  console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
+  console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
   // create server
   // given options contains the schema
@@ -192,7 +192,7 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     const renderResult = await renderWithCache(request, response);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, allAbTestGroups} = renderResult;
+    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, themeOptions, renderedAt, allAbTestGroups} = renderResult;
     const {bundleHash} = getClientBundle();
 
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
@@ -200,6 +200,7 @@ export function startWebserver() {
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
+    const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
     
     // Finally send generated HTML with initial data to the client
     if (redirectUrl) {
@@ -213,11 +214,13 @@ export function startWebserver() {
           + clientScript
           + headers.join('\n')
           + instanceSettingsHeader
+          + themeOptionsHeader
           + jssSheets
         + '</head>\n'
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody
         +'</body>\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt)
         + serializedApolloState)
     }
   })

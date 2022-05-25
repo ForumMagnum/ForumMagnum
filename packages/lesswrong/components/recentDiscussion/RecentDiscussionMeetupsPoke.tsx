@@ -15,14 +15,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
     
     padding: 16,
     ...theme.typography.body2,
     
-    border: "1px solid #aaa",
+    border: `1px solid ${theme.palette.grey["A200"]}`,
     borderRadius: 10,
-    boxShadow: "5px 5px 5px rgba(0,0,0,20%)",
+    boxShadow: theme.palette.boxShadow.recentDiscussionMeetupsPoke,
     
     marginLeft: "auto",
     marginRight: "auto",
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   locationInput: {
     display: "inline-block",
-    borderBottom: "1px solid rgba(0,0,0,.87)",
+    borderBottom: `1px solid ${theme.palette.text.normal}`,
     width: 350,
     marginTop: 40,
     marginBottom: 40,
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const RecentDiscussionMeetupsPoke = ({classes}: {
   classes: ClassesType,
 }) => {
-  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
+  const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geolocationLoading, setGeolocationLoading] = useState(false);
   const [label, setLabel] = useState<any>(null)
   const [location, setLocation] = useState<any>(null);

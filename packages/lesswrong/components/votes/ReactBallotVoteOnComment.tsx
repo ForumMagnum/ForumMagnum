@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     
     "&:hover": {
-      background: "#e8e8e8",
+      background: theme.palette.grey[250],
     },
   },
   buttonLabel: {
@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   badVersion: {
   },
   voteButtonSelected: {
-    background: "#eee",
+    background: theme.palette.grey[200],
   },
   divider: {
     height: 12,
@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 8,
     borderRadius: 3,
     marginRight: 4,
-    border: "1px solid #ddd",
+    border: theme.palette.border.extraFaint,
   },
   
   axisScores: {
@@ -81,7 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 8,
     borderRadius: 3,
     marginRight: 4,
-    border: "1px solid #ddd",
+    border: theme.palette.border.extraFaint,
   },
   scoreNumber: {
     marginRight: 6,

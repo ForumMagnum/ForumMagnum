@@ -25,7 +25,7 @@ const TRUSTLEVEL1_THRESHOLD = 2000
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
-    await Users.update(user._id, {$push: {groups: 'trustLevel1'}});
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
@@ -36,7 +36,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
   if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
-    await Users.update(user._id, {$push: {groups: 'canModeratePersonal'}});
+    await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")
     //eslint-disable-next-line no-console
@@ -78,9 +78,19 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // reset the postedAt for comments, since those are by default visible
     // almost everywhere. This can bypass the mutation system fine, because the
     // flag doesn't control whether they're indexed in Algolia.
-    await Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
+    await Comments.rawUpdateMany({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
   }
 });
+
+getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
+  // on the EA Forum, we are testing out reviewing all unreviewed users who add a bio
+  const addedBio = !oldUser.bio && newUser.bio && forumTypeSetting.get() === 'EAForum'
+
+  // if the user has a mapLocation and they have not been reviewed, mark them for review
+  if ((addedBio || newUser.mapLocation) && !newUser.reviewedByUserId && !newUser.needsReview) {
+    void Users.rawUpdateOne({_id: newUser._id}, {$set: {needsReview: true}})
+  }
+})
 
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
@@ -128,7 +138,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
 getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
   if (!user.abTestKey) {
     const abTestKey = user.profile?.clientId || randomId();
-    await Users.update(user._id, {$set: {abTestKey: abTestKey}});
+    await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
   }
 });
 

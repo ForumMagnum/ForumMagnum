@@ -1,18 +1,14 @@
 import React, {useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     padding: 12,
     borderRadius:3,
     marginBottom: 16,
-  },
-  textBody: {
-    ...commentBodyStyles(theme),
   },
   discussionButtonPositioning: {
     display: "flex",
@@ -31,7 +27,7 @@ const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previous
   showDiscussionLink?: boolean,
   classes: ClassesType,
 }) => {
-  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton } = Components
+  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false);
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
@@ -48,7 +44,7 @@ const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previous
     {headingStyle==="abridged" &&
       <div><TagRevisionItemShortMetadata tag={tag} revision={revision} /></div>}
     
-    {!!(added || removed || !previousRevision) && <div className={classes.textBody}>
+    {!!(added || removed || !previousRevision) && <ContentStyles contentType="comment">
       <CompareRevisions
         trim={true}
         collectionName="Tags" fieldName="description"
@@ -56,7 +52,7 @@ const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previous
         versionBefore={previousRevision?.version||null}
         versionAfter={revision.version}
       />
-    </div>}
+    </ContentStyles>}
     {showDiscussionLink && <div className={classes.discussionButtonPositioning}>
       <TagDiscussionButton tag={tag} text={`Discuss this ${tag.wikiOnly ? "wiki" : "tag"}`}/>
     </div>}

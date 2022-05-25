@@ -3,10 +3,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    backgroundColor:"rgba(80,80,0,.08)"
+    backgroundColor: theme.palette.panelBackground.sunshineNewTags,
   }
 })
 
@@ -24,7 +25,7 @@ const SunshineNewTagsList = ({ classes }:{classes:ClassesType}) => {
     return (
       <div className={classes.root}>
         <SunshineListTitle>
-          Unreviewed Tags <SunshineListCount count={totalCount}/>
+          Unreviewed {taggingNamePluralCapitalSetting.get()} <SunshineListCount count={totalCount}/>
         </SunshineListTitle>
         {results.map(tag =>
           <div key={tag._id} >
@@ -45,4 +46,3 @@ declare global {
     SunshineNewTagsList: typeof SunshineNewTagsListComponent
   }
 }
-

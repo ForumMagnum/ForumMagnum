@@ -1,10 +1,11 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import Button from '@material-ui/core/Button';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -21,6 +22,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventsLink: {
     color: theme.palette.primary.main,
+  },
+  includeInactiveBtn: {
+    textTransform: 'none',
+    fontSize: 14,
   },
   localGroups: {
     display: 'grid',
@@ -43,7 +48,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     height: 116,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: "rgba(0, 0, 0, 0.1)",
+    borderColor: theme.palette.greyAlpha(.1),
     '&:last-of-type': {
       borderBottom: 'none'
     },
@@ -54,7 +59,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mobileImg: {
     display: 'none',
     height: 160,
-    backgroundColor: '#e2f1f4',
+    backgroundColor: theme.palette.eaForumGroupsMobileImg,
     justifyContent: 'center',
     alignItems: 'center',
     [theme.breakpoints.down('xs')]: {
@@ -63,7 +68,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupContent: {
     height: 115,
-    background: 'white',
+    background: theme.palette.panelBackground.default,
     backgroundRepeat: 'no-repeat',
     backgroundPositionY: 'center',
     padding: '16px 16px 16px 150px',
@@ -88,6 +93,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginBottom: 0
   },
+  inactiveGroupTag: {
+    color: theme.palette.grey[500],
+    marginRight: 10
+  },
   localGroupDistance: {
     flex: 'none',
     ...theme.typography.commentStyle,
@@ -97,7 +106,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupLocation: {
     ...theme.typography.commentStyle,
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.text.slightlyDim2,
     fontSize: 14,
     lineHeight: '1.5em',
     display: '-webkit-box',
@@ -112,10 +121,36 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       display: 'none'
     },
   },
+  postGroupsCTA: {
+    textAlign: 'center',
+    padding: 20
+  },
 }))
 
+/**
+   * Calculates the distance between the starting location and the ending location, as the crow flies
+   *
+   * @param {Object} start - the starting location
+   * @param {number} start.lat - the starting location's latitude
+   * @param {number} start.lng - the starting location's longitude
+   * @param {Object} end - the ending location
+   * @param {number} end.lat - the ending location's latitude
+   * @param {number} end.lng - the ending location's longitude
+   * @param {'km'|'mi'} distanceUnit - whether the result should be in km or miles
+   * @returns {number}
+   */
+ export const distance = (start: {lat: number, lng: number}, end: {lat: number, lng: number}, distanceUnit: 'km'|'mi') => {
+  const toRad = (num) => num * Math.PI / 180
+  
+  const dLat = toRad(end.lat - start.lat)
+  const dLng = toRad(end.lng - start.lng)
+  const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(start.lat)) * Math.cos(toRad(end.lat)))
+  const distanceInKm = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371
 
-const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: {
+  return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
+}
+
+const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
     lat: number,
@@ -124,37 +159,21 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
     loading: boolean,
   },
   distanceUnit: 'km'|'mi',
+  includeInactive: boolean,
+  toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType,
 }) => {
   const { CommunityMapWrapper, CloudinaryImage2 } = Components
-  
-  /**
-   * Calculates the distance between the query location and the given lat/lng, as the crow flies
-   *
-   * @param {number} lat - latitude
-   * @param {number} lng - longitude
-   * @returns {number}
-   */
-  const distance = (lat, lng) => {
-    if (!userLocation) return null
-    
-    const toRad = (num) => num * Math.PI / 180
-    
-    const dLat = toRad(lat - userLocation.lat)
-    const dLng = toRad(lng - userLocation.lng)
-    const a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(toRad(userLocation.lat)) * Math.cos(toRad(lat)))
-    const distanceInKm = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 6371
-  
-    return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
-  }
 
   let groupsListTerms: LocalgroupsViewTerms = {}
   groupsListTerms = userLocation.known ? {
     view: 'nearby',
     lat: userLocation.lat,
     lng: userLocation.lng,
+    includeInactive,
   } : {
     view: 'local',
+    includeInactive,
   }
   
   const { results, loading } = useMulti({
@@ -163,7 +182,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
     fragmentName: 'localGroupsHomeFragment',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 200,
+    limit: 300,
     skip: userLocation.loading
   });
   
@@ -182,9 +201,11 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
       {(!loading && !localGroups?.length) ? <div className={classes.noResults}>
         <div className={classes.noResultsText}>No local groups matching your search</div>
         <div className={classes.noResultsCTA}>
-          <Link to={'/events'} className={classes.eventsLink}>
+          {includeInactive ? <Link to={'/events'} className={classes.eventsLink}>
             Find an upcoming event near you
-          </Link>
+          </Link> : <Button color="primary" onClick={toggleIncludeInactive} className={classes.includeInactiveBtn}>
+            Search inactive groups
+          </Button>}
         </div>
       </div> : <div className={classes.localGroupsList}>
         {localGroups?.map(group => {
@@ -196,7 +217,11 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
           // the distance from the user's location to the group's location
           let distanceToGroup;
           if (userLocation.known && group.mongoLocation?.coordinates) {
-            distanceToGroup = `${distance(group.mongoLocation.coordinates[1], group.mongoLocation.coordinates[0])} ${distanceUnit}`
+            const groupLocation = {
+              lat: group.mongoLocation.coordinates[1],
+              lng: group.mongoLocation.coordinates[0]
+            }
+            distanceToGroup = `${distance(userLocation, groupLocation, distanceUnit)} ${distanceUnit}`
           }
           
           return <div key={group._id} className={classes.localGroup}>
@@ -207,7 +232,10 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
             </Link>
             <div className={classes.localGroupContent} style={rowStyle}>
               <div className={classes.localGroupNameRow}>
-                <Link to={`/groups/${group._id}`} className={classes.localGroupName}>{group.name}</Link>
+                <Link to={`/groups/${group._id}`} className={classes.localGroupName}>
+                  {group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}
+                  {group.name}
+                </Link>
                 <div className={classes.localGroupDistance}>
                   {distanceToGroup}
                 </div>
@@ -216,6 +244,11 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', classes}: 
             </div>
           </div>
         })}
+        {!includeInactive && <div className={classes.postGroupsCTA}>
+          <Button color="primary" onClick={toggleIncludeInactive} className={classes.includeInactiveBtn}>
+            Search inactive groups
+          </Button>
+        </div>}
       </div>}
       <div className={classes.localGroupsMap}>
         <CommunityMapWrapper

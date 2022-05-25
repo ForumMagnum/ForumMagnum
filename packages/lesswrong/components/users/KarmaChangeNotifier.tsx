@@ -12,12 +12,12 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
-import { getHeaderTextColor } from '../common/Header';
 import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from '../forms/FormKarmaChangeNotifierSettings'
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: getHeaderTextColor(theme),
+    color: theme.palette.header.text,
   },
   title: {
     display: 'block',
@@ -159,7 +159,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
             {karmaChanges.tagRevisions.map(tagChange => (
               <MenuItemUntyped className={classes.votedItemRow}
                 component={Link} key={tagChange._id}
-                to={`/tag/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
+                to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>

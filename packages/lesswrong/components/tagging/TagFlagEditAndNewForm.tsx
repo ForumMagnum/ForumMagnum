@@ -3,6 +3,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { TagFlags } from '../../lib/collections/tagFlags/collection';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const TagFlagEditAndNewForm = ({ tagFlagId, onClose, classes }: {
   tagFlagId: string,
@@ -16,7 +17,9 @@ const TagFlagEditAndNewForm = ({ tagFlagId, onClose, classes }: {
       onClose={onClose}
     >
       <DialogTitle>
-        {tagFlagId ? "Edit Tag Flag" : "Create Tag Flag"}
+        {tagFlagId ?
+          `Edit ${taggingNameCapitalSetting.get()} Flag` :
+          `Create ${taggingNameCapitalSetting.get()} Flag`}
       </DialogTitle>
       <DialogContent>
         <Components.WrappedSmartForm

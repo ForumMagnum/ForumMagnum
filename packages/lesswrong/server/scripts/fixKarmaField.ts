@@ -41,7 +41,7 @@ if (fixKarma) { void (async ()=>{
         + (discussionPostKarmaWeight*discussionPostKarma)
         + (discussionCommentKarmaWeight*discussionCommentKarma)
 
-      await Users.update({_id: user._id}, {$set :{karma: karma}});
+      await Users.rawUpdateOne({_id: user._id}, {$set :{karma: karma}});
       usersCount++;
 
       if (usersCount % 1000 == 0 ){

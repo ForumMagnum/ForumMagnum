@@ -38,12 +38,12 @@ const LastEditedInWarning = ({initialType, currentType, defaultType, value, setV
       <a
         className={classes.clickHereColor}
         onClick={() => {
-          convertDocument(value, defaultType);
+          convertDocument(value, 'ckEditorMarkup');
         }}
       >
         Click here
       </a>
-      {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
+      {' '}to switch to the {editorTypeToDisplay['ckEditorMarkup'].name} editor (the default editor).
     </Typography>
     <br/>
   </div>

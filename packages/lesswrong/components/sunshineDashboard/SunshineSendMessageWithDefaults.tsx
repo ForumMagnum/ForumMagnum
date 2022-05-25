@@ -7,6 +7,7 @@ import {Components, registerComponent} from "../../lib/vulcan-lib";
 import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
@@ -18,9 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   defaultMessage: {
     maxWidth: 500,
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     padding:12,
-    boxShadow: "0 0 10px rgba(0,0,0,0.5)"
+    boxShadow: theme.palette.boxShadow.sunshineSendMessage,
   },
   sendMessageButton: {
     marginLeft: 8,
@@ -95,7 +96,9 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
             </LWTooltip>
           </div>)}
         </Menu>
-      <Link to={`/tag/${tagSlug}/discussion`}><EditIcon className={classes.editIcon}/></Link>
+      <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion`}>
+        <EditIcon className={classes.editIcon}/>
+      </Link>
     </div>
   )
 }

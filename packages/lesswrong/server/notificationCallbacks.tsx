@@ -378,11 +378,20 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
   
   // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
   let userIdsSubscribedToPost: Array<string> = [];
+  let defaultSubscribedUserIds: Array<string> = post ? [post.userId] : []
+  // if the post is associated with a group, also notify the group organizers
+  if (post && post.groupId) {
+    const group = await Localgroups.findOne(post.groupId)
+    if (group?.organizerIds) {
+      defaultSubscribedUserIds = _.union(defaultSubscribedUserIds, group.organizerIds)
+    }
+  }
+  
   const usersSubscribedToPost = await getSubscribedUsers({
     documentId: comment.postId,
     collectionName: "Posts",
     type: subscriptionTypes.newComments,
-    potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
+    potentiallyDefaultSubscribedUserIds: defaultSubscribedUserIds,
     userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
   })
   userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);

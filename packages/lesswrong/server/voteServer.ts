@@ -5,7 +5,7 @@ import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
 import { voteTypes } from '../lib/voting/voteTypes';
 import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
-import { getVotingSystemForDocument } from '../lib/voting/votingSystems';
+import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
 import { algoliaExportById } from './search/utils';
 import { createAnonymousContext } from './vulcan-lib/query';
 import moment from 'moment';
@@ -53,7 +53,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   }
   
   // update document score & set item as active
-  await Connectors.update(collection,
+  await collection.rawUpdateOne(
     {_id: document._id},
     {
       $set: {
@@ -63,7 +63,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
         extendedScore: newDocument.extendedScore,
       },
     },
-    {}, true
+    {}
   );
   void algoliaExportById(collection as any, newDocument._id);
   return {newDocument, vote};
@@ -155,12 +155,12 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       );
     }
     const newScores = await recalculateDocumentScores(document, context);
-    await Connectors.update(collection,
+    await collection.rawUpdateOne(
       {_id: document._id},
       {
         $set: {...newScores },
       },
-      {}, true
+      {}
     );
     newDocument = {
       ...newDocument,
@@ -289,6 +289,20 @@ const checkRateLimit = async ({ document, collection, voteType, user }: {
   }
 }
 
+function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean) {
+  if (votingSystem.name !== "default") {
+    // If using a non-default voting system, include neutral votes in the vote
+    // count, because they may have an effect that's not captured in their power.
+    return true;
+  }
+  
+  if (af) {
+    return !!vote.afPower;
+  } else {
+    return !!vote.power;
+  }
+}
+
 export const recalculateDocumentScores = async (document: VoteableType, context: ResolverContext) => {
   const votes = await Votes.find(
     {
@@ -309,10 +323,13 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   const baseScore = sumBy(votes, v=>v.power)
   const afBaseScore = sumBy(afVotes, v=>v.afPower)
   
+  const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
+  const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;
+  
   return {
     baseScore, afBaseScore,
-    voteCount: votes.length,
-    afVoteCount: afVotes.length,
+    voteCount: voteCount,
+    afVoteCount: afVoteCount,
     extendedScore: await votingSystem.computeExtendedScore(votes, context),
     afExtendedScore: await votingSystem.computeExtendedScore(afVotes, context),
     score: recalculateScore({...document, baseScore})

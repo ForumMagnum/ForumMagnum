@@ -9,11 +9,13 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     order:60,
     name: "moderation",
     label: "Moderation & Moderation Guidelines",
+    startCollapsed: true,
   },
   siteCustomizations: {
     order: 1,
     label: "Site Customizations",
-    name: "siteCustomizations"
+    name: "siteCustomizations",
+    startCollapsed: true,
   },
   banUser: {
     order:50,
@@ -24,12 +26,14 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   notifications: {
     order: 10,
     name: "notifications",
-    label: "Notifications"
+    label: "Notifications",
+    startCollapsed: true,
   },
   emails: {
     order: 15,
     name: "emails",
-    label: "Emails"
+    label: "Emails",
+    startCollapsed: true,
   },
   paymentInfo: {
     name: "paymentInfo",
@@ -43,10 +47,14 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Admin Options",
     startCollapsed: true,
   },
-  truncationOptions: {
-    name: "truncationOptions",
-    order: 9,
-    label: "Comment Truncation Options",
-    startCollapsed: false,
+  aboutMe: {
+    name: 'aboutMe',
+    order: 100,
+    label: 'About Me'
   },
+  socialMedia: {
+    name: 'socialMedia',
+    order: 110,
+    label: 'My Social Media'
+  }
 }

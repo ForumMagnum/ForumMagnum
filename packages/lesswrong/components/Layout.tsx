@@ -19,7 +19,7 @@ import { ItemsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { forumTypeSetting } from '../lib/instanceSettings';
-import { globalStyles } from '../lib/globalStyles';
+import { globalStyles } from '../themes/globalStyles/globalStyles';
 import type { ToCData, ToCSection } from '../server/tableOfContents';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 
@@ -81,11 +81,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'sunshine'
   },
   whiteBackground: {
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
   },
   '@global': {
     ...globalStyles(theme),
-    p: pBodyStyle,
+    p: pBodyStyle(theme),
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
@@ -100,6 +100,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
     },
+    ...(theme.palette.intercom ? {
+      '.intercom-launcher': {
+        backgroundColor: theme.palette.intercom.buttonBackground
+      }
+    } : null),
   },
   searchResultsArea: {
     position: "absolute",
@@ -265,7 +270,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         },
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames("wrapper", classes.wrapper, {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -286,16 +291,16 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
-              {showIntercom(currentUser)}
+              {!currentRoute?.standalone && showIntercom(currentUser)}
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              <Header
+              {!currentRoute?.standalone && <Header
                 toc={this.state.toc}
                 searchResultsArea={this.searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
                 toggleStandaloneNavigation={this.toggleStandaloneNavigation}
-              />
+              />}
               {renderPetrovDay && <PetrovDayWrapper/>}
               <div className={shouldUseGridLayout ? classes.gridActivated : null}>
                 {standaloneNavigation && <div className={classes.navSidebar}>

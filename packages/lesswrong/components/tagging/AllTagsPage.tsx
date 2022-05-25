@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
 import { useCurrentUser } from '../common/withUser';
@@ -9,7 +8,8 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useDialog } from '../common/withDialog';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,13 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     columns: 5,
     columnWidth: 200,
     columnGap: 0,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: 20,
     marginBottom: 24
   },
   portal: {
-    marginTop: 18,
-    ...commentBodyStyles(theme),
     marginBottom: 18,
     position: "relative",
     [theme.breakpoints.down('xs')]: {
@@ -62,19 +60,30 @@ const AllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "TagFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody } = Components;
+  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles } = Components;
+
+  let sectionTitle = forumSelect({
+    EAForum: 'EA Forum Wiki',
+    default: 'Concepts Portal'
+  })
+  if (taggingNameIsSet.get()) {
+    sectionTitle = forumSelect({
+      EAForum: `EA Forum ${taggingNamePluralCapitalSetting.get()} Wiki`,
+      default: `${taggingNamePluralCapitalSetting.get()} Portal`
+    })
+  }
 
   return (
     <AnalyticsContext pageContext="allTagsPage">
       <div className={classes.root}>
         <div className={classes.topSection}>
           <AnalyticsContext pageSectionContext="tagPortal">
-            <SectionTitle title={forumTypeSetting.get() === 'EAForum' ? 'EA Forum Wiki' : 'Concepts Portal'}>
+            <SectionTitle title={sectionTitle}>
               <SectionButton>
                 {currentUser
-                  ? <Link to="/tag/create">
+                  ? <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
                       <AddBoxIcon className={classes.addTagButton}/>
-                      New Tag
+                      New {taggingNameCapitalSetting.get()}
                     </Link>
                   : <a onClick={(ev) => {
                       openDialog({
@@ -84,12 +93,12 @@ const AllTagsPage = ({classes}: {
                       ev.preventDefault();
                     }}>
                       <AddBoxIcon className={classes.addTagButton}/>
-                      New Tag
+                      New {taggingNameCapitalSetting.get()}
                     </a>
                 }
               </SectionButton>
             </SectionTitle>
-            <div className={classes.portal}>
+            <ContentStyles contentType="comment" className={classes.portal}>
               {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
                 Edit
               </a>}
@@ -101,7 +110,7 @@ const AllTagsPage = ({classes}: {
                   description={`tag ${tag?.name}`} noHoverPreviewPrefetch
                 />
               }
-            </div>
+            </ContentStyles>
           </AnalyticsContext>
         </div>
         <AnalyticsContext pageSectionContext="allTagsAlphabetical">

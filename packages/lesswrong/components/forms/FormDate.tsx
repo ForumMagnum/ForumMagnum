@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   ...formCommonStyles(theme),
   
   datePicker: {
-    borderBottom: `solid 1px #999`,
+    borderBottom: `solid 1px ${theme.palette.grey[550]}`,
     padding: '6px 0 7px 0'
   },
 });

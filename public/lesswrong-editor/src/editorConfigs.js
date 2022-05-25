@@ -46,7 +46,27 @@ const embedConfig = {
 		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
 		    </div>
 		  `
-		}
+		},
+		{
+			name: "Manifold",
+			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
+			html: ([match, longslug]) => `
+				<div data-manifold-id="${longslug}" class="manifold-preview">
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}"/>
+				</div>
+			`
+		},
+		{
+			name: 'OWID',
+			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
+			html: ([match, slug]) => {
+				return `
+					<div data-owid-slug="${slug}" class="owid-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
 	]
 }
 

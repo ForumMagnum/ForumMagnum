@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: "1em",
     paddingTop: "1em",
     color: theme.palette.grey[600],
-    borderTop: "solid 1px rgba(0,0,0,.15)",
+    borderTop: theme.palette.border.slightlyFaint,
     textAlign: "center"
   },
   link: {

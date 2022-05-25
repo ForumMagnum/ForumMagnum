@@ -12,6 +12,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import PropTypes from 'prop-types';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 500,
     padding: 16,
     fontFamily: theme.typography.fontFamily,
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
   },
   sharingPermissionsRow: {
   },
@@ -37,12 +38,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     display: "flex",
   },
+  buttonIcon: {
+    cursor: "pointer"
+  },
   spacer: {
     flexGrow: 1,
   },
   linkSharingDescriptionPart: {
     display: "block",
   },
+  warning: {
+    color: theme.palette.error.main
+  }
 });
 
 const PostSharingSettings = ({document, formType, value, path, label, classes}: {
@@ -54,6 +61,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   classes: ClassesType
 }, context) => {
   const {updateCurrentValues, submitForm} = context;
+  const { LWTooltip } = Components
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
   const hasUnsavedPermissionsChanges = false;
@@ -66,9 +74,20 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       return;
     }
     
-    // HACK: Check whether we're using CkEditor or something else. See wrappedSetCOntents
-    // in EditorFormComponent.
-    if ((document as any).contents_type && (document as any).contents_type !== "ckEditorMarkup") {
+    // Check whether we're using CkEditor, or something else.
+    // HACK: This isn't stored in a reliable place, until you edit.
+    // EditorFormComponent puts it in contents_type for us on edit, but if the
+    // contents haven't been edited yet it's not there. So we check
+    // originalContents.type, which, if it's an edit form (as opposed to a new
+    // form) will have the contents as they were on load. If it's not there
+    // either, it's a new, not-yet-edited post, and we have a separate error
+    // message for that.
+    // See also EditorFormComponent.
+    const editorType = (document as any)?.contents_type || (document as any)?.contents?.originalContents?.type;
+    if (!editorType) {
+      flash("Edit the document first to enable sharing");
+      return;
+    } else if(editorType !== "ckEditorMarkup") {
       flash("Change the editor type to LessWrong Docs to enable sharing");
       return;
     }
@@ -109,14 +128,9 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   if (!userCanUseSharing(currentUser))
     return null;
   
-  return <div className={classes.shareButtonSection}>
-    <Button variant="contained" color="primary" onClick={onClickShare}>
-      <div>
-        Share<br/>
-        <span className={classes.betaLabel}>(Beta)</span>
-      </div>
-    </Button>
-  </div>
+  return <LWTooltip title="Share this document (Beta)">
+      <PersonAddIcon className={classes.buttonIcon} onClick={onClickShare}/>
+    </LWTooltip>
 }
 
 (PostSharingSettings as any).contextTypes = {
@@ -183,6 +197,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
   return <LWDialog open={true}>
     <div className={classes.sharingSettingsDialog}>
       <h2>Sharing Settings</h2>
+
       
       <p>Shared With Users:</p>
       <EditableUsersList
@@ -225,6 +240,8 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
+      <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom or email us at team@lesswrong.com if you experience issues</p>
+
       <div className={classes.buttonRow}>
         {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId &&
           <CopyToClipboard

@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
-import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
 
@@ -17,7 +16,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.1em",
   },
   postBody: {
-    ...postHighlightStyles(theme),
     marginTop: 12,
     fontSize: "1rem",
     '& li, & h1, & h2, & h3': {
@@ -30,11 +28,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
-  posts: SunshinePostsList[],
+  posts?: SunshinePostsList[],
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions, ContentStyles } = Components
  
   if (!posts) return null
 
@@ -56,7 +54,9 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
           </div>
           <PostsPageActions post={post} />
         </div>
-        {!post.draft && <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />}
+        {!post.draft && <ContentStyles contentType="postHighlight" className={classes.postBody}>
+          <div dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />
+        </ContentStyles>}
       </div>)}
     </div>
   )
@@ -69,4 +69,3 @@ declare global {
     SunshineNewUserPostsList: typeof SunshineNewUserPostsListComponent
   }
 }
-

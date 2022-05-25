@@ -43,7 +43,7 @@ Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
         // add email to emails
         const newEmail = {address: user.email, verified: true};
         const newEmails = user.emails ? [...user.emails, newEmail] : [newEmail]
-        void Users.update(user._id, {$set: {'emails': newEmails}});
+        void Users.rawUpdateOne(user._id, {$set: {'emails': newEmails}});
         // eslint-disable-next-line no-console
         console.log('updating user account:', user.email, user.emails, newEmails);
       }

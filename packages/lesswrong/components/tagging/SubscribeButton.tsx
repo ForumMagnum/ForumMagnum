@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useSubscribeUserToTag } from '../../lib/filterSettings';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -52,10 +53,12 @@ const SubscribeButton = ({
     }
   }
   
+  const postsWording = taggingNameIsSet.get() ? `posts tagged with this ${taggingNameSetting.get()}` : "posts with this tag"
+  
   return <div className={classNames(className, classes.root)}>
     <LWTooltip title={isSubscribed ?
-      "Remove homepage boost for posts with this tag" :
-      "See more posts with this tag on the homepage"
+      `Remove homepage boost for ${postsWording}` :
+      `See more ${postsWording} on the homepage`
     }>
       <Button variant="outlined" onClick={onSubscribe}>
         <span className={classes.subscribeText}>{ isSubscribed ? unsubscribeMessage : subscribeMessage}</span>
@@ -63,7 +66,7 @@ const SubscribeButton = ({
     </LWTooltip>
     <NotifyMeButton
       document={tag}
-      tooltip="Click to toggle notifications for posts with this tag"
+      tooltip={`Click to toggle notifications for ${postsWording}`}
       showIcon
       hideLabel
       hideIfNotificationsDisabled={!isSubscribed}

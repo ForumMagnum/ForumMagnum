@@ -6,12 +6,12 @@ import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
+import { taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -33,8 +33,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
   },
   description: {
-    ...commentBodyStyles(theme),
-    margin: theme.spacing*2,
     marginTop: 20
   },
   filterScore: {
@@ -65,8 +63,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   selected: {
-    color: "black",
-    backgroundColor: "rgba(0,0,0,.1)",
+    color: theme.palette.text.maxIntensity,
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
     padding: 4,
     paddingLeft: 8,
     paddingRight: 8,
@@ -93,7 +91,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   description?: React.ReactNode
   classes: ClassesType,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview } = Components
+  const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
   const currentUser = useCurrentUser()
@@ -115,10 +113,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
-      {(tag && !isMobile()) ? <Link to={`tag/${tag?.slug}`}>
-        {tagLabel}
-      </Link>
-      : tagLabel
+      {(tag && !isMobile()) ?
+        <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag?.slug}`}>
+          {tagLabel}
+        </Link> :
+        tagLabel
       }
       <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start"
         modifiers={{
@@ -181,9 +180,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 </LWTooltip>
               </div>}
           </div>
-          {description && <div className={classes.description}>
+          {description && <ContentStyles contentType="comment" className={classes.description}>
             {description}
-          </div>}
+          </ContentStyles>}
         </div>
         {tag && <TagPreview tag={tag} showCount={false} postCount={3}/>}
       </PopperCard>
@@ -194,12 +193,12 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 function filterModeToTooltip(mode: FilterMode): React.ReactNode {
   switch (mode) {
     case "Required":
-      return <div><em>Required.</em> ONLY posts with this tag will appear in Latest Posts.</div>
+      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in Latest Posts.</div>
     case "Hidden":
-      return <div><em>Hidden.</em> Posts with this tag will be not appear in Latest Posts.</div>
+      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in Latest Posts.</div>
     case 0:
     case "Default":
-      return <div><em>+0.</em> This tag will be ignored for filtering and sorting.</div>
+      return <div><em>+0.</em> This {taggingNameSetting.get()} will be ignored for filtering and sorting.</div>
     default:
       if (mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>

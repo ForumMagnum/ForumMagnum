@@ -6,8 +6,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: 12,
     paddingRight: 12,
-    background: "white",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     borderRadius: 3,
     marginBottom: 32,
   }

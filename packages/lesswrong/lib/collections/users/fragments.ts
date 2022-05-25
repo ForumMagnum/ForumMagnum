@@ -31,6 +31,10 @@ registerFragment(`
     groups
     bio
     website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
     frontpagePostCount
     afSequenceCount
     afSequenceDraftCount
@@ -54,12 +58,12 @@ registerFragment(`
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
     sortDraftsBy
-    reenableDraftJs
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
     paymentEmail
     paymentInfo
+    goodHeartTokens
   }
 `);
 
@@ -150,7 +154,6 @@ registerFragment(`
 
     sortDraftsBy
 
-    reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
     lastUsedTimezone
@@ -305,6 +308,9 @@ registerFragment(`
     mongoLocation
     googleLocation
     location
+    
+    # Map Location (public)
+    mapLocation
 
     # Admin & Review
     reviewedByUserId
@@ -333,6 +339,7 @@ registerFragment(`
     notificationRSVPs
     notificationCommentsOnDraft
     notificationPostsNominatedReview
+    notificationGroupAdministration
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -363,5 +370,20 @@ registerFragment(`
     ...UsersMinimumInfo
     reviewVoteCount
     email
+  }
+`)
+
+registerFragment(`
+  fragment UsersProfileEdit on User {
+    _id
+    slug
+    bio
+    htmlBio
+    mapLocation
+    website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
   }
 `)

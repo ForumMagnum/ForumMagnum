@@ -2,6 +2,7 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import { Mutation } from '@apollo/client/react/components';
 import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
+import type { MutationResult } from '@apollo/client/react';
 import { withApollo } from '@apollo/client/react/hoc';
 import { extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
@@ -52,7 +53,7 @@ export const withCreate = options => {
 
   const mutationWrapper = (Component) => (props) => (
     <Mutation mutation={query}>
-      {(mutate, { data }) => (
+      {(mutate, result: MutationResult<any>) => (
         <Component
           {...props}
           mutate={mutate}

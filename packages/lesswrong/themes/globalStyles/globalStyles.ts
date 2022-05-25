@@ -1,5 +1,3 @@
-import forumTheme from "../themes/forumTheme";
-
 const maxSmallish = "@media screen and (max-width: 715px)";
 const maxTiny = "@media screen and (max-width: 400px)";
 
@@ -11,16 +9,17 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
     boxSizing: "border-box",
     "-webkit-font-smoothing": "antialiased",
     "-moz-osx-font-smoothing": "grayscale",
+    color: theme.palette.text.maxIntensity,
   },
   "*, *::before, *::after": {
     boxSizing: "inherit",
   },
   body: {
     margin: 0,
-    backgroundColor: forumTheme.palette.background.default,
+    backgroundColor: theme.palette.background.default,
     
     "@media print": {
-      backgroundColor: "white",
+      backgroundColor: theme.palette.panelBackground.default,
     },
   },
   
@@ -31,6 +30,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
+    color: theme.palette.text.maxIntensity,
   },
   
   button: {
@@ -46,7 +46,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
 
 const globalStyle = (theme: ThemeType): JssStyles => ({
   ".message.error": {
-    color: "#E04E4B",
+    color: theme.palette.text.error2,
   },
   
   ".ais-InstantSearch__root": {
@@ -77,7 +77,7 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
   
   ".reCaptcha-text": {
     fontFamily: "sans-serif",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     fontSize: 11,
   },
   ".thoughtSaverFrame": {
@@ -100,7 +100,7 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
       paddingTop: 5,
     },
     
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
   },
   ".comments-node .comments-node": {
     [maxTiny]: {
@@ -123,10 +123,10 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
   },
   
   ".comments-node-even": {
-    backgroundColor: "rgb(242,242,242)",
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
   },
   ".comments-node-odd": {
-    backgroundColor: "rgb(252,252,252)",
+    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
   },
   ".comments-node-its-getting-nested-here": {
     marginLeft: "7px !important",
@@ -172,7 +172,7 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
     "&.loading": {
       minHeight: 80,
       padding: 35,
-      backgroundColor: "rgb(242,242,242)",
+      backgroundColor: theme.palette.panelBackground.commentNodeEven,
     },
   
     "& .comments-node": {

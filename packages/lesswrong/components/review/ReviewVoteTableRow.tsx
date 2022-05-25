@@ -13,9 +13,9 @@ import { useRecordPostView } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    borderBottom: "solid 1px rgba(0,0,0,.15)",
+    borderBottom: theme.palette.border.slightlyFaint,
     position: "relative",
-    background: "white",
+    background: theme.palette.panelBackground.default,
     '&:hover': {
       '& $expand': {
         display: "block"
@@ -23,13 +23,13 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('xs')]: {
       marginBottom: 2,
-      boxShadow: theme.boxShadow
+      boxShadow: theme.palette.boxShadow.default,
     }
   },
   votingPhase: {
     marginTop: 20,
-    border: "solid 1px rgba(0,0,0,.1)",
-    boxShadow: "0 1px 3px 0px rgba(0,0,0,.05)"
+    border: theme.palette.border.faint,
+    boxShadow: `0 1px 3px 0px ${theme.palette.boxShadowColor(.05)}`
   },
   voteIcon: {
     padding: 0
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: "auto",
     [theme.breakpoints.down('xs')]: {
       maxWidth: "calc(100% - 100px)",
-      background: "white"
+      background: theme.palette.panelBackground.default,
     }
   },
   postVotingPhase: {
@@ -80,12 +80,12 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 35
   },
   expanded: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: theme.palette.grey[140],
   },
   highlight: {
     padding: 16,
-    background: "#f9f9f9",
-    borderTop: "solid 1px rgba(0,0,0,.1)"
+    background: theme.palette.grey[55],
+    borderTop: theme.palette.border.faint,
   },
   userVote: {
     position: "absolute",
@@ -93,7 +93,7 @@ const styles = (theme: ThemeType) => ({
     top: 0,
     height: "100%",
     width: 6,
-    background: "#bbb"
+    background: theme.palette.grey[405],
   },
   expandIcon: {
     color: theme.palette.grey[500],
@@ -112,7 +112,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.error.light
   },
   votes: {
-    backgroundColor: "#eee",
+    backgroundColor: theme.palette.grey[200],
     padding: 10,
     alignSelf: "stretch",
     display: "flex",
@@ -143,13 +143,13 @@ const styles = (theme: ThemeType) => ({
     }
   },
   highVote: {
-    color: "rgba(0,0,0,.8)",
+    color: theme.palette.text.slightlyDim,
     fontWeight: 600,
     padding: 2,
     cursor: "pointer"
   },
   lowVote: {
-    color: "rgba(0,0,0,.45)",
+    color: theme.palette.text.dim45,
     padding: 2,
     cursor: "pointer"
   },

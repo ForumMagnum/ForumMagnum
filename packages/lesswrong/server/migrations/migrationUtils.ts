@@ -52,7 +52,7 @@ export async function runMigration(name: string)
   // eslint-disable-next-line no-console
   console.log(`Beginning migration: ${name}`);
 
-  const migrationLogId = await Migrations.insert({
+  const migrationLogId = await Migrations.rawInsert({
     name: name,
     started: new Date(),
   });
@@ -60,7 +60,7 @@ export async function runMigration(name: string)
   try {
     await action();
     
-    await Migrations.update({_id: migrationLogId}, {$set: {
+    await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: true,
     }});
 
@@ -72,7 +72,7 @@ export async function runMigration(name: string)
     // eslint-disable-next-line no-console
     console.error(e);
     
-    await Migrations.update({_id: migrationLogId}, {$set: {
+    await Migrations.rawUpdateOne({_id: migrationLogId}, {$set: {
       finished: true, succeeded: false,
     }});
   }
@@ -141,7 +141,7 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
         const mutation = { $set: {
           [fieldName]: defaultValue
         } };
-        const writeResult = await collection.update(bucketSelector, mutation, {multi: true});
+        const writeResult = await collection.rawUpdateMany(bucketSelector, mutation, {multi: true});
         
         nMatched += writeResult || 0;
         // eslint-disable-next-line no-console
@@ -264,7 +264,7 @@ export async function dropUnusedField(collection, fieldName) {
         const mutation = { $unset: {
           [fieldName]: 1
         } };
-        const writeResult = await collection.update(
+        const writeResult = await collection.rawUpdateMany(
           bucketSelector,
           mutation,
           {multi: true}

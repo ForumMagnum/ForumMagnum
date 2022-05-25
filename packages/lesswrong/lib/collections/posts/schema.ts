@@ -22,6 +22,14 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
+export const SORT_ORDER_OPTIONS = {
+  magic: 'Magic (New & Upvoted)',
+  recentComments: 'Recent Comments',
+  new: 'New',
+  old: 'Old',
+  top: 'Top',
+}
+
 export interface RSVPType {
   name: string
   email: string
@@ -235,8 +243,8 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     ...schemaDefaultValue(false),
     viewableBy: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 10,
     group: formGroups.adminOptions,
@@ -257,8 +265,8 @@ const schema: SchemaType<DbPost> = {
     type: SimpleSchema.Integer,
     ...schemaDefaultValue(2),
     viewableBy: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+    editableBy: ['sunshineRegiment', 'admins'],
     control: 'select',
     options: () => Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
       value: parseInt(level),

@@ -19,6 +19,7 @@ import StarIcon from '@material-ui/icons/Star';
 import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
+import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 
 interface NotificationType {
   name: string
@@ -27,7 +28,7 @@ interface NotificationType {
   getMessage: (args: {documentType: string|null, documentId: string|null})=>Promise<string>
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
-  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>Promise<string>
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
 }
 
 const notificationTypes: Record<string,NotificationType> = {};
@@ -291,6 +292,13 @@ export const PostSharedWithUserNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    return `/collaborateOnPost?postId=${documentId}`;
+  }
 });
 
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({
@@ -349,6 +357,20 @@ export const NewRSVPNotification = registerNotificationType({
   }
 })
 
+export const NewGroupOrganizerNotification = registerNotificationType({
+  name: "newGroupOrganizer",
+  userSettingField: "notificationGroupAdministration",
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    if (documentType !== 'localgroup') throw new Error("documentType must be localgroup")
+    const localGroup = await Localgroups.findOne(documentId)
+    if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
+    return `You've been added as an organizer of ${localGroup.name}`
+  },
+  getIcon() {
+    return <SupervisedUserCircleIcon style={iconStyles} />
+  }
+})
+
 export const NewCommentOnDraftNotification = registerNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",
@@ -365,12 +387,11 @@ export const NewCommentOnDraftNotification = registerNotificationType({
     return <Components.CommentOnYourDraftNotificationHover notification={notification}/>
   },
   
-  getLink: async ({documentType, documentId, extraData}: {
+  getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
     documentId: string|null,
     extraData: any
-  }): Promise<string> => {
+  }): string => {
     return `/editPost?postId=${documentId}`;
   },
 });
-

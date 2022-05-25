@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight:500,
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
     verticalAlign: 'middle',
     lineHeight: '1.25em'
   },
@@ -100,7 +100,11 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
   }
 
   render() {
-    const { classes, label='Moderators may promote to Frontpage', tooltip } = this.props
+    const defaultLabel = forumSelect({
+      EAForum:'This post may appear on the Frontpage',
+      default: 'Moderators may promote to Frontpage'
+    })
+    const { classes, label = defaultLabel, tooltip } = this.props
 
     const displayedTooltip = tooltip || defaultTooltip({classes})
 

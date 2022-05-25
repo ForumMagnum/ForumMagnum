@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   posts: {
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   }
 });
 

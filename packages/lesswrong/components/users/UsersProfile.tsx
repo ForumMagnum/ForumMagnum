@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { combineUrls, Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -11,14 +11,18 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
+import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { socialMediaIconPaths } from '../form-components/PrefixedInput';
+import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
+import Button from '@material-ui/core/Button';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -30,16 +34,70 @@ export const sectionFooterLeftStyles = {
 
 const styles = (theme: ThemeType): JssStyles => ({
   profilePage: {
+    display: 'grid',
+    gridTemplateColumns: `1fr ${SECTION_WIDTH}px 1fr`,
+    gridTemplateAreas: `
+      '. center right'
+    `,
+    justifyContent: 'center',
+    columnGap: 50,
+    paddingLeft: 10,
+    paddingRight: 10,
     marginLeft: "auto",
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+      marginTop: -20
+    },
     [theme.breakpoints.down('sm')]: {
+      paddingLeft: 5,
+      paddingRight: 5,
       margin: 0,
     }
   },
+  centerColumnWrapper: {
+    gridArea: 'center'
+  },
   usernameTitle: {
+    display: 'flex',
+    justifyContent: 'space-between',
     fontSize: "3rem",
     ...theme.typography.display3,
     ...theme.typography.postStyle,
-    marginTop: 0
+    marginTop: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 15
+    }
+  },
+  messageBtnDesktop: {
+    display: 'block',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  messageBtnMobile: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  },
+  messageBtn: {
+    boxShadow: 'none',
+    marginLeft: 20,
+    [theme.breakpoints.down('xs')]: {
+      margin: '5px 0 10px'
+    }
+  },
+  mapLocation: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    columnGap: 4,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    color: theme.palette.grey[800],
+    marginBottom: 12
+  },
+  locationIcon: {
+    fontSize: 14,
   },
   userInfo: {
     display: "flex",
@@ -58,7 +116,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   icon: {
     '&$specificalz': {
       fontSize: 18,
-      color: 'rgba(0,0,0,0.5)',
+      color: theme.palette.icon.dim,
       marginRight: 4
     }
   },
@@ -69,7 +127,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*3,
     marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit,
-    ...postBodyStyles(theme)
   },
   primaryColor: {
     color: theme.palette.primary.light
@@ -82,7 +139,50 @@ const styles = (theme: ThemeType): JssStyles => ({
   specificalz: {},
   userMetaInfo: {
     display: "inline-flex"
-  }
+  },
+  
+  rightSidebar: {
+    gridArea: 'right',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    paddingTop: theme.spacing.unit * 3,
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    }
+  },
+  mobileRightSidebar: {
+    display: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    marginTop: 30,
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+    }
+  },
+  socialMediaIcons: {
+    display: 'flex',
+    columnGap: 14,
+    marginBottom: 30
+  },
+  socialMediaIcon: {
+    flex: 'none',
+    height: 30,
+    fill: theme.palette.grey[700],
+  },
+  website: {
+    display: 'inline-flex',
+    justifyContent: 'center',
+    wordBreak: 'break-all',
+    marginLeft: 4
+  },
+  websiteIcon: {
+    flex: 'none',
+    height: 20,
+    fill: theme.palette.grey[700],
+    marginRight: 6
+  },
 })
 
 const sortings: Partial<Record<string,string>> = {
@@ -93,7 +193,7 @@ const sortings: Partial<Record<string,string>> = {
   top: "Top"
 }
 
-export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null): T|null => {
+export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
@@ -169,7 +269,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </span>
         </Tooltip>
 
-        <Tooltip title={`${tagRevisionCount||0} wiki edit${tagRevisionCount === 1 ? '' : 's'}`}>
+        <Tooltip title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`}>
           <span className={classes.userMetaInfo}>
             <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo>
@@ -184,7 +284,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography, ContentStyles } = Components
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
@@ -214,7 +314,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
         return <Components.Error404/>
       }
     }
-
+    
+    // on the EA Forum, the user's location links to the Community map
+    let mapLocationNode
+    if (user.mapLocation) {
+      mapLocationNode = forumTypeSetting.get() === 'EAForum' ? <div>
+        <Link to="/community#individuals" className={classes.mapLocation}>
+          <LocationIcon className={classes.locationIcon} />
+          {user.mapLocation.formatted_address}
+        </Link>
+      </div> : <div className={classes.mapLocation}>
+        <LocationIcon className={classes.locationIcon} />
+        {user.mapLocation.formatted_address}
+      </div>
+    }
 
     const draftTerms: PostsViewTerms = {view: "drafts", ...query, userId: user._id, limit: 5, sortDraftsBy: currentUser?.sortDraftsBy || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
@@ -244,6 +357,28 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
+    
+    const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
+    
+    const socialMediaIcon = (field) => {
+      if (!user[field]) return null
+      return <a key={field} href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
+      </a>
+    }
+    
+    // the data in the righthand sidebar on desktop moves under the bio on mobile
+    const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
+      {userHasSocialMedia && <>
+        <div className={classes.socialMediaIcons}>
+          {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
+        </div>
+      </>}
+      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
+        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
+        {user.website}
+      </a>}
+    </>
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -252,39 +387,70 @@ const UsersProfileFn = ({terms, slug, classes}: {
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
         />
         <AnalyticsContext pageContext={"userPage"}>
+          <div className={classes.centerColumnWrapper}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>{username}</div>
+            <div className={classes.usernameTitle}>
+              <div>{username}</div>
+              {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+                <div className={classes.messageBtnDesktop}>
+                  <NewConversationButton user={user} currentUser={currentUser}>
+                    <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
+                      Message
+                    </Button>
+                  </NewConversationButton>
+                </div>
+              )}
+            </div>
+            {mapLocationNode}
+            {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+              <div className={classes.messageBtnMobile}>
+                <NewConversationButton user={user} currentUser={currentUser}>
+                  <Button color="primary" variant="contained" className={classes.messageBtn}>
+                    Message
+                  </Button>
+                </NewConversationButton>
+              </div>
+            )}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<span>Add RSS</span>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
               }
+              { forumTypeSetting.get() === "EAForum" && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
+                Edit Profile
+              </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser && currentUser._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
-                <a>Message</a>
+              { forumTypeSetting.get() !== "EAForum" && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+                <a data-cy="message">Message</a>
               </NewConversationButton>}
-              { currentUser && currentUser._id !== user._id && <NotifyMeButton
+              { <NotifyMeButton
                 document={user}
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
               {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Edit Account
+                Account Settings
               </Link>}
             </Typography>
 
-            { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+            {user.bio && <ContentStyles contentType="post">
+              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
+            </ContentStyles>}
+            
+            {(userHasSocialMedia || user.website) && <div className={classes.mobileRightSidebar}>
+              {sidebarInfoNode}
+            </div>}
           </SingleColumnSection>
 
           <SingleColumnSection>
@@ -349,8 +515,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Wiki Section */}
           <SingleColumnSection>
-            <SectionTitle title={"Wiki Contributions"}>
-            </SectionTitle>
+            <SectionTitle title={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki'} Contributions`} />
             <AnalyticsContext listContext={"userPageWiki"}>
               <TagEditsByUser
                 userId={user._id}
@@ -374,6 +539,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
+          </div>
+          
+          <div className={classes.rightSidebar}>
+            {sidebarInfoNode}
+          </div>
         </AnalyticsContext>
       </div>
     )

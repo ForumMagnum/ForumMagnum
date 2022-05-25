@@ -19,6 +19,7 @@ import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from '../../../lib/instanceSettings';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -41,6 +42,7 @@ import { ForumOptions } from '../../../lib/forumTypeUtils';
 //   showOnMobileStandalone: boolean; show in (2) Standalone Footer Menu
 //   showOnCompressed: boolean; show in (4) Drawer Collapsed Menu
 //   subitem: boolean; display title in smaller text
+//   loggedOutOnly: boolean; only visible to logged out users
 //   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
@@ -67,7 +69,8 @@ export type MenuTabRegular = {
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
-  subItem?: boolean
+  subItem?: boolean,
+  loggedOutOnly?: boolean
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -262,12 +265,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'wiki',
-      title: 'Wiki',
-      mobileTitle: 'Wiki',
-      link: '/tags/all',
+      id: taggingNamePluralSetting.get(),
+      title: taggingNamePluralCapitalSetting.get(),
+      mobileTitle: taggingNamePluralCapitalSetting.get(),
+      link: `/${taggingNamePluralSetting.get()}/all`,
       iconComponent: LocalOffer,
-      tooltip: 'Collaboratively edited Tags and Wiki Articles',
+      tooltip: `EA concepts directory that anyone can edit. Each ${taggingNameSetting.get()} also has a list of posts that have been tagged with it.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -299,9 +302,10 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'takeAction',
       title: 'Take Action',
-      link: '/tag/take-action',
+      link: `/${taggingNamePluralSetting.get()}/take-action`,
       iconComponent: PlaylistAddCheck,
       tooltip: "Opportunities to get involved with impactful work",
+      loggedOutOnly: true
     }, {
       id: 'events',
       title: 'Events',
@@ -322,6 +326,21 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true
     }, {
+      id: 'local-groups',
+      title: 'Local Groups',
+      link: '/community',
+      subItem: true,
+    }, {
+      id: 'online-groups',
+      title: 'Online Groups',
+      link: '/community#online',
+      subItem: true,
+    }, {
+      id: 'community-members',
+      title: 'Community Members',
+      link: '/community#individuals',
+      subItem: true,
+    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
@@ -336,7 +355,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'intro',
       title: 'About EA',
-      link: '/intro',
+      link: 'https://www.effectivealtruism.org',
       subItem: true,
     }, {
       id: 'about',

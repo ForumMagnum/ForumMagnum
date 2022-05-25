@@ -10,14 +10,13 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const styles = (theme: ThemeType): JssStyles => ({
   buttonsRow: {
     ...theme.typography.body2,
-    ...theme.typography.uiStyle,
     marginTop: 2,
     marginBottom: 16,
     color: theme.palette.grey[700],
@@ -124,7 +123,10 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
         </span>
       </a>
     </LWTooltip>}
-    {<Link className={classes.button} to={`/tag/${tag.slug}/history`}>
+    {<Link
+      className={classes.button}
+      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/history`}
+    >
       <HistoryIcon /><span className={classes.buttonLabel}>History</span>
     </Link>}
     {!userHasNewTagSubscriptions(currentUser) && !tag.wikiOnly && !editing && <LWTooltip title="Get notifications when posts are added to this tag." className={classes.subscribeToWrapper}>

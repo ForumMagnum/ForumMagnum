@@ -10,6 +10,7 @@ import { BookIcon } from '../icons/bookIcon'
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   userName: {
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "1rem",
     position: "relative",
     top: 2,
-    color: "rgba(255,255,255,.8)"
+    color: theme.palette.icon.tooltipUserMetric,
   },
   bookIcon: {
     filter: "invert(100%)",
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit,
     lineHeight: "1.3rem",
-  }
+  },
 })
 
 // Given a user (which may not be null), render the user name as a link with a
@@ -70,7 +71,7 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
       </div>}
     { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } post{postCount !== 1 && 's'}</div>}
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comment{commentCount !== 1 && 's'}</div>}
-    { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } wiki contribution{wikiContributionCount !== 1 && 's'}</div>}
+    { !!wikiContributionCount && <div><TagIcon className={classes.icon}  /> { wikiContributionCount } {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} contribution{wikiContributionCount !== 1 && 's'}</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </span>
 
@@ -82,8 +83,8 @@ const UsersNameDisplay = ({user, nofollow=false, simple=false, classes, tooltipP
     <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
     <LWTooltip title={tooltip} placement={tooltipPlacement} inlineBlock={false}>
       <Link to={userGetProfileUrl(user)} className={classes.userName}
-          {...(nofollow ? {rel:"nofollow"} : {})}
-        >
+        {...(nofollow ? {rel:"nofollow"} : {})}
+      >
         {userGetDisplayName(user)}
       </Link>
     </LWTooltip>

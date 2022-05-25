@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, useCallback } from 'react';
-import { answerStyles } from '../../themes/stylePiping'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -9,9 +8,6 @@ import { Comments } from "../../lib/collections/comments";
 import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  postContent: {
-    ...answerStyles(theme),
-  },
   root: {
     marginBottom: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit*2.5,
@@ -29,7 +25,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   answerHeader: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2
+    marginBottom: theme.spacing.unit*2,
+    flexWrap: "wrap",
   },
   author: {
     display: 'inline-block',
@@ -39,12 +36,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   date: {
     display: 'inline-block',
     marginLeft: 10,
+    flexGrow: 0,
+    flexShrink: 0,
   },
   vote: {
     display: 'inline-block',
     marginLeft: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.grey[500],
+    flexShrink: 0,
     flexGrow: 1,
     position: "relative",
     top: -4
@@ -123,7 +123,7 @@ const Answer = ({ comment, post, classes }: {
     setShowEdit(false)
   }, [setShowEdit]);
 
-  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats, Typography } = Components
+  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats, Typography, ContentStyles } = Components
   const { html = "" } = comment.contents || {}
 
   return (
@@ -174,12 +174,13 @@ const Answer = ({ comment, post, classes }: {
                 />
                 :
                 <>
-                  <ContentItemBody
-                    className={classNames(classes.postContent,
-                      {[classes.retracted]: comment.retracted})}
-                    dangerouslySetInnerHTML={{__html:html}}
-                    description={`comment ${comment._id} on post ${post._id}`}
-                  />
+                  <ContentStyles contentType="answer">
+                    <ContentItemBody
+                      className={classNames({[classes.retracted]: comment.retracted})}
+                      dangerouslySetInnerHTML={{__html:html}}
+                      description={`comment ${comment._id} on post ${post._id}`}
+                    />
+                  </ContentStyles>
                   <CommentBottomCaveats comment={comment}/>
                 </>
               }

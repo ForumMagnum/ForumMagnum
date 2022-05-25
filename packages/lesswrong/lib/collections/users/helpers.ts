@@ -178,6 +178,10 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
     return false
   }
 
+  if (user.deleted) {
+    return false
+  }
+
   if (!post) {
     return true
   }

@@ -28,6 +28,7 @@ Forum Magnum is built on top of a number major open-source libraries.
 
   * MacOS or Linux
     * Known to work on MacOS 10.15 and Ubuntu 18.04, should work on others
+    * It is also known to work on Ubuntu 18.04 using Windows Subsystem for Linux
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
@@ -37,10 +38,8 @@ Forum Magnum is built on top of a number major open-source libraries.
 Clone our repo:
 
 ```
-git clone git@github.com:centre-for-effective-altruism/EAForum.git
+git clone git@github.com:ForumMagnum/ForumMagnum.git
 ```
-
-(CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
@@ -49,7 +48,19 @@ cd ForumMagnum
 yarn install
 ```
 
-Start the development server:
+### If you want to run a local database
+
+CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
+
+Prerequisites:
+- Install MongoDB: https://docs.mongodb.com/manual/installation/
+
+```
+mkdir myLocalDatabase
+mongod --dbpath ./myLocalDatabase
+```
+
+### Start the development server
 
 ```
 yarn [start|ea-start]
@@ -170,3 +181,4 @@ manual database work, there's no need for you to also do that manual work.
 
 The test user admin credentials are in 1password. You're also welcome to create
 your own admin user.
+

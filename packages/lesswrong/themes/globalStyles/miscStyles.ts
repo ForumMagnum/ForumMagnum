@@ -1,5 +1,5 @@
 
-export default `
+export default (theme: ThemeType): string => `
 
 /*
  * TODO: These classes are used by 248 posts in the database that were authored

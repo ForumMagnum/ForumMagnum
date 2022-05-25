@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
-import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, postBodyStyles, ckEditorStyles } from '../../themes/stylePiping'
 import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
@@ -19,7 +19,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: "1em",
   },
   editor: {
-    ...editorStyles(theme, postBodyStyles),
+    ...editorStyles(theme),
+    ...ckEditorStyles(theme),
     cursor: "text",
     maxWidth: 640,
     position: "relative",
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading } = Components
+  const { SingleColumnSection, Loading, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const [editorLoaded, setEditorLoaded] = useState(false)
 
@@ -98,7 +99,7 @@ const PostCollaborationEditor = ({ classes }: {
     {/*!post.draft && <div>
       You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
     </div>*/}
-    <div className={classes.editor}>
+    <ContentStyles className={classes.editor} contentType="post">
       <NoSSR>
         <Components.CKPostEditor
           documentId={postId}
@@ -110,7 +111,7 @@ const PostCollaborationEditor = ({ classes }: {
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
         />
       </NoSSR>
-    </div>
+    </ContentStyles>
   </SingleColumnSection>
 };
 

@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   info: {
     display: "inline",
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     marginRight: theme.spacing.unit,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle
@@ -39,7 +39,7 @@ const PostsItemMeta = ({post, read, classes}: {
 }) => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarIcon } = Components;
+  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarButton } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
       {!post.shortform && !post.isEvent && <span className={classes.info}>
@@ -56,7 +56,7 @@ const PostsItemMeta = ({post, read, classes}: {
       { post.isEvent && <span className={classes.info}>
         {post.startTime && (
           <span className={classes.calendarIcon}>
-            <AddToCalendarIcon post={post} />
+            <AddToCalendarButton post={post} />
           </span>
         )}
         {post.startTime

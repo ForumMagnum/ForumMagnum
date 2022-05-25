@@ -13,6 +13,7 @@ import type { CommentTreeOptions } from '../commentTree';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
 const isEAForum= forumTypeSetting.get() === "EAForum"
 
@@ -38,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 5,
     display: "inline",
-    color: "rgba(0,0,0,.5)",
+    color: theme.palette.link.dim,
     "@media print": {
       display: "none",
     },
@@ -67,12 +68,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
 
     marginBottom: 8,
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     paddingTop: ".6em",
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: "rgba(0,0,0,0.3) !important",
+      color: `${theme.palette.linkHover.dim} !important`,
     },
   },
   bottom: {
@@ -83,10 +84,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   replyForm: {
     marginTop: 2,
     marginBottom: 8,
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
   },
   deleted: {
-    backgroundColor: "#ffefef",
+    backgroundColor: theme.palette.panelBackground.deletedComment,
   },
   moderatorHat: {
     marginRight: 8,
@@ -105,10 +106,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: theme.spacing.unit,
     ...theme.typography.commentStyle,
     display: "block",
-    color: theme.palette.grey[600]
+    color: theme.palette.link.dim2,
   },
   reviewVotingButtons: {
-    borderTop: "solid 1px rgba(0,0,0,.2)",
+    borderTop: theme.palette.border.normal,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -139,6 +140,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(false);
+  const now = useCurrentTime();
   
   const currentUser = useCurrentUser();
 
@@ -214,7 +216,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const renderCommentBottom = () => {
     const { CommentBottomCaveats } = Components
 
-    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
+    const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 
     const showReplyButton = (
       !hideReply &&

@@ -93,7 +93,6 @@ const OldUsersEditForm = ({terms, classes}: {
       <Components.WrappedSmartForm
         collection={Users}
         {...terms}
-        hideFields={["paymentEmail", "paymentInfo"]}
         successCallback={async (user) => {
           flash(`User "${userGetDisplayName(user)}" edited`);
           await client.resetStore()

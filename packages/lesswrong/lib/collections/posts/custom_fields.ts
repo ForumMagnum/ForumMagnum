@@ -589,6 +589,20 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     onInsert: document => document.baseScore >= 75 ? new Date() : null
   },
+  // The timestamp when the post's maxBaseScore first exceeded 125
+  scoreExceeded125Date: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: document => document.baseScore >= 125 ? new Date() : null
+  },
+  // The timestamp when the post's maxBaseScore first exceeded 200
+  scoreExceeded200Date: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: document => document.baseScore >= 200 ? new Date() : null
+  },
   bannedUserIds: {
     type: Array,
     viewableBy: ['guests'],
@@ -684,6 +698,20 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     optional: true,
     ...schemaDefaultValue(false),
+    
+    onCreate: ({newDocument}: {newDocument: DbInsertion<DbPost>}) => {
+      // HACK: This replaces the `onCreate` that normally comes with
+      // `schemaDefaultValue`. In addition to enforcing that the field must
+      // be present (not undefined), it also enforces that it cannot be null.
+      // There is a bug where GreaterWrong somehow submits posts with isEvent
+      // set to null (instead of false), which causes some post-views to filter
+      // it out (because they filter for non-events using isEvent:false which
+      // does not match null).
+      if (newDocument.isEvent===undefined || newDocument.isEvent===null)
+        return false;
+      else
+        return undefined;
+    }
   },
 
   reviewedByUserId: {
@@ -819,11 +847,14 @@ addFieldsDict(Posts, {
 
   googleLocation: {
     type: Object,
+    form: {
+      stringVersionFieldName: "location",
+    },
     hidden: (props) => !props.eventForm,
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
-    label: "Group Location",
+    label: "Event Location",
     control: 'LocationFormComponent',
     blackbox: true,
     group: formGroups.event,
@@ -950,14 +981,14 @@ addFieldsDict(Posts, {
 
   sharingSettings: {
     type: Object,
-    order: 16,
+    order: 15,
     viewableBy: [userOwns, userIsSharedOn, 'admins'],
     editableBy: [userOwns, 'admins'],
     insertableBy: ['members'],
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: formGroups.options,
     blackbox: true,
   },
   
@@ -968,10 +999,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     editableBy: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
-    hidden: false, //Temporary while testing new collab editing
-    control: "UsersListEditor",
-    label: "Share draft with users",
-    group: formGroups.options
+    hidden: true, 
   },
 
   'shareWithUsers.$': {

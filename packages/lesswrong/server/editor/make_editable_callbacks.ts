@@ -363,7 +363,7 @@ export async function buildRevision({ originalContents, currentUser }) {
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
 
@@ -517,7 +517,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
     if (revisionID) {
-      await Revisions.update(
+      await Revisions.rawUpdateOne(
         { _id: revisionID },
         { $set: { documentId: newDoc._id } }
       );

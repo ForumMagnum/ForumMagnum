@@ -26,7 +26,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const curatedDate = new Date(curatedResults && curatedResults[0]?.curatedDate)
+  const curatedDate = curatedResults ? new Date(curatedResults[0]?.curatedDate) : new Date();
   const twoAndAHalfDaysAgo = new Date(new Date().getTime()-(2.5*24*60*60*1000));
 
   if (!belowFold && (curatedDate > twoAndAHalfDaysAgo)) return null
@@ -64,4 +64,3 @@ declare global {
     SunshineCuratedSuggestionsList: typeof SunshineCuratedSuggestionsListComponent
   }
 }
-

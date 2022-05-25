@@ -70,7 +70,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   where: {
     flex: '1 0 0',
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
     paddingLeft: 3
   },
   geoSuggest: {
@@ -94,7 +94,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   distanceFilter: {
     display: 'flex',
     alignItems: 'center',
-    color: "rgba(0,0,0,0.6)",
+    color: theme.palette.text.dim60,
   },
   distanceInput: {
     width: 68,
@@ -107,7 +107,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     }
   },
   placeholder: {
-    color: "rgba(0,0,0,0.4)",
+    color: theme.palette.text.dim40,
   },
   notifications: {
     flex: '1 0 0',
@@ -153,7 +153,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: 16,
     padding: 0,
     '&:hover': {
-      color: '#085d6c',
+      color: theme.palette.eventsHomeLoadMoreHover,
     }
   },
   loading: {
@@ -239,7 +239,7 @@ const EventsHome = ({classes}: {
   
   // if the current user provides their browser location and we don't have a location saved for them,
   // save it accordingly
-  const [mapsLoaded, googleMaps] = useGoogleMaps("CommunityHome")
+  const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
   const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
     if (

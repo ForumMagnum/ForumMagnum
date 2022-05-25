@@ -6,7 +6,7 @@ import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { randomId } from '../lib/random';
-import { PartialDeep } from 'type-fest'
+import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Localgroups from '../lib/collections/localgroups/collection';
 
@@ -267,13 +267,13 @@ export const createDummyLocalgroup = async (data?: any) => {
 
 export const clearDatabase = async () => {
   await asyncForeachSequential(await Users.find().fetch(), async (i) => {
-    await Users.remove(i._id)
+    await Users.rawRemove(i._id)
   });
   await asyncForeachSequential(await Posts.find().fetch(), async (i) => {
-    await Posts.remove(i._id)
+    await Posts.rawRemove(i._id)
   });
   await asyncForeachSequential(await Comments.find().fetch(), async (i) => {
-    await Comments.remove(i._id)
+    await Comments.rawRemove(i._id)
   });
 }
 

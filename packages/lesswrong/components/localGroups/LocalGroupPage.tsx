@@ -6,8 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
-import { postBodyStyles } from '../../themes/stylePiping'
-import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { forumTypeSetting } from '../../lib/instanceSettings';
@@ -16,6 +14,8 @@ import Button from '@material-ui/core/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@material-ui/icons/Email';
 import LinkIcon from '@material-ui/icons/Link';
+import LocationIcon from '@material-ui/icons/LocationOn';
+import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},
@@ -59,11 +59,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
+  inactiveGroupTag: {
+    color: theme.palette.grey[500],
+    marginRight: 10
+  },
   notifyMe: {
     justifyContent: 'flex-end',
     margin: '8px 4px 20px',
     [theme.breakpoints.down('xs')]: {
-      justifyContent: 'flex-start'
+      justifyContent: 'flex-start',
+      marginTop: 30
     }
   },
   organizerActions: {
@@ -77,22 +82,39 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: "0px",
     marginBottom: "0.5rem"
   },
-  groupSubtitle: {
-    marginBottom: theme.spacing.unit * 2
-  },
   groupLocation: {
     ...theme.typography.body2,
-    display: "inline-block",
-    color: "rgba(0,0,0,0.7)",
+    display: "flex",
+    columnGap: 5,
+    alignItems: 'center',
+    color: theme.palette.text.slightlyDim2,
+  },
+  groupLocationIcon: {
+    fontSize: 20
+  },
+  groupCategories: {
+    display: 'flex',
+    columnGap: 10,
+    marginTop: theme.spacing.unit * 2
+  },
+  groupCategory: {
+    backgroundColor: theme.palette.panelBackground.default,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.grey[600],
+    padding: '6px 12px',
+    border: `1px solid ${theme.palette.grey[0]}`,
+    borderColor: theme.palette.grey[300],
+    borderRadius: 4
   },
   groupDescription: {
+    marginTop: theme.spacing.unit * 3,
     marginBottom: 20,
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
     }
   },
   groupDescriptionBody: {
-    ...postBodyStyles(theme),
     padding: theme.spacing.unit,
   },
   contactUsSection: {
@@ -193,7 +215,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const {
     HeadTags, CommunityMapWrapper, SingleColumnSection, SectionTitle, PostsList2,
     Loading, SectionButton, NotifyMeButton, SectionFooter, GroupFormLink, ContentItemBody,
-    Error404, CloudinaryImage2, EventCards, LoadMore
+    Error404, CloudinaryImage2, EventCards, LoadMore, ContentStyles
   } = Components
 
   const { document: group, loading: groupLoading } = useSingle({
@@ -255,7 +277,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
   // by default, we try to show the map at the top if the group has a location
-  let topSection = group.googleLocation ? <CommunityMapWrapper
+  let topSection = (group.googleLocation && !group.isOnline) ? <CommunityMapWrapper
     className={classes.topSectionMap}
     terms={{view: "events", groupId: groupId}}
     groupQueryTerms={{view: "single", groupId: groupId}}
@@ -268,7 +290,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     topSection = <div className={classes.imageContainer}>
       <CloudinaryImage2 imgProps={{ar: '191:100', w: '765'}} publicId={group.bannerImageId} className={classes.bannerImg} />
     </div>
-    smallMap = group.googleLocation && <CommunityMapWrapper
+    smallMap = (group.googleLocation && !group.isOnline) && <CommunityMapWrapper
       className={classes.mapContainer}
       terms={{view: "events", groupId: groupId}}
       groupQueryTerms={{view: "single", groupId: groupId}}
@@ -357,10 +379,18 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       <SingleColumnSection>
         <div className={classes.titleRow}>
           <div>
-            <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`} noTopMargin />
-            <div className={classes.groupSubtitle}>
-              <div className={classes.groupLocation}>{group.isOnline ? 'Online Group' : group.location}</div>
+            <SectionTitle title={
+              <span>{group.inactive ? <span className={classes.inactiveGroupTag}>[Inactive]</span> : null}{group.name}</span>
+              } noTopMargin />
+            <div className={classes.groupLocation}>
+              <LocationIcon className={classes.groupLocationIcon} />
+              {group.isOnline ? 'Online Group' : group.location}
             </div>
+            {group.categories?.length > 0 && <div className={classes.groupCategories}>
+              {group.categories.map(category => {
+                return <div key={category} className={classes.groupCategory}>{GROUP_CATEGORIES.find(option => option.value === category)?.label}</div>
+              })}
+            </div>}
           </div>
           <div>
             {currentUser && <SectionButton className={classes.notifyMe}>
@@ -386,13 +416,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
           </div>
         </div>
         
-        <div className={classes.groupDescription}>
+        <ContentStyles contentType="post" className={classes.groupDescription}>
           {group.contents && <ContentItemBody
             dangerouslySetInnerHTML={htmlBody}
             className={classes.groupDescriptionBody}
             description={`group ${groupId}`}
           />}
-        </div>
+        </ContentStyles>
 
         <PostsList2 terms={{view: 'nonEventGroupPosts', groupId: groupId}} showNoResults={false} />
         

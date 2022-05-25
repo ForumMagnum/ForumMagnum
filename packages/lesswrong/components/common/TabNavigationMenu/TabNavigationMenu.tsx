@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => {
       marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
       marginTop: theme.spacing.unit*1.5,
       marginBottom: theme.spacing.unit*2.5,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+      borderBottom: theme.palette.border.normal,
     },
   }
 }
@@ -46,6 +46,8 @@ const TabNavigationMenu = ({onClickSection, classes}: {
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
           {forumSelect(menuTabs).map(tab => {
+            if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUser) return null
+            
             if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
             }

@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     minHeight: "100%",
     zIndex: 10000,
-    background: "white",
+    background: theme.palette.panelBackground.default,
   },
   fullScreenContents: {
     padding: 8,

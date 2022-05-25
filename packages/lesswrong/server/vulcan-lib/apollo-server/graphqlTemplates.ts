@@ -1,4 +1,4 @@
-import { camelCaseify, pluralize } from '../../../lib/vulcan-lib/utils';
+import { camelCaseify, pluralize } from '../../../lib/vulcan-lib';
 import type { SchemaGraphQLFieldDescription, SchemaGraphQLFieldArgument } from './initGraphQL';
 
 const convertToGraphQL = (fields: SchemaGraphQLFieldDescription[], indentation: string) => {

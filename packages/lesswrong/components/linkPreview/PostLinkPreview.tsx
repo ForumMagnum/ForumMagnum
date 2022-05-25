@@ -6,7 +6,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles, metaculusBackground, postHighlightStyles } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
@@ -27,9 +26,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
     documentId: postID,
   });
 
-  if (!post) return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;
-
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
@@ -47,9 +44,8 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
   });
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
 
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
 }
 const PostLinkPreviewSequencePostComponent = registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
@@ -116,9 +112,7 @@ const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id
     documentId: postId,
   });
 
-  if (!post) {return <span dangerouslySetInnerHTML={{__html: innerHTML}}/>;}
-
-  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
+  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post||null} id={id}/>
 }
 const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
 
@@ -419,7 +413,6 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
     height: 200
   },
   roomInfo: {
-    ...postHighlightStyles(theme),
     padding: 16
   },
   roomHover: {
@@ -430,9 +423,9 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.3rem"
   },
   card: {
-    boxShadow: "0px 0px 10px rgba(0,0,0,.1)",
+    boxShadow: theme.palette.boxShadow.mozillaHubPreview,
     width: 350,
-    backgroundColor: "white"
+    backgroundColor: theme.palette.panelBackground.default,
   },
   description: {
     marginTop: 8,
@@ -465,7 +458,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   });
   
   const data = rawData?.MozillaHubsRoomData
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   if (loading || !data) return <a href={href}>
     <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
@@ -484,7 +477,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.card}>
           <img className={classes.image} src={data.previewImage}/>
-          <div className={classes.roomInfo}>
+          <ContentStyles contentType="postHighlight" className={classes.roomInfo}>
             <div className={classes.roomTitle}>{data.name}</div>
             <div className={classes.usersPreview}>
               <SupervisorAccountIcon className={classes.icon}/> 
@@ -493,7 +486,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
             {data.description && <div className={classes.description}>
               {data.description}
             </div>}
-          </div>
+          </ContentStyles>
         </div>
       </LWPopper>
     </span>
@@ -504,9 +497,54 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
+const owidStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 600,
+    height: 375,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: {
+    ...linkStyle(theme)
+  }
+})
+
+const OWIDPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  id?: string,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components
+  const { anchorEl, hover, eventHandlers } = useHover();
+  const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
+
+  if (!match) {
+    return <a href={href}>
+      <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    </a>
+  }
+
+  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
+    <span {...eventHandlers}>
+      <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+        <div className={classes.background}>
+          <iframe className={classes.iframeStyling} src={match} />
+        </div>
+      </LWPopper>
+    </span>
+  </AnalyticsTracker>
+}
+
+const OWIDPreviewComponent = registerComponent('OWIDPreview', OWIDPreview, {
+  styles: owidStyles
+})
+
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {
-    backgroundColor: metaculusBackground
+    backgroundColor: theme.palette.panelBackground.metaculusBackground,
   },
   iframeStyling: {
     width: 400,
@@ -552,6 +590,56 @@ const MetaculusPreviewComponent = registerComponent('MetaculusPreview', Metaculu
   styles: metaculusStyles
 })
 
+const manifoldStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const ManifoldPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType;
+  href: string;
+  innerHTML: string;
+  id?: string;
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://manifold.markets/embed/[...]
+  const isEmbed = /^https?:\/\/manifold\.markets\/embed\/.+$/.test(href);
+
+  // if it fits  https://manifold.markets/[username]/[market-slug] instead, get the (username and market slug)
+  const [, userAndSlug] = href.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
+
+  if (!isEmbed && !userAndSlug) {
+    return (
+      <a href={href}>
+        <span dangerouslySetInnerHTML={{ __html: innerHTML }} />
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://manifold.markets/embed/${userAndSlug}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{ __html: innerHTML }} />
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview, { styles: manifoldStyles })
+
 const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 23.333">
   <g>
     <path d="M19.166,20.979v-0.772c-1.035,0.404-2.159,0.626-3.334,0.626c-0.789,0-1.559-0.1-2.291-0.288
@@ -580,7 +668,6 @@ const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 2
 
 const arbitalStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
-    ...commentBodyStyles(theme),
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -600,7 +687,7 @@ const arbitalStyles = (theme: ThemeType): JssStyles => ({
   },
   logo: {
     height: 24,
-    fill: 'rgba(0,0,0,0.4)',
+    fill: theme.palette.icon.dim2,
     marginTop: -5
   },
   link: {
@@ -617,7 +704,7 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
   innerHTML: string,
   id?: string,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
@@ -643,13 +730,13 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <Card>
-          <div className={classes.hovercard}>
+          <ContentStyles contentType="comment" className={classes.hovercard}>
             <div className={classes.headerRow}>
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
             <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
-          </div>
+          </ContentStyles>
         </Card>
       </LWPopper>
     </span>
@@ -674,6 +761,8 @@ declare global {
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
+    ManifoldPreview: typeof ManifoldPreviewComponent,
+    OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
     FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,

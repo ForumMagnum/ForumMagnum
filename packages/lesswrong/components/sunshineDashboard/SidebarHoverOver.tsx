@@ -10,8 +10,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     backgroundColor: theme.palette.grey[50],
     padding: theme.spacing.unit*2,
-    border: "solid 1px rgba(0,0,0,.1)",
-    boxShadow: "-3px 0 5px 0px rgba(0,0,0,.1)",
+    border: theme.palette.border.faint,
+    boxShadow: theme.palette.boxShadow.sunshineSidebarHoverInfo,
     overflow: "hidden",
   }
 })

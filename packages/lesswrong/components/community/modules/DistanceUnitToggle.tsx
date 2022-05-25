@@ -15,7 +15,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   label: {
     padding: '5px 10px',
     cursor: 'pointer',
-    border: '1px solid #d4d4d4',
+    border: `1px solid ${theme.palette.grey[315]}`,
     '&.left': {
       borderRightColor: theme.palette.primary.dark,
       borderRadius: '4px 0 0 4px',
@@ -26,12 +26,12 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     },
     '&.selected': {
       backgroundColor: theme.palette.primary.main,
-      color: 'white',
+      color: theme.palette.text.invertedBackgroundText,
       borderColor: theme.palette.primary.dark,
     },
     '&:hover': {
       backgroundColor: theme.palette.primary.dark,
-      color: 'white',
+      color: theme.palette.text.invertedBackgroundText,
       borderColor: theme.palette.primary.dark,
     }
   },
@@ -58,13 +58,13 @@ const DistanceUnitToggle = ({distanceUnit='km', onChange, skipDefaultEffect, cla
   
   return <div className={classes.root}>
     <input type="radio" id="km" name="distanceUnit" value="km" className={classes.radio}
-      checked={distanceUnit === 'km'} onClick={() => onChange('km')} />
+      checked={distanceUnit === 'km'} onChange={() => onChange('km')} />
     <label htmlFor="km" className={classNames(classes.label, 'left', {'selected': distanceUnit === 'km'})}>
       km
     </label>
 
     <input type="radio" id="mi" name="distanceUnit" value="mi" className={classes.radio}
-      checked={distanceUnit === 'mi'} onClick={() => onChange('mi')} />
+      checked={distanceUnit === 'mi'} onChange={() => onChange('mi')} />
     <label htmlFor="mi" className={classNames(classes.label, 'right', {'selected': distanceUnit === 'mi'})}>
       mi
     </label>

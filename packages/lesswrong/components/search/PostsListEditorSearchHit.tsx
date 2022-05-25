@@ -5,22 +5,26 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover';
 import type { Hit } from 'react-instantsearch-core';
 
-import grey from '@material-ui/core/colors/grey';
-
 const styles = (theme: ThemeType): JssStyles => ({
-    root: {
-      padding: theme.spacing.unit,
-      borderBottom: "solid 1px",
-      borderBottomColor: grey[200],
-      '&:hover': {
-        backgroundColor: grey[100],
-      }
+  root: {
+    padding: theme.spacing.unit,
+    borderBottom: "solid 1px",
+    borderBottomColor: theme.palette.grey[200],
+    '&:hover': {
+      backgroundColor: theme.palette.grey[100],
     },
-    postLink: {
-      float:"right",
-      marginRight: theme.spacing.unit
-    }
-  })
+  },
+  postLink: {
+    float:"right",
+    marginRight: theme.spacing.unit,
+  },
+  titleRow: {
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+  },
+  metadataRow: {
+  },
+})
 
 const PostsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<any>,
@@ -46,21 +50,23 @@ const PostsListEditorSearchHit = ({hit, classes}: {
       >
         <PostsPreviewTooltipSingle postId={post._id} postsList/>
       </LWPopper>
-      <div>
+      <div className={classes.titleRow}>
         <PostsTitle post={post as unknown as PostsListBase} isLink={false}/>
       </div>
-      {post.authorDisplayName && <MetaInfo>
-        {post.authorDisplayName}
-      </MetaInfo>}
-      <MetaInfo>
-        {post.baseScore} points
-      </MetaInfo>
-      {post.postedAt && <MetaInfo>
-        <FormatDate date={post.postedAt}/>
-      </MetaInfo>}
-      <Link to={postGetPageUrl(post)} className={classes.postLink}>
-        (Link)
-      </Link>
+      <div className={classes.metadataRow}>
+        {post.authorDisplayName && <MetaInfo>
+          {post.authorDisplayName}
+        </MetaInfo>}
+        <MetaInfo>
+          {post.baseScore} points
+        </MetaInfo>
+        {post.postedAt && <MetaInfo>
+          <FormatDate date={post.postedAt}/>
+        </MetaInfo>}
+        <Link to={postGetPageUrl(post)} className={classes.postLink}>
+          (Link)
+        </Link>
+      </div>
     </div>
   )
 }

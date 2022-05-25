@@ -179,8 +179,8 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
-export const postCanEdit = (currentUser: UsersCurrent|null, post: PostsBase): boolean => {
-  const organizerIds = post.group?.organizerIds;
+export const postCanEdit = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+  const organizerIds = (post as PostsBase)?.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
   return userOwns(currentUser, post) || userCanDo(currentUser, 'posts.edit.all') || isPostGroupOrganizer;
 }

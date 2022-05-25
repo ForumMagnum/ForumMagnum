@@ -5,7 +5,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
-import { forumTypeSetting, ForumTypeString, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 
@@ -13,13 +13,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
-    color: theme.palette.grey[800],
+    color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
   },
   icon: {
     fontSize: "1.3rem",
-    color: theme.palette.grey[600],
+    color: theme.palette.icon.dim600,
     position: "relative",
     top: 3,
     marginRight: 4,
@@ -28,6 +28,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
 })
+
+const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki'
+const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki'
 
 export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags";
 
@@ -90,9 +93,9 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
       Icon: SubjectIcon
     },
     tags: {
-      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipTitle: `${taggingAltName} Edits and Discussion`,
       tooltipBody: <div>
-        Tag and wiki pages, which organize LessWrong posts and concepts in a more
+        {taggingAltName2} pages, which organize LessWrong posts and concepts in a more
         durable format.
       </div>,
       Icon: TagIcon,
@@ -148,9 +151,9 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
       Icon: SubjectIcon
     },
     tags: {
-      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipTitle: `${taggingAltName} Edits and Discussion`,
       tooltipBody: <div>
-        Tag and wiki pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
+        {taggingAltName2} pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
         a more durable format.
       </div>,
       Icon: TagIcon,
@@ -201,9 +204,9 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
       Icon: SubjectIcon
     },
     tags: {
-      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipTitle: `${taggingAltName} Edits and Discussion`,
       tooltipBody: <div>
-        Tag and wiki pages, which organize posts and concepts in a more
+        {taggingAltName2} pages, which organize posts and concepts in a more
         durable format.
       </div>,
       Icon: TagIcon,
@@ -261,9 +264,9 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
       Icon: SubjectIcon
     },
     tags: {
-      tooltipTitle: 'Tag/Wiki Edits and Discussion',
+      tooltipTitle: `${taggingAltName} Edits and Discussion`,
       tooltipBody: <div>
-        Tag and wiki pages, which organize LessWrong posts and concepts in a more
+        {taggingAltName2} pages, which organize {forumTitleSetting.get()} posts and concepts in a more
         durable format.
       </div>,
       Icon: TagIcon,

@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subSubQuestions: {
     paddingLeft: theme.spacing.unit,
-    borderLeft: "solid 1px rgba(0,0,0,.15)"
+    borderLeft: theme.palette.border.slightlyFaint,
   }
 })
 

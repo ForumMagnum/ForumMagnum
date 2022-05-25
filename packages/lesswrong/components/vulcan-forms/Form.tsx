@@ -52,13 +52,37 @@ import { callbackProps } from './propTypes';
 import withCollectionProps from './withCollectionProps';
 
 
+/** Field specification for a Form field, created from the collection schema */
+type FormField<T extends DbObject> = Pick<
+  CollectionFieldSpecification<T>,
+  typeof formProperties[number]
+> & {
+  document: any
+  name: string
+  datatype: any
+  layout: string
+  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  label: string
+  help: string
+  path: string
+  parentFieldName?: string
+  disabled?: boolean
+  arrayField: any
+  arrayFieldSchema: any
+  nestedInput: any
+  nestedSchema: any
+  nestedFields: any
+}
+
+/** FormField in the process of being created */
+type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
   'fields', 'removeFields',
   'prefilledProps' // TODO: prefilledProps should be merged instead?
-];
+] as const;
 
 const compactParent = (object, path) => {
   const parentPath = getParentPath(path);
@@ -113,6 +137,7 @@ const getInitialStateFromProps = nextProps => {
     deletedValues: [],
     currentValues: {},
     // convert SimpleSchema schema into JSON object
+    // TODO: type convertedSchema
     schema: convertedSchema,
     // Also store all field schemas (including nested schemas) in a flat structure
     flatSchema: convertSchema(schema as any, true),
@@ -137,7 +162,7 @@ const getInitialStateFromProps = nextProps => {
 /**
  * Note: Only use this through WrappedSmartForm
  */
-class Form extends Component<any,any> {
+class Form<T extends DbObject> extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -245,7 +270,11 @@ class Form extends Component<any,any> {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacksList({ callbacks: this.submitFormCallbacks, iterator: data, properties: { form: this } });
+    data = runCallbacksList({
+      callbacks: this.submitFormCallbacks,
+      iterator: data,
+      properties: [this],
+    });
 
     return data;
   };
@@ -267,7 +296,7 @@ class Form extends Component<any,any> {
   getFieldGroups = () => {
     let mutableFields = this.getMutableFields(this.state.schema);
     // build fields array by iterating over the list of field names
-    let fields: Array<any> = this.getFieldNames().map((fieldName: string) => {
+    let fields: Array<any> = this.getFieldNames(this.props).map((fieldName: string) => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema, mutableFields);
     });
@@ -305,13 +334,11 @@ class Form extends Component<any,any> {
     return groups;
   };
 
-  /*
-
-  Get a list of the fields to be included in the current form
-
-  Note: when submitting the form (getData()), do not include any extra fields.
-
-  */
+  /**
+   * Get a list of the fields to be included in the current form
+   *
+   * Note: when submitting the form (getData()), do not include any extra fields
+   */
   getFieldNames = (args?: any) => {
     // we do this to avoid having default values in arrow functions, which breaks MS Edge support. See https://github.com/meteor/meteor/issues/10171
     let args0 = args || {};
@@ -367,10 +394,13 @@ class Form extends Component<any,any> {
     return relevantFields;
   };
 
-  initField = (fieldName, fieldSchema) => {
+  // TODO: fieldSchema is actually a slightly added-to version of
+  // CollectionFieldSpecification, see convertSchema in schema_utils, but in
+  // this function, it acts like CollectionFieldSpecification
+  initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<T>) => {
     // intialize properties
-    let field: any = {
-      ..._.pick(fieldSchema, formProperties),
+    let field: FormFieldUnfinished<T> = {
+      ...pick(fieldSchema, formProperties),
       document: this.state.initialDocument,
       name: fieldName,
       datatype: fieldSchema.type,
@@ -378,15 +408,6 @@ class Form extends Component<any,any> {
       input: fieldSchema.input || fieldSchema.control
     };
     field.label = this.getLabel(fieldName);
-    // // replace value by prefilled value if value is empty
-    // const prefill = fieldSchema.prefill || (fieldSchema.form && fieldSchema.form.prefill);
-    // if (prefill) {
-    //   const prefilledValue = typeof prefill === 'function' ? prefill.call(fieldSchema) : prefill;
-    //   if (!!prefilledValue && !field.value) {
-    //     field.prefilledValue = prefilledValue;
-    //     field.value = prefilledValue;
-    //   }
-    // }
 
     // if options are a function, call it
     if (typeof field.options === 'function') {
@@ -411,7 +432,7 @@ class Form extends Component<any,any> {
     }
     return field;
   };
-  handleFieldPath = (field, fieldName, parentPath?: any) => {
+  handleFieldPath = (field: FormFieldUnfinished<T>, fieldName: string, parentPath?: string): FormFieldUnfinished<T> => {
     const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
     field.path = fieldPath;
     if (field.defaultValue) {
@@ -419,7 +440,7 @@ class Form extends Component<any,any> {
     }
     return field;
   };
-  handleFieldParent = (field, parentFieldName) => {
+  handleFieldParent = (field: FormFieldUnfinished<T>, parentFieldName?: string) => {
     // if field has a parent field, pass it on
     if (parentFieldName) {
       field.parentFieldName = parentFieldName;
@@ -427,14 +448,14 @@ class Form extends Component<any,any> {
 
     return field;
   };
-  handlePermissions = (field, fieldName, mutableFields) => {
+  handlePermissions = (field: FormFieldUnfinished<T>, fieldName: string, mutableFields: any) => {
     // if field is not creatable/updatable, disable it
     if (!mutableFields.includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field, fieldName, fieldSchema, mutableFields) => {
+  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: any, mutableFields: any, schema: any) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -469,19 +490,19 @@ class Form extends Component<any,any> {
     return field;
   };
 
-  /*
-  Given a field's name, the containing schema, and parent, create the
-  complete field object to be passed to the component
-
-  */
-  createField = (fieldName, schema, mutableFields, parentFieldName?: any, parentPath?: any) => {
+  /**
+   * Given a field's name, the containing schema, and parent, create the
+   * complete form-field object to be passed to the component
+   */
+  createField = (fieldName: string, schema: any, mutableFields: any, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
-    let field = this.initField(fieldName, fieldSchema);
+    let field: FormFieldUnfinished<T> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, mutableFields);
-    field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields);
-    return field;
+    field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields, schema);
+    // Now that it's done being constructed, all the required fields will be set
+    return field as FormField<T>;
   };
   createArraySubField = (fieldName, subFieldSchema, mutableFields) => {
     const subFieldName = `${fieldName}.$`;
@@ -491,7 +512,7 @@ class Form extends Component<any,any> {
     subField = this.handleFieldPath(subField, fieldName);
     subField = this.handlePermissions(subField, fieldName, mutableFields);
     // we do not allow nesting yet
-    //subField = this.handleFieldChildren(field, fieldSchema)
+    //subField = this.handleFieldChildren(field, fieldSchema, mutableFields, schema)
     return subField;
   };
 
@@ -500,7 +521,7 @@ class Form extends Component<any,any> {
    Get a field's label
 
    */
-  getLabel = (fieldName, fieldLocale?: any) => {
+  getLabel = (fieldName: string, fieldLocale?: any): string => {
     const collectionName = this.props.collectionName.toLowerCase();
     const label = this.context.intl.formatLabel({
       fieldName: fieldName,
@@ -892,9 +913,7 @@ class Form extends Component<any,any> {
     document = runCallbacksList({
       callbacks: this.successFormCallbacks,
       iterator: document,
-      properties: {
-        form: this
-      }
+      properties: [this, submitOptions],
     });
 
     // run success callback if it exists
@@ -912,11 +931,25 @@ class Form extends Component<any,any> {
 
     // eslint-disable-next-line no-console
     console.log('// graphQL Error');
+    // Error is sometimes actually a ApolloError which wraps a real 
+    // error, and displaying this is surprisingly hard. See this:
+    // https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
     // eslint-disable-next-line no-console
-    console.log(JSON.stringify(error));
-
+    console.log(JSON.stringify(error, (key, value) => 
+      (value instanceof Error) ?
+        Object.getOwnPropertyNames(value).reduce((ac, propName) => {
+          ac[propName] = value[propName];
+          return ac;
+        }, {})
+        : value
+    ))
+  
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
-    runCallbacksList({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });
+    runCallbacksList({
+      callbacks: this.failureFormCallbacks,
+      iterator: error,
+      properties: [error, this],
+    });
 
     if (!_.isEmpty(error)) {
       // add error to state

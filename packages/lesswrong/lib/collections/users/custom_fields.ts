@@ -11,7 +11,7 @@ import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
-import { REVIEW_YEAR } from '../../reviewUtils';
+import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -137,6 +137,13 @@ const partiallyReadSequenceItem = new SimpleSchema({
   },
 });
 
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+
 addFieldsDict(Users, {
   // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
@@ -210,6 +217,19 @@ addFieldsDict(Users, {
       }
     },
   },
+  
+  showHideKarmaOption: {
+    type: Boolean,
+    optional: true,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    order: 69,
+  },
 
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
@@ -262,6 +282,45 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() !== 'AlignmentForum',
     label: "Hide explanations of how AIAF submissions work for non-members", //TODO: just hide this in prod
+  },
+  
+  noSingleLineComments: {
+    order: 91,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
+  },
+
+  noCollapseCommentsPosts: {
+    order: 92,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (in large threads on Post Pages)"
+  },
+
+  noCollapseCommentsFrontpage: {
+    order: 93,
+    type: Boolean,
+    optional: true,
+    group: formGroups.siteCustomizations,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (on home page)"
   },
 
   hideNavigationSidebar: {
@@ -372,32 +431,6 @@ addFieldsDict(Users, {
     logChanges: false,
   },
 
-  // Bio (Markdown version)
-  bio: {
-    type: String,
-    optional: true,
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.default,
-    order: 40,
-    form: {
-      hintText:"Bio",
-      rows:4,
-      multiLine:true,
-      fullWidth:true,
-    },
-  },
-
-  // Bio (HTML version)
-  htmlBio: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-
   // Karma field
   karma: {
     type: Number,
@@ -405,16 +438,10 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
-  // Website
-  website: {
-    type: String,
-    hidden: true,
+  goodHeartTokens: {
+    type: Number,
     optional: true,
-    control: "text",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
-    order: 50,
   },
 
   moderationStyle: {
@@ -462,19 +489,6 @@ addFieldsDict(Users, {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 56,
-  },
-
-  showHideKarmaOption: {
-    type: Boolean,
-    optional: true,
-    label: "Enable option on posts to hide karma visibility",
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwnsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: forumTypeSetting.get() !== 'EAForum',
-    control: 'checkbox',
-    group: formGroups.default,
-    order: 72,
   },
 
   // bannedUserIds: users who are not allowed to comment on this user's posts
@@ -725,12 +739,19 @@ addFieldsDict(Users, {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationGroupAdministration: {
+    label: "Group administration notifications",
+    hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
   notificationCommentsOnDraft: {
     label: "Comments on unpublished draft posts I've shared",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPostsNominatedReview: {
-    label: "Nominations of my posts for the annual LessWrong Review",
+    label: `Nominations of my posts for the ${REVIEW_NAME_IN_SITU}`,
+    // Hide this while review is inactive
+    hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -869,9 +890,13 @@ addFieldsDict(Users, {
     canRead: ['guests'],
   },
 
+  // Should match googleLocation/location
+  // Determines which events are considered nearby for default sorting on the community page
+  // Determines where the community map is centered/zoomed in on by default
+  // Not shown to other users
   mongoLocation: {
     type: Object,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
@@ -883,40 +908,48 @@ addFieldsDict(Users, {
     }),
   },
 
+  // Is the canonical value for denormalized mongoLocation and location
+  // Edited from the /events page to choose where to show events near
   googleLocation: {
     type: Object,
-    canRead: ['guests'],
+    form: {
+      stringVersionFieldName: "location",
+    },
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     hidden: !hasEventsSetting.get(),
-    label: "Group Location",
+    label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 42,
+    order: 100,
   },
 
   location: {
     type: String,
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     hidden: true,
     optional: true
   },
 
+  // Used to place a map marker pin on the where-are-other-users map.
+  // Public.
   mapLocation: {
     type: Object,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
-    label: "Your location on the community map",
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
+    order: forumTypeSetting.get() === "EAForum" ? 2 : 101,
+    label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 43,
+    hidden: forumTypeSetting.get() === "EAForum"
   },
 
   mapLocationSet: {
@@ -959,6 +992,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
 
+  // Should probably be merged with the other location field.
   nearbyEventsNotificationsLocation: {
     type: Object,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1227,45 +1261,6 @@ addFieldsDict(Users, {
     order: 39,
   },
 
-  noSingleLineComments: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not collapse comments to Single Line"
-  },
-
-  noCollapseCommentsPosts: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (in large threads on Post Pages)"
-  },
-
-  noCollapseCommentsFrontpage: {
-    order: 70,
-    type: Boolean,
-    optional: true,
-    group: formGroups.truncationOptions,
-    defaultValue: false,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    control: 'checkbox',
-    label: "Do not truncate comments (on home page)"
-  },
-
   shortformFeedId: {
     ...foreignKeyField({
       idFieldName: "shortformFeedId",
@@ -1493,11 +1488,11 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
   },
+  // This is deprecated.
   reenableDraftJs: {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",
@@ -1557,6 +1552,102 @@ addFieldsDict(Users, {
     label: "PayPal Info",
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
+  },
+  
+  // Bio (Markdown version)
+  bio: {
+    type: String,
+    optional: true,
+    hidden: forumTypeSetting.get() === "EAForum",
+    control: "MuiTextField",
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
+    form: {
+      variant: 'outlined',
+      hintText: "Bio",
+      rows: 12,
+      multiLine: true,
+      fullWidth: true,
+    },
+  },
+
+  // Bio (HTML version)
+  htmlBio: {
+    type: String,
+    denormalized: true,
+    optional: true,
+    canRead: ['guests'],
+  },
+  
+  website: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'https://'
+    },
+    group: formGroups.aboutMe,
+    order: 3
+  },
+  
+  linkedinProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  facebookProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  twitterProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  githubProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
+    },
+    group: formGroups.socialMedia
   },
 });
 

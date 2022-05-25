@@ -20,7 +20,8 @@ import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 import { useDialog } from '../../common/withDialog';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
@@ -187,6 +188,11 @@ const PostActions = ({post, closeMenu, classes}: {
     </Link>
   }
 
+  const defaultLabel = forumSelect({
+    EAForum:'This post may appear on the Frontpage',
+    default: 'Moderators may promote to Frontpage'
+  })
+
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <MenuItem> component. In particular,
   // do NOT wrap a <MenuItem> around something that has its own
@@ -248,7 +254,7 @@ const PostActions = ({post, closeMenu, classes}: {
             <ListItemIcon>
               <LocalOfferOutlinedIcon />
             </ListItemIcon>
-            Edit Tags
+            Edit {taggingNamePluralCapitalSetting.get()}
           </MenuItem>
         </div>
         { isRead
@@ -280,7 +286,7 @@ const PostActions = ({post, closeMenu, classes}: {
                 <Tooltip placement="left" title={
                   post.submitToFrontpage ?
                     '' :
-                    'user did not select "Moderators may promote to Frontpage" option'
+                    `user did not select ${defaultLabel} option`
                 }>
                   <MenuItem>
                     Move to Frontpage

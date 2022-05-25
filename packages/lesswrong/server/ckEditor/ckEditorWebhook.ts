@@ -14,6 +14,8 @@ import fs from 'fs';
 import * as _ from 'underscore';
 import moment from 'moment';
 
+const bundleVersion = "31.0.1";
+
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
     res.statusCode = 405; // Method not allowed
@@ -213,7 +215,7 @@ async function saveOrUpdateDocumentRevision(postId: string, html: string) {
     // eslint-disable-next-line no-console
     console.log("Updating rev "+previousRev._id);
     // Update the existing rev
-    await Revisions.update(
+    await Revisions.rawUpdateOne(
       {_id: previousRev._id},
       {$set: {
         editedAt: new Date(),
@@ -243,6 +245,36 @@ async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Promise<st
     console.log("Downloading document via /collaborations failed. Trying via /documents.");
     return await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
   }
+}
+
+// Given a state for a document, which may or may not currently have a collaboration
+// open and may or may not be stored yet in CkEditor's cloud, push a revision,
+// overwriting whatever's currently there.
+// (This is used when reverting through the revision-history UI.)
+export async function pushRevisionToCkEditor(postId: string, html: string) {
+  // eslint-disable-next-line no-console
+  console.log(`Pushing to CkEditor cloud: postId=${postId}, html=${html}`);
+  const ckEditorId = postIdToCkEditorDocumentId(postId);
+  
+  // Check for unsaved changes and save them first
+  const latestHtml = await fetchCkEditorCloudStorageDocument(ckEditorId);
+  await saveOrUpdateDocumentRevision(postId, latestHtml);
+  
+  // End the collaboration session so that we can restart with new contents
+  // To do this we have to delete *both* the document and the collaboration.
+  // (This seems like suspiciously bad API design in CkEditor's REST API, but
+  // I've checked thoroughly and there's no way to just overwrite a
+  // collaboration like you'd hope.)
+  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
+  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}`);
+  
+  // Push the selected revision
+  const result = await fetchCkEditorRestAPI("POST", "/collaborations", {
+    document_id: ckEditorId,
+    bundle_version: bundleVersion,
+    data: html,
+    use_initial_data: false,
+  });
 }
 
 interface CkEditorComment {

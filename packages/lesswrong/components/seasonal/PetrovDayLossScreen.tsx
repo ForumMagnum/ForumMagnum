@@ -42,7 +42,11 @@ const PetrovDayLossScreen = ({classes}) => {
   )
 }
 
-const PetrovDayLossScreenComponent = registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, {styles});
+const PetrovDayLossScreenComponent = registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, {
+  styles,
+  // This is text overlayed on an image, which doesn't get inverted for dark mode
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

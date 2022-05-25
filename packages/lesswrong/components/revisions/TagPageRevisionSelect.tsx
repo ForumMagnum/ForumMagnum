@@ -5,6 +5,7 @@ import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
@@ -36,7 +37,7 @@ const TagPageRevisionSelect = ({ classes }: {
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
     if (!tag) return;
-    history.push(`/compare/tag/${tag.slug}?before=${before.version}&after=${after.version}`);
+    history.push(`/compare/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [history, tag]);
 
   if (!tag) return null

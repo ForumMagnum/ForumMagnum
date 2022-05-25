@@ -10,7 +10,6 @@ import Paper from '@material-ui/core/Paper';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
-import { commentBodyStyles } from '../../themes/stylePiping';
 import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -50,8 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 175
   },
   instructions: {
-    ...theme.typography.body2,
-    ...commentBodyStyles(theme),
     maxWidth: 545,
     paddingBottom: 35
   },
@@ -158,7 +155,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   reviewPrompt: {
     fontWeight: 600,
     fontSize: "1.2rem",
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
     width: "100%",
     display: "block"
   },
@@ -174,7 +171,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   // averageVoteInstructions: {
   //   padding: 12,
-  //   ...theme.typography.body2,
   //   ...commentBodyStyles(theme),
   // },
   // averageVoteRow: {
@@ -302,7 +298,7 @@ const ReviewVotingPage2019 = ({classes}: {
     score: number,
     reactions?: string[],
   }) => {
-    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+    const existingVote = _id ? dbVotes?.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
     return await submitVote({variables: {postId, qualitativeScore: score, year: YEAR+"", dummy: false, reactions: newReactions}})
   }, [submitVote, dbVotes]);
@@ -315,7 +311,7 @@ const ReviewVotingPage2019 = ({classes}: {
     set?: number,
     reactions?: string[],
   }) => {
-    const existingVote = _id ? dbVotes.find(vote => vote._id === _id) : null;
+    const existingVote = _id ? dbVotes?.find(vote => vote._id === _id) : null;
     const newReactions = reactions || existingVote?.reactions || []
     await submitVote({
       variables: {postId, quadraticChange: change, newQuadraticScore: set, year: YEAR+"", reactions: newReactions, dummy: false},
@@ -331,7 +327,7 @@ const ReviewVotingPage2019 = ({classes}: {
     })
   }
 
-  const { ReviewPostComments, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton } = Components
+  const { ReviewPostComments, LWTooltip, Loading, ReviewPostButton, ReviewVoteTableRow, ReactionsButton, ContentStyles } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -373,7 +369,7 @@ const ReviewVotingPage2019 = ({classes}: {
   
   // TODO: Redundancy here due to merge
   const voteSum = useQuadratic ? computeTotalVote(quadraticVotes) : 0
-  const voteAverage = posts?.length > 0 ? voteSum/posts?.length : 0
+  const voteAverage = (posts && posts.length > 0) ? voteSum/posts?.length : 0
 
   const renormalizeVotes = (quadraticVotes:quadraticVote[], voteAverage: number) => {
     const voteAdjustment = -Math.trunc(voteAverage)
@@ -428,7 +424,7 @@ const ReviewVotingPage2019 = ({classes}: {
                 <p><em>Click to renormalize your votes, closer to an optimal allocation</em></p>
                 <p>If the average of your votes is above 1 or below -1 you are always better off by shifting all of your votes by 1 to move closer to an average of 0. See voting instructions for details.</p></div>}>
                 <div className={classNames(classes.voteTotal, classes.excessVotes, classes.voteAverage)} onClick={() => renormalizeVotes(quadraticVotes, voteAverage)}>
-                  Avg: {(voteSum / posts.length).toFixed(2)}
+                  Avg: {posts ? (voteSum / posts.length).toFixed(2) : 0}
                 </div>
             </LWTooltip>}
             <Button disabled={!expandedPost} onClick={()=>{
@@ -462,7 +458,7 @@ const ReviewVotingPage2019 = ({classes}: {
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
               <h1 className={classes.header}>Vote on nominated and reviewed posts from {YEAR}</h1>
-              <div className={classes.instructions}>
+              <ContentStyles contentType="comment" className={classes.instructions}>
                 {/* <p className={classes.warning}>For now this is just a dummy page that you can use to understand how the vote works. All submissions will be discarded, and the list of posts replaced by posts in the {YEAR} Review on January 12th.</p> */}
                 <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
                 <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
@@ -476,7 +472,7 @@ const ReviewVotingPage2019 = ({classes}: {
                 <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details. Also note that your vote allocation is not optimal if the average of your votes is above 1 or below -1, see <Link to="/posts/3yqf6zJSwBF34Zbys/2018-review-voting-results?commentId=HL9cPrFqMexGn4jmZ">this comment</Link> for details..)</p>
                 <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/QFBEjjAvT6KbaA3dY/the-lesswrong-2019-review">this post</Link>.</p>
                 <p>The vote closes on Jan 26th. If you leave this page and come back, your votes will be saved.</p>
-              </div>
+              </ContentStyles>
             </div>
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
@@ -527,7 +523,8 @@ const ReviewVotingPage2019 = ({classes}: {
   );
 }
 
-function getPostOrder(posts: Array<PostsList>, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
+function getPostOrder(posts: Array<PostsList> | undefined, votes: Array<qualitativeVote|quadraticVote>, currentUser: UsersCurrent|null): Array<[number,number]> {
+  if (!posts) return []
   const randomPermutation = generatePermutation(posts.length, currentUser);
   const result = posts.map(
     (post: PostsList, i: number): [PostsList, qualitativeVote | quadraticVote | undefined, number, number, number] => {
@@ -566,7 +563,7 @@ const qualitativeScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: string, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
+const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[] | undefined):{postId: string, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
   const sumScaled = sumBy(votes, vote => Math.abs(qualitativeScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
     if (vote) {
@@ -602,7 +599,8 @@ const computeTotalVote = (votes: ReviewVote[]) => {
   return sumBy(votes, ({score}) => score)
 }
 
-function createPostVoteTuples<K extends HasIdType,T extends ReviewVote> (posts: K[], votes: T[]):[K, T | undefined][] {
+function createPostVoteTuples<K extends HasIdType,T extends ReviewVote> (posts: K[] | undefined, votes: T[]):[K, T | undefined][] {
+  if (!posts) return []
   return posts.map(post => {
     const voteForPost = votes.find(vote => vote.postId === post._id)
     return [post, voteForPost]
