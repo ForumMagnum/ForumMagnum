@@ -15,8 +15,6 @@ import MentionEditing from './mentionediting';
 // import MentionUI from '@ckeditor/ckeditor5-mention/src/mentionui';
 import MentionUI from './mentionui';
 
-import '../theme/mention.css';
-
 /**
  * The mention plugin.
  *

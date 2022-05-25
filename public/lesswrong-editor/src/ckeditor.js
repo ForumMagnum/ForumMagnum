@@ -36,7 +36,7 @@ import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
-import Mention from './ckeditor5-mention/src/mention' //@ckeditor/ckeditor5-mention/src/mention';
+import Mention from './ckeditor5-mention/src/mention';
 import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
 
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
@@ -120,7 +120,6 @@ const sharedPlugins = [
 	RestyledCommentButton,
 	Footnote,
   	Mention,
-	MentionCustomization,
 ];
 
 const postEditorPlugins = [

@@ -56,7 +56,7 @@ export default class MentionCommand extends Command {
 	 * @param {Object} options.mention Must be an object with id and link
 	 * @param {String} options.marker The marker character (e.g. `'@'`).
 	 * @param {String} [options.text] The text of the inserted mention. Defaults to the full mention string composed from `marker` and
-	 * `mention` string or `mention.id` if an object is passed.
+	 * `mention.id` if an object is passed.
 	 * @param {module:engine/model/range~Range} [options.range] The range to replace.
 	 * Note that the replaced range might be shorter than the inserted text with the mention attribute.
 	 * @fires execute
@@ -92,7 +92,6 @@ export default class MentionCommand extends Command {
 			);
 		}
 
-		// todo potentially remove this check
 		if ( mentionID.charAt( 0 ) != options.marker ) {
 			/**
 			 * The feed item ID must start with the marker character.
@@ -131,7 +130,7 @@ export default class MentionCommand extends Command {
 
 		  	attributesWithMention.set( 'linkHref', mentionData.link );
 
-			// Replace a range with the text with a mention.
+			// Replace a range with the text with link attribute.
 			model.insertContent( writer.createText( mentionText, attributesWithMention ), range );
 			model.insertContent( writer.createText( ' ', currentAttributes ), range.start.getShiftedBy( mentionText.length ) );
 		} );

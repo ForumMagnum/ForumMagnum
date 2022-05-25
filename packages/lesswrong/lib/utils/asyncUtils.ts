@@ -29,8 +29,8 @@ export const asyncForeachSequential = async <T>(list: Array<T>, fn: (x:T,i:numbe
 export const asyncForeachParallel = async <T>(list: Array<T>, fn: (x:T, i:number)=>Promise<void>): Promise<void> => {
   await Promise.all(list.map((x,i) => fn(x,i)));
 }
-//TODO: Proper typing
-export const promisify = (fn: any) =>
+
+export const promisify = (fn: Function) =>
   (...args: any[]) =>
     new Promise((resolve, reject) => {
       fn(...args, (err: any, data: any) => {
