@@ -34,11 +34,6 @@ export default class MentionEditing extends Plugin {
 	 */
 	init() {
 		const editor = this.editor;
-		const model = editor.model;
-
-		// Allow the mention attribute on all text nodes.
-	  // todo why is this required?
-		model.schema.extend( '$text', { allowAttributes: 'mention' } );
 
 		editor.commands.add( 'mention', new MentionCommand( editor ) );
 	}

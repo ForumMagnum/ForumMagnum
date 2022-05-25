@@ -48,15 +48,6 @@ import { CKEditorError, toMap } from 'ckeditor5/src/utils';
  * @extends module:core/command~Command
  */
 export default class MentionCommand extends Command {
-	/**
-	 * @inheritDoc
-	 */
-	refresh() {
-		const model = this.editor.model;
-		const doc = model.document;
-
-		this.isEnabled = model.schema.checkAttributeInSelection( doc.selection, 'mention' );
-	}
 
 	/**
 	 * Executes the command.
