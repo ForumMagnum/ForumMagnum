@@ -20,9 +20,13 @@ const specificResolvers = {
       {
         let set: Record<string,any> = {deleted: deleted}
         if (deleted) {
-          set.deletedPublic = deletedPublic;
+          if(deletedPublic !== undefined) {
+            set.deletedPublic = deletedPublic;
+          }
           set.deletedDate = comment.deletedDate || new Date();
-          set.deletedReason = deletedReason;
+          if(deletedReason !== undefined) {
+            set.deletedReason = deletedReason;
+          }
           set.deletedByUserId = currentUser._id;
         } else { //When you undo delete, reset all delete-related fields
           set.deletedPublic = false;
