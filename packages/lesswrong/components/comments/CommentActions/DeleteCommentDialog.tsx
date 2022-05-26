@@ -69,7 +69,7 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
           <br/>
           <TextField
             id="comment-menu-item-delete-reason"
-            label="Reason for deleting"
+            label="Reason for deleting (optional)"
             className={classes.modalTextField}
             value={deletedReason}
             onChange={(event) => setDeletedReason(event.target.value)}
