@@ -15,14 +15,15 @@ import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
-import { SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
-import Button from '@material-ui/core/Button';
+import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 
 export const sectionFooterLeftStyles = {
@@ -41,10 +42,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       '. center right'
     `,
     justifyContent: 'center',
-    columnGap: 50,
+    columnGap: 60,
     paddingLeft: 10,
     paddingRight: 10,
     marginLeft: "auto",
+    [theme.breakpoints.down('lg')]: {
+      columnGap: 40,
+    },
     [theme.breakpoints.down('md')]: {
       display: 'block',
       marginTop: -20
@@ -126,8 +130,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bio: {
     marginTop: theme.spacing.unit*3,
-    marginLeft: theme.spacing.unit/2,
-    marginRight: theme.spacing.unit,
+  },
+  helpFieldHeading: {
+    fontFamily: theme.typography.fontFamily,
+    marginTop: theme.spacing.unit*4,
   },
   primaryColor: {
     color: theme.palette.primary.light
@@ -147,12 +153,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
     color: theme.palette.grey[700],
-    paddingTop: theme.spacing.unit * 3,
+    paddingTop: theme.spacing.unit * 2,
     [theme.breakpoints.down('md')]: {
       display: 'none',
     }
   },
-  mobileRightSidebar: {
+  sidebarDivider: {
+    margin: '40px 15px'
+  },
+  mobileSidebarUpper: {
+    display: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    marginTop: 10,
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+    }
+  },
+  mobileSidebarLower: {
     display: 'none',
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
@@ -162,10 +181,35 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block',
     }
   },
+  currentRole: {
+    lineHeight: '26px',
+    marginBottom: 20
+  },
+  currentRoleSep: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    marginRight: 5
+  },
+  jobTitle: {
+    fontWeight: 'bold',
+    color: theme.palette.grey[800],
+    marginRight: 5
+  },
+  organization: {
+    fontWeight: 'bold',
+    color: theme.palette.grey[800],
+  },
+  careerStages: {
+    marginBottom: 20
+  },
+  careerStage: {
+    fontSize: 15,
+    marginBottom: 10
+  },
   socialMediaIcons: {
     display: 'flex',
     columnGap: 14,
-    marginBottom: 30
+    marginBottom: 20
   },
   socialMediaIcon: {
     flex: 'none',
@@ -175,13 +219,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   website: {
     display: 'inline-flex',
     justifyContent: 'center',
+    color: theme.palette.primary.main,
     wordBreak: 'break-all',
-    marginLeft: 4
+    marginLeft: 4,
   },
   websiteIcon: {
     flex: 'none',
     height: 20,
-    fill: theme.palette.grey[700],
+    fill: theme.palette.primary.dark,
     marginRight: 6
   },
 })
@@ -305,16 +350,22 @@ const UsersProfileFn = ({terms, slug, classes}: {
         </Tooltip>
       </div>
   }
+  
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
 
   const render = () => {
-    const user = getUserFromResults(results)
-    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList, PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup, SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags, Typography, ContentStyles } = Components
+    const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      Typography, ContentStyles } = Components
+
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Loading/>
       </div>
     }
 
+    const user = getUserFromResults(results)
     if (!user || !user._id || user.deleted) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
@@ -342,7 +393,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // on the EA Forum, the user's location links to the Community map
     let mapLocationNode
     if (user.mapLocation) {
-      mapLocationNode = forumTypeSetting.get() === 'EAForum' ? <div>
+      mapLocationNode = isEAForum ? <div>
         <Link to="/community#individuals" className={classes.mapLocation}>
           <LocationIcon className={classes.locationIcon} />
           {user.mapLocation.formatted_address}
@@ -373,17 +424,37 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
     
-    const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
+    // extra profile data that appears on the EA Forum
+    const jobTitle = user.jobTitle && <span className={classes.jobTitle}>{user.jobTitle}</span>
+    const currentRoleSep = user.organization ? <span className={classes.currentRoleSep}>
+      {!jobTitle && 'Works '}at
+    </span> : ''
+    const org = user.organization && <span className={classes.organization}>{user.organization}</span>
+    const currentRole = (jobTitle || org) && <div className={classes.currentRole}>
+      {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
+    </div>
+    const careerStage = user.careerStage?.length && <div className={classes.careerStages}>
+      {user.careerStage.map(stage => {
+        return <div key={stage} className={classes.careerStage}>
+          {CAREER_STAGES.find(s => s.value === stage)?.label}
+        </div>
+      })}
+    </div>
+    // This info is in the righthand sidebar on desktop and moves above the bio on mobile
+    const sidebarInfoUpperNode = isEAForum && <>
+      {currentRole}
+      {careerStage}
+    </>
     
+    const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
     const socialMediaIcon = (field) => {
       if (!user[field]) return null
       return <a key={field} href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
-    
-    // the data in the righthand sidebar on desktop moves under the bio on mobile
-    const sidebarInfoNode = forumTypeSetting.get() === "EAForum" && <>
+    // This data is in the righthand sidebar on desktop and moves under the bio on mobile
+    const sidebarInfoLowerNode = isEAForum && <>
       {userHasSocialMedia && <>
         <div className={classes.socialMediaIcons}>
           {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
@@ -407,7 +478,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.usernameTitle}>
               <div>{username}</div>
-              {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+              {isEAForum && currentUser?._id != user._id && (
                 <div className={classes.messageBtnDesktop}>
                   <NewConversationButton user={user} currentUser={currentUser}>
                     <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
@@ -418,7 +489,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               )}
             </div>
             {mapLocationNode}
-            {forumTypeSetting.get() === "EAForum" && currentUser?._id != user._id && (
+            {isEAForum && currentUser?._id != user._id && (
               <div className={classes.messageBtnMobile}>
                 <NewConversationButton user={user} currentUser={currentUser}>
                   <Button color="primary" variant="contained" className={classes.messageBtn}>
@@ -440,13 +511,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
-              { forumTypeSetting.get() === "EAForum" && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
+              { isEAForum && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
                 Edit Profile
               </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { forumTypeSetting.get() !== "EAForum" && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { !isEAForum && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton
@@ -458,13 +529,30 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 Account Settings
               </Link>}
             </Typography>
+            
+            {isEAForum && <div className={classes.mobileSidebarUpper}>
+              {sidebarInfoUpperNode}
+              {(currentRole || careerStage) && (user.htmlBio || userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
+            </div>}
 
-            {user.bio && <ContentStyles contentType="post">
+            {user.htmlBio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
             </ContentStyles>}
+            {isEAForum && user.howOthersCanHelpMe && <>
+              <h2 className={classes.helpFieldHeading}>How others can help me</h2>
+              <ContentStyles contentType="post">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
+              </ContentStyles>
+            </>}
+            {isEAForum && user.howICanHelpOthers && <>
+              <h2 className={classes.helpFieldHeading}>How I can help others</h2>
+              <ContentStyles contentType="post">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
+              </ContentStyles>
+            </>}
             
-            {(userHasSocialMedia || user.website) && <div className={classes.mobileRightSidebar}>
-              {sidebarInfoNode}
+            {isEAForum && <div className={classes.mobileSidebarLower}>
+              {sidebarInfoLowerNode}
             </div>}
           </SingleColumnSection>
 
@@ -563,9 +651,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </AnalyticsContext>
           </div>
           
-          <div className={classes.rightSidebar}>
-            {sidebarInfoNode}
-          </div>
+          {isEAForum && <div className={classes.rightSidebar}>
+            {sidebarInfoUpperNode}
+            {(currentRole || careerStage) && (userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
+            {sidebarInfoLowerNode}
+          </div>}
         </AnalyticsContext>
       </div>
     )

@@ -78,9 +78,13 @@ export const algoliaConfigureIndexes = async () => {
   
   const eaForumUsersSearchableAttrs = [
     'unordered(displayName)',
-    'bio',
     'unordered(_id)',
-    'unordered(mapLocationAddress)'
+    'bio',
+    'unordered(mapLocationAddress)',
+    'jobTitle',
+    'organization',
+    'howICanHelpOthers',
+    'howOthersCanHelpMe'
   ]
   const eaForumUsersRanking = [
     'typo','geo','words','filters','proximity','attribute','exact',
