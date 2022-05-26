@@ -41,7 +41,8 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
   return [
     draftjsStyles(theme),
     miscStyles(theme),
-    jssStylesheet
+    jssStylesheet,
+    ...theme.rawCSS,
   ].join("\n");
 }
 
