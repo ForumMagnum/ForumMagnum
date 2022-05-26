@@ -200,7 +200,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
       syntheticFields: { ...params.synetheticFields, ...filterParams.syntheticFields },
-      externalCollectionsLookup: [...(params.externalCollectionsLookup ?? []), ...filterParams.externalCollectionsLookup],
+      externalCollectionsLookup: [...(params.externalCollectionsLookup ?? []), ...(filterParams.externalCollectionsLookup ?? [])],
     };
   }
   if (terms.sortedBy) {
