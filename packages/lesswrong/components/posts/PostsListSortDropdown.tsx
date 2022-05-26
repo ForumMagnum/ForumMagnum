@@ -4,7 +4,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -41,25 +40,20 @@ const PostsListSortDropdown = ({classes, value}:{
 
   return <div className={classes.root}>
     <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
-      {TAG_POSTS_SORT_ORDER_OPTIONS[value]} <ArrowDropDownIcon className={classes.icon}/>
+      {TAG_POSTS_SORT_ORDER_OPTIONS[value].label} <ArrowDropDownIcon className={classes.icon}/>
     </span>
     <Menu
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
       onClose={()=>setAnchorEl(null)}
     >
-        <QueryLink query={{sortedBy: undefined}} merge className={classes.menuItem}>
-          <MenuItem value={"relevance"} onClick={()=>setAnchorEl(null)}>
-            {TAG_POSTS_SORT_ORDER_OPTIONS["relevance"]}
+      {Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS).map(sorting => (
+        <QueryLink key={sorting} query={{sortedBy:sorting}} merge>
+          <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
+            {TAG_POSTS_SORT_ORDER_OPTIONS[sorting].label}
           </MenuItem>
         </QueryLink>
-        {Object.keys(SORT_ORDER_OPTIONS).map(sorting => (
-          <QueryLink key={sorting} query={{sortedBy:sorting}} merge>
-            <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
-              {SORT_ORDER_OPTIONS[sorting]}
-            </MenuItem>
-          </QueryLink>
-        ))}
+      ))}
     </Menu>
   </div>
 }
