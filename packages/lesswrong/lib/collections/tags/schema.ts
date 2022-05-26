@@ -8,7 +8,7 @@ import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
-import { SORT_ORDER_OPTIONS, Option } from '../posts/schema';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/schema';
 import omit from 'lodash/omit';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
@@ -33,7 +33,7 @@ addGraphQLSchema(`
   }
 `);
 
-export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: Option; }  = {
+export const TAG_POSTS_SORT_ORDER_OPTIONS:  { [key: string]: SettingsOption; }  = {
   relevance: { label: 'Most Relevant' },
   ...omit(SORT_ORDER_OPTIONS, 'topAdjusted')
 }

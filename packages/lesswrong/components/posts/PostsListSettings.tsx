@@ -11,11 +11,11 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 import { timeframes as defaultTimeframes } from './AllPostsPage'
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { SORT_ORDER_OPTIONS, Option } from '../../lib/collections/posts/schema';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/schema';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 
-const FILTERS_ALL: ForumOptions<Partial<Record<Filters, Option>>> = {
+const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   "AlignmentForum": {
     all: {
       label: "All Posts",
@@ -211,7 +211,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
   timeframes?: any,
-  sortings?: { [key: string]: Option; },
+  sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
   classes: ClassesType,
 }) => {

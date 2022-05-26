@@ -25,8 +25,8 @@ export async function refreshKarmaInflation() {
   };
   const earliestPost = await Posts.aggregate([{
     $match: selector
-  }, { $group: { _id: null, min: { $min: "$postedAt" } } }]).toArray();
-  const start = earliestPost[0].min.getTime();
+  }, { $group: { _id: null, minPostedAt: { $min: "$postedAt" } } }]).toArray();
+  const start = earliestPost[0].minPostedAt.getTime();
 
   const meanKarmaByInterval = await Posts.aggregate([{
     $match: selector
@@ -40,12 +40,13 @@ export async function refreshKarmaInflation() {
     $match: selector
   }, {
     $group: { _id: null, meanKarma: { $avg: "$baseScore" } }
-  }, {
-    $sort: { _id: 1 }
   }]).toArray())[0].meanKarma;
 
   const reciprocalOrOne = (x: number) => x === 0 ? 1 : 1 / x;
 
+  // _id in meanKarmaByInterval always corresponds to the index of that interval in
+  // the final time series, but meanKarmaByInterval may be missing some intervals (if there are no posts during that time)
+  // so use the highest index + 1 to get the final length of the time series
   const arrLen = meanKarmaByInterval[meanKarmaByInterval.length - 1]._id + 1;
   let values = new Array(arrLen).fill(reciprocalOrOne(meanKarmaOverall));
 
