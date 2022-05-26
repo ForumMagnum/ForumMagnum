@@ -90,6 +90,7 @@ export const tagScoreModifier = () => {
       in: {
         $multiply: [
           {
+            // Check multiplier existence, default to 1 if not found
             $cond: {
               if: "$$this.scoreMultiplier",
               then: "$$this.scoreMultiplier",

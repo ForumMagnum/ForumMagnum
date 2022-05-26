@@ -279,36 +279,33 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   }
   
   const tagsSoftFiltered = _.filter(filterSettings.tags, t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0));
-  let scoreExpr: any = null;
-  if (tagsSoftFiltered.length > 0 || frontpageSoftFilter.length > 0) {
-    scoreExpr = {
-      externalCollectionsLookup: [
-        ...tagsLookup()
-      ],
-      syntheticFields: {
-        score: {$divide:[
-          {$multiply: [
-            {$add:[
-              "$baseScore",
-                ...tagsSoftFiltered.map(t => ({
-                  $multiply: [
-                    filterModeToKarmaModifier(t.filterMode),
-                    {$ifNull: [
-                        "$tagRelevance."+t.tagId,
-                        0
-                      ]}
-                  ]
-                })),
-              ...defaultScoreModifiers(),
-              ...frontpageSoftFilter,
-              ]},
-              tagScoreModifier()
-          ]},
-          timeDecayExpr()
-        ]}
-      },
-    };
-  }
+  const scoreExpr = {
+    externalCollectionsLookup: [
+      ...tagsLookup()
+    ],
+    syntheticFields: {
+      score: {$divide:[
+        {$multiply: [
+          {$add:[
+            "$baseScore",
+              ...tagsSoftFiltered.map(t => ({
+                $multiply: [
+                  filterModeToKarmaModifier(t.filterMode),
+                  {$ifNull: [
+                      "$tagRelevance."+t.tagId,
+                      0
+                    ]}
+                ]
+              })),
+            ...defaultScoreModifiers(),
+            ...frontpageSoftFilter,
+            ]},
+            tagScoreModifier()
+        ]},
+        timeDecayExpr()
+      ]}
+    },
+  };
   
   return {
     selector: {
