@@ -12,13 +12,6 @@ export async function refreshKarmaInflation() {
   console.log("Refreshing karma inflation");
 
   // use the postedAt of the earliest post as the start time for the series
-  const earliestPost = await Posts.aggregate([{
-    $match: {
-      postedAt: { $exists: true }
-    }
-  }, { $group: { _id: null, min: { $min: "$postedAt" } } }]).toArray();
-  const start = earliestPost[0].min.getTime();
-
   const selector = {
     status: postStatuses.STATUS_APPROVED,
     draft: false,
@@ -30,6 +23,11 @@ export async function refreshKarmaInflation() {
     postedAt: { $exists: true },
     isEvent: false
   };
+  const earliestPost = await Posts.aggregate([{
+    $match: selector
+  }, { $group: { _id: null, min: { $min: "$postedAt" } } }]).toArray();
+  const start = earliestPost[0].min.getTime();
+
   const meanKarmaByInterval = await Posts.aggregate([{
     $match: selector
   }, {
@@ -37,6 +35,7 @@ export async function refreshKarmaInflation() {
   }, {
     $sort: { _id: 1 }
   }]).toArray();
+
   const meanKarmaOverall: number = (await Posts.aggregate([{
     $match: selector
   }, {
@@ -72,8 +71,8 @@ export async function refreshKarmaInflation() {
   }, { upsert: true });
 
   // refresh the cache after every update
-  // it's a bit wasteful to immediately go and fetch the thing we just calculated from the db again
-  // but seeing as this is a cron job, it doesn't really matter
+  // it's a bit wasteful to immediately go and fetch the thing we just calculated from the db again,
+  // but seeing as this is a cron job it doesn't really matter
   await refreshKarmaInflationCache();
 }
 
