@@ -14,6 +14,7 @@ import { recalculateAFCommentMetadata } from './alignment-forum/alignmentComment
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ensureIndex } from '../../lib/collectionUtils';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -199,6 +200,7 @@ getCollectionHooks("Comments").newValidate.add(async function CommentsNewRateLim
   return comment;
 });
 
+ensureIndex(Comments, { userId: 1, createdAt: 1 });
 
 //////////////////////////////////////////////////////
 // LessWrong callbacks                              //
