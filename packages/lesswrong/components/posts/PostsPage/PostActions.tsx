@@ -188,9 +188,16 @@ const PostActions = ({post, closeMenu, classes}: {
   // selected the thing, and closes the menu, but doesn't do the
   // thing.
   
-  
   return (
       <div className={classes.actions}>
+        { postCanEdit(currentUser,post) && post.isEvent && <Link to={{pathname:'/newPost', search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`}}>
+          <MenuItem>
+            <ListItemIcon>
+              <EditIcon />
+            </ListItemIcon>
+            Use As Template
+          </MenuItem>
+        </Link>}
         { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>

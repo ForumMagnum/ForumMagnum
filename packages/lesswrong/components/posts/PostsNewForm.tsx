@@ -91,6 +91,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const prefillFromTemplate = (template) => {
+  let prefilled = {...template}
+  //, TODO this is just to stop it prompting with "We've found a previously saved state..."
+  // for the final version it would make sense to explicitly include all the fields required
+  delete prefilled._id
+  return prefilled
+}
+
 const PostsNewForm = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -103,6 +111,7 @@ const PostsNewForm = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+  const templateId = query && query.templateId;
   
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -112,11 +121,17 @@ const PostsNewForm = ({classes}: {
     documentId: query && query.groupId,
     skip: !query || !query.groupId
   });
+  const { document: templateDocument } = useSingle({
+    documentId: templateId,
+    collectionName: "Posts",
+    fragmentName: 'PostsPage',
+    skip: !templateId,
+  });
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
-  const prefilledProps = {
+  const prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
@@ -146,6 +161,10 @@ const PostsNewForm = ({classes}: {
         <NoSsr>
           <WrappedSmartForm
             collection={Posts}
+            // FIXME the contents are not prefilled unless a queryFragment and documentId is given (I assume they are fetched after the main page load),
+            // but doing so causes it to update the existing document instead of creating a new one
+            // documentId={templateId}
+            // queryFragment={getFragment('PostsEdit')}
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={post => {
