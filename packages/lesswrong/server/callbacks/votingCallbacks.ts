@@ -4,46 +4,44 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
 
-const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"];
-
-const usersVoteAppliesTo = (newDocument: DbVoteableType, vote: DbVote): string[] => {
-  // do not update if the voting user is the author or one of the co-authors
-  const userIds: string[] = [newDocument.userId].concat(newDocument.coauthorUserIds || []);
-  if (userIds.includes(vote.userId) || !collectionsThatAffectKarma.includes(vote.collectionName)) return [];
-
-  return userIds;
-}
-
 /**
- * Share karma among users, giving each user `karma/sqrt(numUsers)`
- * @param userIds 
- * @param karma 
+ * @summary Update the karma of the item's owner
+ * @param {object} item - The item being operated on
+ * @param {object} user - The user doing the operation
+ * @param {object} collection - The collection the item belongs to
+ * @param {string} operation - The operation being performed
  */
-const applyKarmaToUsers = (userIds: string[], karma: number): void => {
-  if (userIds.length === 0) return;
+const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
+voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+  // only update karma is the operation isn't done by the item's author
+  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
+    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
+  }
+});
 
-  // round "away from zero" to be generous (and to simplify making votes reversible)
-  const roundFunc = karma > 0 ? Math.ceil : Math.floor
-  const appliedKarma = roundFunc(karma / Math.sqrt(userIds.length));
-  void Users.rawUpdateMany({ _id: {$in: userIds} }, {$inc: {"karma": appliedKarma}});
-}
+voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+  // only update karma is the operation isn't done by the item's author
+  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
+    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
+  }
+});
 
-const updateVoteCount = (newDocument: DbVoteableType, vote: DbVote, increment: number): void => {
-  if (usersVoteAppliesTo(newDocument, vote).length === 0) return;
 
-  const field = vote.voteType + "Count";
-  void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: increment, voteCount: increment}});
-}
+voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
+  const field = vote.voteType + "Count"
 
-// update user karma
-voteCallbacks.castVoteAsync.add(({newDocument, vote}: VoteDocTuple) => applyKarmaToUsers(usersVoteAppliesTo(newDocument, vote), vote.power));
-voteCallbacks.cancelAsync.add(({newDocument, vote}: VoteDocTuple) => applyKarmaToUsers(usersVoteAppliesTo(newDocument, vote), -vote.power));
+  if (newDocument.userId !== vote.userId) {
+    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: 1, voteCount: 1}});
+  }
+});
 
-// update user vote counts
-// NOTE: currently this has the slightly confusing behaviour that if you upvote a post, and then cancel that upvote, your overall vote count is increased by 1
-// (the initial upvote gives +1, the cancelled upvote gives -1, and a "neutral" vote is added with +1)
-voteCallbacks.castVoteAsync.add(({newDocument, vote}: VoteDocTuple) => updateVoteCount(newDocument, vote, 1));
-voteCallbacks.cancelAsync.add(({newDocument, vote}: VoteDocTuple) => updateVoteCount(newDocument, vote, -1));
+voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
+  const field = vote.voteType + "Count"
+
+  if (newDocument.userId !== vote.userId) {
+    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: -1, voteCount: -1}});
+  }
+});
 
 voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
   const voter = await Users.findOne(document.vote.userId);
