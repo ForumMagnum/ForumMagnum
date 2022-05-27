@@ -1,6 +1,6 @@
 import { combineUrls, Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -15,6 +15,8 @@ import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
@@ -22,8 +24,7 @@ import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
+import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 
 export const sectionFooterLeftStyles = {
@@ -242,14 +243,39 @@ const UsersProfileFn = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
-
   const currentUser = useCurrentUser();
+  
   const {loading, results} = useMulti({
     terms,
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
+  
+  const { query } = useLocation()
+  // track profile views in local storage
+  useEffect(() => {
+    const profileUser = getUserFromResults(results)
+    const ls = getBrowserLocalStorage()
+    // currently only used on the EA Forum
+    if (forumTypeSetting.get() === 'EAForum' && currentUser && profileUser && currentUser._id !== profileUser._id && ls) {
+      let from = query.from
+      let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      // if the profile user is already in the list, then remove them before re-adding them at the end
+      const profileUserIndex = profiles?.findIndex(profile => profile.userId === profileUser._id)
+      if (profiles && profileUserIndex !== -1) {
+        // remember where we originally saw this profile, if necessary
+        from = from || profiles[profileUserIndex].from
+        profiles.splice(profileUserIndex, 1)
+      }
+      
+      profiles.push({userId: profileUser._id, ...(from && {from})})
+      // we only bother to save the last 10 profiles
+      if (profiles.length > 10) profiles.shift()
+      // save it in local storage
+      ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
+    }
+  }, [currentUser, results, query.from])
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -317,8 +343,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
         </Tooltip>
       </div>
   }
-
-  const { query } = useLocation();
   
   const isEAForum = forumTypeSetting.get() === 'EAForum'
 
