@@ -88,7 +88,7 @@ const ConversationPage = ({ documentId, terms, currentUser, classes }: {
       const lastViewedProfiles = JSON.parse(ls.getItem('lastViewedProfiles'))
       profileViewedFrom.current = lastViewedProfiles?.find(profile => profile.userId === otherUserId)?.from
     }
-  }, [conversation])
+  }, [query.from, conversation, currentUser._id])
 
   const { SingleColumnSection, ConversationDetails, WrappedSmartForm, Error404, Loading, MessageItem, Typography } = Components
   
