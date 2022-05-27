@@ -10,7 +10,7 @@ import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { Link } from '../../lib/reactRouterWrapper';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
@@ -48,8 +48,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block",
   },
   warning: {
-    color: theme.palette.error.main
-  }
+    color: theme.palette.error.main,
+    '& a': {
+      color: theme.palette.primary.main
+    },
+  },
 });
 
 const PostSharingSettings = ({document, formType, value, path, label, classes}: {
@@ -240,7 +243,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
         </Select>
       </div>
       
-      <p className={classes.warning}>Collaborative Editing features are in beta. Message us on Intercom or email us at team@lesswrong.com if you experience issues</p>
+      <p className={classes.warning}>Collaborative Editing features are in beta. <Link to='/contact'>Get in touch</Link> if you experience issues</p>
 
       <div className={classes.buttonRow}>
         {sharingSettings && sharingSettings.anyoneWithLinkCan!=="none" && postId &&
