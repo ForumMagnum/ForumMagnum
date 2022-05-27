@@ -148,7 +148,6 @@ interface VoteableType extends HasIdType, HasUserIdType {
   afBaseScore?: number
   afExtendedScore?: any,
   afVoteCount?: number
-  coauthorUserIds?: string[]
 }
 
 interface VoteableTypeClient extends VoteableType {
