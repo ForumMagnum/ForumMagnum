@@ -102,12 +102,12 @@ export function startWebserver() {
   }
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
-  app.use(pickerMiddleware);
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(pickerMiddleware);
   
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));

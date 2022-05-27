@@ -25,6 +25,7 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -230,14 +231,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 6
   },
 })
-
-const sortings: Partial<Record<string,string>> = {
-  magic: "Magic (New & Upvoted)",
-  recentComments: "Recent Comments",
-  new: "New",
-  old: "Old",
-  top: "Top"
-}
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
@@ -601,7 +594,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
@@ -610,7 +603,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentFilter={currentFilter}
               currentShowLowKarma={currentShowLowKarma}
               currentIncludeEvents={currentIncludeEvents}
-              sortings={sortings}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
               <PostsList2 terms={terms} hideAuthor />
