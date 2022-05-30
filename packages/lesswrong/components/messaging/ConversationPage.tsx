@@ -8,7 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
