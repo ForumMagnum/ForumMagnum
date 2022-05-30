@@ -210,6 +210,7 @@ export function startWebserver() {
     } else {
       return response.status(status||200).send(
         '<!doctype html>\n'
+        + '<html lang="en">\n'
         + '<head>\n'
           + clientScript
           + headers.join('\n')
@@ -218,10 +219,11 @@ export function startWebserver() {
           + jssSheets
         + '</head>\n'
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-          + ssrBody
-        +'</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt)
-        + serializedApolloState)
+          + ssrBody + '\n'
+        + '</body>\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
+        + serializedApolloState + '\n'
+        + '</html>\n')
     }
   })
 

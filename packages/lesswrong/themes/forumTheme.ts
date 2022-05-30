@@ -5,11 +5,25 @@ import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import deepmerge from 'deepmerge';
 
+const themeCache = new Map<string,MuiThemeType&ThemeType>();
+
+// Get a theme for the given theme options.
+// NOTE: Somewhere downstream, this feeds into a JSS-compilation cache. It's
+// important that, given the same theme options, this always return something
+// reference-equal to other versions with the same theme options, or else there
+// will be a memory leak on every pageload.
 export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeType => {
   const forumType = getForumType(themeOptions);
-  const siteTheme = getSiteTheme(forumType);
-  const userTheme = getUserTheme(themeOptions.name);
-  return buildTheme(userTheme, siteTheme);
+  const themeCacheKey = `${forumType}/${themeOptions.name}`;
+  
+  if (!themeCache.has(themeCacheKey)) {
+    const siteTheme = getSiteTheme(forumType);
+    const userTheme = getUserTheme(themeOptions.name);
+    const theme = buildTheme(userTheme, siteTheme);
+    themeCache.set(themeCacheKey, theme);
+  }
+  
+  return themeCache.get(themeCacheKey)!;
 }
 
 const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification): MuiThemeType&ThemeType => {

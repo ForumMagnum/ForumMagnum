@@ -42,11 +42,7 @@ const PostsListEditorSearchHit = ({hit, classes}: {
         open={hover}
         anchorEl={anchorEl}
         placement="left"
-        modifiers={{
-          flip: {
-            enabled: false,
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltipSingle postId={post._id} postsList/>
       </LWPopper>

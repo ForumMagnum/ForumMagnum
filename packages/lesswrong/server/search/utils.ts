@@ -17,6 +17,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToMarkdown } from '../editor/make_editable_callbacks';
 import filter from 'lodash/filter';
 import { asyncFilter } from '../../lib/utils/asyncUtils';
+import { truncatise } from '../../lib/truncatise';
 
 export type AlgoliaIndexedDbObject = DbComment|DbPost|DbUser|DbSequence|DbTag;
 
@@ -101,6 +102,21 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
   if (user.deleted) return null;
   if (user.deleteContent) return null;
   
+  let howOthersCanHelpMe = ""
+  if (user.howOthersCanHelpMe?.originalContents?.type) {
+    const { data, type } = user.howOthersCanHelpMe.originalContents
+    howOthersCanHelpMe = dataToMarkdown(data, type)
+  }
+  let howICanHelpOthers = ""
+  if (user.howICanHelpOthers?.originalContents?.type) {
+    const { data, type } = user.howICanHelpOthers.originalContents
+    howICanHelpOthers = dataToMarkdown(data, type)
+  }
+  
+  const bioOriginalContents = user.biography?.originalContents;
+  const bio = bioOriginalContents ? dataToMarkdown(bioOriginalContents.data, bioOriginalContents.type) : "";
+  const htmlBio = user.biography?.html || "";
+  
   const algoliaUser: AlgoliaUser = {
     _id: user._id,
     objectID: user._id,
@@ -108,10 +124,18 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     displayName: user.displayName,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
-    bio: user.bio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
-    htmlBio: user.htmlBio?.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    htmlBio: truncatise(htmlBio, {
+      TruncateBy: 'characters',
+      TruncateLength: USER_BIO_MAX_SEARCH_CHARACTERS - 500 // some buffer for HTML tags
+    }),
+    howOthersCanHelpMe: howOthersCanHelpMe.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
+    howICanHelpOthers: howICanHelpOthers.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     karma: user.karma,
     slug: user.slug,
+    jobTitle: user.jobTitle,
+    organization: user.organization,
+    careerStage: user.careerStage,
     website: user.website,
     groups: user.groups,
     af: user.groups && user.groups.includes('alignmentForum'),
