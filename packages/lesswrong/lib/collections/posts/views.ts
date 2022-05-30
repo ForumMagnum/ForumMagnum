@@ -1,5 +1,6 @@
 import moment from 'moment';
 import * as _ from 'underscore';
+import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
@@ -132,11 +133,12 @@ export const filters: Record<string,any> = {
  * sorting, do not try to supply your own.
  */
 export const sortings = {
-  magic: {score: -1},
-  top: {baseScore: -1},
-  new: {postedAt: -1},
-  old: {postedAt: 1},
-  recentComments: {lastCommentedAt: -1}
+  magic: { score: -1 },
+  top: { baseScore: -1 },
+  topAdjusted: { karmaInflationAdjustedScore: -1 },
+  new: { postedAt: -1 },
+  old: { postedAt: 1 },
+  recentComments: { lastCommentedAt: -1 }
 }
 
 /**
@@ -203,6 +205,10 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
     };
   }
   if (terms.sortedBy) {
+    if (terms.sortedBy === 'topAdjusted') {
+      params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField() }
+    }
+
     if (sortings[terms.sortedBy]) {
       params.options = {sort: {...params.options.sort, ...sortings[terms.sortedBy]}}
     } else {
@@ -258,6 +264,32 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
           }
         },
       ] : []
+    }
+  }
+}
+
+function buildInflationAdjustedField(): any {
+  const karmaInflationSeries = getKarmaInflationSeries();
+  return {
+    karmaInflationAdjustedScore: {
+      $multiply: [
+        "$baseScore",
+        {
+          $ifNull: [
+            {
+              $arrayElemAt: [
+                karmaInflationSeries.values,
+                {
+                  $max: [
+                    timeSeriesIndexExpr("$postedAt", karmaInflationSeries.start, karmaInflationSeries.interval),
+                    0 // fall back to first value if out of range
+                  ]
+                }]
+            },
+            karmaInflationSeries.values[karmaInflationSeries.values.length - 1] // fall back to final value if out of range
+          ]
+        }
+      ]
     }
   }
 }
@@ -411,18 +443,6 @@ ensureIndex(Posts,
   augmentForDefaultView({ afSticky:-1, score:-1 }),
   {
     name: "posts.afSticky_score",
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({ metaSticky:-1, score:-1 }),
-  {
-    name: "posts.metaSticky_score",
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, score:-1 }),
-  {
-    name: "posts.userId_stickies_score",
   }
 );
 
@@ -830,6 +850,7 @@ ensureIndex(Posts,
   { name: "posts.2019reviewRecentDiscussionThreadsList", }
 );
 
+// currently unused
 Posts.addView("shortformDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
     selector: {
@@ -1294,13 +1315,6 @@ Posts.addView("personalTagProgressPosts", (terms: PostsViewTerms) => {
     },
   }
 })
-
-ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, tagRelevance: 1}),
-  {
-    name: "posts.users_tagged_posts",
-  }
-);
 
 Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) => ({
     selector: {
