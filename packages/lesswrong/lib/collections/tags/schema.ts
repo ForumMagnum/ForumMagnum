@@ -10,6 +10,7 @@ import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/schema';
 import omit from 'lodash/omit';
+import { FILTER_MODE_CHOICES } from '../../filterSettings';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {
@@ -422,7 +423,21 @@ export const schema: SchemaType<DbTag> = {
       value: key,
       label: val.label
     })),
-  }
+  },
+  
+  defaultFilterMode: {
+    type: SimpleSchema.oneOf(String, Number),
+    optional: true,
+    group: formGroups.advancedOptions,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    control: 'select',
+    options: () => FILTER_MODE_CHOICES.map(mode => ({
+      value: mode,
+      label: mode
+    })),
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {

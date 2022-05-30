@@ -171,6 +171,39 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly votingSystem: string,
 }
 
+interface TagsDefaultFragment { // fragment on Tags
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
+  readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
+  readonly descriptionTruncationCount: number,
+  readonly postCount: number,
+  readonly userId: string,
+  readonly adminOnly: boolean,
+  readonly charsAdded: number,
+  readonly charsRemoved: number,
+  readonly deleted: boolean,
+  readonly lastCommentedAt: Date,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
+  readonly wikiGrade: number,
+  readonly wikiOnly: boolean,
+  readonly bannerImageId: string,
+  readonly tagFlagsIds: Array<string>,
+  readonly lesswrongWikiImportRevision: string,
+  readonly lesswrongWikiImportSlug: string,
+  readonly lesswrongWikiImportCompleted: boolean,
+  readonly htmlWithContributorAnnotations: string,
+  readonly contributors: any /*TagContributorsList*/,
+  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly introSequenceId: string,
+  readonly postsDefaultSortOrder: string,
+  readonly defaultFilterMode: string,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -239,38 +272,6 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
   readonly hideFromAuthorPage: boolean,
-}
-
-interface TagsDefaultFragment { // fragment on Tags
-  readonly createdAt: Date,
-  readonly name: string,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly defaultOrder: number,
-  readonly descriptionTruncationCount: number,
-  readonly postCount: number,
-  readonly userId: string,
-  readonly adminOnly: boolean,
-  readonly charsAdded: number,
-  readonly charsRemoved: number,
-  readonly deleted: boolean,
-  readonly lastCommentedAt: Date,
-  readonly needsReview: boolean,
-  readonly reviewedByUserId: string,
-  readonly wikiGrade: number,
-  readonly wikiOnly: boolean,
-  readonly bannerImageId: string,
-  readonly tagFlagsIds: Array<string>,
-  readonly lesswrongWikiImportRevision: string,
-  readonly lesswrongWikiImportSlug: string,
-  readonly lesswrongWikiImportCompleted: boolean,
-  readonly htmlWithContributorAnnotations: string,
-  readonly contributors: any /*TagContributorsList*/,
-  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly introSequenceId: string,
-  readonly postsDefaultSortOrder: string,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1405,6 +1406,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
   readonly deleted: boolean,
+  readonly defaultFilterMode: string,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -1921,11 +1923,11 @@ interface FragmentTypes {
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  TagsDefaultFragment: TagsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
-  TagsDefaultFragment: TagsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
@@ -2066,11 +2068,11 @@ interface CollectionNamesByFragmentName {
   LocalgroupsDefaultFragment: "Localgroups"
   TagRelsDefaultFragment: "TagRels"
   PostsDefaultFragment: "Posts"
+  TagsDefaultFragment: "Tags"
   VotesDefaultFragment: "Votes"
   CommentsDefaultFragment: "Comments"
   RSSFeedsDefaultFragment: "RSSFeeds"
   SequencesDefaultFragment: "Sequences"
-  TagsDefaultFragment: "Tags"
   RevisionsDefaultFragment: "Revisions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"

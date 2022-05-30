@@ -16,7 +16,11 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hidden"|"Default"|"Required"|"Subscribed"|"Reduced"|number
+/** TagDefault relies on there being a FilterMode on the tag */
+export const FILTER_MODE_CHOICES = [
+  'Hidden', 'Default', 'Required', 'Subscribed', 'Reduced', 'Halved', 0.75, 0.25,
+] as const;
+export type FilterMode = typeof FILTER_MODE_CHOICES[number]|"TagDefault"|number
 
 export const getDefaultFilterSettings = (): FilterSettings => ({
   personalBlog: "Hidden",

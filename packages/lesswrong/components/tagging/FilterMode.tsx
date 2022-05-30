@@ -102,6 +102,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
+  if (mode === "TagDefault" && tag?.defaultFilterMode !== null && tag?.defaultFilterMode !== undefined) {
+    // Casting because the generated type does not realize the schema constrains
+    // it to be one of the FilterMode values
+    mode = tag.defaultFilterMode as FilterMode
+  }
 
   const tagLabel = <span>
     {label}
@@ -125,6 +130,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             <LWTooltip title={filterModeToTooltip("Hidden")}>
               <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
                 Hidden
+              </span>
+            </LWTooltip>
+            <LWTooltip title={filterModeToTooltip("Halved")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: [0.5, "Halved"].includes(mode)})} onClick={ev => onChangeMode("Halved")}>
+                Halved
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(-25)}>
@@ -189,6 +199,8 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
       return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in Latest Posts.</div>
     case "Hidden":
       return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in Latest Posts.</div>
+    case "Halved":
+      return <div><em>Halved.</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
     case 0:
     case "Default":
       return <div><em>+0.</em> This {taggingNameSetting.get()} will be ignored for filtering and sorting.</div>
@@ -214,6 +226,7 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): st
     case "Required": return "Required";
     case "Subscribed": return "Subscribed";
     case "Reduced": return "Reduced";
+    case "Halved": return "Halved";
   }
 }
 

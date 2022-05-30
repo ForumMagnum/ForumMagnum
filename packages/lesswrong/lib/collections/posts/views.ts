@@ -1,10 +1,10 @@
 import moment from 'moment';
 import * as _ from 'underscore';
+import { tagDefaultWeights } from '../../../server/defaultTagWeights/cache';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
-import type { FilterMode, FilterSettings } from '../../filterSettings';
+import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
-import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -201,7 +201,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
-      syntheticFields: { ...params.synetheticFields, ...filterParams.syntheticFields },
+      syntheticFields: { ...params.syntheticFields, ...filterParams.syntheticFields },
     };
   }
   if (terms.sortedBy) {
@@ -252,7 +252,7 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
       softFilter: []
     }
   } else {
-    const personalBonus = filterModeToKarmaModifier(filterSettings.personalBlog)
+    const personalBonus = filterModeToAdditiveKarmaModifier(filterSettings.personalBlog)
     return {
       filter: {},
       softFilter: personalBonus ? [
@@ -309,30 +309,43 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
-  const tagsSoftFiltered = _.filter(filterSettings.tags, t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0));
-  let scoreExpr: any = null;
-  if (tagsSoftFiltered.length > 0 || frontpageSoftFilter.length > 0) {
-    scoreExpr = {
-      syntheticFields: {
-        score: {$divide:[
-          {$add:[
-            "$baseScore",
-            ...tagsSoftFiltered.map(t => ({
-              $multiply: [
-                filterModeToKarmaModifier(t.filterMode),
-                {$ifNull: [
-                  "$tagRelevance."+t.tagId,
-                  0
-                ]}
-              ]
-            })),
-            ...defaultScoreModifiers(),
-            ...frontpageSoftFilter,
-          ]},
-          timeDecayExpr()
-        ]}
-      },
-    };
+  const tagsSoftFiltered = filterSettings.tags.filter(
+    t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
+  );
+  
+  const tagsSoftFilteredDefaultWeights: FilterTag[] = tagsSoftFiltered.map(t =>
+    t.filterMode === "TagDefault" ? {
+      tagId: t.tagId,
+      tagName: t.tagName,
+      filterMode: tagDefaultWeights[t.tagId]
+    } :
+    t
+  )
+  const syntheticFields = {
+    score: {$divide:[
+      {$multiply: [
+        {$add:[
+          "$baseScore",
+          ...tagsSoftFilteredDefaultWeights.map(t => (
+            {$cond: {
+              if: {$gte: ["$tagRelevance."+t.tagId, 0]},
+              then: filterModeToAdditiveKarmaModifier(t.filterMode),
+              else: 0
+            }}
+          )),
+          ...defaultScoreModifiers(),
+          ...frontpageSoftFilter,
+        ]},
+        ...tagsSoftFilteredDefaultWeights.map(t => (
+          {$cond: {
+            if: {$gte: ["$tagRelevance."+t.tagId, 0]},
+            then: filterModeToMultiplicativeKarmaModifier(t.filterMode),
+            else: 1
+          }}
+        )),
+      ]},
+      timeDecayExpr()
+    ]}
   }
   
   return {
@@ -340,21 +353,30 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
       ...frontpageFilter,
       ...tagsFilter
     },
-    ...scoreExpr,
+    syntheticFields,
   };
 }
 
-function filterModeToKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number") {
+function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === "number" && (mode < 0 || 1 < mode)) {
     return mode;
   } else switch(mode) {
     default:
     case "Default": return 0;
-    case "Hidden": return -100;
-    case "Required": return 100;
+    case "Required": return 1000;
   }
 }
 
+function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === "number" && 0 < mode && mode <= 1) {
+    return mode;
+  } else switch(mode) {
+    default:
+    case "Default": return 1;
+    case "Hidden": return 0.000001;
+    case "Halved": return 0.5;
+  }
+}
 
 export function augmentForDefaultView(indexFields)
 {

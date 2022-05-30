@@ -182,3 +182,4 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
 });
 
 ensureIndex(Tags, {name: 1});
+// ensureIndex(Tags, {defaultFilterMode: 1});
