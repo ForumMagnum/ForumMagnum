@@ -119,7 +119,9 @@ const NewUsersEditForm = ({currentUser, terms, classes}: {
         <FormTextbox form={form} fieldName="fullName" label="Full Name" />
         <FormTextbox form={form} fieldName="email" label="Email" />
         <FormLocation form={form} fieldName="location" label="Location" />
-        <FormMultilineText form={form} fieldName="bio" label="Bio" />
+        
+        {/* Note: bio field is no longer a text-field -- Ray, 2022-05-30 */}
+        {/* <FormMultilineText form={form} fieldName="bio" label="Bio" /> */}
         
         {/* TODO(EA): Need to add a management API call to get the reset password
             link, but for now users can reset their password from the login
