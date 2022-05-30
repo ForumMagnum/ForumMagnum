@@ -2,7 +2,6 @@ import React from 'react';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { createGenerateClassName, jssPreset } from '@material-ui/core/styles';
 import { create } from 'jss';
-import { getForumTheme } from '../themes/forumTheme';
 import type { ThemeOptions } from '../themes/themeNames';
 import { ThemeContextProvider } from '../components/themes/useTheme';
 

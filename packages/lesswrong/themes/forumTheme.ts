@@ -5,7 +5,7 @@ import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import deepmerge from 'deepmerge';
 
-const themeCache = new Map<string,MuiThemeType&ThemeType>();
+const themeCache = new Map<string,ThemeType>();
 
 // Get a theme for the given theme options.
 // NOTE: Somewhere downstream, this feeds into a JSS-compilation cache. It's
@@ -23,10 +23,10 @@ export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeTyp
     themeCache.set(themeCacheKey, theme);
   }
   
-  return themeCache.get(themeCacheKey)!;
+  return createMuiTheme(themeCache.get(themeCacheKey)! as unknown as MuiThemeType&ThemeType) as MuiThemeType&ThemeType;
 }
 
-const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification): MuiThemeType&ThemeType => {
+const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification): ThemeType => {
   let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
   if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
   if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);
@@ -42,5 +42,5 @@ const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpeci
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   
   let themeWithPalette = {...combinedTheme, palette};
-  return createMuiTheme(themeWithPalette as any) as MuiThemeType&ThemeType;
+  return themeWithPalette as ThemeType;
 }
