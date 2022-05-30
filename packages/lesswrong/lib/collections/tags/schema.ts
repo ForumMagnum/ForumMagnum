@@ -437,7 +437,7 @@ export const schema: SchemaType<DbTag> = {
       value: mode,
       label: mode
     })),
-    tooltip: `Default ${taggingNameSetting.get()} filter for new and logged out users. If setting this on a tag for the first time, ask a dev to add a defaultVisibilityTags to the DB.`
+    tooltip: `Default ${taggingNameSetting.get()} filter for new and logged out users. If setting this on a ${taggingNameSetting.get()} for the first time, ask a dev to add a defaultVisibilityTags to the DB.`
   },
 }
 
