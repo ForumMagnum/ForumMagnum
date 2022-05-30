@@ -140,7 +140,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
                 <SectionTitle title="All Posts">
-                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting] }`}/>
+                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 </SectionTitle>
               </div>
             </Tooltip>

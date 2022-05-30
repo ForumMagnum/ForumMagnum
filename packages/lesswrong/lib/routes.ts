@@ -460,6 +460,11 @@ if (taggingNameIsSet.get()) {
       path: '/tags/dashboard',
       redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
     },
+    {
+      name: 'taggingAllCustomNameRedirect',
+      path: `/${taggingNamePluralSetting.get()}/`,
+      redirect: () => `/${taggingNamePluralSetting.get()}/all`
+    },
   )
 } else {
   addRoute(
