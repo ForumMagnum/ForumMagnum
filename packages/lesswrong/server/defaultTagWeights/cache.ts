@@ -1,7 +1,8 @@
 import Tags from "../../lib/collections/tags/collection";
 import type { FilterMode } from "../../lib/filterSettings";
 
-export let tagDefaultWeights: { [_id: string]: FilterMode } = {};
+let tagDefaultWeights: { [_id: string]: FilterMode } = {};
+export const getTagDefaultWeights = () => tagDefaultWeights;
 
 export async function refreshTagDefaultWeights() {
   tagDefaultWeights = Object.fromEntries(

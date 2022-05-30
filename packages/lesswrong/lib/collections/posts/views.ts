@@ -1,6 +1,6 @@
 import moment from 'moment';
 import * as _ from 'underscore';
-import { tagDefaultWeights } from '../../../server/defaultTagWeights/cache';
+import { getTagDefaultWeights } from '../../../server/defaultTagWeights/cache';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
@@ -317,7 +317,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     t.filterMode === "TagDefault" ? {
       tagId: t.tagId,
       tagName: t.tagName,
-      filterMode: tagDefaultWeights[t.tagId]
+      filterMode: getTagDefaultWeights()[t.tagId]
     } :
     t
   )
