@@ -518,6 +518,7 @@ importComponent("BottomNavigation", () => require('../components/sequences/Botto
 importComponent("BottomNavigationItem", () => require('../components/sequences/BottomNavigationItem'));
 importComponent("SequencesPost", () => require('../components/sequences/SequencesPost'));
 importComponent("SequencesGridItem", () => require('../components/sequences/SequencesGridItem'));
+importComponent("SequencesRowItem", () => require('../components/sequences/SequencesRowItem'));
 importComponent("ChaptersItem", () => require('../components/sequences/ChaptersItem'));
 importComponent("ChaptersList", () => require('../components/sequences/ChaptersList'));
 importComponent("ChaptersEditForm", () => require('../components/sequences/ChaptersEditForm'));
