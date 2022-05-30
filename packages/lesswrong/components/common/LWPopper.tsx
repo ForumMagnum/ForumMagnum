@@ -30,7 +30,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-// This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
+// This is a wrapper around the Popper library so we can easily replace it with different versions and
+// implementations
 const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, open, anchorEl, placement, clickable = true}: {
   classes: ClassesType,
   children: any,
@@ -58,6 +59,9 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
     return null;
   
   return (
+    // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+    // context, by placing the Popper element directly into the document root
+    // Rest of usage from https://popper.js.org/react-popper/v2/
     createPortal(
       <div
         ref={setPopperElement}
