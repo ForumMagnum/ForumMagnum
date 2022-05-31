@@ -27,11 +27,17 @@ getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}
   const newOrganizerIds = difference(document.organizerIds, oldDocument.organizerIds)
   await createNotifications({userIds: newOrganizerIds, notificationType: "newGroupOrganizer", documentType: "localgroup", documentId: document._id})
   
-  // remove this group from the profile of any organizers who have been removed
-  const removedOrganizerIds = difference(oldDocument.organizerIds, document.organizerIds)
+  // if this group is being marked as inactive or deleted, remove it from the profile of all associated organizers
+  const groupIsBeingHidden = (!oldDocument.inactive && document.inactive) || (!oldDocument.deleted && document.deleted)
+  // otherwise, remove this group from the profile of any organizers who have been removed
+  const removedOrganizerIds = groupIsBeingHidden ? oldDocument.organizerIds : difference(oldDocument.organizerIds, document.organizerIds)
+
+  if (!removedOrganizerIds || !removedOrganizerIds.length) return
   const removedOrganizers = await Users.find({_id: {$in: removedOrganizerIds}}).fetch()
   
   removedOrganizers.forEach(organizer => {
+    if (!organizer.organizerOfGroupIds) return
+
     const newOrganizerOfGroupIds = difference(organizer.organizerOfGroupIds, [document._id])
     if (organizer.organizerOfGroupIds.length > newOrganizerOfGroupIds.length) {
       void Users.rawUpdateOne(
