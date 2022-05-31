@@ -34,7 +34,7 @@ getCollectionHooks("Localgroups").updateAsync.add(async ({document, oldDocument}
   removedOrganizers.forEach(organizer => {
     const newOrganizerOfGroupIds = difference(organizer.organizerOfGroupIds, [document._id])
     if (organizer.organizerOfGroupIds.length > newOrganizerOfGroupIds.length) {
-      Users.rawUpdateOne(
+      void Users.rawUpdateOne(
         {_id: organizer._id},
         {$set: {organizerOfGroupIds: newOrganizerOfGroupIds}}
       )
