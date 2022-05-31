@@ -193,7 +193,7 @@ const blockRenderMap = Map({
 });
 
 const DraftJSEditorComponent = registerComponent("DraftJSEditor", DraftJSEditor, {
-  hocs: [withTheme()]
+  hocs: [withTheme]
 });
 declare global {
   interface ComponentTypes {

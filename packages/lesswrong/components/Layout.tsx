@@ -345,7 +345,7 @@ const LayoutComponent = registerComponent<ExternalProps>(
       collectionName: "Users",
       fragmentName: 'UsersCurrent',
     }),
-    withTheme()
+    withTheme
   ]}
 );
 

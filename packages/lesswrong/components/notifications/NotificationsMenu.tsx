@@ -138,7 +138,7 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
         >
           { hasOpened && <div className="notifications-menu-content">
             <Tabs
-              fullWidth={true}
+              variant='fullWidth'
               value={tab}
               className={classes.tabBar}
               onChange={(event, tabIndex) => {

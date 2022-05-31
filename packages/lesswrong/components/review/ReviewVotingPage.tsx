@@ -278,7 +278,7 @@ const ReviewVotingPage = ({classes}: {
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
-  const [sortReviews, setSortReviews ] = useState<string>("new")
+  const [sortReviews, setSortReviews] = useState<string>("new")
   const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
   const [showKarmaVotes] = useState<any>(true)
   const [postsHaveBeenSorted, setPostsHaveBeenSorted] = useState(false)
@@ -501,7 +501,7 @@ const ReviewVotingPage = ({classes}: {
             <SectionTitle title="Reviews">
               <Select
                 value={sortReviews}
-                onChange={(e)=>setSortReviews(e.target.value)}
+                onChange={(e)=>setSortReviews(e.target.value as string)}
                 disableUnderline
                 >
                 <MenuItem value={'top'}>Sorted by Top</MenuItem>
@@ -550,7 +550,7 @@ const ReviewVotingPage = ({classes}: {
               </LWTooltip>
               <Select
                 value={sortPosts}
-                onChange={(e)=>{setSortPosts(e.target.value)}}
+                onChange={(e)=>{setSortPosts(e.target.value as string)}}
                 disableUnderline
                 >
                 <MenuItem value={'lastCommentedAt'}>

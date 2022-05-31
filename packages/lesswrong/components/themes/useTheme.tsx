@@ -21,9 +21,8 @@ export const useSetTheme = () => {
   return themeContext.setThemeOptions;
 }
 
-export const ThemeContextProvider = ({options, sheetsManager, children}: {
+export const ThemeContextProvider = ({options, children}: {
   options: ThemeOptions,
-  sheetsManager?: any,
   children: React.ReactNode,
 }) => {
   const [themeOptions,setThemeOptions] = useState(options);
@@ -37,7 +36,7 @@ export const ThemeContextProvider = ({options, sheetsManager, children}: {
   );
   
   return <ThemeContext.Provider value={themeContext}>
-    <MuiThemeProvider theme={theme as any} sheetsManager={sheetsManager}>
+    <MuiThemeProvider theme={theme}>
       {children}
     </MuiThemeProvider>
   </ThemeContext.Provider>

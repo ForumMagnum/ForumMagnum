@@ -434,7 +434,7 @@ const EventsHome = ({classes}: {
               className={classes.filter}
               value={modeFilter}
               input={<OutlinedInput labelWidth={0} />}
-              onChange={(e) => setModeFilter(e.target.value)}>
+              onChange={(e) => setModeFilter(e.target.value as string)}>
                 <MenuItem key="all" value="all">In-person and online</MenuItem>
                 <MenuItem key="in-person" value="in-person">In-person only</MenuItem>
                 <MenuItem key="online" value="online">Online only</MenuItem>

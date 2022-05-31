@@ -153,7 +153,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
         {document.types && document.types.map(type => {
           return (
             <Tooltip
-              title={tooltips[type]}
+              title={tooltips[type]!}
               placement="top-end"
               key={type}
             >

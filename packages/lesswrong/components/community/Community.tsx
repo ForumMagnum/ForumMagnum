@@ -332,7 +332,7 @@ const Community = ({classes}: {
   
   const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink, DistanceUnitToggle } = Components
   
-  const handleChangeTab = (e, value) => {
+  const handleChangeTab = (e, value?: any) => {
     setTab(value)
     setKeywordSearch('')
     history.replace({...location, hash: `#${value}`})
@@ -373,7 +373,7 @@ const Community = ({classes}: {
       <CommunityBanner />
 
       <div className={classes.section}>
-        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} scrollable aria-label='view local or online groups, or individual community members'>
+        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} variant='scrollable' aria-label='view local or online groups, or individual community members'>
           <Tab label="Local Groups" value="local" />
           <Tab label="Online Groups" value="online" />
           <Tab label="Community Members" value="individuals" />

@@ -63,7 +63,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
         />
         <Select
           value={response}
-          onChange={e => setResponse(e.target.value)}
+          onChange={e => setResponse(e.target.value as (typeof response))}
         >
           <MenuItem value="yes">{responseToText["yes"]}</MenuItem>
           <MenuItem value="maybe">{responseToText["maybe"]}</MenuItem>

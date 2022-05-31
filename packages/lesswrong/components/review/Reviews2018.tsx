@@ -56,7 +56,7 @@ const Reviews2018 = ({classes}: {
           </LWTooltip>
           <Select
             value={sortNominatedPosts}
-            onChange={(e)=>setSortNominatedPosts(e.target.value)}
+            onChange={(e)=>setSortNominatedPosts(e.target.value as string)}
             disableUnderline
           >
             <MenuItem value={'fewestReviews'}>Sort by Fewest Reviews</MenuItem>
@@ -79,7 +79,7 @@ const Reviews2018 = ({classes}: {
         <SectionTitle title="Reviews">
           <Select
             value={sortReviews}
-            onChange={(e)=>setSortReviews(e.target.value)}
+            onChange={(e)=>setSortReviews(e.target.value as string)}
             disableUnderline
             >
             <MenuItem value={'top'}>Sorted by Top</MenuItem>
@@ -93,7 +93,7 @@ const Reviews2018 = ({classes}: {
         <SectionTitle title="Nominations">
           <Select
             value={sortNominations}
-            onChange={(e)=>setSortNominations(e.target.value)}
+            onChange={(e)=>setSortNominations(e.target.value as string)}
             disableUnderline
             >
             <MenuItem value={'top'}>Sorted by Top</MenuItem>

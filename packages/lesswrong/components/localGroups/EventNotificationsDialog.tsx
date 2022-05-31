@@ -6,7 +6,7 @@ import Geosuggest from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Slider from '@material-ui/lab/Slider';
+import Slider from '@material-ui/core/Slider';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -149,7 +149,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
             step={MAX_NOTIFICATION_RADIUS_STEPSIZE}
             min={0}
             max={MAX_NOTIFICATION_RADIUS}
-            onChange={(e, value) => setDistance(value)}
+            onChange={(e, value) => setDistance(value as number)}
             aria-labelledby="input-slider"
           />
           <Input

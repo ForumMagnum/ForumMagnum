@@ -1,4 +1,4 @@
-import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
+import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 import htmlToText from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
@@ -6,8 +6,8 @@ import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
 import { renderToString } from 'react-dom/server';
-import { SheetsRegistry } from 'react-jss/lib/jss';
-import JssProvider from 'react-jss/lib/JssProvider';
+import type { RuleList, StyleSheet } from 'jss';
+import { JssProvider, SheetsRegistry } from 'react-jss';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
@@ -148,9 +148,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const sheetsRegistry = new SheetsRegistry();
-  const generateClassName = createGenerateClassName({
-    dangerouslyUseGlobalCSS: true
-  });
+  const generateClassName = createGenerateClassName();
   
   // Use the user's last-used timezone, which is the timezone of their browser
   // the last time they visited the site. Potentially null, if they haven't
@@ -160,8 +158,8 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
-    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-    <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
+    <JssProvider registry={sheetsRegistry} generateId={generateClassName}>
+    <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
@@ -261,7 +259,10 @@ function validateSheets(sheetsRegistry: SheetsRegistry)
   let styleValidator = new StyleValidator();
   
   for (let sheet of sheetsRegistry.registry) {
-    for (let rule of sheet.rules.index) {
+    // JSS types seem to be missing all non-method properties.
+    // TODO: Fix this.
+    const sheetAsAny = sheet as any; 
+    for (let rule of sheetAsAny.rules.index) {
       if (rule.style) {
         styleValidator.validate(rule.style, rule.selectorText);
       }

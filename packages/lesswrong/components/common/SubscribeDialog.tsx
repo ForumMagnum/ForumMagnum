@@ -256,9 +256,9 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
           value={method}
           indicatorColor="primary"
           textColor="primary"
-          onChange={ (event, value) => this.selectMethod(value) }
+          onChange={ (event, value?: any) => this.selectMethod(value) }
           className={classes.tabbar}
-          fullWidth
+          variant="fullWidth"
         >
           <Tab label="RSS" key="tabRSS" value="rss" />
           <Tab label="Email" key="tabEmail" value="email" />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 // API 1:
 // State in a hook utility function. Form object passed to each component; component type enforces
@@ -83,16 +84,16 @@ export const FormCheckbox = <T extends any>({form, fieldName, label}: {
   label: React.ReactNode,
 }) => {
   const {disabled, value, setValue} = useFormComponent<boolean>(form, fieldName);
-  return <Checkbox
+
+  const checkbox = (<Checkbox
     checked={value}
-    onChange={(event, checked) => {
-      setValue(checked);
+    onChange={(event, checked?: any) => {
+      setValue(checked ?? false);
     }}
     disabled={disabled}
     disableRipple
-  >
-    {label}
-  </Checkbox>
+  />);
+  return <FormControlLabel control={checkbox} label={label} />
 }
 const FormCheckboxComponent = registerComponent("FormCheckbox", FormCheckbox);
 

@@ -34,7 +34,7 @@ const PostsRevisionSelector = ({ post, format, classes }: {
   }, [setAnchorEl]);
   
   const { PostsRevisionsList } = Components
-  const tooltip = anchorEl ? null : <span>
+  const tooltip = anchorEl ? "" : <span>
     This post has major past revisions. Click to view. <br/>
     <em>Originally published: {moment(new Date(post.postedAt)).format("LLL z")}</em>
   </span>

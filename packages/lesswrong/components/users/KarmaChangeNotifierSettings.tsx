@@ -126,7 +126,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
         <React.Fragment>
           {" at "}<Select
             value={timeOfDay}
-            onChange={(event) => this.setBatchingTimeOfDay(parseInt(event.target.value), timezone)}
+            onChange={(event) => this.setBatchingTimeOfDay(parseInt(event.target.value as string), timezone)}
           >
             { _.range(24).map(hour =>
                 <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
@@ -138,7 +138,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
           
           { settings.updateFrequency==="weekly" && <React.Fragment>
               {" on "}<Select value={dayOfWeek}
-                onChange={(event) => this.setBatchingDayOfWeek(event.target.value, timezone)}
+                onChange={(event) => this.setBatchingDayOfWeek(event.target.value as string, timezone)}
               >
                 <MenuItem value="Sunday">Sunday</MenuItem>
                 <MenuItem value="Monday">Monday</MenuItem>
