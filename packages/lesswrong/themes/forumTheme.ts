@@ -23,7 +23,7 @@ export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeTyp
     themeCache.set(themeCacheKey, theme);
   }
   
-  return createMuiTheme(themeCache.get(themeCacheKey)! as unknown as MuiThemeType&ThemeType) as MuiThemeType&ThemeType;
+  return themeCache.get(themeCacheKey)! as any;
 }
 
 const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification): ThemeType => {
@@ -42,5 +42,5 @@ const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpeci
   if (userTheme.make) combinedTheme = deepmerge(combinedTheme, userTheme.make(palette));
   
   let themeWithPalette = {...combinedTheme, palette};
-  return themeWithPalette as ThemeType;
+  return createMuiTheme(themeWithPalette as any) as any;
 }
