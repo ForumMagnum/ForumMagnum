@@ -155,7 +155,6 @@ function generateBuildId() {
 
 let refreshIsPending = false;
 async function initiateRefresh() {
-  if(1) return;
   if (!cliopts.watch) {
     return;
   }
