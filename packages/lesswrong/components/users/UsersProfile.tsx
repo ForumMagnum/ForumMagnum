@@ -19,6 +19,8 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
+import Button from '@material-ui/core/Button';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -105,6 +107,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
 }) => {
   const [showSettings, setShowSettings] = useState(false);
 
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+  })
+
   const currentUser = useCurrentUser();
   const {loading, results} = useMulti({
     terms,
@@ -112,6 +119,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
+
+  const pageUser = getUserFromResults(results);
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -121,10 +130,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
   }
 
+  const reportUser = () => {
+    if (!pageUser || !currentUser) return
+    void updateUser({ selector: {_id: pageUser._id}, data: { needsReview: true } })
+  }
+
   const renderMeta = () => {
-    const document = getUserFromResults(results)
-    if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = document;
+    if (!pageUser) return null
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = pageUser;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -372,6 +385,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
+          {pageUser?.reviewedByUserId === null && !pageUser?.needsReview && 
+            <SingleColumnSection>
+              <Button variant="text" onClick={(reportUser)}>Report user</Button>
+            </SingleColumnSection>
+          }
         </AnalyticsContext>
       </div>
     )
