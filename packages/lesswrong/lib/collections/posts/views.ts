@@ -649,10 +649,11 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   return query
 });
 
-ensureIndex(Posts,
-  augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
-  { name: "posts.userId_wordCount" }
-);
+// not currently used, but seems like it should be?
+// ensureIndex(Posts,
+//   augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
+//   { name: "posts.userId_wordCount" }
+// );
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
