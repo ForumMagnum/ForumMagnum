@@ -924,7 +924,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: forumTypeSetting.get() === "EAForum" ? 7 : 101,
+    order: forumTypeSetting.get() === "EAForum" ? 8 : 101,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1590,6 +1590,37 @@ addFieldsDict(Users, {
     optional: true,
     hidden: true,
   },
+  
+  // These are the groups displayed in the user's profile (i.e. this field is informational only).
+  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
+  organizerOfGroupIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerOfGroupIds",
+      resolverName: "organizerOfGroups",
+      collectionName: "Localgroups",
+      type: "Localgroup"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.aboutMe,
+    order: 7,
+    control: "SelectLocalgroup",
+    label: "Organizer of",
+    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
+    form: {
+      useDocumentAsUser: true,
+      separator: '\r\n',
+      multiselect: true
+    },
+  },
+  'organizerOfGroupIds.$': {
+    type: String,
+    foreignKey: "Localgroups",
+    optional: true,
+  },
 
   website: {
     type: String,
@@ -1603,7 +1634,7 @@ addFieldsDict(Users, {
       inputPrefix: 'https://'
     },
     group: formGroups.aboutMe,
-    order: 8
+    order: 9
   },
   
   linkedinProfileURL: {
