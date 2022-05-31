@@ -92,9 +92,6 @@ export const filters: Record<string,any> = {
     isEvent: true,
     groupId: null
   },
-  "meta": {
-    meta: true
-  },
   "untagged": {
     tagRelevance: {}
   },
@@ -149,7 +146,7 @@ export const sortings = {
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView((terms: PostsViewTerms) => {
-  const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
+  const validFields: any = _.pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
