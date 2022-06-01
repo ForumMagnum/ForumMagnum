@@ -127,7 +127,13 @@ const schema: SchemaType<DbPost> = {
         title
       }
     `,
-    placeholder: 'Add a linkpost URL',
+    inputProperties: {
+      labels: {
+        inactive: 'Link-post?',
+        active: 'Add a linkpost URL',
+      },
+      hintText: 'Please write what you liked about the post, and sample liberally. Or, if the author allows it, copy in the entire post text.',
+    },
     group: formGroups.options,
   },
   // Title
