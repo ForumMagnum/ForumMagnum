@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
@@ -69,6 +69,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   },
 }) => {
   const [active, setActive] = useState(!!value);
+  const inputRef = useRef();
 
   const updateValue = (value: string | null) => {
     updateCurrentValues({
@@ -78,6 +79,9 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
 
   const setEditorActive = (value: boolean) => {
     if (value) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
       setFooterContent(<div className={classes.footer}>{hintText}</div>);
     } else {
       updateValue(null);
@@ -105,6 +109,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       <div>
         <span className={classNames(classes.input, {[classes.inactive]: !active})}>
           <Input
+            inputRef={inputRef}
             className={classes.innerInput}
             value={(document && document[path]) || defaultValue || ""}
             onChange={onChange}
