@@ -37,7 +37,8 @@ export const userOwnsAndInGroup = (group: string) => {
 
 export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
   if (!currentUser) return false;
-  return document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)
+  return (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) ||
+    (document.coauthorUserIds && document.coauthorUserIds.includes(currentUser._id));
 }
 
 export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {

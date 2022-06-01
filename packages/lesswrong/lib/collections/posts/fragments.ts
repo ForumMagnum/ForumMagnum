@@ -35,7 +35,8 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    
+    coauthorUserIds
+
     commentCount
     voteCount
     baseScore

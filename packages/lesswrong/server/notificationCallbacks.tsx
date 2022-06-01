@@ -127,11 +127,6 @@ export async function postsNewNotifications (post: DbPost) {
 
 postPublishedCallback.add(postsNewNotifications);
 
-getCollectionHooks("Posts").createAsync.add(async function eventUpdatedNotifications ({document}: {document: DbPost}) {
-  const { coauthorUserIds } = document;
-  await createNotifications({userIds: coauthorUserIds, notificationType: 'coauthorRequestNotification', documentType: 'post', documentId: document._id});
-});
-
 getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
@@ -451,9 +446,14 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 });
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
-  if (post.shareWithUsers?.length) {
-    await createNotifications({userIds: post.shareWithUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: post._id})
-  }
+  const { _id, shareWithUsers = [], coauthorUserIds = [] } = post;
+  const userIds = shareWithUsers.filter((user) => !coauthorUserIds.includes(user));
+  await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
+});
+
+getCollectionHooks("Posts").newAsync.add(async function coauthorRequestNotifications(post: DbPost) {
+  const { _id, coauthorUserIds = [] } = post;
+  await createNotifications({userIds: coauthorUserIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
 });
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
