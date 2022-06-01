@@ -363,6 +363,7 @@ function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
   } else switch(mode) {
     default:
     case "Default": return 0;
+    case "Subscribed": return 25;
     case "Required": return 1000;
   }
 }
@@ -374,7 +375,7 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
     default:
     case "Default": return 1;
     case "Hidden": return 0.000001;
-    case "Halved": return 0.5;
+    case "Reduced": return 0.5;
   }
 }
 
