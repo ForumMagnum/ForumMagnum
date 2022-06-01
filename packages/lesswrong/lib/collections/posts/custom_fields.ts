@@ -235,8 +235,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
-    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
     optional: true,
     label: "Co-Authors",
     control: "UsersListEditor",
