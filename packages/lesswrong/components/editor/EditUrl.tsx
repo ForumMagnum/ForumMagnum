@@ -76,17 +76,25 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
     });
   }
 
-  const toggleEditor = () => {
-    if (active) {
+  const setEditorActive = (value: boolean) => {
+    if (value) {
+      setFooterContent(<div className={classes.footer}>{hintText}</div>);
+    } else {
       updateValue(null);
       setFooterContent(null);
-    } else {
-      setFooterContent(<div className={classes.footer}>{hintText}</div>);
     }
-    setActive(!active);
+    setActive(value);
   }
 
+  const toggleEditor = () => setEditorActive(!active);
+
   const onChange = (event) => updateValue(event.target.value);
+  const onFocus = () => setEditorActive(true);
+  const onBlur = () => {
+    if (!value || value.length < 1) {
+      setEditorActive(false);
+    }
+  }
 
   if (inputProperties.labels) {
     placeholder = inputProperties.labels[active ? 'active' : 'inactive'];
@@ -100,6 +108,8 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
             className={classes.innerInput}
             value={(document && document[path]) || defaultValue || ""}
             onChange={onChange}
+            onFocus={onFocus}
+            onBlur={onBlur}
             placeholder={placeholder || label}
             classes={{input: classes.input}}
             startAdornment={
