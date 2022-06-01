@@ -24,11 +24,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
     questions: {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
-    },
-    meta: {
-      label: "Meta",
-      tooltip: "Posts relating to LessWrong itself"
-    },
+    }
   },
   "LessWrong": {
     all: {
@@ -50,11 +46,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
     events: {
       label: "Events",
       tooltip: "Events from around the world."
-    },
-    meta: {
-      label: "Meta",
-      tooltip: "Posts relating to LessWrong itself"
-    },
+    }
   },
   "EAForum": {
     all: {

@@ -4,7 +4,6 @@ import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/ka
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
-import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -95,9 +94,6 @@ export const filters: Record<string,any> = {
     isEvent: true,
     groupId: null
   },
-  "meta": {
-    meta: true
-  },
   "untagged": {
     tagRelevance: {}
   },
@@ -152,7 +148,7 @@ export const sortings = {
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView((terms: PostsViewTerms) => {
-  const validFields: any = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
+  const validFields: any = _.pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
@@ -389,12 +385,13 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
     }
   }
 });
-ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, postedAt: -1, }),
-  {
-    name: "posts.userId_postedAt",
-  }
-);
+// This index is currently unused on LW.
+// ensureIndex(Posts,
+//   augmentForDefaultView({ userId: 1, hideAuthor: 1, postedAt: -1, }),
+//   {
+//     name: "posts.userId_postedAt",
+//   }
+// );
 ensureIndex(Posts,
   augmentForDefaultView({ coauthorUserIds: 1, postedAt: -1, }),
   {
@@ -435,64 +432,35 @@ ensureIndex(Posts,
 
 // Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
 ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
-// Used for the latest posts list when soft-filtering tags
-ensureIndex(Posts,
-  augmentForDefaultView({ tagRelevance: 1 }),
-  {
-    name: "posts.tagRelevance"
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({ afSticky:-1, score:-1 }),
-  {
-    name: "posts.afSticky_score",
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({ metaSticky:-1, score:-1 }),
-  {
-    name: "posts.metaSticky_score",
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, score:-1 }),
-  {
-    name: "posts.userId_stickies_score",
-  }
-);
+// This index doesn't appear used, but seems like it should be.
+// ensureIndex(Posts,
+//   augmentForDefaultView({ afSticky:-1, score:-1 }),
+//   {
+//     name: "posts.afSticky_score",
+//   }
+// );
 
 
 Posts.addView("top", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.top, terms)}
 }))
-ensureIndex(Posts,
-  augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
-  {
-    name: "posts.stickies_baseScore",
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, baseScore:-1 }),
-  {
-    name: "posts.userId_stickies_baseScore",
-  }
-);
+// unused on LW. If EA forum is also not using we can delete.
+// ensureIndex(Posts,
+//   augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
+//   {
+//     name: "posts.stickies_baseScore",
+//   }
+// );
+// ensureIndex(Posts,
+//   augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, baseScore:-1 }),
+//   {
+//     name: "posts.userId_stickies_baseScore",
+//   }
+// );
 
 Posts.addView("new", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.new, terms)}
 }))
-ensureIndex(Posts,
-  augmentForDefaultView({ ...stickiesIndexPrefix, postedAt:-1 }),
-  {
-    name: "posts.stickies_postedAt",
-  }
-);
-ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, postedAt:-1 }),
-  {
-    name: "posts.userId_stickies_postedAt",
-  }
-);
 
 Posts.addView("recentComments", (terms: PostsViewTerms) => ({
   options: {sort: sortings.recentComments}
@@ -722,10 +690,11 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   return query
 });
 
-ensureIndex(Posts,
-  augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
-  { name: "posts.userId_wordCount" }
-);
+// not currently used, but seems like it should be?
+// ensureIndex(Posts,
+//   augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
+//   { name: "posts.userId_wordCount" }
+// );
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
@@ -852,10 +821,11 @@ Posts.addView("afRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
-  { name: "posts.afRecentDiscussionThreadsList", }
-);
+// this index appears unused
+// ensureIndex(Posts,
+//   augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
+//   { name: "posts.afRecentDiscussionThreadsList", }
+// );
 
 Posts.addView("2018reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
@@ -869,10 +839,10 @@ Posts.addView("2018reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) =
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ nominationCount2018: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
-  { name: "posts.2018reviewRecentDiscussionThreadsList", }
-);
+// ensureIndex(Posts,
+//   augmentForDefaultView({ nominationCount2018: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+//   { name: "posts.2018reviewRecentDiscussionThreadsList", }
+// );
 
 Posts.addView("2019reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) => {
   return {
@@ -886,30 +856,10 @@ Posts.addView("2019reviewRecentDiscussionThreadsList", (terms: PostsViewTerms) =
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ nominationCount2019: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
-  { name: "posts.2019reviewRecentDiscussionThreadsList", }
-);
-
-Posts.addView("shortformDiscussionThreadsList", (terms: PostsViewTerms) => {
-  return {
-    selector: {
-      baseScore: {$gt:0},
-      hideFrontpageComments: false,
-      shortform: true,
-      hiddenRelatedQuestion: viewFieldAllowAny,
-      groupId: null,
-    },
-    options: {
-      sort: {lastCommentedAt:-1},
-      limit: terms.limit || 12,
-    }
-  }
-})
-ensureIndex(Posts,
-  augmentForDefaultView({ hideFrontpageComments:1, shortForm: 1, lastCommentedAt:-1, baseScore:1,}),
-  { name: "posts.shortformDiscussionThreadsList", }
-);
+// ensureIndex(Posts,
+//   augmentForDefaultView({ nominationCount2019: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+//   { name: "posts.2019reviewRecentDiscussionThreadsList", }
+// );
 
 Posts.addView("globalEvents", (terms: PostsViewTerms) => {
   const timeSelector = {$or: [
@@ -1233,6 +1183,7 @@ ensureIndex(Posts,
   { name: "posts.pingbackPosts" }
 );
 
+// TODO: refactor nominations2018 to use nominationCount + postedAt
 Posts.addView("nominations2018", (terms: PostsViewTerms) => {
   return {
     selector: {
@@ -1246,11 +1197,12 @@ Posts.addView("nominations2018", (terms: PostsViewTerms) => {
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ nominationCount2018:1 }),
-  { name: "posts.nominations2018", }
-);
+// ensureIndex(Posts,
+//   augmentForDefaultView({ nominationCount2018:1 }),
+//   { name: "posts.nominations2018", }
+// );
 
+// TODO: refactor nominations2019 to filter for nominationsCount + postedAt
 Posts.addView("nominations2019", (terms: PostsViewTerms) => {
   return {
     selector: {
@@ -1264,10 +1216,10 @@ Posts.addView("nominations2019", (terms: PostsViewTerms) => {
     }
   }
 })
-ensureIndex(Posts,
-  augmentForDefaultView({ nominationCount2019:1 }),
-  { name: "posts.nominations2019", }
-);
+// ensureIndex(Posts,
+//   augmentForDefaultView({ nominationCount2019:1 }),
+//   { name: "posts.nominations2019", }
+// );
 
 Posts.addView("reviews2018", (terms: PostsViewTerms) => {
   const sortings = {
@@ -1319,49 +1271,6 @@ Posts.addView("voting2019", (terms: PostsViewTerms) => {
 })
 // We're filtering on nominationCount greater than 2, so do not need additional indexes
 // using nominations2018
-
-Posts.addView("tagProgressUntagged", (terms: PostsViewTerms) => {
-  return {
-    selector: {  
-      baseScore: {$gt: 25},
-      $or: [{tagRelevance: {}}, {tagRelevance: null}]
-    },
-  }
-})
-
-Posts.addView("personalTagProgressUntagged", (terms: PostsViewTerms) => {
-  return {
-    selector: {
-      userId: terms.userId,
-      baseScore: {$gt: 25},
-      $or: [{tagRelevance: {}}, {tagRelevance: null}]
-    },
-  }
-})
-
-Posts.addView("tagProgressPosts", (terms: PostsViewTerms) => {
-  return {
-    selector: {
-      baseScore: {$gt:25},
-    },
-  }
-})
-
-Posts.addView("personalTagProgressPosts", (terms: PostsViewTerms) => {
-  return {
-    selector: {
-      userId: terms.userId,
-      baseScore: {$gt:25},
-    },
-  }
-})
-
-ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, tagRelevance: 1}),
-  {
-    name: "posts.users_tagged_posts",
-  }
-);
 
 Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) => ({
     selector: {
