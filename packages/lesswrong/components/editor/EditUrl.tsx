@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
@@ -31,74 +30,62 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface EditUrlProps extends WithStylesProps{
-  document: any,
-  value: any,
-  defaultValue: any,
-  label: string,
-  hintText: string,
-  placeholder: string,
-  path: string,
-}
-interface EditUrlState {
-  active: boolean,
-}
-class EditUrl extends Component<EditUrlProps,EditUrlState> {
-  state: EditUrlState = {
-    active: !!this.props.value
+const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues }: {
+  value: string,
+  path: string | null,
+  classes: ClassesType,
+  document: Document,
+  defaultValue?: string,
+  label?: string,
+  hintText?: string,
+  placeholder?: string,
+  updateCurrentValues<T>(values: T extends {}) : void,
+}) => {
+  const [active, setActive] = useState(!!value);
+
+  const updateValue = (value: string | null) => {
+    updateCurrentValues({
+      [path]: value,
+    });
   }
 
-  toggleEditor = () => {
-    this.setState({active: !this.state.active}, () => {
-      if (!this.state.active) { // Reset the URL when you deactivate the URL editor
-        this.context.updateCurrentValues({
-          [this.props.path]: null
-        })
-      }
-    })
+  const toggleEditor = () => {
+    if (active)
+      updateValue(null);
+    setActive(!active);
   }
 
-  onChange = (event) => {
-    this.context.updateCurrentValues({
-      [this.props.path]: event.target.value
-    })
-  }
+  const onChange = (event) => updateValue(event.target.value);
 
-  render() {
-    const active = this.state.active
-    const { classes, document, path, defaultValue, label, hintText, placeholder } = this.props;
-    
-    const startAdornmentInactive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
+  const startAdornmentInactive = (
+    <InputAdornment className={classes.button} onClick={toggleEditor} position="start">
       <LinkIcon/>
     </InputAdornment>
-    const startAdornmentActive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
-      <LinkOffIcon/></InputAdornment>
-    
-    return (
-      <div className={classes.root}>
-        <div>
-          <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
-              <Input
-                className={classes.innerInput}
-                value={(document && document[path]) || defaultValue || ""}
-                onChange={this.onChange}
-                placeholder={hintText || placeholder || label}
-                disableUnderline={!active}
-                classes={{input: classes.input}}
-                startAdornment={active ? startAdornmentActive : startAdornmentInactive}
-              />
-          </span>
-        </div>
-      </div>
-    )
-  }
-};
+  );
+  const startAdornmentActive = (
+    <InputAdornment className={classes.button} onClick={toggleEditor} position="start">
+      <LinkOffIcon/>
+    </InputAdornment>
+  );
 
-(EditUrl as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
-};
+  return (
+    <div className={classes.root}>
+      <div>
+        <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
+          <Input
+            className={classes.innerInput}
+            value={(document && document[path]) || defaultValue || ""}
+            onChange={onChange}
+            placeholder={hintText || placeholder || label}
+            disableUnderline={!active}
+            classes={{input: classes.input}}
+            startAdornment={active ? startAdornmentActive : startAdornmentInactive}
+          />
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export const EditUrlComponent = registerComponent("EditUrl", EditUrl, {styles});
 
