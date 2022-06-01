@@ -42,13 +42,13 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 
-//
-// Create mutation
-// Inserts an entry in a collection, and runs a bunch of callback functions to
-// fill in its denormalized fields etc. Input is a Partial<T>, because some
-// fields will be filled in by those callbacks; result is a T, but nothing
-// in the type system ensures that everything actually gets filled in.
-//
+/**
+ * Create mutation
+ * Inserts an entry in a collection, and runs a bunch of callback functions to
+ * fill in its denormalized fields etc. Input is a Partial<T>, because some
+ * fields will be filled in by those callbacks; result is a T, but nothing
+ * in the type system ensures that everything actually gets filled in. 
+ */
 export const createMutator = async <T extends DbObject>({
   collection,
   document,
@@ -237,13 +237,13 @@ export const createMutator = async <T extends DbObject>({
   return { data: completedDocument };
 };
 
-//
-// Update mutation
-// Updates a single database entry, and runs callbacks/etc to update its
-// denormalized fields. The preferred way to do this is with a documentId;
-// in theory you can use a selector, but you should only do this if you're sure
-// there's only one matching document (eg, slug). Returns the modified document.
-//
+/**
+ * Update mutation
+ * Updates a single database entry, and runs callbacks/etc to update its
+ * denormalized fields. The preferred way to do this is with a documentId;
+ * in theory you can use a selector, but you should only do this if you're sure
+ * there's only one matching document (eg, slug). Returns the modified document.
+ */
 export const updateMutator = async <T extends DbObject>({
   collection,
   documentId,
