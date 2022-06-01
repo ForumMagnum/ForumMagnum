@@ -654,7 +654,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
-          
           {pageUser?.reviewedByUserId === null && !pageUser?.needsReview && 
             <SingleColumnSection>
               <Button variant="text" onClick={(reportUser)}>Report user</Button>
