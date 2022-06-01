@@ -705,6 +705,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       ...hpmorSubtitle,
     },
     {
+      name: 'Curated',
+      path: '/curated',
+      redirect: () => `/recommendations`,
+    },
+    {
       name: 'Walled Garden',
       path: '/walledGarden',
       componentName: 'WalledGardenHome',
