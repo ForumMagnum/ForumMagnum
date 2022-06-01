@@ -73,6 +73,7 @@ const EditProfileForm = ({classes}: {
           'biography',
           'howOthersCanHelpMe',
           'howICanHelpOthers',
+          'organizerOfGroupIds',
           'mapLocation',
           'website',
           'linkedinProfileURL',

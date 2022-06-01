@@ -543,6 +543,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
               </ContentStyles>
             </>}
+            {isEAForum && !!user.organizerOfGroups?.length && <>
+              <h2 className={classes.helpFieldHeading}>Organizer of</h2>
+              <ContentStyles contentType="post">
+                <div className={classes.organizerOfGroups}>
+                  {user.organizerOfGroups.map(group => {
+                    return <div key={group._id}>
+                      <Link to={`/groups/${group._id}`}>
+                        {group.name}
+                      </Link>
+                    </div>
+                  })}
+                </div>
+              </ContentStyles>
+            </>}
             
             {isEAForum && <div className={classes.mobileSidebarLower}>
               {sidebarInfoLowerNode}
