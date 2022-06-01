@@ -659,7 +659,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </SingleColumnSection>
           </AnalyticsContext>
 
-          {currentUser && !user?.reviewedByUserId && !user?.needsReview &&
+          {currentUser && !user.reviewedByUserId && !user.needsReview && (currentUser._id !== user._id) &&
             <SingleColumnSection className={classes.reportUserSection}>
               <Button color="primary" onClick={reportUser}>Report user</Button>
             </SingleColumnSection>
