@@ -27,6 +27,7 @@ import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collection
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { useMessages } from '../common/withMessages';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -149,6 +150,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
+  reportUserSection: {
+    textAlign: 'center',
+    marginTop: 50
+  },
   
   rightSidebar: {
     gridArea: 'right',
@@ -258,33 +263,31 @@ const UsersProfileFn = ({terms, slug, classes}: {
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
+  const user = getUserFromResults(results)
   
   const { query } = useLocation()
   // track profile views in local storage
   useEffect(() => {
-    const profileUser = getUserFromResults(results)
     const ls = getBrowserLocalStorage()
     // currently only used on the EA Forum
-    if (forumTypeSetting.get() === 'EAForum' && currentUser && profileUser && currentUser._id !== profileUser._id && ls) {
+    if (forumTypeSetting.get() === 'EAForum' && currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
       let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
       // if the profile user is already in the list, then remove them before re-adding them at the end
-      const profileUserIndex = profiles?.findIndex(profile => profile.userId === profileUser._id)
+      const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
         // remember where we originally saw this profile, if necessary
         from = from || profiles[profileUserIndex].from
         profiles.splice(profileUserIndex, 1)
       }
       
-      profiles.push({userId: profileUser._id, ...(from && {from})})
+      profiles.push({userId: user._id, ...(from && {from})})
       // we only bother to save the last 10 profiles
       if (profiles.length > 10) profiles.shift()
       // save it in local storage
       ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
     }
   }, [currentUser, results, query.from])
-
-  const pageUser = getUserFromResults(results);
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -294,14 +297,16 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
   }
 
-  const reportUser = () => {
-    if (!pageUser || !currentUser) return
-    void updateUser({ selector: {_id: pageUser._id}, data: { needsReview: true } })
+  const { flash } = useMessages()
+  const reportUser = async () => {
+    if (!user) return
+    await updateUser({ selector: {_id: user._id}, data: { needsReview: true } })
+    flash({messageString: "Your report has been sent to the moderators"})
   }
 
   const renderMeta = () => {
-    if (!pageUser) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = pageUser;
+    if (!user) return null
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = user;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -371,7 +376,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     }
 
-    const user = getUserFromResults(results)
     if (!user || !user._id || user.deleted) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
@@ -654,9 +658,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
-          {pageUser?.reviewedByUserId === null && !pageUser?.needsReview && 
-            <SingleColumnSection>
-              <Button variant="text" onClick={(reportUser)}>Report user</Button>
+
+          {currentUser && !user?.reviewedByUserId && !user?.needsReview &&
+            <SingleColumnSection className={classes.reportUserSection}>
+              <Button color="primary" onClick={reportUser}>Report user</Button>
             </SingleColumnSection>
           }
           </div>
