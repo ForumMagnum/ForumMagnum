@@ -69,7 +69,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   },
 }) => {
   const [active, setActive] = useState(!!value);
-  const inputRef = useRef();
+  const inputRef = useRef<HTMLInputElement>();
 
   const updateValue = (value: string | null) => {
     updateCurrentValues({

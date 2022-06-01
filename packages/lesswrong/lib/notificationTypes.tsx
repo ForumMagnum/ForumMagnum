@@ -19,6 +19,7 @@ import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 
 interface NotificationType {
   name: string
@@ -359,4 +360,17 @@ export const NewGroupOrganizerNotification = registerNotificationType({
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />
   }
+})
+
+export const CoauthorRequestNotification = registerNotificationType({
+  name: 'coauthorRequestNotification',
+  userSettingField: 'notificationSharedWithMe',
+  async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
+    const document = await getDocument(documentType, documentId) as DbPost;
+    const name = await postGetAuthorName(document);
+    return  `${name} requested that you coauthor their post: ${document.title}`;
+  },
+  getIcon() {
+    return <GroupAddIcon style={iconStyles} />
+  },
 })

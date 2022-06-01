@@ -127,6 +127,11 @@ export async function postsNewNotifications (post: DbPost) {
 
 postPublishedCallback.add(postsNewNotifications);
 
+getCollectionHooks("Posts").createAsync.add(async function eventUpdatedNotifications ({document}: {document: DbPost}) {
+  const { coauthorUserIds } = document;
+  await createNotifications({userIds: coauthorUserIds, notificationType: 'coauthorRequestNotification', documentType: 'post', documentId: document._id});
+});
+
 getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
   // don't bother notifying people about past or unscheduled events
   const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
