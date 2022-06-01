@@ -15,7 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     overflow: 'hidden',
     transition: 'width 0.25s',
-    width: 150,
+    width: 175,
+    fontSize: '1.1rem',
+    lineHeight: '1.5em',
   },
   hideInput: {
     width: 28,
@@ -32,14 +34,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues }: {
   value: string,
-  path: string | null,
+  path: string,
   classes: ClassesType,
   document: Document,
   defaultValue?: string,
   label?: string,
   hintText?: string,
   placeholder?: string,
-  updateCurrentValues<T>(values: T extends {}) : void,
+  updateCurrentValues<T extends {}>(values: T) : void,
 }) => {
   const [active, setActive] = useState(!!value);
 
