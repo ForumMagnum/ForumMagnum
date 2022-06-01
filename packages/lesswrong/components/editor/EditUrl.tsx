@@ -29,10 +29,34 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   innerInput: {
     padding: '6px 0 7px'
-  }
+  },
+  footer: {
+    border: '1px solid #bdbdbd',
+    padding: '7px 10px 8px',
+    marginTop: '-8px',
+    animation: 'reveal-url-footer 0.4s ease-out 0s',
+  },
+  '@keyframes reveal-url-footer': {
+    from: {
+      opacity: '0%',
+      transform: 'translateY(-50px)',
+    },
+    to: {
+      opacity: '100%',
+      transform: 'translateY(0px)',
+    },
+  },
 })
 
-const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues }: {
+const Footer = ({ classes }: { classes: ClassesType }) => {
+  return (
+    <div className={classes.footer}>
+      Please write what you liked about the post, and sample liberally. Or, if the author allows it, copy in the entire post text.
+    </div>
+  );
+}
+
+const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, updateCurrentValues, setFooterContent }: {
   value: string,
   path: string,
   classes: ClassesType,
@@ -42,6 +66,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   hintText?: string,
   placeholder?: string,
   updateCurrentValues<T extends {}>(values: T) : void,
+  setFooterContent(content: any) : void,
 }) => {
   const [active, setActive] = useState(!!value);
 
@@ -52,23 +77,16 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   }
 
   const toggleEditor = () => {
-    if (active)
+    if (active) {
       updateValue(null);
+      setFooterContent(null);
+    } else {
+      setFooterContent(<Footer classes={classes} />);
+    }
     setActive(!active);
   }
 
   const onChange = (event) => updateValue(event.target.value);
-
-  const startAdornmentInactive = (
-    <InputAdornment className={classes.button} onClick={toggleEditor} position="start">
-      <LinkIcon/>
-    </InputAdornment>
-  );
-  const startAdornmentActive = (
-    <InputAdornment className={classes.button} onClick={toggleEditor} position="start">
-      <LinkOffIcon/>
-    </InputAdornment>
-  );
 
   return (
     <div className={classes.root}>
@@ -79,9 +97,12 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
             value={(document && document[path]) || defaultValue || ""}
             onChange={onChange}
             placeholder={hintText || placeholder || label}
-            disableUnderline={!active}
             classes={{input: classes.input}}
-            startAdornment={active ? startAdornmentActive : startAdornmentInactive}
+            startAdornment={
+              <InputAdornment className={classes.button} onClick={toggleEditor} position="start">
+                {active ? <LinkOffIcon/> : <LinkIcon />}
+              </InputAdornment>
+            }
           />
         </span>
       </div>
