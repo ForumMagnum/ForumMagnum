@@ -4,7 +4,6 @@ import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/ka
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
-import { getReviewPhase } from '../../reviewUtils';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -383,7 +382,7 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
     }
   }
 });
-// This index was unused, 
+// This index is currently unused on LW.
 // ensureIndex(Posts,
 //   augmentForDefaultView({ userId: 1, hideAuthor: 1, postedAt: -1, }),
 //   {
