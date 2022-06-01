@@ -442,6 +442,19 @@ ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
 Posts.addView("top", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.top, terms)}
 }))
+// unused on LW. If EA forum is also not using we can delete.
+// ensureIndex(Posts,
+//   augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
+//   {
+//     name: "posts.stickies_baseScore",
+//   }
+// );
+// ensureIndex(Posts,
+//   augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, baseScore:-1 }),
+//   {
+//     name: "posts.userId_stickies_baseScore",
+//   }
+// );
 
 Posts.addView("new", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.new, terms)}
