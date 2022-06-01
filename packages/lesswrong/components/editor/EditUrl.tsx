@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
@@ -32,7 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   footer: {
     border: theme.palette.border.grey400,
-    padding: '7px 10px 8px',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    padding: '12px 18px',
     marginTop: '-8px',
     animation: 'reveal-url-footer 0.2s ease 0s',
     transformOrigin: 'top left',
@@ -82,7 +83,11 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       if (inputRef.current) {
         inputRef.current.focus();
       }
-      setFooterContent(<div className={classes.footer}>{hintText}</div>);
+      setFooterContent(
+        <div className={classes.footer}>
+          <Components.Typography variant='body2'>{hintText}</Components.Typography>
+        </div>
+      );
     } else {
       updateValue(null);
       setFooterContent(null);
