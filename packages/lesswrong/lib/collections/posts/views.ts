@@ -429,7 +429,7 @@ ensureIndex(Posts,
 
 // Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
 ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
-// This index appears unused, but seems like it should be.
+// This index doesn't appear used, but seems like it should be.
 // ensureIndex(Posts,
 //   augmentForDefaultView({ afSticky:-1, score:-1 }),
 //   {
