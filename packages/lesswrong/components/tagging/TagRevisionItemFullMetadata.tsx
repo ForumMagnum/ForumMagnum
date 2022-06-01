@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   username: {
     ...theme.typography.commentStyle,
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
   }
 });
 

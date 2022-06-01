@@ -15,6 +15,11 @@ interface ComponentOptions {
   // be passed as an extra prop named "classes".
   styles?: any
   
+  // Whether to ignore the presence of colors that don't come from the theme in
+  // the component's stylesheet. Use for things that don't change color with
+  // dark mode.
+  allowNonThemeColors?: boolean,
+  
   // Default is 0. If classes with overlapping attributes from two different
   // components' styles wind up applied to the same node, the one with higher
   // priority wins.
@@ -118,7 +123,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window as any).missingMainStylesheet) {
+    if (isClient && window?.missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));

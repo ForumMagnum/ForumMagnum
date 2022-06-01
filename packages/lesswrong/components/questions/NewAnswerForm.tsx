@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "16px",
     marginLeft: "5px",
     "&:hover": {
-      background: "rgba(0,0,0, 0.05)",
+      background: theme.palette.buttons.hoverGrayHighlight,
     },
     color: theme.palette.secondary.main,
     float: "right"

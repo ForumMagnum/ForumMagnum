@@ -66,12 +66,7 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
         open={hover} 
         anchorEl={anchorEl} 
         placement="left-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-end", "top", "bottom-end"],
-            boundariesElement: 'viewport'
-          } 
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltip post={post}/>
       </LWPopper>

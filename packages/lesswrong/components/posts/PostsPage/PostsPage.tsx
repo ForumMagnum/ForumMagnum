@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useLocation } from '../../../lib/routeUtil';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
-import { postBodyStyles } from '../../../themes/stylePiping'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
@@ -80,7 +79,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
   },
-  postContent: postBodyStyles(theme),
+  postContent: {}, //Used by a Cypress test
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -88,7 +87,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 0
     },
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
-    background: "white",
+    background: theme.palette.background.pageActiveAreaBackground,
     position: "relative"
   },
   // these marginTops are necessary to make sure the image is flush with the header,
@@ -153,7 +152,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount, CloudinaryImage2 } = Components
+    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
 
   useEffect(() => {
     recordPostView({
@@ -208,7 +207,7 @@ const PostsPage = ({post, refetch, classes}: {
             {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
               <CloudinaryImage2
                 publicId={post.eventImageId}
-                imgProps={{ar: '16:9', w: '682'}}
+                imgProps={{ar: '16:9', w: '682', q: '100'}}
                 className={classes.headerImage}
               />
             </div>}
@@ -220,12 +219,12 @@ const PostsPage = ({post, refetch, classes}: {
       <div className={classes.centralColumn}>
         {/* Body */}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        <div className={classes.postContent}>
+        <ContentStyles contentType="post" className={classes.postContent}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
           </AnalyticsContext>
-        </div>
+        </ContentStyles>
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>

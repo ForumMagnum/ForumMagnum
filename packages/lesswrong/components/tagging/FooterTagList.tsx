@@ -7,7 +7,6 @@ import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
 import * as _ from 'underscore';
@@ -18,26 +17,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     marginBottom: 8,
   },
-  tag: {
-    ...tagStyle(theme)
-  },
-  tagLoading: {
-    ...tagStyle(theme),
-    opacity: .8
-  },
   frontpageOrPersonal: {
     ...tagStyle(theme),
-    backgroundColor: "white",
+    backgroundColor: theme.palette.tag.hollowTagBackground,
     paddingTop: 4,
     paddingBottom: 4,
-    border: "solid 1px rgba(0,0,0,.12)",
-    color: theme.palette.grey[600]
+    border: theme.palette.tag.coreTagBorder,
+    color: theme.palette.text.dim3,
   },
   card: {
-    ...commentBodyStyles(theme),
     width: 450,
     padding: 16,
-    paddingBottom: 8
+    paddingTop: 8
   },
   smallText: {
     ...smallTagTextStyle(theme),
@@ -103,7 +94,7 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
     captureEvent("tagAddedToItem", {tagId, tagName})
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent]);
 
-  const { Loading, FooterTag } = Components
+  const { Loading, FooterTag, ContentStyles } = Components
   
   const MaybeLink = ({to, children}: {
     to: string|null
@@ -117,27 +108,33 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false}: 
   }
   
   const contentTypeInfo = forumSelect(contentTypes);
+  
+  const PostTypeTag = ({tooltipBody, label}) =>
+    <LWTooltip
+      title={<Card className={classes.card}>
+        <ContentStyles contentType="comment">
+          {tooltipBody}
+        </ContentStyles>
+      </Card>}
+      tooltip={false}
+    >
+      <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>{label}</div>
+    </LWTooltip>
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
     ? <Link to={contentTypeInfo.curated.linkTarget}>
-        <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.curated.tooltipBody}</Card>} tooltip={false}>
-          <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Curated</div>
-        </LWTooltip>
+        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody}/>
       </Link>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget}>
-          <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.frontpage.tooltipBody}</Card>} tooltip={false}>
-            <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Frontpage</div>
-          </LWTooltip>
+          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody}/>
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget}>
-            <LWTooltip title={<Card className={classes.card}>{contentTypeInfo.personal.tooltipBody}</Card>} tooltip={false}>
-              <div className={classNames(classes.tag, classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>Personal Blog</div>
-            </LWTooltip>
+          <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
           </MaybeLink>
         : null
       )

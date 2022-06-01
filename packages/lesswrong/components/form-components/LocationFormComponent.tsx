@@ -18,7 +18,7 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
   "& .geosuggest__input": {
     backgroundColor: 'transparent',
     border: "2px solid transparent",
-    borderBottom: "1px solid rgba(0,0,0,.87)",
+    borderBottom: `1px solid ${theme.palette.text.normal}`,
     padding: ".5em .5em 0.5em 0em !important",
     width: 350,
     fontSize: 13,
@@ -29,8 +29,8 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
   },
   "& .geosuggest__input:focus": {
     outline: "none",
-    borderBottom: "2px solid rgba(0,0,0,.87)",
-    borderBottomColor: "#267dc0",
+    borderBottom: `2px solid ${theme.palette.text.normal}`,
+    borderBottomColor: theme.palette.geosuggest.dropdownActiveBackground,
     boxShadow: "0 0 0 transparent",
   },
   
@@ -42,7 +42,8 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
     maxHeight: "25em",
     padding: 0,
     marginTop: -1,
-    background: "#fff",
+    color: theme.palette.geosuggest.dropdownText,
+    background: theme.palette.geosuggest.dropdownBackground,
     borderTopWidth: 0,
     overflowX: "hidden",
     overflowY: "auto",
@@ -62,14 +63,14 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   "& .geosuggest__item:hover, & .geosuggest__item:focus": {
-    background: "#f5f5f5",
+    background: theme.palette.geosuggest.dropdownHoveredBackground,
   },
   "& .geosuggest__item--active": {
-    background: "#267dc0",
-    color: "#fff",
+    background: theme.palette.geosuggest.dropdownActiveBackground,
+    color: theme.palette.geosuggest.dropdownActiveText,
   },
   "& .geosuggest__item--active:hover, & .geosuggest__item--active:focus": {
-    background: "#ccc",
+    background: theme.palette.geosuggest.dropdownActiveHoveredBackground,
   },
   "& .geosuggest__item__matched-text": {
     fontWeight: "bold",
@@ -110,7 +111,7 @@ export const useGoogleMaps = (): [boolean, any] => {
         var tag = document.createElement('script');
         tag.async = false;
         tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKeySetting.get()}&libraries=places&callback=googleMapsFinishedLoading`;
-        (window as any).googleMapsFinishedLoading = () => {
+        window.googleMapsFinishedLoading = () => {
           mapsLoadingState = "loaded";
           let callbacks = onMapsLoaded;
           onMapsLoaded = [];
@@ -124,7 +125,7 @@ export const useGoogleMaps = (): [boolean, any] => {
   }, []);
   
   if (!isMapsLoaded) return [false, null];
-  return [true, (window as any)?.google?.maps];
+  return [true, window?.google?.maps];
 }
 
 

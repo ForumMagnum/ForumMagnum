@@ -1,6 +1,7 @@
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
 import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
 import { Vulcan } from '../../lib/vulcan-lib';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 export const algoliaConfigureIndexes = async () => {
   let client = getAlgoliaAdminClient();
@@ -8,6 +9,8 @@ export const algoliaConfigureIndexes = async () => {
     console.error("Could not get Algolia admin client."); //eslint-disable-line no-console
     return;
   }
+  
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
   
   console.log("Configuring Algolia indexes"); //eslint-disable-line no-console
   
@@ -36,8 +39,15 @@ export const algoliaConfigureIndexes = async () => {
     unretrievableAttributes: ['authorUserName'],
     advancedSyntax: true
   });
+  
+  const eaForumPostsSearchableAttrs = [
+    'title',
+    'unordered(authorDisplayName)',
+    'body',
+    'unordered(_id)',
+  ]
   await algoliaSetIndexSettingsAndWait(postsIndex, {
-    searchableAttributes: [
+    searchableAttributes: isEAForum ? eaForumPostsSearchableAttrs : [
       'title',
       'body',
       'unordered(authorDisplayName)',
@@ -56,7 +66,7 @@ export const algoliaConfigureIndexes = async () => {
       'tags'
     ],
     attributesToHighlight: ['title'],
-    attributesToSnippet: ['body:20'],
+    attributesToSnippet: ['body:10'],
     unretrievableAttributes: [
       'authorUserName',
       'userIP',
@@ -65,13 +75,28 @@ export const algoliaConfigureIndexes = async () => {
     attributeForDistinct: '_id',
     advancedSyntax: true,
   });
+  
+  const eaForumUsersSearchableAttrs = [
+    'unordered(displayName)',
+    'unordered(_id)',
+    'bio',
+    'unordered(mapLocationAddress)',
+    'jobTitle',
+    'organization',
+    'howICanHelpOthers',
+    'howOthersCanHelpMe'
+  ]
+  const eaForumUsersRanking = [
+    'typo','geo','words','filters','proximity','attribute','exact',
+    'desc(karma)',
+    'desc(createdAt)'
+  ]
   await algoliaSetIndexSettingsAndWait(usersIndex, {
-    searchableAttributes: [
+    searchableAttributes: isEAForum ? eaForumUsersSearchableAttrs : [
       'unordered(displayName)',
-      'bio',
       'unordered(_id)',
     ],
-    ranking: [
+    ranking: isEAForum ? eaForumUsersRanking : [
       'desc(karma)',
       'typo','geo','words','filters','proximity','attribute','exact',
       'desc(createdAt)'
@@ -91,7 +116,9 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
     ],
-    advancedSyntax: true
+    advancedSyntax: true,
+    attributesToSnippet: ['description:10'],
+
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
     searchableAttributes: [

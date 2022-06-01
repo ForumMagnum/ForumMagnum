@@ -20,6 +20,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly noindex: boolean,
   readonly groups: Array<string>,
   readonly lwWikiImport: boolean,
+  readonly theme: string,
   readonly lastUsedTimezone: string,
 }
 
@@ -269,6 +270,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributors: any /*TagContributorsList*/,
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
+  readonly postsDefaultSortOrder: string,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1402,10 +1404,10 @@ interface TagBasicInfo { // fragment on Tags
   readonly descriptionTruncationCount: number,
   readonly createdAt: Date,
   readonly wikiOnly: boolean,
+  readonly deleted: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
-  readonly deleted: boolean,
   readonly oldSlugs: Array<string>,
   readonly isRead: boolean,
   readonly defaultOrder: number,
@@ -1486,11 +1488,13 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly postsDefaultSortOrder: string,
   readonly contributors: any,
 }
 
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
+  readonly postsDefaultSortOrder: string,
   readonly contributors: any,
 }
 
@@ -1500,6 +1504,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagBasicInfo { // fragment on Tags
   readonly tagFlagsIds: Array<string>,
+  readonly postsDefaultSortOrder: string,
   readonly description: RevisionEdit|null,
 }
 
@@ -1558,8 +1563,17 @@ interface UsersMinimumInfo { // fragment on Users
 interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly groups: Array<string>,
-  readonly bio: string,
+  readonly jobTitle: string,
+  readonly organization: string,
+  readonly careerStage: Array<string>,
+  readonly biography: RevisionDisplay|null,
+  readonly howOthersCanHelpMe: UsersProfile_howOthersCanHelpMe|null,
+  readonly howICanHelpOthers: UsersProfile_howICanHelpOthers|null,
   readonly website: string,
+  readonly linkedinProfileURL: string,
+  readonly facebookProfileURL: string,
+  readonly twitterProfileURL: string,
+  readonly githubProfileURL: string,
   readonly frontpagePostCount: number,
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
@@ -1588,6 +1602,14 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly goodHeartTokens: number,
 }
 
+interface UsersProfile_howOthersCanHelpMe { // fragment on Revisions
+  readonly html: string,
+}
+
+interface UsersProfile_howICanHelpOthers { // fragment on Revisions
+  readonly html: string,
+}
+
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
   readonly beta: boolean,
   readonly email: string,
@@ -1610,7 +1632,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly bio: string,
+  readonly biography: RevisionEdit|null,
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
@@ -1680,7 +1702,6 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly karma: number,
-  readonly bio: string,
   readonly htmlBio: string,
   readonly createdAt: Date,
   readonly email: string,
@@ -1801,6 +1822,23 @@ interface UsersAdmin { // fragment on Users
 interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
   readonly reviewVoteCount: number,
   readonly email: string,
+}
+
+interface UsersProfileEdit { // fragment on Users
+  readonly _id: string,
+  readonly slug: string,
+  readonly jobTitle: string,
+  readonly organization: string,
+  readonly careerStage: Array<string>,
+  readonly biography: RevisionEdit|null,
+  readonly howOthersCanHelpMe: RevisionEdit|null,
+  readonly howICanHelpOthers: RevisionEdit|null,
+  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly website: string,
+  readonly linkedinProfileURL: string,
+  readonly facebookProfileURL: string,
+  readonly twitterProfileURL: string,
+  readonly githubProfileURL: string,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
@@ -2006,6 +2044,7 @@ interface FragmentTypes {
   UsersEdit: UsersEdit
   UsersAdmin: UsersAdmin
   UsersWithReviewInfo: UsersWithReviewInfo
+  UsersProfileEdit: UsersProfileEdit
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -2150,6 +2189,7 @@ interface CollectionNamesByFragmentName {
   UsersEdit: "Users"
   UsersAdmin: "Users"
   UsersWithReviewInfo: "Users"
+  UsersProfileEdit: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"

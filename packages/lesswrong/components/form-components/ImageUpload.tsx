@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import classNames from 'classnames';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
-import forumThemeExport from '../../themes/forumTheme';
+import { useTheme } from '../themes/useTheme';
 import { useDialog } from '../common/withDialog';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
@@ -23,11 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   button: {
-    background: "rgba(0,0,0, 0.5)",
+    background: theme.palette.buttons.imageUpload.background,
     "&:hover": {
-      background: "rgba(0,0,0,.35)"
+      background: theme.palette.buttons.imageUpload.hoverBackground,
     },
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
   },
   imageIcon: {
     fontSize: 18,
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 10
   },
   removeButton: {
-    color: "rgba(0,0,0, 0.5)",
+    color: theme.palette.icon.dim,
     marginLeft: 10
   }
 });
@@ -98,6 +98,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
   label: string,
   classes: ClassesType
 }) => {
+  const theme = useTheme();
 
   const setImageInfo = (error, result) => {
     if (error) {
@@ -132,9 +133,9 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
       croppingShowDimensions: true,
       styles: {
         palette: {
-            tabIcon: forumThemeExport.palette.primary.main,
-            link: forumThemeExport.palette.primary.main,
-            action: forumThemeExport.palette.primary.main,
+            tabIcon: theme.palette.primary.main,
+            link: theme.palette.primary.main,
+            action: theme.palette.primary.main,
             textDark: "#212121",
         },
         fonts: {

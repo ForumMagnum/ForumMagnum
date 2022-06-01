@@ -130,6 +130,28 @@ const partiallyReadSequenceItem = new SimpleSchema({
   },
 });
 
+export const CAREER_STAGES = [
+  {value: 'highSchool', label: "In high school"},
+  {value: 'associateDegree', label: "Pursuing an associate's degree"},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree"},
+  {value: 'professionalDegree', label: "Pursuing a professional degree"},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)"},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)"},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma"},
+  {value: 'earlyCareer', label: "Working (0-5 years experience)"},
+  {value: 'midCareer', label: "Working (6-15 years of experience)"},
+  {value: 'lateCareer', label: "Working (15+ years of experience)"},
+  {value: 'seekingWork', label: "Seeking work"},
+  {value: 'retired', label: "Retired"},
+]
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+
 addFieldsDict(Users, {
   // TODO(EA): Allow resending of confirmation email
   whenConfirmationEmailSent: {
@@ -393,32 +415,6 @@ addFieldsDict(Users, {
     logChanges: false,
   },
 
-  // Bio (Markdown version)
-  bio: {
-    type: String,
-    optional: true,
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.default,
-    order: 40,
-    form: {
-      hintText:"Bio",
-      rows: 12,
-      multiLine:true,
-      fullWidth:true,
-    },
-  },
-
-  // Bio (HTML version)
-  htmlBio: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-
   // Karma field
   karma: {
     type: Number,
@@ -430,18 +426,6 @@ addFieldsDict(Users, {
     type: Number,
     optional: true,
     canRead: ['guests'],
-  },
-
-  // Website
-  website: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: "text",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    order: 50,
   },
 
   moderationStyle: {
@@ -914,13 +898,13 @@ addFieldsDict(Users, {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     hidden: !hasEventsSetting.get(),
     label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 42,
+    order: 100,
   },
 
   location: {
@@ -939,12 +923,13 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
-    label: "Public location (used for your public profile)",
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
+    order: forumTypeSetting.get() === "EAForum" ? 7 : 101,
+    label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 43,
+    hidden: forumTypeSetting.get() === "EAForum"
   },
 
   mapLocationSet: {
@@ -1548,6 +1533,131 @@ addFieldsDict(Users, {
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
   },
+  
+  jobTitle: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 1,
+    label: 'Role'
+  },
+  
+  organization: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 2,
+  },
+  
+  careerStage: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 3,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Career stage",
+    form: {
+      separator: '\r\n',
+      options: CAREER_STAGES
+    },
+  },
+  'careerStage.$': {
+    type: String,
+    optional: true,
+  },
+  
+  bio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+  htmlBio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+
+  website: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'https://'
+    },
+    group: formGroups.aboutMe,
+    order: 8
+  },
+  
+  linkedinProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  facebookProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  twitterProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  githubProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
+    },
+    group: formGroups.socialMedia
+  },
 });
 
 makeEditable({
@@ -1565,6 +1675,68 @@ makeEditable({
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     }
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 5,
+    fieldName: 'howOthersCanHelpMe',
+    label: "How others can help me",
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 6,
+    fieldName: 'howICanHelpOthers',
+    label: "How I can help others",
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+// biography: Some text the user provides for their profile page and to display
+// when people hover over their name.
+//
+// Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+// which now exist as resolver-only fields for back-compatibility.
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    hidden: forumTypeSetting.get() === "EAForum",
+    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    fieldName: "biography",
+    label: "Bio",
+    hintText: "Tell us about yourself",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
   }
 })
 

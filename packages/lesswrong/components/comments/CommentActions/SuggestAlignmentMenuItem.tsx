@@ -22,13 +22,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   plusOneIcon: {
     marginLeft:8,
-    color: "black",
+    color: theme.palette.text.maxIntensity,
     width:20
   },
   undoIcon: {
     marginLeft:8,
     width: 20,
-    color: "black"
+    color: theme.palette.text.maxIntensity,
   }
 })
 

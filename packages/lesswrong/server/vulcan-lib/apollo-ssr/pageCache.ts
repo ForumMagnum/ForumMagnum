@@ -4,6 +4,7 @@ import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '.
 import { Globals } from '../../../lib/vulcan-lib';
 import type { Request } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { isValidSerializedThemeOptions, defaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
@@ -58,9 +59,12 @@ let keysToCheckForExpiredEntries: Array<string> = [];
 
 export const cacheKeyFromReq = (req: Request): string => {
   const timezoneCookie = getCookieFromReq(req, "timezone");
+  const themeCookie = getCookieFromReq(req, "theme");
+  const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : JSON.stringify(defaultThemeOptions);
   const path = getPathFromReq(req);
+  
   if (timezoneCookie)
-    return `${path}&timezone=${timezoneCookie}`;
+    return `${path}&theme=${themeOptions}&timezone=${timezoneCookie}`;
   else
     return path;
 }

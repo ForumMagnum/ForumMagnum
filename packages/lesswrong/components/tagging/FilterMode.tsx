@@ -6,7 +6,6 @@ import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from './FooterTag';
 import Input from '@material-ui/core/Input';
-import { commentBodyStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -34,8 +33,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
   },
   description: {
-    ...commentBodyStyles(theme),
-    margin: theme.spacing*2,
     marginTop: 20
   },
   filterScore: {
@@ -66,8 +63,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   selected: {
-    color: "black",
-    backgroundColor: "rgba(0,0,0,.1)",
+    color: theme.palette.text.maxIntensity,
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
     padding: 4,
     paddingLeft: 8,
     paddingRight: 8,
@@ -94,7 +91,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   description?: React.ReactNode
   classes: ClassesType,
 }) => {
-  const { LWTooltip, PopperCard, TagPreview } = Components
+  const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
   const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
 
   const currentUser = useCurrentUser()
@@ -122,14 +119,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
         </Link> :
         tagLabel
       }
-      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
-      >
+      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
             <LWTooltip title={filterModeToTooltip("Hidden")}>
@@ -183,9 +173,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 </LWTooltip>
               </div>}
           </div>
-          {description && <div className={classes.description}>
+          {description && <ContentStyles contentType="comment" className={classes.description}>
             {description}
-          </div>}
+          </ContentStyles>}
         </div>
         {tag && <TagPreview tag={tag} showCount={false} postCount={3}/>}
       </PopperCard>

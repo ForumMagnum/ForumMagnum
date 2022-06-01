@@ -55,6 +55,8 @@ export const servePostRSS = async (terms: RSSTerms, url?: string) => {
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
                       : (karmaThreshold === 45) ? post.scoreExceeded45Date
                       : (karmaThreshold === 75) ? post.scoreExceeded75Date
+                      : (karmaThreshold === 125) ? post.scoreExceeded125Date
+                      : (karmaThreshold === 200) ? post.scoreExceeded200Date
                       : null;
     thresholdDate = thresholdDate || post.postedAt;
     let viewDate = (terms.view === "frontpage-rss") ? post.frontpageDate

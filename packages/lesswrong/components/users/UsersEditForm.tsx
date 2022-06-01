@@ -21,10 +21,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   header: {
-    margin: theme.spacing.unit * 2,
+    marginTop: 0, // override default H1 margin
+    marginLeft: theme.spacing.unit * 2,
+    marginRight: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,
     [theme.breakpoints.down('md')]: {
       marginLeft: theme.spacing.unit/2,
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: theme.spacing.unit * 2,
     },
   },
   resetButton: {
@@ -77,7 +82,7 @@ const UsersEditForm = ({terms, classes}: {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display2" className={classes.header}>Edit Account</Typography>
+      <Typography variant="display2" className={classes.header}>Account Settings</Typography>
       {/* TODO(EA): Need to add a management API call to get the reset password
           link, but for now users can reset their password from the login
           screen */}

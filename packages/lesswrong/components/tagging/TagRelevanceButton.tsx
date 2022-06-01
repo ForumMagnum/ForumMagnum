@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   voted: {
     color: theme.palette.grey[900],
     borderRadius: 2,
-    backgroundColor: "rgba(0,0,0,.1)",
+    backgroundColor: theme.palette.panelBackground.darken10,
     padding: 6,
     marginTop: -6
   }

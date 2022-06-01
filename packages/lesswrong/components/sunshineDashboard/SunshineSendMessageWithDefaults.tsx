@@ -19,9 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   defaultMessage: {
     maxWidth: 500,
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     padding:12,
-    boxShadow: "0 0 10px rgba(0,0,0,0.5)"
+    boxShadow: theme.palette.boxShadow.sunshineSendMessage,
   },
   sendMessageButton: {
     marginLeft: 8,

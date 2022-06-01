@@ -10,6 +10,7 @@ import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -34,14 +35,6 @@ const timeframeToNumTimeBlocks = {
   weekly: forumAllPostsNumWeeksSetting.get(),
   monthly: forumAllPostsNumMonthsSetting.get(),
   yearly: forumAllPostsNumYearsSetting.get(),
-}
-
-export const sortings = {
-  magic: 'Magic (New & Upvoted)',
-  recentComments: 'Recent Comments',
-  new: 'New',
-  old: 'Old',
-  top: 'Top',
 }
 
 interface AllPostsPageProps extends WithUserProps, WithStylesProps, WithTimezoneProps, WithLocationProps, WithUpdateCurrentUserProps {
@@ -147,7 +140,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
               <div className={classes.title} onClick={this.toggleSettings}>
                 <SectionTitle title="All Posts">
-                  <SettingsButton label={`Sorted by ${ sortings[currentSorting] }`}/>
+                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 </SectionTitle>
               </div>
             </Tooltip>

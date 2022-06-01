@@ -83,8 +83,11 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
 });
 
 getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
+  // on the EA Forum, we are testing out reviewing all unreviewed users who add a bio
+  const addedBio = !oldUser.biography?.html && newUser.biography?.html && forumTypeSetting.get() === 'EAForum'
+
   // if the user has a mapLocation and they have not been reviewed, mark them for review
-  if (newUser.mapLocation && !newUser.reviewedByUserId && !newUser.needsReview) {
+  if ((addedBio || newUser.mapLocation) && !newUser.reviewedByUserId && !newUser.needsReview) {
     void Users.rawUpdateOne({_id: newUser._id}, {$set: {needsReview: true}})
   }
 })

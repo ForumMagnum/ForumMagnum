@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
     position: 'relative',
     borderRadius: 3,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,

@@ -40,12 +40,6 @@ const CommentKarmaWithPreview = ({ comment, classes }: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
       >
       <div className={classes.commentPreview}>
         <CommentsNode treeOptions={{showPostTitle: true}} comment={comment}/>

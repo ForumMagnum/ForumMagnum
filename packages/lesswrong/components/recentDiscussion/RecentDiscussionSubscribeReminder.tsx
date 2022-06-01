@@ -21,11 +21,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
     
     padding: 16,
     ...theme.typography.body2,
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
 
     marginLeft: "auto",
     marginRight: "auto",
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 12
   },
   checkIcon: {
-    color: "#4caf50",
+    color: theme.palette.icon.greenCheckmark,
     marginTop: 4,
     marginRight: 12
   },
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: "18px auto 0",
     display: "block",
     background: theme.palette.primary.main,
-    color: "white",
+    color: theme.palette.buttons.recentDiscussionSubscribeButtonText,
     fontSize: 15
   },
   buttons: {

@@ -49,6 +49,8 @@ module.exports = {
     scoreExceeded30Date: null,
     scoreExceeded45Date: null,
     scoreExceeded75Date: null,
+    scoreExceeded125Date: null,
+    scoreExceeded200Date: null,
     onlineEvent: false,
     metaSticky: false,
     hideAuthor: false,
