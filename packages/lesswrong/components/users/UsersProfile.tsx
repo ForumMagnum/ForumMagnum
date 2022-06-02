@@ -151,8 +151,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-flex"
   },
   reportUserSection: {
-    textAlign: 'center',
-    marginTop: 50
+    marginTop: 60
+  },
+  reportUserBtn: {
+    ...theme.typography.commentStyle,
+    background: 'none',
+    color: theme.palette.primary.main,
+    fontSize: 13,
+    padding: 0,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    }
   },
   
   rightSidebar: {
@@ -661,7 +670,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
           {currentUser && !user.reviewedByUserId && !user.needsReview && (currentUser._id !== user._id) &&
             <SingleColumnSection className={classes.reportUserSection}>
-              <Button color="primary" onClick={reportUser}>Report user</Button>
+              <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
             </SingleColumnSection>
           }
           </div>
