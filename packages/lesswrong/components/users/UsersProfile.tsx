@@ -384,18 +384,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
     
     // on the EA Forum, the user's location links to the Community map
-    let mapLocationNode
-    if (user.mapLocation) {
-      mapLocationNode = isEAForum ? <div>
-        <Link to="/community#individuals" className={classes.mapLocation}>
-          <LocationIcon className={classes.locationIcon} />
-          {user.mapLocation.formatted_address}
-        </Link>
-      </div> : <div className={classes.mapLocation}>
+    let mapLocationNode = (user.mapLocation && isEAForum) ? <div>
+      <Link to="/community#individuals" className={classes.mapLocation}>
         <LocationIcon className={classes.locationIcon} />
         {user.mapLocation.formatted_address}
-      </div>
-    }
+      </Link>
+    </div> : null
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
