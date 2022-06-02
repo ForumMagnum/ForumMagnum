@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   footer: {
     border: theme.palette.border.grey400,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: '12px 18px',
+    padding: '16px 19px',
     marginTop: '-8px',
     animation: 'reveal-url-footer 0.2s ease 0s',
     transformOrigin: 'top left',

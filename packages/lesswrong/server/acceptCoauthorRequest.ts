@@ -15,7 +15,7 @@ addGraphQLResolvers({
 
       const coauthorUserIds = accept
         ? [ ...post.coauthorUserIds, userId ]
-        : post.coautherUserIds;
+        : post.coauthorUserIds;
       const pendingCoauthorUserIds = post.pendingCoauthorUserIds.filter((id) => id !== userId);
 
       const updatedPost = (await updateMutator({

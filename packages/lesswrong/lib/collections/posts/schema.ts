@@ -132,7 +132,7 @@ const schema: SchemaType<DbPost> = {
         inactive: 'Link-post?',
         active: 'Add a linkpost URL',
       },
-      hintText: 'Please write what you liked about the post, and sample liberally. Or, if the author allows it, copy in the entire post text.',
+      hintText: 'Please write what you liked about the post, and sample liberally. Or, if the author allows it, copy in the entire post text. If you know the author\'s username you can add them as a co-author of this post in the "Options" menu below.',
     },
     group: formGroups.options,
   },
