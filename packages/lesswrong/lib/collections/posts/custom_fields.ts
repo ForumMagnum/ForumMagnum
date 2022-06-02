@@ -229,13 +229,22 @@ addFieldsDict(Posts, {
     group: formGroups.canonicalSequence,
   },
 
-  coauthorUserIds: {
-    ...arrayOfForeignKeysField({
-      idFieldName: "coauthorUserIds",
-      resolverName: "coauthors",
-      collectionName: "Users",
-      type: "User"
-    }),
+  coauthorStatuses: {
+    type: Array,
+    resolveAs: {
+      fieldName: 'coauthors',
+      type: '[User!]!',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
+        const loader = context.loaders['Users'];
+        const resolvedDocs = await loader.loadMany(
+          post.coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) ||
+          (post as { coauthorUserIds?: string[] }).coauthorUserIds ||
+          []
+        );
+        return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
+      },
+      addOriginalField: true,
+    },
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
@@ -244,28 +253,12 @@ addFieldsDict(Posts, {
     control: "UsersListEditor",
     group: formGroups.advancedOptions,
   },
-  'coauthorUserIds.$': {
-    type: String,
-    foreignKey: 'Users',
-    optional: true
-  },
-
-  pendingCoauthorUserIds: {
-    ...arrayOfForeignKeysField({
-      idFieldName: "pendingCoauthorUserIds",
-      resolverName: "pendingCoauthors",
-      collectionName: "Users",
-      type: "User"
+  'coauthorStatuses.$': {
+    type: new SimpleSchema({
+      userId: String,
+      confirmed: Boolean,
+      requested: Boolean,
     }),
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
-    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
-    optional: true,
-    hidden: true,
-  },
-  'pendingCoauthorUserIds.$': {
-    type: String,
-    foreignKey: 'Users',
     optional: true,
   },
 

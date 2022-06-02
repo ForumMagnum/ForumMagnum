@@ -42,9 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const isRequestedCoauthor = (
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   currentUser: UsersCurrent|null
-) => currentUser &&
-    post.pendingCoauthorUserIds &&
-    post.pendingCoauthorUserIds.includes(currentUser._id);
+) => currentUser && post.coauthorStatuses?.find?.(({ userId, confirmed }) => userId === currentUser._id && !confirmed);
 
 const PostCoauthorRequest = ({post, currentUser, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,

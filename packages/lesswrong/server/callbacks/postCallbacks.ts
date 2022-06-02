@@ -267,25 +267,26 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
   return modifier
 })
 
-const handleRequestedCoauthors = (post: DbPost): DbPost => {
+const postHasUnconfirmedCoauthors = (post: DbPost): boolean =>
+  !post.hasCoauthorPermission && post.coauthorStatuses?.filter(({ confirmed }) => !confirmed).length > 0;
+
+const scheduleCoauthoredPost = (post: DbPost): DbPost => {
   const now = new Date();
-  post.pendingCoauthorUserIds = post.coauthorUserIds;
-  post.coauthorUserIds = [];
   post.postedAt = new Date(now.setDate(now.getDate() + 1));
   post.isFuture = true;
   return post;
 }
 
 getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
-  if (!post.hasCoauthorPermission && post.coauthorUserIds?.length && !post.draft) {
-    post = handleRequestedCoauthors(post);
+  if (postHasUnconfirmedCoauthors(post) && !post.draft) {
+    post = scheduleCoauthoredPost(post);
   }
   return post;
 });
 
 getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<DbPost>) => {
-  if (!post.hasCoauthorPermission && post.coauthorUserIds?.length && !post.draft && oldPost.draft) {
-    post = handleRequestedCoauthors(post);
+  if (postHasUnconfirmedCoauthors(post) && !post.draft && oldPost.draft) {
+    post = scheduleCoauthoredPost(post);
   }
   return post;
 });

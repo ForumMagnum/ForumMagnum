@@ -35,8 +35,7 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    coauthorUserIds
-    pendingCoauthorUserIds
+    coauthorStatuses
     hasCoauthorPermission
 
     commentCount
@@ -410,7 +409,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
-    coauthorUserIds
+    coauthorStatuses
     moderationGuidelines {
       ...RevisionEdit
     }

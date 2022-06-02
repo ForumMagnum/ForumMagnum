@@ -7,20 +7,22 @@ addGraphQLResolvers({
   Mutation: {
     async acceptCoauthorRequest(root: void, {postId, userId, accept}: {postId: string, userId: string, accept: boolean}, context: ResolverContext) {
       const { currentUser } = context;
-      const post = await context.loaders.Posts.load(postId);
+      let post = await context.loaders.Posts.load(postId);
 
-      if (!post.pendingCoauthorUserIds.includes(userId)) {
+      const index = post.coauthorStatuses.findIndex((author) => author.userId === userId && !author.confirmed);
+      if (index < 0) {
         throw new Error('User has not been requested as a co-author for this post');
       }
 
-      const coauthorUserIds = accept
-        ? [ ...post.coauthorUserIds, userId ]
-        : post.coauthorUserIds;
-      const pendingCoauthorUserIds = post.pendingCoauthorUserIds.filter((id) => id !== userId);
+      if (accept) {
+        post.coauthorStatuses[index].confirmed = true;
+      } else {
+        post.coauthorStatuses = post.coauthorStatuses.filter((author) => author.userId !== userId);
+      }
 
       let postedAt = post.postedAt;
       const now = new Date();
-      if (postedAt > now && pendingCoauthorUserIds.length < 1) {
+      if (postedAt > now && post.coauthorStatuses.filter(({ confirmed }) => !confirmed).length < 1) {
         postedAt = now;
       }
 
@@ -28,8 +30,7 @@ addGraphQLResolvers({
         collection: Posts,
         documentId: postId,
         set: {
-          coauthorUserIds,
-          pendingCoauthorUserIds,
+          coauthorStatuses: post.coauthorStatuses,
           postedAt,
         },
         validate: false

@@ -75,9 +75,8 @@ const PostSubmit = ({
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
-  const waitForCoauthors = document.coauthorUserIds &&
-    document.coauthorUserIds?.length &&
-    !document.hasCoauthorPermission;
+  const waitForCoauthors = !document.hasCoauthorPermission &&
+    document.coauthorStatuses?.findIndex?.(({ confirmed }) => !confirmed) >= 0;
 
   const { LWTooltip } = Components;
   const SubmitTooltip = waitForCoauthors
@@ -127,16 +126,16 @@ const PostSubmit = ({
         >
           {saveDraftLabel}
         </Button>
-        <SubmitTooltip>
-          <Button
-            type="submit"
-            onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
-            className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-            variant={collectionName=="users" ? "outlined" : undefined}
-          >
+        <Button
+          type="submit"
+          onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
+          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+          variant={collectionName=="users" ? "outlined" : undefined}
+        >
+          <SubmitTooltip>
             {submitLabel}
-          </Button>
-        </SubmitTooltip>
+          </SubmitTooltip>
+        </Button>
       </div>
     </React.Fragment>
   );
