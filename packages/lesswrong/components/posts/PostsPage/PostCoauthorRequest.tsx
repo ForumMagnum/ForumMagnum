@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   coauthorRequest: {
@@ -11,20 +12,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   content: {
     display: 'flex',
+    alignItems: 'center',
   },
   message: {
     flexGrow: 1,
   },
-  accept: {
+  button: {
     cursor: 'pointer',
     padding: '8px',
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: 16,
     fontWeight: 500,
-    color: theme.palette.secondary.main,
     '&:hover': {
       background: theme.palette.buttons.hoverGrayHighlight,
     },
+  },
+  decline: {
+    color: theme.palette.text.error2,
+  },
+  accept: {
+    color: theme.palette.secondary.main,
   },
   error: {
     marginTop: '10px',
@@ -48,8 +55,8 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
   const [loading, setLoading] = useState(false);
 
   const [acceptCoauthorRequest] = useMutation(gql`
-    mutation AcceptCoauthorRequest($postId: String, $userId: String) {
-        acceptCoauthorRequest(postId: $postId, userId: $userId) {
+    mutation AcceptCoauthorRequest($postId: String, $userId: String, $accept: Boolean) {
+        acceptCoauthorRequest(postId: $postId, userId: $userId, accept: $accept) {
           ...PostsDetails
         }
     }
@@ -60,31 +67,47 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
     return null;
   }
 
-  const onAccept = async () => {
+  const onResponse = async (accept: boolean) => {
     setLoading(true);
     const { errors } = await acceptCoauthorRequest({variables: {
       postId: post._id,
       userId: currentUser?._id,
+      accept,
     }});
     if (errors) {
       setError(`Oops, something went wrong: ${errors[0].message}`);
     }
     setLoading(false);
+    return errors;
   }
 
-  const { Typography, LWTooltip, Loading } = Components;
+  const onDecline = async () => {
+    const errors = await onResponse(false);
+    if (!errors) {
+      window.location.href = '/';
+    }
+  }
+
+  const onAccept = () => onResponse(true);
+
+  const { Typography, Loading } = Components;
   return (
     <div className={classes.coauthorRequest}>
       <div className={classes.content}>
         <Typography variant='body2' className={classes.message}>
-          {post.user?.displayName ?? 'The author'} has requested you to co-author this post
+          {post.user?.displayName ?? 'The author'} has requested you to become a co-author of this post
         </Typography>
         {loading
           ? <Loading />
           : (
-            <LWTooltip title='Become an author of this post' placement='bottom'>
-              <span className={classes.accept} onClick={onAccept}>Accept</span>
-            </LWTooltip>
+            <>
+              <span className={classNames(classes.button, classes.decline)} onClick={onDecline}>
+                Decline
+              </span>
+              <span className={classNames(classes.button, classes.accept)} onClick={onAccept}>
+                Accept
+              </span>
+            </>
           )
         }
       </div>
