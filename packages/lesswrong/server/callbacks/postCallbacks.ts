@@ -266,3 +266,13 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
   
   return modifier
 })
+
+getCollectionHooks("Posts").newSync.add(async function HandleRequestedCoauthors(post: DbPost): Promise<DbPost> {
+  if (!post.hasCoauthorPermission) {
+    post.pendingCoauthorUserIds = post.coauthorUserIds;
+    post.coauthorUserIds = [];
+  }
+
+  delete post.hasCoauthorPermission;
+  return post;
+});

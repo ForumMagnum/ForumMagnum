@@ -247,7 +247,39 @@ addFieldsDict(Posts, {
     foreignKey: 'Users',
     optional: true
   },
-  
+
+  pendingCoauthorUserIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "pendingCoauthorUserIds",
+      resolverName: "pendingCoauthors",
+      collectionName: "Users",
+      type: "User"
+    }),
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
+    optional: true,
+    hidden: true,
+  },
+  'pendingCoauthorUserIds.$': {
+    type: String,
+    foreignKey: 'Users',
+    optional: true,
+  },
+
+  hasCoauthorPermission: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    optional: true,
+    control: 'checkbox',
+    label: 'These users have agreed to co-author this post',
+    tooltip: 'If this box is left unchecked then these users will be asked if they want to be co-authors',
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
+  },
+
   // Cloudinary image id for an image that will be used as the OpenGraph image
   socialPreviewImageId: {
     type: String,

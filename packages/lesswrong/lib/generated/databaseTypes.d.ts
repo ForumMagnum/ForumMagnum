@@ -400,6 +400,8 @@ interface DbPost extends DbObject {
   frontpageDate: Date
   collectionTitle: string
   coauthorUserIds: Array<string>
+  pendingCoauthorUserIds: Array<string>
+  hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
   canonicalSequenceId: string

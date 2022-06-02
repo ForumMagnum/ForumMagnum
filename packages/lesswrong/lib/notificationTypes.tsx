@@ -368,7 +368,7 @@ export const CoauthorRequestNotification = registerNotificationType({
   async getMessage({documentType, documentId}: {documentType: string|null, documentId: string|null}) {
     const document = await getDocument(documentType, documentId) as DbPost;
     const name = await postGetAuthorName(document);
-    return  `${name} requested that you coauthor their post: ${document.title}`;
+    return  `${name} requested that you co-author their post: ${document.title}`;
   },
   getIcon() {
     return <GroupAddIcon style={iconStyles} />
