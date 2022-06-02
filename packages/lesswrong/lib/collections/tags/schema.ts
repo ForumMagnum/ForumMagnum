@@ -426,12 +426,29 @@ export const schema: SchemaType<DbTag> = {
   },
   
   defaultFilterMode: {
-    type: SimpleSchema.oneOf(String, Number),
+    type: String,
+    // // TODO: We should store the filter mode as a string or a number, as
+    // // appropriate. However, GraphQL requires that only send 1 data type over
+    // // the wire. That's fine, it can be a string on the frontend. But on the
+    // // backend we need to have some functions that convert the string to a
+    // // number and back again.
+    // type: new SimpleSchema({
+    //   type: String,
+    //   data: SimpleSchema.oneOf(
+    //     {
+    //       type: Number,
+    //       decimal: true,
+    //     },
+    //     String
+    //   ),
+    // }),
     optional: true,
     group: formGroups.advancedOptions,
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
+    // TODO: Ideally instead of a select control, we'd allow users to select
+    // from the string options, or enter a numeric value.
     control: 'select',
     options: () => FILTER_MODE_CHOICES.map(mode => ({
       value: mode,
