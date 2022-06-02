@@ -274,13 +274,6 @@ const PostActions = ({post, closeMenu, classes}: {
         <DeleteDraft post={post}/>
         { userCanDo(currentUser, "posts.edit.all") &&
           <span>
-            { !post.meta &&
-              <div onClick={handleMoveToMeta}>
-                <MenuItem>
-                  Move to Meta
-                </MenuItem>
-              </div>
-            }
             { !post.frontpageDate &&
               <div onClick={handleMoveToFrontpage}>
                 <Tooltip placement="left" title={

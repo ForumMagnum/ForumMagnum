@@ -95,17 +95,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           </AnalyticsContext>
         </div>
         <AnalyticsContext listContext={"latestPosts"}>
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2
-              terms={{view:"curated", limit: currentUser ? 3 : 2}}
-              showNoResults={false}
-              showLoadMore={false}
-              hideLastUnread={true}
-              boxShadow={false}
-              curatedIconLeft={true}
-              showFinalBottomBorder={true}
-            />
-          </AnalyticsContext>
           <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore={true}>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
           </PostsList2>

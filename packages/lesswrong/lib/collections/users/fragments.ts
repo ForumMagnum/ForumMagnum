@@ -41,6 +41,9 @@ registerFragment(`
     howICanHelpOthers {
       html
     }
+    organizerOfGroups {
+      ...localGroupsBase
+    }
     website
     linkedinProfileURL
     facebookProfileURL
@@ -400,6 +403,10 @@ registerFragment(`
     }
     howICanHelpOthers {
       ...RevisionEdit
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
     }
     mapLocation
     website

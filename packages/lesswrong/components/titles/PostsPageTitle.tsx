@@ -39,10 +39,6 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
     return null;
   } else if (post.frontpageDate) {
     return null;
-  } else if (post.meta) {
-    return (<span className={classes.subtitle}>
-      <Link to="/meta">Meta</Link>
-    </span>);
   } else if (post.userId) {
     // TODO: For personal blogposts, put the user in the sutitle. There was an
     // attempt to do this in a previous implementation, which didn't work.

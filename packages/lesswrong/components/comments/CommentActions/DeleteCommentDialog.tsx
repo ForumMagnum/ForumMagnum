@@ -61,7 +61,11 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
           What is your reason for deleting this comment?
         </DialogTitle>
         <DialogContent>
-          <p><em>(If you delete without a trace, the reason will be sent to the author of the comment privately. Otherwise it will be publicly displayed below the comment.)</em></p>
+          <p><em>
+            (If you delete without a trace, the reason will be sent to the
+            author of the comment privately. Otherwise it will be publicly
+            displayed below the comment.)
+          </em></p>
           <br/>
           <TextField
             id="comment-menu-item-delete-reason"
