@@ -7,7 +7,6 @@ registerMigration({
   idempotent: true,
   action: async () => {
     const posts = await Posts.find({}).fetch();
-    console.log("posts", posts);
     for (const post of posts) {
       const coauthorUserIds = (post as { coauthorUserIds?: string[] }).coauthorUserIds;
       if (coauthorUserIds?.length) {

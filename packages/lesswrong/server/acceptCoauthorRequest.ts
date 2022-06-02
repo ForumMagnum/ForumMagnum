@@ -17,7 +17,7 @@ addGraphQLResolvers({
 
       if (accept) {
         post.coauthorStatuses[index].confirmed = true;
-        createNotification({
+        await createNotification({
           userId: post.userId,
           notificationType: 'coauthorAcceptNotification',
           documentType: 'post',

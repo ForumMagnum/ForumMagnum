@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
 import { Posts } from '../lib/collections/posts/collection';
-import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';
 import { Messages } from '../lib/collections/messages/collection';
@@ -11,7 +11,6 @@ import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from '../lib/collections/users/collection';
 import { userGetDisplayName } from '../lib/collections/users/helpers';
-import { postGetAuthorName } from '../lib/collections/posts/helpers';
 import * as _ from 'underscore';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
