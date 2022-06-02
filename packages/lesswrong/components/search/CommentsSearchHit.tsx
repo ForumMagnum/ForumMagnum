@@ -11,13 +11,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 10,
     paddingRight: 10,
     display: 'flex',
+    alignItems: 'center',
   },
   icon: {
     width: 20,
     color: theme.palette.grey[600],
     marginRight: 12,
-    marginLeft: 4,
-    marginTop: 5
+    marginLeft: 4
   },
   snippet: {
     overflowWrap: "break-word",
