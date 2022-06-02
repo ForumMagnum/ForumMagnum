@@ -77,16 +77,9 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
       setError(`Oops, something went wrong: ${errors[0].message}`);
     }
     setLoading(false);
-    return errors;
   }
 
-  const onDecline = async () => {
-    const errors = await onResponse(false);
-    if (!errors) {
-      window.location.href = '/';
-    }
-  }
-
+  const onDecline = () => onResponse(false);
   const onAccept = () => onResponse(true);
 
   const { Typography, Loading } = Components;

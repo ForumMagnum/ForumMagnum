@@ -18,6 +18,7 @@ addGraphQLResolvers({
         post.coauthorStatuses[index].confirmed = true;
       } else {
         post.coauthorStatuses = post.coauthorStatuses.filter((author) => author.userId !== userId);
+        post.shareWithUsers = [ ...(post.shareWithUsers ?? []), userId ];
       }
 
       let postedAt = post.postedAt;
@@ -31,6 +32,7 @@ addGraphQLResolvers({
         documentId: postId,
         set: {
           coauthorStatuses: post.coauthorStatuses,
+          shareWithUsers: post.shareWithUsers,
           postedAt,
         },
         validate: false

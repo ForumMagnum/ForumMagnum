@@ -20,9 +20,9 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
 });
 
 const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser, updateCurrentValues }: {
-  value: string,
+  value: { userId: string, confirmed: boolean, requested: boolean }[],
   path: string,
-  document: Document,
+  document: Partial<DbPost>,
   classes: ClassesType,
   label?: string,
   currentUser: DbUser|null,

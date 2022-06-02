@@ -54,7 +54,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   value: string,
   path: string,
   classes: ClassesType,
-  document: Document,
+  document: Partial<DbPost>,
   defaultValue?: string,
   label?: string,
   hintText?: string,

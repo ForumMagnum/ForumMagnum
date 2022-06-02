@@ -453,7 +453,12 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
 });
 
 getCollectionHooks("Posts").newAsync.add(async function CoauthorRequestNotifications(post: DbPost) {
-  const { _id, coauthorStatuses = [] } = post;
+  const { _id, coauthorStatuses = [], hasCoauthorPermission } = post;
+
+  if (hasCoauthorPermission) {
+    return;
+  }
+
   const userIds = coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId);
   await createNotifications({userIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
 
