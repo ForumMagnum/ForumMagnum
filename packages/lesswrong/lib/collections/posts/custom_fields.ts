@@ -237,9 +237,7 @@ addFieldsDict(Posts, {
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
         const loader = context.loaders['Users'];
         const resolvedDocs = await loader.loadMany(
-          post.coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) ||
-          (post as { coauthorUserIds?: string[] }).coauthorUserIds ||
-          []
+          post.coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || []
         );
         return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
       },
