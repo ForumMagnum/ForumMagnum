@@ -250,7 +250,7 @@ addFieldsDict(Posts, {
     insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
     label: "Co-Authors",
-    control: "UsersListEditor",
+    control: "CoauthorsListEditor",
     group: formGroups.advancedOptions,
   },
   'coauthorStatuses.$': {
@@ -268,10 +268,7 @@ addFieldsDict(Posts, {
     editableBy: ['members'],
     insertableBy: ['members'],
     optional: true,
-    control: 'checkbox',
-    label: 'These users have agreed to co-author this post',
-    tooltip: 'If this box is left unchecked then these users will be asked if they want to be co-authors when the post is published',
-    group: formGroups.advancedOptions,
+    hidden: true,
     ...schemaDefaultValue(false),
   },
 

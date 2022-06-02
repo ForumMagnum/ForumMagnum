@@ -4,6 +4,25 @@ import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import * as _ from 'underscore';
+
+export const shouldCancelStart = (e) => {
+  // Cancel sorting if the event target is an `input`, `textarea`, `select`, 'option' or 'svg'
+  const disabledElements = [
+    'input',
+    'textarea',
+    'select',
+    'option',
+    'button',
+    'svg',
+    'path'
+  ];
+  if (disabledElements.includes(e.target.tagName.toLowerCase())) {
+    return true; // Return true to cancel sorting
+  } else {
+    return false;
+  }
+}
 
 const sortableItemStyles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,7 +48,7 @@ const sortableListStyles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
-const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(SortableContainer(({items, currentUser, removeItem, classes}) => {
+export const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(SortableContainer(({items, currentUser, removeItem, classes}) => {
   return (
     <div className={classes.root}>
       {items.map((userId, index) => (
@@ -51,29 +70,12 @@ class UsersListEditor extends Component<any> {
     this.context.updateCurrentValues({[this.props.path]: newIds});
   };
   addUserId = (userId: string) => {
-    const newIds = [...this.props.value, {userId, confirmed: false, requested: false}];
+    const newIds = [...this.props.value, userId];
     this.context.updateCurrentValues({[this.props.path]: newIds});
   }
   removeUserId = (userId: string) => {
-    const authors = this.props.value.filter((author) => author.userId !== userId);
-    this.context.updateCurrentValues({[this.props.path]: authors});
-  }
-  shouldCancelStart = (e) => {
-    // Cancel sorting if the event target is an `input`, `textarea`, `select`, 'option' or 'svg'
-    const disabledElements = [
-      'input',
-      'textarea',
-      'select',
-      'option',
-      'button',
-      'svg',
-      'path'
-    ];
-    if (disabledElements.includes(e.target.tagName.toLowerCase())) {
-      return true; // Return true to cancel sorting
-    } else {
-      return false;
-    }
+    const newIds = _.without(this.props.value, userId);
+    this.context.updateCurrentValues({[this.props.path]: newIds});
   }
 
   render() {
@@ -89,11 +91,11 @@ class UsersListEditor extends Component<any> {
         </Components.ErrorBoundary>
         <SortableList
           axis="xy"
-          items={this.props.value.map(({ userId }) => userId)}
+          items={this.props.value}
           onSortEnd={this.onSortEnd}
           currentUser={currentUser}
           removeItem={this.removeUserId}
-          shouldCancelStart={this.shouldCancelStart}
+          shouldCancelStart={shouldCancelStart}
         />
       </div>
     )

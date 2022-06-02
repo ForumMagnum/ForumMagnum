@@ -9,6 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.grey400,
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: '12px 18px',
+    marginBottom: '30px',
   },
   content: {
     display: 'flex',
