@@ -1,6 +1,7 @@
 import { Posts } from '../lib/collections/posts';
 import { addGraphQLMutation, addGraphQLResolvers, updateMutator } from './vulcan-lib';
 import { accessFilterSingle } from '../lib/utils/schemaUtils';
+import { createNotification } from './notificationCallbacksHelpers';
 
 addGraphQLMutation('acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post');
 addGraphQLResolvers({
@@ -16,6 +17,12 @@ addGraphQLResolvers({
 
       if (accept) {
         post.coauthorStatuses[index].confirmed = true;
+        createNotification({
+          userId: post.userId,
+          notificationType: 'coauthorAcceptNotification',
+          documentType: 'post',
+          documentId: postId,
+        });
       } else {
         post.coauthorStatuses = post.coauthorStatuses.filter((author) => author.userId !== userId);
         post.shareWithUsers = [ ...(post.shareWithUsers ?? []), userId ];
