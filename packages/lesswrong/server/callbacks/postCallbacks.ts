@@ -8,7 +8,7 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import cheerio from 'cheerio'
-import { getCollectionHooks } from '../mutationCallbacks';
+import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 
@@ -267,10 +267,25 @@ getCollectionHooks("Posts").editSync.add(async function clearCourseEndTime(modif
   return modifier
 })
 
-getCollectionHooks("Posts").newSync.add(async function HandleRequestedCoauthors(post: DbPost): Promise<DbPost> {
-  if (!post.hasCoauthorPermission) {
-    post.pendingCoauthorUserIds = post.coauthorUserIds;
-    post.coauthorUserIds = [];
+const handleRequestedCoauthors = (post: DbPost): DbPost => {
+  const now = new Date();
+  post.pendingCoauthorUserIds = post.coauthorUserIds;
+  post.coauthorUserIds = [];
+  post.postedAt = new Date(now.setDate(now.getDate() + 1));
+  post.isFuture = true;
+  return post;
+}
+
+getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
+  if (!post.hasCoauthorPermission && post.coauthorUserIds?.length && !post.draft) {
+    post = handleRequestedCoauthors(post);
+  }
+  return post;
+});
+
+getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<DbPost>) => {
+  if (!post.hasCoauthorPermission && post.coauthorUserIds?.length && !post.draft && oldPost.draft) {
+    post = handleRequestedCoauthors(post);
   }
   return post;
 });

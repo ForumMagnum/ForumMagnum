@@ -18,6 +18,8 @@ import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 
+const MINIMUM_COAUTHOR_KARMA = 10;
+
 export const EVENT_TYPES = [
   {value: 'presentation', label: 'Presentation'},
   {value: 'discussion', label: 'Discussion'},
@@ -235,8 +237,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
-    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
     label: "Co-Authors",
     control: "UsersListEditor",
@@ -256,8 +258,8 @@ addFieldsDict(Posts, {
       type: "User"
     }),
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
-    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(10)],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
     hidden: true,
   },
@@ -275,7 +277,7 @@ addFieldsDict(Posts, {
     optional: true,
     control: 'checkbox',
     label: 'These users have agreed to co-author this post',
-    tooltip: 'If this box is left unchecked then these users will be asked if they want to be co-authors',
+    tooltip: 'If this box is left unchecked then these users will be asked if they want to be co-authors when the post is published',
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },

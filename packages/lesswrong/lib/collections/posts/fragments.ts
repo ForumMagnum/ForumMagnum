@@ -37,6 +37,7 @@ registerFragment(`
     sharingSettings
     coauthorUserIds
     pendingCoauthorUserIds
+    hasCoauthorPermission
 
     commentCount
     voteCount

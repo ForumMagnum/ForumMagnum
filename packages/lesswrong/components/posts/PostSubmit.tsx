@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -49,6 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const coauthorTooltip = 'Your post will be scheduled so your co-authors can give their permission. If they do not respond, your post will be automatically published in 24 hours.';
 
 interface PostSubmitProps {
   submitLabel?: string,
@@ -73,7 +74,20 @@ const PostSubmit = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
-  
+
+  const waitForCoauthors = document.coauthorUserIds &&
+    document.coauthorUserIds?.length &&
+    !document.hasCoauthorPermission;
+
+  const { LWTooltip } = Components;
+  const SubmitTooltip = waitForCoauthors
+    ? ({ children }) => (
+      <LWTooltip title={coauthorTooltip} placement="top">
+        {children}
+      </LWTooltip>
+    )
+    : ({ children }) => children;
+
   return (
     <React.Fragment>
       {!!cancelCallback &&
@@ -113,14 +127,16 @@ const PostSubmit = ({
         >
           {saveDraftLabel}
         </Button>
-        <Button
-          type="submit"
-          onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
-          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          variant={collectionName=="users" ? "outlined" : undefined}
-        >
-          {submitLabel}
-        </Button>
+        <SubmitTooltip>
+          <Button
+            type="submit"
+            onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
+            className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+            variant={collectionName=="users" ? "outlined" : undefined}
+          >
+            {submitLabel}
+          </Button>
+        </SubmitTooltip>
       </div>
     </React.Fragment>
   );

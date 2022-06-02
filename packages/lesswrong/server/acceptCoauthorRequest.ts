@@ -18,12 +18,19 @@ addGraphQLResolvers({
         : post.coauthorUserIds;
       const pendingCoauthorUserIds = post.pendingCoauthorUserIds.filter((id) => id !== userId);
 
+      let postedAt = post.postedAt;
+      const now = new Date();
+      if (postedAt > now && pendingCoauthorUserIds.length < 1) {
+        postedAt = now;
+      }
+
       const updatedPost = (await updateMutator({
         collection: Posts,
         documentId: postId,
         set: {
           coauthorUserIds,
           pendingCoauthorUserIds,
+          postedAt,
         },
         validate: false
       })).data;
