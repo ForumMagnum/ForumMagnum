@@ -272,7 +272,5 @@ getCollectionHooks("Posts").newSync.add(async function HandleRequestedCoauthors(
     post.pendingCoauthorUserIds = post.coauthorUserIds;
     post.coauthorUserIds = [];
   }
-
-  delete post.hasCoauthorPermission;
   return post;
 });

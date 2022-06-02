@@ -325,6 +325,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly coauthorUserIds: Array<string>,
+  readonly pendingCoauthorUserIds: Array<string>,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
