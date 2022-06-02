@@ -26,6 +26,8 @@ import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { useMessages } from '../common/withMessages';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -148,6 +150,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
+  reportUserSection: {
+    marginTop: 60
+  },
+  reportUserBtn: {
+    ...theme.typography.commentStyle,
+    background: 'none',
+    color: theme.palette.primary.main,
+    fontSize: 13,
+    padding: 0,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    }
+  },
   
   rightSidebar: {
     gridArea: 'right',
@@ -243,6 +258,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
   classes: ClassesType,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
+
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+  })
+
   const currentUser = useCurrentUser();
   
   const {loading, results} = useMulti({
@@ -251,31 +272,31 @@ const UsersProfileFn = ({terms, slug, classes}: {
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
+  const user = getUserFromResults(results)
   
   const { query } = useLocation()
   // track profile views in local storage
   useEffect(() => {
-    const profileUser = getUserFromResults(results)
     const ls = getBrowserLocalStorage()
     // currently only used on the EA Forum
-    if (forumTypeSetting.get() === 'EAForum' && currentUser && profileUser && currentUser._id !== profileUser._id && ls) {
+    if (forumTypeSetting.get() === 'EAForum' && currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
       let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
       // if the profile user is already in the list, then remove them before re-adding them at the end
-      const profileUserIndex = profiles?.findIndex(profile => profile.userId === profileUser._id)
+      const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
         // remember where we originally saw this profile, if necessary
         from = from || profiles[profileUserIndex].from
         profiles.splice(profileUserIndex, 1)
       }
       
-      profiles.push({userId: profileUser._id, ...(from && {from})})
+      profiles.push({userId: user._id, ...(from && {from})})
       // we only bother to save the last 10 profiles
       if (profiles.length > 10) profiles.shift()
       // save it in local storage
       ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
     }
-  }, [currentUser, results, query.from])
+  }, [currentUser, user, query.from])
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -285,10 +306,16 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
   }
 
+  const { flash } = useMessages()
+  const reportUser = async () => {
+    if (!user) return
+    await updateUser({ selector: {_id: user._id}, data: { needsReview: true } })
+    flash({messageString: "Your report has been sent to the moderators"})
+  }
+
   const renderMeta = () => {
-    const document = getUserFromResults(results)
-    if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = document;
+    if (!user) return null
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma, tagRevisionCount } = user;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -358,7 +385,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     }
 
-    const user = getUserFromResults(results)
     if (!user || !user._id || user.deleted) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
@@ -384,18 +410,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
     }
     
     // on the EA Forum, the user's location links to the Community map
-    let mapLocationNode
-    if (user.mapLocation) {
-      mapLocationNode = isEAForum ? <div>
-        <Link to="/community#individuals" className={classes.mapLocation}>
-          <LocationIcon className={classes.locationIcon} />
-          {user.mapLocation.formatted_address}
-        </Link>
-      </div> : <div className={classes.mapLocation}>
+    let mapLocationNode = (user.mapLocation && isEAForum) ? <div>
+      <Link to="/community#individuals" className={classes.mapLocation}>
         <LocationIcon className={classes.locationIcon} />
         {user.mapLocation.formatted_address}
-      </div>
-    }
+      </Link>
+    </div> : null
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
@@ -655,6 +675,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
+
+          {currentUser && !user.reviewedByUserId && !user.needsReview && (currentUser._id !== user._id) &&
+            <SingleColumnSection className={classes.reportUserSection}>
+              <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
+            </SingleColumnSection>
+          }
           </div>
           
           {isEAForum && <div className={classes.rightSidebar}>
