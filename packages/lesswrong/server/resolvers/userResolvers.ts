@@ -1,4 +1,4 @@
-import { markdownToHtml } from '../editor/make_editable_callbacks';
+import { markdownToHtml, dataToMarkdown } from '../editor/make_editable_callbacks';
 import Users from '../../lib/collections/users/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { addGraphQLMutation, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
@@ -6,15 +6,6 @@ import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 
 augmentFieldsDict(Users, {
-  htmlBio: {
-    ...denormalizedField({
-      needsUpdate: (data: Partial<DbUser>) => ('bio' in data),
-      getValue: async (user: DbUser) => {
-        if (!user.bio) return "";
-        return await markdownToHtml(user.bio);
-      }
-    })
-  },
   htmlMapMarkerText: {
     ...denormalizedField({
       needsUpdate: (data: Partial<DbUser>) => ('mapMarkerText' in data),
@@ -23,6 +14,25 @@ augmentFieldsDict(Users, {
         return await markdownToHtml(user.mapMarkerText);
       }
     })
+  },
+  bio: {
+    resolveAs: {
+      type: "String",
+      resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
+        const bio = user.biography?.originalContents;
+        if (!bio) return "";
+        return dataToMarkdown(bio.data, bio.type);
+      }
+    }
+  },
+  htmlBio: {
+    resolveAs: {
+      type: "String",
+      resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
+        const bio = user.biography;
+        return bio?.html || "";
+      }
+    }
   },
 });
 

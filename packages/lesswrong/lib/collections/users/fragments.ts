@@ -29,7 +29,18 @@ registerFragment(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    bio
+    jobTitle
+    organization
+    careerStage
+    biography {
+      ...RevisionDisplay
+    }
+    howOthersCanHelpMe {
+      html
+    }
+    howICanHelpOthers {
+      html
+    }
     website
     linkedinProfileURL
     facebookProfileURL
@@ -95,7 +106,9 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    bio
+    biography {
+      ...RevisionEdit
+    }
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -207,7 +220,6 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
-    bio
     htmlBio
     createdAt
     email
@@ -377,8 +389,18 @@ registerFragment(`
   fragment UsersProfileEdit on User {
     _id
     slug
-    bio
-    htmlBio
+    jobTitle
+    organization
+    careerStage
+    biography {
+      ...RevisionEdit
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
     mapLocation
     website
     linkedinProfileURL

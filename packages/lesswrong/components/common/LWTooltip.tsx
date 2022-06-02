@@ -42,11 +42,7 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
       open={hover}
       anchorEl={anchorEl}
       tooltip={tooltip}
-      modifiers={{
-        flip: {
-          enabled: flip
-        }
-      }}
+      allowOverflow={!flip}
       clickable={clickable}
     >
       <div className={tooltip ? classes.tooltip : null}>{title}</div>

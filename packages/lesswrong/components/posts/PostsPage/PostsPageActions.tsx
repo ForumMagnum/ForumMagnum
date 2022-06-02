@@ -49,12 +49,7 @@ const PostsPageActions = ({post, vertical, classes}: {
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
       placement="right-start"
-      modifiers={{
-        flip: {
-          boundariesElement: 'viewport',
-          behavior: ['right-start', 'bottom']
-        }
-      }}
+      allowOverflow      
     >
       <ClickawayListener onClickAway={handleClose}>
         <PostActions post={post} closeMenu={handleClose}/>

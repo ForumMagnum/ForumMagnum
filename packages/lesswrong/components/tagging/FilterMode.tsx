@@ -119,14 +119,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
         </Link> :
         tagLabel
       }
-      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
-      >
+      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
             <LWTooltip title={filterModeToTooltip("Hidden")}>
