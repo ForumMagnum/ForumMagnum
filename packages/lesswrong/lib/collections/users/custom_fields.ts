@@ -33,7 +33,14 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
-export const defaultNotificationTypeSettings = {
+export type NotificationTypeSettings = {
+  channel: "none"|"onsite"|"email"|"both",
+  batchingFrequency: "realtime"|"daily"|"weekly",
+  timeOfDayGMT: number,
+  dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday",
+};
+
+export const defaultNotificationTypeSettings: NotificationTypeSettings = {
   channel: "onsite",
   batchingFrequency: "realtime",
   timeOfDayGMT: 12,
@@ -207,7 +214,7 @@ addFieldsDict(Users, {
   },
 
 
-  sortDrafts: {
+  sortDraftsBy: {
     type: String,
     optional: true,
     canRead: [userOwns, 'admins'],
@@ -398,6 +405,30 @@ addFieldsDict(Users, {
     hidden: true,
   },
   allPostsOpenSettings: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  draftsListSorting: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+  },
+  draftsListShowArchived: {
+    type: Boolean,
+    optional: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
+  draftsListShowShared: {
     type: Boolean,
     optional: true,
     canRead: userOwns,
@@ -726,6 +757,10 @@ addFieldsDict(Users, {
   notificationGroupAdministration: {
     label: "Group administration notifications",
     hidden: !hasEventsSetting.get(),
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationCommentsOnDraft: {
+    label: "Comments on unpublished draft posts I've shared",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPostsNominatedReview: {
@@ -1468,11 +1503,11 @@ addFieldsDict(Users, {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
   },
+  // This is deprecated.
   reenableDraftJs: {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",

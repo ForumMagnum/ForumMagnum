@@ -71,8 +71,7 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     petrovPressedButtonDate
-    sortDrafts
-    reenableDraftJs
+    sortDraftsBy
     ...SunshineUsersList
     ...SharedUserBooleans
     noindex
@@ -104,6 +103,9 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsIncludeEvents
     allPostsOpenSettings
+    draftsListSorting
+    draftsListShowArchived
+    draftsListShowShared
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
@@ -166,9 +168,8 @@ registerFragment(`
     abTestKey
     abTestOverrides
 
-    sortDrafts
+    sortDraftsBy
 
-    reenableDraftJs
     petrovPressedButtonDate
     petrovLaunchCodeDate
     lastUsedTimezone
@@ -278,6 +279,7 @@ registerFragment(`
     biography {
       ...RevisionEdit
     }
+    beta
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -353,6 +355,7 @@ registerFragment(`
     notificationAlignmentSubmissionApproved
     notificationEventInRadius
     notificationRSVPs
+    notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
 

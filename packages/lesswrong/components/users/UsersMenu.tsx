@@ -15,6 +15,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
+import EditIcon from '@material-ui/icons/Edit'
 import ExtensionIcon from '@material-ui/icons/Extension';
 
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -138,6 +139,14 @@ const UsersMenu = ({classes}: {
             { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
+            <Link to={'/drafts'}>
+              <MenuItem>
+                <ListItemIcon>
+                  <EditIcon className={classes.icon}/>
+                </ListItemIcon>
+                My Drafts
+              </MenuItem>
+            </Link>
             {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
               <MenuItem>
                 <ListItemIcon>

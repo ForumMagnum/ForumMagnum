@@ -413,6 +413,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   datePicker: {
     selectedDate: "#428bca",
   },
+  editor: {
+    commentPanelBackground: "#ffffff",
+    sideCommentEditorBackground: "#f3f7fb",
+    commentMarker: "#fef7a9",
+    commentMarkerActive: "#fdf05d",
+  },
   
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
