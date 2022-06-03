@@ -1918,6 +1918,29 @@ interface UserVotes { // fragment on Votes
   readonly collectionName: string,
 }
 
+interface PollsDefaultFragment { // fragment on Polls
+  readonly createdAt: Date,
+  readonly deleted: boolean,
+  readonly userId: string,
+  readonly contents: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly question: string,
+}
+
+interface PollsBase { // fragment on Polls
+  readonly _id: string,
+  readonly userId: string,
+  readonly question: string,
+  readonly contents: any /*{"definitions":[{"type":"JSON"}]}*/,
+}
+
+interface PollResponsesDefaultFragment { // fragment on PollResponses
+  readonly createdAt: Date,
+  readonly deleted: boolean,
+  readonly pollId: string,
+  readonly userId: string,
+  readonly response: any /*{"definitions":[{"type":"JSON"}]}*/,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -2073,6 +2096,9 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
+  PollsDefaultFragment: PollsDefaultFragment
+  PollsBase: PollsBase
+  PollResponsesDefaultFragment: PollResponsesDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -2220,8 +2246,11 @@ interface CollectionNamesByFragmentName {
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
+  PollsDefaultFragment: "Polls"
+  PollsBase: "Polls"
+  PollResponsesDefaultFragment: "PollResponses"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
+type CollectionNameString = "Bans"|"Books"|"Chapters"|"Collections"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"Notifications"|"PetrovDayLaunchs"|"PollResponses"|"Polls"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Users"|"Votes"
 

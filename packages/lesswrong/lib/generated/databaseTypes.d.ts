@@ -314,6 +314,30 @@ interface DbPetrovDayLaunch extends DbObject {
   userId: string
 }
 
+interface PollResponsesCollection extends CollectionBase<DbPollResponse, "PollResponses"> {
+}
+
+interface DbPollResponse extends DbObject {
+  __collectionName?: "PollResponses"
+  createdAt: Date
+  deleted: boolean
+  pollId: string
+  userId: string
+  response: any /*{"definitions":[{"type":"JSON"}]}*/
+}
+
+interface PollsCollection extends CollectionBase<DbPoll, "Polls"> {
+}
+
+interface DbPoll extends DbObject {
+  __collectionName?: "Polls"
+  createdAt: Date
+  deleted: boolean
+  userId: string
+  contents: any /*{"definitions":[{"type":"JSON"}]}*/
+  question: string
+}
+
 interface PostRelationsCollection extends CollectionBase<DbPostRelation, "PostRelations"> {
 }
 
@@ -866,6 +890,8 @@ interface CollectionsByName {
   Migrations: MigrationsCollection
   Notifications: NotificationsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
+  PollResponses: PollResponsesCollection
+  Polls: PollsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -901,6 +927,8 @@ interface ObjectsByCollectionName {
   Migrations: DbMigration
   Notifications: DbNotification
   PetrovDayLaunchs: DbPetrovDayLaunch
+  PollResponses: DbPollResponse
+  Polls: DbPoll
   PostRelations: DbPostRelation
   Posts: DbPost
   RSSFeeds: DbRSSFeed

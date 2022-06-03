@@ -152,6 +152,11 @@ import './collections/featuredResources/fragments'
 // Votes
 import './collections/votes';
 
+// Polls
+import './collections/polls/collection'
+import './collections/polls/fragments'
+import './collections/pollResponses/collection'
+
 // Internationalization
 import './i18n-en-us/en_US';
 
