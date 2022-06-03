@@ -339,10 +339,6 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
         throw new Error("You cannot publicly delete a comment without also deleting it")
       }
 
-      if (deletedPublic && !deletedReason) {
-        throw new Error("Publicly deleted comments need to have a deletion reason");
-      }
-
       if (
         (comment.deleted || comment.deletedPublic) &&
         (deletedPublic || deletedReason) &&

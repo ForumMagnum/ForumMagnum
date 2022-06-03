@@ -41,6 +41,9 @@ registerFragment(`
     howICanHelpOthers {
       html
     }
+    organizerOfGroups {
+      ...localGroupsBase
+    }
     website
     linkedinProfileURL
     facebookProfileURL
@@ -273,7 +276,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
-    beta
+    biography {
+      ...RevisionEdit
+    }
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -400,6 +405,10 @@ registerFragment(`
     }
     howICanHelpOthers {
       ...RevisionEdit
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
     }
     mapLocation
     website
