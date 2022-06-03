@@ -9,10 +9,11 @@ import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceS
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    padding: 10,
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
     display: 'flex',
     alignItems: 'center',
-    borderBottom: theme.palette.border.faint
   },
   name: {
     ...theme.typography.body2,
