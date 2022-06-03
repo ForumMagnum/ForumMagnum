@@ -279,7 +279,6 @@ registerFragment(`
     biography {
       ...RevisionEdit
     }
-    beta
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
