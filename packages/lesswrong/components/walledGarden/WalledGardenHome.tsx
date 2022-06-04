@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     background: theme.palette.primary.main,
     borderRadius: 3,
-    color: "white",
+    color: theme.palette.text.invertedBackgroundText,
     display: "block",
     width: 300,
     padding: 16,
