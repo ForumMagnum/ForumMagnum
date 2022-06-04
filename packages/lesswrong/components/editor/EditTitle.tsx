@@ -11,7 +11,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
     width: "100%",
-    color: 'red',
     resize: "none",
     textAlign: "left",
     marginTop: 0,
