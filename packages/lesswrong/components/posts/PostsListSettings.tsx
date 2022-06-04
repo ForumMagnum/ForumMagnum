@@ -11,11 +11,11 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 import { timeframes as defaultTimeframes } from './AllPostsPage'
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
+import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/schema';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 
-const FILTERS_ALL: ForumOptions<Partial<Record<Filters, {label: string, tooltip: string}>>> = {
+const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   "AlignmentForum": {
     all: {
       label: "All Posts",
@@ -24,11 +24,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, {label: string, tooltip:
     questions: {
       label: "Questions",
       tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
-    },
-    meta: {
-      label: "Meta",
-      tooltip: "Posts relating to LessWrong itself"
-    },
+    }
   },
   "LessWrong": {
     all: {
@@ -50,11 +46,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, {label: string, tooltip:
     events: {
       label: "Events",
       tooltip: "Events from around the world."
-    },
-    meta: {
-      label: "Meta",
-      tooltip: "Posts relating to LessWrong itself"
-    },
+    }
   },
   "EAForum": {
     all: {
@@ -211,7 +203,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
   timeframes?: any,
-  sortings?: any,
+  sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
   classes: ClassesType,
 }) => {

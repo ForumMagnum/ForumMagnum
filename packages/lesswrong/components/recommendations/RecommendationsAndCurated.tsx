@@ -9,7 +9,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-export const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
+export const curatedUrl = "/recommendations"
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -92,7 +92,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip } = Components;
+    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -165,7 +165,7 @@ const RecommendationsAndCurated = ({
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
-          {/* <AnalyticsContext listContext={"curatedPosts"}>
+          <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
@@ -174,7 +174,7 @@ const RecommendationsAndCurated = ({
               boxShadow={false}
               curatedIconLeft={true}
             />
-          </AnalyticsContext> */}
+          </AnalyticsContext>
         </div>
       </div>
 

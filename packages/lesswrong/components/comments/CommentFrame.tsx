@@ -74,7 +74,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   hoverPreview: {
-    marginBottom: 0
+    '&&': {
+      marginBottom: 0
+    }
   },
   moderatorHat: {
     "&.comments-node-even": {

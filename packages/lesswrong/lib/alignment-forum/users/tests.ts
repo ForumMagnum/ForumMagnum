@@ -5,17 +5,6 @@ testStartup();
 
 describe('alignment updateUser – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
-  it("fails when alignmentForumAdmin updates another user's bio", async () => {
-    const user = await createDummyUser()
-    const alignmentAdmin = await createDummyUser({groups:['alignmentForumAdmins']})
-    await userUpdateFieldFails({
-      user:alignmentAdmin,
-      document:user,
-      fieldName:'bio',
-      collectionType:'User'
-    })
-    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
-  });
   it("succeeds when alignmentForumAdmin updates user's reviewForAlignmentForumUserId", async () => {
     const user = await createDummyUser()
     const alignmentAdmin = await createDummyUser({groups:['alignmentForumAdmins']})

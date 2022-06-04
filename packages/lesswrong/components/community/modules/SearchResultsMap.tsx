@@ -7,7 +7,6 @@ import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
-import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Hit } from 'react-instantsearch-core';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -116,7 +115,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, classes}: {
           {(activeResultId === hit._id) && <StyledMapPopup
             lat={markerLocations[hit._id].lat}
             lng={markerLocations[hit._id].lng}
-            link={userGetProfileUrl(hit)}
+            link={`/users/${hit.slug}?from=community_members_tab`}
             title={hit.displayName}
             onClose={() => setActiveResultId('')}
             hideBottomLinks
