@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,11 +34,15 @@ const AnswersList = ({post, classes}: {
   post: PostsList,
   classes: ClassesType,
 }) => {
+  const location = useLocation();
+  const { query } = location;
+  const sortBy = query.answersSorting || "top";
   const { results } = useMulti({
     terms: {
       view: "questionAnswers",
       postId: post._id,
-      limit: MAX_ANSWERS_QUERIED
+      limit: MAX_ANSWERS_QUERIED,
+      sortBy
     },
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -48,7 +53,7 @@ const AnswersList = ({post, classes}: {
 
   if (results && results.length) {
     return <div className={classes.root}>
-      <SectionTitle title={<span>{ results.length } Answers</span>}/>
+      <SectionTitle title={<span>{ results.length } Answers, sorted by <Components.AnswersSorting post={post}/></span>}/>
 
       <div className={classes.answersList}>
         { results.map((comment, i) => {

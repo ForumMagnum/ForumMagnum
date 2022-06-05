@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
 import { Comments } from '../lib/collections/comments/collection';
-import { questionAnswersSort } from '../lib/collections/comments/views';
+import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
@@ -10,6 +10,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './resolvers/tagResolvers';
 import { annotateAuthors } from './attributeEdits';
+import { useLocation } from '../lib/routeUtil';
 
 export interface ToCSection {
   title?: string
@@ -206,7 +207,10 @@ async function getTocAnswers (document: DbPost) {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     answersTerms.af = true
   }
-  const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
+  const location = useLocation();
+  const { query } = location;
+  const sortOrder = query?.answersSorting || "top";
+  const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings[sortOrder]}).fetch()
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
