@@ -639,13 +639,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentIncludeEvents={currentIncludeEvents}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
+              {user.shortformFeedId && <Components.ProfileShortform user={user}/>}
               <PostsList2 terms={terms} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
             (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
                 view: 'userActiveGroups',
-                userId: user?._id,
+                userId: user._id,
                 limit: 300
               }} heading="Organizer of" showNoResults={false} />
           }
