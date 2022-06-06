@@ -12,6 +12,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { defaultVisibilityTags } from '../../lib/publicSettings';
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -102,10 +103,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
-  if (mode === "TagDefault" && tag?.defaultFilterMode !== null && tag?.defaultFilterMode !== undefined) {
-    // Casting because the generated type does not realize the schema constrains
-    // it to be one of the FilterMode values
-    mode = tag.defaultFilterMode as FilterMode
+  if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
+    // We just found it, it's guaranteed to be in the defaultVisibilityTags list
+    mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
   }
   const reducedName = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : "0.5x"
   const reducedVal = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : 0.5

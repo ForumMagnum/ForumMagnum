@@ -14,7 +14,6 @@ registerFragment(`
     createdAt
     wikiOnly
     deleted
-    defaultFilterMode
   }
 `);
 

@@ -22,10 +22,16 @@ export const FILTER_MODE_CHOICES = [
 ] as const;
 export type FilterMode = typeof FILTER_MODE_CHOICES[number]|"TagDefault"|number
 
-export const getDefaultFilterSettings = (): FilterSettings => ({
-  personalBlog: "Hidden",
-  tags: defaultVisibilityTags.get(),
-})
+export const getDefaultFilterSettings = (): FilterSettings => {
+  return {
+    personalBlog: "Hidden",
+    // Default visibility tags are always set with "TagDefault" until the user
+    // changes them. But the filter mode in default visibility tags is used as
+    // that default. That way, if it gets updated, we don't need to run a
+    // migration to update the users.
+    tags: defaultVisibilityTags.get().map(tf => ({...tf, filterMode: "TagDefault"})),
+  }
+}
 
 const addSuggestedTagsToSettings = (oldFilterSettings: FilterSettings, suggestedTags: Array<TagPreviewFragment>): FilterSettings => {
   const tagsIncluded: Record<string,boolean> = {};

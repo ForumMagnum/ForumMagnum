@@ -1,10 +1,10 @@
 import moment from 'moment';
 import * as _ from 'underscore';
-import { getTagDefaultWeights } from '../../../server/defaultTagWeights/cache';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
+import { defaultVisibilityTags } from '../../publicSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -313,11 +313,12 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
   
+  // We get the default tag relevance from the database config
   const tagsSoftFilteredDefaultWeights: FilterTag[] = tagsSoftFiltered.map(t =>
     t.filterMode === "TagDefault" ? {
       tagId: t.tagId,
       tagName: t.tagName,
-      filterMode: getTagDefaultWeights()[t.tagId]
+      filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
     } :
     t
   )
