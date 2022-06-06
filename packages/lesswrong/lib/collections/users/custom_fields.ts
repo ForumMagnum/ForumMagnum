@@ -12,6 +12,7 @@ import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
+import uniqBy from 'lodash/uniqBy'
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -534,6 +535,42 @@ addFieldsDict(Users, {
     optional: true
   },
   "bookmarkedPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
+    optional: true
+  },
+
+  // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
+  // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead
+  // model this closer to ReadStatuses: an object per hidden thread + user pair, and exposing the hidden status
+  // as a property on thread. 
+  //
+  // That said, this is likely fine given this is a power use feature, but if it ever gives anyone any problems
+  // feel free to change it!
+  hiddenPostsMetadata: {
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.hiddenPostsMetadata) {
+        return uniqBy(data?.hiddenPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "hiddenPostsMetadata",
+      resolverName: "hiddenPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "hiddenPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "hiddenPostsMetadata.$.postId": {
     type: String,
     foreignKey: "Posts",
     optional: true
