@@ -328,7 +328,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
           "$baseScore",
           ...tagsSoftFilteredDefaultWeights.map(t => (
             {$cond: {
-              if: {$gte: ["$tagRelevance."+t.tagId, 0]},
+              if: {$gt: ["$tagRelevance."+t.tagId, 0]},
               then: filterModeToAdditiveKarmaModifier(t.filterMode),
               else: 0
             }}
@@ -338,7 +338,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
         ]},
         ...tagsSoftFilteredDefaultWeights.map(t => (
           {$cond: {
-            if: {$gte: ["$tagRelevance."+t.tagId, 0]},
+            if: {$gt: ["$tagRelevance."+t.tagId, 0]},
             then: filterModeToMultiplicativeKarmaModifier(t.filterMode),
             else: 1
           }}
@@ -358,23 +358,21 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
 }
 
 function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number" && (mode < 0 || 1 < mode)) {
+  if (typeof mode === "number" && (mode <= 0 || 1 <= mode)) {
     return mode;
   } else switch(mode) {
     default:
     case "Default": return 0;
-    case "Subscribed": return 25;
-    case "Required": return 1000;
+    case "Subscribed": return 50;
   }
 }
 
 function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number" && 0 < mode && mode <= 1) {
+  if (typeof mode === "number" && 0 < mode && mode < 1) {
     return mode;
   } else switch(mode) {
     default:
     case "Default": return 1;
-    case "Hidden": return 0.000001;
     case "Reduced": return 0.5;
   }
 }
