@@ -256,7 +256,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         <SearchResultsMap {...mapOptions} />
       </div>
     </div>
-    <Configure hitsPerPage={200} {...searchOptions} />
+    <Configure hitsPerPage={200} aroundRadius="all" {...searchOptions} />
   </InstantSearch>
 }
 
