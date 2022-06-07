@@ -723,10 +723,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Walled Garden Portal',
       path: '/walledGardenPortal',
-      componentName: 'WalledGardenPortal',
-      title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle,
-      disableAutoRefresh: true,
+      redirect: () => `/walledGarden`,
     },
     {
       name: 'HPMOR.posts.single',
