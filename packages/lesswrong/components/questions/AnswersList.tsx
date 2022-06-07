@@ -15,13 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit*5,
     paddingBottom: theme.spacing.unit*2,
   },
-  answerCount: {
-    ...theme.typography.postStyle,
-    marginBottom: theme.spacing.unit*2,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: "auto",
-      marginRight: "auto"
-    }
+  answersSorting:{
+    ...theme.typography.body1,
+    color: theme.palette.text.secondary,
   },
   loading: {
     opacity: .5,
@@ -49,11 +45,14 @@ const AnswersList = ({post, classes}: {
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
-  const { Answer, SectionTitle } = Components
+  const { Answer, SectionTitle, AnswersSorting } = Components
 
   if (results && results.length) {
     return <div className={classes.root}>
-      <SectionTitle title={<span>{ results.length } Answers, sorted by <Components.AnswersSorting post={post}/></span>}/>
+      <SectionTitle title={
+        <div><span>{ results.length } Answers </span>
+        <span className={classes.answersSorting}>sorted by <AnswersSorting post={post}/></span>
+      </div>}/>
 
       <div className={classes.answersList}>
         { results.map((comment, i) => {

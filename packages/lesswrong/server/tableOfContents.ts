@@ -10,11 +10,19 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './resolvers/tagResolvers';
 import { annotateAuthors } from './attributeEdits';
-import { useLocation } from '../lib/routeUtil';
+
+export interface ToCAnswer {
+  baseScore: number,
+  voteCount: number,
+  postedAt: Date | string, // Date on server, string on client
+  author: string,
+  highlight: string, 
+  shortHighlight: string,
+} 
 
 export interface ToCSection {
   title?: string
-  answer?: any
+  answer?: ToCAnswer
   anchor: string
   level: number
   divider?: boolean,
@@ -207,10 +215,7 @@ async function getTocAnswers (document: DbPost) {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     answersTerms.af = true
   }
-  const location = useLocation();
-  const { query } = location;
-  const sortOrder = query?.answersSorting || "top";
-  const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings[sortOrder]}).fetch()
+  const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)

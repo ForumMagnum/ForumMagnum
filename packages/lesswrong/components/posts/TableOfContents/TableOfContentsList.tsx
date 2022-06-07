@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useNavigation } from '../../../lib/routeUtil';
-import type { ToCData } from '../../../server/tableOfContents';
+import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import type { ToCData, ToCSection } from '../../../server/tableOfContents';
 
 const topSection = "top";
 
@@ -12,6 +12,27 @@ const isRegularClick = (ev: React.MouseEvent) => {
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
 }
 
+const sectionsWithAnswersSorted = (sections: ToCSection[], sorting: "newest" | "oldest") => {
+  const startIndex = sections.findIndex((section) => section.anchor === "answers");
+  const endIndex = sections.findIndex((section) => section.anchor === "postAnswersDivider");
+  if (startIndex === -1 || endIndex === -1) {
+    return sections;
+  }
+
+  const sign = sorting === "newest" ? 1 : -1;
+  const sortedAnswers = sections.slice(startIndex + 1, endIndex).sort((section1, section2) => {
+    const value1 = section1.answer?.postedAt || "";
+    const value2 = section2.answer?.postedAt || "";
+    if (value1 < value2) { return sign; }
+    if (value1 > value2) { return -sign; }
+    return 0;
+  });
+
+  return sections.slice(0, startIndex + 1)
+    .concat(sortedAnswers)
+    .concat(sections.slice(endIndex))
+};
+
 const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: {
   sectionData: ToCData,
   title: string|null,
@@ -19,8 +40,9 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
   drawerStyle: boolean,
 }) => {
   const [currentSection,setCurrentSection] = useState<string|null>(topSection);
-  const [drawerOpen,setDrawerOpen] = useState(false);
   const { history } = useNavigation();
+  const location = useLocation();
+  const { query } = location;
 
   useEffect(() => {
     window.addEventListener('scroll', updateHighlightedSection);
@@ -130,6 +152,12 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
     jumpToSection();
   }
   
+  let sections = sectionData.sections;
+  const answersSorting = query?.answersSorting;
+  if (answersSorting === "newest" || answersSorting === "oldest") {
+    sections = sectionsWithAnswersSorted(sectionData.sections, answersSorting);
+  }
+
   return <div>
     <TableOfContentsRow key="postTitle"
       href="#"
@@ -147,7 +175,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
       {title?.trim()}
     </TableOfContentsRow>
     
-    {sectionData.sections.map((section, index) => {
+    {sections.map((section, index) => {
       return (
         <TableOfContentsRow
           key={section.anchor}

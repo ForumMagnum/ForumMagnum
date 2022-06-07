@@ -6,10 +6,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import qs from 'qs'
 import * as _ from 'underscore';
 
-export const sortingNames: Record<string, string> = {
-    'top': 'top scoring',
-    'newest': 'newest',
-    'oldest': 'oldest',
+export const sortingNames = {
+  'top': 'top scoring',
+  'newest': 'newest',
+  'oldest': 'oldest',
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -46,8 +46,8 @@ const AnswersSorting = ({ post, classes }: {
         setAnchorEl(null);
     }
 
-    let sortings: Array<string> = [...Object.keys(sortingNames)];
-    const currentSorting: string = query?.answersSorting || "top";
+    let sortings = [...Object.keys(sortingNames)];
+    const currentSorting = query?.answersSorting || "top";
 
     return <div className={classes.root}>
         <a className={classes.link} onClick={handleClick}>
@@ -58,7 +58,7 @@ const AnswersSorting = ({ post, classes }: {
             open={Boolean(anchorEl)}
             onClose={handleClose}
         >
-            {sortings.map((sorting: string) => {
+            {sortings.map((sorting) => {
                 return <MenuItem key={sorting} onClick={() => handleSortingClick(sorting)} >
                     {sortingNames[sorting]}
                 </MenuItem>
