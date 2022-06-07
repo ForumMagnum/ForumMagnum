@@ -41,6 +41,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     marginRight: 6
   },
+  locationFilter: {
+    flexGrow: 1
+  },
+  fullMapLink: {
+    color: theme.palette.primary.main,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    margin: '0 5px'
+  },
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',
@@ -127,10 +136,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   messageBtn: {
     boxShadow: 'none'
   },
-  map: {
+  mapContainer: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+  },
+  map: {
+    height: 440,
   },
   pagination: {
     ...theme.typography.commentStyle,
@@ -243,7 +255,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   >
     <div className={classes.filters}>
       <CustomSearchBox />
-      {locationFilterNode}
+      <div className={classes.locationFilter}>{locationFilterNode}</div>
+      <Link to="/community/map" className={classes.fullMapLink}>View full map</Link>
     </div>
     <div className={classes.people}>
       <div className={classes.peopleList}>
@@ -251,9 +264,9 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         <Hits hitComponent={CommunityMember} />
         <Pagination className={classes.pagination} />
       </div>
-      <div className={classes.map}>
+      <div className={classes.mapContainer}>
         {/* search result hits are provided by InstantSearch, which is probably a provider */}
-        <SearchResultsMap {...mapOptions} />
+        <SearchResultsMap {...mapOptions} className={classes.map} />
       </div>
     </div>
     <Configure hitsPerPage={200} aroundRadius="all" {...searchOptions} />
