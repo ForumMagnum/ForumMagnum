@@ -643,6 +643,10 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Edit Profile',
       background: 'white',
     },
+    {
+      name: 'EAGApplicationData',
+      path: '/api/eag-application-data'
+    }
   ],
   LessWrong: [
     {

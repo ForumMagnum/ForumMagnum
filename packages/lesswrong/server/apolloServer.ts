@@ -35,6 +35,8 @@ import expressSession from 'express-session';
 import MongoStore from 'connect-mongo'
 import { ckEditorTokenHandler } from './ckEditorToken';
 import { getMongoClient } from '../lib/mongoCollection';
+import { getEAGApplicationData } from './zohoUtils';
+import { forumTypeSetting } from '../lib/instanceSettings';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -187,6 +189,23 @@ export function startWebserver() {
     passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
   }));
   
+  app.get('/api/eag-application-data', async function(req, res, next) {
+    if (forumTypeSetting.get() !== 'EAForum') {
+      next()
+      return
+    }
+    
+    const currentUser = await getUserFromReq(req)
+    // console.log(currentUser)
+  
+    if (!currentUser || !currentUser.email) {
+      res.status(403).send("Not logged in or current user has no email address")
+      return
+    }
+    
+    const eagApp = await getEAGApplicationData(currentUser.email)
+    res.send(eagApp)
+  })
 
   app.get('*', async (request, response) => {
     const renderResult = await renderWithCache(request, response);
