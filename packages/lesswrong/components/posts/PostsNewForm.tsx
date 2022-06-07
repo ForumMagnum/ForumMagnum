@@ -2,6 +2,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -91,9 +92,35 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const prefillFromTemplate = (template) => {
-  // TODO only include required fields
-  return {...template}
+const prefillFromTemplate = (template: PostsEdit) => {
+  return pick(
+    template,
+    [
+      "contents",
+      "activateRSVPs",
+      "location",
+      "googleLocation",
+      "onlineEvent",
+      "globalEvent",
+      "startTime",
+      "endTime",
+      "localStartTime",
+      "localEndTime",
+      "eventRegistrationLink",
+      "joinEventLink",
+      "facebookLink",
+      "meetupLink",
+      "website",
+      "contactInfo",
+      "isEvent",
+      "eventImageId",
+      "eventType",
+      "types",
+      "groupId",
+      "group",
+      "title",
+      "af",
+  ])
 }
 
 const PostsNewForm = ({classes}: {
