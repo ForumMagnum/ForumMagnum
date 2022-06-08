@@ -17,6 +17,7 @@ module.exports = {
     "allowImportExportEverywhere": true,
     "ecmaVersion": 6,
     "sourceType": "module",
+    "tsconfigRootDir": "lesswrong2",
     "project": "./tsconfig.json",
   },
   "rules": {

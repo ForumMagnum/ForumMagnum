@@ -134,7 +134,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 const tooltips: Partial<Record<string,string>> = {
   'LW': "This is a LessWrong group",
   'EA': "This is an Effective Altruism group",
-  'SSC': "This is a Slate Star Codex group",
+  'ACX': "This is an Astral Codex Ten group",
   'MIRIx': "This is a MIRIx group"
 }
 

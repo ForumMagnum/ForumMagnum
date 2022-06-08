@@ -6,8 +6,8 @@ export const groupTypes = [
     longName: "LessWrong",
   },
   {
-    shortName: "SSC",
-    longName: "Slate Star Codex",
+    shortName: "ACX",
+    longName: "Astral Codex Ten",
   },
   {
     shortName: "EA",

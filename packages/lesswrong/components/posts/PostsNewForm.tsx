@@ -121,7 +121,7 @@ const PostsNewForm = ({classes}: {
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
-    types: query && query.ssc ? ['SSC'] : [],
+    types: query && query.acx ? ['ACX'] : [],
     meta: query && !!query.meta,
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
