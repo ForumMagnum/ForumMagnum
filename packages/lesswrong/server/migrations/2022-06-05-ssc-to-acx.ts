@@ -6,8 +6,8 @@ registerMigration({
   dateWritten: "2022-06-05",
   idempotent: true,
   action: async () => {
-    console.log("ASDF")
-    console.log(await Posts.find({types:{$in:["SSC"]}}))
+    const total = await Posts.find({types:{$in:["SSC"]}}).count()
+    console.log("total: ", total)
 
     const countSSC = await Posts.find({types:["SSC"]}).count()
     
