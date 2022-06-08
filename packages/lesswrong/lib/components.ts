@@ -245,6 +245,7 @@ importComponent("RepliesToCommentList", () => require('../components/shortform/R
 importComponent("NewShortformDialog", () => require('../components/shortform/NewShortformDialog'));
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
+importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
 
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
 importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
@@ -279,6 +280,7 @@ importComponent("CommunityBanner", () => require('../components/community/module
 importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
 importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
 importComponent("CommunityMembers", () => require('../components/community/modules/CommunityMembers'));
+importComponent("CommunityMembersFullMap", () => require('../components/community/modules/CommunityMembersFullMap'));
 importComponent("DistanceUnitToggle", () => require('../components/community/modules/DistanceUnitToggle'));
 importComponent("SearchResultsMap", () => require('../components/community/modules/SearchResultsMap'));
 // this is the previous Community page, used by LW

@@ -630,6 +630,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       ...communitySubtitle
     },
     {
+      name: 'CommunityMembersFullMap',
+      path: '/community/map',
+      componentName: 'CommunityMembersFullMap',
+      title: 'Community Members',
+      ...communitySubtitle
+    },
+    {
       name: 'EditMyProfile',
       path: '/profile/edit',
       componentName: 'EditProfileForm',
@@ -720,10 +727,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Walled Garden Portal',
       path: '/walledGardenPortal',
-      componentName: 'WalledGardenPortal',
-      title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle,
-      disableAutoRefresh: true,
+      redirect: () => `/walledGarden`,
     },
     {
       name: 'HPMOR.posts.single',

@@ -32,4 +32,5 @@ onStartup(() => {
     apolloClient.disableNetworkFetches = false;
     timeOverride.currentTime = null;
   }, 0);
-});
+// Order 100 to make this execute last
+}, 100);

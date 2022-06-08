@@ -140,6 +140,12 @@ export const darkModeTheme: UserThemeSpecification = {
     },
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
+    postImageStyles: {
+      // Override image background color to white (so that transparent isn't
+      // black). Necessary because there are a handful of posts with images that
+      // have black-on-transparent text in them.
+      background: "#ffffff",
+    },
     rawCSS: [
       safeColorFallbacks,
       generateColorOverrides()
