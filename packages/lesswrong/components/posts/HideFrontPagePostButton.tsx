@@ -24,12 +24,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 const HideFrontPagePostButton = ({post}: {
   post: PostsBase,
 }) => {
-  const currentUser = useCurrentUser()
-  if (!currentUser) {
-    return null;
-  }
 
-  const [hidden, setHiddenState] = useState(map((currentUser.hiddenPostsMetadata || []), 'postId')?.includes(post._id))
+  const currentUser = useCurrentUser()
+  const [hidden, setHiddenState] = useState(map((currentUser?.hiddenPostsMetadata || []), 'postId')?.includes(post._id))
   const { captureEvent } = useTracking()
 
   const [setIsHiddenMutation] = useMutation(gql`
@@ -40,6 +37,10 @@ const HideFrontPagePostButton = ({post}: {
     }
     ${fragmentTextForQuery("UsersCurrent")}
   `);
+
+  if (!currentUser) {
+    return null;
+  }
 
   const toggleShown = (event: React.MouseEvent) => {
     const isHidden = !hidden;
