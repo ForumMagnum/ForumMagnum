@@ -64,7 +64,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
         { currentUser.groups?.includes('alignmentForumAdmins') && <div>
           <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
           <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
-          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
+          <AFSuggestUsersList />
         </div>}
       </div>}
 
@@ -87,7 +87,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
 
         {/* regular admins (but not sunshines) see AF content below the fold */}
         { userIsAdmin(currentUser) && <div>
-          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers", limit: 100}}/>
+          <AFSuggestUsersList />
           <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
           <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
         </div>}
