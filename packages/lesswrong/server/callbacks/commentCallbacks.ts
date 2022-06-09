@@ -14,6 +14,7 @@ import { recalculateAFCommentMetadata } from './alignment-forum/alignmentComment
 import { newDocumentMaybeTriggerReview } from './postCallbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { ensureIndex } from '../../lib/collectionUtils';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -199,6 +200,7 @@ getCollectionHooks("Comments").newValidate.add(async function CommentsNewRateLim
   return comment;
 });
 
+ensureIndex(Comments, { userId: 1, createdAt: 1 });
 
 //////////////////////////////////////////////////////
 // LessWrong callbacks                              //
@@ -335,10 +337,6 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
     if (deleted || deletedPublic || deletedReason) {
       if (deletedPublic && !deleted) {
         throw new Error("You cannot publicly delete a comment without also deleting it")
-      }
-
-      if (deletedPublic && !deletedReason) {
-        throw new Error("Publicly deleted comments need to have a deletion reason");
       }
 
       if (

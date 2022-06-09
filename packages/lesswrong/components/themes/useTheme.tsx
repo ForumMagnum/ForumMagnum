@@ -21,12 +21,12 @@ export const useSetTheme = () => {
   return themeContext.setThemeOptions;
 }
 
-export const ThemeContextProvider = ({options, sheetsManager, children}: {
+export const ThemeContextProvider = ({options, children}: {
   options: ThemeOptions,
-  sheetsManager?: any,
   children: React.ReactNode,
 }) => {
   const [themeOptions,setThemeOptions] = useState(options);
+  const [sheetsManager] = useState(new Map());
   const theme: any = useMemo(() => 
     getForumTheme(themeOptions),
     [themeOptions]
