@@ -548,6 +548,7 @@ importComponent("FormSubmit", () => require('../components/form-components/FormS
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
 importComponent("SingleUsersItemWrapper", () => require('../components/form-components/SingleUsersItemWrapper'));
 importComponent("UsersListEditor", () => require('../components/form-components/UsersListEditor'));
+importComponent("CoauthorsListEditor", () => require('../components/form-components/CoauthorsListEditor'));
 importComponent("MuiInput", () => require('../components/form-components/MuiInput'));
 importComponent("LocationFormComponent", () => require('../components/form-components/LocationFormComponent'));
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));

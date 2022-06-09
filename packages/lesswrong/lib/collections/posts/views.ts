@@ -397,7 +397,7 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
       hiddenRelatedQuestion: viewFieldAllowAny,
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
-      $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
+      $or: [{userId: terms.userId}, {"coauthorStatuses.userId": terms.userId}],
     },
     options: {
       limit: 5,
@@ -413,9 +413,9 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
 //   }
 // );
 ensureIndex(Posts,
-  augmentForDefaultView({ coauthorUserIds: 1, postedAt: -1, }),
+  augmentForDefaultView({ 'coauthorStatuses.userId': 1, userId: 1, postedAt: -1 }),
   {
-    name: "posts.coauthorUserIds_postedAt",
+    name: "posts.coauthorStatuses_postedAt",
   }
 );
 
@@ -659,7 +659,11 @@ Posts.addView("drafts", (terms: PostsViewTerms) => {
   let query = {
     selector: {
       userId: viewFieldAllowAny,
-      $or: [{userId: terms.userId}, {shareWithUsers: terms.userId}],
+      $or: [
+        {userId: terms.userId},
+        {shareWithUsers: terms.userId},
+        {"coauthorStatuses.userId": terms.userId},
+      ],
       draft: true,
       deletedDraft: false,
       hideAuthor: false,
