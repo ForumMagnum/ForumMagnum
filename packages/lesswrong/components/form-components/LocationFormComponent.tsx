@@ -132,7 +132,7 @@ export const useGoogleMaps = (): [boolean, any] => {
 const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
   document: any,
   path: string,
-  label: string,
+  label?: string,
   value: string,
   updateCurrentValues: any,
   stringVersionFieldName?: string|null,
@@ -172,7 +172,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
 
   if (document && mapsLoaded) {
     return <div className={classes.root}>
-      {value && <FormLabel className={classes.label}>{label}</FormLabel>}
+      {value && label && <FormLabel className={classes.label}>{label}</FormLabel>}
       <Geosuggest
         placeholder={label}
         onChange={handleCheckClear}

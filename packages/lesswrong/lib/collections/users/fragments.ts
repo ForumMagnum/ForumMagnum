@@ -41,6 +41,7 @@ registerFragment(`
     howICanHelpOthers {
       html
     }
+    organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
     }

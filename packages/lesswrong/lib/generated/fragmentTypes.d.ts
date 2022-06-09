@@ -1569,6 +1569,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly biography: RevisionDisplay|null,
   readonly howOthersCanHelpMe: UsersProfile_howOthersCanHelpMe|null,
   readonly howICanHelpOthers: UsersProfile_howICanHelpOthers|null,
+  readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly website: string,
   readonly linkedinProfileURL: string,
@@ -1747,6 +1748,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
 }
 
 interface UsersEdit extends UsersProfile { // fragment on Users
+  readonly biography: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
   readonly hideElicitPredictions: boolean,
