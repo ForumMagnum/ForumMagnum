@@ -390,7 +390,7 @@ Posts.addView("userPosts", (terms: PostsViewTerms) => {
 //   }
 // );
 ensureIndex(Posts,
-  augmentForDefaultView({ coauthorStatuses: 1, postedAt: -1, }),
+  augmentForDefaultView({ 'coauthorStatuses.userId': 1, userId: 1, postedAt: -1 }),
   {
     name: "posts.coauthorStatuses_postedAt",
   }

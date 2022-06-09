@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.grey400,
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: '16px 19px',
-    marginTop: '-8px',
+    marginBottom: 32, // NB: This will margin-collapse with the top margin of the next field
     animation: 'reveal-url-footer 0.2s ease 0s',
     transformOrigin: 'top left',
   },
