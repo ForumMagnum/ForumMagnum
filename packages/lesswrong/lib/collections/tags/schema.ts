@@ -10,7 +10,6 @@ import { captureException } from '@sentry/core';
 import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/schema';
 import omit from 'lodash/omit';
-import { FILTER_MODE_CHOICES } from '../../filterSettings';
 
 const formGroups: Partial<Record<string,FormGroup>> = {
   advancedOptions: {

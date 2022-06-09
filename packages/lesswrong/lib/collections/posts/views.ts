@@ -295,8 +295,17 @@ function buildInflationAdjustedField(): any {
 }
 
 function filterSettingsToParams(filterSettings: FilterSettings): any {
-  const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
-  const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
+  // We get the default tag relevance from the database config
+  const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
+    t.filterMode === "TagDefault" ? {
+      tagId: t.tagId,
+      tagName: t.tagName,
+      filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
+    } :
+    t
+  )
+  const tagsRequired = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
+  const tagsExcluded = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
@@ -309,25 +318,16 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
-  const tagsSoftFiltered = filterSettings.tags.filter(
+  const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
   
-  // We get the default tag relevance from the database config
-  const tagsSoftFilteredDefaultWeights: FilterTag[] = tagsSoftFiltered.map(t =>
-    t.filterMode === "TagDefault" ? {
-      tagId: t.tagId,
-      tagName: t.tagName,
-      filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
-    } :
-    t
-  )
   const syntheticFields = {
     score: {$divide:[
       {$multiply: [
         {$add:[
           "$baseScore",
-          ...tagsSoftFilteredDefaultWeights.map(t => (
+          ...tagsSoftFiltered.map(t => (
             {$cond: {
               if: {$gt: ["$tagRelevance."+t.tagId, 0]},
               then: filterModeToAdditiveKarmaModifier(t.filterMode),
@@ -337,7 +337,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
           ...defaultScoreModifiers(),
           ...frontpageSoftFilter,
         ]},
-        ...tagsSoftFilteredDefaultWeights.map(t => (
+        ...tagsSoftFiltered.map(t => (
           {$cond: {
             if: {$gt: ["$tagRelevance."+t.tagId, 0]},
             then: filterModeToMultiplicativeKarmaModifier(t.filterMode),
@@ -364,7 +364,7 @@ function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
   } else switch(mode) {
     default:
     case "Default": return 0;
-    case "Subscribed": return 50;
+    case "Subscribed": return 25;
   }
 }
 
