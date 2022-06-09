@@ -12,27 +12,6 @@ const isRegularClick = (ev: React.MouseEvent) => {
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
 }
 
-const sectionsWithAnswersSorted = (sections: ToCSection[], sorting: "newest" | "oldest") => {
-  const startIndex = sections.findIndex((section) => section.anchor === "answers");
-  const endIndex = sections.findIndex((section) => section.anchor === "postAnswersDivider");
-  if (startIndex === -1 || endIndex === -1) {
-    return sections;
-  }
-
-  const sign = sorting === "newest" ? 1 : -1;
-  const sortedAnswers = sections.slice(startIndex + 1, endIndex).sort((section1, section2) => {
-    const value1 = section1.answer?.postedAt || "";
-    const value2 = section2.answer?.postedAt || "";
-    if (value1 < value2) { return sign; }
-    if (value1 > value2) { return -sign; }
-    return 0;
-  });
-
-  return sections.slice(0, startIndex + 1)
-    .concat(sortedAnswers)
-    .concat(sections.slice(endIndex))
-};
-
 const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: {
   sectionData: ToCData,
   title: string|null,
@@ -153,6 +132,12 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
   }
   
   let sections = sectionData.sections;
+
+  // Since the Table of Contents data is sent as part of the post data and
+  // partially generated from the post html, changing the answers ordering
+  // in the ToC is not trivial to do via a graphql query.
+  // Separating the ToC part with answers would require some refactoring,
+  // but for now we can just sort the answers client side.
   const answersSorting = query?.answersSorting;
   if (answersSorting === "newest" || answersSorting === "oldest") {
     sections = sectionsWithAnswersSorted(sectionData.sections, answersSorting);
@@ -207,6 +192,37 @@ const TableOfContentsListComponent = registerComponent(
     hocs: [withErrorBoundary]
   }
 );
+
+
+/**
+ * Returns a shallow copy of the ToC sections with question answers sorted by date,
+ * without changing the position of other sections.
+ */
+const sectionsWithAnswersSorted = (
+  sections: ToCSection[],
+  sorting: "newest" | "oldest"
+) => {
+  const answersSectionsIndexes = sections
+    .map((section, index) => [section, index] as const)
+    .filter(([section, _]) => !!section.answer);
+  const originalIndexes = answersSectionsIndexes.map(([_, originalIndex]) => originalIndex);
+  const answersSections = answersSectionsIndexes.map(([section, _]) => section);
+
+  const sign = sorting === "newest" ? 1 : -1;
+  answersSections.sort((section1, section2) => {
+    const value1 = section1.answer?.postedAt || "";
+    const value2 = section2.answer?.postedAt || "";
+    if (value1 < value2) { return sign; }
+    if (value1 > value2) { return -sign; }
+    return 0;
+  });
+
+  const sortedSections = [...sections];
+  for (let [i, section] of answersSections.entries()) {
+    sortedSections[originalIndexes[i]] = section;
+  }
+  return sortedSections;
+};
 
 declare global {
   interface ComponentTypes {
