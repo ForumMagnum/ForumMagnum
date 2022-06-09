@@ -57,13 +57,13 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
-        <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+        <SunshineReportedContentList />
         <SunshineNewTagsList />
         
         {/* alignmentForumAdmins see AF content above the fold */}
         { currentUser.groups?.includes('alignmentForumAdmins') && <div>
-          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
+          <AFSuggestPostsList />
+          <AFSuggestCommentsList />
           <AFSuggestUsersList />
         </div>}
       </div>}
@@ -88,8 +88,8 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
         {/* regular admins (but not sunshines) see AF content below the fold */}
         { userIsAdmin(currentUser) && <div>
           <AFSuggestUsersList />
-          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
+          <AFSuggestPostsList />
+          <AFSuggestCommentsList />
         </div>}
       </div>}
 
