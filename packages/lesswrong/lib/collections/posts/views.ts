@@ -2,8 +2,9 @@ import moment from 'moment';
 import * as _ from 'underscore';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionUtils';
-import type { FilterMode, FilterSettings } from '../../filterSettings';
+import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting } from '../../instanceSettings';
+import { defaultVisibilityTags } from '../../publicSettings';
 import { defaultScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
@@ -197,7 +198,7 @@ Posts.addDefaultView((terms: PostsViewTerms) => {
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
-      syntheticFields: { ...params.synetheticFields, ...filterParams.syntheticFields },
+      syntheticFields: { ...params.syntheticFields, ...filterParams.syntheticFields },
     };
   }
   if (terms.sortedBy) {
@@ -248,7 +249,7 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
       softFilter: []
     }
   } else {
-    const personalBonus = filterModeToKarmaModifier(filterSettings.personalBlog)
+    const personalBonus = filterModeToAdditiveKarmaModifier(filterSettings.personalBlog)
     return {
       filter: {},
       softFilter: personalBonus ? [
@@ -291,8 +292,17 @@ function buildInflationAdjustedField(): any {
 }
 
 function filterSettingsToParams(filterSettings: FilterSettings): any {
-  const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
-  const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
+  // We get the default tag relevance from the database config
+  const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
+    t.filterMode === "TagDefault" ? {
+      tagId: t.tagId,
+      tagName: t.tagName,
+      filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
+    } :
+    t
+  )
+  const tagsRequired = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
+  const tagsExcluded = _.filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
@@ -305,30 +315,35 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
-  const tagsSoftFiltered = _.filter(filterSettings.tags, t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0));
-  let scoreExpr: any = null;
-  if (tagsSoftFiltered.length > 0 || frontpageSoftFilter.length > 0) {
-    scoreExpr = {
-      syntheticFields: {
-        score: {$divide:[
-          {$add:[
-            "$baseScore",
-            ...tagsSoftFiltered.map(t => ({
-              $multiply: [
-                filterModeToKarmaModifier(t.filterMode),
-                {$ifNull: [
-                  "$tagRelevance."+t.tagId,
-                  0
-                ]}
-              ]
-            })),
-            ...defaultScoreModifiers(),
-            ...frontpageSoftFilter,
-          ]},
-          timeDecayExpr()
-        ]}
-      },
-    };
+  const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
+    t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
+  );
+  
+  const syntheticFields = {
+    score: {$divide:[
+      {$multiply: [
+        {$add:[
+          "$baseScore",
+          ...tagsSoftFiltered.map(t => (
+            {$cond: {
+              if: {$gt: ["$tagRelevance."+t.tagId, 0]},
+              then: filterModeToAdditiveKarmaModifier(t.filterMode),
+              else: 0
+            }}
+          )),
+          ...defaultScoreModifiers(),
+          ...frontpageSoftFilter,
+        ]},
+        ...tagsSoftFiltered.map(t => (
+          {$cond: {
+            if: {$gt: ["$tagRelevance."+t.tagId, 0]},
+            then: filterModeToMultiplicativeKarmaModifier(t.filterMode),
+            else: 1
+          }}
+        )),
+      ]},
+      timeDecayExpr()
+    ]}
   }
   
   return {
@@ -336,21 +351,29 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
       ...frontpageFilter,
       ...tagsFilter
     },
-    ...scoreExpr,
+    syntheticFields,
   };
 }
 
-function filterModeToKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number") {
+function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === "number" && (mode <= 0 || 1 <= mode)) {
     return mode;
   } else switch(mode) {
     default:
     case "Default": return 0;
-    case "Hidden": return -100;
-    case "Required": return 100;
+    case "Subscribed": return 25;
   }
 }
 
+function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === "number" && 0 < mode && mode < 1) {
+    return mode;
+  } else switch(mode) {
+    default:
+    case "Default": return 1;
+    case "Reduced": return 0.5;
+  }
+}
 
 export function augmentForDefaultView(indexFields)
 {
