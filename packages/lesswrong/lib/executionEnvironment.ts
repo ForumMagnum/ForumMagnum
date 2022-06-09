@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 
 declare global {
   var bundleIsServer: boolean
@@ -13,9 +14,23 @@ export const isProduction = bundleIsProduction
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
 
-export const onStartupFunctions: Array<()=>void> = [];
-export const onStartup = (fn: ()=>void) => {
-  onStartupFunctions.push(fn);
+type StartupFunction = {
+  fn: ()=>void|Promise<void>,
+  order: number
+}
+const onStartupFunctions: StartupFunction[] = [];
+// Register a function to be executed on startup (after top-level import is
+// done). Startup functions have a numeric order attached, and are executed in
+// order from lowest to highest. If no order is given, the order is 0. Between
+// functions with the same order number, order of execution is undefined.
+export const onStartup = (fn: ()=>void|Promise<void>, order?: number) => {
+  onStartupFunctions.push({fn, order: order||0});
+}
+
+export const runStartupFunctions = async () => {
+  for (let startupFunction of _.sortBy(onStartupFunctions, f=>f.order)) {
+    await startupFunction.fn();
+  }
 }
 
 let instanceSettings: any = null;

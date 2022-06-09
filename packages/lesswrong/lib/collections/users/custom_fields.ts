@@ -690,7 +690,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(true),
   },
   autoSubscribeAsOrganizer: {
-    label: "Auto-subscribe to posts and meetups in groups I organize",
+    label: `Auto-subscribe to posts/events in groups I organize`,
     group: formGroups.notifications,
     type: Boolean,
     optional: true,
@@ -703,7 +703,7 @@ addFieldsDict(Users, {
   },
 
   notificationCommentsOnSubscribedPost: {
-    label: "Comments on posts I'm subscribed to",
+    label: `Comments on posts/events I'm subscribed to`,
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
@@ -745,7 +745,7 @@ addFieldsDict(Users, {
     ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationEventInRadius: {
-    label: "New Events in my notification radius",
+    label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },

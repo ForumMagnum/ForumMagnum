@@ -34,4 +34,5 @@ onStartup(() => {
       timeOverride.currentTime = null;
     }
   );
-});
+// Order 100 to make this execute last
+}, 100);

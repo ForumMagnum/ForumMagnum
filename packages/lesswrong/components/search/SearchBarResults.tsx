@@ -49,10 +49,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: "calc(100vh - 64px)",
     },
   },
-  usersList: {
-    paddingTop: 6,
-    paddingBottom: 4,
-    borderBottom: theme.palette.border.faint
+  list: {
+    '& .ais-Hits-list':{
+      paddingTop: 6,
+      paddingBottom: 4,
+      borderBottom: theme.palette.border.grey300,
+    },
+    '& .ais-Hits-list:empty':{
+      display:"none"
+    },
   },
   seeAll: {
     ...theme.typography.body2,
@@ -86,7 +91,7 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
     <div className={classes.searchResults}>
         <CurrentRefinements />
         <Components.ErrorBoundary>
-          <div className={classes.usersList}>
+          <div className={classes.list}>
             <Index indexName={getAlgoliaIndexName("Users")}>
               <Configure hitsPerPage={3} />
               <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} showIcon/>} />
@@ -94,28 +99,36 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
           </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
-          <Index indexName={getAlgoliaIndexName("Tags")}>
-            <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-          </Index>
+          <div className={classes.list}>
+            <Index indexName={getAlgoliaIndexName("Tags")}>
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+            </Index>
+          </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
-          <Index indexName={getAlgoliaIndexName("Posts")}>
-            <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-          </Index>
+          <div className={classes.list}>
+            <Index indexName={getAlgoliaIndexName("Posts")}>
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+            </Index>
+          </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
-          <Index indexName={getAlgoliaIndexName("Comments")}>
-            <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-          </Index>
+          <div className={classes.list}>
+            <Index indexName={getAlgoliaIndexName("Comments")}>
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+            </Index>
+          </div>
         </Components.ErrorBoundary>
         <Components.ErrorBoundary>
-          <Index indexName={getAlgoliaIndexName("Sequences")}>
-            <Configure hitsPerPage={3} />
-            <Hits hitComponent={(props) => <SequencesSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-          </Index>
+          <div className={classes.list}>
+            <Index indexName={getAlgoliaIndexName("Sequences")}>
+              <Configure hitsPerPage={3} />
+              <Hits hitComponent={(props) => <SequencesSearchHit clickAction={closeSearch} {...props} showIcon/>} />
+            </Index>
+          </div>
         </Components.ErrorBoundary>
         <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
           See all results

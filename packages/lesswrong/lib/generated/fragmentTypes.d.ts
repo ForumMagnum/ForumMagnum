@@ -1853,6 +1853,7 @@ interface UsersProfileEdit { // fragment on Users
   readonly biography: RevisionEdit|null,
   readonly howOthersCanHelpMe: RevisionEdit|null,
   readonly howICanHelpOthers: RevisionEdit|null,
+  readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly website: string,

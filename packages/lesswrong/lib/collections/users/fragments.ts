@@ -276,7 +276,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
-    beta
+    biography {
+      ...RevisionEdit
+    }
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
