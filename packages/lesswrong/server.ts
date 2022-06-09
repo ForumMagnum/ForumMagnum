@@ -61,6 +61,7 @@ import './server/debouncer';
 import './server/logging';
 import './server/markAsUnread';
 import './server/rsvpToEvent';
+import './server/acceptCoauthorRequest';
 import './server/bookmarkMutation';
 import './server/rss';
 import './server/akismet';

@@ -1,4 +1,4 @@
-import { Components as C, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 
@@ -8,29 +8,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const AFSuggestUsersList = ({ terms, classes }: {
-  terms: UsersViewTerms,
+const AFSuggestUsersList = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
-    terms,
+  const { results, loadMoreProps } = useMulti({
+    terms: {view:"alignmentSuggestedUsers", limit: 100},
     collectionName: "Users",
+    enableTotal: true, itemsPerPage: 100,
     fragmentName: 'SuggestAlignmentUser',
     fetchPolicy: 'cache-and-network',
   });
+  const { SunshineListTitle, OmegaIcon, LoadMore, AFSuggestUsersItem } = Components;
+  
   if (results && results.length) {
-    return (
-      <div>
-        <C.SunshineListTitle>
-          <div><C.OmegaIcon className={classes.icon}/> Suggested Users</div>
-        </C.SunshineListTitle>
-        {results.map(user =>
-          <div key={user._id} >
-            <C.AFSuggestUsersItem user={user}/>
-          </div>
-        )}
-      </div>
-    )
+    return <div>
+      <SunshineListTitle>
+        <div><OmegaIcon className={classes.icon}/> Suggested Users</div>
+      </SunshineListTitle>
+      {results.map(user =>
+        <div key={user._id} >
+          <AFSuggestUsersItem user={user}/>
+        </div>
+      )}
+      <LoadMore {...loadMoreProps}/>
+    </div>
   } else {
     return null
   }

@@ -280,6 +280,7 @@ importComponent("CommunityBanner", () => require('../components/community/module
 importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
 importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
 importComponent("CommunityMembers", () => require('../components/community/modules/CommunityMembers'));
+importComponent("CommunityMembersFullMap", () => require('../components/community/modules/CommunityMembersFullMap'));
 importComponent("DistanceUnitToggle", () => require('../components/community/modules/DistanceUnitToggle'));
 importComponent("SearchResultsMap", () => require('../components/community/modules/SearchResultsMap'));
 // this is the previous Community page, used by LW
@@ -547,6 +548,7 @@ importComponent("FormSubmit", () => require('../components/form-components/FormS
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
 importComponent("SingleUsersItemWrapper", () => require('../components/form-components/SingleUsersItemWrapper'));
 importComponent("UsersListEditor", () => require('../components/form-components/UsersListEditor'));
+importComponent("CoauthorsListEditor", () => require('../components/form-components/CoauthorsListEditor'));
 importComponent("MuiInput", () => require('../components/form-components/MuiInput'));
 importComponent("LocationFormComponent", () => require('../components/form-components/LocationFormComponent'));
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));
