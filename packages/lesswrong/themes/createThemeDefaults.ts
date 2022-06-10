@@ -214,6 +214,7 @@ export const baseTheme: BaseThemeSpecification = {
       zIndexes: {
         ...zIndexes
       },
+      postImageStyles: {},
       voting: {
         strongVoteDelay: 1000,
       },

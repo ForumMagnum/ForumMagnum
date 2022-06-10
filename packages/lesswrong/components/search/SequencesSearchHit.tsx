@@ -7,10 +7,11 @@ import { Snippet } from 'react-instantsearch-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    padding: 10,
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
     display: 'flex',
-    alignItems: 'center',
-    borderBottom: theme.palette.border.faint
+    alignItems: 'center'
   },
   title: {
     display: "inline",

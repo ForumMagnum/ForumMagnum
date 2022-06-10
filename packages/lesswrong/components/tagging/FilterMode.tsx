@@ -12,6 +12,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { defaultVisibilityTags } from '../../lib/publicSettings';
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -102,6 +103,12 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
+  if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
+    // We just found it, it's guaranteed to be in the defaultVisibilityTags list
+    mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
+  }
+  const reducedName = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : "0.5x"
+  const reducedVal = userHasNewTagSubscriptions(currentUser) ? 'Reduced' : 0.5
 
   const tagLabel = <span>
     {label}
@@ -119,14 +126,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
         </Link> :
         tagLabel
       }
-      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
-      >
+      <PopperCard open={!!hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
             <LWTooltip title={filterModeToTooltip("Hidden")}>
@@ -134,12 +134,20 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 Hidden
               </span>
             </LWTooltip>
-            <LWTooltip title={filterModeToTooltip(-25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: [-25, "Reduced"].includes(mode)})} onClick={ev => onChangeMode(-25)}>
-                {userHasNewTagSubscriptions(currentUser) ? "Reduced" : "-25"}
+            <LWTooltip title={filterModeToTooltip(reducedVal)}>
+              <span
+                className={classNames(classes.filterButton, {[classes.selected]: [0.5, "Reduced"].includes(mode)})}
+                onClick={ev => onChangeMode(reducedVal)}
+              >
+                {reducedName}
               </span>
             </LWTooltip>
             {!userHasNewTagSubscriptions(currentUser) && <>
+              <LWTooltip title={filterModeToTooltip(-25)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: -25 === mode})} onClick={ev => onChangeMode(-25)}>
+                  -25
+                </span>
+              </LWTooltip>
               <LWTooltip title={filterModeToTooltip(-10)}>
                 <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
                   -10
@@ -191,11 +199,23 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
 }
 
 function filterModeToTooltip(mode: FilterMode): React.ReactNode {
-  switch (mode) {
+  // Avoid floating point equality comparisons
+  let modeWithoutFloat: FilterMode | "0.5" = mode
+  if (
+    typeof mode === "number" &&
+    Math.abs(0.5 - mode) < .000000001
+  ) {
+    modeWithoutFloat = "0.5"
+  }
+  switch (modeWithoutFloat) {
     case "Required":
       return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in Latest Posts.</div>
     case "Hidden":
       return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in Latest Posts.</div>
+    case "Reduced":
+      return <div><em>Reduced.</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
+    case "0.5":
+      return <div><em>0.5x</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
     case 0:
     case "Default":
       return <div><em>+0.</em> This {taggingNameSetting.get()} will be ignored for filtering and sorting.</div>
@@ -210,7 +230,11 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
 function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): string {
   if (typeof mode === "number") {
     if (mode === 25 && userHasNewTagSubscriptions(currentUser)) return "Subscribed"
-    if (mode === -25 && userHasNewTagSubscriptions(currentUser)) return "Reduced"
+    if (
+      // Avoid floating point eqality comparisons
+      Math.abs(0.5 - mode) < .000000001 &&
+      userHasNewTagSubscriptions(currentUser)
+    ) return "Reduced"
     if (mode > 0) return `+${mode}`
     if (mode === 0) return ""
     return `${mode}`
