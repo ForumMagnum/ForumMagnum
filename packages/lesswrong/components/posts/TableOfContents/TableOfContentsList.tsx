@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useNavigation } from '../../../lib/routeUtil';
-import type { ToCData } from '../../../server/tableOfContents';
+import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import type { ToCData, ToCSection } from '../../../server/tableOfContents';
 
 const topSection = "top";
 
@@ -19,8 +19,9 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
   drawerStyle: boolean,
 }) => {
   const [currentSection,setCurrentSection] = useState<string|null>(topSection);
-  const [drawerOpen,setDrawerOpen] = useState(false);
   const { history } = useNavigation();
+  const location = useLocation();
+  const { query } = location;
 
   useEffect(() => {
     window.addEventListener('scroll', updateHighlightedSection);
@@ -130,6 +131,18 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
     jumpToSection();
   }
   
+  let sections = sectionData.sections;
+
+  // Since the Table of Contents data is sent as part of the post data and
+  // partially generated from the post html, changing the answers ordering
+  // in the ToC is not trivial to do via a graphql query.
+  // Separating the ToC part with answers would require some refactoring,
+  // but for now we can just sort the answers client side.
+  const answersSorting = query?.answersSorting;
+  if (answersSorting === "newest" || answersSorting === "oldest") {
+    sections = sectionsWithAnswersSorted(sectionData.sections, answersSorting);
+  }
+
   return <div>
     <TableOfContentsRow key="postTitle"
       href="#"
@@ -147,7 +160,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
       {title?.trim()}
     </TableOfContentsRow>
     
-    {sectionData.sections.map((section, index) => {
+    {sections.map((section, index) => {
       return (
         <TableOfContentsRow
           key={section.anchor}
@@ -179,6 +192,37 @@ const TableOfContentsListComponent = registerComponent(
     hocs: [withErrorBoundary]
   }
 );
+
+
+/**
+ * Returns a shallow copy of the ToC sections with question answers sorted by date,
+ * without changing the position of other sections.
+ */
+const sectionsWithAnswersSorted = (
+  sections: ToCSection[],
+  sorting: "newest" | "oldest"
+) => {
+  const answersSectionsIndexes = sections
+    .map((section, index) => [section, index] as const)
+    .filter(([section, _]) => !!section.answer);
+  const originalIndexes = answersSectionsIndexes.map(([_, originalIndex]) => originalIndex);
+  const answersSections = answersSectionsIndexes.map(([section, _]) => section);
+
+  const sign = sorting === "newest" ? 1 : -1;
+  answersSections.sort((section1, section2) => {
+    const value1 = section1.answer?.postedAt || "";
+    const value2 = section2.answer?.postedAt || "";
+    if (value1 < value2) { return sign; }
+    if (value1 > value2) { return -sign; }
+    return 0;
+  });
+
+  const sortedSections = [...sections];
+  for (let [i, section] of answersSections.entries()) {
+    sortedSections[originalIndexes[i]] = section;
+  }
+  return sortedSections;
+};
 
 declare global {
   interface ComponentTypes {

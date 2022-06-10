@@ -422,7 +422,7 @@ export const schema: SchemaType<DbTag> = {
       value: key,
       label: val.label
     })),
-  }
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {

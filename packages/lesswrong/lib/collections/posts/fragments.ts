@@ -35,7 +35,9 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    
+    coauthorStatuses
+    hasCoauthorPermission
+
     commentCount
     voteCount
     baseScore
@@ -407,7 +409,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
-    coauthorUserIds
+    coauthorStatuses
     moderationGuidelines {
       ...RevisionEdit
     }

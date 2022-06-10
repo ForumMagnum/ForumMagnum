@@ -452,9 +452,30 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 });
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
-  if (post.shareWithUsers?.length) {
-    await createNotifications({userIds: post.shareWithUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: post._id})
+  const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
+  const coauthors = coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId);
+  const userIds = shareWithUsers.filter((user) => !coauthors.includes(user));
+  await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
+});
+
+getCollectionHooks("Posts").newAsync.add(async function CoauthorRequestNotifications(post: DbPost) {
+  const { _id, coauthorStatuses = [], hasCoauthorPermission } = post;
+
+  if (hasCoauthorPermission) {
+    return;
   }
+
+  const userIds = coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId);
+  await createNotifications({userIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
+
+  await updateMutator({
+    collection: Posts,
+    documentId: _id,
+    data: {
+      coauthorStatuses: coauthorStatuses.map((status) => ({ ...status, requested: true })),
+    },
+    validate: false,
+  })
 });
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
