@@ -129,9 +129,9 @@ const PostsList2 = ({
       // 
       // FIXME: this has an unfortunate edge case, where if a user hides enough posts they'll end up with
       // no frontpage! We're assuming this is very unlikely, but consider moving this to server side
-      currentUser.hiddenPostsMetadata.forEach(metadata => {
+      for (const metadata of currentUser.hiddenPostsMetadata || []) {
         hiddenPosts[metadata.postId] = true;
-      })
+      }
     }
   }
   
