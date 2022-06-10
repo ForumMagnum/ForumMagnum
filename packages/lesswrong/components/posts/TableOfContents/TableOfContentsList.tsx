@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import qs from 'qs'
+import * as _ from 'underscore';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -57,7 +59,10 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
 
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
-      history.push(`#${anchor}`)
+      history.push({
+        search: _.isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+        hash: `#${anchor}`,
+      });
       let sectionYdocumentSpace = anchorY + window.scrollY;
       jumpToY(sectionYdocumentSpace);
     }
