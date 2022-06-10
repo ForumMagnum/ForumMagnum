@@ -35,6 +35,11 @@ import Button from '@material-ui/core/Button';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
+// Some of these baddies won't do well with our themePalette test situation,
+// which involves passing "fakecolor" colors in the theme. This would case
+// `fade` to throw, for example.
+export const themePaletteTestExcludedComponents = ["MuiButton"]
+
 registerComponent("MuiPaper", Paper, { styles: theme => {
   return {
     root: {
