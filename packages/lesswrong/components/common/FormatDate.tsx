@@ -4,7 +4,7 @@ import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
-export const ExpandedDate = ({date}: {date: Date}) => {
+export const ExpandedDate = ({date}: {date: Date | string}) => {
   const { timezone } = useTimezone();
   return <>{moment(new Date(date)).tz(timezone).format("LLL z")}</>
 };
@@ -12,7 +12,7 @@ export const ExpandedDate = ({date}: {date: Date}) => {
 /// A relative time/date, like "4d". If tooltip is true (default), hover over
 /// for the actual (non-relative) date/time.
 const FormatDate = ({date, format, tooltip=true}: {
-  date: Date,
+  date: Date | string,
   format?: string,
   tooltip?: boolean,
 }) => {

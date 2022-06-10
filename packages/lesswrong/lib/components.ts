@@ -588,6 +588,7 @@ importComponent("PostsPageQuestionContent", () => require('../components/questio
 importComponent("NewAnswerCommentQuestionForm", () => require('../components/questions/NewAnswerCommentQuestionForm'));
 importComponent("AnswerCommentsList", () => require('../components/questions/AnswerCommentsList'));
 importComponent("AnswersList", () => require('../components/questions/AnswersList'));
+importComponent("AnswersSorting", () => require('../components/questions/AnswersSorting'));
 importComponent("Answer", () => require('../components/questions/Answer'));
 importComponent("QuestionsPage", () => require('../components/questions/QuestionsPage'));
 importComponent("RelatedQuestionsList", () => require('../components/questions/RelatedQuestionsList'));
