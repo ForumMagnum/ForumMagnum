@@ -23,6 +23,9 @@
 // check it's output.
 //
 // Also, I wouldn't run it with untrusted input.
+//
+// In the event it doesn't work, you can manually copy and paste the styles from
+// the MUI source.
 
 // TODO: Add registerStyles() to register styles without the component.
 import { registerComponent } from '../../lib/vulcan-lib';
