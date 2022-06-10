@@ -271,11 +271,16 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   };
 });
 
-export const questionAnswersSort = {promoted: -1, baseScore: -1, postedAt: -1}
+export const questionAnswersSortings = {
+  "top": {promoted: -1, baseScore: -1, postedAt: -1},
+  "newest": {postedAt: -1},
+  "oldest": {postedAt: 1},
+} as const;
+
 Comments.addView('questionAnswers', (terms: CommentsViewTerms) => {
   return {
     selector: {postId: terms.postId, answer: true},
-    options: {sort: questionAnswersSort}
+    options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
   };
 });
 
