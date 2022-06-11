@@ -59,8 +59,9 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
 
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
+      delete query.commentId;
       history.push({
-        search: _.isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+        search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
       });
       let sectionYdocumentSpace = anchorY + window.scrollY;
