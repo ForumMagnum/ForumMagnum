@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import qs from 'qs'
-import * as _ from 'underscore';
+import isEmpty from 'lodash/isEmpty';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
