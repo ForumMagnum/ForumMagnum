@@ -10,6 +10,7 @@ import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
+import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   titleWrapper: {
@@ -95,9 +96,12 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           </AnalyticsContext>
         </div>
         <AnalyticsContext listContext={"latestPosts"}>
-          <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore={true}>
-            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-          </PostsList2>
+          {/* Allow hiding posts from the front page*/}
+          <AllowHidingFrontPagePostsContext.Provider value={true}>
+            <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+              <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+            </PostsList2>
+          </AllowHidingFrontPagePostsContext.Provider>
         </AnalyticsContext>
       </SingleColumnSection>
     </AnalyticsContext>
