@@ -16,13 +16,13 @@ addGraphQLResolvers({
       // FIXME: this has a race condition with multiple hiding at the same time where last write wins.
       // This would be better if we either change from a list data model to separate objects, or move
       // to leveraging inserts and removals in Mongo vs. writing the whole list
-      const oldHiddenList = currentUser.hiddenPostsMetadata;
+      const oldHiddenList = currentUser.hiddenPostsMetadata || [];
 
       let newHiddenList:Array<{postId:string}>;
       if (isHidden) {
         const alreadyHidden = some(oldHiddenList, hiddenMetadata => hiddenMetadata.postId == postId)
         if (alreadyHidden) {
-          newHiddenList = oldHiddenList; // noop
+          newHiddenList = oldHiddenList;
         } else {
           newHiddenList = [...oldHiddenList, {postId: postId}]
         }

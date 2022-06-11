@@ -48,13 +48,13 @@ const HideFrontPagePostButton = ({post}: {
 
     // FIXME: this mutation logic is duplicated from the mutation - ideally we'd like to have a single implementation,
     // but there wasn't an obvious place to share this logic. 
-    const oldHiddenList = currentUser.hiddenPostsMetadata;
+    const oldHiddenList = currentUser.hiddenPostsMetadata || [];
     let newHiddenList:Array<{postId:string}>;
 
     if (isHidden) {
       const alreadyHidden = some(oldHiddenList, hiddenMetadata => hiddenMetadata.postId == post._id)
       if (alreadyHidden) {
-        newHiddenList = oldHiddenList; // noop
+        newHiddenList = oldHiddenList;
       } else {
         newHiddenList = [...oldHiddenList, {postId: post._id}]
       }
