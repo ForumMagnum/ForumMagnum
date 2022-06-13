@@ -1,11 +1,8 @@
-import classNames from 'classnames';
-import { ContentBlock } from 'draft-js';
 import React, { useState } from 'react';
-import NoSSR from 'react-no-ssr';
-import { truncate } from '../../lib/editor/ellipsize';
+import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import DescriptionIcon from '@material-ui/icons/Description';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,6 +74,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: 'auto'
     },
   },
+  postIcon: {
+    height: 12,
+    width: 12,
+    marginRight: 4,
+    color: theme.palette.grey[500]
+  },
+  postTitle: {
+    ...theme.typography.smallFont,
+    ...theme.typography.postStyle
+  }
 });
 
 export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
@@ -84,7 +91,7 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
   showAuthor?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, ContentItemBody, ContentItemTruncated, LinkCard } = Components
+  const { UsersName, ContentStyles, LWTooltip, ContentItemTruncated, LinkCard } = Components
   
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
@@ -92,9 +99,20 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
   const url = getSequenceUrl()
   const [expanded, setExpanded] = useState<boolean>(false)
 
-  const truncatedDescription = truncate(sequence.contents?.htmlHighlight, 50, "words");
-
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+
+  const { results: chapters } = useMulti({
+    terms: {
+      view: "SequenceChapters",
+      sequenceId: sequence._id,
+      limit: 100
+    },
+    collectionName: "Chapters",
+    fragmentName: 'ChaptersFragment',
+    enableTotal: false,
+  });
+
+  console.log(sequence.title, chapters)
 
   return <LinkCard className={classes.root} to={'/s/' + sequence._id}>
       <div className={classes.sequenceImage}>
@@ -120,7 +138,14 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
             dangerouslySetInnerHTML={{__html: sequence.contents?.htmlHighlight || ""}}
             description={`sequence ${sequence._id}`}
           />
-          {/* {truncatedDescription && <ContentItemBody dangerouslySetInnerHTML={{__html: truncatedDescription}} description={`sequence ${sequence._id}`}/>} */}
+          {chapters?.map((chapter) => <span key={chapter._id}>
+              {chapter.posts?.map(post=><LWTooltip title={post.title} key={post._id}>
+                  {/* <div className={classes.postTitle}>{post.title}</div> */}
+                  <DescriptionIcon className={classes.postIcon} />
+                </LWTooltip>
+              )}
+            </span>
+          )}
         </ContentStyles>
 
       </div>
