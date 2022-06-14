@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import qs from 'qs'
+import isEmpty from 'lodash/isEmpty';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -57,7 +59,11 @@ const TableOfContentsList = ({sectionData, title, onClickSection, drawerStyle}: 
 
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
-      history.push(`#${anchor}`)
+      delete query.commentId;
+      history.push({
+        search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+        hash: `#${anchor}`,
+      });
       let sectionYdocumentSpace = anchorY + window.scrollY;
       jumpToY(sectionYdocumentSpace);
     }
