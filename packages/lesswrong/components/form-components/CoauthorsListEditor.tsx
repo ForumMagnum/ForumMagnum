@@ -3,7 +3,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import withUser from '../common/withUser';
-import { SortableList, shouldCancelStart } from './UsersListEditor';
+import { makeSortableListComponent } from '../forms/sortableList';
 
 const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,6 +17,14 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
     fontSize: '1.1rem',
     fontWeight: 400,
   },
+});
+
+const SortableList = makeSortableListComponent({
+  renderItem: ({contents, removeItem, classes}) => {
+    return <li className={classes.item}>
+      <Components.SequencesListEditorItem documentId={contents} removeItem={removeItem} />
+    </li>
+  }
 });
 
 const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser, updateCurrentValues }: {
@@ -60,12 +68,11 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
           <Components.UsersSearchAutoComplete clickAction={addUserId} label={label} />
         </Components.ErrorBoundary>
         <SortableList
-          axis='xy'
-          items={value.map(({ userId }) => userId)}
-          onSortEnd={onSortEnd}
-          currentUser={currentUser}
-          removeItem={removeUserId}
-          shouldCancelStart={shouldCancelStart}
+          value={value}
+          setValue={(newValue: string[]) => {
+            updateCurrentValues({[path]: newValue});
+          }}
+          classes={classes}
         />
       </div>
       <div className={classes.checkboxContainer}>
