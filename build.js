@@ -46,11 +46,11 @@ if (opts.mongoUrl) {
 
 const clientBundleBanner = `/*
  * LessWrong 2.0 (client JS bundle)
- * Copyright (c) 2020 the LessWrong development team. See http://github.com/LessWrong2/Lesswrong2
+ * Copyright (c) 2022 the LessWrong development team. See https://github.com/ForumMagnum/ForumMagnum
  * for source and license details.
  *
  * Includes CkEditor.
- * Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+ * Copyright (c) 2003-2022, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see https://github.com/ckeditor/ckeditor5/blob/master/LICENSE.md
  */`
 

@@ -39,6 +39,9 @@ export const userOwnsAndInGroup = (group: string) => {
 export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
   if (!currentUser) return false;
   
+  // Shared as a coauthor? Always give access
+  if (document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  
   // Explicitly shared?
   if (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) {
     return !document.sharingSettings || document.sharingSettings.explicitlySharedUsersCan !== "none";

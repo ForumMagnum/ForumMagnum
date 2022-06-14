@@ -114,7 +114,6 @@ const Answer = ({ comment, post, classes }: {
   classes: ClassesType,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
-  const [commenting,setCommenting] = useState(false);
   
   const setShowEditTrue = useCallback(() => {
     setShowEdit(true)
