@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { arrayMove } from 'react-sortable-hoc';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -27,17 +27,22 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser, updateCurrentValues }: {
+const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser }, context: {
   value: { userId: string, confirmed: boolean, requested: boolean }[],
   path: string,
   document: Partial<DbPost>,
   classes: ClassesType,
   label?: string,
-  currentUser: DbUser|null,
-  updateCurrentValues<T extends {}>(values: T) : void,
+  currentUser: DbUser|null
 }) => {
   const hasPermission = !!document.hasCoauthorPermission;
 
+  const { updateCurrentValues } = context;
+  
+  const setValue = useCallback((newValue: string[]) => {
+    updateCurrentValues({[path]: newValue});
+  }, [updateCurrentValues, path]);
+  
   const toggleHasPermission = () => {
     const newValue = value.map((author) => ({ ...author, confirmed: !hasPermission }));
     updateCurrentValues({
@@ -46,19 +51,9 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
     });
   }
 
-  const onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
-    const newValue = arrayMove(value, oldIndex, newIndex);
-    updateCurrentValues({ [path]: newValue });
-  }
-
   const addUserId = (userId: string) => {
     const newValue = [...value, { userId, confirmed: hasPermission, requested: false }];
     updateCurrentValues({ [path]: newValue });
-  }
-
-  const removeUserId = (userId: string) => {
-    const authors = value.filter((author) => author.userId !== userId);
-    updateCurrentValues({ [path]: authors });
   }
 
   return (
@@ -68,10 +63,10 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
           <Components.UsersSearchAutoComplete clickAction={addUserId} label={label} />
         </Components.ErrorBoundary>
         <SortableList
+          axis="xy"
           value={value}
-          setValue={(newValue: string[]) => {
-            updateCurrentValues({[path]: newValue});
-          }}
+          setValue={setValue}
+          className={classes.list}
           classes={classes}
         />
       </div>
