@@ -27,14 +27,14 @@ const SortableList = makeSortableListComponent({
   }
 });
 
-const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser }, context: {
+const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser }: {
   value: { userId: string, confirmed: boolean, requested: boolean }[],
   path: string,
   document: Partial<DbPost>,
   classes: ClassesType,
   label?: string,
   currentUser: DbUser|null
-}) => {
+}, context) => {
   const hasPermission = !!document.hasCoauthorPermission;
 
   const { updateCurrentValues } = context;
