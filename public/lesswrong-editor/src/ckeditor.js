@@ -68,13 +68,8 @@ export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
 export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
-// NOTE: If you make changes to this file, you must:
-// 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
-// 2. 'yarn run build'
-// 3. navigate back to main folder (i.e. 'cd ../..')
-// 4. run 'yarn add ./public/lesswrong-editor'.
-//
-// alternately, you could run `yarn rebuild-reinstall-ckeditor` to do all of the above at once
+// NOTE: If you make changes to this file, you must then run:
+// `yarn run rebuild-ckeditor`
 
 const sharedPlugins = [
 	Autosave,
