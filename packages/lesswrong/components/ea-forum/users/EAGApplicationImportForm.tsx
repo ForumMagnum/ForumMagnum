@@ -161,13 +161,15 @@ const EAGApplicationImportForm = ({classes}: {
   })
   
   const importedData:any = {
-    jobTitle: 'My job',
-    organization: 'Org',
-    careerStage: [],
-    biography: 'Hello',
-    organizerOfGroupIds: [],
-    mapLocation: {formatted_address: ''},
-    linkedinProfileURL: 'sarahycheng'
+    jobTitle: 'Exec Assistant',
+    organization: 'The Centre for Effective Altruism',
+    careerStage: ['midCareer'],
+    biography: '',
+    howOthersCanHelpMe: 'I hope to learn more about how the constituent organisations of the EA movement fit together, and how individuals think about their impact within that structure. I would like to hear as many different perspectives as possible from EAs with more experience in the community than myself (almost everyone).',
+    howICanHelpOthers: 'As a very newcomer to CEA and a relative newcomer to EA, my main purpose is to introduce myself, listen and learn. My experience is in politics, healthcare and research, so I can provide perspective and advice in these areas.',
+    organizerOfGroups: [],
+    mapLocation: {formatted_address: 'London, UK'},
+    linkedinProfileURL: ''
   }
 
   if (!currentUser) {
@@ -186,6 +188,14 @@ const EAGApplicationImportForm = ({classes}: {
   const handleCopyField = (e, field) => {
     e.preventDefault()
     console.log('copy', field)
+    if (field === 'organizerOfGroupIds') {
+      setFormValues({
+        ...formValues,
+        [field]: importedData.organizerOfGroups.map(g => g._id)
+      })
+      return
+    }
+    
     setFormValues({
       ...formValues,
       [field]: importedData[field]
@@ -271,7 +281,7 @@ const EAGApplicationImportForm = ({classes}: {
           <label className={classes.label}>Career stage</label>
           <FormComponentMultiSelect
             options={CAREER_STAGES}
-            value={formValues.careerStage}
+            value={formValues.careerStage || []}
             placeholder="Career stage"
             separator={'\r\n'}
             path="careerStage"
@@ -282,7 +292,15 @@ const EAGApplicationImportForm = ({classes}: {
               <ArrowBack className={classes.arrowIcon} />
             </button>
           </div>
-          <div className={classes.importedText}>{importedData.careerStage}</div>
+          <div className={classes.importedText}>
+            {importedData.careerStage?.map(stage => {
+              const careerStage = CAREER_STAGES.find(s => s.value === stage)
+              if (!careerStage) {
+                return ''
+              }
+              return <div key={careerStage.value}>{careerStage.label}</div>
+            })}
+          </div>
         </div>
         
         <div className={classes.formRow}>
@@ -300,11 +318,39 @@ const EAGApplicationImportForm = ({classes}: {
           <div className={classes.importedText}>{importedData.biography}</div>
         </div>
         
+        {/* <div className={classes.formRow}>
+          <label className={classes.label}>How others can help me</label>
+          <EditorFormComponent
+            value={formValues.howOthersCanHelpMe}
+            {...getSchema(Users).howOthersCanHelpMe}
+          />
+          <div className={classes.arrowCol}>
+            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howOthersCanHelpMe')}>
+              <ArrowBack className={classes.arrowIcon} />
+            </button>
+          </div>
+          <div className={classes.importedText}>{importedData.howOthersCanHelpMe}</div>
+        </div>
+        
+        <div className={classes.formRow}>
+          <label className={classes.label}>How I can help others</label>
+          <EditorFormComponent
+            value={formValues.howICanHelpOthers}
+            {...getSchema(Users).howICanHelpOthers}
+          />
+          <div className={classes.arrowCol}>
+            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howICanHelpOthers')}>
+              <ArrowBack className={classes.arrowIcon} />
+            </button>
+          </div>
+          <div className={classes.importedText}>{importedData.howICanHelpOthers}</div>
+        </div> */}
+        
         <div className={classes.formRow}>
           <label className={classes.label}>Organizer of</label>
           <SelectLocalgroup
             currentUser={currentUser}
-            value={formValues.organizerOfGroupIds}
+            value={formValues.organizerOfGroupIds || []}
             label="Organizer of"
             separator={'\r\n'}
             multiselect={true}
@@ -316,7 +362,9 @@ const EAGApplicationImportForm = ({classes}: {
               <ArrowBack className={classes.arrowIcon} />
             </button>
           </div>
-          <div className={classes.importedText}>{importedData.careerStage}</div>
+          <div className={classes.importedText}>{importedData.organizerOfGroups?.map(group => {
+            return <div key={group._id}>{group.name}</div>
+          })}</div>
         </div>
         
         <div className={classes.formRow}>
