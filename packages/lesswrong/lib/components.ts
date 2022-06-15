@@ -187,6 +187,7 @@ importComponent("PostsListSettings", () => require('../components/posts/PostsLis
 importComponent("SuggestCurated", () => require('../components/posts/SuggestCurated'));
 importComponent("DeleteDraft", () => require('../components/posts/DeleteDraft'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
+importComponent("HideFrontPagePostButton", () => require('../components/posts/HideFrontPagePostButton'));
 importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft'));
 importComponent("SuggestAlignment", () => require('../components/posts/SuggestAlignment'));
 importComponent("Pingback", () => require('../components/posts/Pingback'));

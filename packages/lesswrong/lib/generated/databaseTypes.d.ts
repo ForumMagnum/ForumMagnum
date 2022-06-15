@@ -708,6 +708,7 @@ interface DbUser extends DbObject {
   bannedUserIds: Array<string>
   bannedPersonalUserIds: Array<string>
   bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
+  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
   legacyId: string
   deleted: boolean
   voteBanned: boolean

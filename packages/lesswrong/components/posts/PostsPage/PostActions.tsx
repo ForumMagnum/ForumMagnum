@@ -23,6 +23,9 @@ import { useDialog } from '../../common/withDialog';
 import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 
+// We use a context here vs. passing in a boolean prop because we'd need to pass through ~4 layers of hierarchy
+export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false)
+
 const NotFPSubmittedWarning = ({className}: {className?: string}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
@@ -48,12 +51,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostActions = ({post, closeMenu, classes}: {
   post: PostsList,
-  closeMenu: ()=>void
-  classes: ClassesType
+  closeMenu: ()=>void,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const {postsRead, setPostRead} = useItemsRead();
   const {openDialog} = useDialog();
+  const allowHidingPosts = React.useContext(AllowHidingFrontPagePostsContext)
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -167,7 +171,7 @@ const PostActions = ({post, closeMenu, classes}: {
     closeMenu();
   }
 
-  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton } = Components
+  const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, NotifyMeButton, HideFrontPagePostButton} = Components
   if (!post) return null;
   const postAuthor = post.user;
 
@@ -249,6 +253,8 @@ const PostActions = ({post, closeMenu, classes}: {
         />}
 
         <BookmarkButton post={post} menuItem/>
+        
+        {allowHidingPosts && <HideFrontPagePostButton post={post} />}
 
         <ReportPostMenuItem post={post}/>
         <div onClick={handleOpenTagDialog}>
