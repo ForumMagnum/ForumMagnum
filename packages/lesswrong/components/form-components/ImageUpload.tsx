@@ -12,6 +12,7 @@ import { useDialog } from '../common/withDialog';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
+const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
 
@@ -56,6 +57,13 @@ const cloudinaryArgsByImageType = {
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
+  profileImageId: {
+    minImageHeight: 170,
+    minImageWidth: 170,
+    croppingAspectRatio: 1,
+    croppingDefaultSelectionRatio: 1,
+    uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
+  },
   socialPreviewImageId: {
     minImageHeight: 400,
     minImageWidth: 700,
@@ -80,6 +88,10 @@ const formPreviewSizeByImageType = {
     width: "auto",
     height: 380
   },
+  profileImageId: {
+    width: 170,
+    height: 170
+  },
   socialPreviewImageId: {
     width: 153,
     height: 80
@@ -98,6 +110,8 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
   label: string,
   classes: ClassesType
 }) => {
+  console.log(name)
+  console.log(document)
   const theme = useTheme();
 
   const setImageInfo = (error, result) => {

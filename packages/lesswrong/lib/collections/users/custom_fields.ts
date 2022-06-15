@@ -1614,7 +1614,21 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
   },
-  
+
+  // Cloudinary image id for the profile image (high resolution)
+  profileImageId: {
+    hidden: forumTypeSetting.get() === "EAForum",
+    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: [userOwns, "admins", "sunshineRegiment"],
+    label: "Profile Image",
+    control: "ImageUpload",
+    tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)"
+  },
+
   bio: {
     type: String,
     viewableBy: ['guests'],
