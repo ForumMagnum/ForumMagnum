@@ -500,7 +500,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Bio Section */}
           <SingleColumnSection>
               <div className={classes.nameAndProfileWrapper}>
-                {isEAForum && user.profileImageId && <Components.CloudinaryImage2 height={70} width={70} publicId={user.profileImageId} imgProps={{ q: '100' }} className={classes.profileImage} />}
+                {isEAForum && user.profileImageId && <Components.CloudinaryImage2 height={70} width={70} publicId={user.profileImageId} imgProps={{ q: '100', c:'crop', g:'custom' }} className={classes.profileImage} />}
                 <div className={classes.flexingNameAndMessage}>
             <div className={classes.usernameTitle}>
               <div>{username}</div>

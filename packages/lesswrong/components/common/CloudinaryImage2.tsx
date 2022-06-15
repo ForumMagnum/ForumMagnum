@@ -48,11 +48,11 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, fullWid
   let imageStyle: CSSProperties = {};
 
   if (width) {
-    cloudinaryProps.w = width.toString()
+    if(imgProps?.c == 'fill') cloudinaryProps.w = width.toString()
     imageStyle.width = width
   }
   if (height) {
-    cloudinaryProps.h = height.toString()
+    if(imgProps?.c == 'fill') cloudinaryProps.h = height.toString()
     imageStyle.height = height+"px";
   }
   // ignore input width if we're told we have a fullWidthHeader
