@@ -397,6 +397,7 @@ registerFragment(`
     jobTitle
     organization
     careerStage
+    profileImageId
     biography {
       ...RevisionEdit
     }

@@ -89,8 +89,9 @@ const formPreviewSizeByImageType = {
     height: 380
   },
   profileImageId: {
-    width: 170,
-    height: 170
+    width: 70,
+    height: 70,
+    imgProps: { q: '100', c:'crop', g:'custom' }
   },
   socialPreviewImageId: {
     width: 153,
@@ -189,7 +190,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
         <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
       </Helmet>
       {imageId &&
-        <Components.CloudinaryImage
+        <Components.CloudinaryImage2
           publicId={imageId}
           {...formPreviewSize}
         /> }

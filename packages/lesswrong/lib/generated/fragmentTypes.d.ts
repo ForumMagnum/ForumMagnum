@@ -1835,6 +1835,7 @@ interface UsersProfileEdit { // fragment on Users
   readonly jobTitle: string,
   readonly organization: string,
   readonly careerStage: Array<string>,
+  readonly profileImageId
   readonly biography: RevisionEdit|null,
   readonly howOthersCanHelpMe: RevisionEdit|null,
   readonly howICanHelpOthers: RevisionEdit|null,
