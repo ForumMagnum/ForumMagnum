@@ -70,7 +70,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     'align-items': 'center'
   },
   profileImage: {
-    'margin-right': '20px'
+    'margin-right': '20px',
+    'box-shadow': '3px 3px 1px #757575',
+    '-webkit-box-shadow': '0px 0px 2px 0px #757575',
+    '-moz-box-shadow': '3px 3px 1px #757575',
+    'border-radius': '50%',
   },
   flexingNameAndMessage: {
     'flex-grow': 1
@@ -500,7 +504,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Bio Section */}
           <SingleColumnSection>
               <div className={classes.nameAndProfileWrapper}>
-                {isEAForum && user.profileImageId && <Components.CloudinaryImage2 height={70} width={70} publicId={user.profileImageId} className={classes.profileImage} />}
+                {isEAForum && user.profileImageId && <Components.CloudinaryImage2 height={90} width={90} publicId={user.profileImageId} className={classes.profileImage} />}
                 <div className={classes.flexingNameAndMessage}>
             <div className={classes.usernameTitle}>
               <div>{username}</div>

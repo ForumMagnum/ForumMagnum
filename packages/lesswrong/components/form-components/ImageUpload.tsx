@@ -89,8 +89,8 @@ const formPreviewSizeByImageType = {
     height: 380
   },
   profileImageId: {
-    width: 70,
-    height: 70
+    width: 90,
+    height: 90
   },
   socialPreviewImageId: {
     width: 153,
