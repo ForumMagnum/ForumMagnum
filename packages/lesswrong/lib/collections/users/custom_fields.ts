@@ -1625,8 +1625,7 @@ addFieldsDict(Users, {
     viewableBy: ['guests'],
     editableBy: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    control: "ImageUpload",
-    tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)"
+    control: "ImageUpload"
   },
 
   bio: {

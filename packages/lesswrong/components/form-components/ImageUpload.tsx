@@ -110,8 +110,6 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
   label: string,
   classes: ClassesType
 }) => {
-  console.log(name)
-  console.log(document)
   const theme = useTheme();
 
   const setImageInfo = (error, result) => {

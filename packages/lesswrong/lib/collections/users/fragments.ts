@@ -57,6 +57,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
+    profileImageId
     bannedUserIds
     location
     googleLocation

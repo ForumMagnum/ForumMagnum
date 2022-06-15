@@ -1585,6 +1585,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly moderationGuidelines: RevisionDisplay|null,
   readonly bannedUserIds: Array<string>,
   readonly location: string,
+  readonly profileImageId: string,
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly mapLocationSet: boolean,

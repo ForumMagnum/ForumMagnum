@@ -65,6 +65,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   centerColumnWrapper: {
     gridArea: 'center'
   },
+  nameAndProfileWrapper: {
+    display: 'flex',
+    'align-items': 'center'
+  },
+  profileImage: {
+    'margin-right': '20px'
+  },
+  flexingNameAndMessage: {
+    'flex-grow': 1
+  },
   usernameTitle: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -489,6 +499,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <div className={classes.centerColumnWrapper}>
           {/* Bio Section */}
           <SingleColumnSection>
+              <div className={classes.nameAndProfileWrapper}>
+                {isEAForum && user.profileImageId && <Components.CloudinaryImage2 height={70} width={70} publicId={user.profileImageId} imgProps={{ q: '100' }} className={classes.profileImage} />}
+                <div className={classes.flexingNameAndMessage}>
             <div className={classes.usernameTitle}>
               <div>{username}</div>
               {isEAForum && currentUser?._id != user._id && (
@@ -511,6 +524,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 </NewConversationButton>
               </div>
             )}
+                </div>
+              </div>
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
