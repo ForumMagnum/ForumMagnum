@@ -210,6 +210,18 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
       >
         Choose from ours
       </Button>}
+      {(name === 'profileImageId') && <Button
+        variant="outlined"
+        onClick={() => openDialog({
+          componentName: "ImageUploadDefaultsDialog",
+          componentProps: {
+            onSelect: chooseDefaultImg,
+            type: "Profile"}
+        })}
+        className={classes.chooseButton}
+      >
+        Choose from ours
+      </Button>}
       {imageId && <Button
         className={classes.removeButton}
         title="Remove"
