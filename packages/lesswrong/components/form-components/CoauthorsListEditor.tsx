@@ -22,26 +22,21 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
-      <Components.SequencesListEditorItem documentId={contents} removeItem={removeItem} />
+      <Components.SingleUsersItemWrapper documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
 
-const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser }: {
+const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser, updateCurrentValues }: {
   value: { userId: string, confirmed: boolean, requested: boolean }[],
   path: string,
   document: Partial<DbPost>,
   classes: ClassesType,
   label?: string,
-  currentUser: DbUser|null
-}, context) => {
+  currentUser: DbUser|null,
+  updateCurrentValues<T extends {}>(values: T) : void,
+}) => {
   const hasPermission = !!document.hasCoauthorPermission;
-
-  const { updateCurrentValues } = context;
-  
-  const setValue = useCallback((newValue: string[]) => {
-    updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
   
   const toggleHasPermission = () => {
     const newValue = value.map((author) => ({ ...author, confirmed: !hasPermission }));
@@ -51,16 +46,25 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
     });
   }
 
+  // Note: currently broken. This component needs to somehow deal with lists of objects instead of strings
   const addUserId = (userId: string) => {
     const newValue = [...value, { userId, confirmed: hasPermission, requested: false }];
     updateCurrentValues({ [path]: newValue });
   }
 
+  const setValue = useCallback((newValue: any[]) => {
+    console.log(newValue)
+    updateCurrentValues({[path]: newValue});
+  }, [updateCurrentValues, path]);
+
   return (
     <>
       <div className={classes.root}>
         <Components.ErrorBoundary>
-          <Components.UsersSearchAutoComplete clickAction={addUserId} label={label} />
+          <Components.UsersSearchAutoComplete 
+            clickAction={addUserId} 
+            label={label} 
+            />
         </Components.ErrorBoundary>
         <SortableList
           axis="xy"
