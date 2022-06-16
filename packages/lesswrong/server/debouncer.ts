@@ -342,5 +342,5 @@ function normalDistribution(mean: number, variance: number) {
     y = Math.random();
   }
   const initialNormal = Math.sqrt( -2.0 * Math.log( x ) ) * Math.cos( 2.0 * Math.PI * y )
-  return initialNormal * variance + mean
+  return (initialNormal * variance) + mean
 }
