@@ -234,6 +234,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     this.ckEditor = Editor
     this.setState({ckEditorLoaded: true})
     
+    console.log('isClient', isClient)
     if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
@@ -242,6 +243,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   getEditorStatesFromType = (editorType: string, contents?: any) => {
     const { document, fieldName, value } = this.props
+    console.log('document', document)
+    console.log('fieldName', fieldName)
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
 
     // if contents are manually specified, use those:

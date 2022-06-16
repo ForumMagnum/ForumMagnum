@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
@@ -133,7 +133,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
   document: any,
   path: string,
   label?: string,
-  value: string,
+  value: any,
   updateCurrentValues: any,
   stringVersionFieldName?: string|null,
   classes: ClassesType,
@@ -147,6 +147,14 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     || document?.[path]?.formatted_address
     || ""
   const [ mapsLoaded ] = useGoogleMaps()
+  const geosuggestEl = useRef<any>(null)
+  
+  useEffect(() => {
+    console.log(value)
+    if (geosuggestEl && geosuggestEl.current) {
+      geosuggestEl.current.update(value.formatted_address)
+    }
+  }, [value])
   
   const handleCheckClear = (value) => {
     // clear location fields if the user deletes the input text
@@ -174,6 +182,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     return <div className={classes.root}>
       {value && label && <FormLabel className={classes.label}>{label}</FormLabel>}
       <Geosuggest
+        ref={geosuggestEl}
         placeholder={label}
         onChange={handleCheckClear}
         onSuggestSelect={handleSuggestSelect}

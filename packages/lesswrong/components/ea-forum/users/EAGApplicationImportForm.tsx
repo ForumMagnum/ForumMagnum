@@ -11,6 +11,8 @@ import pick from 'lodash/pick';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
 import Input from '@material-ui/core/Input';
 import { getSchema } from '../../../lib/utils/getSchema';
+import { useGoogleMaps } from '../../form-components/LocationFormComponent';
+import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -140,6 +142,7 @@ const EAGApplicationImportForm = ({classes}: {
 }) => {
   const currentUser = useCurrentUser()
   const { history } = useNavigation()
+  const [mapsLoaded, googleMaps] = useGoogleMaps()
   
   const formFields = [
     'jobTitle',
@@ -154,6 +157,7 @@ const EAGApplicationImportForm = ({classes}: {
   ]
   
   const [formValues, setFormValues]:any = useState(pick(currentUser, formFields))
+  console.log(formValues)
   
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -185,7 +189,7 @@ const EAGApplicationImportForm = ({classes}: {
     setFormValues(importedData)
   }
   
-  const handleCopyField = (e, field) => {
+  const handleCopyField = async (e, field) => {
     e.preventDefault()
     console.log('copy', field)
     if (field === 'organizerOfGroupIds') {
@@ -193,6 +197,24 @@ const EAGApplicationImportForm = ({classes}: {
         ...formValues,
         [field]: importedData.organizerOfGroups.map(g => g._id)
       })
+      return
+    } else if (field === 'mapLocation') {
+      if (mapsLoaded) {
+        // get a list of matching Google locations for the current lat/lng (reverse geocoding)
+        const geocoder = new googleMaps.Geocoder()
+        const geocodingResponse = await geocoder.geocode({
+          address: importedData.mapLocation.formatted_address
+        })
+        const results = geocodingResponse?.results
+        
+        if (results?.length) {
+          setFormValues({
+            ...formValues,
+            [field]: pickBestReverseGeocodingResult(results)
+          })
+        }
+        // TODO: else?
+      }
       return
     }
     
@@ -307,8 +329,11 @@ const EAGApplicationImportForm = ({classes}: {
           <label className={classes.label}>Bio</label>
           { /* @ts-ignore */ }
           <EditorFormComponent
+            document={formValues}
+            fieldName="biography"
             value={formValues.biography}
             {...getSchema(Users).biography}
+            label=""
           />
           <div className={classes.arrowCol}>
             <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'biography')}>
@@ -318,11 +343,15 @@ const EAGApplicationImportForm = ({classes}: {
           <div className={classes.importedText}>{importedData.biography}</div>
         </div>
         
-        {/* <div className={classes.formRow}>
+        <div className={classes.formRow}>
           <label className={classes.label}>How others can help me</label>
+          { /* @ts-ignore */ }
           <EditorFormComponent
+            document={formValues}
+            fieldName="howOthersCanHelpMe"
             value={formValues.howOthersCanHelpMe}
             {...getSchema(Users).howOthersCanHelpMe}
+            label=""
           />
           <div className={classes.arrowCol}>
             <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howOthersCanHelpMe')}>
@@ -332,7 +361,7 @@ const EAGApplicationImportForm = ({classes}: {
           <div className={classes.importedText}>{importedData.howOthersCanHelpMe}</div>
         </div>
         
-        <div className={classes.formRow}>
+        {/* <div className={classes.formRow}>
           <label className={classes.label}>How I can help others</label>
           <EditorFormComponent
             value={formValues.howICanHelpOthers}
@@ -371,7 +400,7 @@ const EAGApplicationImportForm = ({classes}: {
           <label className={classes.label}>Public map location</label>
           <LocationFormComponent
             document={currentUser}
-            value={formValues.organizerOfGroupIds}
+            value={formValues.mapLocation}
             path="mapLocation"
             updateCurrentValues={handleUpdateValue}
           />
