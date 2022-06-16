@@ -1,5 +1,5 @@
 /* global cloudinary */
-import React, { Component, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent } from '../../lib/vulcan-lib';
 import { Helmet } from 'react-helmet';
@@ -9,6 +9,8 @@ import classNames from 'classnames';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { useTheme } from '../themes/useTheme';
 import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import { userHasDefaultProfilePhotos } from '../../lib/betas';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
@@ -210,7 +212,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
       >
         Choose from ours
       </Button>}
-      {(name === 'profileImageId') && <Button
+      {userHasDefaultProfilePhotos(useCurrentUser()) && (name === 'profileImageId') && <Button
         variant="outlined"
         onClick={() => openDialog({
           componentName: "ImageUploadDefaultsDialog",
