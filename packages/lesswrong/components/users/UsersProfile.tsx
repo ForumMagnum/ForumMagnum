@@ -524,9 +524,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
+              <Components.NewFeatureTooltip text="Test">
               { isEAForum && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
                 Edit Profile
               </Link>}
+              </Components.NewFeatureTooltip>
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
