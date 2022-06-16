@@ -114,6 +114,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 8,
     ...separatorBulletStyles(theme)
   },
+  editUserNewFeature: {
+    right: 25,
+    top: 5
+  },
   meta: {
     ...sectionFooterLeftStyles,
     [theme.breakpoints.down('sm')]: {
@@ -524,7 +528,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
-              <Components.NewFeatureTooltip text="New! You can edit your profile here to add a bio and profile image!">
+              <Components.NewFeatureTooltip text="New! You can edit your profile here to add a bio and profile image!" className={classes.editUserNewFeature}>
               { isEAForum && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
                 Edit Profile
               </Link>}

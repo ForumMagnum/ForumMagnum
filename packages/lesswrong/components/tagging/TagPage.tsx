@@ -80,6 +80,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 6,
     },
   },
+  newFeatureSubscribe: {
+    top: 22,
+    right: -5
+  },
   nonMobileButtonRow: {
     [theme.breakpoints.down('xs')]: {
       // Ensure this takes priority over the properties in TagPageButtonRow
@@ -149,7 +153,7 @@ const TagPage = ({classes}: {
     PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
     TagPageButtonRow, ToCColumn, TableOfContents, TableOfContentsRow, TagContributorsList,
-    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles
+    SubscribeButton, CloudinaryImage2, TagIntroSequence, SectionTitle, ContentStyles, NewFeatureTooltip
    } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -310,13 +314,15 @@ const TagPage = ({classes}: {
             </Typography>
             <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.mobileButtonRow)} />
             {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
+              <NewFeatureTooltip className={classes.newFeatureSubscribe} text="New! Subscribe to this Topic to see more posts that you're interested in!">
               <SubscribeButton
                 tag={tag}
                 className={classes.notifyMeButton}
                 subscribeMessage="Subscribe"
                 unsubscribeMessage="Unsubscribe"
                 subscriptionType={subscriptionTypes.newTagPosts}
-              />
+                />
+              </NewFeatureTooltip>
             }
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />

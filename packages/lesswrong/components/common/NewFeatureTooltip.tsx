@@ -14,29 +14,28 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: 10,
       borderRadius: '50%',
       alignSelf: 'center',
-      position: 'absolute',
-      right: 5
+      position: 'absolute'
+    },
+    NewFeatureTooltipArrow: {
+      pointerEvents: "none",
+      content:'""',
+      position: "absolute",
+      left: -10,
+      top: -5,
+      width: 0,
+      height: 0,
+      border: "10px solid transparent",
+      borderRightColor: theme.palette.lwTertiary.main
     },
     NewFeatureTooltip: {
       background: theme.palette.lwTertiary.main,
       color: theme.palette.primary.contrastText,
       padding: 3,
       borderRadius: 2,
-      display:'flex',
       width: 100,
-      marginLeft: 15,
-        '&:before': {
-          pointerEvents: "none",
-          content:'""',
-          position: "absolute",
-          left: -5,
-          width: 0,
-          height: 0,
-          zIndex: -1,
-          border: "10px solid transparent",
-          borderRightColor: theme.palette.lwTertiary.main,
-          alignSelf: 'center'
-      }
+      marginLeft: 10,
+      marginTop: -10,
+      minHeight: 40
     },
     wrapper: {
       display: 'flex',
@@ -66,9 +65,10 @@ const NewFeatureTooltip = ({classes, children, className, text} :
     
     open={hover}
     anchorEl={anchorEl}
-    placement="right"
+    placement="right-start"
     allowOverflow>
       <div>
+        <div className={classes.NewFeatureTooltipArrow}></div>
         <div className={classes.NewFeatureTooltip}>{text}</div>
       </div>
     </LWPopper>
