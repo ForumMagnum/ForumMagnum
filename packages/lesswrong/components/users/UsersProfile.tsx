@@ -524,7 +524,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </DialogGroup>
                 </div>
               }
-              <Components.NewFeatureTooltip text="Test">
+              <Components.NewFeatureTooltip text="New! You can edit your profile here to add a bio and profile image!">
               { isEAForum && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
                 Edit Profile
               </Link>}
