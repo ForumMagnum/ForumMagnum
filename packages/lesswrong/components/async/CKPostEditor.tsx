@@ -5,7 +5,7 @@ import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorU
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings';
 // Uncomment this line and the reference below to activate the CKEditor debugger
-// import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
+import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   sidebar: {
@@ -69,9 +69,9 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
       onChange={onChange}
       editor={ collaboration ? PostEditorCollaboration : PostEditor }
       onInit={ editor => {
+          CKEditorInspector.attach(editor)
           if (collaboration) {
             // Uncomment this line and the import above to activate the CKEDItor debugger
-            // CKEditorInspector.attach(editor)
 
             // We listen to the current window size to determine how to show comments
             window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
