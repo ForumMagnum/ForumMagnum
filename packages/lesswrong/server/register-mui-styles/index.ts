@@ -48,7 +48,7 @@ registerComponent("MuiPaper", Paper, {
       },
     };
   },
-  stylePriority: -1,
+  stylePriority: -10,
 });
 
 registerComponent("MuiButton", Button, {
@@ -139,7 +139,7 @@ registerComponent("MuiButton", Button, {
       },
     },
   }),
-  stylePriority: -1,
+  stylePriority: -10,
 });
 
 registerComponent("MuiListItem", ListItem, {
@@ -161,7 +161,7 @@ registerComponent("MuiListItem", ListItem, {
       },
     },
   }),
-  stylePriority: -1,
+  stylePriority: -10,
 });
 
 registerComponent("MuiListItemIcon", ListItemIcon, {
@@ -170,5 +170,5 @@ registerComponent("MuiListItemIcon", ListItemIcon, {
       color: theme.palette.action.active,
     },
   }),
-  stylePriority: -1,
+  stylePriority: -10,
 });
