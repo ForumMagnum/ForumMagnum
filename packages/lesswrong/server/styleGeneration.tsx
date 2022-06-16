@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 // Adds selected MUI components to global styles.
-import './register-mui-styles';
+// import './register-mui-styles';
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
 import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
