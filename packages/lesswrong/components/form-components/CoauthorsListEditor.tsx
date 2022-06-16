@@ -1,13 +1,22 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { arrayMove } from 'react-sortable-hoc';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import withUser from '../common/withUser';
 import { makeSortableListComponent } from '../forms/sortableList';
+import find from 'lodash/find';
 
 const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
+  },
+  list: {
+    display: "flex",
+    flexWrap: "wrap"
+  },
+  item: {
+    listStyle: "none",
+    fontFamily: theme.typography.fontFamily
   },
   checkbox: {
     padding: '6px',
@@ -19,6 +28,12 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+type CoauthorListItem = {
+  userId: string
+  confirmed: boolean
+  requested: boolean
+}
+
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => {
     return <li className={classes.item}>
@@ -28,7 +43,7 @@ const SortableList = makeSortableListComponent({
 });
 
 const CoauthorsListEditor = ({ value, path, document, classes, label, currentUser, updateCurrentValues }: {
-  value: { userId: string, confirmed: boolean, requested: boolean }[],
+  value: CoauthorListItem[],
   path: string,
   document: Partial<DbPost>,
   classes: ClassesType,
@@ -36,6 +51,7 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
   currentUser: DbUser|null,
   updateCurrentValues<T extends {}>(values: T) : void,
 }) => {
+  const [initialValue] = useState(value);
   const hasPermission = !!document.hasCoauthorPermission;
   
   const toggleHasPermission = () => {
@@ -68,8 +84,17 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
         </Components.ErrorBoundary>
         <SortableList
           axis="xy"
-          value={value}
-          setValue={setValue}
+          value={value.map(v=>v.userId)}
+          setValue={(newValue) => {
+            setValue(newValue.map(userId => {
+              const userWithStatus = find(initialValue, u=>u.userId===userId);
+              return {
+                userId,
+                confirmed: userWithStatus?.confirmed||false,
+                requested: userWithStatus?.confirmed||false,
+              };
+            }));
+          }}
           className={classes.list}
           classes={classes}
         />
