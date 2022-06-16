@@ -69,7 +69,6 @@ const CoauthorsListEditor = ({ value, path, document, classes, label, currentUse
   }
 
   const setValue = useCallback((newValue: any[]) => {
-    console.log(newValue)
     updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
 
