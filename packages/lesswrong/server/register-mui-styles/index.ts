@@ -40,123 +40,135 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 // `fade` to throw, for example.
 export const themePaletteTestExcludedComponents = ["MuiButton"]
 
-registerComponent("MuiPaper", Paper, { styles: theme => {
-  return {
-    root: {
-      backgroundColor: theme.palette.background.paper,
-    },
-  };
-}});
+registerComponent("MuiPaper", Paper, {
+  styles: theme => {
+    return {
+      root: {
+        backgroundColor: theme.palette.background.paper,
+      },
+    };
+  },
+  stylePriority: -10,
+});
 
-registerComponent("MuiButton", Button, { styles: theme => ({
-  root: {
-    color: theme.palette.text.primary,
-    '&:hover': {
-      backgroundColor: fade(theme.palette.text.primary, theme.palette.action.hoverOpacity),
-    },
-    '&$disabled': {
-      color: theme.palette.action.disabled,
-    },
-  },
-  textPrimary: {
-    color: theme.palette.primary.main,
-    '&:hover': {
-      backgroundColor: fade(theme.palette.primary.main, theme.palette.action.hoverOpacity),
-    },
-  },
-  textSecondary: {
-    color: theme.palette.secondary.main,
-    '&:hover': {
-      backgroundColor: fade(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
-    },
-  },
-  outlined: {
-    border: `1px solid ${
-      theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'
-    }`,
-    '&$disabled': {
-      border: `1px solid ${theme.palette.action.disabled}`,
-    },
-  },
-  outlinedPrimary: {
-    color: theme.palette.primary.main,
-    border: `1px solid ${fade(theme.palette.primary.main, 0.5)}`,
-    '&:hover': {
-      border: `1px solid ${theme.palette.primary.main}`,
-      backgroundColor: fade(theme.palette.primary.main, theme.palette.action.hoverOpacity),
-    },
-  },
-  outlinedSecondary: {
-    color: theme.palette.secondary.main,
-    border: `1px solid ${fade(theme.palette.secondary.main, 0.5)}`,
-    '&:hover': {
-      border: `1px solid ${theme.palette.secondary.main}`,
-      backgroundColor: fade(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
-    },
-    '&$disabled': {
-      border: `1px solid ${theme.palette.action.disabled}`,
-    },
-  },
-  contained: {
-    color: theme.palette.getContrastText(theme.palette.grey[300]),
-    backgroundColor: theme.palette.grey[300],
-    '&$disabled': {
-      color: theme.palette.action.disabled,
-      backgroundColor: theme.palette.action.disabledBackground,
-    },
-    '&:hover': {
-      backgroundColor: theme.palette.grey.A100,
-      '@media (hover: none)': {
-        backgroundColor: theme.palette.grey[300],
+registerComponent("MuiButton", Button, {
+  styles: theme => ({
+    root: {
+      color: theme.palette.text.primary,
+      '&:hover': {
+        backgroundColor: fade(theme.palette.text.primary, theme.palette.action.hoverOpacity),
       },
       '&$disabled': {
+        color: theme.palette.action.disabled,
+      },
+    },
+    textPrimary: {
+      color: theme.palette.primary.main,
+      '&:hover': {
+        backgroundColor: fade(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+      },
+    },
+    textSecondary: {
+      color: theme.palette.secondary.main,
+      '&:hover': {
+        backgroundColor: fade(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
+      },
+    },
+    outlined: {
+      border: `1px solid ${
+        theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'
+      }`,
+      '&$disabled': {
+        border: `1px solid ${theme.palette.action.disabled}`,
+      },
+    },
+    outlinedPrimary: {
+      color: theme.palette.primary.main,
+      border: `1px solid ${fade(theme.palette.primary.main, 0.5)}`,
+      '&:hover': {
+        border: `1px solid ${theme.palette.primary.main}`,
+        backgroundColor: fade(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+      },
+    },
+    outlinedSecondary: {
+      color: theme.palette.secondary.main,
+      border: `1px solid ${fade(theme.palette.secondary.main, 0.5)}`,
+      '&:hover': {
+        border: `1px solid ${theme.palette.secondary.main}`,
+        backgroundColor: fade(theme.palette.secondary.main, theme.palette.action.hoverOpacity),
+      },
+      '&$disabled': {
+        border: `1px solid ${theme.palette.action.disabled}`,
+      },
+    },
+    contained: {
+      color: theme.palette.getContrastText(theme.palette.grey[300]),
+      backgroundColor: theme.palette.grey[300],
+      '&$disabled': {
+        color: theme.palette.action.disabled,
         backgroundColor: theme.palette.action.disabledBackground,
       },
-    },
-  },
-  containedPrimary: {
-    color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.main,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-      '@media (hover: none)': {
-        backgroundColor: theme.palette.primary.main,
+      '&:hover': {
+        backgroundColor: theme.palette.grey.A100,
+        '@media (hover: none)': {
+          backgroundColor: theme.palette.grey[300],
+        },
+        '&$disabled': {
+          backgroundColor: theme.palette.action.disabledBackground,
+        },
       },
     },
-  },
-  containedSecondary: {
-    color: theme.palette.secondary.contrastText,
-    backgroundColor: theme.palette.secondary.main,
-    '&:hover': {
-      backgroundColor: theme.palette.secondary.dark,
-      '@media (hover: none)': {
-        backgroundColor: theme.palette.secondary.main,
+    containedPrimary: {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+      '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+        '@media (hover: none)': {
+          backgroundColor: theme.palette.primary.main,
+        },
       },
     },
-  },
-})});
+    containedSecondary: {
+      color: theme.palette.secondary.contrastText,
+      backgroundColor: theme.palette.secondary.main,
+      '&:hover': {
+        backgroundColor: theme.palette.secondary.dark,
+        '@media (hover: none)': {
+          backgroundColor: theme.palette.secondary.main,
+        },
+      },
+    },
+  }),
+  stylePriority: -10,
+});
 
-registerComponent("MuiListItem", ListItem, { styles: theme => ({
-  root: {
-    '&$selected, &$selected:hover, &$selected:focus': {
-      backgroundColor: theme.palette.action.selected,
+registerComponent("MuiListItem", ListItem, {
+  styles: theme => ({
+    root: {
+      '&$selected, &$selected:hover, &$selected:focus': {
+        backgroundColor: theme.palette.action.selected,
+      },
     },
-  },
-  divider: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
-  },
-  button: {
-    '&:hover': {
-      backgroundColor: theme.palette.action.hover,
+    divider: {
+      borderBottom: `1px solid ${theme.palette.divider}`,
     },
-    '&:focus': {
-      backgroundColor: theme.palette.action.hover,
+    button: {
+      '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+      },
+      '&:focus': {
+        backgroundColor: theme.palette.action.hover,
+      },
     },
-  },
-})});
+  }),
+  stylePriority: -10,
+});
 
-registerComponent("MuiListItemIcon", ListItemIcon, { styles: theme => ({
-  root: {
-    color: theme.palette.action.active,
-  },
-})});
+registerComponent("MuiListItemIcon", ListItemIcon, {
+  styles: theme => ({
+    root: {
+      color: theme.palette.action.active,
+    },
+  }),
+  stylePriority: -10,
+});
