@@ -328,7 +328,7 @@ if (!testServerSetting.get()) {
 function sleepWithVariance(ms: number)
 {
   const variance = Math.sqrt(ms)
-  const randomizedSleepTimeMs = normalDistribution(ms, variance)
+  const randomizedSleepTimeMs = Math.round(normalDistribution(ms, variance))
   return new Promise(resolve => setTimeout(resolve, randomizedSleepTimeMs));
 }
 
