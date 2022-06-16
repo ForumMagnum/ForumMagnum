@@ -71,9 +71,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   profileImage: {
     'margin-right': '20px',
-    'box-shadow': '3px 3px 1px #757575',
-    '-webkit-box-shadow': '0px 0px 2px 0px #757575',
-    '-moz-box-shadow': '3px 3px 1px #757575',
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
     'border-radius': '50%',
   },
   flexingNameAndMessage: {
