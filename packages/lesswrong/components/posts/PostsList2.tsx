@@ -108,44 +108,19 @@ const PostsList2 = ({
     ...tagVariables
   });
 
-
-  let hidePosts: Array<boolean>|null = null;
-
   // Map from post._id to whether to hide it. Used for client side post filtering like e.g. hiding read posts
   const hiddenPosts: {[key: string]: boolean} = {}
 
-  if (hideLastUnread && results?.length && !haveLoadedMore) {
-    // If the list ends with N sequential read posts, hide N-1 of them.
-    let numUnreadAtEnd = 0;
-    for (let i=results.length-1; i>=0; i--) {
-      // FIXME: This uses the initial-load version of the read-status, and won't
-      // update based on the client-side read status cache.
-      if (results[i].isRead) numUnreadAtEnd++;
-      else break;
-    }
-    if (numUnreadAtEnd > 1) {
-      const numHiddenAtEnd = numUnreadAtEnd - 1;
-
-      results.forEach((post,i) => {
-        if (i >= results.length-numHiddenAtEnd) {
-          hiddenPosts[post._id] = true;
-        }
-      })
-    }
-  }
-
   const currentUser = useCurrentUser();
   if (results?.length) {
-    // if (hideLastUnread && !haveLoadedMore) {
-    //   // If the list ends with N sequential read posts, hide N-1 of them.
-    //   for (let i=results.length-1; i>=0; i--) {
-    //     // FIXME: This uses the initial-load version of the read-status, and won't
-    //     // update based on the client-side read status cache.
-    //     const post = results[i]
-    //     if (post.isRead) hiddenPosts[post._id] = true; 
-    //     else break;
-    //   }
-    // }
+    if (hideLastUnread && !haveLoadedMore) {
+      // hide unread posts, except for the first one
+      results.forEach((post, i) => {
+        // FIXME: This uses the initial-load version of the read-status, and won't
+        // update based on the client-side read status cache.
+        if (post.isRead && i > 0) hiddenPosts[post._id] = true; 
+      })
+    }
 
     if (currentUser && hideHiddenFrontPagePosts) {
       // Hide any posts that a user has explicitly hidden
