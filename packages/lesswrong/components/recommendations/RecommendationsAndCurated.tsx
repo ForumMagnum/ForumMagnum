@@ -157,7 +157,6 @@ const RecommendationsAndCurated = ({
         </div>
       </div>}
 
-      {/* Disabled during 2018 Review [and coronavirus season] */}
       <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage &&
@@ -170,7 +169,7 @@ const RecommendationsAndCurated = ({
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
               showLoadMore={false}
-              hideLastUnread={true}
+              // hideLastUnread={true}
               boxShadow={false}
               curatedIconLeft={true}
             />
