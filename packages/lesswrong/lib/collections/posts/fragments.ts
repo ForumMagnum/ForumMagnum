@@ -36,7 +36,9 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    
+    coauthorStatuses
+    hasCoauthorPermission
+
     commentCount
     voteCount
     baseScore
@@ -414,7 +416,7 @@ registerFragment(`
     myEditorAccess
     linkSharingKey
     version
-    coauthorUserIds
+    coauthorStatuses
     moderationGuidelines {
       ...RevisionEdit
     }

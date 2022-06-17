@@ -452,10 +452,42 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 });
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
-  if (post.shareWithUsers?.length) {
-    await createNotifications({userIds: post.shareWithUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: post._id})
-  }
+  const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
+  const coauthors = coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId);
+  const userIds = shareWithUsers.filter((user) => !coauthors.includes(user));
+  await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
+
+getCollectionHooks("Posts").newAsync.add(async function CoauthorRequestNotifications(post: DbPost) {
+  await checkCoauthorRequestNotifications(post);
+});
+
+getCollectionHooks("Posts").updateAfter.add(async function CoauthorRequestNotifications(post: DbPost) {
+  return await checkCoauthorRequestNotifications(post);
+});
+
+async function checkCoauthorRequestNotifications(post: DbPost) {
+  const { _id, coauthorStatuses = [], hasCoauthorPermission } = post;
+
+  if (hasCoauthorPermission) {
+    return post;
+  }
+
+  const userIds = coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId);
+  if (userIds.length>0) {
+    await createNotifications({userIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
+  
+    await updateMutator({
+      collection: Posts,
+      documentId: _id,
+      data: {
+        coauthorStatuses: coauthorStatuses.map((status) => ({ ...status, requested: true })),
+      },
+      validate: false,
+    })
+  }
+  return post;
+}
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
   const newlyAF = newDocument.af && !oldDocument.af
@@ -468,7 +500,7 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
-  
+
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
