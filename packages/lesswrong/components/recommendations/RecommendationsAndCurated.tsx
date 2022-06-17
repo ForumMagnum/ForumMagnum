@@ -169,7 +169,7 @@ const RecommendationsAndCurated = ({
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
               showNoResults={false}
               showLoadMore={false}
-              // hideLastUnread={true}
+              hideLastUnread={true}
               boxShadow={false}
               curatedIconLeft={true}
             />
