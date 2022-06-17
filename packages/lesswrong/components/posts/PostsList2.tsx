@@ -114,12 +114,15 @@ const PostsList2 = ({
   const currentUser = useCurrentUser();
   if (results?.length) {
     if (hideLastUnread && !haveLoadedMore) {
-      // hide unread posts, except for the first one
-      results.forEach((post, i) => {
+      // If the list ends with N sequential read posts, hide them, except for the first post in the list
+      for (let i=results.length-1; i>=0; i--) {
         // FIXME: This uses the initial-load version of the read-status, and won't
         // update based on the client-side read status cache.
-        if (post.isRead && i > 0) hiddenPosts[post._id] = true; 
-      })
+        if (results[i].isRead && i > 0) {
+          hiddenPosts[results[i]._id] = true;
+        }
+        else break;
+      }
     }
 
     if (currentUser && hideHiddenFrontPagePosts) {
