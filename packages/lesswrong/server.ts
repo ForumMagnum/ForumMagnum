@@ -63,6 +63,7 @@ import './server/markAsUnread';
 import './server/rsvpToEvent';
 import './server/acceptCoauthorRequest';
 import './server/bookmarkMutation';
+import './server/hidePostMutation';
 import './server/rss';
 import './server/akismet';
 import './server/votingCron';
