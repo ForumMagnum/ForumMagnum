@@ -157,7 +157,6 @@ const RecommendationsAndCurated = ({
         </div>
       </div>}
 
-      {/* Disabled during 2018 Review [and coronavirus season] */}
       <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage &&
