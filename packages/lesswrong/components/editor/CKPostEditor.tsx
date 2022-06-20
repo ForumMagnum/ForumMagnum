@@ -7,6 +7,7 @@ import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/colle
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
+import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
@@ -178,6 +179,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           container: presenceListRef.current
         },
         initialData: initData,
+        placeholder: defaultEditorPlaceholder,
         mention: mentionPluginConfiguration
       }}
     />}

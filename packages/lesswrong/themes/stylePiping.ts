@@ -455,6 +455,9 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
           ...hrStyles(theme)
         },
       },
+      '& .ck-placeholder:before': {
+        whiteSpace: 'break-spaces'
+      },
       '&.ck-sidebar, &.ck-presence-list': {
         '& li': {
           // By default ckEditor elements get the styles from postBodyStyles li elements
