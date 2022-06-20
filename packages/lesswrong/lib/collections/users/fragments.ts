@@ -29,8 +29,26 @@ registerFragment(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    bio
+    jobTitle
+    organization
+    careerStage
+    biography {
+      ...RevisionDisplay
+    }
+    howOthersCanHelpMe {
+      html
+    }
+    howICanHelpOthers {
+      html
+    }
+    organizerOfGroups {
+      ...localGroupsBase
+    }
     website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
     frontpagePostCount
     afSequenceCount
     afSequenceDraftCount
@@ -91,7 +109,9 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    bio
+    biography {
+      ...RevisionEdit
+    }
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -134,6 +154,7 @@ registerFragment(`
       ...PostsList
     }
 
+    hiddenPostsMetadata
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -203,7 +224,6 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
-    bio
     htmlBio
     createdAt
     email
@@ -257,7 +277,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
-    beta
+    biography {
+      ...RevisionEdit
+    }
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -366,5 +388,34 @@ registerFragment(`
     ...UsersMinimumInfo
     reviewVoteCount
     email
+  }
+`)
+
+registerFragment(`
+  fragment UsersProfileEdit on User {
+    _id
+    slug
+    jobTitle
+    organization
+    careerStage
+    biography {
+      ...RevisionEdit
+    }
+    howOthersCanHelpMe {
+      ...RevisionEdit
+    }
+    howICanHelpOthers {
+      ...RevisionEdit
+    }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    mapLocation
+    website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
   }
 `)

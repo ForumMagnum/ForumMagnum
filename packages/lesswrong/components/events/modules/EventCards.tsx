@@ -140,7 +140,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return <Card key={event._id} className={classNames(classes.eventCard, cardClassName)}>
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
-          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} /> :
+          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} /> :
           <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
       </Link>
       {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}

@@ -12,6 +12,7 @@ import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
+import uniqBy from 'lodash/uniqBy'
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -136,6 +137,28 @@ const partiallyReadSequenceItem = new SimpleSchema({
     optional: true,
   },
 });
+
+export const CAREER_STAGES = [
+  {value: 'highSchool', label: "In high school"},
+  {value: 'associateDegree', label: "Pursuing an associate's degree"},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree"},
+  {value: 'professionalDegree', label: "Pursuing a professional degree"},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)"},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)"},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma"},
+  {value: 'earlyCareer', label: "Working (0-5 years experience)"},
+  {value: 'midCareer', label: "Working (6-15 years of experience)"},
+  {value: 'lateCareer', label: "Working (15+ years of experience)"},
+  {value: 'seekingWork', label: "Seeking work"},
+  {value: 'retired', label: "Retired"},
+]
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
 
 addFieldsDict(Users, {
   // TODO(EA): Allow resending of confirmation email
@@ -424,32 +447,6 @@ addFieldsDict(Users, {
     logChanges: false,
   },
 
-  // Bio (Markdown version)
-  bio: {
-    type: String,
-    optional: true,
-    control: "MuiTextField",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    group: formGroups.default,
-    order: 40,
-    form: {
-      hintText:"Bio",
-      rows: 12,
-      multiLine:true,
-      fullWidth:true,
-    },
-  },
-
-  // Bio (HTML version)
-  htmlBio: {
-    type: String,
-    denormalized: true,
-    optional: true,
-    canRead: ['guests'],
-  },
-
   // Karma field
   karma: {
     type: Number,
@@ -461,18 +458,6 @@ addFieldsDict(Users, {
     type: Number,
     optional: true,
     canRead: ['guests'],
-  },
-
-  // Website
-  website: {
-    type: String,
-    hidden: true,
-    optional: true,
-    control: "text",
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canRead: ['guests'],
-    order: 50,
   },
 
   moderationStyle: {
@@ -581,6 +566,42 @@ addFieldsDict(Users, {
     optional: true
   },
   "bookmarkedPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
+    optional: true
+  },
+
+  // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
+  // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead
+  // model this closer to ReadStatuses: an object per hidden thread + user pair, and exposing the hidden status
+  // as a property on thread. 
+  //
+  // That said, this is likely fine given this is a power use feature, but if it ever gives anyone any problems
+  // feel free to change it!
+  hiddenPostsMetadata: {
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.hiddenPostsMetadata) {
+        return uniqBy(data?.hiddenPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "hiddenPostsMetadata",
+      resolverName: "hiddenPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "hiddenPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "hiddenPostsMetadata.$.postId": {
     type: String,
     foreignKey: "Posts",
     optional: true
@@ -706,7 +727,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(true),
   },
   autoSubscribeAsOrganizer: {
-    label: "Auto-subscribe to posts and meetups in groups I organize",
+    label: `Auto-subscribe to posts/events in groups I organize`,
     group: formGroups.notifications,
     type: Boolean,
     optional: true,
@@ -719,7 +740,7 @@ addFieldsDict(Users, {
   },
 
   notificationCommentsOnSubscribedPost: {
-    label: "Comments on posts I'm subscribed to",
+    label: `Comments on posts/events I'm subscribed to`,
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
@@ -761,7 +782,7 @@ addFieldsDict(Users, {
     ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationEventInRadius: {
-    label: "New Events in my notification radius",
+    label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
@@ -949,13 +970,13 @@ addFieldsDict(Users, {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
+    group: formGroups.siteCustomizations,
     hidden: !hasEventsSetting.get(),
     label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 42,
+    order: 100,
   },
 
   location: {
@@ -974,12 +995,13 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.default,
-    label: "Public location (used for your public profile)",
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
+    order: forumTypeSetting.get() === "EAForum" ? 8 : 101,
+    label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    order: 43,
+    hidden: forumTypeSetting.get() === "EAForum"
   },
 
   mapLocationSet: {
@@ -1583,6 +1605,162 @@ addFieldsDict(Users, {
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
   },
+  
+  jobTitle: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 1,
+    label: 'Role'
+  },
+  
+  organization: {
+    type: String,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 2,
+  },
+  
+  careerStage: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 3,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Career stage",
+    form: {
+      separator: '\r\n',
+      options: CAREER_STAGES
+    },
+  },
+  'careerStage.$': {
+    type: String,
+    optional: true,
+  },
+  
+  bio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+  htmlBio: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true,
+    hidden: true,
+  },
+  
+  // These are the groups displayed in the user's profile (i.e. this field is informational only).
+  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
+  organizerOfGroupIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerOfGroupIds",
+      resolverName: "organizerOfGroups",
+      collectionName: "Localgroups",
+      type: "Localgroup"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.aboutMe,
+    order: 7,
+    control: "SelectLocalgroup",
+    label: "Organizer of",
+    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
+    form: {
+      useDocumentAsUser: true,
+      separator: '\r\n',
+      multiselect: true
+    },
+  },
+  'organizerOfGroupIds.$': {
+    type: String,
+    foreignKey: "Localgroups",
+    optional: true,
+  },
+
+  website: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: 'https://'
+    },
+    group: formGroups.aboutMe,
+    order: 9
+  },
+  
+  linkedinProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  facebookProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  twitterProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+    },
+    group: formGroups.socialMedia
+  },
+  githubProfileURL: {
+    type: String,
+    hidden: true,
+    optional: true,
+    control: 'PrefixedInput',
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    form: {
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
+    },
+    group: formGroups.socialMedia
+  },
 });
 
 makeEditable({
@@ -1600,6 +1778,68 @@ makeEditable({
       editableBy: [userOwns, 'sunshineRegiment', 'admins'],
       insertableBy: [userOwns, 'sunshineRegiment', 'admins']
     }
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 5,
+    fieldName: 'howOthersCanHelpMe',
+    label: "How others can help me",
+    hintText: "Ex: I am looking for opportunities to do...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    formGroup: formGroups.aboutMe,
+    hidden: true,
+    order: 6,
+    fieldName: 'howICanHelpOthers',
+    label: "How I can help others",
+    hintText: "Ex: Reach out to me if you have questions about...",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
+  }
+})
+
+// biography: Some text the user provides for their profile page and to display
+// when people hover over their name.
+//
+// Replaces the old "bio" and "htmlBio" fields, which were markdown only, and
+// which now exist as resolver-only fields for back-compatibility.
+makeEditable({
+  collection: Users,
+  options: {
+    commentEditor: true,
+    commentStyles: true,
+    hidden: forumTypeSetting.get() === "EAForum",
+    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    fieldName: "biography",
+    label: "Bio",
+    hintText: "Tell us about yourself",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+    },
   }
 })
 

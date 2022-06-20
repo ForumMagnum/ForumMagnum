@@ -8,6 +8,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -178,7 +179,8 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
           container: presenceListRef.current
         },
         initialData: initData,
-        placeholder: defaultEditorPlaceholder
+        placeholder: defaultEditorPlaceholder,
+        mention: mentionPluginConfiguration
       }}
     />}
   </div>

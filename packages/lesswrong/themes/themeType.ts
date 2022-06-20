@@ -326,6 +326,9 @@ declare global {
       commentMarker: ColorString,
       commentMarkerActive: ColorString,
     },
+    intercom?: { //Optional. If omitted, use defaults from library.
+      buttonBackground: ColorString,
+    },
     group: ColorString,
     contrastText: ColorString,
     individual: ColorString,
@@ -385,6 +388,7 @@ declare global {
     },
     zIndexes: any,
     overrides: any,
+    postImageStyles: JssStyles,
     voting: {strongVoteDelay: number},
     secondary: any,
     
@@ -392,6 +396,8 @@ declare global {
     // `theme.palette.boxShadow` which defines shadows semantically rather than
     // with an arbitrary darkness number)
     shadows: string[],
+    
+    rawCSS: string[],
   };
   
   type BaseThemeSpecification = {

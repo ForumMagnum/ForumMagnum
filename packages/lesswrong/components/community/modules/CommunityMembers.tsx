@@ -41,6 +41,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     marginRight: 6
   },
+  locationFilter: {
+    flexGrow: 1
+  },
+  fullMapLink: {
+    color: theme.palette.primary.main,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    margin: '0 5px'
+  },
   noResults: {
     ...theme.typography.commentStyle,
     textAlign: 'center',
@@ -71,7 +80,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderColor: theme.palette.grey[300],
+    borderColor: theme.palette.greyAlpha(.1),
   },
   content: {
     padding: 20,
@@ -127,10 +136,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   messageBtn: {
     boxShadow: 'none'
   },
-  map: {
+  mapContainer: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+  },
+  map: {
+    height: 440,
   },
   pagination: {
     ...theme.typography.commentStyle,
@@ -214,7 +226,9 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
     return <div className={classes.person}>
       <div className={classes.content}>
         <div className={classes.nameRow}>
-          <Link to={`/users/${hit.slug}`} className={classes.displayName}>{hit.displayName}</Link>
+          <Link to={`/users/${hit.slug}?from=community_members_tab`} className={classes.displayName}>
+            {hit.displayName}
+          </Link>
           <div className={classes.distance}>
             {distanceToPerson}
           </div>
@@ -222,7 +236,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         <div className={classes.location}>{hit.mapLocationAddress}</div>
         {hit.htmlBio && <div className={classes.description}><div dangerouslySetInnerHTML={{__html: hit.htmlBio}} /></div>}
         {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
-          <NewConversationButton user={hit} currentUser={currentUser}>
+          <NewConversationButton user={hit} currentUser={currentUser} from="community_members_tab">
             <Button variant="contained" color="primary" className={classes.messageBtn}>Message</Button>
           </NewConversationButton>
         </div>}
@@ -241,7 +255,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   >
     <div className={classes.filters}>
       <CustomSearchBox />
-      {locationFilterNode}
+      <div className={classes.locationFilter}>{locationFilterNode}</div>
+      <Link to="/community/map" className={classes.fullMapLink}>View full map</Link>
     </div>
     <div className={classes.people}>
       <div className={classes.peopleList}>
@@ -249,12 +264,12 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         <Hits hitComponent={CommunityMember} />
         <Pagination className={classes.pagination} />
       </div>
-      <div className={classes.map}>
+      <div className={classes.mapContainer}>
         {/* search result hits are provided by InstantSearch, which is probably a provider */}
-        <SearchResultsMap {...mapOptions} />
+        <SearchResultsMap {...mapOptions} className={classes.map} />
       </div>
     </div>
-    <Configure hitsPerPage={100} {...searchOptions} />
+    <Configure hitsPerPage={200} aroundRadius="all" {...searchOptions} />
   </InstantSearch>
 }
 

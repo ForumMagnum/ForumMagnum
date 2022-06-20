@@ -67,6 +67,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
     }}
     onBlur={(event) =>  handleChangeTitle(event)}
     disableUnderline={true}
+    multiline
   />
 };
 

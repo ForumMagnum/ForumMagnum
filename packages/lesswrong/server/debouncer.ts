@@ -264,6 +264,7 @@ export const dispatchPendingEvents = async () => {
 export const forcePendingEvents = async (upToDate=null) => {
   let eventToHandle = null;
   const af = forumTypeSetting.get() === 'AlignmentForum'
+  let countHandled = 0;
   
   do {
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
@@ -277,10 +278,14 @@ export const forcePendingEvents = async (upToDate=null) => {
     
     if (eventToHandle) {
       await dispatchEvent(eventToHandle);
+      countHandled++;
     }
     
     // Keep checking for more events to handle so long as one was handled.
   } while (eventToHandle);
+
+  // eslint-disable-next-line no-console
+  console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
 
 Vulcan.forcePendingEvents = forcePendingEvents;

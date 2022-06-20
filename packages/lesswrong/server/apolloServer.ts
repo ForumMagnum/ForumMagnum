@@ -103,12 +103,12 @@ export function startWebserver() {
   app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
   app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', bodyParser.json({ limit: '50mb' }));
-  app.use(pickerMiddleware);
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(pickerMiddleware);
   
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
@@ -210,6 +210,7 @@ export function startWebserver() {
     } else {
       return response.status(status||200).send(
         '<!doctype html>\n'
+        + '<html lang="en">\n'
         + '<head>\n'
           + clientScript
           + headers.join('\n')
@@ -218,10 +219,11 @@ export function startWebserver() {
           + jssSheets
         + '</head>\n'
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-          + ssrBody
-        +'</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt)
-        + serializedApolloState)
+          + ssrBody + '\n'
+        + '</body>\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
+        + serializedApolloState + '\n'
+        + '</html>\n')
     }
   })
 

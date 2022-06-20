@@ -22,6 +22,20 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
+export interface SettingsOption {
+  label: string;
+  tooltip?: string;
+}
+
+export const SORT_ORDER_OPTIONS: { [key: string]: SettingsOption; } = {
+  magic: { label: 'Magic (New & Upvoted)', tooltip: 'Posts with the highest karma from the past few days' },
+  topAdjusted: { label: 'Top (Inflation Adjusted)', tooltip: 'Posts with the highest karma relative to those posted around the same time' },
+  recentComments: { label: 'Recent Comments' },
+  new: { label: 'New' },
+  old: { label: 'Old' },
+  top: { label: 'Top' },
+}
+
 export interface RSVPType {
   name: string
   email: string
@@ -114,7 +128,13 @@ const schema: SchemaType<DbPost> = {
         title
       }
     `,
-    placeholder: 'Add a linkpost URL',
+    inputProperties: {
+      labels: {
+        inactive: 'Link-post?',
+        active: 'Add a linkpost URL',
+      },
+      hintText: 'Please write what you liked about the post, and sample liberally. Or, if the author allows it, copy in the entire post text. If you know the author\'s username you can add them as a co-author of this post in the "Options" menu below.',
+    },
     group: formGroups.options,
   },
   // Title

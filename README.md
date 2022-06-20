@@ -35,16 +35,11 @@ Forum Magnum is built on top of a number major open-source libraries.
 
 ### Installation
 
-Prerequisites:
-- Install MongoDB: https://docs.mongodb.com/manual/installation/
-
 Clone our repo:
 
 ```
 git clone git@github.com:ForumMagnum/ForumMagnum.git
 ```
-
-(CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
@@ -53,12 +48,21 @@ cd ForumMagnum
 yarn install
 ```
 
-Start the development server:
+### If you want to run a local database
+
+CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
+
+Prerequisites:
+- Install MongoDB: https://docs.mongodb.com/manual/installation/
 
 ```
 mkdir myLocalDatabase
 mongod --dbpath ./myLocalDatabase
+```
 
+### Start the development server
+
+```
 yarn [start|ea-start]
 ```
 
@@ -76,7 +80,7 @@ Some relevant pieces of documentation that will help you understand aspects of t
 2. JSS styles: [intro](https://cssinjs.org/)
 3. GraphQL: [tutorial](https://graphql.org/learn/)
 4. Apollo: [introduction](https://www.apollographql.com/docs/react/) and [hooks API reference](https://www.apollographql.com/docs/react/api/react/hooks/)
-5. Underscore: [reference](https://underscorejs.org/)
+5. Lodash: [reference](https://lodash.com/docs/4.17.15)
 6. MongoDB: [manual](https://docs.mongodb.com/manual/introduction/)
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.

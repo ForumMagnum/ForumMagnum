@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
 import { makeAbsolute, capitalize, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
-import { postGetPageUrl } from '../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';
 import { Messages } from '../lib/collections/messages/collection';
@@ -450,4 +450,53 @@ export const NewCommentOnDraftNotification = serverRegisterNotificationType({
       </div>)}
     </div>
   }
+});
+
+export const PostCoauthorRequestNotification = serverRegisterNotificationType({
+  name: "coauthorRequestNotification",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    return  `${user.displayName} requested that you co-author their post: ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    const link = postGetPageUrl(post, true);
+    const name = await postGetAuthorName(post);
+    return (
+      <p>
+        {name} requested that you co-author their post <a href={link}>{post.title}</a>.
+      </p>
+    );
+  },
+});
+
+export const PostCoauthorAcceptNotification = serverRegisterNotificationType({
+  name: "coauthorAcceptNotification",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    return `Your co-author request for '${post.title}' was accepted`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) {
+      throw Error(`Can't find post for notification: ${notifications[0]}`);
+    }
+    const link = postGetPageUrl(post, true);
+    return (
+      <p>
+        Your co-author request for <a href={link}>{post.title}</a> was accepted.
+      </p>
+    );
+  },
 });

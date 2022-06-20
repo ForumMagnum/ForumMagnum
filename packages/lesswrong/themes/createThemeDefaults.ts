@@ -214,6 +214,7 @@ export const baseTheme: BaseThemeSpecification = {
       zIndexes: {
         ...zIndexes
       },
+      postImageStyles: {},
       voting: {
         strongVoteDelay: 1000,
       },
@@ -288,7 +289,8 @@ export const baseTheme: BaseThemeSpecification = {
             wordBreak: "normal",
           }
         }
-      }
+      },
+      rawCSS: [],
     }
   }
 };

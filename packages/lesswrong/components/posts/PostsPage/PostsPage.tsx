@@ -151,7 +151,7 @@ const PostsPage = ({post, refetch, classes}: {
 
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
+    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
     AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
 
@@ -208,10 +208,11 @@ const PostsPage = ({post, refetch, classes}: {
             {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
               <CloudinaryImage2
                 publicId={post.eventImageId}
-                imgProps={{ar: '16:9', w: '682'}}
+                imgProps={{ar: '16:9', w: '682', q: '100'}}
                 className={classes.headerImage}
               />
             </div>}
+            <PostCoauthorRequest post={post} currentUser={currentUser} />
             <PostsPagePostHeader post={post}/>
           </div>
         </div></AnalyticsContext>

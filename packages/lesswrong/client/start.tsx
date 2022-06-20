@@ -12,7 +12,7 @@ onStartup(() => {
   const apolloClient = createApolloClient();
   apolloClient.disableNetworkFetches = true;
   
-  const ssrRenderedAt: Date = (window as any).ssrRenderedAt;
+  const ssrRenderedAt: Date = window.ssrRenderedAt;
   const timeOverride: TimeOverride = {currentTime: ssrRenderedAt};
 
   // Create the root element, if it doesn't already exist.
@@ -23,7 +23,7 @@ onStartup(() => {
   }
 
   const Main = () => (
-    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} themeOptions={(window as any).themeOptions} timeOverride={timeOverride} />
+    <AppGenerator apolloClient={apolloClient} abTestGroupsUsed={{}} themeOptions={window.themeOptions} timeOverride={timeOverride} />
   );
   
   ReactDOM.hydrate(
@@ -34,4 +34,5 @@ onStartup(() => {
       timeOverride.currentTime = null;
     }
   );
-});
+// Order 100 to make this execute last
+}, 100);

@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getSiteUrl } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import {forumTypeSetting} from "../../lib/instanceSettings";
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
@@ -48,6 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const coauthorTooltip = 'Your post will be scheduled so your co-authors can give their permission. If they do not respond, your post will be automatically published in 24 hours.';
 
 interface PostSubmitProps {
   submitLabel?: string,
@@ -60,6 +62,10 @@ interface PostSubmitProps {
   classes: ClassesType
 }
 
+const requestFeedbackKarmaLevel = forumSelect({
+  EAForum: 300,
+  default: 100,
+})
 
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", feedbackLabel = "Request Feedback", cancelCallback, document, collectionName, classes
@@ -68,7 +74,19 @@ const PostSubmit = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
-  
+
+  const waitForCoauthors = !document.hasCoauthorPermission &&
+    document.coauthorStatuses?.findIndex?.(({ confirmed }) => !confirmed) >= 0;
+
+  const { LWTooltip } = Components;
+  const SubmitTooltip = waitForCoauthors
+    ? ({ children }) => (
+      <LWTooltip title={coauthorTooltip} placement="top">
+        {children}
+      </LWTooltip>
+    )
+    : ({ children }) => children;
+
   return (
     <React.Fragment>
       {!!cancelCallback &&
@@ -85,15 +103,14 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {/* TODO: Re-enable on the EA Forum once we hire Bbron */}
-        {forumTypeSetting.get() !== "EAForum" && currentUser.karma >= 100 && document.draft!==false && <Button type="submit"//treat as draft when draft is null
+        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <Button type="submit"//treat as draft when draft is null
           className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
           onClick={() => {
             captureEvent("feedbackRequestButtonClicked")
             if (!!document.title) {
               updateCurrentValues({draft: true});
               // eslint-disable-next-line
-              (window as any).Intercom(
+              window.Intercom(
                 'trackEvent',
                 'requested-feedback',
                 {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
@@ -115,7 +132,9 @@ const PostSubmit = ({
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
           variant={collectionName=="users" ? "outlined" : undefined}
         >
-          {submitLabel}
+          <SubmitTooltip>
+            {submitLabel}
+          </SubmitTooltip>
         </Button>
       </div>
     </React.Fragment>

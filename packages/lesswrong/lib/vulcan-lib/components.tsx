@@ -131,7 +131,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window as any).missingMainStylesheet) {
+    if (isClient && window?.missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));

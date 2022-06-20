@@ -106,7 +106,6 @@ const viewNames = {
   'frontpage': 'Frontpage',
   'curated': 'Curated Content',
   'community': 'All Posts',
-  'meta': 'Meta',
   'pending': 'pending posts',
   'rejected': 'rejected posts',
   'scheduled': 'scheduled posts',
@@ -242,7 +241,6 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         {!isEAForum && <MenuItem value="curated">Curated</MenuItem>}
         <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
         <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
-        {!isEAForum && <MenuItem value="meta" disabled={method === "email"}>Meta</MenuItem>}
       </Select>
     </FormControl>
 
