@@ -17,6 +17,7 @@ import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import FormLabel from '@material-ui/core/FormLabel';
+import { markdownToHtmlNoLaTeX } from '../../lib/editor/utils';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -164,7 +165,9 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   placeholder: string,
   label: string,
   commentStyles: boolean,
-  collectionName: string
+  collectionName: string,
+  addToSubmitForm?: Function,
+  addToSuccessForm?: Function
 }
 interface EditorFormComponentState {
   editorOverride: any,
@@ -177,7 +180,8 @@ interface EditorFormComponentState {
   ckEditorValue: any,
   markdownValue: any,
   htmlValue: any,
-  markdownImgErrs: boolean
+  markdownImgErrs: boolean,
+  prevPropsValue?: string
 }
 
 class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormComponentState> {
@@ -199,7 +203,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       ckEditorReference: null,
       loading: true,
       ...this.getEditorStatesFromType(editorType),
-      markdownImgErrs: false
+      markdownImgErrs: false,
+      prevPropsValue: props.value
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
@@ -211,9 +216,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   async componentDidMount() {
     const { form } = this.props
 
-    this.context.addToSubmitForm(this.submitData);
+    this.context.addToSubmitForm && this.context.addToSubmitForm(this.submitData);
+    this.context.addToSuccessForm && this.context.addToSuccessForm((result) => {
+      this.resetEditor();
+      return result;
+    });
 
-    this.context.addToSuccessForm((result) => {
+    this.props.addToSubmitForm && this.props.addToSubmitForm(this.submitData);
+    this.props.addToSuccessForm && this.props.addToSuccessForm((result) => {
       this.resetEditor();
       return result;
     });
@@ -234,11 +244,37 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     this.ckEditor = Editor
     this.setState({ckEditorLoaded: true})
     
-    console.log('isClient', isClient)
     if (isClient) {
       this.restoreFromLocalStorage();
       this.setState({loading: false})
     }
+  }
+  
+  // UNSAFE_componentWillReceiveProps(props, state) {
+  //   // if we are given a new value, replace the text
+  //   const editorType = this.getCurrentEditorType()
+  //   console.log('~~~~~~~~~~~~~~~~~~~~~~~~~')
+  //   console.log('componentWillReceiveProps', editorType)
+  //   console.log('props.value', props.value)
+  //   console.log('state.prevPropsValue', state.prevPropsValue)
+  //   if (props.value !== state.prevPropsValue) {
+  //     const newState = {
+  //       prevPropsValue: props.value,
+  //       ...this.getEditorStatesFromType(editorType),
+  //     }
+  //     console.log('newState', newState)
+  //     return newState
+  //   }
+  // }
+  
+  setEditorValue(newValue) {
+    const html = markdownToHtmlNoLaTeX(newValue)
+    this.setState({
+      markdownValue: newValue,
+      htmlValue: html,
+      ckEditorValue: html
+    })
+    this.state.ckEditorReference?.setData(html)
   }
 
   getEditorStatesFromType = (editorType: string, contents?: any) => {
@@ -385,7 +421,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-        if (!this.isDocumentCollaborative()) {
+        if (!this.isDocumentCollaborative() && this.context.addToSuccessForm) {
+          // TODO?
           this.context.addToSuccessForm((s) => {
             this.state.ckEditorReference.setData('')
           })

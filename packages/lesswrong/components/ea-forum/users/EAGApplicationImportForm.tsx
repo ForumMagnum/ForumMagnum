@@ -1,10 +1,10 @@
 
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import Users from '../../../lib/vulcan-users';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { useNavigation } from '../../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
@@ -13,10 +13,12 @@ import Input from '@material-ui/core/Input';
 import { getSchema } from '../../../lib/utils/getSchema';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
+import classNames from 'classnames';
+import { markdownToHtmlNoLaTeX } from '../../../lib/editor/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: 900,
+    maxWidth: 1000,
     margin: '0 auto',
     '& input.geosuggest__input': {
       width: '100%'
@@ -30,12 +32,40 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   subheading: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 13,
-    lineHeight: '20px',
-    color: theme.palette.grey[700],
+    // fontFamily: theme.typography.fontFamily,
+    // fontSize: 13,
+    // lineHeight: '20px',
+    // color: theme.palette.grey[800],
     padding: '0 15px',
     marginBottom: 40
+  },
+  loggedOutView: {
+    textAlign: 'center'
+  },
+  loggedOutMessage: {
+    padding: '0 15px',
+    marginTop: 40,
+  },
+  loggedOutMessageHighlight: {
+    color: theme.palette.primary.dark
+  },
+  loggedOutLink: {
+    fontWeight: 'bold',
+    color: theme.palette.primary.main
+  },
+  callout: {
+    background: theme.palette.grey[60],
+    padding: '20px 30px 25px',
+    margin: '0 15px',
+  },
+  overwriteText: {
+    marginBottom: 15
+  },
+  overwriteBtnAltText: {
+    display: 'inline',
+    color: theme.palette.grey[700],
+    fontSize: '1rem',
+    marginLeft: 15
   },
   
   form: {
@@ -47,14 +77,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   btnRow: {
     display: 'grid',
-    gridTemplateColumns: '140px 300px 90px 300px',
+    gridTemplateColumns: '140px 350px 90px 350px',
     gridGap: '15px',
     alignItems: 'baseline',
     padding: 15,
   },
   formRow: {
     display: 'grid',
-    gridTemplateColumns: '140px 300px 90px 300px',
+    gridTemplateColumns: '140px 350px 90px 350px',
     gridGap: '15px',
     alignItems: 'baseline',
     padding: 15,
@@ -121,14 +151,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitBtnCol: {
     gridColumnStart: 4,
     alignSelf: 'center',
-    textAlign: 'center'
+    textAlign: 'right'
   },
   submitBtn: {
+    width: 'max-content',
     backgroundColor: theme.palette.primary.main,
     fontFamily: theme.typography.fontFamily,
     fontSize: 16,
     color: theme.palette.grey[0],
-    padding: '10px 18px',
+    padding: '10px 20px',
     borderRadius: 4,
     transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
     '&:hover': {
@@ -142,6 +173,7 @@ const EAGApplicationImportForm = ({classes}: {
 }) => {
   const currentUser = useCurrentUser()
   const { history } = useNavigation()
+  const { pathname } = useLocation()
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   
   const formFields = [
@@ -151,69 +183,94 @@ const EAGApplicationImportForm = ({classes}: {
     'biography',
     'howOthersCanHelpMe',
     'howICanHelpOthers',
-    'organizerOfGroupIds',
+    // 'organizerOfGroupIds',
     'mapLocation',
     'linkedinProfileURL',
   ]
   
   const [formValues, setFormValues]:any = useState(pick(currentUser, formFields))
-  console.log(formValues)
+  // console.log(formValues.howOthersCanHelpMe)
+  console.log('formValues.howOthersCanHelpMe?.ckEditorMarkup', formValues.howOthersCanHelpMe?.ckEditorMarkup)
+  
+  const biographyRef = useRef<HTMLInputElement>(null)
+  const howOthersCanHelpMeRef = useRef<HTMLInputElement>(null)
+  
+  const submitFormCallbacks = useRef<Array<Function>>([])
   
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersProfileEdit',
   })
   
+  const howOthersCanHelpMe = 'I hope to learn more about how the constituent organisations of the EA movement fit together, and how individuals think about their impact within that structure. I would like to hear as many different perspectives as possible from EAs with more experience in the community than myself (almost everyone).'
+
   const importedData:any = {
     jobTitle: 'Exec Assistant',
     organization: 'The Centre for Effective Altruism',
     careerStage: ['midCareer'],
-    biography: '',
-    howOthersCanHelpMe: 'I hope to learn more about how the constituent organisations of the EA movement fit together, and how individuals think about their impact within that structure. I would like to hear as many different perspectives as possible from EAs with more experience in the community than myself (almost everyone).',
-    howICanHelpOthers: 'As a very newcomer to CEA and a relative newcomer to EA, my main purpose is to introduce myself, listen and learn. My experience is in politics, healthcare and research, so I can provide perspective and advice in these areas.',
+    biography: {
+      ckEditorMarkup: '',
+      originalContents: {
+        data: '',
+        type: "ckEditorMarkup"
+      }
+    },
+    howOthersCanHelpMe: howOthersCanHelpMe,
+    howICanHelpOthers: {
+      markdown: 'As a very newcomer to CEA and a relative newcomer to EA, my main purpose is to introduce myself, listen and learn. My experience is in politics, healthcare and research, so I can provide perspective and advice in these areas.',
+    },
     organizerOfGroups: [],
     mapLocation: {formatted_address: 'London, UK'},
     linkedinProfileURL: ''
   }
-
-  if (!currentUser) {
-    return (
-      <div className={classes.root}>
-        Log in or sign up to import your profile information
-      </div>
-    );
+  
+  const importMapLocation = async () => {
+    if (mapsLoaded) {
+      // get a list of matching Google locations for the current lat/lng (reverse geocoding)
+      const geocoder = new googleMaps.Geocoder()
+      const geocodingResponse = await geocoder.geocode({
+        address: importedData.mapLocation.formatted_address
+      })
+      const results = geocodingResponse?.results
+      
+      if (results?.length) {
+        return pickBestReverseGeocodingResult(results)
+      }
+      // TODO: else?
+    }
+    return null
   }
   
-  const handleCopyAll = (e) => {
+  const handleCopyAll = async (e) => {
     e.preventDefault()
-    setFormValues(importedData)
+    setFormValues({
+      ...importedData,
+      mapLocation: await importMapLocation()
+    })
   }
   
   const handleCopyField = async (e, field) => {
     e.preventDefault()
     console.log('copy', field)
-    if (field === 'organizerOfGroupIds') {
-      setFormValues({
-        ...formValues,
-        [field]: importedData.organizerOfGroups.map(g => g._id)
-      })
+    if (field === 'biography') {
+      biographyRef.current.setEditorValue(importedData.biography?.ckEditorMarkup)
       return
+    } else if (field === 'howOthersCanHelpMe') {
+      howOthersCanHelpMeRef.current.setEditorValue(importedData.howOthersCanHelpMe)
+      return
+    // } else if (field === 'organizerOfGroupIds') {
+    //   setFormValues({
+    //     ...formValues,
+    //     [field]: importedData.organizerOfGroups.map(g => g._id)
+    //   })
+    //   return
     } else if (field === 'mapLocation') {
-      if (mapsLoaded) {
-        // get a list of matching Google locations for the current lat/lng (reverse geocoding)
-        const geocoder = new googleMaps.Geocoder()
-        const geocodingResponse = await geocoder.geocode({
-          address: importedData.mapLocation.formatted_address
+      const location = await importMapLocation()
+      if (location) {
+        setFormValues({
+          ...formValues,
+          mapLocation: location
         })
-        const results = geocodingResponse?.results
-        
-        if (results?.length) {
-          setFormValues({
-            ...formValues,
-            [field]: pickBestReverseGeocodingResult(results)
-          })
-        }
-        // TODO: else?
       }
       return
     }
@@ -239,9 +296,24 @@ const EAGApplicationImportForm = ({classes}: {
     })
   }
   
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, copyAll=false) => {
     e.preventDefault()
-    console.log('submit')
+    console.log('submit', formValues)
+    console.log('submitFormCallbacks', submitFormCallbacks)
+    let submission = copyAll ? {
+      ...importedData,
+      mapLocation: await importMapLocation()
+    } : {...formValues}
+    
+    submission = submitFormCallbacks.current.reduce((prev, next) => {
+      try {
+        return next(prev)
+      } catch (e) {
+        console.log('error', e)
+        return prev
+      }
+    }, submission)
+    console.log('submission', submission)
     // await updateUser({
     //   selector: { _id: currentUser._id },
     //   data: {
@@ -252,7 +324,21 @@ const EAGApplicationImportForm = ({classes}: {
   }
   
   const { Typography, FormComponentMultiSelect, EditorFormComponent, SelectLocalgroup, LocationFormComponent,
-    PrefixedInput } = Components
+    PrefixedInput, ContentStyles } = Components
+
+  if (!currentUser) {
+    return (
+      <div className={classNames(classes.root, classes.loggedOutView)}>
+        <Typography variant="display3" className={classes.heading} gutterBottom>
+          Welcome to the &#10024; <span className={classes.loggedOutMessageHighlight}>Effective Altruism Forum</span> &#10024;
+        </Typography>
+        <Typography variant="body1" className={classes.loggedOutMessage}>
+          <a href={`/auth/auth0?returnTo=${pathname}`} className={classes.loggedOutLink}>Login</a> or <a href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`} className={classes.loggedOutLink}>Sign Up</a> to
+          import information from your EA Global application to your EA Forum profile.
+        </Typography>
+      </div>
+    );
+  }
   
   // console.log(getSchema(Users))
   // console.log(getSchema(Users).biography)
@@ -260,9 +346,23 @@ const EAGApplicationImportForm = ({classes}: {
   return (
     <div className={classes.root}>
       <Typography variant="display3" className={classes.heading} gutterBottom>
-        Import Profile from EA Global Application
+        Import Your Profile
       </Typography>
-      <div className={classes.subheading}>All fields are optional</div>
+      <Typography variant="body1" className={classes.subheading}>
+        We've found your application data from EA Global London 2022.
+      </Typography>
+      
+      <div className={classes.callout}>
+        <Typography variant="body1" className={classes.overwriteText}>
+          Would you like to overwrite your EA Forum profile data?
+        </Typography>
+        <div>
+          <button type="submit" onClick={(e) => handleSubmit(e, true)} className={classes.submitBtn}>Overwrite and Submit</button>
+          <Typography variant="body1" className={classes.overwriteBtnAltText}>
+            or see details and make changes below
+          </Typography>
+        </div>
+      </div>
       
       <form className={classes.form}>
         <div className={classes.btnRow}>
@@ -272,9 +372,7 @@ const EAGApplicationImportForm = ({classes}: {
               <div>Copy All</div>
             </button>
           </div>
-          <div className={classes.submitBtnCol}>
-            <button type="submit" onClick={handleSubmit} className={classes.submitBtn}>Submit</button>
-          </div>
+          <div className={classes.submitBtnCol}></div>
         </div>
         
         <div className={classes.formRow}>
@@ -329,36 +427,43 @@ const EAGApplicationImportForm = ({classes}: {
           <label className={classes.label}>Bio</label>
           { /* @ts-ignore */ }
           <EditorFormComponent
-            document={formValues}
+            ref={biographyRef}
+            document={currentUser}
             fieldName="biography"
-            value={formValues.biography}
+            value={currentUser.biography}
             {...getSchema(Users).biography}
             label=""
+            addToSubmitForm={submitData => submitFormCallbacks.current.push(submitData)}
+            addToSuccessForm={() => null}
           />
           <div className={classes.arrowCol}>
             <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'biography')}>
               <ArrowBack className={classes.arrowIcon} />
             </button>
           </div>
-          <div className={classes.importedText}>{importedData.biography}</div>
+          <ContentStyles contentType='post'>{importedData.biography.markdown}</ContentStyles>
         </div>
         
         <div className={classes.formRow}>
           <label className={classes.label}>How others can help me</label>
           { /* @ts-ignore */ }
           <EditorFormComponent
-            document={formValues}
+            ref={howOthersCanHelpMeRef}
+            document={currentUser}
             fieldName="howOthersCanHelpMe"
-            value={formValues.howOthersCanHelpMe}
+            value={currentUser.howOthersCanHelpMe?.ckEditorMarkup}
             {...getSchema(Users).howOthersCanHelpMe}
             label=""
+            addToSubmitForm={submitData => submitFormCallbacks.current.push(submitData)}
           />
           <div className={classes.arrowCol}>
             <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howOthersCanHelpMe')}>
               <ArrowBack className={classes.arrowIcon} />
             </button>
           </div>
-          <div className={classes.importedText}>{importedData.howOthersCanHelpMe}</div>
+          <ContentStyles contentType="post">
+            {importedData.howOthersCanHelpMe}
+          </ContentStyles>
         </div>
         
         {/* <div className={classes.formRow}>
@@ -372,10 +477,10 @@ const EAGApplicationImportForm = ({classes}: {
               <ArrowBack className={classes.arrowIcon} />
             </button>
           </div>
-          <div className={classes.importedText}>{importedData.howICanHelpOthers}</div>
+          <div className={classNames(classes.importedText, classes.ckeditorText)}>{importedData.howICanHelpOthers}</div>
         </div> */}
         
-        <div className={classes.formRow}>
+        {/* <div className={classes.formRow}>
           <label className={classes.label}>Organizer of</label>
           <SelectLocalgroup
             currentUser={currentUser}
@@ -394,7 +499,7 @@ const EAGApplicationImportForm = ({classes}: {
           <div className={classes.importedText}>{importedData.organizerOfGroups?.map(group => {
             return <div key={group._id}>{group.name}</div>
           })}</div>
-        </div>
+        </div> */}
         
         <div className={classes.formRow}>
           <label className={classes.label}>Public map location</label>

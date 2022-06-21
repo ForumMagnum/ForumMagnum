@@ -36,10 +36,10 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      html
+      ...RevisionEdit
     }
     howICanHelpOthers {
-      html
+      ...RevisionEdit
     }
     organizerOfGroupIds
     organizerOfGroups {
