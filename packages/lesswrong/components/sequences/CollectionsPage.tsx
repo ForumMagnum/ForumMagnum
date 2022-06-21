@@ -8,13 +8,16 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: theme.palette.background.pageActiveAreaBackground,
+    // background: theme.palette.background.pageActiveAreaBackground,
     padding: 32,
     [theme.breakpoints.down('md')]: {
       paddingTop: 70,
       marginTop: -50,
       marginLeft: -4,
       marginRight: -4
+    },
+    [theme.breakpoints.down('xs')]: {
+      padding: 16
     }
   },
   header: {

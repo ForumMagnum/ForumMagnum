@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import DescriptionIcon from '@material-ui/icons/Description';
+import { truncate } from '../../lib/editor/ellipsize';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
+import { Link } from '../../lib/reactRouterWrapper';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import find from 'lodash/find';
+import classNames from 'classnames';
+import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -12,10 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     overflow: "hidden",
     position: "relative",
-    maxHeight: 200
   },
   text: {
-    padding: 12,
+    padding: 16,
+    paddingBottom: 10,
     position: "relative",
     maxWidth: 600
   },
@@ -26,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
     fontVariant: "small-caps",
   },
-  description: {
+  postStyle: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
   },
@@ -41,8 +48,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     top: 0,
     right: 0,
-    height: 200,
+    height: "100%",
     width: 220,
+    zIndex: 0,
 
     [theme.breakpoints.down('xs')]: {
       marginTop: 0,
@@ -66,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   sequenceImageImg: {
-    height: 200,
+    height: "100%",
     width: 240,
     objectFit: "cover",
     [theme.breakpoints.down('xs')]: {
@@ -75,14 +83,46 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   postIcon: {
-    height: 12,
-    width: 12,
+    height: 14,
+    width: 11,
     marginRight: 4,
-    color: theme.palette.grey[500]
+    opacity: .25
+  },
+  postRead: {
+    opacity: .5
   },
   postTitle: {
     ...theme.typography.smallFont,
     ...theme.typography.postStyle
+  },
+  posts: {
+    marginTop: 5
+  },
+  read: {
+    width: 14,
+    color: theme.palette.primary.light
+  },
+  unread: {
+    width: 14,
+    color: theme.palette.grey[400]
+  },
+  bottom: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  nextUnreadSection: {
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle,
+    marginTop: 8,
+    color: theme.palette.grey[600],
+    marginBottom: 6
+  },
+  nextUnreadPost: {
+    color: theme.palette.primary.main
+  },
+  nextIcon: {
+    color: theme.palette.grey[900],
+    width: 16
   }
 });
 
@@ -91,12 +131,10 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
   showAuthor?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, LWTooltip, ContentItemTruncated, LinkCard } = Components
-  
-  const getSequenceUrl = () => {
-    return '/s/' + sequence._id
-  }
-  const url = getSequenceUrl()
+  const { UsersName, ContentStyles, LWTooltip, ContentItemTruncated, PostsPreviewTooltip } = Components
+
+  const { hover, eventHandlers } = useHover()
+
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -112,9 +150,14 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
     enableTotal: false,
   });
 
-  console.log(sequence.title, chapters)
+  let posts : PostsList[] = []
+  chapters?.forEach(chapter => chapter.posts.forEach(post=>posts.push(post)))
 
-  return <LinkCard className={classes.root} to={'/s/' + sequence._id}>
+  const nextUnreadPost = find(posts, post => !post.lastVisitedAt)
+  const unreadMessage = nextUnreadPost ? nextUnreadPost._id === posts[0]._id ? "First Post: " : "Next Post: " : ""
+
+
+  return <div className={classes.root}>
       <div className={classes.sequenceImage}>
         <img className={classes.sequenceImageImg}
           src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
@@ -123,33 +166,41 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
           />
       </div>
       <div className={classes.text}>
-        <div className={classes.title}>{sequence.title}</div>
+        <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
         { showAuthor && sequence.user &&
           <div className={classes.author}>
             by <UsersName user={sequence.user} />
           </div>}
         <ContentStyles contentType="postHighlight" className={classes.description}>
           <ContentItemTruncated
-            maxLengthWords={50}
-            graceWords={20}
-            rawWordCount={sequence.contents?.wordCount || 0}
-            expanded={expanded}
-            getTruncatedSuffix={() => null}
-            dangerouslySetInnerHTML={{__html: sequence.contents?.htmlHighlight || ""}}
-            description={`sequence ${sequence._id}`}
-          />
-          {chapters?.map((chapter) => <span key={chapter._id}>
-              {chapter.posts?.map(post=><LWTooltip title={post.title} key={post._id}>
-                  {/* <div className={classes.postTitle}>{post.title}</div> */}
-                  <DescriptionIcon className={classes.postIcon} />
-                </LWTooltip>
-              )}
-            </span>
-          )}
+              maxLengthWords={100}
+              graceWords={20}
+              rawWordCount={sequence.contents?.wordCount || 0}
+              expanded={expanded}
+              getTruncatedSuffix={() => null}
+              dangerouslySetInnerHTML={{__html: sequence.contents?.htmlHighlight || ""}}
+              description={`sequence ${sequence._id}`}
+            />
         </ContentStyles>
-
+        <div className={classes.posts}>
+          {posts.map(post=> <LWTooltip title={<PostsPreviewTooltip post={post}/>} key={post._id} inlineBlock={false} tooltip={false}>
+              <Link to={postGetPageUrl(post)}>
+                {!!post.lastVisitedAt ? 
+                  <CheckBoxTwoToneIcon className={classes.read}/>
+                  :
+                  <CheckBoxOutlineBlankIcon className={classNames(classes.unread, {[classes.nextIcon]: hover && nextUnreadPost?._id === post._id})}/>
+                }
+              </Link>
+            </LWTooltip>
+          )}
+        </div>
+        {nextUnreadPost && <div className={classes.nextUnreadSection}>{unreadMessage} <LWTooltip title={<PostsPreviewTooltip post={nextUnreadPost}/>} key={nextUnreadPost._id} inlineBlock={false} tooltip={false} flip={false} placement="bottom-start">
+          <Link to={postGetPageUrl(nextUnreadPost)} className={classes.nextUnreadPost} {...eventHandlers}>
+            {nextUnreadPost.title}
+          </Link>
+        </LWTooltip></div>}
       </div>
-  </LinkCard>
+  </div>
 }
 
 const SequencesRowItemComponent = registerComponent('SequencesRowItem', SequencesRowItem, {styles});

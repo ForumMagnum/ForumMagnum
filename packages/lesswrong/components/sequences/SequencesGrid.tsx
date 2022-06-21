@@ -33,8 +33,8 @@ const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
   <div className={classes.grid}>
     <div className={classes.gridContent}>
       {sequences.map(sequence => {
-        return (
-          <Components.SequencesRowItem
+        return ( 
+          <Components.SequencesRowItem2
             sequence={sequence}
             key={sequence._id}
           />
