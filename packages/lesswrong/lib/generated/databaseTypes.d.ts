@@ -804,6 +804,7 @@ interface DbUser extends DbObject {
   jobTitle: string
   organization: string
   careerStage: Array<string>
+  profileImageId: string
   organizerOfGroupIds: Array<string>
   website: string
   linkedinProfileURL: string
