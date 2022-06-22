@@ -165,6 +165,10 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
+      showPostAuthorCard
+      biography {
+        html
+      }
       
       # Author moderation info
       moderationStyle

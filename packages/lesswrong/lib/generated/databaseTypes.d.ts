@@ -683,6 +683,7 @@ interface DbUser extends DbObject {
   commentSorting: string
   sortDrafts: string
   showHideKarmaOption: boolean
+  showPostAuthorCard: boolean
   hideIntercom: boolean
   markDownPostEditor: boolean
   hideElicitPredictions: boolean
