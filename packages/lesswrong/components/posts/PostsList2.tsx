@@ -35,9 +35,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 //    more posts (default true)
 //  * showNoResults: Show a placeholder if there are no results (otherwise
 //    render only whiteness) (default true)
-//  * hideLastUnread: If the initial set of posts ends with N consecutive
-//    already-read posts, hide the last N-1 of them. Used for abbreviating
-//    read posts from the Recently Curated section on the front page.
+//  * hideLastUnread: If the list ends with N sequential read posts, 
+//    hide them, except for the first post in the list
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
@@ -114,12 +113,13 @@ const PostsList2 = ({
   const currentUser = useCurrentUser();
   if (results?.length) {
     if (hideLastUnread && !haveLoadedMore) {
-      // If the list ends with N sequential read posts, hide N-1 of them.
+      // If the list ends with N sequential read posts, hide them, except for the first post in the list
       for (let i=results.length-1; i>=0; i--) {
         // FIXME: This uses the initial-load version of the read-status, and won't
         // update based on the client-side read status cache.
-        const post = results[i]
-        if (post.isRead) hiddenPosts[post._id] = true; 
+        if (results[i].isRead && i > 0) {
+          hiddenPosts[results[i]._id] = true;
+        }
         else break;
       }
     }
