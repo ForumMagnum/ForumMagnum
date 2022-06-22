@@ -14,7 +14,7 @@ const UsersAutoCompleteHit = ({document, classes}) => {
         {document.displayName}
       </Components.MetaInfo>
       <Components.MetaInfo>
-        {document.karma} points
+        {document.karma} karma
       </Components.MetaInfo>
       <Components.MetaInfo>
         <Components.FormatDate date={document.createdAt}/>

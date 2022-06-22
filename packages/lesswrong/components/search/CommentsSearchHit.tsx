@@ -47,7 +47,7 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
     <Link to={url} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
-        <Components.MetaInfo>{comment.baseScore} points </Components.MetaInfo>
+        <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>
         <Components.MetaInfo>
           <Components.FormatDate date={comment.postedAt}/>
         </Components.MetaInfo>

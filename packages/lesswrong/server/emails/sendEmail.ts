@@ -13,7 +13,11 @@ const getMailUrl = () => {
     return null;
 };
 
-// Send an email. Returns true for success or false for failure.
+/**
+ * Send an email. Returns true for success or false for failure.
+ *
+ * API descended from meteor
+ */
 export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
   const mailUrl = getMailUrl();
   
