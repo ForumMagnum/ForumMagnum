@@ -80,6 +80,7 @@ const EditProfileForm = ({classes}: {
           'facebookProfileURL',
           'twitterProfileURL',
           'githubProfileURL',
+          'profileImageId'
         ]}
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}
