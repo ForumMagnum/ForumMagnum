@@ -54,7 +54,7 @@ const PostsListEditorSearchHit = ({hit, classes}: {
           {post.authorDisplayName}
         </MetaInfo>}
         <MetaInfo>
-          {post.baseScore} points
+          {post.baseScore} karma
         </MetaInfo>
         {post.postedAt && <MetaInfo>
           <FormatDate date={post.postedAt}/>
