@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     marginBottom: 20,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     width: "100%",
     overflow: "hidden",
     position: "relative",
@@ -131,7 +131,7 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
   showAuthor?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, LWTooltip, ContentItemTruncated, PostsPreviewTooltip } = Components
+  const { UsersName, ContentStyles, LWTooltip, ContentItemTruncated, PostsPreviewTooltip, CloudinaryImage } = Components
 
   const { hover, eventHandlers } = useHover()
 
@@ -159,9 +159,14 @@ export const SequencesRowItem = ({sequence, showAuthor=true, classes}: {
 
   return <div className={classes.root}>
       <div className={classes.sequenceImage}>
+        {/* <CloudinaryImage
+          publicId={sequence.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+          width="240"
+          height="auto"
+        /> */}
         <img className={classes.sequenceImageImg}
           src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
-            sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+            sequence.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"
           }`}
           />
       </div>

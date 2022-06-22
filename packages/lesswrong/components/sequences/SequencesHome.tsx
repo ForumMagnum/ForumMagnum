@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SequencesHome = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton } = Components
+  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, SequencesRowItemList } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
     <AnalyticsContext pageContext="sequencesHome">
@@ -23,8 +23,8 @@ const SequencesHome = ({classes}: {
       <SingleColumnSection>
         <SectionTitle title="Curated Sequences" />
         <div className={classes.sequencesGridWrapperWrapper}>
-          <Components.SequencesGridWrapper
-            terms={{'view':'curatedSequences', limit:100}}
+          <SequencesRowItemList
+            terms={{'view':'curatedSequences', limit:20}}
             itemsPerPage={24}
             showAuthor={true}
             showLoadMore={true}
@@ -37,8 +37,8 @@ const SequencesHome = ({classes}: {
           <SequencesNewButton />
         </SectionTitle>
         <div className={classes.sequencesGridWrapperWrapper}>
-          <Components.SequencesGridWrapper
-            terms={{'view':'communitySequences', limit:12}}
+          <SequencesRowItemList
+            terms={{'view':'communitySequences', limit:20}}
             itemsPerPage={24}
             showAuthor={true}
             showLoadMore={true}

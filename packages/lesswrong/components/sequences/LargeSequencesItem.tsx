@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import DescriptionIcon from '@material-ui/icons/Description';
 import { Link } from '../../lib/reactRouterWrapper';
+
+const shadow = theme => `0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}`
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     marginBottom: 40,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     width: "100%",
     overflow: "hidden",
     position: "relative"
@@ -32,12 +33,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
     fontVariant: "small-caps",
     color: theme.palette.grey[900],
-    textShadow: "0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff"
+    textShadow: shadow(theme)
   },
   description: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    textShadow: "0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff"
+    textShadow: shadow(theme)
   },
   author: {
     ...theme.typography.body2,
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim,
     fontStyle: "italic",
     marginBottom: 10,
-    textShadow: "0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff, 0 0 25px #fff"
+    textShadow: shadow(theme)
   },
   sequenceImage: {
     position: "absolute",
@@ -119,7 +120,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const SequencesRowItem2 = ({sequence, showAuthor=true, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=true, classes}: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
   classes: ClassesType,
@@ -189,11 +190,11 @@ export const SequencesRowItem2 = ({sequence, showAuthor=true, classes}: {
   </div>
 }
 
-const SequencesRowItemComponent = registerComponent('SequencesRowItem2', SequencesRowItem2, {styles});
+const LargeSequencesItemComponent = registerComponent('LargeSequencesItem', LargeSequencesItem, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesRowItem2: typeof SequencesRowItemComponent
+    LargeSequencesItem: typeof LargeSequencesItemComponent
   }
 }
 
