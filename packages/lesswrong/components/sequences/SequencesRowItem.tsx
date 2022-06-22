@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: "100%",
       left: 0,
       top: 0,
-      background: `linear-gradient(to right, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent2} 50%, transparent 100%)`,
+      background: `linear-gradient(to right, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent4} 50%, transparent 100%)`,
     }
   },
   sequenceImageImg: {

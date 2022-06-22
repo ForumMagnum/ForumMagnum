@@ -4,7 +4,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const shadow = theme => `0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}`
+const shadow = theme => `0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}`
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,10 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     position: "relative",
     maxWidth: 600,
-    marginTop: 60,
-    marginBottom: 60,
+    marginTop: 30,
+    marginBottom: 10,
     [theme.breakpoints.down('xs')]: {
-      marginTop: 60,
+      marginTop: 30,
       marginBottom: 0
     }
   },
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: "100%",
       left: 0,
       top: 0,
-      background: `linear-gradient(to top, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent2} 50%, transparent 100%)`,
+      background: `linear-gradient(to top, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent4} 30%, transparent 100%)`,
     }
   },
   sequenceImageImg: {
@@ -130,7 +130,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=true, classes}: {
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const url = getSequenceUrl()
+  
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()

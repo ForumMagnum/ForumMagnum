@@ -6,9 +6,6 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-
-  },
   title: {
     position: "relative",
     flexGrow: 1,
@@ -17,21 +14,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[900],
     display: "flex",
     alignItems: "center",
-    marginBottom: 8,
-    marginTop: 8
+    marginBottom: 6,
+    marginTop: 6
   },
   read: {
-    width: 14,
+    width: 10,
     color: theme.palette.primary.light,
     marginRight: 10,
     position: "relative",
-    top: -2
+    top: -1
   },
   unread: {
-    width: 14,
+    width: 10,
     color: theme.palette.grey[400],
     marginRight: 10,
-    top: -2
+    top: -1
   }
 });
 
@@ -43,13 +40,11 @@ const SequencesSmallPostLink = ({classes, post}: {
 
   const icon = !!post.lastVisitedAt ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
-  return  <div className={classes.root}>
-      <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post}/>} placement="left-start" inlineBlock={false}>
+  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post}/>} placement="left-start" inlineBlock={false}>
         <Link to={postGetPageUrl(post)} className={classes.title}>
           {icon} {post.title}
         </Link>
       </LWTooltip>
-    </div>
 }
 
 const SequencesSmallPostLinkComponent = registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});

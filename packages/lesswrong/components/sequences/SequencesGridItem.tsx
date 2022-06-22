@@ -109,30 +109,35 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { LinkCard } = Components;
+  const { LinkCard, SequencesHoverOver } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence.contents?.plaintextDescription?.slice(0, 750)}>
-    <div className={classes.image}>
-      <NoSSR>
-        <Components.CloudinaryImage
-          publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-          height={124}
-          width={315}
-        />
-      </NoSSR>
-    </div>
-    <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
-      <div className={classes.title}>
-        {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-        {sequence.title}
+
+  const positionAdjustment = showAuthor ? - 55 : -35
+
+  return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>
+    <LinkCard to={url} tooltip={<div style={{marginTop:positionAdjustment}}><SequencesHoverOver sequenceId={sequence._id}/></div>}>
+      <div className={classes.image}>
+        <NoSSR>
+          <Components.CloudinaryImage
+            publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+            height={124}
+            width={315}
+          />
+        </NoSSR>
       </div>
-      { showAuthor && sequence.user &&
-        <div className={classes.author}>
-          by <Components.UsersName user={sequence.user} />
-        </div>}
-    </div>
-  </LinkCard>
+      <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
+        <div className={classes.title}>
+          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
+          {sequence.title}
+        </div>
+        { showAuthor && sequence.user &&
+          <div className={classes.author}>
+            by <Components.UsersName user={sequence.user} />
+          </div>}
+      </div>
+    </LinkCard>
+  </div>
 }
 
 const SequencesGridItemComponent = registerComponent('SequencesGridItem', SequencesGridItem, {styles});

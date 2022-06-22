@@ -123,6 +123,7 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent: "rgba(0,0,0,.87)",
       translucent2: "rgba(0,0,0,.8)",
       translucent3: "rgba(0,0,0,.75)",
+      translucent4: "rgba(0,0,0,.5)",
       deletedComment: "#3a0505",
       commentModeratorHat: "#202719",
     },
