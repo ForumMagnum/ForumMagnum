@@ -74,9 +74,17 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('upcast').elementToElement({
 		view: {
-			attributes: ATTRIBUTES.footnoteContent,
+			attributes: {
+				[ATTRIBUTES.footnoteContent]: '',
+			},
 		},
-		model: ELEMENTS.footnoteContent,
+		model: (viewElement, conversionApi) => {
+			const modelWriter = conversionApi.writer;
+
+			return modelWriter.createElement(
+				ELEMENTS.footnoteContent,
+			);
+		}
 	});
 
 	conversion.for('dataDowncast').elementToElement({

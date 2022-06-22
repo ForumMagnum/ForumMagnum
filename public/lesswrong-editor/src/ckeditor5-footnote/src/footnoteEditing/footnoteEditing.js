@@ -47,6 +47,25 @@ export default class FootnoteEditing extends Plugin {
 			view: ATTRIBUTES.footnoteContent,
 			model: ATTRIBUTES.footnoteContent,
 		})
+		this.editor.conversion.for('editingDowncast').attributeToAttribute({
+			view: ATTRIBUTES.footnoteContent,
+			model: ATTRIBUTES.footnoteContent,
+		})
+		this.editor.data.upcastDispatcher.on('element', (evt, data, { consumable, writer }) => {
+			if (!consumable.test(data.viewItem)) {
+				return;
+			}
+			// @ts-ignore TODO: doc why
+			if (data.viewItem.hasAttribute && data.viewItem.hasAttribute(ATTRIBUTES.footnoteContent)) {
+				consumable.consume(data.viewItem)
+				writer.insert(
+					writer.createElement(ELEMENTS.footnoteContent, {[ATTRIBUTES.footnoteContent]: ""}),
+					data.modelCursor
+				)
+			}
+			
+			console.log('yipee')
+		})
 		
 		this.editor.commands.add( COMMANDS.insertFootnote, new InsertFootnoteCommand( this.editor ) );
 
