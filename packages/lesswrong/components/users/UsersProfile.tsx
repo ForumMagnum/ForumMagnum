@@ -82,7 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
     '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
     '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
-    'border-radius': '50%',
+    borderRadius: '50%',
     marginRight: 20,
   },
   flexingNameAndMessage: {

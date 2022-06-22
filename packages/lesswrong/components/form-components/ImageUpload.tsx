@@ -88,7 +88,7 @@ const formPreviewSizeByImageType = {
   },
   bannerImageId: {
     width: "auto",
-    height: 380
+    height: 280
   },
   profileImageId: {
     width: 90,
