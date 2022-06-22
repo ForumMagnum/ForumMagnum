@@ -94,7 +94,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   left: {
     width: "50%",
-    borderRight: "solid 1px rgba(0,0,0,.1)",
+    borderRight: theme.palette.border.faint,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
