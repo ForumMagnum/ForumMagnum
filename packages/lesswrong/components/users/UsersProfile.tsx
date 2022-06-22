@@ -510,7 +510,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Bio Section */}
           <SingleColumnSection>
             <div className={classNames(classes.nameAndProfileWrapper, {[classes.nameAndProfileWrapperWithImg]: isEAForum && user.profileImageId})}>
-              {isEAForum && user.profileImageId && <Components.CloudinaryImage2 height={90} width={90} publicId={user.profileImageId} className={classes.profileImage} />}
+              {isEAForum && user.profileImageId && <Components.CloudinaryImage2
+                height={90}
+                width={90}
+                imgProps={{q: '100'}}
+                publicId={user.profileImageId}
+                className={classes.profileImage}
+              />}
               <div className={classes.flexingNameAndMessage}>
                 <div className={classes.usernameTitle}>
                   <div>{username}</div>
