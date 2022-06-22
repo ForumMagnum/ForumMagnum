@@ -58,7 +58,6 @@
 		} );
 	CKEditor.CommentEditor.create( document.querySelector( '#comment-editor' ) )
 		.then( editor => {
-			CKEditorInspector.attach(editor);
 			window.CKEditorComment = editor
 			return editor 
 		})

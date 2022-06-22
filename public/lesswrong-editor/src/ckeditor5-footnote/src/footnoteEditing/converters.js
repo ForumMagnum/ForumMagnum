@@ -74,9 +74,7 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('upcast').elementToElement({
 		view: {
-			attributes: {
-				[ATTRIBUTES.footnoteContent]: true,
-			},
+			attributes: ATTRIBUTES.footnoteContent,
 		},
 		model: ELEMENTS.footnoteContent,
 	});
@@ -105,9 +103,7 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('upcast').elementToElement({
 		view: {
-			attributes: {
-				[ATTRIBUTES.footnoteItem]: true,
-			},
+			attributes: ATTRIBUTES.footnoteItem,
 		},
 		model: (viewElement, conversionApi) => {
 			const modelWriter = conversionApi.writer;
@@ -198,9 +194,7 @@ export const defineConverters = (editor, rootElement) => {
 
 	conversion.for('upcast').elementToElement({
 		view: {
-			attributes: {
-				[ATTRIBUTES.footnoteBackLink]: true,
-			},
+			attributes: ATTRIBUTES.footnoteBackLink,
 		},
 		model: (viewElement, conversionApi) => {
 			const modelWriter = conversionApi.writer;

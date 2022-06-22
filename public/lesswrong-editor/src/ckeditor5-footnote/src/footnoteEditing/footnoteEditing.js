@@ -22,6 +22,7 @@ import { defineSchema } from './schema';
 import { defineConverters } from './converters';
 import { addFootnoteAutoformatting } from './autoformatting';
 import { ATTRIBUTES, COMMANDS, ELEMENTS } from '../constants';
+import GoogleDocsFootnotesNormalizer from './googleDocsFootnotesNormalizer';
 
 export default class FootnoteEditing extends Plugin {
 	static get requires() {
@@ -42,7 +43,11 @@ export default class FootnoteEditing extends Plugin {
 	init() {
 		defineSchema(this.editor.model.schema);
 		defineConverters(this.editor, this.rootElement);
-
+		this.editor.conversion.for('upcast').attributeToAttribute({
+			view: ATTRIBUTES.footnoteContent,
+			model: ATTRIBUTES.footnoteContent,
+		})
+		
 		this.editor.commands.add( COMMANDS.insertFootnote, new InsertFootnoteCommand( this.editor ) );
 
 		addFootnoteAutoformatting(this.editor, this.rootElement);
@@ -72,6 +77,15 @@ export default class FootnoteEditing extends Plugin {
 				}
 			});
 		}, { priority: 'high' });
+
+		this.editor.plugins.get( 'ClipboardPipeline' ).on(
+			'inputTransformation',
+			( evt, data ) => {
+				const googleDocsFootnotesNormalizer = new GoogleDocsFootnotesNormalizer()
+				googleDocsFootnotesNormalizer.execute( data );
+			},
+			{ priority: 'high' }
+		);
 
 		this._handleDelete();
 

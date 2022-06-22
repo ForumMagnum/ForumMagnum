@@ -10,6 +10,8 @@ import Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
  * @returns {void}
  */
 export const defineSchema = schema => {
+	schema.extend('paragraph', {allowAttributes: Object.values(ATTRIBUTES)})
+	
 	/**
 	 * Footnote section at the footer of the document.
 	 */
