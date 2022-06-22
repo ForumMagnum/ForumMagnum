@@ -1579,7 +1579,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.aboutMe,
-    order: 1,
+    order: 2,
     label: 'Role'
   },
   
@@ -1591,7 +1591,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.aboutMe,
-    order: 2,
+    order: 3,
   },
   
   careerStage: {
@@ -1602,7 +1602,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.aboutMe,
-    order: 3,
+    order: 4,
     control: 'FormComponentMultiSelect',
     placeholder: "Career stage",
     form: {
@@ -1617,8 +1617,8 @@ addFieldsDict(Users, {
 
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
-    hidden: forumTypeSetting.get() === "EAForum",
-    order: forumTypeSetting.get() === "EAForum" ? 4 : 40,
+    hidden: true,
+    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
     type: String,
     optional: true,
