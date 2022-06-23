@@ -58,7 +58,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           {/* twitter */}
           <meta name='twitter:card' content='summary_large_image'/>
           {image && <meta name='twitter:image:src' content={image}/>}
-          { /* <meta name='twitter:title' content={title}/> */ }
+          {<meta name='twitter:title' content={title}/>}
           <meta name='twitter:description' content={description}/>
 
           {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
