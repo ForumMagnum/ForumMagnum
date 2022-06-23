@@ -1,3 +1,4 @@
+// Copied from: https://github.com/ckeditor/ckeditor5/blob/30286f77b39526fce2856b03b9be0ba4cc91d1c7/packages/ckeditor5-media-embed/src/ui/mediaformview.js
 /**
  * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license

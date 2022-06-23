@@ -1,3 +1,4 @@
+// https://github.com/ckeditor/ckeditor5/blob/30286f77b39526fce2856b03b9be0ba4cc91d1c7/packages/ckeditor5-media-embed/src/mediaembedui.js
 /**
  * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
@@ -12,9 +13,7 @@ import { createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 
 import MediaFormView from './media-form-view-custom';
 import MediaEmbedEditing from '@ckeditor/ckeditor5-media-embed/src/mediaembedediting';
-// @ts-ignore-next-line
-import footnoteIcon from '../ckeditor5-footnote/theme/icon.svg';
-// import mediaIcon from '../theme/icons/media.svg';
+import mediaIcon from '@ckeditor/ckeditor5-media-embed/theme/icons/media.svg';
 
 /**
  * The media embed UI plugin.
@@ -72,7 +71,7 @@ export default class MediaEmbedUICustom extends Plugin {
 
 		button.set( {
 			label: t( 'Insert media' ),
-			icon: footnoteIcon,
+			icon: mediaIcon,
 			tooltip: true
 		} );
 
