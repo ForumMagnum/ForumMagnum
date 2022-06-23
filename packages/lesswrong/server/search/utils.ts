@@ -124,6 +124,7 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
     displayName: user.displayName,
     createdAt: user.createdAt,
     isAdmin: user.isAdmin,
+    profileImageId: user.profileImageId,
     bio: bio.slice(0, USER_BIO_MAX_SEARCH_CHARACTERS),
     htmlBio: truncatise(htmlBio, {
       TruncateBy: 'characters',

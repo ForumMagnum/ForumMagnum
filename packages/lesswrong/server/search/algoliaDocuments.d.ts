@@ -42,6 +42,7 @@ interface AlgoliaUser {
   displayName: string,
   createdAt: Date,
   isAdmin: boolean,
+  profileImageId?: string,
   bio: string,
   htmlBio: string,
   karma: number,

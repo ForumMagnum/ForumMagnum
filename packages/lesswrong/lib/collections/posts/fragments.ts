@@ -165,6 +165,11 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
+      showPostAuthorCard
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle
@@ -470,6 +475,11 @@ registerFragment(`
     
     user {
       ...UsersMinimumInfo
+      showPostAuthorCard
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle
