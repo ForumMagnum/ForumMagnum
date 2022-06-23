@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
@@ -17,6 +17,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   description: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    paddingTop: 8,
+    paddingBottom: 8,
   }
 });
 
@@ -35,13 +37,13 @@ export const SequencesHoverOver = ({classes, sequenceId}: {
   return <Card className={classes.root}>
     {!sequence && loading && <Loading />}
 
-    <h3 className={classes.title}>{sequence?.title}</h3>
+    <div className={classes.title}>{sequence?.title}</div>
     <ContentStyles contentType="postHighlight" className={classes.description}>
       <ContentItemTruncated
         maxLengthWords={100}
         graceWords={20}
         rawWordCount={sequence?.contents?.wordCount || 0}
-        expanded={true}
+        expanded={false}
         getTruncatedSuffix={() => null}
         dangerouslySetInnerHTML={{__html: sequence?.contents?.htmlHighlight || ""}}
         description={`sequence ${sequence?._id}`}
