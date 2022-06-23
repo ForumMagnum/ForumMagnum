@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  rootabaga: {
+  root: {
     cursor: "pointer",
     position: "relative",
     
@@ -57,11 +57,11 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
   );
   
   if (tooltip) {
-    return <LWTooltip className={classNames(className, classes.rootabaga)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false}>
+    return <LWTooltip className={classNames(className, classes.root)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false}>
       {card}
     </LWTooltip>;
   } else {
-    return <div className={classNames(className, classes.rootabaga)}>
+    return <div className={classNames(className, classes.root)}>
       {card}
       </div>
   }
