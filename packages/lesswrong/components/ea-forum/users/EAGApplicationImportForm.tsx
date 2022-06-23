@@ -175,6 +175,7 @@ const EAGApplicationImportForm = ({classes}: {
   const { history } = useNavigation()
   const { pathname } = useLocation()
   const [mapsLoaded, googleMaps] = useGoogleMaps()
+  const [formLoading, setFormLoading] = useState(false)
   
   const formFields = [
     'jobTitle',
@@ -194,7 +195,9 @@ const EAGApplicationImportForm = ({classes}: {
   
   const biographyRef = useRef<HTMLInputElement>(null)
   const howOthersCanHelpMeRef = useRef<HTMLInputElement>(null)
+  const howICanHelpOthersRef = useRef<HTMLInputElement>(null)
   
+  // CKEditor fields use this to insert their data before we submit the form
   const submitFormCallbacks = useRef<Array<Function>>([])
   
   const { mutate: updateUser } = useUpdate({
@@ -202,23 +205,23 @@ const EAGApplicationImportForm = ({classes}: {
     fragmentName: 'UsersProfileEdit',
   })
   
+  // biography: {
+  //   ckEditorMarkup: '',
+  //   originalContents: {
+  //     data: '',
+  //     type: "ckEditorMarkup"
+  //   }
+  // },
+  
   const howOthersCanHelpMe = 'I hope to learn more about how the constituent organisations of the EA movement fit together, and how individuals think about their impact within that structure. I would like to hear as many different perspectives as possible from EAs with more experience in the community than myself (almost everyone).'
 
   const importedData:any = {
     jobTitle: 'Exec Assistant',
     organization: 'The Centre for Effective Altruism',
     careerStage: ['midCareer'],
-    biography: {
-      ckEditorMarkup: '',
-      originalContents: {
-        data: '',
-        type: "ckEditorMarkup"
-      }
-    },
+    biography: '',
     howOthersCanHelpMe: howOthersCanHelpMe,
-    howICanHelpOthers: {
-      markdown: 'As a very newcomer to CEA and a relative newcomer to EA, my main purpose is to introduce myself, listen and learn. My experience is in politics, healthcare and research, so I can provide perspective and advice in these areas.',
-    },
+    howICanHelpOthers: 'As a very newcomer to CEA and a relative newcomer to EA, my main purpose is to introduce myself, listen and learn. My experience is in politics, healthcare and research, so I can provide perspective and advice in these areas.',
     organizerOfGroups: [],
     mapLocation: {formatted_address: 'London, UK'},
     linkedinProfileURL: ''
@@ -247,16 +250,23 @@ const EAGApplicationImportForm = ({classes}: {
       ...importedData,
       mapLocation: await importMapLocation()
     })
+    // update CKEditor fields
+    biographyRef.current.setEditorValue(importedData.biography)
+    howOthersCanHelpMeRef.current.setEditorValue(importedData.howOthersCanHelpMe)
+    howICanHelpOthersRef.current.setEditorValue(importedData.howICanHelpOthers)
   }
   
   const handleCopyField = async (e, field) => {
     e.preventDefault()
     console.log('copy', field)
     if (field === 'biography') {
-      biographyRef.current.setEditorValue(importedData.biography?.ckEditorMarkup)
+      biographyRef.current.setEditorValue(importedData.biography)
       return
     } else if (field === 'howOthersCanHelpMe') {
       howOthersCanHelpMeRef.current.setEditorValue(importedData.howOthersCanHelpMe)
+      return
+    } else if (field === 'howICanHelpOthers') {
+      howICanHelpOthersRef.current.setEditorValue(importedData.howICanHelpOthers)
       return
     // } else if (field === 'organizerOfGroupIds') {
     //   setFormValues({
@@ -298,6 +308,14 @@ const EAGApplicationImportForm = ({classes}: {
   
   const handleSubmit = async (e, copyAll=false) => {
     e.preventDefault()
+    
+    if (copyAll) {
+      // update CKEditor fields
+      biographyRef.current.setEditorValue(importedData.biography)
+      howOthersCanHelpMeRef.current.setEditorValue(importedData.howOthersCanHelpMe)
+      howICanHelpOthersRef.current.setEditorValue(importedData.howICanHelpOthers)
+    }
+    
     console.log('submit', formValues)
     console.log('submitFormCallbacks', submitFormCallbacks)
     let submission = copyAll ? {
@@ -324,7 +342,7 @@ const EAGApplicationImportForm = ({classes}: {
   }
   
   const { Typography, FormComponentMultiSelect, EditorFormComponent, SelectLocalgroup, LocationFormComponent,
-    PrefixedInput, ContentStyles } = Components
+    PrefixedInput, ContentStyles, Loading } = Components
 
   if (!currentUser) {
     return (
@@ -356,12 +374,14 @@ const EAGApplicationImportForm = ({classes}: {
         <Typography variant="body1" className={classes.overwriteText}>
           Would you like to overwrite your EA Forum profile data?
         </Typography>
-        <div>
-          <button type="submit" onClick={(e) => handleSubmit(e, true)} className={classes.submitBtn}>Overwrite and Submit</button>
+        {formLoading ? <Loading /> : <div>
+          <button type="submit" onClick={(e) => handleSubmit(e, true)} className={classes.submitBtn}>
+            Overwrite and Submit
+          </button>
           <Typography variant="body1" className={classes.overwriteBtnAltText}>
             or see details and make changes below
           </Typography>
-        </div>
+        </div>}
       </div>
       
       <form className={classes.form}>
@@ -425,28 +445,27 @@ const EAGApplicationImportForm = ({classes}: {
         
         <div className={classes.formRow}>
           <label className={classes.label}>Bio</label>
-          { /* @ts-ignore */ }
           <EditorFormComponent
             ref={biographyRef}
             document={currentUser}
             fieldName="biography"
-            value={currentUser.biography}
+            value={currentUser.biography?.ckEditorMarkup}
             {...getSchema(Users).biography}
             label=""
             addToSubmitForm={submitData => submitFormCallbacks.current.push(submitData)}
-            addToSuccessForm={() => null}
           />
           <div className={classes.arrowCol}>
             <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'biography')}>
               <ArrowBack className={classes.arrowIcon} />
             </button>
           </div>
-          <ContentStyles contentType='post'>{importedData.biography.markdown}</ContentStyles>
+          <ContentStyles contentType="post">
+            {importedData.biography}
+          </ContentStyles>
         </div>
         
         <div className={classes.formRow}>
           <label className={classes.label}>How others can help me</label>
-          { /* @ts-ignore */ }
           <EditorFormComponent
             ref={howOthersCanHelpMeRef}
             document={currentUser}
@@ -466,19 +485,26 @@ const EAGApplicationImportForm = ({classes}: {
           </ContentStyles>
         </div>
         
-        {/* <div className={classes.formRow}>
+        <div className={classes.formRow}>
           <label className={classes.label}>How I can help others</label>
           <EditorFormComponent
-            value={formValues.howICanHelpOthers}
+            ref={howICanHelpOthersRef}
+            document={currentUser}
+            fieldName="howICanHelpOthers"
+            value={currentUser.howICanHelpOthers?.ckEditorMarkup}
             {...getSchema(Users).howICanHelpOthers}
+            label=""
+            addToSubmitForm={submitData => submitFormCallbacks.current.push(submitData)}
           />
           <div className={classes.arrowCol}>
             <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howICanHelpOthers')}>
               <ArrowBack className={classes.arrowIcon} />
             </button>
           </div>
-          <div className={classNames(classes.importedText, classes.ckeditorText)}>{importedData.howICanHelpOthers}</div>
-        </div> */}
+          <ContentStyles contentType="post">
+            {importedData.howICanHelpOthers}
+          </ContentStyles>
+        </div>
         
         {/* <div className={classes.formRow}>
           <label className={classes.label}>Organizer of</label>
@@ -535,35 +561,13 @@ const EAGApplicationImportForm = ({classes}: {
         
         <div className={classes.btnRow}>
           <div className={classes.submitBtnCol}>
-            <button type="submit" onClick={handleSubmit} className={classes.submitBtn}>Submit</button>
+            {formLoading ? <Loading /> :
+              <button type="submit" onClick={handleSubmit} className={classes.submitBtn}>
+                Submit
+              </button>}
           </div>
         </div>
       </form>
-      
-      {/* <WrappedSmartForm
-        collection={Users}
-        fields={[
-          'jobTitle',
-          'organization',
-          'careerStage',
-          'biography',
-          'howOthersCanHelpMe',
-          'howICanHelpOthers',
-          'organizerOfGroupIds',
-          'mapLocation',
-          'website',
-          'linkedinProfileURL',
-          'facebookProfileURL',
-          'twitterProfileURL',
-          'githubProfileURL',
-        ]}
-        excludeHiddenFields={false}
-        queryFragment={getFragment('UsersProfileEdit')}
-        mutationFragment={getFragment('UsersProfileEdit')}
-        successCallback={async (user) => {
-          history.push(userGetProfileUrl(user))
-        }}
-      /> */}
     </div>
   )
 }
