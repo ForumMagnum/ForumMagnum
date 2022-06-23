@@ -22,8 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 90,
     marginBottom: 90,
     [theme.breakpoints.down('xs')]: {
-      display: "none"
-    }
+      marginTop: 60,
+      marginBottom: 0
+    },
   },
   titleAndAuthor: {
     marginBottom: 12
@@ -113,10 +114,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     justifyContent: "center",
     [theme.breakpoints.down('xs')]: {
-      marginTop: 48,
       width: "100%",
       paddingLeft: 16,
-      zIndex: 1
+      paddingTop: 0
     }
   }
 });
