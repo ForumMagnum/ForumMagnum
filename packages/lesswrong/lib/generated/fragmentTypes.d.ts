@@ -1269,6 +1269,13 @@ interface SequencesPageTitleFragment { // fragment on Sequences
   readonly title: string,
 }
 
+interface SequenceHoverOver { // fragment on Sequences
+  readonly _id: string,
+  readonly title: string,
+  readonly contents: RevisionDisplay|null,
+  readonly chapters: Array<ChaptersFragment>,
+}
+
 interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment on Sequences
   readonly createdAt: Date,
   readonly userId: string,
@@ -2018,6 +2025,7 @@ interface FragmentTypes {
   ChaptersFragment: ChaptersFragment
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
+  SequenceHoverOver: SequenceHoverOver
   SequencesPageFragment: SequencesPageFragment
   SequencesEdit: SequencesEdit
   BookPageFragment: BookPageFragment
@@ -2163,6 +2171,7 @@ interface CollectionNamesByFragmentName {
   ChaptersFragment: "Chapters"
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
+  SequenceHoverOver: "Sequences"
   SequencesPageFragment: "Sequences"
   SequencesEdit: "Sequences"
   BookPageFragment: "Books"
