@@ -57,6 +57,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
+    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -396,6 +397,7 @@ registerFragment(`
     jobTitle
     organization
     careerStage
+    profileImageId
     biography {
       ...RevisionEdit
     }

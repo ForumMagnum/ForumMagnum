@@ -27,6 +27,7 @@ export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userHasNewTagSubscriptions =  isEAForum ? shippedFeature : disabled
+export const userHasDefaultProfilePhotos = disabled
 
 export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
