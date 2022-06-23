@@ -8,10 +8,8 @@ const megaTagUsers = ['BkbwT5TzSj4aRxJMN', 'pkJTc4xXhsCbNqkZM']
 const onlyStyleEditors = ['pkJTc4xXhsCbNqkZM']
 
 /**
- * This component's only job is to reduce the amount of room the EA frontpage
- * gives to the most particularly active tag users doing routine cleanup
- *
- * Otherwise it's just a wrapper around TagRevisionItem
+ * This component's only job is to filter out tag edits that shouldn't be shown.
+ * Otherwise it's just a wrapper around TagRevisionItem.
  */
 function RecentDiscussionTagRevisionItem({
   tag,
@@ -28,6 +26,12 @@ function RecentDiscussionTagRevisionItem({
 }) {
   const { TagRevisionItem } = Components
   
+  if (tag.adminOnly) {
+    return null
+  }
+  
+  // reduce the amount of room the EA frontpage gives to the most particularly
+  // active tag users doing routine cleanup
   if (
     // Only a problem for the forum
     isEAForum &&

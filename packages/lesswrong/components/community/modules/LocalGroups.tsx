@@ -210,7 +210,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
       </div> : <div className={classes.localGroupsList}>
         {localGroups?.map(group => {
           const rowStyle = group.bannerImageId ? {
-            backgroundImage: `linear-gradient(to right, transparent, white 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_115,w_140,q_auto,f_auto/${group.bannerImageId})`
+            backgroundImage: `linear-gradient(to right, transparent, white 140px), url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${group.bannerImageId})`
           } : {
             backgroundImage: 'url(https://res.cloudinary.com/cea/image/upload/c_pad,h_80,w_140,q_auto,f_auto/ea-logo-square-1200x1200__1_.png), linear-gradient(to right, #e2f1f4, white 140px)'
           }
