@@ -5,6 +5,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
 import { Link } from '../../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../../lib/instanceSettings';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -46,14 +47,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   authorCardUsernameRow: {
     display: 'flex',
     flexWrap: 'wrap',
-    columnGap: 30,
+    columnGap: 10,
     rowGap: '10px',
     alignItems: 'center',
     marginTop: 6,
   },
+  authorCardPhoto: {
+    borderRadius: '50%',
+    margin: '4px 0'
+  },
   authorCardUsername: {
     flex: '1 1 0',
-    fontWeight: 'bold'
+    whiteSpace: 'nowrap',
+    fontWeight: 'bold',
+    paddingRight: 20
   },
   authorCardBtns: {
     display: 'flex',
@@ -95,7 +102,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { PostsVote, BottomNavigation, PingbacksList, FooterTagList, Typography, ContentStyles,
-    NewConversationButton, NotifyMeButton } = Components;
+    NewConversationButton, NotifyMeButton, CloudinaryImage2 } = Components;
   const wordCount = post.contents?.wordCount || 0
   
   return <>
@@ -122,10 +129,17 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <PingbacksList postId={post._id}/>
     </AnalyticsContext>}
     
-    {post.user?.showPostAuthorCard && <AnalyticsContext pageSectionContext="postAuthorCard">
+    {!post.isEvent && post.user?.showPostAuthorCard && <AnalyticsContext pageSectionContext="postAuthorCard">
       <div className={classes.authorCard}>
         <Typography variant="subheading" component="div" className={classes.authorCardAbout}>About the author</Typography>
         <div className={classes.authorCardUsernameRow}>
+          {forumTypeSetting.get() === 'EAForum' && post.user.profileImageId && <CloudinaryImage2
+            height={40}
+            width={40}
+            imgProps={{q: '100'}}
+            publicId={post.user.profileImageId}
+            className={classes.authorCardPhoto}
+          />}
           <Typography variant="headline" component="div" className={classes.authorCardUsername}>
             <Link to={`/users/${post.user.slug}?from=post_author_card`}>{post.user.displayName}</Link>
           </Typography>

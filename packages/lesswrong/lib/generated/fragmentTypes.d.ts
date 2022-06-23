@@ -431,14 +431,11 @@ interface PostsAuthors { // fragment on Posts
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
   readonly showPostAuthorCard: boolean,
-  readonly biography: PostsAuthors_user_biography|null,
+  readonly biography: RevisionDisplay|null,
+  readonly profileImageId: string,
   readonly moderationStyle: string,
   readonly bannedUserIds: Array<string>,
   readonly moderatorAssistance: boolean,
-}
-
-interface PostsAuthors_user_biography { // fragment on Revisions
-  readonly html: string,
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
@@ -663,15 +660,12 @@ interface SunshinePostsList_contents { // fragment on Revisions
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
   readonly showPostAuthorCard: boolean,
-  readonly biography: SunshinePostsList_user_biography|null,
+  readonly biography: RevisionDisplay|null,
+  readonly profileImageId: string,
   readonly moderationStyle: string,
   readonly bannedUserIds: Array<string>,
   readonly moderatorAssistance: boolean,
   readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
-}
-
-interface SunshinePostsList_user_biography { // fragment on Revisions
-  readonly html: string,
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions

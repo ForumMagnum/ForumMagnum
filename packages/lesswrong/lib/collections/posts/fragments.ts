@@ -167,8 +167,9 @@ registerFragment(`
       ...UsersMinimumInfo
       showPostAuthorCard
       biography {
-        html
+        ...RevisionDisplay
       }
+      profileImageId
       
       # Author moderation info
       moderationStyle
@@ -476,8 +477,9 @@ registerFragment(`
       ...UsersMinimumInfo
       showPostAuthorCard
       biography {
-        html
+        ...RevisionDisplay
       }
+      profileImageId
       
       # Author moderation info
       moderationStyle
