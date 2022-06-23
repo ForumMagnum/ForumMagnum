@@ -930,6 +930,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
+    defaultValue: forumTypeSetting.get() === "LessWrong" ? "twoAxis" : "default",
     control: "select",
     form: {
       options: () => {
