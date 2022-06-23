@@ -109,10 +109,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   const getSequenceUrl = () => {
     return '/s/' + sequence._id
   }
-  const { LinkCard } = Components;
+  const { LinkCard, SequencesHoverOver } = Components;
   const url = getSequenceUrl()
 
-  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={sequence?.contents?.plaintextDescription?.slice(0, 750)}>
+  return <LinkCard className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})} to={url} tooltip={<SequencesHoverOver sequenceId={sequence._id}/>}>
     <div className={classes.image}>
       <NoSSR>
         <Components.CloudinaryImage
