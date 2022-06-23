@@ -19,11 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     position: "relative",
     maxWidth: 600,
-    marginTop: 100,
-    marginBottom: 50,
+    marginTop: 90,
+    marginBottom: 90,
     [theme.breakpoints.down('xs')]: {
       display: "none"
     }
+  },
+  titleAndAuthor: {
+    marginBottom: 12
   },
   title: {
     ...theme.typography.display0,
@@ -32,10 +35,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
     fontVariant: "small-caps",
     color: theme.palette.grey[900],
-    textShadow: shadow(theme),
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: 8
-    }
+    display: "block",
+    textShadow: shadow(theme)
   },
   description: {
     ...theme.typography.body2,
@@ -47,7 +48,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     color: theme.palette.text.dim,
     fontStyle: "italic",
-    marginBottom: 10,
     textShadow: shadow(theme)
   },
   sequenceImage: {
@@ -98,9 +98,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
+    justifyContent: "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
+      justifyContent: "flex-start"
     }
   },
   right: {
@@ -157,7 +159,13 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
             />
         </div>
         <div className={classes.text}>
-
+          <div className={classes.titleAndAuthor}>
+            <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
+          { showAuthor && sequence.user &&
+            <div className={classes.author}>
+              by <UsersName user={sequence.user} />
+            </div>}
+          </div>
           <ContentStyles contentType="postHighlight" className={classes.description}>
             <ContentItemTruncated
               maxLengthWords={100}
@@ -172,11 +180,6 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         </div>
       </div>
       <div className={classes.right}>
-        <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
-        { showAuthor && sequence.user &&
-          <div className={classes.author}>
-            by <UsersName user={sequence.user} />
-          </div>}
         {chapters?.map((chapter) => <span key={chapter._id}>
             {chapter.posts?.map(post => <SequencesSmallPostLink 
                                           key={chapter._id + post._id} 
