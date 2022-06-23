@@ -8,7 +8,7 @@ const shadow = theme => `0 0 25px ${theme.palette.panelBackground.default}, 0 0 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
+    marginTop: 40,
     marginBottom: 40,
     background: theme.palette.panelBackground.default,
     width: "100%",
@@ -19,11 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     position: "relative",
     maxWidth: 600,
-    marginTop: 30,
-    marginBottom: 10,
+    marginTop: 100,
+    marginBottom: 50,
     [theme.breakpoints.down('xs')]: {
-      marginTop: 30,
-      marginBottom: 0
+      display: "none"
     }
   },
   title: {
@@ -33,7 +32,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
     fontVariant: "small-caps",
     color: theme.palette.grey[900],
-    textShadow: shadow(theme)
+    textShadow: shadow(theme),
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 8
+    }
   },
   description: {
     ...theme.typography.body2,
@@ -53,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 0,
     left: 0,
     height: 125,
-    width: "calc(50% - 1px)",
+    width: "45%",
     opacity: .6,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -67,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: "100%",
       left: 0,
       top: 0,
-      background: `linear-gradient(to top, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent4} 30%, transparent 100%)`,
+      background: `linear-gradient(to top, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent4} 50%, transparent 100%)`,
     }
   },
   sequenceImageImg: {
@@ -93,34 +95,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   left: {
-    width: "50%",
-    borderRight: theme.palette.border.faint,
+    width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
-      borderRight: "unset",
-      justifyContent: "flex-start",
     }
   },
   right: {
-    width: "50%",
-    background: theme.palette.panelBackground.default,
-    padding: 16,
-    paddingLeft: 20,
+    width: "55%",
+    padding: 20,
+    paddingLeft: 40,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     [theme.breakpoints.down('xs')]: {
+      marginTop: 48,
       width: "100%",
       paddingLeft: 16,
+      zIndex: 1
     }
   }
 });
 
-export const LargeSequencesItem = ({sequence, showAuthor=true, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
   classes: ClassesType,
@@ -158,11 +157,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=true, classes}: {
             />
         </div>
         <div className={classes.text}>
-          <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
-          { showAuthor && sequence.user &&
-            <div className={classes.author}>
-              by <UsersName user={sequence.user} />
-            </div>}
+
           <ContentStyles contentType="postHighlight" className={classes.description}>
             <ContentItemTruncated
               maxLengthWords={100}
@@ -177,6 +172,11 @@ export const LargeSequencesItem = ({sequence, showAuthor=true, classes}: {
         </div>
       </div>
       <div className={classes.right}>
+      <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
+          { showAuthor && sequence.user &&
+            <div className={classes.author}>
+              by <UsersName user={sequence.user} />
+            </div>}
         {chapters?.map((chapter) => <span key={chapter._id}>
             {chapter.posts?.map(post => <SequencesSmallPostLink 
                                           key={chapter._id + post._id} 
