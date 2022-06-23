@@ -264,12 +264,12 @@ export const dispatchPendingEvents = async () => {
  * want to wait.
  */
 export const forcePendingEvents = async (
-  {upToDate=null, delay}:
+  {upToDate, delay}:
   {
-    upToDate: string|null,
+    upToDate?: string,
     /** Delay between pending events in ms */
-    delay: number
-  }
+    delay?: number
+  } = {}
 ) => {
   let eventToHandle = null;
   const af = forumTypeSetting.get() === 'AlignmentForum'

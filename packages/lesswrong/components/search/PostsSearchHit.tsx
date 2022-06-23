@@ -62,7 +62,7 @@ const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
             {post.authorDisplayName}
           </Components.MetaInfo>}
           <Components.MetaInfo>
-            {post.baseScore} points
+            {post.baseScore} karma
           </Components.MetaInfo>
           {post.postedAt && <Components.MetaInfo>
             <Components.FormatDate date={post.postedAt}/>
