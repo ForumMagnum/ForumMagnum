@@ -172,11 +172,11 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         </div>
       </div>
       <div className={classes.right}>
-      <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
-          { showAuthor && sequence.user &&
-            <div className={classes.author}>
-              by <UsersName user={sequence.user} />
-            </div>}
+        <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
+        { showAuthor && sequence.user &&
+          <div className={classes.author}>
+            by <UsersName user={sequence.user} />
+          </div>}
         {chapters?.map((chapter) => <span key={chapter._id}>
             {chapter.posts?.map(post => <SequencesSmallPostLink 
                                           key={chapter._id + post._id} 
