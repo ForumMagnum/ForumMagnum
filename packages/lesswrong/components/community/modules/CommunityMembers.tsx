@@ -88,6 +88,20 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       paddingBottom: 30
     },
   },
+  photoRow: {
+    display: 'flex',
+    columnGap: 10,
+    alignItems: 'center',
+  },
+  profileImage: {
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    borderRadius: '50%',
+  },
+  photoRowText: {
+    flex: '1 1 0'
+  },
   nameRow: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -225,15 +239,26 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
     
     return <div className={classes.person}>
       <div className={classes.content}>
-        <div className={classes.nameRow}>
-          <Link to={`/users/${hit.slug}?from=community_members_tab`} className={classes.displayName}>
-            {hit.displayName}
-          </Link>
-          <div className={classes.distance}>
-            {distanceToPerson}
+        <div className={classes.photoRow}>
+          {hit.profileImageId && <Components.CloudinaryImage2
+            height={50}
+            width={50}
+            imgProps={{q: '100'}}
+            publicId={hit.profileImageId}
+            className={classes.profileImage}
+          />}
+          <div className={classes.photoRowText}>
+            <div className={classes.nameRow}>
+              <Link to={`/users/${hit.slug}?from=community_members_tab`} className={classes.displayName}>
+                {hit.displayName}
+              </Link>
+              <div className={classes.distance}>
+                {distanceToPerson}
+              </div>
+            </div>
+            <div className={classes.location}>{hit.mapLocationAddress}</div>
           </div>
         </div>
-        <div className={classes.location}>{hit.mapLocationAddress}</div>
         {hit.htmlBio && <div className={classes.description}><div dangerouslySetInnerHTML={{__html: hit.htmlBio}} /></div>}
         {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
           <NewConversationButton user={hit} currentUser={currentUser} from="community_members_tab">

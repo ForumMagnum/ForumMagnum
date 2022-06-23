@@ -13,6 +13,7 @@ importComponent("PostsTopSequencesNav", () => require('./PostsTopSequencesNav'))
 importComponent("PostsPageEventData", () => require('./PostsPageEventData'));
 importComponent("PostsPageActions", () => require('./PostsPageActions'));
 importComponent("PostActions", () => require('./PostActions'));
+importComponent("PostAuthorCard", () => require('./PostAuthorCard'));
 importComponent("ContentType", () => require('./ContentType'));
 importComponent("PostsRevisionSelector", () => require('./PostsRevisionSelector'));
 importComponent("PostsRevisionsList", () => require('./PostsRevisionsList'));

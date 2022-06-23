@@ -26,12 +26,12 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
     const canonicalUrl = canonicalUrlProp || url
     const description = descriptionProp || taglineSetting.get()
     const siteName = tabTitleSetting.get()
-    
+
     const TitleComponent: any = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
     const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
-    
+
     const rssUrl = `${getSiteUrl()}feed.xml`
-    
+
     return (
       <React.Fragment>
         { TitleComponent
@@ -56,7 +56,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
           <meta property='og:description' content={description}/>
 
           {/* twitter */}
-          <meta name='twitter:card' content='summary'/>
+          <meta name='twitter:card' content='summary_large_image'/>
           {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>

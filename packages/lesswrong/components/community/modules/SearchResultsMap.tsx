@@ -21,11 +21,24 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     opacity: 0.8,
     cursor: 'pointer'
   },
+  popupTitle: {
+    display: 'flex',
+    columnGap: 10,
+    alignItems: 'center'
+  },
+  profileImage: {
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    borderRadius: '50%',
+  },
   popupAddress: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     fontSize: 12,
     fontStyle: 'italic',
+    fontWeight: 'normal',
+    marginTop: 2
   },
   popupBio: {
     ...theme.typography.commentStyle,
@@ -36,7 +49,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
-    marginTop: 12,
   }
 }))
 
@@ -117,11 +129,22 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
             lat={markerLocations[hit._id].lat}
             lng={markerLocations[hit._id].lng}
             link={`/users/${hit.slug}?from=community_members_tab`}
-            title={hit.displayName}
+            title={<div className={classes.popupTitle}>
+              {hit.profileImageId && <Components.CloudinaryImage2
+                height={50}
+                width={50}
+                imgProps={{q: '100'}}
+                publicId={hit.profileImageId}
+                className={classes.profileImage}
+              />}
+              <div>
+                <div>{hit.displayName}</div>
+                <div className={classes.popupAddress}>{hit.mapLocationAddress}</div>
+              </div>
+            </div>}
             onClose={() => setActiveResultId('')}
             hideBottomLinks
           >
-            <div className={classes.popupAddress}>{hit.mapLocationAddress}</div>
             {hit.htmlBio && <div className={classes.popupBio} dangerouslySetInnerHTML={{__html: hit.htmlBio}} />}
           </StyledMapPopup>}
         </React.Fragment>
