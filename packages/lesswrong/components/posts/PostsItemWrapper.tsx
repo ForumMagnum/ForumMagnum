@@ -58,7 +58,7 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
         <PostsUserAndCoauthors post={document} abbreviateIfLong={true}/>
       </PostsItem2MetaInfo>
       <PostsItem2MetaInfo className={classes.meta}>
-        {document.baseScore} points
+        {document.baseScore} karma
       </PostsItem2MetaInfo>
       <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />
     </div>

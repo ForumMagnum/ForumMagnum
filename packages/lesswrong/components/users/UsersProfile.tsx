@@ -65,6 +65,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   centerColumnWrapper: {
     gridArea: 'center'
   },
+  nameAndProfileWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 25
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  },
+  nameAndProfileWrapperWithImg: {
+    marginBottom: 15,
+  },
+  profileImage: {
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    borderRadius: '50%',
+    marginRight: 20,
+  },
+  flexingNameAndMessage: {
+    'flex-grow': 1
+  },
   usernameTitle: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -72,9 +95,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 15
-    }
   },
   messageBtnDesktop: {
     display: 'block',
@@ -489,28 +509,39 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <div className={classes.centerColumnWrapper}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>
-              <div>{username}</div>
-              {isEAForum && currentUser?._id != user._id && (
-                <div className={classes.messageBtnDesktop}>
-                  <NewConversationButton user={user} currentUser={currentUser}>
-                    <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
-                      Message
-                    </Button>
-                  </NewConversationButton>
+            <div className={classNames(classes.nameAndProfileWrapper, {[classes.nameAndProfileWrapperWithImg]: isEAForum && user.profileImageId})}>
+              {isEAForum && user.profileImageId && <Components.CloudinaryImage2
+                height={90}
+                width={90}
+                imgProps={{q: '100'}}
+                publicId={user.profileImageId}
+                className={classes.profileImage}
+              />}
+              <div className={classes.flexingNameAndMessage}>
+                <div className={classes.usernameTitle}>
+                  <div>{username}</div>
+                  {isEAForum && currentUser?._id != user._id && (
+                    <div className={classes.messageBtnDesktop}>
+                      <NewConversationButton user={user} currentUser={currentUser}>
+                        <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
+                          Message
+                        </Button>
+                      </NewConversationButton>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            {mapLocationNode}
-            {isEAForum && currentUser?._id != user._id && (
-              <div className={classes.messageBtnMobile}>
-                <NewConversationButton user={user} currentUser={currentUser}>
-                  <Button color="primary" variant="contained" className={classes.messageBtn}>
-                    Message
-                  </Button>
-                </NewConversationButton>
+                {mapLocationNode}
+                {isEAForum && currentUser?._id != user._id && (
+                  <div className={classes.messageBtnMobile}>
+                    <NewConversationButton user={user} currentUser={currentUser}>
+                      <Button color="primary" variant="contained" className={classes.messageBtn}>
+                        Message
+                      </Button>
+                    </NewConversationButton>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&

@@ -45,7 +45,7 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
         <FormatDate date={user.createdAt}/>
       </MetaInfo>
       <MetaInfo>
-        {user.karma||0} points
+        {user.karma||0} karma
       </MetaInfo>
     </Link>
   </div>
