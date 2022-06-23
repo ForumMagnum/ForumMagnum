@@ -16,14 +16,12 @@
 	createLabeledInputText,
 	injectCssTransitionDisabler,
 	submitHandler
-} from 'ckeditor5/src/ui';
-import { FocusTracker, KeystrokeHandler } from 'ckeditor5/src/utils';
-import { icons } from 'ckeditor5/src/core';
+} from '@ckeditor/ckeditor5-ui/src';
+import { FocusTracker, KeystrokeHandler } from '@ckeditor/ckeditor5-utils/src';
+import { icons } from '@ckeditor/ckeditor5-core/src';
 
-// See: #8833.
-// eslint-disable-next-line ckeditor5-rules/ckeditor-imports
 import '@ckeditor/ckeditor5-ui/theme/components/responsive-form/responsiveform.css';
-import '../../theme/mediaform.css';
+import '@ckeditor/ckeditor5-media-embed/theme/mediaform.css';
 
 /**
  * The media form view controller class.
@@ -289,7 +287,7 @@ export default class MediaFormView extends View {
 		const labeledInput = new LabeledFieldView( this.locale, createLabeledInputText );
 		const inputField = labeledInput.fieldView;
 
-		this._urlInputViewInfoDefault = t( 'Paste the media URL in the input.' );
+		this._urlInputViewInfoDefault = t( 'We support embedding from Metaculus, Manifold Markets, Our World in Data, Elicit, YouTube, and more. See lesswrong.com/faq for details.' );
 		this._urlInputViewInfoTip = t( 'Tip: Paste the URL into the content to embed faster.' );
 
 		labeledInput.label = t( 'Media URL' );
