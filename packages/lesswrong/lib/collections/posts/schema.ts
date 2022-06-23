@@ -13,6 +13,9 @@ import { formGroups } from './formGroups';
 import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getVotingSystems } from '../../voting/votingSystems';
+import { forumTypeSetting } from '../../instanceSettings';
+
+const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -930,6 +933,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
+    defaultValue: isLWorAF ? "twoAxis" : "default",
     control: "select",
     form: {
       options: () => {
