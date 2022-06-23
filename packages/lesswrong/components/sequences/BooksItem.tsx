@@ -49,7 +49,7 @@ const BooksItem = ({ book, canEdit, classes }: {
     setEdit(false);
   }, []);
 
-  const useLargeSequencesItem = useABTest(collectionsPageABTest) == "largeSequenceItemGroup";
+  const useLargeSequencesItem = useABTest(collectionsPageABTest) === "largeSequenceItemGroup";
 
   if (edit) {
     return <Components.BooksEditForm
@@ -75,7 +75,7 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        {useLargeSequencesItem && book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence}/>)}
+        {useLargeSequencesItem && book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
         {!useLargeSequencesItem && <SequencesGrid sequences={book.sequences} bookItemStyle/>}
       </SingleColumnSection>
       <Divider />
