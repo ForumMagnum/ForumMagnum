@@ -662,10 +662,16 @@ interface SunshinePostsList_contents { // fragment on Revisions
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
+  readonly showPostAuthorCard: boolean,
+  readonly biography: SunshinePostsList_user_biography|null,
   readonly moderationStyle: string,
   readonly bannedUserIds: Array<string>,
   readonly moderatorAssistance: boolean,
   readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
+}
+
+interface SunshinePostsList_user_biography { // fragment on Revisions
+  readonly html: string,
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions

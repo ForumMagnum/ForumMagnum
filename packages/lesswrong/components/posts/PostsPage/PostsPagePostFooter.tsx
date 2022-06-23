@@ -122,31 +122,37 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <PingbacksList postId={post._id}/>
     </AnalyticsContext>}
     
-    {post.user?.showPostAuthorCard && <div className={classes.authorCard}>
-      <Typography variant="subheading" component="div" className={classes.authorCardAbout}>About the author</Typography>
-      <div className={classes.authorCardUsernameRow}>
-        <Typography variant="headline" component="div" className={classes.authorCardUsername}>
-          <Link to={`/users/${post.user.slug}`}>{post.user.displayName}</Link>
-        </Typography>
-        <div className={classes.authorCardBtns}>
-          {currentUser?._id != post.user._id && <NewConversationButton user={post.user} currentUser={currentUser}>
-            <a tabIndex={0} className={classes.authorCardMessageBtn}>
-              Message
-            </a>
-          </NewConversationButton>}
-          {currentUser?._id != post.user._id && <NotifyMeButton
-            document={post.user}
-            className={classes.authorCardSubscribeBtn}
-            subscribeMessage="Subscribe"
-            unsubscribeMessage="Unsubscribe"
-            asButton
-          />}
+    {post.user?.showPostAuthorCard && <AnalyticsContext pageSectionContext="postAuthorCard">
+      <div className={classes.authorCard}>
+        <Typography variant="subheading" component="div" className={classes.authorCardAbout}>About the author</Typography>
+        <div className={classes.authorCardUsernameRow}>
+          <Typography variant="headline" component="div" className={classes.authorCardUsername}>
+            <Link to={`/users/${post.user.slug}?from=post_author_card`}>{post.user.displayName}</Link>
+          </Typography>
+          <div className={classes.authorCardBtns}>
+            {currentUser?._id != post.user._id && <NewConversationButton
+              user={post.user}
+              currentUser={currentUser}
+              from="post_author_card"
+            >
+              <a tabIndex={0} className={classes.authorCardMessageBtn}>
+                Message
+              </a>
+            </NewConversationButton>}
+            {currentUser?._id != post.user._id && <NotifyMeButton
+              document={post.user}
+              className={classes.authorCardSubscribeBtn}
+              subscribeMessage="Subscribe"
+              unsubscribeMessage="Unsubscribe"
+              asButton
+            />}
+          </div>
         </div>
+        {post.user.biography?.html && <ContentStyles contentType="comment">
+          <div dangerouslySetInnerHTML={{__html: post.user.biography?.html}} className={classes.authorCardBio} />
+        </ContentStyles>}
       </div>
-      {post.user.biography?.html && <ContentStyles contentType="comment">
-        <div dangerouslySetInnerHTML={{__html: post.user.biography?.html}} className={classes.authorCardBio} />
-      </ContentStyles>}
-    </div>}
+    </AnalyticsContext>}
   </>
 }
 

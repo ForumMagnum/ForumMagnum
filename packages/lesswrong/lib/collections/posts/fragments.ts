@@ -474,6 +474,10 @@ registerFragment(`
     
     user {
       ...UsersMinimumInfo
+      showPostAuthorCard
+      biography {
+        html
+      }
       
       # Author moderation info
       moderationStyle
