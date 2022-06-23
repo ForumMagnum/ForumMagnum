@@ -52,6 +52,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     marginTop: 6,
   },
+  authorCardPhotoLink: {
+    '&:hover': {
+      opacity: 1
+    }
+  },
   authorCardPhoto: {
     borderRadius: '50%',
     margin: '4px 0'
@@ -133,15 +138,22 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <div className={classes.authorCard}>
         <Typography variant="subheading" component="div" className={classes.authorCardAbout}>About the author</Typography>
         <div className={classes.authorCardUsernameRow}>
-          {forumTypeSetting.get() === 'EAForum' && post.user.profileImageId && <CloudinaryImage2
-            height={40}
-            width={40}
-            imgProps={{q: '100'}}
-            publicId={post.user.profileImageId}
-            className={classes.authorCardPhoto}
-          />}
+          {forumTypeSetting.get() === 'EAForum' && post.user.profileImageId && <Link
+            to={`/users/${post.user.slug}?from=post_author_card`}
+            className={classes.authorCardPhotoLink}
+          >
+            <CloudinaryImage2
+              height={40}
+              width={40}
+              imgProps={{q: '100'}}
+              publicId={post.user.profileImageId}
+              className={classes.authorCardPhoto}
+            />
+          </Link>}
           <Typography variant="headline" component="div" className={classes.authorCardUsername}>
-            <Link to={`/users/${post.user.slug}?from=post_author_card`}>{post.user.displayName}</Link>
+            <Link to={`/users/${post.user.slug}?from=post_author_card`}>
+              {post.user.displayName}
+            </Link>
           </Typography>
           <div className={classes.authorCardBtns}>
             {currentUser?._id != post.user._id && <NewConversationButton
