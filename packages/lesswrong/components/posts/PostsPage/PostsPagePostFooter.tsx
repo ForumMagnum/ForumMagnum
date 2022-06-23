@@ -41,31 +41,50 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: '30px 0',
   },
   authorCardAbout: {
-    
+    fontSize: 13
   },
   authorCardUsernameRow: {
     display: 'flex',
-    columnGap: 14,
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    columnGap: 30,
+    rowGap: '10px',
+    alignItems: 'center',
     marginTop: 6,
   },
   authorCardUsername: {
     flex: '1 1 0',
-    // cursor: 'pointer',
-    // '&:hover': {
-    //   borderBottom: ''
-    // }
+    fontWeight: 'bold'
+  },
+  authorCardBtns: {
+    display: 'flex',
+    columnGap: 10,
+  },
+  authorCardMessageBtn: {
+    display: 'block',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.grey[0],
+    fontFamily: theme.typography.fontFamily,
+    border: theme.palette.border.normal,
+    borderColor: theme.palette.primary.main,
+    borderRadius: 4,
+    padding: '8px 16px',
+  },
+  authorCardSubscribeBtn: {
+    backgroundColor: theme.palette.grey[0],
+    color: theme.palette.primary.main,
+    fontFamily: theme.typography.fontFamily,
+    border: theme.palette.border.normal,
+    borderColor: theme.palette.primary.main,
+    borderRadius: 4,
+    padding: '8px 16px',
   },
   authorCardBio: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[800],
     fontSize: 14,
-    lineHeight: '1.8em',
     display: '-webkit-box',
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
-    marginTop: 12,
+    marginTop: 20,
   },
 });
 
@@ -75,7 +94,8 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsVote, BottomNavigation, PingbacksList, FooterTagList, Typography, NewConversationButton } = Components;
+  const { PostsVote, BottomNavigation, PingbacksList, FooterTagList, Typography, ContentStyles,
+    NewConversationButton, NotifyMeButton } = Components;
   const wordCount = post.contents?.wordCount || 0
   
   return <>
@@ -105,14 +125,27 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
     {post.user?.showPostAuthorCard && <div className={classes.authorCard}>
       <Typography variant="subheading" component="div" className={classes.authorCardAbout}>About the author</Typography>
       <div className={classes.authorCardUsernameRow}>
-        <Typography variant="headline" className={classes.authorCardUsername}>
+        <Typography variant="headline" component="div" className={classes.authorCardUsername}>
           <Link to={`/users/${post.user.slug}`}>{post.user.displayName}</Link>
         </Typography>
-        {currentUser?._id != post.user._id && <NewConversationButton user={post.user} currentUser={currentUser}>
-          Message
-        </NewConversationButton>}
+        <div className={classes.authorCardBtns}>
+          {currentUser?._id != post.user._id && <NewConversationButton user={post.user} currentUser={currentUser}>
+            <a tabIndex={0} className={classes.authorCardMessageBtn}>
+              Message
+            </a>
+          </NewConversationButton>}
+          {currentUser?._id != post.user._id && <NotifyMeButton
+            document={post.user}
+            className={classes.authorCardSubscribeBtn}
+            subscribeMessage="Subscribe"
+            unsubscribeMessage="Unsubscribe"
+            asButton
+          />}
+        </div>
       </div>
-      {post.user.biography?.html && <div className={classes.authorCardBio}><div dangerouslySetInnerHTML={{__html: post.user.biography?.html}} /></div>}
+      {post.user.biography?.html && <ContentStyles contentType="comment">
+        <div dangerouslySetInnerHTML={{__html: post.user.biography?.html}} className={classes.authorCardBio} />
+      </ContentStyles>}
     </div>}
   </>
 }
