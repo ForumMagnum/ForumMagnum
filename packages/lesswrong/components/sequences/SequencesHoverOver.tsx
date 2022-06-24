@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   classes: ClassesType,
-  sequence: SequencesPageFragment,
+  sequence: SequencesPageFragment|null,
   showAuthor?: boolean
 }) => {
   const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName } = Components
@@ -44,10 +44,11 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   });
   
   return <Card className={classes.root}>
+    {!sequence && <Loading/>}
     <div className={classes.title}>{sequence?.title}</div>
-    { showAuthor && sequence.user &&
+    { showAuthor && sequence?.user &&
       <div className={classes.author}>
-        by <UsersName user={sequence.user} />
+        by <UsersName user={sequence?.user} />
       </div>}
     <ContentStyles contentType="postHighlight" className={classes.description}>
       <ContentItemTruncated

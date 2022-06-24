@@ -8,19 +8,6 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment SequenceHoverOver on Sequence {
-    _id
-    title
-    contents {
-      ...RevisionDisplay
-    }
-    chapters {
-      ...ChaptersFragment
-    }
-  }
-`);
-
-registerFragment(`
   fragment SequencesPageFragment on Sequence {
     ...SequencesPageTitleFragment
     createdAt

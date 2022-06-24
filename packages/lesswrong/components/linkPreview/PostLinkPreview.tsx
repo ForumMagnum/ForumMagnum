@@ -262,6 +262,13 @@ const SequencePreview = ({classes, targetLocation, href, innerHTML}: {
   const sequenceId = targetLocation.params._id;
   const { eventHandlers, anchorEl, hover } = useHover();
 
+  const { document: sequence } = useSingle({
+    documentId: sequenceId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesPageFragment',
+    fetchPolicy: 'cache-then-network' as any,
+  });
+
   return (
     <span {...eventHandlers}>
       <LWPopper
@@ -270,7 +277,7 @@ const SequencePreview = ({classes, targetLocation, href, innerHTML}: {
         placement="bottom-start"
         allowOverflow
       >
-        <SequencesHoverOver sequenceId={sequenceId} />
+        <SequencesHoverOver sequence={sequence || null} />
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={sequenceId}/>
     </span>
