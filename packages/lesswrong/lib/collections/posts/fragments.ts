@@ -166,6 +166,11 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
+      showPostAuthorCard
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle
@@ -370,10 +375,7 @@ registerFragment(`
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
-      _id
-      title
-      draft
-      userId
+      ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
       _id
@@ -491,6 +493,11 @@ registerFragment(`
     
     user {
       ...UsersMinimumInfo
+      showPostAuthorCard
+      biography {
+        ...RevisionDisplay
+      }
+      profileImageId
       
       # Author moderation info
       moderationStyle

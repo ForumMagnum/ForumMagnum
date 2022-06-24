@@ -246,10 +246,23 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     order: 69,
   },
+  
+  showPostAuthorCard: {
+    type: Boolean,
+    optional: true,
+    label: "Show my bio at the end of my posts",
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    order: 70,
+  },
 
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
-    order: 70,
+    order: 71,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -264,7 +277,7 @@ addFieldsDict(Users, {
   // This field-name is no longer accurate, but is here because we used to have that field
   // around and then removed `markDownCommentEditor` and merged it into this field.
   markDownPostEditor: {
-    order: 71,
+    order: 72,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -1548,7 +1561,7 @@ addFieldsDict(Users, {
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",
-    order: 72,
+    order: 73,
   },
   walledGardenInvite: {
     type: Boolean,

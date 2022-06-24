@@ -513,6 +513,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+          image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>
           <div className={classes.centerColumnWrapper}>
@@ -710,7 +711,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </SingleColumnSection>
           </AnalyticsContext>
 
-          {currentUser && !user.reviewedByUserId && !user.needsReview && (currentUser._id !== user._id) &&
+          {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
             <SingleColumnSection className={classes.reportUserSection}>
               <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
             </SingleColumnSection>

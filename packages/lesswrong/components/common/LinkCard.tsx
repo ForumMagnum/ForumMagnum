@@ -1,8 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -47,6 +46,7 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
   classes: ClassesType,
   onClick?: any
 }) => {
+  const { LWTooltip } = Components
   const card = (
     <div className={classNames(className, classes.root)}>
       <div className={classes.background}>
@@ -57,11 +57,13 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
   );
   
   if (tooltip) {
-    return <Tooltip title={tooltip} placement="bottom-start">
+    return <LWTooltip className={classNames(className, classes.root)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false} clickable>
       {card}
-    </Tooltip>;
+    </LWTooltip>;
   } else {
-    return card;
+    return <div className={classNames(className, classes.root)}>
+      {card}
+      </div>
   }
 }
 
