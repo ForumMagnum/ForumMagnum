@@ -57,7 +57,7 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
   );
   
   if (tooltip) {
-    return <LWTooltip className={classNames(className, classes.root)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false}>
+    return <LWTooltip className={classNames(className, classes.root)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false} clickable>
       {card}
     </LWTooltip>;
   } else {
