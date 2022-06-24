@@ -933,7 +933,6 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
-    defaultValue: isLWorAF ? "twoAxis" : "default",
     control: "select",
     form: {
       options: () => {
@@ -941,6 +940,7 @@ const schema: SchemaType<DbPost> = {
           .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
+    ...schemaDefaultValue(isLWorAF ? "twoAxis" : "default"),
   },
 };
 
