@@ -245,6 +245,7 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequences.single',
@@ -252,6 +253,7 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequencesEdit',
