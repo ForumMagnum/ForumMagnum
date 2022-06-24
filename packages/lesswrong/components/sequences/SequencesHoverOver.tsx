@@ -63,13 +63,13 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     </ContentStyles>
     {!chapters && loading && <Loading />}
     {chapters?.map((chapter) => <span key={chapter._id}>
-        {chapter.posts?.map(post => <SequencesSmallPostLink 
-                                      key={chapter._id + post._id} 
-                                      post={post}
-                                    />
-        )}
-      </span>
-    )}
+      {chapter.posts?.map(post => 
+        <SequencesSmallPostLink 
+          key={chapter._id + post._id} 
+          post={post}
+        />
+      )}
+     </span>)}
   </Card>;
 }
 
