@@ -575,16 +575,9 @@ interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fra
 }
 
 interface PostSequenceNavigation { // fragment on Posts
-  readonly sequence: PostSequenceNavigation_sequence|null,
+  readonly sequence: SequencesPageFragment|null,
   readonly prevPost: PostSequenceNavigation_prevPost|null,
   readonly nextPost: PostSequenceNavigation_nextPost|null,
-}
-
-interface PostSequenceNavigation_sequence { // fragment on Sequences
-  readonly _id: string,
-  readonly title: string,
-  readonly draft: boolean,
-  readonly userId: string,
 }
 
 interface PostSequenceNavigation_prevPost { // fragment on Posts
@@ -1267,13 +1260,6 @@ interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
 interface SequencesPageTitleFragment { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
-}
-
-interface SequenceHoverOver { // fragment on Sequences
-  readonly _id: string,
-  readonly title: string,
-  readonly contents: RevisionDisplay|null,
-  readonly chapters: Array<ChaptersFragment>,
 }
 
 interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment on Sequences
@@ -2025,7 +2011,6 @@ interface FragmentTypes {
   ChaptersFragment: ChaptersFragment
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
-  SequenceHoverOver: SequenceHoverOver
   SequencesPageFragment: SequencesPageFragment
   SequencesEdit: SequencesEdit
   BookPageFragment: BookPageFragment
@@ -2171,7 +2156,6 @@ interface CollectionNamesByFragmentName {
   ChaptersFragment: "Chapters"
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
-  SequenceHoverOver: "Sequences"
   SequencesPageFragment: "Sequences"
   SequencesEdit: "Sequences"
   BookPageFragment: "Books"

@@ -68,7 +68,7 @@ const PostsTopSequencesNav = ({post, classes}: {
         post={post.prevPost}
         direction="left" />
 
-      <LWTooltip tooltip={false} title={<SequencesHoverOver sequenceId={post.sequence._id} />} clickable={true}>
+      <LWTooltip tooltip={false} title={<SequencesHoverOver sequence={post.sequence} />} clickable={true}>
         <div className={classes.title}>
           {post.sequence.draft && "[Draft] "}
           <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
