@@ -9,6 +9,7 @@ import Search from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { truncatise } from '../../../lib/truncatise';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -132,14 +133,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginTop: 4,
   },
   description: {
-    ...theme.typography.commentStyle,
     color: theme.palette.grey[800],
-    fontSize: 14,
-    lineHeight: '1.8em',
-    display: '-webkit-box',
-    "-webkit-line-clamp": 3,
-    "-webkit-box-orient": 'vertical',
-    overflow: 'hidden',
     marginTop: 12,
   },
   buttonRow: {
@@ -196,7 +190,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   const { captureEvent } = useTracking()
   const keywordSearchTimer = useRef<any>(null)
 
-  const { NewConversationButton, SearchResultsMap } = Components
+  const { NewConversationButton, SearchResultsMap, ContentStyles } = Components
   
   const SearchBox = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
@@ -259,7 +253,9 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
             <div className={classes.location}>{hit.mapLocationAddress}</div>
           </div>
         </div>
-        {hit.htmlBio && <div className={classes.description}><div dangerouslySetInnerHTML={{__html: hit.htmlBio}} /></div>}
+        {hit.htmlBio && <ContentStyles contentType="comment" className={classes.description}>
+          <div dangerouslySetInnerHTML={{__html: truncatise(hit.htmlBio, {TruncateBy: 'characters', TruncateLength: 160})}} />
+        </ContentStyles>}
         {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
           <NewConversationButton user={hit} currentUser={currentUser} from="community_members_tab">
             <Button variant="contained" color="primary" className={classes.messageBtn}>Message</Button>

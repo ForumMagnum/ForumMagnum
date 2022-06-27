@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { truncatise } from '../../../lib/truncatise';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -61,11 +62,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '8px 16px',
   },
   bio: {
-    fontSize: 14,
-    display: '-webkit-box',
-    "-webkit-line-clamp": 3,
-    "-webkit-box-orient": 'vertical',
-    overflow: 'hidden',
     marginTop: 20,
   },
 });
@@ -117,8 +113,8 @@ const PostAuthorCard = ({author, currentUser, classes}: {
           />}
         </div>
       </div>
-      {author.biography?.html && <ContentStyles contentType="comment">
-        <div dangerouslySetInnerHTML={{__html: author.biography?.html}} className={classes.bio} />
+      {author.biography?.html && <ContentStyles contentType="comment" className={classes.bio}>
+        <div dangerouslySetInnerHTML={{__html: truncatise(author.biography.html, {TruncateBy: 'characters', TruncateLength: 250})}} />
       </ContentStyles>}
     </div>
   </AnalyticsContext>
