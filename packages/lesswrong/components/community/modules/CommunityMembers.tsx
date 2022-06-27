@@ -9,7 +9,7 @@ import Search from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { truncatise } from '../../../lib/truncatise';
+import { truncate } from '../../../lib/editor/ellipsize';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -254,7 +254,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
           </div>
         </div>
         {hit.htmlBio && <ContentStyles contentType="comment" className={classes.description}>
-          <div dangerouslySetInnerHTML={{__html: truncatise(hit.htmlBio, {TruncateBy: 'characters', TruncateLength: 160})}} />
+          <div dangerouslySetInnerHTML={{__html: truncate(hit.htmlBio, 220)}} />
         </ContentStyles>}
         {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
           <NewConversationButton user={hit} currentUser={currentUser} from="community_members_tab">
