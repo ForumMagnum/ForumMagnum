@@ -209,8 +209,9 @@ const EAGApplicationImportForm = ({classes}: {
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   // only used for initializing the form
   const [formLoading, setFormLoading] = useState(true)
-  // the event associated with the application data (ex. "EA Global: Washington DC")
-  const [event, setEvent] = useState<string|null>(null)
+  // the event associated with the application data (ex. "EA Global: Washington DC") -
+  // we have a default since some applications don't have this info
+  const [event, setEvent] = useState<string>('a past EA Global')
   const [importedData, setImportedData] = useState<EAGApplicationDataType|null>(null)
   // used to disable buttons when submitting the form
   const [submitLoading, setSubmitLoading] = useState(false)
@@ -218,9 +219,13 @@ const EAGApplicationImportForm = ({classes}: {
   useEffect(() => {
     // try to pull the latest EAG application data that is associated with the current user's email address
     const fetchData = async () => {
-      const data = await fetch("/api/eag-application-data", {method: "GET"})
-      const json = await data.json()
-      
+      const response = await fetch("/api/eag-application-data", {method: "GET"})
+      if (!response.ok) {
+        setFormLoading(false)
+        return
+      }
+
+      const json = await response.json()
       const eagData = json?.data?.length && json.data[0]
       if (eagData) {
         // the name of the specific event they applied for could be in any of these array fields
@@ -241,7 +246,7 @@ const EAGApplicationImportForm = ({classes}: {
         setImportedData({
           jobTitle: eagData.What_is_your_job_title_or_current_role,
           organization: eagData.Where_do_you_work,
-          careerStage: careerStage?.map(stage => CAREER_STAGES.find(s => stage.includes(s.value))?.value)?.filter(stage => !!stage),
+          careerStage: careerStage?.map(stage => CAREER_STAGES.find(s => stage.includes(s.label))?.value)?.filter(stage => !!stage),
           biography: {
             markdownValue: bio,
             ckEditorValue: markdownToHtmlNoLaTeX(bio)
@@ -290,11 +295,11 @@ const EAGApplicationImportForm = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   
   const importMapLocation = async () => {
-    if (mapsLoaded) {
+    if (mapsLoaded && importedData?.mapLocation) {
       // get a list of matching Google locations for the current lat/lng (reverse geocoding)
       const geocoder = new googleMaps.Geocoder()
       const geocodingResponse = await geocoder.geocode({
-        address: importedData?.mapLocation
+        address: importedData.mapLocation
       })
       const results = geocodingResponse?.results
       if (results?.length) {
@@ -424,7 +429,6 @@ const EAGApplicationImportForm = ({classes}: {
     updateCurrentUser(submission).then(() => {
       // clear out local storage for CKEditor fields
       successFormCallbacks.current.reduce((prev, next) => {
-        console.log('successFormCallbacks')
         try {
           return next(prev)
         } catch (e) {
@@ -536,7 +540,7 @@ const EAGApplicationImportForm = ({classes}: {
         </div>
         <div className={classes.importedText}>
           {importedData.careerStage?.map(stage => {
-            const careerStage = CAREER_STAGES.find(s => stage.includes(s.value))
+            const careerStage = CAREER_STAGES.find(s => stage === s.value)
             if (!careerStage) {
               return ''
             }

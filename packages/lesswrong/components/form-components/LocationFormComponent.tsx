@@ -150,9 +150,8 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
   const geosuggestEl = useRef<any>(null)
   
   useEffect(() => {
-    console.log(value)
     if (geosuggestEl && geosuggestEl.current) {
-      geosuggestEl.current.update(value.formatted_address)
+      geosuggestEl.current.update(value?.formatted_address)
     }
   }, [value])
   
