@@ -285,7 +285,7 @@ getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
 });
 
 getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<DbPost>) => {
-  if (postHasUnconfirmedCoauthors(post) && !post.draft && oldPost.draft) {
+  if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
     post = scheduleCoauthoredPost(post);
   }
   return post;
