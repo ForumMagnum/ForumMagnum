@@ -3,6 +3,7 @@ import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { postCoauthorIsPending } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   lengthLimited: {
@@ -51,8 +52,14 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
     {<UsersName user={post.user} simple={simple} />}
-    {post.coauthors.map(coauthor =>
-      <span key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></span>)}
+    {post.coauthors.map(coauthor => postCoauthorIsPending(post, coauthor._id)
+      ? null
+      : (
+        <span key={coauthor._id}>
+          , <UsersName user={coauthor} simple={simple} />
+        </span>
+      )
+    )}
     {renderTopCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
       , <ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
       <UsersName user={topCommentAuthor || undefined} simple={simple} />
