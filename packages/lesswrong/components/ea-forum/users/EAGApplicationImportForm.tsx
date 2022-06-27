@@ -14,8 +14,8 @@ import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
-import { Link } from 'react-router-dom';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
+import { Link } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -265,7 +265,7 @@ const EAGApplicationImportForm = ({classes}: {
       }
       setFormLoading(false)
     }
-    
+    // eslint-disable-next-line no-console
     fetchData().catch(console.error)
   }, [])
   
@@ -418,7 +418,6 @@ const EAGApplicationImportForm = ({classes}: {
       try {
         return next(prev)
       } catch (e) {
-        console.error(e)
         return prev
       }
     }, updatedFormData)
@@ -432,12 +431,12 @@ const EAGApplicationImportForm = ({classes}: {
         try {
           return next(prev)
         } catch (e) {
-          console.error(e)
           return prev
         }
       }, submission)
       history.push(userGetProfileUrl(currentUser))
     }, (e) => {
+      // eslint-disable-next-line no-console
       console.error(e)
       setSubmitLoading(false)
     })
