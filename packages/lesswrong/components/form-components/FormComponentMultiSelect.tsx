@@ -38,7 +38,8 @@ const FormComponentMultiSelect = ({ value, classes, placeholder, separator, opti
       }
       // if any options are selected, display them separated by commas
       return selected.map(s => options.find(option => option.value === s)?.label).join(separator || ', ')
-    }}>
+    }}
+    {...!options.length ? {disabled: true} : {}}>
       {options.map(option => {
         return <MenuItem key={option.value} value={option.value}>
           <Checkbox checked={value.some(v => v === option.value)} />
