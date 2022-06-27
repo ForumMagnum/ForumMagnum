@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/vulcan-users';
 import { userCanEdit, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,6 +23,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 13,
     color: theme.palette.grey[700],
     marginBottom: 40
+  },
+  importText: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
+  },
+  importLink: {
+    color: theme.palette.primary.main
   }
 })
 
@@ -61,7 +70,12 @@ const EditProfileForm = ({classes}: {
       <Typography variant="display3" className={classes.heading} gutterBottom>
         Edit Public Profile
       </Typography>
-      <div className={classes.subheading}>All fields are optional</div>
+      <div className={classes.subheading}>
+        All fields are optional.
+        {(terms.slug === currentUser.slug || terms.documentId === currentUser._id) && <span className={classes.importText}>
+          You may also <Link to="/profile/import" className={classes.importLink}>import profile data from your latest EA Global application</Link>.
+        </span>}
+      </div>
       
       <WrappedSmartForm
         collection={Users}

@@ -1,11 +1,10 @@
 
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import Users from '../../../lib/vulcan-users';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
@@ -15,6 +14,8 @@ import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
 import classNames from 'classnames';
 import { markdownToHtmlNoLaTeX } from '../../../lib/editor/utils';
+import { Link } from 'react-router-dom';
+import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,10 +33,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   subheading: {
-    // fontFamily: theme.typography.fontFamily,
-    // fontSize: 13,
-    // lineHeight: '20px',
-    // color: theme.palette.grey[800],
     padding: '0 15px',
     marginBottom: 40
   },
@@ -51,6 +48,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loggedOutLink: {
     fontWeight: 'bold',
+    color: theme.palette.primary.main
+  },
+  noAppText: {
+    padding: '20px 15px',
+  },
+  contactUs: {
     color: theme.palette.primary.main
   },
   callout: {
@@ -69,22 +72,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   form: {
-    // display: 'grid',
-    // gridTemplateColumns: 'repeat(3, 1fr)',
-    // gridGap: '30px 20px',
-    // alignItems: 'baseline',
     marginTop: 40,
   },
   btnRow: {
     display: 'grid',
-    gridTemplateColumns: '140px 350px 90px 350px',
+    gridTemplateColumns: '140px 350px 90px 342px',
     gridGap: '15px',
     alignItems: 'baseline',
     padding: 15,
   },
   formRow: {
     display: 'grid',
-    gridTemplateColumns: '140px 350px 90px 350px',
+    gridTemplateColumns: '140px 350px 90px 342px',
     gridGap: '15px',
     alignItems: 'baseline',
     padding: 15,
@@ -146,12 +145,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: '22px',
-    // color: theme.palette.grey[800],
   },
   submitBtnCol: {
     gridColumnStart: 4,
     alignSelf: 'center',
     textAlign: 'right'
+  },
+  cancelLink: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[600],
+    marginRight: 40
   },
   submitBtn: {
     width: 'max-content',
@@ -164,9 +168,37 @@ const styles = (theme: ThemeType): JssStyles => ({
     transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
     '&:hover': {
       backgroundColor: theme.palette.primary.dark,
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.grey[500]
     }
   }
 })
+
+type EAGApplicationDataType = {
+  jobTitle?: string,
+  organization?: string,
+  careerStage?: string[],
+  biography: {
+    markdownValue: string,
+    ckEditorValue: string
+  },
+  howOthersCanHelpMe: {
+    markdownValue: string,
+    ckEditorValue: string
+  },
+  howICanHelpOthers: {
+    markdownValue: string,
+    ckEditorValue: string
+  },
+  mapLocation?: string,
+  linkedinProfileURL?: string
+}
+
+type EditorFormComponentRefType = {
+  setEditorValue: (newValue: string) => void
+}
+
 
 const EAGApplicationImportForm = ({classes}: {
   classes: ClassesType,
@@ -175,7 +207,62 @@ const EAGApplicationImportForm = ({classes}: {
   const { history } = useNavigation()
   const { pathname } = useLocation()
   const [mapsLoaded, googleMaps] = useGoogleMaps()
-  const [formLoading, setFormLoading] = useState(false)
+  // only used for initializing the form
+  const [formLoading, setFormLoading] = useState(true)
+  // the event associated with the application data (ex. "EA Global: Washington DC")
+  const [event, setEvent] = useState<string|null>(null)
+  const [importedData, setImportedData] = useState<EAGApplicationDataType|null>(null)
+  // used to disable buttons when submitting the form
+  const [submitLoading, setSubmitLoading] = useState(false)
+  
+  useEffect(() => {
+    // try to pull the latest EAG application data that is associated with the current user's email address
+    const fetchData = async () => {
+      const data = await fetch("/api/eag-application-data", {method: "GET"})
+      const json = await data.json()
+      
+      const eagData = json?.data?.length && json.data[0]
+      if (eagData) {
+        // the name of the specific event they applied for could be in any of these array fields
+        ['Which_Event', 'Which_event_s_are_you_registering_for_EA_Globa', 'Which_event_s_are_you_applying_to_registering_for', 'Which_event_s_are_you_registering_for'].forEach(field => {
+          if (eagData[field]?.length) {
+            setEvent(eagData[field][0])
+          }
+        })
+        
+        // our list of career stages is a subset of EAG's list,
+        // except that we use "Seeking work" instead of "Seeking work / Not currently working"
+        const careerStage = eagData.What_stage_of_your_career_are_you_in
+        // check the speaker-only bio field, otherwise the closest other field I could find was "Path to impact"
+        const bio = eagData.Brief_bio_150_words_maximum || eagData.Path_to_impact || ''
+        const howOthersCanHelpMe = eagData.What_are_you_hoping_to_get_out_of_the_event_and_h || ''
+        const howICanHelpOthers = eagData.How_can_you_help_the_other_attendees_at_the_event || ''
+        
+        setImportedData({
+          jobTitle: eagData.What_is_your_job_title_or_current_role,
+          organization: eagData.Where_do_you_work,
+          careerStage: careerStage?.map(stage => CAREER_STAGES.find(s => stage.includes(s.value))?.value)?.filter(stage => !!stage),
+          biography: {
+            markdownValue: bio,
+            ckEditorValue: markdownToHtmlNoLaTeX(bio)
+          },
+          howOthersCanHelpMe: {
+            markdownValue: howOthersCanHelpMe,
+            ckEditorValue: markdownToHtmlNoLaTeX(howOthersCanHelpMe)
+          },
+          howICanHelpOthers: {
+            markdownValue: howICanHelpOthers,
+            ckEditorValue: markdownToHtmlNoLaTeX(howICanHelpOthers)
+          },
+          mapLocation: eagData.Your_nearest_city,
+          linkedinProfileURL: eagData.LinkedIn_URL || eagData.LinkedIn_profile_summary
+        })
+      }
+      setFormLoading(false)
+    }
+    
+    fetchData().catch(console.error)
+  }, [])
   
   const formFields = [
     'jobTitle',
@@ -184,91 +271,77 @@ const EAGApplicationImportForm = ({classes}: {
     'biography',
     'howOthersCanHelpMe',
     'howICanHelpOthers',
-    // 'organizerOfGroupIds',
+    // 'organizerOfGroupIds', // TODO: implement later - for the first release I decided this wasn't worth the effort to include
     'mapLocation',
     'linkedinProfileURL',
   ]
-  
-  const [formValues, setFormValues]:any = useState(pick(currentUser, formFields))
-  // console.log(formValues.howOthersCanHelpMe)
-  console.log('formValues.howOthersCanHelpMe?.ckEditorMarkup', formValues.howOthersCanHelpMe?.ckEditorMarkup)
-  
-  const biographyRef = useRef<HTMLInputElement>(null)
-  const howOthersCanHelpMeRef = useRef<HTMLInputElement>(null)
-  const howICanHelpOthersRef = useRef<HTMLInputElement>(null)
-  
+  // formValues holds the state of the form EXCEPT for CKEditor fields, which have their own state
+  const [formValues, setFormValues] = useState(pick(currentUser, formFields))
+
+  // these are used to access CKEditor fields, to copy over the imported data
+  const biographyRef = useRef<EditorFormComponentRefType>(null)
+  const howOthersCanHelpMeRef = useRef<EditorFormComponentRefType>(null)
+  const howICanHelpOthersRef = useRef<EditorFormComponentRefType>(null)
   // CKEditor fields use this to insert their data before we submit the form
   const submitFormCallbacks = useRef<Array<Function>>([])
+  // CKEditor fields use this to clear local storage after successfully submitting the form
+  const successFormCallbacks = useRef<Array<Function>>([])
   
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersProfileEdit',
-  })
-  
-  // biography: {
-  //   ckEditorMarkup: '',
-  //   originalContents: {
-  //     data: '',
-  //     type: "ckEditorMarkup"
-  //   }
-  // },
-  
-  const howOthersCanHelpMe = 'I hope to learn more about how the constituent organisations of the EA movement fit together, and how individuals think about their impact within that structure. I would like to hear as many different perspectives as possible from EAs with more experience in the community than myself (almost everyone).'
-
-  const importedData:any = {
-    jobTitle: 'Exec Assistant',
-    organization: 'The Centre for Effective Altruism',
-    careerStage: ['midCareer'],
-    biography: '',
-    howOthersCanHelpMe: howOthersCanHelpMe,
-    howICanHelpOthers: 'As a very newcomer to CEA and a relative newcomer to EA, my main purpose is to introduce myself, listen and learn. My experience is in politics, healthcare and research, so I can provide perspective and advice in these areas.',
-    organizerOfGroups: [],
-    mapLocation: {formatted_address: 'London, UK'},
-    linkedinProfileURL: ''
-  }
+  const updateCurrentUser = useUpdateCurrentUser()
   
   const importMapLocation = async () => {
     if (mapsLoaded) {
       // get a list of matching Google locations for the current lat/lng (reverse geocoding)
       const geocoder = new googleMaps.Geocoder()
       const geocodingResponse = await geocoder.geocode({
-        address: importedData.mapLocation.formatted_address
+        address: importedData?.mapLocation
       })
       const results = geocodingResponse?.results
-      
       if (results?.length) {
         return pickBestReverseGeocodingResult(results)
       }
-      // TODO: else?
     }
     return null
   }
   
+  const importLinkedinProfileURL = () => {
+    // try to get the relevant snippet of the linkedin profile URL
+    const matches = importedData?.linkedinProfileURL?.match(/linkedin\.com\/in\/(\S+)/i)
+    return matches?.length ? matches[1] : ''
+  }
+  
   const handleCopyAll = async (e) => {
     e.preventDefault()
+    if (!importedData) return
+
+    // @ts-ignore TODO
     setFormValues({
       ...importedData,
-      mapLocation: await importMapLocation()
+      mapLocation: await importMapLocation(),
+      linkedinProfileURL: importLinkedinProfileURL()
     })
     // update CKEditor fields
-    biographyRef.current.setEditorValue(importedData.biography)
-    howOthersCanHelpMeRef.current.setEditorValue(importedData.howOthersCanHelpMe)
-    howICanHelpOthersRef.current.setEditorValue(importedData.howICanHelpOthers)
+    biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
+    howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
+    howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
   }
   
   const handleCopyField = async (e, field) => {
     e.preventDefault()
-    console.log('copy', field)
+    if (!importedData) return
+
     if (field === 'biography') {
-      biographyRef.current.setEditorValue(importedData.biography)
+      biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
       return
     } else if (field === 'howOthersCanHelpMe') {
-      howOthersCanHelpMeRef.current.setEditorValue(importedData.howOthersCanHelpMe)
+      howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
       return
     } else if (field === 'howICanHelpOthers') {
-      howICanHelpOthersRef.current.setEditorValue(importedData.howICanHelpOthers)
+      howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
       return
     // } else if (field === 'organizerOfGroupIds') {
+    //   // TODO: this field needs more work -
+    //   // prob need to only list groups they are assigned to on the forum, and link to the form for requests
     //   setFormValues({
     //     ...formValues,
     //     [field]: importedData.organizerOfGroups.map(g => g._id)
@@ -282,6 +355,12 @@ const EAGApplicationImportForm = ({classes}: {
           mapLocation: location
         })
       }
+      return
+    } else if (field === 'linkedinProfileURL') {
+      setFormValues({
+        ...formValues,
+        linkedinProfileURL: importLinkedinProfileURL()
+      })
       return
     }
     
@@ -309,36 +388,55 @@ const EAGApplicationImportForm = ({classes}: {
   const handleSubmit = async (e, copyAll=false) => {
     e.preventDefault()
     
-    if (copyAll) {
+    let updatedFormData = {...formValues}
+    if (copyAll && importedData) {
+      // @ts-ignore
+      updatedFormData = {
+        ...importedData,
+        mapLocation: await importMapLocation(),
+        linkedinProfileURL: importLinkedinProfileURL()
+      }
       // update CKEditor fields
-      biographyRef.current.setEditorValue(importedData.biography)
-      howOthersCanHelpMeRef.current.setEditorValue(importedData.howOthersCanHelpMe)
-      howICanHelpOthersRef.current.setEditorValue(importedData.howICanHelpOthers)
+      biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
+      howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
+      howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
     }
     
-    console.log('submit', formValues)
-    console.log('submitFormCallbacks', submitFormCallbacks)
-    let submission = copyAll ? {
-      ...importedData,
-      mapLocation: await importMapLocation()
-    } : {...formValues}
+    for (let field in updatedFormData) {
+      if (Array.isArray(updatedFormData[field]) && !updatedFormData[field].length) {
+        updatedFormData[field] = null
+      }
+    }
     
-    submission = submitFormCallbacks.current.reduce((prev, next) => {
+    // add data from CKEditor fields
+    const submission = submitFormCallbacks.current.reduce((prev, next) => {
       try {
         return next(prev)
       } catch (e) {
-        console.log('error', e)
+        console.error(e)
         return prev
       }
-    }, submission)
-    console.log('submission', submission)
-    // await updateUser({
-    //   selector: { _id: currentUser._id },
-    //   data: {
-    //     hideFrontpageBook2019Ad: true
-    //   },
-    // })
-    // history.push(userGetProfileUrl(currentUser))
+    }, updatedFormData)
+
+    setSubmitLoading(true)
+    setFormValues(submission)
+
+    updateCurrentUser(submission).then(() => {
+      // clear out local storage for CKEditor fields
+      successFormCallbacks.current.reduce((prev, next) => {
+        console.log('successFormCallbacks')
+        try {
+          return next(prev)
+        } catch (e) {
+          console.error(e)
+          return prev
+        }
+      }, submission)
+      history.push(userGetProfileUrl(currentUser))
+    }, (e) => {
+      console.error(e)
+      setSubmitLoading(false)
+    })
   }
   
   const { Typography, FormComponentMultiSelect, EditorFormComponent, SelectLocalgroup, LocationFormComponent,
@@ -357,219 +455,238 @@ const EAGApplicationImportForm = ({classes}: {
       </div>
     );
   }
-  
-  // console.log(getSchema(Users))
-  // console.log(getSchema(Users).biography)
-  
-  return (
-    <div className={classes.root}>
-      <Typography variant="display3" className={classes.heading} gutterBottom>
-        Import Your Profile
+    
+  const body = !importedData ? <>
+    <Typography variant="body1" className={classes.noAppText}>
+      Sorry, we found no EA Global applications matching your EA Forum account's email address.
+    </Typography>
+    <Typography variant="body1" className={classes.subheading}>
+      If you feel that this is in error, please <Link to="/contact" className={classes.contactUs}>contact us</Link>.
+    </Typography>
+  </> : <>
+    <Typography variant="body1" className={classes.subheading}>
+      We've found your application data from {event}.
+    </Typography>
+    
+    <div className={classes.callout}>
+      <Typography variant="body1" className={classes.overwriteText}>
+        Would you like to overwrite your EA Forum profile data?
       </Typography>
-      <Typography variant="body1" className={classes.subheading}>
-        We've found your application data from EA Global London 2022.
-      </Typography>
-      
-      <div className={classes.callout}>
-        <Typography variant="body1" className={classes.overwriteText}>
-          Would you like to overwrite your EA Forum profile data?
+      <div>
+        <button type="submit"
+          onClick={(e) => handleSubmit(e, true)}
+          className={classes.submitBtn}
+          {...submitLoading ? {disabled: true} : {}}
+        >
+          Overwrite and Submit
+        </button>
+        <Typography variant="body1" className={classes.overwriteBtnAltText}>
+          or see details and make changes below
         </Typography>
-        {formLoading ? <Loading /> : <div>
-          <button type="submit" onClick={(e) => handleSubmit(e, true)} className={classes.submitBtn}>
-            Overwrite and Submit
+      </div>
+    </div>
+    
+    <form className={classes.form}>
+      <div className={classes.btnRow}>
+        <div className={classes.arrowCol}>
+          <button className={classes.copyAllBtn} onClick={handleCopyAll}>
+            <ArrowBack className={classes.arrowIcon} />
+            <div>Copy All</div>
           </button>
-          <Typography variant="body1" className={classes.overwriteBtnAltText}>
-            or see details and make changes below
-          </Typography>
-        </div>}
+        </div>
+        <div className={classes.submitBtnCol}></div>
       </div>
       
-      <form className={classes.form}>
-        <div className={classes.btnRow}>
-          <div className={classes.arrowCol}>
-            <button className={classes.copyAllBtn} onClick={handleCopyAll}>
-              <ArrowBack className={classes.arrowIcon} />
-              <div>Copy All</div>
-            </button>
-          </div>
-          <div className={classes.submitBtnCol}></div>
+      <div className={classes.formRow}>
+        <label className={classes.label}>Role</label>
+        <Input name="jobTitle" value={formValues.jobTitle} onChange={(e) => handleChangeField(e, 'jobTitle')} />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'jobTitle')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-        
-        <div className={classes.formRow}>
-          <label className={classes.label}>Role</label>
-          <Input name="jobTitle" value={formValues.jobTitle} onChange={(e) => handleChangeField(e, 'jobTitle')} />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'jobTitle')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <div className={classes.importedText}>{importedData.jobTitle}</div>
+        <div className={classes.importedText}>{importedData.jobTitle}</div>
+      </div>
+    
+      <div className={classes.formRow}>
+        <label className={classes.label}>Organization</label>
+        <Input name="organization" value={formValues.organization} onChange={(e) => handleChangeField(e, 'organization')} />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organization')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
+        <div className={classes.importedText}>{importedData.organization}</div>
+      </div>
       
-        <div className={classes.formRow}>
-          <label className={classes.label}>Organization</label>
-          <Input name="organization" value={formValues.organization} onChange={(e) => handleChangeField(e, 'organization')} />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organization')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <div className={classes.importedText}>{importedData.organization}</div>
+      <div className={classes.formRow}>
+        <label className={classes.label}>Career stage</label>
+        <FormComponentMultiSelect
+          options={CAREER_STAGES}
+          value={formValues.careerStage || []}
+          placeholder="Select all that apply"
+          separator={'\r\n'}
+          path="careerStage"
+          updateCurrentValues={handleUpdateValue}
+        />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'careerStage')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-        
-        <div className={classes.formRow}>
-          <label className={classes.label}>Career stage</label>
-          <FormComponentMultiSelect
-            options={CAREER_STAGES}
-            value={formValues.careerStage || []}
-            placeholder="Career stage"
-            separator={'\r\n'}
-            path="careerStage"
-            updateCurrentValues={handleUpdateValue}
-          />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'careerStage')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <div className={classes.importedText}>
-            {importedData.careerStage?.map(stage => {
-              const careerStage = CAREER_STAGES.find(s => s.value === stage)
-              if (!careerStage) {
-                return ''
-              }
-              return <div key={careerStage.value}>{careerStage.label}</div>
-            })}
-          </div>
+        <div className={classes.importedText}>
+          {importedData.careerStage?.map(stage => {
+            const careerStage = CAREER_STAGES.find(s => stage.includes(s.value))
+            if (!careerStage) {
+              return ''
+            }
+            return <div key={careerStage.value}>{careerStage.label}</div>
+          })}
         </div>
-        
-        <div className={classes.formRow}>
-          <label className={classes.label}>Bio</label>
-          <EditorFormComponent
-            ref={biographyRef}
-            document={currentUser}
-            fieldName="biography"
-            value={currentUser.biography?.ckEditorMarkup}
-            {...getSchema(Users).biography}
-            label=""
-            addToSubmitForm={submitData => submitFormCallbacks.current.push(submitData)}
-          />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'biography')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <ContentStyles contentType="post">
-            {importedData.biography}
-          </ContentStyles>
+      </div>
+      
+      <div className={classes.formRow}>
+        <label className={classes.label}>Bio</label>
+        <EditorFormComponent
+          ref={biographyRef}
+          document={currentUser}
+          name="biography"
+          value={currentUser.biography?.ckEditorMarkup}
+          {...getSchema(Users).biography}
+          {...getSchema(Users).biography.form}
+          label=""
+          addToSubmitForm={data => submitFormCallbacks.current.push(data)}
+          addToSuccessForm={data => successFormCallbacks.current.push(data)}
+        />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'biography')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-        
-        <div className={classes.formRow}>
-          <label className={classes.label}>How others can help me</label>
-          <EditorFormComponent
-            ref={howOthersCanHelpMeRef}
-            document={currentUser}
-            fieldName="howOthersCanHelpMe"
-            value={currentUser.howOthersCanHelpMe?.ckEditorMarkup}
-            {...getSchema(Users).howOthersCanHelpMe}
-            label=""
-            addToSubmitForm={submitData => submitFormCallbacks.current.push(submitData)}
-          />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howOthersCanHelpMe')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <ContentStyles contentType="post">
-            {importedData.howOthersCanHelpMe}
-          </ContentStyles>
+        <ContentStyles contentType="comment">
+          <div dangerouslySetInnerHTML={{__html: importedData.biography.ckEditorValue}}></div>
+        </ContentStyles>
+      </div>
+      
+      <div className={classes.formRow}>
+        <label className={classes.label}>How others can help me</label>
+        <EditorFormComponent
+          ref={howOthersCanHelpMeRef}
+          document={currentUser}
+          name="howOthersCanHelpMe"
+          value={currentUser.howOthersCanHelpMe?.ckEditorMarkup}
+          {...getSchema(Users).howOthersCanHelpMe}
+          {...getSchema(Users).howOthersCanHelpMe.form}
+          label=""
+          addToSubmitForm={data => submitFormCallbacks.current.push(data)}
+          addToSuccessForm={data => successFormCallbacks.current.push(data)}
+        />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howOthersCanHelpMe')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-        
-        <div className={classes.formRow}>
-          <label className={classes.label}>How I can help others</label>
-          <EditorFormComponent
-            ref={howICanHelpOthersRef}
-            document={currentUser}
-            fieldName="howICanHelpOthers"
-            value={currentUser.howICanHelpOthers?.ckEditorMarkup}
-            {...getSchema(Users).howICanHelpOthers}
-            label=""
-            addToSubmitForm={submitData => submitFormCallbacks.current.push(submitData)}
-          />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howICanHelpOthers')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <ContentStyles contentType="post">
-            {importedData.howICanHelpOthers}
-          </ContentStyles>
+        <ContentStyles contentType="comment">
+          <div dangerouslySetInnerHTML={{__html: importedData.howOthersCanHelpMe.ckEditorValue}}></div>
+        </ContentStyles>
+      </div>
+      
+      <div className={classes.formRow}>
+        <label className={classes.label}>How I can help others</label>
+        <EditorFormComponent
+          ref={howICanHelpOthersRef}
+          document={currentUser}
+          name="howICanHelpOthers"
+          value={currentUser.howICanHelpOthers?.ckEditorMarkup}
+          {...getSchema(Users).howICanHelpOthers}
+          {...getSchema(Users).howICanHelpOthers.form}
+          label=""
+          addToSubmitForm={data => submitFormCallbacks.current.push(data)}
+          addToSuccessForm={data => successFormCallbacks.current.push(data)}
+        />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'howICanHelpOthers')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-        
-        {/* <div className={classes.formRow}>
-          <label className={classes.label}>Organizer of</label>
-          <SelectLocalgroup
-            currentUser={currentUser}
-            value={formValues.organizerOfGroupIds || []}
-            label="Organizer of"
-            separator={'\r\n'}
-            multiselect={true}
-            path="organizerOfGroupIds"
-            updateCurrentValues={handleUpdateValue}
-          />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organizerOfGroupIds')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <div className={classes.importedText}>{importedData.organizerOfGroups?.map(group => {
-            return <div key={group._id}>{group.name}</div>
-          })}</div>
-        </div> */}
-        
-        <div className={classes.formRow}>
-          <label className={classes.label}>Public map location</label>
-          <LocationFormComponent
-            document={currentUser}
-            value={formValues.mapLocation}
-            path="mapLocation"
-            updateCurrentValues={handleUpdateValue}
-          />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'mapLocation')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <div className={classes.importedText}>{importedData.mapLocation.formatted_address}</div>
+        <ContentStyles contentType="comment">
+          <div dangerouslySetInnerHTML={{__html: importedData.howICanHelpOthers.ckEditorValue}}></div>
+        </ContentStyles>
+      </div>
+      
+      {/* <div className={classes.formRow}>
+        <label className={classes.label}>Organizer of</label>
+        <SelectLocalgroup
+          currentUser={currentUser}
+          value={formValues.organizerOfGroupIds || []}
+          label="Organizer of"
+          separator={'\r\n'}
+          multiselect={true}
+          path="organizerOfGroupIds"
+          updateCurrentValues={handleUpdateValue}
+        />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'organizerOfGroupIds')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-        
-        <div className={classes.formRow}>
-          <label className={classes.label}>LinkedIn profile</label>
-          <PrefixedInput
-            value={formValues.linkedinProfileURL}
-            inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
-            path="linkedinProfileURL"
-            updateCurrentValues={handleUpdateValue}
-          />
-          <div className={classes.arrowCol}>
-            <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'linkedinProfileURL')}>
-              <ArrowBack className={classes.arrowIcon} />
-            </button>
-          </div>
-          <div className={classes.importedText}>{importedData.linkedinProfileURL}</div>
+        <div className={classes.importedText}>{importedData.organizerOfGroups?.map(group => {
+          return <div key={group._id}>{group.name}</div>
+        })}</div>
+      </div> */}
+      
+      <div className={classes.formRow}>
+        <label className={classes.label}>Public map location</label>
+        <LocationFormComponent
+          document={currentUser}
+          value={formValues.mapLocation}
+          path="mapLocation"
+          updateCurrentValues={handleUpdateValue}
+        />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'mapLocation')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-        
-        <div className={classes.btnRow}>
-          <div className={classes.submitBtnCol}>
-            {formLoading ? <Loading /> :
-              <button type="submit" onClick={handleSubmit} className={classes.submitBtn}>
-                Submit
-              </button>}
-          </div>
+        <div className={classes.importedText}>{importedData.mapLocation}</div>
+      </div>
+      
+      <div className={classes.formRow}>
+        <label className={classes.label}>LinkedIn profile</label>
+        <PrefixedInput
+          value={formValues.linkedinProfileURL}
+          inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
+          path="linkedinProfileURL"
+          updateCurrentValues={handleUpdateValue}
+        />
+        <div className={classes.arrowCol}>
+          <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'linkedinProfileURL')}>
+            <ArrowBack className={classes.arrowIcon} />
+          </button>
         </div>
-      </form>
-    </div>
-  )
+        <div className={classes.importedText}>{importedData.linkedinProfileURL}</div>
+      </div>
+      
+      <div className={classes.btnRow}>
+        <div className={classes.submitBtnCol}>
+          <Link to={userGetProfileUrl(currentUser)} className={classes.cancelLink}>
+            Cancel
+          </Link>
+          <button type="submit" onClick={handleSubmit} className={classes.submitBtn} {...submitLoading ? {disabled: true} : {}}>
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
+  </>
+  
+  return <div className={classes.root}>
+    <Typography variant="display3" className={classes.heading} gutterBottom>
+      Import Your Profile
+    </Typography>
+
+    {formLoading ? <Loading /> : body}
+  </div>
 }
 
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Ref } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
@@ -167,7 +167,7 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   commentStyles: boolean,
   collectionName: string,
   addToSubmitForm?: Function,
-  addToSuccessForm?: Function
+  addToSuccessForm?: Function,
 }
 interface EditorFormComponentState {
   editorOverride: any,
@@ -222,7 +222,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       return result;
     });
 
-    this.props.addToSubmitForm && this.props.addToSubmitForm(this.submitData);
+    this.props.addToSubmitForm && this.props.addToSubmitForm(this.submitData)
     this.props.addToSuccessForm && this.props.addToSuccessForm((result) => {
       this.resetEditor();
       return result;
@@ -250,24 +250,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     }
   }
   
-  // UNSAFE_componentWillReceiveProps(props, state) {
-  //   // if we are given a new value, replace the text
-  //   const editorType = this.getCurrentEditorType()
-  //   console.log('~~~~~~~~~~~~~~~~~~~~~~~~~')
-  //   console.log('componentWillReceiveProps', editorType)
-  //   console.log('props.value', props.value)
-  //   console.log('state.prevPropsValue', state.prevPropsValue)
-  //   if (props.value !== state.prevPropsValue) {
-  //     const newState = {
-  //       prevPropsValue: props.value,
-  //       ...this.getEditorStatesFromType(editorType),
-  //     }
-  //     console.log('newState', newState)
-  //     return newState
-  //   }
-  // }
-  
-  setEditorValue(newValue) {
+  setEditorValue(newValue: string) {
     const html = markdownToHtmlNoLaTeX(newValue)
     this.setState({
       markdownValue: newValue,
@@ -279,8 +262,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   getEditorStatesFromType = (editorType: string, contents?: any) => {
     const { document, fieldName, value } = this.props
-    console.log('document', document)
-    console.log('fieldName', fieldName)
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
 
     // if contents are manually specified, use those:
@@ -422,7 +403,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
         if (!this.isDocumentCollaborative() && this.context.addToSuccessForm) {
-          // TODO?
           this.context.addToSuccessForm((s) => {
             this.state.ckEditorReference.setData('')
           })
@@ -440,7 +420,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       [fieldName]: data ? {
         originalContents: {type, data},
         commitMessage, updateType,
-      } : undefined
+      } : null
     }
   }
 

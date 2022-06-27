@@ -12,9 +12,8 @@ export const useCurrentUser = () => useContext(UserContext);
 // the component is a descendant of Layout. This is much faster than Vulcan's
 // withCurrentUser, which creates a graphql query for each component.
 export default function withUser(Component) {
-  const WithUserComponent = forwardRef((props, ref) => {
+  return forwardRef((props, ref) => {
     const currentUser = useCurrentUser();
     return <Component ref={ref} {...props} currentUser={currentUser} />
   })
-  return WithUserComponent
 }

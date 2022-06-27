@@ -14,6 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       lineHeight: '1.8rem',
       paddingRight: 30
     },
+  },
+  placeholder: {
+    color: theme.palette.grey[600]
   }
 })
 

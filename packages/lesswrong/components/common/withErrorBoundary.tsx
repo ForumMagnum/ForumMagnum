@@ -9,14 +9,13 @@ import { Components } from '../../lib/vulcan-lib';
 /// In order to catch errors that occur in other higher-order components on
 /// the same component, put this _first_.
 const withErrorBoundary = (WrappedComponent) => {
-  const WithErrorBoundaryComponent = forwardRef((props, ref) => {
+  return forwardRef((props, ref) => {
     return (
       <Components.ErrorBoundary>
         <WrappedComponent ref={ref} {...props} />
       </Components.ErrorBoundary>
     );
   })
-  return WithErrorBoundaryComponent
 }
 
 export default withErrorBoundary
