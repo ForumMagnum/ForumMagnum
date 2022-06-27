@@ -13,7 +13,7 @@ import { getSchema } from '../../../lib/utils/getSchema';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
 import classNames from 'classnames';
-import { markdownToHtmlNoLaTeX } from '../../../lib/editor/utils';
+import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { Link } from 'react-router-dom';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 
@@ -249,15 +249,15 @@ const EAGApplicationImportForm = ({classes}: {
           careerStage: careerStage?.map(stage => CAREER_STAGES.find(s => stage.includes(s.label))?.value)?.filter(stage => !!stage),
           biography: {
             markdownValue: bio,
-            ckEditorValue: markdownToHtmlNoLaTeX(bio)
+            ckEditorValue: markdownToHtmlSimple(bio)
           },
           howOthersCanHelpMe: {
             markdownValue: howOthersCanHelpMe,
-            ckEditorValue: markdownToHtmlNoLaTeX(howOthersCanHelpMe)
+            ckEditorValue: markdownToHtmlSimple(howOthersCanHelpMe)
           },
           howICanHelpOthers: {
             markdownValue: howICanHelpOthers,
-            ckEditorValue: markdownToHtmlNoLaTeX(howICanHelpOthers)
+            ckEditorValue: markdownToHtmlSimple(howICanHelpOthers)
           },
           mapLocation: eagData.Your_nearest_city,
           linkedinProfileURL: eagData.LinkedIn_URL || eagData.LinkedIn_profile_summary

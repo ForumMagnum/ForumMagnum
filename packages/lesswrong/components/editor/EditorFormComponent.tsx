@@ -17,7 +17,7 @@ import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import FormLabel from '@material-ui/core/FormLabel';
-import { markdownToHtmlNoLaTeX } from '../../lib/editor/utils';
+import { markdownToHtmlSimple } from '../../lib/editor/utils';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -181,7 +181,6 @@ interface EditorFormComponentState {
   markdownValue: any,
   htmlValue: any,
   markdownImgErrs: boolean,
-  prevPropsValue?: string
 }
 
 class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormComponentState> {
@@ -204,7 +203,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       loading: true,
       ...this.getEditorStatesFromType(editorType),
       markdownImgErrs: false,
-      prevPropsValue: props.value
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
@@ -251,7 +249,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
   
   setEditorValue(newValue: string) {
-    const html = markdownToHtmlNoLaTeX(newValue)
+    const html = markdownToHtmlSimple(newValue)
     this.setState({
       markdownValue: newValue,
       htmlValue: html,

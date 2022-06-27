@@ -26,7 +26,7 @@ export function compareVersionNumbers(a: string, b: string): number {
 }
 
 const mdi = markdownIt({linkify: true})
-export function markdownToHtmlNoLaTeX(markdown: string): string {
+export function markdownToHtmlSimple(markdown: string): string {
   const id = randomId()
   return mdi.render(markdown, {docId: id})
 }
