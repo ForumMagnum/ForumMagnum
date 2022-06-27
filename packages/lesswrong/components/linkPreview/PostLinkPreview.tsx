@@ -252,6 +252,43 @@ const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPre
   styles,
 });
 
+const SequencePreview = ({classes, targetLocation, href, innerHTML}: {
+  classes: ClassesType,
+  targetLocation: any,
+  href: string,
+  innerHTML: string
+}) => {
+  const { LWPopper, SequencesHoverOver } = Components
+  const sequenceId = targetLocation.params._id;
+  const { eventHandlers, anchorEl, hover } = useHover();
+
+  const { document: sequence } = useSingle({
+    documentId: sequenceId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesPageFragment',
+    fetchPolicy: 'cache-then-network' as any,
+  });
+
+  return (
+    <span {...eventHandlers}>
+      <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="bottom-start"
+        allowOverflow
+      >
+        <SequencesHoverOver sequence={sequence || null} />
+      </LWPopper>
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={sequenceId}/>
+    </span>
+  )
+}
+
+const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview, {
+  styles,
+});
+
+
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
     padding: `${theme.spacing.unit*3}px ${theme.spacing.unit*2}px ${theme.spacing.unit*2}px`,
@@ -751,5 +788,6 @@ declare global {
     ArbitalPreview: typeof ArbitalPreviewComponent,
     FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
+    SequencePreview: typeof SequencePreviewComponent
   }
 }

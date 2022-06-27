@@ -575,16 +575,9 @@ interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fra
 }
 
 interface PostSequenceNavigation { // fragment on Posts
-  readonly sequence: PostSequenceNavigation_sequence|null,
+  readonly sequence: SequencesPageFragment|null,
   readonly prevPost: PostSequenceNavigation_prevPost|null,
   readonly nextPost: PostSequenceNavigation_nextPost|null,
-}
-
-interface PostSequenceNavigation_sequence { // fragment on Sequences
-  readonly _id: string,
-  readonly title: string,
-  readonly draft: boolean,
-  readonly userId: string,
 }
 
 interface PostSequenceNavigation_prevPost { // fragment on Posts

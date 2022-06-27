@@ -17,3 +17,19 @@ export const noEffectABTest = new ABTest({
     },
   }
 });
+
+// A/B test for the new CollectionsPage
+export const collectionsPageABTest = new ABTest({
+  name: "collectionsPageABTest",
+  description: "Tests the new LargeSequencesItem on the CollectionsPage",
+  groups: {
+    originalLayoutGroup: {
+      description: "Group with old layout (SequencesGridItem)",
+      weight: 1,
+    },
+    largeSequenceItemGroup: {
+      description: "Group using LargeSequencesItem",
+      weight: 1,
+    },
+  }
+});

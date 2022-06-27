@@ -373,10 +373,7 @@ registerFragment(`
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
     sequence(sequenceId: $sequenceId) {
-      _id
-      title
-      draft
-      userId
+      ...SequencesPageFragment
     }
     prevPost(sequenceId: $sequenceId) {
       _id
