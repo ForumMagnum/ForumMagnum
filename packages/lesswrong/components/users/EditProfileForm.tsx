@@ -6,6 +6,7 @@ import Users from '../../lib/vulcan-users';
 import { userCanEdit, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,12 +22,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   subheading: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
+    lineHeight: '20px',
     color: theme.palette.grey[700],
     marginBottom: 40
   },
-  importText: {
+  importTextDesktop: {
+    marginLeft: 6,
     [theme.breakpoints.down('sm')]: {
       display: 'none'
+    }
+  },
+  importTextMobile: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline',
+      marginLeft: 6,
     }
   },
   importLink: {
@@ -72,9 +82,12 @@ const EditProfileForm = ({classes}: {
       </Typography>
       <div className={classes.subheading}>
         All fields are optional.
-        {(terms.slug === currentUser.slug || terms.documentId === currentUser._id) && <span className={classes.importText}>
-          You may also <Link to="/profile/import" className={classes.importLink}>import profile data from your latest EA Global application</Link>.
-        </span>}
+        {forumTypeSetting.get() === 'EAForum' && (terms.slug === currentUser.slug || terms.documentId === currentUser._id) && <>
+          <span className={classes.importTextDesktop}>
+            You may also <Link to="/profile/import" className={classes.importLink}>import profile data from your latest EA Global application</Link>.
+          </span>
+          <span className={classes.importTextMobile}>To import EA Global data, please view this page on desktop.</span>
+        </>}
       </div>
       
       <WrappedSmartForm
