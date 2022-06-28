@@ -37,7 +37,7 @@ const SelectLocalgroup = (props: any) => {
       {group.name}
     </MenuItem>
   })
-  return <Components.MuiTextField select {...props}>
+  return <Components.MuiTextField select {...props} {...!selectOptions?.length ? {disabled: true} : {}}>
     {selectOptions || []}
   </Components.MuiTextField>
 }

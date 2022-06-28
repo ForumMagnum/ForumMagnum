@@ -7,6 +7,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
+import { useHover } from '../../common/withHover';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,6 +30,7 @@ const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType,
 }) => {
+  const { LWTooltip, SequencesHoverOver } = Components 
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
 
@@ -66,10 +68,12 @@ const PostsTopSequencesNav = ({post, classes}: {
         post={post.prevPost}
         direction="left" />
 
-      <div className={classes.title}>
-        {post.sequence.draft && "[Draft] "}
-        <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
-      </div>
+      <LWTooltip tooltip={false} title={<SequencesHoverOver sequence={post.sequence} />} clickable={true}>
+        <div className={classes.title}>
+          {post.sequence.draft && "[Draft] "}
+          <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
+        </div>
+      </LWTooltip>
 
       <Components.SequencesNavigationLink
         post={post.nextPost}

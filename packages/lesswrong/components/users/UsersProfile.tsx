@@ -504,7 +504,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
-          image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/${user.profileImageId}.jpg`}
+          image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>
           <div className={classes.centerColumnWrapper}>
