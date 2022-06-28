@@ -123,7 +123,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      abTestGroups: rendered.relevantAbTestGroups,
+      abTestGroups: rendered.allAbTestGroups,
       cached: rendered.cached,
       ip
     });
