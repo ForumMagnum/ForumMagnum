@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,6 +72,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
 }) => {
   const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>();
+  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   const updateValue = (value: string | null) => {
     updateCurrentValues({
@@ -85,7 +87,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       }
       setFooterContent(
         <div className={classes.footer}>
-          <Components.Typography variant='body2'>{hintText}</Components.Typography>
+          <Components.Typography variant='body2'>{hintText}{isEAForum && <span> You can find more guidelines <a href="https://forum.effectivealtruism.org/posts/8yDsenRQhNF4HEDwu/link-posting-is-an-act-of-community-service">here</a>.</span>}</Components.Typography>
         </div>
       );
     } else {
