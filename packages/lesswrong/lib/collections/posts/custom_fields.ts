@@ -267,7 +267,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     optional: true,
     hidden: true,
-    ...schemaDefaultValue(false),
+    ...schemaDefaultValue(true),
   },
 
   // Cloudinary image id for an image that will be used as the OpenGraph image
