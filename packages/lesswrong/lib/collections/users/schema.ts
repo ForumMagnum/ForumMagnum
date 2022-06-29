@@ -5,6 +5,7 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
+import { forumTypeSetting } from '../../instanceSettings';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -190,6 +191,9 @@ const schema: SchemaType<DbUser> = {
       if (googleEmail) return googleEmail;
       if (linkedinEmail) return linkedinEmail;
       return undefined;
+    },
+    form: {
+      disabled: forumTypeSetting.get() === 'EAForum'
     },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
