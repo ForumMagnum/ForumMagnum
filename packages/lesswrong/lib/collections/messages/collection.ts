@@ -9,6 +9,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 const options: MutationOptions<DbMessage> = {
   newCheck: async (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
+    if (user.bannedFromPMing) return false;
     const conversation = await Conversations.findOne({_id: document.conversationId})
     return conversation && conversation.participantIds.includes(user._id) ?
       userCanDo(user, 'messages.new.own') : userCanDo(user, `messages.new.all`)

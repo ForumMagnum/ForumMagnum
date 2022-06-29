@@ -319,6 +319,12 @@ registerFragment(`
     deleteContent
     banned
 
+    # banned from individual actions
+    bannedFromPosting
+    bannedFromCommenting
+    bannedFromTagUpdating
+    bannedFromPMing
+
     # Name
     username
     displayName
