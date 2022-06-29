@@ -35,7 +35,7 @@ class MuiInput extends Component<any,any> {
 
   render() {
     const { className, label, multiLine, rows, hintText, placeholder,
-      rowsMax, fullWidth, disableUnderline, startAdornment, classes } = this.props;
+      rowsMax, fullWidth, disableUnderline, startAdornment, disabled, classes } = this.props;
     return <Input
         className={className}
         value={this.state.contents || ""}
@@ -48,6 +48,7 @@ class MuiInput extends Component<any,any> {
         disableUnderline={disableUnderline}
         classes={{input: classes.input}}
         startAdornment={startAdornment}
+        disabled={disabled}
       />
   }
 };
