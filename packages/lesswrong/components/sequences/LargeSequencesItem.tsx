@@ -110,9 +110,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "55%",
     padding: 20,
     paddingLeft: 40,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
     [theme.breakpoints.down('xs')]: {
       width: "100%",
       paddingLeft: 16,
@@ -122,30 +119,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
-  sequence: SequencesPageFragment,
+  sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
   classes: ClassesType,
 }) => {
   const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated } = Components
   
-  const getSequenceUrl = () => {
-    return '/s/' + sequence._id
-  }
-  
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-  const { results: chapters } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId: sequence._id,
-      limit: 100
-    },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-    enableTotal: false
-  });
 
   return <div className={classes.root} >
 
@@ -180,7 +163,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         </div>
       </div>
       <div className={classes.right}>
-        {chapters?.map((chapter) => <span key={chapter._id}>
+        {sequence.chapters?.map((chapter) => <span key={chapter._id}>
             {chapter.posts?.map(post => <SequencesSmallPostLink 
                                           key={chapter._id + post._id} 
                                           post={post}
