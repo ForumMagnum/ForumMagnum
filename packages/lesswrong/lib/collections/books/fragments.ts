@@ -12,7 +12,7 @@ registerFragment(`
     }
     sequenceIds
     sequences {
-      ...SequencesPageFragment
+      ...SequencesPageWithChaptersFragment
     }
     postIds
     posts {

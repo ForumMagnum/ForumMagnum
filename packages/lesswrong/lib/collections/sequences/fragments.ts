@@ -32,6 +32,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment SequencesPageWithChaptersFragment on Sequence {
+    ...SequencesPageFragment
+    chapters {
+      ...ChaptersFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
     contents { 
