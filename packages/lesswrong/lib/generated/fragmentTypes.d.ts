@@ -1295,6 +1295,10 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly af: boolean,
 }
 
+interface SequencesPageWithChaptersFragment extends SequencesPageFragment { // fragment on Sequences
+  readonly chapters: Array<ChaptersFragment>,
+}
+
 interface SequencesEdit extends SequencesPageFragment { // fragment on Sequences
   readonly contents: RevisionEdit|null,
 }
@@ -1307,7 +1311,7 @@ interface BookPageFragment { // fragment on Books
   readonly subtitle: string,
   readonly contents: RevisionDisplay|null,
   readonly sequenceIds: Array<string>,
-  readonly sequences: Array<SequencesPageFragment>,
+  readonly sequences: Array<SequencesPageWithChaptersFragment>,
   readonly postIds: Array<string>,
   readonly posts: Array<PostsList>,
   readonly collectionId: string,
@@ -2032,6 +2036,7 @@ interface FragmentTypes {
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageFragment: SequencesPageFragment
+  SequencesPageWithChaptersFragment: SequencesPageWithChaptersFragment
   SequencesEdit: SequencesEdit
   BookPageFragment: BookPageFragment
   BookEdit: BookEdit
@@ -2179,6 +2184,7 @@ interface CollectionNamesByFragmentName {
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
   SequencesPageFragment: "Sequences"
+  SequencesPageWithChaptersFragment: "Sequences"
   SequencesEdit: "Sequences"
   BookPageFragment: "Books"
   BookEdit: "Books"

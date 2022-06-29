@@ -516,11 +516,13 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("tagRelevance", (terms: PostsViewTerms) => ({
+Posts.addView("tagRelevance", ({ sortedBy, tagId }: PostsViewTerms) => ({
   // note: this relies on the selector filtering done in the default view
   // sorts by the "sortedBy" parameter if it's been passed in, or otherwise sorts by tag relevance
   options: {
-    sort: terms.sortedBy ? sortings[terms.sortedBy] : { [`tagRelevance.${terms.tagId}`]: -1, baseScore: -1}
+    sort: sortedBy && sortedBy !== "relevance"
+      ? sortings[sortedBy]
+      : { [`tagRelevance.${tagId}`]: -1, baseScore: -1 },
   }
 }));
 

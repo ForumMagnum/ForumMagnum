@@ -17,6 +17,11 @@ import { getVotingSystems } from '../../voting/votingSystems';
 import { forumTypeSetting } from '../../instanceSettings';
 
 const isLWorAF = (forumTypeSetting.get() === 'LessWrong') || (forumTypeSetting.get() === 'AlignmentForum')
+const isEAForum = (forumTypeSetting.get() === 'EAForum')
+
+const urlHintText = isEAForum 
+    ? 'Please write what you liked about the post, and sample liberally. Or, if the author allows it, copy in the entire post text. If you know the author\'s username you can add them as a co-author of this post in the "Options" menu below.'
+    : 'Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don\'t click offsite links.)' 
 
 const STICKY_PRIORITIES = {
   1: "Low",
@@ -136,7 +141,7 @@ const schema: SchemaType<DbPost> = {
         inactive: 'Link-post?',
         active: 'Add a linkpost URL',
       },
-      hintText: 'Please write what you liked about the post, and sample liberally. Or, if the author allows it, copy in the entire post text. If you know the author\'s username you can add them as a co-author of this post in the "Options" menu below.',
+      hintText: urlHintText
     },
     group: formGroups.options,
   },
