@@ -97,7 +97,7 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemUntyped
       onClick={handleClick}
-      // We tried making this an function that return an a tag once. It made the
+      // We tried making this a function that return an a tag once. It made the
       // entire sidebar fail on iOS. True story.
       component={Link}
       to={tab.link}
