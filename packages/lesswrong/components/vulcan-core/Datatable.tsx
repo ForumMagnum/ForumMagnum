@@ -396,6 +396,7 @@ declare global {
     DatatableContentsInnerLayout: typeof DatatableContentsInnerLayoutComponent,
     DatatableContentsHeadLayout: typeof DatatableContentsHeadLayoutComponent,
     DatatableContentsBodyLayout: typeof DatatableContentsBodyLayoutComponent,
+    DatatableContentsMoreLayout: typeof DatatableContentsMoreLayoutComponent,
     DatatableTitle: typeof DatatableTitleComponent,
     DatatableRow: typeof DatatableRowComponent,
     DatatableRowLayout: typeof DatatableRowLayoutComponent,
