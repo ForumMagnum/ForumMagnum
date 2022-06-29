@@ -82,13 +82,9 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
   // Cast to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
   
-  // React router links don't handle external URLs, so use a
-  // normal HTML a tag if the URL is external
+  // Due to an issue with using anchor tags, we use react-router links, even for
+  // external links, we just use window.open to actuate the link.
   const externalLink = /https?:\/\//.test(tab.link);
-  // const Element = externalLink ?
-  //   ({to, ...rest}) => <a href={to} target="_blank" rel="noopener noreferrer" {...rest} />
-  //   : Link;
-
   let handleClick = onClick
   if (externalLink) {
     handleClick = (e) => {
@@ -101,7 +97,10 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemUntyped
       onClick={handleClick}
-      component={Link} to={tab.link}
+      // We tried making this an function that return an a tag once. It made the
+      // entire sidebar fail on iOS. True story.
+      component={Link}
+      to={tab.link}
       disableGutters
       classes={{root: classNames({
         [classes.navButton]: !tab.subItem,
