@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: 1.3,
   },
   loginForm: {
-    margin: "0 auto",
+    margin: "0 auto -4px",
     maxWidth: 252,
   },
   message: {
