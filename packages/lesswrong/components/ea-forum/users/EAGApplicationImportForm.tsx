@@ -16,6 +16,7 @@ import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { Link } from '../../../lib/reactRouterWrapper';
+import { useMessages } from '../../common/withMessages';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -206,6 +207,7 @@ const EAGApplicationImportForm = ({classes}: {
   const currentUser = useCurrentUser()
   const { history } = useNavigation()
   const { pathname } = useLocation()
+  const { flash } = useMessages()
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   // only used for initializing the form
   const [formLoading, setFormLoading] = useState(true)
@@ -334,59 +336,72 @@ const EAGApplicationImportForm = ({classes}: {
   const handleCopyField = async (e, field) => {
     e.preventDefault()
     if (!importedData) return
-
-    if (field === 'biography') {
-      biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
-      return
-    } else if (field === 'howOthersCanHelpMe') {
-      howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
-      return
-    } else if (field === 'howICanHelpOthers') {
-      howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
-      return
-    // } else if (field === 'organizerOfGroupIds') {
-    //   // TODO: this field needs more work -
-    //   // prob need to only list groups they are assigned to on the forum, and link to the form for requests
-    //   setFormValues({
-    //     ...formValues,
-    //     [field]: importedData.organizerOfGroups.map(g => g._id)
-    //   })
-    //   return
-    } else if (field === 'mapLocation') {
-      const location = await importMapLocation()
-      if (location) {
-        setFormValues({
-          ...formValues,
-          mapLocation: location
+    
+    switch (field) {
+      case 'biography':
+        biographyRef?.current?.setEditorValue(importedData.biography.markdownValue)
+        return
+      case 'howOthersCanHelpMe':
+        howOthersCanHelpMeRef?.current?.setEditorValue(importedData.howOthersCanHelpMe.markdownValue)
+        return
+      case 'howICanHelpOthers':
+        howICanHelpOthersRef?.current?.setEditorValue(importedData.howICanHelpOthers.markdownValue)
+        return
+      // case 'organizerOfGroupIds':
+      //   // TODO: this field needs more work -
+      //   // prob need to only list groups they are assigned to on the forum, and link to the form for requests
+      //   setFormValues(currentValues => {
+      //     return {
+      //       ...currentValues,
+      //       [field]: importedData.organizerOfGroups.map(g => g._id)
+      //     }
+      //   })
+      //   return
+      case 'mapLocation':
+        const location = await importMapLocation()
+        if (location) {
+          setFormValues(currentValues => {
+            return {
+              ...currentValues,
+              mapLocation: location
+            }
+          })
+        }
+        return
+      case 'linkedinProfileURL':
+        setFormValues(currentValues => {
+          return {
+            ...currentValues,
+            linkedinProfileURL: importLinkedinProfileURL()
+          }
         })
-      }
-      return
-    } else if (field === 'linkedinProfileURL') {
-      setFormValues({
-        ...formValues,
-        linkedinProfileURL: importLinkedinProfileURL()
-      })
-      return
+        return
     }
     
-    setFormValues({
-      ...formValues,
-      [field]: importedData[field]
+    setFormValues(currentValues => {
+      return {
+        ...currentValues,
+        [field]: importedData[field]
+      }
     })
   }
   
   const handleChangeField = (e, field) => {
     e.preventDefault()
-    setFormValues({
-      ...formValues,
-      [field]: e.target.value
+    setFormValues(currentValues => {
+      return {
+        ...currentValues,
+        [field]: e.target.value
+      }
     })
   }
   
   const handleUpdateValue = (val) => {
-    setFormValues({
-      ...formValues,
-      ...val
+    setFormValues(currentValues => {
+      return {
+        ...currentValues,
+        ...val
+      }
     })
   }
   
@@ -414,18 +429,19 @@ const EAGApplicationImportForm = ({classes}: {
     }
     
     // add data from CKEditor fields
-    const submission = submitFormCallbacks.current.reduce((prev, next) => {
-      try {
+    try {
+      updatedFormData = submitFormCallbacks.current.reduce((prev, next) => {
         return next(prev)
-      } catch (e) {
-        return prev
-      }
-    }, updatedFormData)
+      }, updatedFormData)
+    } catch (e) {
+      flash({messageString: "Sorry, we were unable to submit your changes. Please try again later."})
+      return
+    }
 
     setSubmitLoading(true)
-    setFormValues(submission)
+    setFormValues(updatedFormData)
 
-    updateCurrentUser(submission).then(() => {
+    updateCurrentUser(updatedFormData).then(() => {
       // clear out local storage for CKEditor fields
       successFormCallbacks.current.reduce((prev, next) => {
         try {
@@ -433,7 +449,7 @@ const EAGApplicationImportForm = ({classes}: {
         } catch (e) {
           return prev
         }
-      }, submission)
+      }, updatedFormData)
       history.push(userGetProfileUrl(currentUser))
     }, (e) => {
       // eslint-disable-next-line no-console
