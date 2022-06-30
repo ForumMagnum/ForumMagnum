@@ -9,7 +9,7 @@ let accessToken = ''
 
 export const getEAGApplicationData = async (email: string) => {
   // sanitize email address
-  email = email.replace(/[^a-z0-9+_.@-]/i, '')
+  email = email.replace(new RegExp(/[^a-z0-9+_.@-]/ig), '')
   
   let eagAppResponse = await getZohoData2022(email)
   
