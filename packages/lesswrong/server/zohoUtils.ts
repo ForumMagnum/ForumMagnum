@@ -8,6 +8,9 @@ const zohoRefreshToken = new DatabaseServerSetting('zoho.refreshToken', '')
 let accessToken = ''
 
 export const getEAGApplicationData = async (email: string) => {
+  // sanitize email address
+  email = email.replace(/[^a-z0-9+_.@-]/i, '')
+  
   let eagAppResponse = await getZohoData2022(email)
   
   if (!eagAppResponse.ok) {
