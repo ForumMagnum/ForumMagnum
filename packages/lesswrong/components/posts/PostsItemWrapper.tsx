@@ -9,6 +9,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+    paddingBottom: 5,
     '&:hover': {
       '& $removeIcon': {
         opacity: 1,
@@ -22,9 +24,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 1
   },
-  meta: {
+  karma: {
     marginRight: 4,
     minWidth: 42
+  },
+  author: {
+    marginLeft: "auto",
+    marginRigt: 12
   },
   dragHandle: {
     pointerEvents: "none",
@@ -34,8 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   removeIcon: {
     opacity: 0,
-    color: theme.palette.icon.dim5,
-    marginLeft: "auto"
+    color: theme.palette.icon.dim5
   }
 });
 
@@ -54,13 +59,13 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
   if (document && !loading) {
     return <div className={classes.root}>
       <DragIcon className={classes.dragHandle}/>
-      <PostsItem2MetaInfo className={classes.meta}>
+      <PostsItem2MetaInfo className={classes.karma}>
         {document.baseScore}
       </PostsItem2MetaInfo>
       <span className={classes.title}>
         <PostsTitle post={document} isLink={false}/>
       </span>
-      <PostsItem2MetaInfo className={classes.meta}>
+      <PostsItem2MetaInfo className={classes.author}>
         <PostsUserAndCoauthors post={document} abbreviateIfLong={true}/>
       </PostsItem2MetaInfo>
       <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />
