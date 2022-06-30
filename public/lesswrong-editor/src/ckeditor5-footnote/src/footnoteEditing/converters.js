@@ -5,17 +5,15 @@ import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils
 import ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
 import { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
-import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import { viewQueryElement, viewQueryText } from '../utils';
 import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 
 /**
  * Defines methods for converting between model, data view, and editing view representations of each element type.
  * @param {Editor} editor
- * @param {RootElement} rootElement
  * @returns {void}
  * */
-export const defineConverters = (editor, rootElement) => {
+export const defineConverters = (editor) => {
 	const conversion = editor.conversion;
 
 	/***********************************Attribute Conversion************************************/
@@ -78,7 +76,13 @@ export const defineConverters = (editor, rootElement) => {
 				[ATTRIBUTES.footnoteContent]: true,
 			},
 		},
-		model: ELEMENTS.footnoteContent,
+		model: (viewElement, conversionApi) => {
+			const modelWriter = conversionApi.writer;
+
+			return modelWriter.createElement(
+				ELEMENTS.footnoteContent,
+			);
+		}
 	});
 
 	conversion.for('dataDowncast').elementToElement({
@@ -106,7 +110,7 @@ export const defineConverters = (editor, rootElement) => {
 	conversion.for('upcast').elementToElement({
 		view: {
 			attributes: {
-				[ATTRIBUTES.footnoteItem]: true,
+				[ATTRIBUTES.footnoteItem]: true
 			},
 		},
 		model: (viewElement, conversionApi) => {
@@ -227,6 +231,47 @@ export const defineConverters = (editor, rootElement) => {
 		model: ELEMENTS.footnoteBackLink,
 		view: createFootnoteBackLinkViewElement,
 	});
+
+	/**
+	 * For reasons still unclear to me, certain elementToElement conversions fail when upcasting from the
+	 * clipboard, but not when upcasting from file. Using upcastDispatcher circumvents this issue.
+	 */
+	editor.data.upcastDispatcher.on('element', (_, data, conversionApi) => {
+		const { consumable, writer } = conversionApi
+		if(!consumable.test(data.viewItem, {name: true}) || !data.viewItem.hasAttribute) {
+			return;
+		}
+		let modelElement;
+		for (const attribute of [
+			ATTRIBUTES.footnoteItem,
+			ATTRIBUTES.footnoteBackLink,
+			ATTRIBUTES.footnoteContent,
+		]) {
+			if (data.viewItem.hasAttribute(attribute)) {
+				const index = data.viewItem.getAttribute(ATTRIBUTES.footnoteIndex);
+				const id = data.viewItem.getAttribute(ATTRIBUTES.footnoteId);
+				if(!id || (!index && attribute !== ATTRIBUTES.footnoteBackLink)) {
+					return;
+				}
+				const key = Object.keys(ATTRIBUTES).find(key => ATTRIBUTES[key] === attribute)
+				modelElement = writer.createElement(ELEMENTS[key], {
+					[attribute]: '',
+					...(index && {[ATTRIBUTES.footnoteIndex]: index}),
+					[ATTRIBUTES.footnoteId]: id,
+				});
+				break;
+			}
+		}
+		if(!modelElement) {
+			return
+		}
+		conversionApi.convertChildren( data.viewItem, modelElement );
+		if ( !conversionApi.safeInsert( modelElement, data.modelCursor ) ) {
+			return;
+		}
+		consumable.consume( data.viewItem, { name: true } );
+		conversionApi.updateConversionResult( modelElement, data );
+	});
 };
 
 /**
@@ -239,7 +284,7 @@ export const defineConverters = (editor, rootElement) => {
  */
 function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
 	const viewWriter = conversionApi.writer;
-	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
+	const id = `${modelElement.getAttribute(ATTRIBUTES.footnoteId)}`;
 	if(id === undefined) {
 		throw new Error('Footnote return link has no provided Id.')
 	}
@@ -271,8 +316,8 @@ function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
  */
 function createFootnoteReferenceViewElement(modelElement, conversionApi) {
 	const viewWriter = conversionApi.writer;
-	const index = modelElement.getAttribute(ATTRIBUTES.footnoteIndex);
-	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
+	const index = `${modelElement.getAttribute(ATTRIBUTES.footnoteIndex)}`;
+	const id = `${modelElement.getAttribute(ATTRIBUTES.footnoteId)}`;
 	if(index === undefined) {
 		throw new Error('Footnote reference has no provided index.')
 	}
@@ -310,18 +355,18 @@ function createFootnoteItemViewElement(modelElement, conversionApi) {
 	const viewWriter = conversionApi.writer;
 	const index = modelElement.getAttribute(ATTRIBUTES.footnoteIndex);
 	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
-	if(index === undefined) {
+	if(!index) {
 		throw new Error('Footnote item has no provided index.')
 	}
-	if(id === undefined) {
+	if(!id) {
 		throw new Error('Footnote item has no provided id.')
 	}
 
 	return viewWriter.createContainerElement('li', {
 		class: CLASSES.footnoteItem,
 		[ATTRIBUTES.footnoteItem]: '',
-		[ATTRIBUTES.footnoteIndex]: index,
-		[ATTRIBUTES.footnoteId]: id,
+		[ATTRIBUTES.footnoteIndex]: `${index}`,
+		[ATTRIBUTES.footnoteId]: `${id}`,
 		role: 'doc-endnote',
 		id: `fn${id}`,
 	});
