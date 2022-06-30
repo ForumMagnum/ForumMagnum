@@ -18,10 +18,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     maxWidth: 450,
     overflow: "hidden",
-    textOverflow: "ellipsis"
+    textOverflow: "ellipsis",
+    position: "relative",
+    top: 1
   },
   meta: {
-    marginRight: theme.spacing.unit*1.5,
+    marginRight: 4,
+    minWidth: 42
   },
   dragHandle: {
     pointerEvents: "none",
@@ -51,14 +54,14 @@ const PostsItemWrapper = ({documentId, classes, removeItem}: {
   if (document && !loading) {
     return <div className={classes.root}>
       <DragIcon className={classes.dragHandle}/>
+      <PostsItem2MetaInfo className={classes.meta}>
+        {document.baseScore}
+      </PostsItem2MetaInfo>
       <span className={classes.title}>
         <PostsTitle post={document} isLink={false}/>
       </span>
       <PostsItem2MetaInfo className={classes.meta}>
         <PostsUserAndCoauthors post={document} abbreviateIfLong={true}/>
-      </PostsItem2MetaInfo>
-      <PostsItem2MetaInfo className={classes.meta}>
-        {document.baseScore} karma
       </PostsItem2MetaInfo>
       <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />
     </div>
