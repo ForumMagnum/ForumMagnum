@@ -462,9 +462,10 @@ getCollectionHooks("Posts").newAsync.add(async function CoauthorRequestNotificat
   await checkCoauthorRequestNotifications(post);
 });
 
-getCollectionHooks("Posts").updateAfter.add(async function CoauthorRequestNotifications(post: DbPost) {
-  return await checkCoauthorRequestNotifications(post);
-});
+//TODO: Currently broken, disable so we don't get bad emails
+// getCollectionHooks("Posts").updateAfter.add(async function CoauthorRequestNotifications(post: DbPost) {
+//   return await checkCoauthorRequestNotifications(post);
+// });
 
 async function checkCoauthorRequestNotifications(post: DbPost) {
   const { _id, coauthorStatuses = [], hasCoauthorPermission } = post;
