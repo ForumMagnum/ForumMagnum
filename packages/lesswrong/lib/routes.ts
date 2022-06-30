@@ -652,6 +652,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Edit Profile',
       background: 'white',
     },
+    {
+      name: 'ImportProfile',
+      path: '/profile/import',
+      componentName: 'EAGApplicationImportForm',
+      title: 'Import Profile',
+      background: 'white',
+    },
+    {
+      name: 'EAGApplicationData',
+      path: '/api/eag-application-data'
+    }
   ],
   LessWrong: [
     {
