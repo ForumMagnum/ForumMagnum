@@ -48,6 +48,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       transform: 'scaleY(100%)',
     },
   },
+  hintText: {
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
 })
 
 const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
@@ -85,7 +90,9 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       }
       setFooterContent(
         <div className={classes.footer}>
-          <Components.Typography variant='body2'>{hintText}</Components.Typography>
+          <Components.Typography variant='body2' className={classes.hintText}>
+            {hintText}
+          </Components.Typography>
         </div>
       );
     } else {
