@@ -235,7 +235,8 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): st
       Math.abs(0.5 - mode) < .000000001 &&
       userHasNewTagSubscriptions(currentUser)
     ) return "Reduced"
-    if (mode > 0) return `+${mode}`
+    if (mode > 1) return `+${mode}`
+    if (mode > 0) return `-${Math.round((1 - mode) * 100)}%`
     if (mode === 0) return ""
     return `${mode}`
   } else switch(mode) {
