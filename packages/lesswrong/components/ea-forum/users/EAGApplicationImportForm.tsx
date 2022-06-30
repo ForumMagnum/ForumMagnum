@@ -17,6 +17,7 @@ import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useMessages } from '../../common/withMessages';
+import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -208,6 +209,7 @@ const EAGApplicationImportForm = ({classes}: {
   const { history } = useNavigation()
   const { pathname } = useLocation()
   const { flash } = useMessages()
+  const { captureEvent } = useTracking()
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   // only used for initializing the form
   const [formLoading, setFormLoading] = useState(true)
@@ -442,6 +444,7 @@ const EAGApplicationImportForm = ({classes}: {
     setFormValues(updatedFormData)
 
     updateCurrentUser(updatedFormData).then(() => {
+      captureEvent('eagApplicationImported', {copyAll})
       // clear out local storage for CKEditor fields
       successFormCallbacks.current.reduce((prev, next) => {
         try {
@@ -463,15 +466,17 @@ const EAGApplicationImportForm = ({classes}: {
 
   if (!currentUser) {
     return (
-      <div className={classNames(classes.root, classes.loggedOutView)}>
-        <Typography variant="display3" className={classes.heading} gutterBottom>
-          Welcome to the &#10024; <span className={classes.loggedOutMessageHighlight}>Effective Altruism Forum</span> &#10024;
-        </Typography>
-        <Typography variant="body1" className={classes.loggedOutMessage}>
-          <a href={`/auth/auth0?returnTo=${pathname}`} className={classes.loggedOutLink}>Login</a> or <a href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`} className={classes.loggedOutLink}>Sign Up</a> to
-          import information from your EA Global application to your EA Forum profile.
-        </Typography>
-      </div>
+      <AnalyticsContext pageContext="eagApplicationImportForm">
+        <div className={classNames(classes.root, classes.loggedOutView)}>
+          <Typography variant="display3" className={classes.heading} gutterBottom>
+            Welcome to the &#10024; <span className={classes.loggedOutMessageHighlight}>Effective Altruism Forum</span> &#10024;
+          </Typography>
+          <Typography variant="body1" className={classes.loggedOutMessage}>
+            <a href={`/auth/auth0?returnTo=${pathname}`} className={classes.loggedOutLink}>Login</a> or <a href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`} className={classes.loggedOutLink}>Sign Up</a> to
+            import information from your EA Global application to your EA Forum profile.
+          </Typography>
+        </div>
+      </AnalyticsContext>
     );
   }
     
@@ -487,23 +492,25 @@ const EAGApplicationImportForm = ({classes}: {
       We've found your application data from {event}.
     </Typography>
     
-    <div className={classes.callout}>
-      <Typography variant="body1" className={classes.overwriteText}>
-        Would you like to overwrite your EA Forum profile data?
-      </Typography>
-      <div>
-        <button type="submit"
-          onClick={(e) => handleSubmit(e, true)}
-          className={classes.submitBtn}
-          {...submitLoading ? {disabled: true} : {}}
-        >
-          Overwrite and Submit
-        </button>
-        <Typography variant="body1" className={classes.overwriteBtnAltText}>
-          or see details and make changes below
+    <AnalyticsContext pageSectionContext="overwriteCallout">
+      <div className={classes.callout}>
+        <Typography variant="body1" className={classes.overwriteText}>
+          Would you like to overwrite your EA Forum profile data?
         </Typography>
+        <div>
+          <button type="submit"
+            onClick={(e) => handleSubmit(e, true)}
+            className={classes.submitBtn}
+            {...submitLoading ? {disabled: true} : {}}
+          >
+            Overwrite and Submit
+          </button>
+          <Typography variant="body1" className={classes.overwriteBtnAltText}>
+            or see details and make changes below
+          </Typography>
+        </div>
       </div>
-    </div>
+    </AnalyticsContext>
     
     <form className={classes.form}>
       <div className={classes.btnRow}>
@@ -699,13 +706,15 @@ const EAGApplicationImportForm = ({classes}: {
     </form>
   </>
   
-  return <div className={classes.root}>
-    <Typography variant="display3" className={classes.heading} gutterBottom>
-      Import Your Profile
-    </Typography>
+  return <AnalyticsContext pageContext="eagApplicationImportForm">
+    <div className={classes.root}>
+      <Typography variant="display3" className={classes.heading} gutterBottom>
+        Import Your Profile
+      </Typography>
 
-    {formLoading ? <Loading /> : body}
-  </div>
+      {formLoading ? <Loading /> : body}
+    </div>
+  </AnalyticsContext>
 }
 
 
