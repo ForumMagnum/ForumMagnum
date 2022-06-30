@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import type { FilterSettings, FilterMode } from '../../lib/filterSettings';
+import { FilterSettings, FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
@@ -118,7 +118,7 @@ const TagFilterSettings = ({
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
-          const newMode = mode === tagSettings.filterMode ? 0 : mode
+          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(mode) ? 0 : mode
           setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
         }}
         onRemove={() => {

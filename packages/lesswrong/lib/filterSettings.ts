@@ -22,6 +22,9 @@ export const FILTER_MODE_CHOICES = [
 ] as const;
 export type FilterMode = typeof FILTER_MODE_CHOICES[number]|"TagDefault"|number
 
+const STANDARD_FILTER_MODES: (string|number)[] = [...FILTER_MODE_CHOICES, -25, 0, 25];
+export const isCustomFilterMode = (mode: string|number) => !STANDARD_FILTER_MODES.includes(mode);
+
 export const getDefaultFilterSettings = (): FilterSettings => {
   return {
     personalBlog: "Hidden",

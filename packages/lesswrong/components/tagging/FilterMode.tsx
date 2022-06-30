@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import type { FilterMode } from '../../lib/filterSettings';
+import { FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -82,6 +82,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const handleCustomInput = (input: string) => {
+  const parsed = parseFloat(input);
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+  return parsed <= 0 || parsed >= 1
+    ? Math.round(parsed)
+    : Math.floor(parsed * 100) / 100;
+}
+
 const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
@@ -117,7 +127,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     </span>
   </span>
 
-  const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
+  const otherValue = isCustomFilterMode(mode) ? (mode || "") : "";
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?
@@ -178,8 +188,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               disableUnderline
               classes={{input:classes.input}}
               value={otherValue}
-
-              onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
+              onChange={ev => onChangeMode(handleCustomInput(ev.target.value || "0"))}
             />
             {canRemove && !tag?.suggestedAsFilter &&
               <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
@@ -235,7 +244,7 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): st
       Math.abs(0.5 - mode) < .000000001 &&
       userHasNewTagSubscriptions(currentUser)
     ) return "Reduced"
-    if (mode > 1) return `+${mode}`
+    if (mode >= 1) return `+${mode}`
     if (mode > 0) return `-${Math.round((1 - mode) * 100)}%`
     if (mode === 0) return ""
     return `${mode}`
