@@ -52,13 +52,10 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
     {<UsersName user={post.user} simple={simple} />}
-    {post.coauthors.map(coauthor => postCoauthorIsPending(post, coauthor._id)
-      ? null
-      : (
-        <span key={coauthor._id}>
-          , <UsersName user={coauthor} simple={simple} />
-        </span>
-      )
+    {post.coauthors.filter(({ _id }) => !postCoauthorIsPending(post, _id)).map((coauthor) =>
+      <React.Fragment key={coauthor._id}>
+        , <UsersName user={coauthor} simple={simple} />
+      </React.Fragment>
     )}
     {renderTopCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
       , <ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>

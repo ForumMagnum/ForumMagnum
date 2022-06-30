@@ -27,18 +27,16 @@ const UsersNamePending = ({ user, classes }: {
   const { LWTooltip } = Components;
   const name = userGetDisplayName(user)
   const tooltip = <p>
-    You have requested <span className={classes.tooltipUserName}>{name}</span> to
-    co-author this post. They can accept or decline this request.
+    <span className={classes.tooltipUserName}>{name}</span> has been requested
+    as a co-author of this post. They can accept or decline this request.
   </p>;
 
   return (
-    <span>
-      <LWTooltip title={tooltip} placement="right" inlineBlock={false}>
-        <Link to={userGetProfileUrl(user)} className={classes.userName}>
-          {name} <ErrorIcon fontSize="small" className={classes.icon} />
-        </Link>
-      </LWTooltip>
-    </span>
+    <LWTooltip title={tooltip} placement="right">
+      <Link to={userGetProfileUrl(user)} className={classes.userName}>
+        {name} <ErrorIcon fontSize="small" className={classes.icon} />
+      </Link>
+    </LWTooltip>
   );
 }
 
