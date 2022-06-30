@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     maxWidth: 450,
-    overflowX: "hidden",
+    overflow: "hidden",
     textOverflow: "ellipsis"
   },
   meta: {
