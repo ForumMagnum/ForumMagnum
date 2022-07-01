@@ -21,6 +21,7 @@ import { userGetLocation } from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
+import { DatabaseServerSetting } from "../databaseSettings";
 import { EventDebouncer } from '../debouncer';
 import { Components } from '../../lib/vulcan-lib/components';
 import { Conversations } from '../../lib/collections/conversations/collection';
@@ -313,7 +314,15 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
 
 const welcomeMessageDelayer = new EventDebouncer<string,{}>({
   name: "welcomeMessageDelay",
+  
+  // Delay 60 minutes between when you create an account, and when we send the
+  // welcome email. (You can still see the welcome post immediately, which on
+  // LW is the same thing, if you want). The theory is that users creating new
+  // accounts are often doing so because they're about to write a comment or
+  // something, and derailing them with a bunch of stuff to read at that
+  // particular moment could be bad.
   defaultTiming: {type: "delayed", delayMinutes: 60 },
+  
   callback: (userId: string) => {
     sendWelcomeMessageTo(userId);
   },
@@ -326,9 +335,17 @@ getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: Db
   });
 });
 
+const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
+
 async function sendWelcomeMessageTo(userId: string) {
-  // TODO: Make this configurable and not-EA-forum-only
-  if (forumTypeSetting.get() !== 'EAForum') {
+  const postId = welcomeEmailPostId.get();
+  if (!postId || !postId.length) {
+    console.log("Not sending welcome email, welcomeEmailPostId setting is not configured");
+    return;
+  }
+  const welcomePost = await Posts.findOne({_id: postId});
+  if (!welcomePost) {
+    console.error(`Not sending welcome email, welcomeEmailPostId of ${postId} does not match any post`);
     return;
   }
   
@@ -337,14 +354,8 @@ async function sendWelcomeMessageTo(userId: string) {
   
   const adminsAccount = await getAdminTeamAccount();
   
-  const subjectLine = "Welcome to EA Forum!"; //TODO: Make this configurable
-  
-  // TODO: Load this from a wiki page. This requires also adding an only-admins-
-  // can-edit flag to wiki pages, which is a sidetrack we didn't want to take on
-  // right now, so this is temporarily hard-coded.
-  const welcomeMessageBody = `
-    <p>Lorem ipsum <i>welcome welcomingness</i> dolor sit welcome adipiscing.</p>
-  `;
+  const subjectLine = welcomePost.title;
+  const welcomeMessageBody = welcomePost.contents.html;
   
   const conversationData = {
     participantIds: [user._id, adminsAccount._id],
