@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -6,6 +6,16 @@ import { Comments } from '../../lib/collections/comments'
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
+import { isMod } from '../../lib/collections/users/helpers';
+import { forumSelect } from '../../lib/forumTypeUtils';
+
+const shouldShowEndUserModerationToNonMods = forumSelect({
+  EAForum: false,
+  LessWrong: true,
+  AlignmentForum: true,
+  default: true,
+})
 
 const styles = theme => ({
   root: {
@@ -126,32 +136,29 @@ const usersBannedFromUsersColumns = [
   },
 ]
 
-class ModerationLog extends PureComponent<any> {
-
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const { classes } = this.props;
-    const { SingleColumnSection } = Components;
-    return (
-      <SingleColumnSection className={classes.root}>
-        <h2>Moderation Log</h2>
-        <div className={classes.section}>
-          <h3>Deleted Comments</h3>
-          <Components.Datatable
-            collection={Comments}
-            columns={deletedCommentColumns}
-            options={{
-              fragmentName: 'DeletedCommentsModerationLog',
-              terms: {view: "allCommentsDeleted"},
-              limit: 10,
-              enableTotal: true
-            }}
-            showEdit={false}
-          />
-        </div>
+const ModerationLog = ({classes}) => {
+  const currentUser = useCurrentUser()
+  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
+    shouldShowEndUserModerationToNonMods
+  const { SingleColumnSection } = Components;
+  return (
+    <SingleColumnSection className={classes.root}>
+      <h2>Moderation Log</h2>
+      <div className={classes.section}>
+        <h3>Deleted Comments</h3>
+        <Components.Datatable
+          collection={Comments}
+          columns={deletedCommentColumns}
+          options={{
+            fragmentName: 'DeletedCommentsModerationLog',
+            terms: {view: "allCommentsDeleted"},
+            limit: 10,
+            enableTotal: true
+          }}
+          showEdit={false}
+        />
+      </div>
+      {shouldShowEndUserModeration && <>
         <div className={classNames(classes.section, classes.floatLeft)}>
           <h3>Users Banned From Posts</h3>
           <Components.Datatable
@@ -182,9 +189,9 @@ class ModerationLog extends PureComponent<any> {
             showNew={false}
           />
         </div>
-      </SingleColumnSection>
-    )
-  }
+      </>}
+    </SingleColumnSection>
+  )
 }
 
 const ModerationLogComponent = registerComponent('ModerationLog', ModerationLog, {styles});
