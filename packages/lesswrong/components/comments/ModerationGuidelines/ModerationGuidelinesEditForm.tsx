@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ModerationGuidelinesEditForm = ({ postId, onClose, classes }: {
   postId: string,
-  onClose: ()=>void,
+  onClose?: ()=>void,
   classes: ClassesType,
 }) => {
   const SubmitComponent = ({submitLabel = "Submit"}) => {

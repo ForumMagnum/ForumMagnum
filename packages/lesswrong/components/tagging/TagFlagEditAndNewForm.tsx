@@ -6,8 +6,8 @@ import { TagFlags } from '../../lib/collections/tagFlags/collection';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const TagFlagEditAndNewForm = ({ tagFlagId, onClose, classes }: {
-  tagFlagId: string,
-  onClose: () => void,
+  tagFlagId?: string,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
   const { LWDialog } = Components;
