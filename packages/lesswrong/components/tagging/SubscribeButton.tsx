@@ -48,11 +48,11 @@ const SubscribeButton = ({
     try {
       e.preventDefault();
 
-      if (currentUser) {
-        const newMode = isSubscribed ? "Default" : "Subscribed";
-        captureEvent('newSubscribeClicked', {tagId: tag._id, newMode});
-        subscribeUserToTag(tag, newMode);
+      const newMode = isSubscribed ? "Default" : "Subscribed";
+      captureEvent('newSubscribeClicked', {tagId: tag._id, newMode});
 
+      if (currentUser) {
+        subscribeUserToTag(tag, newMode);
         flash({messageString: isSubscribed ? "Unsubscribed" : "Subscribed"});
       } else {
         openDialog({
