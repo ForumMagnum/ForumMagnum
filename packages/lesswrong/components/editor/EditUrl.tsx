@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
+import { sleep } from '../../lib/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -83,6 +84,13 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
     });
   }
 
+  const waitAndWipeFooterContent = async () => {
+    // Yield context to let the other click events fire first, so that link
+    // clicks can happen before we remove the link
+    await sleep(0);
+    setFooterContent(null);
+  }
+
   const setEditorActive = (value: boolean) => {
     if (value) {
       if (inputRef.current) {
@@ -97,7 +105,7 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       );
     } else {
       updateValue(null);
-      setFooterContent(null);
+      void waitAndWipeFooterContent();
     }
     setActive(value);
   }

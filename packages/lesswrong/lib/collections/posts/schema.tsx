@@ -22,7 +22,12 @@ const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
 const urlHintText = isEAForum
     ? <>Please write what you liked about the post, and consider sharing some relevant excerpts. If you have permission from the author, you can also copy in the entire post text. If you know the author's username you can add them as a co-author of this post in the "Options" menu below. You can find more guidelines{' '}
-    <Link to='/8yDsenRQhNF4HEDwu/link-posting-is-an-act-of-community-service'>
+    <Link
+      to='/8yDsenRQhNF4HEDwu/link-posting-is-an-act-of-community-service'
+      onMouseDown={e => {
+        e.preventDefault()
+      }}
+    >
       here
     </Link>.
     </>
