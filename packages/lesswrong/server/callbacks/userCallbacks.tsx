@@ -324,7 +324,7 @@ const welcomeMessageDelayer = new EventDebouncer<string,{}>({
   defaultTiming: {type: "delayed", delayMinutes: 60 },
   
   callback: (userId: string) => {
-    sendWelcomeMessageTo(userId);
+    void sendWelcomeMessageTo(userId);
   },
 });
 
@@ -340,11 +340,13 @@ const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailP
 async function sendWelcomeMessageTo(userId: string) {
   const postId = welcomeEmailPostId.get();
   if (!postId || !postId.length) {
+    // eslint-disable-next-line no-console
     console.log("Not sending welcome email, welcomeEmailPostId setting is not configured");
     return;
   }
   const welcomePost = await Posts.findOne({_id: postId});
   if (!welcomePost) {
+    // eslint-disable-next-line no-console
     console.error(`Not sending welcome email, welcomeEmailPostId of ${postId} does not match any post`);
     return;
   }
