@@ -7,7 +7,7 @@ const ReportForm = ({ userId, postId, commentId, onClose, title, link }: {
   userId: string,
   postId: string,
   commentId?: string,
-  onClose: ()=>void,
+  onClose?: ()=>void,
   title?: string,
   link: string,
 }) => {

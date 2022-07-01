@@ -5,7 +5,11 @@ import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 
 export interface OpenDialogContextType {
-  openDialog: ({componentName, componentProps, noClickawayCancel}: {componentName: string, componentProps?: Record<string,any>, noClickawayCancel?: boolean}) => void,
+  openDialog: <T extends keyof ComponentTypes>({componentName, componentProps, noClickawayCancel}: {
+    componentName: T,
+    componentProps?: React.ComponentProps<typeof Components[T]>,
+    noClickawayCancel?: boolean,
+  }) => void,
   closeDialog: ()=>void,
 }
 export const OpenDialogContext = React.createContext<OpenDialogContextType|null>(null);
@@ -14,7 +18,7 @@ export const OpenDialogContext = React.createContext<OpenDialogContextType|null>
 export const DialogManager = ({children}: {
   children: React.ReactNode,
 }) => {
-  const [componentName,setComponentName] = useState<string|null>(null);
+  const [componentName,setComponentName] = useState<keyof ComponentTypes|null>(null);
   const [componentProps,setComponentProps] = useState<any>(null);
   const [noClickawayCancel,setNoClickawayCancel] = useState<any>(false);
   const {captureEvent} = useTracking();

@@ -30,8 +30,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 // dialog.
 const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   _id: string,
-  postId: string | null,
-  onClose: ()=>void,
+  postId?: string,
+  onClose?: ()=>void,
   classes: ClassesType,
 }) => {
   const [open, setOpen] = useState(true)
@@ -40,7 +40,8 @@ const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   
   const handleClose = () => {
     setOpen(false)
-    onClose()
+    if (onClose)
+      onClose();
   };
   
   
