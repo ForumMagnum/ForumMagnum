@@ -129,6 +129,11 @@ export const schema: SchemaType<DbTag> = {
     optional: true,
     ...schemaDefaultValue(0),
   },
+  descriptionHtmlWithToc: {
+    type: String,
+    viewableBy: ['guests'],
+    // See resolveAs in server/resolvers/tagResolvers.ts
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",
