@@ -1,8 +1,9 @@
+import React from 'react';
 import fetch from "node-fetch";
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
-import { updateMutator } from '../vulcan-lib/mutators';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
@@ -18,6 +19,12 @@ import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import { userGetLocation } from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
+import { getAdminTeamAccount } from './commentCallbacks';
+import { wrapAndSendEmail } from '../emails/renderEmail';
+import { EventDebouncer } from '../debouncer';
+import { Components } from '../../lib/vulcan-lib/components';
+import { Conversations } from '../../lib/collections/conversations/collection';
+import { Messages } from '../../lib/collections/messages/collection';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -302,3 +309,75 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     console.log(e);
   });
 });
+
+
+const welcomeMessageDelayer = new EventDebouncer<string,{}>({
+  name: "welcomeMessageDelay",
+  defaultTiming: {type: "delayed", delayMinutes: 60 },
+  callback: (userId: string) => {
+    sendWelcomeMessageTo(userId);
+  },
+});
+
+getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
+  await welcomeMessageDelayer.recordEvent({
+    key: user._id,
+    data: {},
+  });
+});
+
+async function sendWelcomeMessageTo(userId: string) {
+  // TODO: Make this configurable and not-EA-forum-only
+  if (forumTypeSetting.get() !== 'EAForum') {
+    return;
+  }
+  
+  const user = await Users.findOne(userId);
+  if (!user) throw new Error(`Could not find ${userId}`);
+  
+  const adminsAccount = await getAdminTeamAccount();
+  
+  const subjectLine = "Welcome to EA Forum!"; //TODO: Make this configurable
+  
+  // TODO: Load this from a wiki page. This requires also adding an only-admins-
+  // can-edit flag to wiki pages, which is a sidetrack we didn't want to take on
+  // right now, so this is temporarily hard-coded.
+  const welcomeMessageBody = `
+    <p>Lorem ipsum <i>welcome welcomingness</i> dolor sit welcome adipiscing.</p>
+  `;
+  
+  const conversationData = {
+    participantIds: [user._id, adminsAccount._id],
+    title: subjectLine,
+  }
+  const conversation = await createMutator({
+    collection: Conversations,
+    document: conversationData,
+    currentUser: adminsAccount,
+    validate: false
+  });
+  
+  const messageDocument = {
+    userId: adminsAccount._id,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: welcomeMessageBody,
+      }
+    },
+    conversationId: conversation.data._id,
+    noEmail: true,
+  }
+  await createMutator({
+    collection: Messages,
+    document: messageDocument,
+    currentUser: adminsAccount,
+    validate: false
+  })
+  
+  await wrapAndSendEmail({
+    user,
+    subject: subjectLine,
+    body: <Components.EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+  });
+}
