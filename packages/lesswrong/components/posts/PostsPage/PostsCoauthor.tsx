@@ -8,15 +8,17 @@ const PostsCoauthor = ({ post, coauthor }: {
   coauthor: UsersMinimumInfo,
 }) => {
   const currentUser = useCurrentUser();
+  const isPending = postCoauthorIsPending(post, coauthor._id);
   if (
     currentUser?._id !== post.userId &&
-    !post.coauthorStatuses.find(({ userId }) => currentUser?._id === userId)
+    !post.coauthorStatuses.find(({ userId }) => currentUser?._id === userId) &&
+    isPending
   ) {
     return null;
   }
 
   const { UsersNamePending, UsersName } = Components;
-  const Component = postCoauthorIsPending(post, coauthor._id)
+  const Component = isPending
     ? UsersNamePending
     : UsersName;
   return (
