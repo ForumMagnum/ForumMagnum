@@ -237,7 +237,7 @@ addFieldsDict(Posts, {
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
         const loader = context.loaders['Users'];
         const resolvedDocs = await loader.loadMany(
-          post.coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || []
+          post.coauthorStatuses?.map(({ userId }) => userId) || []
         );
         return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
       },
@@ -267,7 +267,7 @@ addFieldsDict(Posts, {
     insertableBy: ['members'],
     optional: true,
     hidden: true,
-    ...schemaDefaultValue(false),
+    ...schemaDefaultValue(true),
   },
 
   // Cloudinary image id for an image that will be used as the OpenGraph image
