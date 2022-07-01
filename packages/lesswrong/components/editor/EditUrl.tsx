@@ -85,9 +85,9 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   }
 
   const waitAndWipeFooterContent = async () => {
-    // Yield context to let the other click events fire first, so that link
-    // clicks can happen before we remove the link
-    await sleep(0);
+    // Delay to let the other click events fire first, so that link clicks can
+    // happen before we remove the link
+    await sleep(300);
     setFooterContent(null);
   }
 
