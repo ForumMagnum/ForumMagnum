@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
+import { sleep } from '../../lib/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -48,6 +49,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       transform: 'scaleY(100%)',
     },
   },
+  hintText: {
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
 })
 
 const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
@@ -78,6 +84,13 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
     });
   }
 
+  const waitAndWipeFooterContent = async () => {
+    // Yield context to let the other click events fire first, so that link
+    // clicks can happen before we remove the link
+    await sleep(0);
+    setFooterContent(null);
+  }
+
   const setEditorActive = (value: boolean) => {
     if (value) {
       if (inputRef.current) {
@@ -85,12 +98,14 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       }
       setFooterContent(
         <div className={classes.footer}>
-          <Components.Typography variant='body2'>{hintText}</Components.Typography>
+          <Components.Typography variant='body2' className={classes.hintText}>
+            {hintText}
+          </Components.Typography>
         </div>
       );
     } else {
       updateValue(null);
-      setFooterContent(null);
+      void waitAndWipeFooterContent();
     }
     setActive(value);
   }
