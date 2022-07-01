@@ -181,15 +181,17 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
               </span>
             </LWTooltip>
-            <Input 
-              className={classes.filterInput} 
-              placeholder="Other" 
-              type="number" 
-              disableUnderline
-              classes={{input:classes.input}}
-              value={otherValue}
-              onChange={ev => onChangeMode(handleCustomInput(ev.target.value || "0"))}
-            />
+            <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute."}>
+              <Input
+                className={classes.filterInput}
+                placeholder="Other"
+                type="number"
+                disableUnderline
+                classes={{input:classes.input}}
+                value={otherValue}
+                onChange={ev => onChangeMode(handleCustomInput(ev.target.value || "0"))}
+              />
+            </LWTooltip>
             {canRemove && !tag?.suggestedAsFilter &&
               <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
                 <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
