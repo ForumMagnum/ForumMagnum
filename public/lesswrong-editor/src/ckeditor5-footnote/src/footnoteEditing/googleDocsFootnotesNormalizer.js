@@ -3,6 +3,8 @@
 import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
 import Matcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
 import { ATTRIBUTES } from '../constants';
+import Range from '@ckeditor/ckeditor5-engine/src/view/range';
+import Element from '@ckeditor/ckeditor5-engine/src/view/element';
 
 export default class GoogleDocsFootnotesNormalizer {
 	isActive() {
@@ -11,43 +13,14 @@ export default class GoogleDocsFootnotesNormalizer {
 	execute(data) {
 		const writer = new UpcastWriter( data.content.document );
 
-		const documentRange = writer.createRangeIn( data.content );
-
-		const footnoteBacklinkMatcher = new Matcher({
-			name: 'a',
-			attributes: {
-				id: /^ftnt\d+$/
-			}
-		});
-		const footnoteReferenceMatcher = new Matcher({
-			name: 'a',
-			attributes: {
-				id: /^ftnt_ref\d+$/
-			}
-		});
-		const backLinks = {};
-		const references = {};
-		// @ts-ignore: DefinitelyTyped mistypes the return values of UpcastWriters range events
+		/**
+		 * @type {Range}
+		*/
+		// @ts-ignore: DefinitelyTyped mistypes the return values of UpcastWriter's range events
 		// as TypeScript Ranges, rather than CKEditor Ranges.
-		for ( const value of documentRange ) {
-			const { item, type } = value
-			if (type === 'elementStart' && footnoteReferenceMatcher.match(item)) {
-				const index = item.getAttribute('id').match(/ftnt_ref(\d+)/)[1];
-				references[index] = {item, id: backLinks[index].id};
-			}
-		}
-		// @ts-ignore DefinitelyTyped mistyping of Range
-		for ( const value of documentRange ) {
-			const { item, type } = value
-			if (type === 'elementStart' && footnoteBacklinkMatcher.match(item)) {
-				const index = item.getAttribute('id').match(/ftnt(\d+)/)[1];
-				backLinks[index] = 
-					{ 
-						item,
-						id: Math.random().toString(36).slice(2),
-					};
-			}
-		}
+		const documentRange = writer.createRangeIn(data.content);
+		const backLinks = this._getFootnoteBackLinks(documentRange)
+		const references = this._getFootnoteReferences(documentRange, backLinks)
 		for (const [ index, { item, id } ] of Object.entries(references)) {
 			writer.setAttribute(ATTRIBUTES.footnoteReference, '', item);
 			writer.setAttribute(ATTRIBUTES.footnoteIndex, index, item);
@@ -60,17 +33,26 @@ export default class GoogleDocsFootnotesNormalizer {
 			console.warn("Unexpected DOM structure: missing footnote with index 1.");
 			return;
 		}
-		const firstBacklink = backLinks[1].item;
+		const firstBackLink = backLinks[1].item;
 		if(
-			!firstBacklink.parent ||
-			!firstBacklink.parent.parent
+			!firstBackLink.parent ||
+			!firstBackLink.parent.parent ||
+			!firstBackLink.parent.parent.is('element')
 		) {
-			console.error("Unexpected DOM structure: expected footnote backlink to be nested within two parent tags.")
+			console.error("Unexpected DOM structure: expected footnote backLink to be nested within two parent tags.")
 			return;
 		}
-		const firstFootnote = firstBacklink.parent.parent;
+		const firstFootnote = firstBackLink.parent.parent;
+		/**
+		 * @type {number}
+		*/
+		// @ts-ignore: null case only happens for unattached elements, which we know isn't true here.
 		const firstFootnoteIndex = firstFootnote.index;
 		const { previousSibling } = firstFootnote; 
+		/**
+		 * @type {Range}
+		*/
+		// @ts-ignore DefinitelyTyped mistyping of Range
 		const footnoteSectionRange = writer.createRange(
  			writer.createPositionBefore(firstFootnote),
 			// @ts-ignore: DefinitelyTyped mistyping of Range
@@ -82,10 +64,14 @@ export default class GoogleDocsFootnotesNormalizer {
 			return;
 		}
 		const footnoteItems = Object.entries(backLinks).map(([ index, {item, id}]) => {
-			if(!item.parent || !item.parent.parent) {
+			if(!item.parent || !item.parent.parent || !item.parent.parent.is('element')) {
 				throw new Error("Unexpected Dom structure; expected footnote backLink to be nested within two parent tags.")
 			}
 			const footnoteContent = item.parent.parent;
+			/**
+			 * @type {Range}
+			*/
+			// @ts-ignore DefinitelyTyped mistyping of Range
 			const footnoteItemRange = writer.createRange(
 				writer.createPositionAfter(item),
 				writer.createPositionAfter(footnoteContent),
@@ -100,9 +86,10 @@ export default class GoogleDocsFootnotesNormalizer {
 					[ATTRIBUTES.footnoteId]: id,
 					[ATTRIBUTES.footnoteIndex]: index,
 				}, 
-				// @ts-ignore DefinitelyTyped mistyping of Range
+				// @ts-ignore: startPosition isn't reuqired here.
 				[...footnoteItemRange.getItems({ shallow: true})]
 					.filter(item => item.is('element'))
+					// @ts-ignore: previous line is a type guard.
 					.map(element => writer.clone(element, true)),
 			);
 			return writer.createElement('div', { 
@@ -114,16 +101,72 @@ export default class GoogleDocsFootnotesNormalizer {
 
 		const footnoteSection = writer.createElement('div', {[ATTRIBUTES.footnoteSection]: ''}, footnoteItems);
 
-		// @ts-ignore DefinitelyTyped mistyping of Range
 		for(const item of [...footnoteSectionRange.getItems()]) {
 			if (item.is('element')) {
 				writer.remove(item);
 			}
 		}
-		if(previousSibling && previousSibling.name === 'hr') {
+		if(previousSibling && previousSibling.is('element') && previousSibling.name === 'hr') {
 			writer.replace(previousSibling, footnoteSection);
 		} else {
 			writer.insertChild(firstFootnoteIndex, footnoteSection, footnoteSectionParent)
 		}
+	}
+
+	/**
+	 * 
+	 * @param {Range} documentRange
+	 * @returns {Object.<string, {item: Element, id: string}>}
+	 */
+	_getFootnoteBackLinks(documentRange) {
+		const idPattern = /^ftnt(\d+)$/;
+		const footnoteBackLinkMatcher = new Matcher({
+			name: 'a',
+			attributes: {
+				id: idPattern,
+			}
+		})
+		return [...documentRange]
+			.filter(({ item, type }) => type === 'elementStart' && footnoteBackLinkMatcher.match(item))
+			.map(({ item }) => (
+				{ 
+					// @ts-ignore: matcher above eliminates the null / undefined cases here.
+					index: item.getAttribute('id').match(idPattern)[1], 
+					item,
+					id: Math.random().toString(36).slice(2),
+				}))
+			.reduce((acc, { index, item, id }) => ({...acc, [index]: { item, id }}), {})
+	}
+
+	/**
+	 * 
+	 * @param {Range} documentRange
+	 * @param {Object.<string, {item: Element, id: string}>} backLinks
+	 * @returns {Object.<string, {item: Element, id: string}>}
+	 */
+	_getFootnoteReferences(documentRange, backLinks) {
+		const idPattern = /^ftnt_ref(\d+)$/;
+		const footnoteReferenceMatcher = new Matcher({
+			name: 'a',
+			attributes: {
+				id: idPattern 
+			}
+		});
+		return [...documentRange]
+		.reduce((acc, { item, type }) => {
+			if (
+				type === 'elementStart' &&
+				item &&
+				footnoteReferenceMatcher.match(item)
+			) {
+				// ensure that a matching footnote exists for this reference
+				// @ts-ignore: matcher above eliminates the null / undefined cases here.
+				const index = item.getAttribute('id').match(idPattern)[1]
+				if(backLinks.hasOwnProperty(index)) {
+					return {...acc, [index]: { item, id: backLinks[index] }};
+				}
+			}
+			return acc;
+		}, {})
 	}
 }
