@@ -34,7 +34,7 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 16
 const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'Shortform', 'Codex', 'bestoflesswrong',
-    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
+    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews', 'highlights'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary'],
