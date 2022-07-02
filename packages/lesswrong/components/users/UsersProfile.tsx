@@ -549,20 +549,17 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Add RSS</span>}
+                    trigger={<span>Register RSS</span>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
               }
-              { isEAForum && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
-                Edit Profile
-              </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { !isEAForum && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton

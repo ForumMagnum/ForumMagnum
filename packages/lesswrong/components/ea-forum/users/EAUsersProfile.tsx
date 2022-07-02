@@ -8,6 +8,7 @@ import { userCanEdit, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFr
 import { userGetEditUrl } from '../../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
+import CalendarIcon from '@material-ui/icons/Today'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
@@ -68,6 +69,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '24px 32px',
     marginBottom: 24
   },
+  sunshineSection: {
+    marginBottom: 24
+  },
+  sectionHeadingRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: 24
+  },
+  sectionHeading: {
+    display: 'inline-block',
+    fontSize: 22,
+    lineHeight: '32px',
+    fontWeight: '700',
+    paddingBottom: 3,
+    borderBottom: `3px solid ${theme.palette.primary.main}`,
+  },
   
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
@@ -88,28 +105,91 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     color: theme.palette.grey[600],
+    fontSize: 12,
     marginTop: 8,
     ...separatorBulletStyles(theme)
   },
   iconsRow: {
     display: 'flex',
+    flexWrap: 'wrap',
     alignItems: 'center',
-    columnGap: 20,
+    columnGap: 24,
+    rowGap: '10px',
     color: theme.palette.grey[600],
     fontSize: 14,
+    lineHeight: '14px',
     marginTop: 10,
   },
   userMetaInfo: {
-    display: "flex"
-  },
-  mapLocation: {
     display: 'flex',
     alignItems: 'center',
-    columnGap: 4,
+    columnGap: 5,
     color: theme.palette.grey[600], // TODO: fix this color
   },
-  locationIcon: {
+  userMetaInfoIcon: {
+    fontSize: 18,
+  },
+  socialMediaIcons: {
+    display: 'flex',
+    columnGap: 10,
+  },
+  socialMediaIcon: {
+    flex: 'none',
+    height: 20,
+    fill: theme.palette.grey[600],
+  },
+  website: {
+    display: 'inline-flex',
+    justifyContent: 'center',
+    color: theme.palette.primary.main,
+    wordBreak: 'break-all',
+    lineHeight: '20px',
+  },
+  websiteIcon: {
+    flex: 'none',
+    height: 20,
+    fill: theme.palette.primary.dark,
+    marginRight: 4
+  },
+  btns: {
+    display: 'flex',
+    columnGap: 10,
+    marginTop: 20,
+  },
+  messageBtn: {
+    display: 'block',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.grey[0],
+    fontFamily: theme.typography.fontFamily,
+    border: theme.palette.border.normal,
+    borderColor: theme.palette.primary.main,
+    borderRadius: 4,
+    padding: '8px 16px',
+  },
+  subscribeBtn: {
+    backgroundColor: theme.palette.grey[0],
+    color: theme.palette.primary.main,
+    fontFamily: theme.typography.fontFamily,
+    border: theme.palette.border.normal,
+    borderColor: theme.palette.primary.main,
+    borderRadius: 4,
+    padding: '8px 16px',
+  },
+  links: {
+    display: "flex",
+    flexWrap: "wrap",
+    color: theme.palette.lwTertiary.main,
+    marginTop: 16,
+    ...separatorBulletStyles(theme)
+  },
+  registerRssLink: {
+    cursor: 'pointer'
+  },
+  helpFieldHeading: {
     fontSize: 16,
+    fontWeight: '700',
+    marginTop: 26,
+    marginBottom: 8
   },
   
   
@@ -150,13 +230,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
-  messageBtn: {
-    boxShadow: 'none',
-    marginLeft: 20,
-    [theme.breakpoints.down('xs')]: {
-      margin: '5px 0 10px'
-    }
-  },
+  // messageBtn: {
+  //   boxShadow: 'none',
+  //   marginLeft: 20,
+  //   [theme.breakpoints.down('xs')]: {
+  //     margin: '5px 0 10px'
+  //   }
+  // },
   
   
   userInfo: {
@@ -183,13 +263,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   actions: {
     marginLeft: 20,
   },
-  bio: {
-    marginTop: theme.spacing.unit*3,
-  },
-  helpFieldHeading: {
-    fontFamily: theme.typography.fontFamily,
-    marginTop: theme.spacing.unit*4,
-  },
+  // helpFieldHeading: {
+  //   fontFamily: theme.typography.fontFamily,
+  //   marginTop: theme.spacing.unit*4,
+  // },
   primaryColor: {
     color: theme.palette.primary.light
   },
@@ -247,24 +324,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   //     display: 'block',
   //   }
   // },
-  currentRole: {
-    lineHeight: '26px',
-    marginBottom: 20
-  },
-  currentRoleSep: {
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    marginRight: 5
-  },
-  jobTitle: {
-    fontWeight: 'bold',
-    color: theme.palette.grey[800],
-    marginRight: 5
-  },
-  organization: {
-    fontWeight: 'bold',
-    color: theme.palette.grey[800],
-  },
+  // currentRole: {
+  //   lineHeight: '26px',
+  //   marginBottom: 20
+  // },
+  // currentRoleSep: {
+  //   fontSize: 14,
+  //   color: theme.palette.grey[600],
+  //   marginRight: 5
+  // },
+  // jobTitle: {
+  //   fontWeight: 'bold',
+  //   color: theme.palette.grey[800],
+  //   marginRight: 5
+  // },
+  // organization: {
+  //   fontWeight: 'bold',
+  //   color: theme.palette.grey[800],
+  // },
   // careerStages: {
   //   marginBottom: 20
   // },
@@ -272,29 +349,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   //   fontSize: 15,
   //   marginBottom: 10
   // },
-  socialMediaIcons: {
-    display: 'flex',
-    columnGap: 14,
-    marginBottom: 20
-  },
-  socialMediaIcon: {
-    flex: 'none',
-    height: 30,
-    fill: theme.palette.grey[700],
-  },
-  website: {
-    display: 'inline-flex',
-    justifyContent: 'center',
-    color: theme.palette.primary.main,
-    wordBreak: 'break-all',
-    marginLeft: 4,
-  },
-  websiteIcon: {
-    flex: 'none',
-    height: 20,
-    fill: theme.palette.primary.dark,
-    marginRight: 6
-  },
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -307,8 +361,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
   slug: string,
   classes: ClassesType,
 }) => {
-  const [showSettings, setShowSettings] = useState(false);
-
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -408,9 +460,9 @@ const EAUsersProfile = ({terms, slug, classes}: {
 
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
-      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
-      SectionButton, SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles } = Components
+      EAUsersProfilePostsSection, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      SectionButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -446,7 +498,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
-    const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
     const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
@@ -461,28 +512,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
 
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
-        
-    // extra profile data that appears on the EA Forum
-    const jobTitle = user.jobTitle && <span className={classes.jobTitle}>{user.jobTitle}</span>
-    const currentRoleSep = user.organization ? <span className={classes.currentRoleSep}>
-      {!jobTitle && 'Works '}at
-    </span> : ''
-    const org = user.organization && <span className={classes.organization}>{user.organization}</span>
-    const currentRole = (jobTitle || org) && <div className={classes.currentRole}>
-      {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
-    </div>
-    const careerStage = user.careerStage?.length ? <div className={classes.careerStages}>
-      {user.careerStage.map(stage => {
-        return <div key={stage} className={classes.careerStage}>
-          {CAREER_STAGES.find(s => s.value === stage)?.label}
-        </div>
-      })}
-    </div> : null
-    // This info is in the righthand sidebar on desktop and moves above the bio on mobile
-    const sidebarInfoUpperNode = <>
-      {currentRole}
-      {careerStage}
-    </>
     
     const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
     const socialMediaIcon = (field) => {
@@ -491,18 +520,52 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
       </a>
     }
-    // This data is in the righthand sidebar on desktop and moves under the bio on mobile
-    const sidebarInfoLowerNode = <>
-      {userHasSocialMedia && <>
-        <div className={classes.socialMediaIcons}>
-          {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
-        </div>
-      </>}
-      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
-        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
-        {user.website}
-      </a>}
-    </>
+    
+    const bioSectionTabs: Array<any> = []
+    if (user.biography || user.howOthersCanHelpMe || user.howICanHelpOthers) {
+      bioSectionTabs.push({
+        name: 'Bio',
+        body: <>
+          {user.htmlBio && <ContentStyles contentType="post">
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: user.htmlBio }}
+              description={`user ${user._id} bio`}
+            />
+          </ContentStyles>}
+          {user.howOthersCanHelpMe && <>
+            <Typography variant="headline" className={classes.helpFieldHeading}>How others can help me</Typography>
+            <ContentStyles contentType="post">
+              <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
+            </ContentStyles>
+          </>}
+          {user.howICanHelpOthers && <>
+            <Typography variant="headline" className={classes.helpFieldHeading}>How I can help others</Typography>
+            <ContentStyles contentType="post">
+              <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
+            </ContentStyles>
+          </>}
+        </>
+      })
+    }
+    if (user.organizerOfGroupIds) {
+      bioSectionTabs.push({
+        name: 'Participation',
+        body: <>
+          <ContentStyles contentType="post">
+            <div className={classes.organizerOfGroups}>
+              {user.organizerOfGroups.map(group => {
+                return <div key={group._id}>
+                  Organizer of <Link to={`/groups/${group._id}`}>
+                    {group.name}
+                  </Link>
+                </div>
+              })}
+            </div>
+          </ContentStyles>
+        </>
+      })
+    }
+
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -512,7 +575,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext="userPage">
-          {/* Bio Section */}
           <SingleColumnSection>
             <div className={classes.section}>
               {user.profileImageId && <Components.CloudinaryImage2
@@ -536,119 +598,85 @@ const EAUsersProfile = ({terms, slug, classes}: {
               <ContentStyles contentType="comment" className={classes.iconsRow}>
                 <Tooltip title={`${userKarma} karma`}>
                   <span className={classes.userMetaInfo}>
-                    <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
-                    <Components.MetaInfo title="Karma">
-                      {userKarma}
-                    </Components.MetaInfo>
+                    <StarIcon className={classes.userMetaInfoIcon} />
+                    {userKarma}
                   </span>
                 </Tooltip>
-                {user.mapLocation && <Link to="/community#individuals" className={classes.mapLocation}>
-                  <LocationIcon className={classes.locationIcon} />
+                {user.mapLocation && <Link to="/community#individuals" className={classes.userMetaInfo}>
+                  <LocationIcon className={classes.userMetaInfoIcon} />
                   {user.mapLocation.formatted_address}
                 </Link>}
+                <span className={classes.userMetaInfo}>
+                  <CalendarIcon className={classes.userMetaInfoIcon} />
+                  <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
+                </span>
+                {userHasSocialMedia && <div className={classes.socialMediaIcons}>
+                  {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
+                </div>}
+                {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
+                  <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
+                  {user.website}
+                </a>}
               </ContentStyles>
-            </div>
-            
-            <div className={classes.nameAndProfileWrapper}>
-              <div className={classes.flexingNameAndMessage}>
-                <div className={classes.usernameTitle}>
-                  <div>{username}</div>
-                  {currentUser?._id != user._id && (
-                    <div className={classes.messageBtnDesktop}>
-                      <NewConversationButton user={user} currentUser={currentUser}>
-                        <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
-                          Message
-                        </Button>
-                      </NewConversationButton>
-                    </div>
-                  )}
-                </div>
-                {currentUser?._id != user._id && (
-                  <div className={classes.messageBtnMobile}>
-                    <NewConversationButton user={user} currentUser={currentUser}>
-                      <Button color="primary" variant="contained" className={classes.messageBtn}>
-                        Message
-                      </Button>
-                    </NewConversationButton>
-                  </div>
-                )}
+              <div className={classes.btns}>
+                {currentUser?._id != user._id && <NewConversationButton
+                  user={user}
+                  currentUser={currentUser}
+                >
+                  <a tabIndex={0} className={classes.messageBtn}>
+                    Message
+                  </a>
+                </NewConversationButton>}
+                {currentUser?._id != user._id && <NotifyMeButton
+                  document={user}
+                  className={classes.subscribeBtn}
+                  subscribeMessage="Subscribe to posts"
+                  unsubscribeMessage="Unsubscribe"
+                  asButton
+                />}
               </div>
+              <Typography variant="body2" className={classes.links}>
+                {currentUser?.isAdmin &&
+                  <div className={classes.registerRssLink}>
+                    <DialogGroup
+                      actions={[]}
+                      trigger={<span>Register RSS</span>}
+                    >
+                      { /*eslint-disable-next-line react/jsx-pascal-case*/ }
+                      <div><Components.newFeedButton user={user} /></div>
+                    </DialogGroup>
+                  </div>
+                }
+                {userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
+                  Edit Profile
+                </Link>}
+                {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
+                  Manage Subscriptions
+                </Link>}
+                {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
+                  Account Settings
+                </Link>}
+              </Typography>
             </div>
-            <Typography variant="body2" className={classes.userInfo}>
-              { renderMeta() }
-              { currentUser?.isAdmin &&
-                <div>
-                  <DialogGroup
-                    actions={[]}
-                    trigger={<span>Add RSS</span>}
-                  >
-                    { /*eslint-disable-next-line react/jsx-pascal-case*/ }
-                    <div><Components.newFeedButton user={user} /></div>
-                  </DialogGroup>
-                </div>
-              }
-              { userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
-                Edit Profile
-              </Link>}
-              { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                Manage Subscriptions
-              </Link>}
-              { currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
-                <a data-cy="message">Message</a>
-              </NewConversationButton>}
-              { <NotifyMeButton
-                document={user}
-                subscribeMessage="Subscribe to posts"
-                unsubscribeMessage="Unsubscribe from posts"
-              /> }
-              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Account Settings
-              </Link>}
-            </Typography>
             
-            <div className={classes.mobileSidebarUpper}>
-              {sidebarInfoUpperNode}
-              {(currentRole || careerStage) && (user.htmlBio || userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
-            </div>
-
-            {user.htmlBio && <ContentStyles contentType="post">
-              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
-            </ContentStyles>}
-            {user.howOthersCanHelpMe && <>
-              <h2 className={classes.helpFieldHeading}>How others can help me</h2>
-              <ContentStyles contentType="post">
-                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
-              </ContentStyles>
-            </>}
-            {user.howICanHelpOthers && <>
-              <h2 className={classes.helpFieldHeading}>How I can help others</h2>
-              <ContentStyles contentType="post">
-                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
-              </ContentStyles>
-            </>}
-            {!!user.organizerOfGroups?.length && <>
-              <h2 className={classes.helpFieldHeading}>Organizer of</h2>
-              <ContentStyles contentType="post">
-                <div className={classes.organizerOfGroups}>
-                  {user.organizerOfGroups.map(group => {
-                    return <div key={group._id}>
-                      <Link to={`/groups/${group._id}`}>
-                        {group.name}
-                      </Link>
-                    </div>
-                  })}
-                </div>
-              </ContentStyles>
-            </>}
+            {userCanDo(currentUser, 'posts.moderate.all') && <div className={classes.sunshineSection}>
+              <SunshineNewUsersProfileInfo userId={user._id} />
+            </div>}
             
-            <div className={classes.mobileSidebarLower}>
-              {sidebarInfoLowerNode}
-            </div>
+            <EAUsersProfileTabbedSection user={user} currentUser={currentUser} tabs={bioSectionTabs} />
+            
+            <EAUsersProfilePostsSection user={user} currentUser={currentUser} query={query} />
+            
+            {!!user.commentCount && <AnalyticsContext pageSectionContext="commentsSection">
+              <div className={classes.section}>
+                <Link to={`${userGetProfileUrl(user)}/replies`} className={classes.sectionHeadingRow}>
+                  <Typography variant="headline" className={classes.sectionHeading}>Comments</Typography>
+                </Link>
+                <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
+              </div>
+            </AnalyticsContext>}
           </SingleColumnSection>
 
-          <SingleColumnSection>
-            <SunshineNewUsersProfileInfo userId={user._id} />
-          </SingleColumnSection>
 
           {/* Sequences Section */}
           { displaySequenceSection(ownPage, user) && <SingleColumnSection>
@@ -678,25 +706,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               showNoResults={false}
             />}
           </SingleColumnSection> }
-          {/* Posts Section */}
-          <SingleColumnSection>
-            <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
-              <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
-              </SectionTitle>
-            </div>
-            {showSettings && <PostsListSettings
-              hidden={false}
-              currentSorting={currentSorting}
-              currentFilter={currentFilter}
-              currentShowLowKarma={currentShowLowKarma}
-              currentIncludeEvents={currentIncludeEvents}
-            />}
-            <AnalyticsContext listContext={"userPagePosts"}>
-              {user.shortformFeedId && <Components.ProfileShortform user={user}/>}
-              <PostsList2 terms={terms} hideAuthor />
-            </AnalyticsContext>
-          </SingleColumnSection>
+
           {/* Groups Section */
             (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
                 view: 'userActiveGroups',
