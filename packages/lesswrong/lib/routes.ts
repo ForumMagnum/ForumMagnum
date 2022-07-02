@@ -15,7 +15,8 @@ const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationali
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
-const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
+const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Highlights from the Sequences" };
+
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
@@ -292,6 +293,13 @@ addRoute(
     name: 'collections',
     path: '/collections/:_id',
     componentName: 'CollectionsSingle'
+  },
+  {
+    name: 'highlights',
+    path: '/highlights',
+    title: "Sequences Highlights",
+    componentName: 'SequencesHighlightsCollection',
+    ...highlightsSubtitle
   },
   {
     name: 'bookmarks',
