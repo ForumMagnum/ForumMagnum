@@ -23,6 +23,7 @@ if (forumTypeSetting.get() === 'EAForum') {
   importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
   importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
+  importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -162,6 +163,7 @@ importComponent("DraftsListSettings", () => require('../components/posts/DraftsL
 importComponent("UsersName", () => require('../components/users/UsersName'));
 importComponent("UsersNameWrapper", () => require('../components/users/UsersNameWrapper'));
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay'));
+importComponent("UsersNamePending", () => require('../components/users/UsersNamePending'));
 importComponent("UsersSingle", () => require('../components/users/UsersSingle'));
 importComponent("UsersEmailVerification", () => require('../components/users/UsersEmailVerification'));
 importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));
@@ -245,7 +247,6 @@ importComponent("CollabEditorPermissionsNotices", () => require('../components/e
 importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
-
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
@@ -258,6 +259,7 @@ importComponent("ElicitBlock", () => require('../components/posts/ElicitBlock'))
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
 importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageTitle'));
+importComponent("PostsCoauthor", () => require('../components/posts/PostsPage/PostsCoauthor'));
 importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));

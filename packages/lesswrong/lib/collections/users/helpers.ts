@@ -465,3 +465,7 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
     return user.commentCount;
   }
 }
+
+export const isMod = (user: UsersProfile|DbUser): boolean => {
+  return user.isAdmin || user.groups?.includes('sunshineRegiment')
+}

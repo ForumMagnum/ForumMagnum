@@ -475,13 +475,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const currentRole = (jobTitle || org) && <div className={classes.currentRole}>
       {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
     </div>
-    const careerStage = user.careerStage?.length && <div className={classes.careerStages}>
+    const careerStage = user.careerStage?.length ? <div className={classes.careerStages}>
       {user.careerStage.map(stage => {
         return <div key={stage} className={classes.careerStage}>
           {CAREER_STAGES.find(s => s.value === stage)?.label}
         </div>
       })}
-    </div>
+    </div> : null
     // This info is in the righthand sidebar on desktop and moves above the bio on mobile
     const sidebarInfoUpperNode = isEAForum && <>
       {currentRole}

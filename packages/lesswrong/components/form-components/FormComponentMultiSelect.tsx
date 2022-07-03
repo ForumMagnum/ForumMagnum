@@ -14,10 +14,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       lineHeight: '1.8rem',
       paddingRight: 30
     },
+  },
+  placeholder: {
+    color: theme.palette.grey[600]
   }
 })
 
-const FormComponentMultiSelect = ({ value, classes, placeholder, separator, options, path }, context) => {
+const FormComponentMultiSelect = ({ value, classes, placeholder, separator, options, path, updateCurrentValues }) => {
   
   return <Select
     className={classes.root}
@@ -26,7 +29,7 @@ const FormComponentMultiSelect = ({ value, classes, placeholder, separator, opti
     onChange={e => {
       // MUI documentation says e.target.value is always an array: https://mui.com/components/selects/#multiple-select
       // @ts-ignore
-      context.updateCurrentValues({
+      updateCurrentValues({
         [path]: e.target.value
       })
     }}
@@ -48,10 +51,6 @@ const FormComponentMultiSelect = ({ value, classes, placeholder, separator, opti
       })}
   </Select>
 }
-
-(FormComponentMultiSelect as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 const FormComponentMultiSelectComponent = registerComponent("FormComponentMultiSelect", FormComponentMultiSelect, {styles});
 

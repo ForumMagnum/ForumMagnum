@@ -460,7 +460,8 @@ export const PostCoauthorRequestNotification = serverRegisterNotificationType({
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    return  `${user.displayName} requested that you co-author their post: ${post.title}`;
+    const name = await postGetAuthorName(post);
+    return `${name} requested that you co-author their post: ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);

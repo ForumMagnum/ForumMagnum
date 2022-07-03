@@ -19,7 +19,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   paddingTop: 12,
   paddingRight: 16,
   width: 500,
-  marginBottom: -4,
+  marginBottom: 20,
   ...theme.typography.commentStyle,
   [theme.breakpoints.down('xs')]: {
     width: "calc(100% - 32px)",
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   input: {
     padding: 0,
     paddingBottom: 2,
-    width: 50,
+    width: 60,
     "-webkit-appearance": "none",
     "-moz-appearance": "textfield"
   }

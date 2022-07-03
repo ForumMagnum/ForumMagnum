@@ -1588,8 +1588,9 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly organization: string,
   readonly careerStage: Array<string>,
   readonly biography: RevisionDisplay|null,
-  readonly howOthersCanHelpMe: UsersProfile_howOthersCanHelpMe|null,
-  readonly howICanHelpOthers: UsersProfile_howICanHelpOthers|null,
+  readonly howOthersCanHelpMe: RevisionEdit|null,
+  readonly howICanHelpOthers: RevisionEdit|null,
+  readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly website: string,
   readonly linkedinProfileURL: string,
@@ -1622,14 +1623,6 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly paymentEmail: string,
   readonly paymentInfo: string,
   readonly goodHeartTokens: number,
-}
-
-interface UsersProfile_howOthersCanHelpMe { // fragment on Revisions
-  readonly html: string,
-}
-
-interface UsersProfile_howICanHelpOthers { // fragment on Revisions
-  readonly html: string,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users

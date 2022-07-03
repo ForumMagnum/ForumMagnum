@@ -13,6 +13,7 @@ import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
+import FormLabel from '@material-ui/core/FormLabel';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -23,6 +24,11 @@ const commentEditorHeightRows = 5;
 export const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     position: 'relative',
+  },
+  label: {
+    display: 'block',
+    fontSize: 10,
+    marginBottom: 6,
   },
   markdownEditor: {
     fontSize: "inherit",
@@ -169,6 +175,7 @@ export interface SerializedEditorContents {
 interface EditorProps {
   ref?: MutableRefObject<Editor|null>,
   currentUser: UsersCurrent|null,
+  label?: string,
   formType: "edit"|"new",
   documentId?: string,
   collectionName: CollectionNameString,
@@ -565,13 +572,14 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   render() {
     const { loading } = this.state
-    const { currentUser, initialEditorType, formType, _classes: classes } = this.props
+    const { currentUser, initialEditorType, formType, label, _classes: classes } = this.props
     const { Loading, ContentStyles } = Components
     const currentEditorType = this.getCurrentEditorType()
     const {className, contentType} = this.getBodyStyles();
 
     return <div>
       <ContentStyles className={classNames(classes.editor, className)} contentType={contentType}>
+        { label && <FormLabel className={classes.label}>{label}</FormLabel> }
         { loading ? <Loading/> : this.renderEditorComponent(this.props.value) }
         { this.renderUpdateTypeSelect() }
       </ContentStyles>
