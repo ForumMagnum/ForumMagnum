@@ -167,9 +167,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
   postId: string,
   linkSharingKey: string,
   initialSharingSettings: SharingSettings,
-  setSharingSettings: (newSettings: SharingSettings)=>void,
   initialShareWithUsers: string[],
-  setShareWithUsers: (newUsers: string[])=>void
   onClose: ()=>void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean)=>void
   classes: ClassesType
@@ -182,12 +180,10 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
   
   const updateSharingSettings = (newSettings: SharingSettings) => {
     setSharingSettingsState(newSettings);
-    //setSharingSettings(newSettings);
     setIsChanged(true);
   };
   const updateSharedUsers = (newSharedUsers: string[]) => {
     setShareWithUsersState(newSharedUsers);
-    //setShareWithUsers(newSharedUsers);
     setIsChanged(true);
   };
   
