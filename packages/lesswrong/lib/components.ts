@@ -557,6 +557,7 @@ importComponent("BooksEditForm", () => require('../components/sequences/BooksEdi
 importComponent("BooksItem", () => require('../components/sequences/BooksItem'));
 importComponent("CoreReading", () => require('../components/sequences/CoreReading'));
 importComponent("CollectionsCardContainer", () => require('../components/collections/CollectionsCardContainer'));
+importComponent("SequencesHighlightsCollection", () => require('../components/sequences/SequencesHighlightsCollection'));
 importComponent("CollectionsCard", () => require('../components/collections/CollectionsCard'));
 importComponent("BigCollectionsCard", () => require('../components/collections/BigCollectionsCard'));
 importComponent("CoreSequences", () => require('../components/sequences/CoreSequences'));
