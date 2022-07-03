@@ -114,7 +114,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
         </div>
       </div>
       {author.biography?.html && <ContentStyles contentType="comment" className={classes.bio}>
-        <div dangerouslySetInnerHTML={{__html: truncate(author.biography.html, 340)}} />
+        <div dangerouslySetInnerHTML={{__html: truncate(author.biography.html, 100, 'words')}} />
       </ContentStyles>}
     </div>
   </AnalyticsContext>
