@@ -7,27 +7,50 @@ const styles = (theme: ThemeType): JssStyles => ({
   section: {
     background: theme.palette.grey[0],
     padding: '24px 32px',
-    marginBottom: 24
+    marginBottom: 24,
+    [theme.breakpoints.down('xs')]: {
+      padding: 16,
+    }
   },
   tabsRow: {
     display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
     columnGap: 30,
-    marginBottom: 24
+    rowGap: '10px',
+    marginBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      columnGap: 24,
+    }
   },
   tab: {
-    display: 'inline-block',
-    fontSize: 22,
-    lineHeight: '32px',
+    display: 'flex',
+    columnGap: 10,
+    fontSize: 20,
+    lineHeight: '30px',
     fontWeight: '700',
     paddingBottom: 3,
     borderBottom: `3px solid transparent`,
     cursor: 'pointer',
     '&:hover': {
       opacity: 0.5
+    },
+    [theme.breakpoints.down('xs')]: {
+      columnGap: 8,
+      fontSize: 18,
+      lineHeight: '28px',
     }
   },
   activeTab: {
     borderBottom: `3px solid ${theme.palette.primary.main}`,
+  },
+  tabCount: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: theme.palette.grey[600],
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 12,
+    }
   },
   tabRowAction: {
     flex: '1 1 0',
@@ -42,10 +65,12 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
   tabs: Array<any>,
   classes: ClassesType,
 }) => {
-  const [activeTab, setActiveTab] = useState(tabs[0].name)
+  const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
   const ownPage = currentUser?._id === user._id
 
   const { Typography } = Components
+  
+  if (!tabs.length) return null
 
   return (
     <div className={classes.section}>
@@ -54,16 +79,18 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
           if (tab.ownPageOnly && !ownPage) return null
           
           return <Typography
-            key={tab.name}
+            key={tab.id}
             variant="headline"
-            onClick={() => setActiveTab(tab.name)}
-            className={classNames(classes.tab, {[classes.activeTab]: activeTab === tab.name})}
+            onClick={() => setActiveTab(tab)}
+            className={classNames(classes.tab, {[classes.activeTab]: activeTab.id === tab.id})}
           >
-            {tab.name}
+            {tab.label}
+            {tab.count && <div className={classes.tabCount}>{tab.count}</div>}
           </Typography>
         })}
-        {/* <div className={classes.tabRowAction}>
-          {tab === 'posts' && <SettingsButton
+        <div className={classes.tabRowAction}>
+          {activeTab.secondaryNode}
+          {/* {tab === 'posts' && <SettingsButton
             onClick={() => setShowSettings(!showSettings)}
             label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}
           />}
@@ -71,10 +98,10 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
             <SectionButton>
               <DescriptionIcon /> New Post
             </SectionButton>
-          </Link>}
-        </div> */}
+          </Link>} */}
+        </div>
       </div>
-      {tabs.find((t => t.name === activeTab)).body}
+      {activeTab.body}
     </div>
   )
 }

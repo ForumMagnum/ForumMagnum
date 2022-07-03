@@ -72,7 +72,9 @@ const EAUsersProfilePostsSection = ({user, currentUser, query, classes}: {
   
   const tabs = [
     {
-      name: 'Posts',
+      id: 'posts',
+      label: 'Posts',
+      count: user.postCount,
       body: <>
         <SettingsButton
           onClick={() => setShowSettings(!showSettings)}
@@ -92,7 +94,8 @@ const EAUsersProfilePostsSection = ({user, currentUser, query, classes}: {
       </>
     },
     {
-      name: 'My Drafts',
+      id: 'drafts',
+      label: 'My Drafts',
       ownPageOnly: true,
       body: <>
         <AnalyticsContext listContext="userPageDrafts">
