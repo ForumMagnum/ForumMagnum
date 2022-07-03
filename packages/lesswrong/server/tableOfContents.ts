@@ -180,15 +180,40 @@ function tagIsHeadingIfWholeParagraph(tagName: string): boolean
   return tagName.toLowerCase() in headingIfWholeParagraph;
 }
 
-function tagIsWholeParagraph(tag): boolean {
-  if (!tag) return false;
-  let parents = cheerio(tag).parent();
-  if (!parents || !parents.length) return false;
-  let parent = parents[0];
-  if (parent.type !== 'tag') return false;
-  if (parent.tagName.toLowerCase() !== 'p') return false;
-  let selfAndSiblings = cheerio(parent).contents();
-  if (selfAndSiblings.length != 1) return false;
+const tagIsAlien = (baseTag: cheerio.TagElement, potentialAlienTag: cheerio.Element): boolean => {
+  switch (potentialAlienTag.type) {
+    case 'tag':
+      return baseTag.name !== potentialAlienTag.name;
+    case 'text':
+      return (potentialAlienTag.data?.trim().length ?? 0) > 0;
+    default:
+      return true;
+  }
+}
+
+const tagIsWholeParagraph = (tag?: cheerio.TagElement): boolean => {
+  if (!tag) {
+    return false;
+  }
+
+  // Ensure the tag's parent is valid
+  const parents = cheerio(tag).parent();
+  if (!parents || !parents.length || parents[0].type !== 'tag') {
+    return false;
+  }
+
+  // Ensure that all of the tag's siblings are of the same type as the tag
+  const selfAndSiblings = cheerio(parents[0]).contents();
+  if (selfAndSiblings.toArray().find((elem) => tagIsAlien(tag, elem))) {
+    return false;
+  }
+
+  // Ensure that the tag is inside a 'p' element and that all the text in that 'p' is in tags of
+  // the same type as our base tag
+  const para = cheerio(tag).closest('p');
+  if (!para || para.text().trim() !== para.find(tag.name).text().trim()) {
+    return false;
+  }
 
   return true;
 }
