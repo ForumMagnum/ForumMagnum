@@ -155,6 +155,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
+    hidden: (props) => props.eventForm,
   },
   // Title
   title: {
