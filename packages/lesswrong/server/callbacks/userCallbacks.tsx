@@ -336,6 +336,7 @@ getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: Db
 });
 
 const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
+const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
 
 async function sendWelcomeMessageTo(userId: string) {
   const postId = welcomeEmailPostId.get();
@@ -354,7 +355,13 @@ async function sendWelcomeMessageTo(userId: string) {
   const user = await Users.findOne(userId);
   if (!user) throw new Error(`Could not find ${userId}`);
   
-  const adminsAccount = await getAdminTeamAccount();
+  // try to use forumTeamUserId as the sender,
+  // and default to the admin account if not found
+  const adminUserId = forumTeamUserId.get()
+  let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
+  if (!adminsAccount) {
+    adminsAccount = await getAdminTeamAccount()
+  }
   
   const subjectLine = welcomePost.title;
   const welcomeMessageBody = welcomePost.contents.html;
@@ -388,9 +395,13 @@ async function sendWelcomeMessageTo(userId: string) {
     validate: false
   })
   
-  await wrapAndSendEmail({
-    user,
-    subject: subjectLine,
-    body: <Components.EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
-  });
+  // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
+  // so we're not sending the email notification for this welcome PM
+  if (forumTypeSetting.get() !== 'EAForum') {
+    await wrapAndSendEmail({
+      user,
+      subject: subjectLine,
+      body: <Components.EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+    })
+  }
 }
