@@ -419,18 +419,23 @@ const EAUsersProfile = ({terms, slug, classes}: {
           />
         </ContentStyles>}
         {user.howOthersCanHelpMe && <>
-          <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
+          <div className={classes.sectionSubHeadingRow}>
+            <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
+          </div>
           <ContentStyles contentType="post">
             <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
           </ContentStyles>
         </>}
         {user.howICanHelpOthers && <>
-          <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
+          <div className={classes.sectionSubHeadingRow}>
+            <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
+          </div>
           <ContentStyles contentType="post">
             <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
           </ContentStyles>
         </>}
-      </>
+      </>,
+      collapsable: true
     })
   }
   if (user.organizerOfGroupIds) {

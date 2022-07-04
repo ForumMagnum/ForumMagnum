@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import Button from '@material-ui/core/Button';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -56,6 +57,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: '1 1 0',
     textAlign: 'right'
   },
+  collapsableTabBody: {
+    position: 'relative'
+  },
+  collapsedTabBody: {
+    maxHeight: 200,
+    overflow: 'hidden',
+    '&::after': {
+      position: 'absolute',
+      bottom: 0,
+      width: '100%',
+      height: 50,
+      content: "''",
+      background: `linear-gradient(to top, ${theme.palette.grey[0]}, transparent)`,
+    }
+  },
+  toggleCollapsedBtn: {
+    marginTop: 20
+  }
 
 })
 
@@ -66,11 +85,29 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
   classes: ClassesType,
 }) => {
   const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
+  const [collapsed, setCollapsed] = useState(true)
   const ownPage = currentUser?._id === user._id
 
   const { Typography } = Components
   
   if (!tabs.length) return null
+  
+  let tabBody = activeTab.body
+  if (activeTab.collapsable) {
+    tabBody = <>
+      <div onClick={() => setCollapsed(false)} className={classNames(classes.collapsableTabBody, {[classes.collapsedTabBody]: collapsed})}>
+        {activeTab.body}
+      </div>
+      {collapsed ?
+        <Button variant="outlined" color="primary" className={classes.toggleCollapsedBtn} onClick={() => setCollapsed(false)}>
+          Show more
+        </Button> :
+        <Button variant="outlined" color="primary" className={classes.toggleCollapsedBtn} onClick={() => setCollapsed(true)}>
+          Show less
+        </Button>
+      }
+    </>
+  }
 
   return (
     <div className={classes.section}>
@@ -90,18 +127,9 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
         })}
         <div className={classes.tabRowAction}>
           {activeTab.secondaryNode}
-          {/* {tab === 'posts' && <SettingsButton
-            onClick={() => setShowSettings(!showSettings)}
-            label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}
-          />}
-          {tab === 'drafts' && <Link to="/newPost">
-            <SectionButton>
-              <DescriptionIcon /> New Post
-            </SectionButton>
-          </Link>} */}
         </div>
       </div>
-      {activeTab.body}
+      {tabBody}
     </div>
   )
 }
