@@ -458,25 +458,31 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
 
-getCollectionHooks("Posts").newAsync.add(async function CoauthorRequestNotifications(post: DbPost) {
-  const { _id, coauthorStatuses = [], hasCoauthorPermission } = post;
+getCollectionHooks("Posts").newAsync.add(async function CreateCoauthorRequestNotifications(post: DbPost) {
+  await sendCoauthorRequestNotifications(post);
+});
 
-  if (hasCoauthorPermission) {
-    return;
+getCollectionHooks("Posts").updateAfter.add(function UpdateCoauthorRequestNotifications(post: DbPost) {
+  return sendCoauthorRequestNotifications(post);
+});
+
+const sendCoauthorRequestNotifications = async (post: DbPost) => {
+  const { _id, coauthorStatuses, hasCoauthorPermission } = post;
+
+  if (hasCoauthorPermission === false && coauthorStatuses?.length) {
+    await createNotifications({
+      userIds: coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId),
+      notificationType: "coauthorRequestNotification",
+      documentType: "post",
+      documentId: _id,
+    });
+
+    post.coauthorStatuses = coauthorStatuses.map((status) => ({ ...status, requested: true }));
+    await Posts.rawUpdateOne({ _id }, { $set: { coauthorStatuses: post.coauthorStatuses } });
   }
 
-  const userIds = coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId);
-  await createNotifications({userIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
-
-  await updateMutator({
-    collection: Posts,
-    documentId: _id,
-    data: {
-      coauthorStatuses: coauthorStatuses.map((status) => ({ ...status, requested: true })),
-    },
-    validate: false,
-  })
-});
+  return post;
+}
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
   const newlyAF = newDocument.af && !oldDocument.af
