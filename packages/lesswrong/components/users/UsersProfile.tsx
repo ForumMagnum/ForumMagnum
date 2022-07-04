@@ -1,6 +1,6 @@
 import { combineUrls, Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -24,7 +24,6 @@ import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
@@ -295,28 +294,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const user = getUserFromResults(results)
   
   const { query } = useLocation()
-  // track profile views in local storage
-  useEffect(() => {
-    const ls = getBrowserLocalStorage()
-    // currently only used on the EA Forum
-    if (forumTypeSetting.get() === 'EAForum' && currentUser && user && currentUser._id !== user._id && ls) {
-      let from = query.from
-      let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
-      // if the profile user is already in the list, then remove them before re-adding them at the end
-      const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
-      if (profiles && profileUserIndex !== -1) {
-        // remember where we originally saw this profile, if necessary
-        from = from || profiles[profileUserIndex].from
-        profiles.splice(profileUserIndex, 1)
-      }
-      
-      profiles.push({userId: user._id, ...(from && {from})})
-      // we only bother to save the last 10 profiles
-      if (profiles.length > 10) profiles.shift()
-      // save it in local storage
-      ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
-    }
-  }, [currentUser, user, query.from])
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -428,14 +405,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
         return <Components.Error404/>
       }
     }
-    
-    // on the EA Forum, the user's location links to the Community map
-    let mapLocationNode = (user.mapLocation && isEAForum) ? <div>
-      <Link to="/community#individuals" className={classes.mapLocation}>
-        <LocationIcon className={classes.locationIcon} />
-        {user.mapLocation.formatted_address}
-      </Link>
-    </div> : null
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
@@ -531,7 +500,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
                     </div>
                   )}
                 </div>
-                {mapLocationNode}
                 {isEAForum && currentUser?._id != user._id && (
                   <div className={classes.messageBtnMobile}>
                     <NewConversationButton user={user} currentUser={currentUser}>

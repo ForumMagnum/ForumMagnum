@@ -11,6 +11,8 @@ import StarIcon from '@material-ui/icons/Star'
 import CalendarIcon from '@material-ui/icons/Today'
 import LocationIcon from '@material-ui/icons/LocationOn'
 import InfoIcon from '@material-ui/icons/Info'
+import DescriptionIcon from '@material-ui/icons/Description'
+import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import classNames from 'classnames';
 import { useCurrentUser } from '../../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -67,6 +69,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       fontSize: 12,
     }
+  },
+  sectionSubHeadingRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: 26,
+    marginBottom: 8
+  },
+  sectionSubHeading: {
+    fontSize: 16,
+    fontWeight: '700',
   },
   inactiveGroup: {
     // fontSize: 12,
@@ -180,11 +192,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     color: theme.palette.grey[500],
   },
-  helpFieldHeading: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 26,
-    marginBottom: 8
+  privateActionsRow: {
+    display: 'flex',
+    columnGap: 26,
+    alignItems: 'baseline',
+    marginBottom: 20
   },
   
   
@@ -198,10 +210,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   actions: {
     marginLeft: 20,
   },
-  // helpFieldHeading: {
-  //   fontFamily: theme.typography.fontFamily,
-  //   marginTop: theme.spacing.unit*4,
-  // },
 
   
   reportUserSection: {
@@ -276,10 +284,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
     flash({messageString: "Your report has been sent to the moderators"})
   }
 
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LWTooltip,
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, LWTooltip,
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-    Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore, RecentComments } = Components
+    Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
+    RecentComments, SectionButton, SequencesGridWrapper } = Components
 
   if (loading) {
     return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -316,8 +325,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
   const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
-  const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
-  const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
   // maintain backward compatibility with bookmarks
   const currentSorting = query.sortedBy || query.view ||  "new"
@@ -353,9 +360,26 @@ const EAUsersProfile = ({terms, slug, classes}: {
     </LWTooltip>,
     body: <>
       <AnalyticsContext listContext="userPageDrafts">
+        <div className={classes.sectionSubHeadingRow}>
+          <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
+          <Link to="/newPost">
+            <SectionButton>
+              <DescriptionIcon /> New Post
+            </SectionButton>
+          </Link>
+        </div>
         <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
       </AnalyticsContext>
+      <div className={classes.sectionSubHeadingRow}>
+        <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
+        <Link to="/sequencesnew">
+          <SectionButton>
+            <LibraryAddIcon /> New Sequence
+          </SectionButton>
+        </Link>
+      </div>
+      <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 9}} showLoadMore={true} />
     </>
   }]
   if (userOrganizesGroups?.length) {
@@ -395,13 +419,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
           />
         </ContentStyles>}
         {user.howOthersCanHelpMe && <>
-          <Typography variant="headline" className={classes.helpFieldHeading}>How others can help me</Typography>
+          <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
           <ContentStyles contentType="post">
             <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
           </ContentStyles>
         </>}
         {user.howICanHelpOthers && <>
-          <Typography variant="headline" className={classes.helpFieldHeading}>How I can help others</Typography>
+          <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
           <ContentStyles contentType="post">
             <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
           </ContentStyles>
@@ -442,9 +466,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       id: 'sequences',
       label: 'Sequences',
       count: user.sequenceCount,
-      body: <Components.SequencesGridWrapper
-        terms={ownPage ? sequenceAllTerms : sequenceTerms}
-        showLoadMore={true} />
+      body: <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
     })
   }
   if (user.tagRevisionCount) {
@@ -593,17 +615,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
             </div>
           </AnalyticsContext>} */}
         </SingleColumnSection>
-
-
-        {/* Sequences Section */}
-        {/* { displaySequenceSection(ownPage, user) && <SingleColumnSection>
-          <SectionTitle title="Sequences">
-            {ownPage && <SequencesNewButton />}
-          </SectionTitle>
-          <Components.SequencesGridWrapper
-              terms={ownPage ? sequenceAllTerms : sequenceTerms}
-              showLoadMore={true}/>
-        </SingleColumnSection> } */}
 
         {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
           <SingleColumnSection className={classes.reportUserSection}>
