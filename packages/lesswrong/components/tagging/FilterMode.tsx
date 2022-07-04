@@ -127,7 +127,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     </span>
   </span>
 
-  const otherValue = isCustomFilterMode(mode) ? (mode || "") : "";
+  const otherValue = isCustomFilterMode(currentUser, mode) ? (mode || "") : "";
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?

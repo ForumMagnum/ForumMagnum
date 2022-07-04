@@ -6,6 +6,7 @@ import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
 import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
+import { userHasNewTagSubscriptions } from './betas';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -22,8 +23,14 @@ export const FILTER_MODE_CHOICES = [
 ] as const;
 export type FilterMode = typeof FILTER_MODE_CHOICES[number]|"TagDefault"|number
 
-const STANDARD_FILTER_MODES: (string|number)[] = [...FILTER_MODE_CHOICES, -25, 0, 25];
-export const isCustomFilterMode = (mode: string|number) => !STANDARD_FILTER_MODES.includes(mode);
+const STANDARD_FILTER_MODES: (string|number)[] = [...FILTER_MODE_CHOICES, 0, 0.5, 25];
+const OLD_FILTER_MODES: (string|number)[] = [-25, -10, 10];
+export const isCustomFilterMode = (user: UsersCurrent|DbUser|null, mode: string|number) => {
+  if (!userHasNewTagSubscriptions(user) && OLD_FILTER_MODES.includes(mode)) {
+    return false;
+  }
+  return !STANDARD_FILTER_MODES.includes(mode);
+}
 
 export const getDefaultFilterSettings = (): FilterSettings => {
   return {

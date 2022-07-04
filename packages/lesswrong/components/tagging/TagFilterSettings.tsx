@@ -118,7 +118,7 @@ const TagFilterSettings = ({
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
-          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(mode) ? 0 : mode
+          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(currentUser, mode) ? 0 : mode
           setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
         }}
         onRemove={() => {
