@@ -22,6 +22,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   author: {
     color: theme.palette.text.dim
+  },
+  wordcount: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[500],
+    marginTop: 16,
+    fontSize: "1rem"
   }
 });
 
@@ -42,6 +48,10 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     fragmentName: 'ChaptersFragment',
     enableTotal: false,
   });
+
+  let posts : PostsList[] = []
+  chapters?.forEach(chapter => chapter.posts?.forEach(post => posts.push(post)))
+  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
   
   return <Card className={classes.root}>
     {!sequence && <Loading/>}
@@ -62,14 +72,13 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
       />
     </ContentStyles>
     {!chapters && loading && <Loading />}
-    {chapters?.map((chapter) => <span key={chapter._id}>
-      {chapter.posts?.map(post => 
+    {posts.map(post => 
         <SequencesSmallPostLink 
-          key={chapter._id + post._id} 
+          key={sequence?._id + post._id} 
           post={post}
         />
       )}
-     </span>)}
+    {chapters && <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read ({totalWordcount.toLocaleString("en-US")} words)</div>}
   </Card>;
 }
 
