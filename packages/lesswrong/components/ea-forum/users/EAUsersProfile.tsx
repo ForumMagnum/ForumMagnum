@@ -242,7 +242,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     fragmentName: 'SunshineUsersList',
   })
 
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUser()
   
   const {loading, results} = useMulti({
     terms,
@@ -276,6 +276,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }, [currentUser, user, query.from])
   
   const [showSettings, setShowSettings] = useState(false)
+  
+  const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
+    terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
+    collectionName: "Localgroups",
+    fragmentName: 'localGroupsHomeFragment',
+    enableTotal: false,
+  })
 
   const { flash } = useMessages()
   const reportUser = async () => {
@@ -345,13 +352,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
     </a>
   }
   
-  const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
-    terms: {view: 'userOrganizesGroups', userId: user._id, limit: 300},
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
-    enableTotal: false,
-  })
-  
   const privateSectionTabs: Array<any> = [{
     id: 'drafts',
     label: 'My Drafts',
@@ -362,22 +362,22 @@ const EAUsersProfile = ({terms, slug, classes}: {
       <AnalyticsContext listContext="userPageDrafts">
         <div className={classes.sectionSubHeadingRow}>
           <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
-          <Link to="/newPost">
+          {ownPage && <Link to="/newPost">
             <SectionButton>
               <DescriptionIcon /> New Post
             </SectionButton>
-          </Link>
+          </Link>}
         </div>
         <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
       </AnalyticsContext>
       <div className={classes.sectionSubHeadingRow}>
         <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
-        <Link to="/sequencesnew">
+        {ownPage && <Link to="/sequencesnew">
           <SectionButton>
             <LibraryAddIcon /> New Sequence
           </SectionButton>
-        </Link>
+        </Link>}
       </div>
       <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 9}} showLoadMore={true} />
     </>
