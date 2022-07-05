@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import Chapters from '../../lib/collections/chapters/collection';
-import { each, reduce } from 'lodash';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -47,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   description: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    marginBottom: 16
+    marginBottom: 12
   },
   author: {
     ...theme.typography.body2,
@@ -137,7 +134,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
   showAuthor?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip } = Components
   
   const [expanded, setExpanded] = useState<boolean>(false)
 
@@ -181,14 +178,16 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
               description={`sequence ${sequence._id}`}
             />
           </ContentStyles>}
-          <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read ({totalWordcount.toLocaleString("en-US")} words)</div>
+          <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
+            <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+          </LWTooltip>
         </div>
       </div>
       <div className={classes.right}>
         {posts.map(post => <SequencesSmallPostLink 
-                                          key={sequence._id + post._id} 
-                                          post={post}
-                                        />
+                              key={sequence._id + post._id} 
+                              post={post}
+                            />
             )}
       </div>
     </div>

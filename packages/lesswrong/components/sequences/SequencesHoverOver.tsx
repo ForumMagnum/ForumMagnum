@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   wordcount: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[500],
-    marginTop: 16,
+    marginTop: 12,
     fontSize: "1rem"
   }
 });
@@ -36,7 +36,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
 }) => {
-  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName } = Components
+  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
 
   const { results: chapters, loading } = useMulti({
     terms: {
@@ -78,7 +78,9 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
           post={post}
         />
       )}
-    {chapters && <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read ({totalWordcount.toLocaleString("en-US")} words)</div>}
+    <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
+      <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+    </LWTooltip>
   </Card>;
 }
 
