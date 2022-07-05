@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
 
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative'
   },
   collapsedTabBody: {
-    maxHeight: 200,
+    maxHeight: 300,
     overflow: 'hidden',
     '&::after': {
       position: 'absolute',
@@ -86,7 +86,19 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
 }) => {
   const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
   const [collapsed, setCollapsed] = useState(true)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const [meritsCollapse, setMeritsCollapse] = useState(() => ( 
+    (bodyRef.current?.offsetHeight || 0) >= 300
+   ))
   const ownPage = currentUser?._id === user._id
+
+  const observer = new ResizeObserver(element => {
+    setMeritsCollapse(element.offsetHeight >= 300);
+  })
+
+  useEffect(() => {
+    bodyRef.current && observer.observe(bodyRef.current)
+  }, [bodyRef])
 
   const { Typography } = Components
   
@@ -95,16 +107,16 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
   let tabBody = activeTab.body
   if (activeTab.collapsable) {
     tabBody = <>
-      <div onClick={() => setCollapsed(false)} className={classNames(classes.collapsableTabBody, {[classes.collapsedTabBody]: collapsed})}>
+      <div onClick={() => setCollapsed(false)} className={classNames(classes.collapsableTabBody, {[classes.collapsedTabBody]: collapsed && meritsCollapse})} ref={bodyRef}>
         {activeTab.body}
       </div>
-      {collapsed ?
+      {meritsCollapse && (collapsed ?
         <Button variant="outlined" color="primary" className={classes.toggleCollapsedBtn} onClick={() => setCollapsed(false)}>
           Show more
         </Button> :
         <Button variant="outlined" color="primary" className={classes.toggleCollapsedBtn} onClick={() => setCollapsed(true)}>
           Show less
-        </Button>
+        </Button>)
       }
     </>
   }
