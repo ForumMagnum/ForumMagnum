@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
 
+const COLLAPSED_SECTION_HEIGHT = 200
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -61,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative'
   },
   collapsedTabBody: {
-    maxHeight: 300,
+    maxHeight: COLLAPSED_SECTION_HEIGHT,
     overflow: 'hidden',
     '&::after': {
       position: 'absolute',
@@ -85,20 +86,26 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
   classes: ClassesType,
 }) => {
   const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
-  const [collapsed, setCollapsed] = useState(true)
-  const bodyRef = useRef<HTMLDivElement>(null)
-  const [meritsCollapse, setMeritsCollapse] = useState(() => ( 
-    (bodyRef.current?.offsetHeight || 0) >= 300
-   ))
   const ownPage = currentUser?._id === user._id
-
-  const observer = new ResizeObserver(element => {
-    setMeritsCollapse(element.offsetHeight >= 300);
-  })
-
+  
+  // handle the case when we want a collapsable tab body
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const resizeObserver = useRef<ResizeObserver|null>(null)
+  // this tracks whether the contents of the tab actually overflow
+  const [meritsCollapse, setMeritsCollapse] = useState(false)
+  // this tracks whether the tab body is collapsed or expanded
+  const [collapsed, setCollapsed] = useState(true)
+  
   useEffect(() => {
-    bodyRef.current && observer.observe(bodyRef.current)
-  }, [bodyRef])
+    if (bodyRef.current) {
+      // show/hide the collapse-related buttons depending on whether or not the content all fits
+      resizeObserver.current = new ResizeObserver(elements => {
+        setMeritsCollapse(elements[0].contentRect.height >= COLLAPSED_SECTION_HEIGHT)
+      })
+      resizeObserver.current.observe(bodyRef.current)
+    }
+    return () => resizeObserver.current?.disconnect()
+  }, [bodyRef, activeTab])
 
   const { Typography } = Components
   
@@ -107,7 +114,7 @@ const EAUsersProfileTabbedSection = ({user, currentUser, tabs, classes}: {
   let tabBody = activeTab.body
   if (activeTab.collapsable) {
     tabBody = <>
-      <div onClick={() => setCollapsed(false)} className={classNames(classes.collapsableTabBody, {[classes.collapsedTabBody]: collapsed && meritsCollapse})} ref={bodyRef}>
+      <div className={classNames(classes.collapsableTabBody, {[classes.collapsedTabBody]: collapsed && meritsCollapse})} ref={bodyRef}>
         {activeTab.body}
       </div>
       {meritsCollapse && (collapsed ?
