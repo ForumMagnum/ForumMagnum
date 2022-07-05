@@ -6,7 +6,6 @@ import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
-import { annotateAuthors } from '../attributeEdits';
 import { toDictionary } from '../../lib/utils/toDictionary';
 import { extractTableOfContents } from "../tableOfContents";
 import moment from 'moment';
@@ -289,12 +288,4 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   }
   
   return contributionStats;
-}
-
-export async function updateDenormalizedHtmlAttributions(tag: DbTag) {
-  const html = await annotateAuthors(tag._id, "Tags", "description");
-  await Tags.rawUpdateOne({_id: tag._id}, {$set: {
-    htmlWithContributorAnnotations: html,
-  }});
-  return html;
 }

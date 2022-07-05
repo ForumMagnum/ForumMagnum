@@ -8,7 +8,7 @@ import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
-import { updateDenormalizedHtmlAttributions } from './resolvers/tagResolvers';
+import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 
 export interface ToCAnswer {
