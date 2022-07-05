@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Ref } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
@@ -17,6 +17,7 @@ import * as _ from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import FormLabel from '@material-ui/core/FormLabel';
+import { markdownToHtmlSimple } from '../../lib/editor/utils';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -164,7 +165,9 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   placeholder: string,
   label: string,
   commentStyles: boolean,
-  collectionName: string
+  collectionName: string,
+  addToSubmitForm?: Function,
+  addToSuccessForm?: Function,
 }
 interface EditorFormComponentState {
   editorOverride: any,
@@ -177,7 +180,7 @@ interface EditorFormComponentState {
   ckEditorValue: any,
   markdownValue: any,
   htmlValue: any,
-  markdownImgErrs: boolean
+  markdownImgErrs: boolean,
 }
 
 class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormComponentState> {
@@ -199,7 +202,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       ckEditorReference: null,
       loading: true,
       ...this.getEditorStatesFromType(editorType),
-      markdownImgErrs: false
+      markdownImgErrs: false,
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
@@ -211,9 +214,14 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   async componentDidMount() {
     const { form } = this.props
 
-    this.context.addToSubmitForm(this.submitData);
+    this.context.addToSubmitForm && this.context.addToSubmitForm(this.submitData);
+    this.context.addToSuccessForm && this.context.addToSuccessForm((result) => {
+      this.resetEditor();
+      return result;
+    });
 
-    this.context.addToSuccessForm((result) => {
+    this.props.addToSubmitForm && this.props.addToSubmitForm(this.submitData)
+    this.props.addToSuccessForm && this.props.addToSuccessForm((result) => {
       this.resetEditor();
       return result;
     });
@@ -238,6 +246,16 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       this.restoreFromLocalStorage();
       this.setState({loading: false})
     }
+  }
+  
+  setEditorValue(newValue: string) {
+    const html = markdownToHtmlSimple(newValue)
+    this.setState({
+      markdownValue: newValue,
+      htmlValue: html,
+      ckEditorValue: html
+    })
+    this.state.ckEditorReference?.setData(html)
   }
 
   getEditorStatesFromType = (editorType: string, contents?: any) => {
@@ -382,7 +400,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-        if (!this.isDocumentCollaborative()) {
+        if (!this.isDocumentCollaborative() && this.context.addToSuccessForm) {
           this.context.addToSuccessForm((s) => {
             this.state.ckEditorReference.setData('')
           })
@@ -400,7 +418,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
       [fieldName]: data ? {
         originalContents: {type, data},
         commitMessage, updateType,
-      } : undefined
+      } : null
     }
   }
 

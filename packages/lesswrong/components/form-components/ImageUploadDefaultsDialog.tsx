@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   onSelect: Function,
-  onClose: ()=>void,
+  onClose?: ()=>void,
   classes: ClassesType,
   type?: string
 }) => {
@@ -32,7 +32,8 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   
   const selectImg = (img) => {
     onSelect(img)
-    onClose()
+    if (onClose)
+      onClose();
   }
   
   // these are EA Forum-specific

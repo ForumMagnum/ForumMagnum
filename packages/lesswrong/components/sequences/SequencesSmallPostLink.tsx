@@ -40,7 +40,7 @@ const SequencesSmallPostLink = ({classes, post}: {
 
   const icon = !!post.lastVisitedAt ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
-  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post}/>} placement="left-start" inlineBlock={false}>
+  return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false}>
         <Link to={postGetPageUrl(post)} className={classes.title}>
           {icon} {post.title}
         </Link>
