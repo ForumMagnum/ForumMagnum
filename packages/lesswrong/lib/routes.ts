@@ -668,7 +668,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
-    }
+    },
+    {
+      name: 'IntroCurriculum',
+      path: '/curriculum',
+      componentName: 'EAIntroCurriculum',
+      title: 'Intro Curriculum',
+    },
   ],
   LessWrong: [
     {
