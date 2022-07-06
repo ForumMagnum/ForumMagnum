@@ -57,7 +57,7 @@ const AllTagsPage = ({classes}: {
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
-  const { tag } = useTagBySlug("portal", "TagFragment");
+  const { tag } = useTagBySlug("portal", "TagWithTocFragment");
   const [ editing, setEditing ] = useState(false)
 
   const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles } = Components;
@@ -106,7 +106,7 @@ const AllTagsPage = ({classes}: {
                 <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
                 :
                 <ContentItemBody
-                  dangerouslySetInnerHTML={{__html: tag?.description?.html || ""}}
+                  dangerouslySetInnerHTML={{__html: tag?.descriptionHtmlWithToc || ""}}
                   description={`tag ${tag?.name}`} noHoverPreviewPrefetch
                 />
               }
