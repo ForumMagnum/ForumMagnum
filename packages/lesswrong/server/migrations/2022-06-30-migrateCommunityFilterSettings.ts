@@ -37,7 +37,7 @@ registerMigration({
           return {
             updateOne: {
               filter: { _id },
-              update: {$set: {tags: newTags}}
+              update: {$set: {"frontpageFilterSettings.tags": newTags}}
             }
           };
         });
