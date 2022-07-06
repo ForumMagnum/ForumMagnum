@@ -163,7 +163,7 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
 export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   if (!user) return false
   if (user.deleted) return false
-  if (user.bannedFromCommenting) return false
+  if (user.commentingDisabled) return false
   if (!post) return true
   if (post.commentsLocked) return false
 

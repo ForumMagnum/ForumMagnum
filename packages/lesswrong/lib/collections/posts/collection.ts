@@ -7,7 +7,7 @@ import { userIsPostGroupOrganizer } from './helpers';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
-  if (user.bannedFromPosting) return false
+  if (user.postingDisabled) return false
   return userCanDo(user, 'posts.new')
 }
 

@@ -1788,7 +1788,7 @@ addFieldsDict(Users, {
     },
     group: formGroups.socialMedia
   },
-  bannedFromPosting: {
+  postingDisabled: {
     type: Boolean,
     optional: true,
     canRead: ['members'],
@@ -1798,7 +1798,7 @@ addFieldsDict(Users, {
     group: formGroups.disabledPrivileges,
     order: 69,
   },
-  bannedFromCommenting: {
+  commentingDisabled: {
     type: Boolean,
     optional: true,
     canRead: ['members'],
@@ -1808,7 +1808,7 @@ addFieldsDict(Users, {
     group: formGroups.disabledPrivileges,
     order: 69,
   },
-  bannedFromPMing: {
+  conversationsDisabled: {
     type: Boolean,
     optional: true,
     canRead: ['members'],

@@ -7,7 +7,7 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 export const userCanStartConversations = (user: DbUser|UsersCurrent|null) => {
   if (!user) return false
   if (user.deleted) return false
-  if (user.bannedFromPMing) return false;
+  if (user.conversationsDisabled) return false;
   return true
 }
 

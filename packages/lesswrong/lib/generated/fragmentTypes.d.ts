@@ -1609,9 +1609,9 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly paymentEmail: string,
   readonly paymentInfo: string,
   readonly goodHeartTokens: number,
-  readonly bannedFromPosting: boolean,
-  readonly bannedFromCommenting: boolean,
-  readonly bannedFromPMing: boolean,
+  readonly postingDisabled: boolean,
+  readonly commentingDisabled: boolean,
+  readonly conversationsDisabled: boolean,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users

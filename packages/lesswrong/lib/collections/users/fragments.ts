@@ -82,9 +82,9 @@ registerFragment(`
     paymentEmail
     paymentInfo
     goodHeartTokens
-    bannedFromPosting
-    bannedFromCommenting
-    bannedFromPMing
+    postingDisabled
+    commentingDisabled
+    conversationsDisabled
   }
 `);
 
@@ -323,8 +323,6 @@ registerFragment(`
     nullifyVotes
     deleteContent
     banned
-
-    # banned from individual actions
 
     # Name
     username
