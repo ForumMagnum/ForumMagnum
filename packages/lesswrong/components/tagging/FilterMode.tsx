@@ -181,7 +181,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
               </span>
             </LWTooltip>
-            <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute."}>
+            <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute changes to the karma of the post."}>
               <Input
                 className={classes.filterInput}
                 placeholder="Other"
