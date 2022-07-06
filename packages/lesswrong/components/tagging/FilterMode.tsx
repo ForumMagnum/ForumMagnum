@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
+import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -13,6 +13,8 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
+
+const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -82,16 +84,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const handleCustomInput = (input: string) => {
-  const parsed = parseFloat(input);
-  if (Number.isNaN(parsed)) {
-    return 0;
-  }
-  return parsed <= 0 || parsed >= 1
-    ? Math.round(parsed)
-    : Math.floor(parsed * 100) / 100;
-}
-
 const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,
   label?: string,
@@ -113,6 +105,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
+  const standardFilterModes = getStandardFilterModes(currentUser);
+
   if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
     // We just found it, it's guaranteed to be in the defaultVisibilityTags list
     mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
@@ -127,7 +121,34 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     </span>
   </span>
 
-  const otherValue = isCustomFilterMode(currentUser, mode) ? (mode || "") : "";
+  const [inputTime, setInputTime] = useState(0);
+
+  const handleCustomInput = (input: string) => {
+    const parsed = parseFloat(input);
+    if (Number.isNaN(parsed)) {
+      onChangeMode(0);
+      setInputTime(0);
+    } else {
+      const value = parsed <= 0 || parsed >= 1
+        ? Math.round(parsed)
+        : Math.floor(parsed * 100) / 100;
+      onChangeMode(value);
+
+      const now = Date.now();
+      setInputTime(now);
+      if (standardFilterModes.includes(value)) {
+        setTimeout(() => {
+          setInputTime((inputTime) => inputTime === now ? 0 : inputTime);
+        }, INPUT_PAUSE_MILLISECONDS);
+      }
+    }
+  }
+
+  const otherValue =
+    isCustomFilterMode(currentUser, mode) || (standardFilterModes.includes(mode) && inputTime > 0)
+      ? mode
+      : "";
+
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?
@@ -189,7 +210,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 disableUnderline
                 classes={{input:classes.input}}
                 value={otherValue}
-                onChange={ev => onChangeMode(handleCustomInput(ev.target.value || "0"))}
+                onChange={ev => handleCustomInput(ev.target.value || "")}
               />
             </LWTooltip>
             {canRemove && !tag?.suggestedAsFilter &&
