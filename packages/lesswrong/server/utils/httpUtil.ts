@@ -7,16 +7,20 @@ import Cookies from 'universal-cookie';
 // Express; after we've gotten rid of Meteor, these functions will be trivial
 // and unnecessary wrappers.
 
-// Given an HTTP request, get a cookie. Exists mainly to cover up a difference
-// between the Meteor and Express server middleware setups.
+/** 
+ * Given an HTTP request, get a cookie. Exists mainly to cover up a difference
+ * between the Meteor and Express server middleware setups.
+ * 
+ * Default to the value pulled from `universalCookies` if there is one, but if not try `cookies` as well
+ *  
+ * We need to do this because {@link setCookieOnResponse} can only assign to `cookies`, not `universalCookies`, so sometimes `universalCookies` will exist but won't have the (newly assigned) cookie value.
+ */
 export function getCookieFromReq(req: Request, cookieName: string) {
   const untypedReq: any = req;
-  if (untypedReq.universalCookies)
-    return untypedReq.universalCookies.get(cookieName);
-  else if (untypedReq.cookies)
-    return untypedReq.cookies[cookieName];
-  else
+  if (!untypedReq.universalCookies && !untypedReq.cookies)
     throw new Error("Tried to get a cookie but middleware not correctly configured");
+
+  return untypedReq.universalCookies?.get(cookieName) ?? untypedReq.cookies?.[cookieName];
 }
 
 // Given an HTTP request, clear a named cookie. Handles the difference between
@@ -49,7 +53,12 @@ export function setCookieOnResponse({req, res, cookieName, cookieValue, maxAge}:
   const untypedReq: any = req;
   if (untypedReq.cookies) {
     untypedReq.cookies[cookieName] = cookieValue;
+  } else {
+    // We need this in the case of e.g. clientId
+    // The server-side code depends on the cookie existing on the very first request, before the client can send back the cookie we set via header
+    untypedReq.cookies = { [cookieName]: cookieValue };
   }
+  
   (res as any).setHeader("Set-Cookie", `${cookieName}=${cookieValue}; Max-Age=${maxAge}`);
 }
 
