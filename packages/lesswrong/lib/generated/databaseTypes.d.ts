@@ -813,7 +813,6 @@ interface DbUser extends DbObject {
   githubProfileURL: string
   bannedFromPosting: boolean
   bannedFromCommenting: boolean
-  bannedFromTagUpdating: boolean
   bannedFromPMing: boolean
   moderationGuidelines: EditableFieldContents
   howOthersCanHelpMe: EditableFieldContents

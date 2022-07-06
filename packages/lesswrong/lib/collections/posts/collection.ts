@@ -5,12 +5,16 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { userIsPostGroupOrganizer } from './helpers';
 
+export const userCanPost = (user: UsersCurrent|DbUser) => {
+  if (user.deleted) return false;
+  if (user.bannedFromPosting) return false
+  return userCanDo(user, 'posts.new')
+}
+
 const options: MutationOptions<DbPost> = {
   newCheck: (user: DbUser|null) => {
     if (!user) return false;
-    if (user.deleted) return false;
-    if (user.bannedFromPosting) return false
-    return userCanDo(user, 'posts.new')
+    return userCanPost(user)
   },
 
   editCheck: async (user: DbUser|null, document: DbPost|null) => {

@@ -1,6 +1,6 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Posts } from '../../lib/collections/posts';
+import { Posts, userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
@@ -11,6 +11,7 @@ import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
+import Typography from '@material-ui/core/Typography';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -113,7 +114,7 @@ const PostsNewForm = ({classes}: {
     skip: !query || !query.groupId
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = {
@@ -130,8 +131,15 @@ const PostsNewForm = ({classes}: {
   }
   const eventForm = query && query.eventForm
 
-  if (!Posts.options.mutations.new.check(currentUser)) {
+  if (!currentUser) {
     return (<WrappedLoginForm />);
+  }
+  if (!userCanPost(currentUser)) {
+    return (<SingleColumnSection>
+      <Typography variant="display1">
+        You don't have permission to post
+      </Typography>
+    </SingleColumnSection>);
   }
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>

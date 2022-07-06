@@ -1608,6 +1608,9 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly paymentEmail: string,
   readonly paymentInfo: string,
   readonly goodHeartTokens: number,
+  readonly bannedFromPosting: boolean,
+  readonly bannedFromCommenting: boolean,
+  readonly bannedFromPMing: boolean,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
@@ -1775,10 +1778,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly nullifyVotes: boolean,
   readonly deleteContent: boolean,
   readonly banned: Date,
-  readonly bannedFromPosting: boolean,
-  readonly bannedFromCommenting: boolean,
-  readonly bannedFromTagUpdating: boolean,
-  readonly bannedFromPMing: boolean,
   readonly username: string,
   readonly displayName: string,
   readonly fullName: string,

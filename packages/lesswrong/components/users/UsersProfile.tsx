@@ -28,6 +28,7 @@ import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
+import { userCanStartConversations } from '../../lib/collections/conversations/collection';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -499,6 +500,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </a>}
     </>
 
+    const showMessageButton = currentUser?._id != user._id && userCanStartConversations(currentUser)
+
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
@@ -521,7 +524,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <div className={classes.flexingNameAndMessage}>
                 <div className={classes.usernameTitle}>
                   <div>{username}</div>
-                  {isEAForum && currentUser?._id != user._id && (
+                  {isEAForum &&  showMessageButton && (
                     <div className={classes.messageBtnDesktop}>
                       <NewConversationButton user={user} currentUser={currentUser}>
                         <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
@@ -532,7 +535,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   )}
                 </div>
                 {mapLocationNode}
-                {isEAForum && currentUser?._id != user._id && (
+                {isEAForum && showMessageButton && (
                   <div className={classes.messageBtnMobile}>
                     <NewConversationButton user={user} currentUser={currentUser}>
                       <Button color="primary" variant="contained" className={classes.messageBtn}>
@@ -562,7 +565,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { !isEAForum && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { !isEAForum && showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton

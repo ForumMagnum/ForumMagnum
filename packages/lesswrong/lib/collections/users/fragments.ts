@@ -81,6 +81,9 @@ registerFragment(`
     paymentEmail
     paymentInfo
     goodHeartTokens
+    bannedFromPosting
+    bannedFromCommenting
+    bannedFromPMing
   }
 `);
 
@@ -321,10 +324,6 @@ registerFragment(`
     banned
 
     # banned from individual actions
-    bannedFromPosting
-    bannedFromCommenting
-    bannedFromTagUpdating
-    bannedFromPMing
 
     # Name
     username

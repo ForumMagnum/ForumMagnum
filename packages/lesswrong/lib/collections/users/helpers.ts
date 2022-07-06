@@ -161,17 +161,11 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
 }
 
 export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
-  if (!user) {
-    return false
-  }
-
-  if (user.deleted) {
-    return false
-  }
-
-  if (!post) {
-    return true
-  }
+  if (!user) return false
+  if (user.deleted) return false
+  if (user.bannedFromCommenting) return false
+  if (!post) return true
+  if (post.commentsLocked) return false
 
   if (userIsBannedFromPost(user, post, postAuthor)) {
     return false
@@ -182,10 +176,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   }
 
   if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
-    return false
-  }
-
-  if (post.commentsLocked) {
     return false
   }
 
