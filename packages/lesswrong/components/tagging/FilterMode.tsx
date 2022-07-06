@@ -64,6 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallText,
     display: "inline-block",
     cursor: "pointer",
+    userSelect: "none",
   },
   selected: {
     color: theme.palette.text.maxIntensity,
