@@ -23,7 +23,7 @@ import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
-import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
 import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -158,6 +158,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   helpFieldHeading: {
     fontFamily: theme.typography.fontFamily,
     marginTop: theme.spacing.unit*4,
+  },
+  program: {
+    color: theme.palette.grey[600],
+    marginTop: 8
   },
   primaryColor: {
     color: theme.palette.primary.light
@@ -601,15 +605,23 @@ const UsersProfileFn = ({terms, slug, classes}: {
             {isEAForum && !!user.organizerOfGroups?.length && <>
               <h2 className={classes.helpFieldHeading}>Organizer of</h2>
               <ContentStyles contentType="post">
-                <div className={classes.organizerOfGroups}>
-                  {user.organizerOfGroups.map(group => {
-                    return <div key={group._id}>
-                      <Link to={`/groups/${group._id}`}>
-                        {group.name}
-                      </Link>
-                    </div>
-                  })}
-                </div>
+                {user.organizerOfGroups.map(group => {
+                  return <div key={group._id}>
+                    <Link to={`/groups/${group._id}`}>
+                      {group.name}
+                    </Link>
+                  </div>
+                })}
+              </ContentStyles>
+            </>}
+            {isEAForum && !!user.programParticipation?.length && <>
+              <h2 className={classes.helpFieldHeading}>Program participation</h2>
+              <ContentStyles contentType="comment">
+                {user.programParticipation.map(program => {
+                  return <div key={program} className={classes.program}>
+                    {PROGRAM_PARTICIPATION.find(s => s.value === program)?.label}
+                  </div>
+                })}
               </ContentStyles>
             </>}
             

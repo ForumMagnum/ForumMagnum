@@ -146,6 +146,20 @@ export const CAREER_STAGES = [
   {value: 'retired', label: "Retired"},
 ]
 
+export const PROGRAM_PARTICIPATION = [
+  {value: 'vpIntro', label: "Completed the Introductory EA VP"},
+  {value: 'vpInDepth', label: "Completed the In-Depth EA VP"},
+  {value: 'vpPrecipice', label: "Completed the Precipice Reading Group"},
+  {value: 'vpLegal', label: "Completed the Legal Topics in EA VP"},
+  {value: 'vpAltProtein', label: "Completed the Alt Protein Fundamentals VP"},
+  {value: 'vpAGISafety', label: "Completed the AGI Safety Fundamentals VP"},
+  {value: 'vpMLSafety', label: "Completed the ML Safety Scholars VP"},
+  {value: 'eag', label: "Attended an EA Global conference"},
+  {value: 'eagx', label: "Attended an EAGx conference"},
+  {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
+  {value: '80k', label: "Received career coaching from 80,000 Hours"},
+]
+
 export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',
@@ -974,7 +988,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: forumTypeSetting.get() === "EAForum" ? 8 : 101,
+    order: forumTypeSetting.get() === "EAForum" ? 9 : 101,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1584,6 +1598,20 @@ addFieldsDict(Users, {
     group: formGroups.paymentInfo,
   },
   
+  // Cloudinary image id for the profile image (high resolution)
+  profileImageId: {
+    hidden: true,
+    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: [userOwns, "admins", "sunshineRegiment"],
+    label: "Profile Image",
+    tooltip: "This will only be shown on your profile page",
+    control: "ImageUpload"
+  },
+  
   jobTitle: {
     type: String,
     hidden: true,
@@ -1628,20 +1656,6 @@ addFieldsDict(Users, {
     optional: true,
   },
 
-  // Cloudinary image id for the profile image (high resolution)
-  profileImageId: {
-    hidden: true,
-    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
-    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: [userOwns, "admins", "sunshineRegiment"],
-    label: "Profile Image",
-    tooltip: "This will only be shown on your profile page",
-    control: "ImageUpload"
-  },
-
   bio: {
     type: String,
     viewableBy: ['guests'],
@@ -1683,6 +1697,27 @@ addFieldsDict(Users, {
   'organizerOfGroupIds.$': {
     type: String,
     foreignKey: "Localgroups",
+    optional: true,
+  },
+  
+  programParticipation: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 8,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Which of these programs have you participated in?",
+    form: {
+      separator: '\r\n',
+      options: PROGRAM_PARTICIPATION
+    },
+  },
+  'programParticipation.$': {
+    type: String,
     optional: true,
   },
 
