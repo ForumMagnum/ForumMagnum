@@ -198,7 +198,7 @@ const LargeSequencesItemComponent = registerComponent('LargeSequencesItem', Larg
 
 declare global {
   interface ComponentTypes {
-    LargeSequencesItem: typeof LargeSequencesItemCompone{posts.map(post => nt
+    LargeSequencesItem: typeof LargeSequencesItemComponent
   }
 }
 
