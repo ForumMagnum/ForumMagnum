@@ -193,10 +193,7 @@ augmentFieldsDict(Tags, {
     resolveAs: {
       type: "String",
       resolver: async (tag: DbTag, args: {}, context: ResolverContext): Promise<string> => {
-        const description = tag?.description?.html;
-        return description
-          ? extractTableOfContents(description)?.html ?? description
-          : "";
+        return extractTableOfContents(tag?.description?.html)?.html ?? "";
       },
     },
   },

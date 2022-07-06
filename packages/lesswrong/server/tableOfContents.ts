@@ -175,6 +175,7 @@ function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): stri
 // `<b>` and `<strong>` tags are headings iff they are the only thing in their
 // paragraph. Return whether the given tag name is a tag with that property
 // (ie, is `<strong>` or `<b>`).
+// See tagIsWholeParagraph
 function tagIsHeadingIfWholeParagraph(tagName: string): boolean
 {
   return tagName.toLowerCase() in headingIfWholeParagraph;
@@ -191,6 +192,9 @@ const tagIsAlien = (baseTag: cheerio.TagElement, potentialAlienTag: cheerio.Elem
   }
 }
 
+// `<b>` and `<strong>` tags are headings iff they are the only thing in their
+// paragraph. Return whether or not the given cheerio tag satisfies these heuristics.
+// See tagIsHeadingIfWholeParagraph
 const tagIsWholeParagraph = (tag?: cheerio.TagElement): boolean => {
   if (!tag) {
     return false;
