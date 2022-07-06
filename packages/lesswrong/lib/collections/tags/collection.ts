@@ -23,13 +23,11 @@ export const Tags: ExtendedTagsCollection = createCollection({
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
       if (!user) return false;
       if (user.deleted) return false;
-      if (user.bannedFromTagUpdating) return false
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
       if (!user) return false;
       if (user.deleted) return false;
-      if (user.bannedFromTagUpdating) return false
       return userCanCreateTags(user);
     },
     removeCheck: (user: DbUser|null, tag: DbTag|null) => {
