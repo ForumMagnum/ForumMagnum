@@ -453,30 +453,42 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
   const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
-  const coauthors = coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId);
-  const userIds = shareWithUsers.filter((user) => !coauthors.includes(user));
+  const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
+  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
 
 getCollectionHooks("Posts").newAsync.add(async function CoauthorRequestNotifications(post: DbPost) {
+  await checkCoauthorRequestNotifications(post);
+});
+
+//TODO: Currently broken, disable so we don't get bad emails
+// getCollectionHooks("Posts").updateAfter.add(async function CoauthorRequestNotifications(post: DbPost) {
+//   return await checkCoauthorRequestNotifications(post);
+// });
+
+async function checkCoauthorRequestNotifications(post: DbPost) {
   const { _id, coauthorStatuses = [], hasCoauthorPermission } = post;
 
   if (hasCoauthorPermission) {
-    return;
+    return post;
   }
 
   const userIds = coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId);
-  await createNotifications({userIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
-
-  await updateMutator({
-    collection: Posts,
-    documentId: _id,
-    data: {
-      coauthorStatuses: coauthorStatuses.map((status) => ({ ...status, requested: true })),
-    },
-    validate: false,
-  })
-});
+  if (userIds.length>0) {
+    await createNotifications({userIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
+  
+    await updateMutator({
+      collection: Posts,
+      documentId: _id,
+      data: {
+        coauthorStatuses: coauthorStatuses.map((status) => ({ ...status, requested: true })),
+      },
+      validate: false,
+    })
+  }
+  return post;
+}
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
   const newlyAF = newDocument.af && !oldDocument.af
@@ -489,7 +501,7 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
-  
+
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
