@@ -122,6 +122,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     </span>
   </span>
 
+  // When entering a standard value such as 0.5 for "reduced" or 25 for "subscribed" we
+  // want to select the button rather than show the input text. This makes it impossible
+  // to type, for instance, 0.55 or 250. To avoid this problem we delay for a small amount
+  // of time after the user inputs one of these values before we clear the input field in
+  // case they continue to type.
   const [inputTime, setInputTime] = useState(0);
 
   const handleCustomInput = (input: string) => {
