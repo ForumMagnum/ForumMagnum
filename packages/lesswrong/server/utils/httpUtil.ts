@@ -20,14 +20,7 @@ export function getCookieFromReq(req: Request, cookieName: string) {
   if (!untypedReq.universalCookies && !untypedReq.cookies)
     throw new Error("Tried to get a cookie but middleware not correctly configured");
 
-  let cookieValue;
-  if (untypedReq.universalCookies)
-    cookieValue = untypedReq.universalCookies.get(cookieName);
-
-  if (untypedReq.cookies)
-    cookieValue = cookieValue ?? untypedReq.cookies[cookieName];
-
-  return cookieValue;
+  return untypedReq.universalCookies?.get(cookieName) ?? untypedReq.cookies?.[cookieName];
 }
 
 // Given an HTTP request, clear a named cookie. Handles the difference between
