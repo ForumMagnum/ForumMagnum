@@ -7,6 +7,7 @@ import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
+import Tags from "../tags/collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
@@ -916,7 +917,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: sequence => !sequence.draft && !sequence.isDeleted
+      filterFn: sequence => !sequence.draft && !sequence.isDeleted && !sequence.hideFromAuthorPage
     }),
     canRead: ['guests'],
   },
@@ -1513,7 +1514,13 @@ addFieldsDict(Users, {
       foreignCollectionName: "Revisions",
       foreignTypeName: "revision",
       foreignFieldName: "userId",
-      filterFn: revision => revision.collectionName === "Tags"
+      filterFn: async revision => {
+        if (revision.collectionName !== "Tags") {
+          return false;
+        }
+        const tag = await Tags.findOne({ _id: revision.documentId });
+        return tag && !tag.deleted;
+      },
     }),
     canRead: ['guests']
   },
