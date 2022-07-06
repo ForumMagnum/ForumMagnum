@@ -45,6 +45,7 @@ registerFragment(`
     organizerOfGroups {
       ...localGroupsBase
     }
+    programParticipation
     website
     linkedinProfileURL
     facebookProfileURL
@@ -414,6 +415,7 @@ registerFragment(`
     organizerOfGroups {
       ...localGroupsBase
     }
+    programParticipation
     mapLocation
     website
     linkedinProfileURL

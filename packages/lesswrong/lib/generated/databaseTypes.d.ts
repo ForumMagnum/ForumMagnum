@@ -801,11 +801,12 @@ interface DbUser extends DbObject {
   usernameUnset: boolean
   paymentEmail: string
   paymentInfo: string
+  profileImageId: string
   jobTitle: string
   organization: string
   careerStage: Array<string>
-  profileImageId: string
   organizerOfGroupIds: Array<string>
+  programParticipation: Array<string>
   website: string
   linkedinProfileURL: string
   facebookProfileURL: string
