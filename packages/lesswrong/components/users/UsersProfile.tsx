@@ -24,7 +24,7 @@ import { taglineSetting } from '../common/HeadTags';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { socialMediaIconPaths } from '../form-components/PrefixedInput';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
-import { getBrowserLocalStorage } from '../async/localStorageHandlers';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
