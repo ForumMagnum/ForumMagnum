@@ -185,10 +185,10 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
       </div>
       <div className={classes.right}>
         {posts.map(post => <SequencesSmallPostLink 
-                              key={sequence._id + post._id} 
-                              post={post}
-                            />
-            )}
+            key={sequence._id + post._id} 
+            post={post}
+          />
+        )}
       </div>
     </div>
   </div>
@@ -198,7 +198,7 @@ const LargeSequencesItemComponent = registerComponent('LargeSequencesItem', Larg
 
 declare global {
   interface ComponentTypes {
-    LargeSequencesItem: typeof LargeSequencesItemComponent
+    LargeSequencesItem: typeof LargeSequencesItemCompone{posts.map(post => nt
   }
 }
 

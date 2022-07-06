@@ -73,11 +73,11 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     </ContentStyles>
     {!chapters && loading && <Loading />}
     {posts.map(post => 
-        <SequencesSmallPostLink 
-          key={sequence?._id + post._id} 
-          post={post}
-        />
-      )}
+      <SequencesSmallPostLink 
+        key={sequence?._id + post._id} 
+        post={post}
+      />
+    )}
     <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
       <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
     </LWTooltip>
