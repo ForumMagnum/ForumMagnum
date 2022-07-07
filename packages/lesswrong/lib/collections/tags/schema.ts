@@ -132,6 +132,7 @@ export const schema: SchemaType<DbTag> = {
   descriptionHtmlWithToc: {
     type: String,
     viewableBy: ['guests'],
+    optional: true,
     // See resolveAs in server/resolvers/tagResolvers.ts
   },
   postCount: {
