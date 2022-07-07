@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-export const CuratedSequences = ({}) => {
+export const CuratedSequences = () => {
   return <Components.SequencesGridWrapper
       terms={{'view':'curatedSequences', limit:3}}
       showAuthor={true}
