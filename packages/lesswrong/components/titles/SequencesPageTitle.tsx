@@ -49,7 +49,4 @@ declare global {
   }
 }
 
-function useMulti(arg0: { documentId: string; collectionName: string; fragmentName: string; fetchPolicy: string; }): { document: any; loading: any; } {
-  throw new Error('Function not implemented.');
-}
 
