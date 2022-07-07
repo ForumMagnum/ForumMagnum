@@ -146,7 +146,7 @@ const RecommendationsAndCurated = ({
           onChange={(newSettings) => setSettings(newSettings)}
         /> }
 
-      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
+      {forumTypeSetting.get() !== 'EAForum' && <div>
         <div className={classes.largeScreenLoggedOutSequences}>
           <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
             <CuratedSequences />
@@ -164,9 +164,6 @@ const RecommendationsAndCurated = ({
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
-          {isLW && <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
-            <CuratedSequences />
-          </AnalyticsContext>}
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
