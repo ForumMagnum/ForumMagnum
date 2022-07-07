@@ -250,6 +250,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
+  readonly descriptionHtmlWithToc: string,
   readonly postCount: number,
   readonly userId: string,
   readonly adminOnly: boolean,
@@ -1452,6 +1453,10 @@ interface TagFragment_description { // fragment on Revisions
   readonly version: string,
 }
 
+interface TagWithTocFragment extends TagFragment { // fragment on Tags
+  readonly descriptionHtmlWithToc: string,
+}
+
 interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
   readonly user: UsersMinimumInfo|null,
 }
@@ -1592,6 +1597,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly howICanHelpOthers: RevisionEdit|null,
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
+  readonly programParticipation: Array<string>,
   readonly website: string,
   readonly linkedinProfileURL: string,
   readonly facebookProfileURL: string,
@@ -1858,6 +1864,7 @@ interface UsersProfileEdit { // fragment on Users
   readonly howICanHelpOthers: RevisionEdit|null,
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
+  readonly programParticipation: Array<string>,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly website: string,
   readonly linkedinProfileURL: string,
@@ -2046,6 +2053,7 @@ interface FragmentTypes {
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
+  TagWithTocFragment: TagWithTocFragment
   TagHistoryFragment: TagHistoryFragment
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
@@ -2194,6 +2202,7 @@ interface CollectionNamesByFragmentName {
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"
+  TagWithTocFragment: "Tags"
   TagHistoryFragment: "Tags"
   TagCreationHistoryFragment: "Tags"
   TagRevisionFragment: "Tags"

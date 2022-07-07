@@ -94,6 +94,7 @@ const EditProfileForm = ({classes}: {
         collection={Users}
         {...terms}
         fields={[
+          'profileImageId',
           'jobTitle',
           'organization',
           'careerStage',
@@ -101,13 +102,13 @@ const EditProfileForm = ({classes}: {
           'howOthersCanHelpMe',
           'howICanHelpOthers',
           'organizerOfGroupIds',
+          'programParticipation',
           'mapLocation',
           'website',
           'linkedinProfileURL',
           'facebookProfileURL',
           'twitterProfileURL',
-          'githubProfileURL',
-          'profileImageId'
+          'githubProfileURL'
         ]}
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import type { FilterSettings, FilterMode } from '../../lib/filterSettings';
+import { FilterSettings, FilterMode, isCustomFilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
@@ -118,7 +118,9 @@ const TagFilterSettings = ({
         mode={tagSettings.filterMode}
         canRemove={true}
         onChangeMode={(mode: FilterMode) => {
-          const newMode = mode === tagSettings.filterMode ? 0 : mode
+          // If user has clicked on, eg, "Hidden" after it's already selected, return it to default
+          // ... but don't apply that to manually input filter settings
+          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(currentUser, mode) ? 0 : mode
           setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
         }}
         onRemove={() => {
