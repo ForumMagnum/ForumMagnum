@@ -13,6 +13,11 @@ export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
   return `${prefix}/s/${sequence._id}`;
 };
 
+export const sequenceGetCollectionPageUrl = function (sequence) {
+  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence)
+  return `${sequence.canonicalCollectionSlug}#${sequence._id}`
+}
+
 export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
   const chapters = await mongoFind("Chapters", {sequenceId: sequenceId}, {sort: {number: 1}});
   let allPostIds = _.flatten(_.pluck(chapters, 'postIds'))
