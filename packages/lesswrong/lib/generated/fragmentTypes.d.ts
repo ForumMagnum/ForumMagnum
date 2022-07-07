@@ -431,7 +431,6 @@ interface PostsAuthors { // fragment on Posts
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
-  readonly showPostAuthorCard: boolean,
   readonly biography: RevisionDisplay|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
@@ -653,7 +652,6 @@ interface SunshinePostsList_contents { // fragment on Revisions
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
-  readonly showPostAuthorCard: boolean,
   readonly biography: RevisionDisplay|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
@@ -1642,7 +1640,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
-  readonly showPostAuthorCard: boolean,
   readonly markDownPostEditor: boolean,
   readonly hideElicitPredictions: boolean,
   readonly hideAFNonMemberInitialWarning: boolean,
@@ -1766,7 +1763,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
   readonly beta: boolean,
-  readonly showPostAuthorCard: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
