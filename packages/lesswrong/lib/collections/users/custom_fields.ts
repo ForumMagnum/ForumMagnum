@@ -261,6 +261,8 @@ addFieldsDict(Users, {
     order: 69,
   },
   
+  // We tested this on the EA Forum and it didn't encourage more PMs, but it led to some profile views.
+  // Hiding for now, will probably delete or test another version in the future.
   showPostAuthorCard: {
     type: Boolean,
     optional: true,
@@ -268,7 +270,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
-    hidden: forumTypeSetting.get() !== 'EAForum',
+    hidden: true,
     control: 'checkbox',
     group: formGroups.siteCustomizations,
     order: 70,
