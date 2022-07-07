@@ -56,7 +56,9 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   
   return <Card className={classes.root}>
     {!sequence && <Loading/>}
-    <Link to={getCollectionOrSequenceUrl(sequence)}><div className={classes.title}>{sequence?.title}</div></Link>
+    {sequence && <Link to={getCollectionOrSequenceUrl(sequence)}>
+      <div className={classes.title}>{sequence.title}</div>
+    </Link>}
     { showAuthor && sequence?.user &&
       <div className={classes.author}>
         by <UsersName user={sequence?.user} />

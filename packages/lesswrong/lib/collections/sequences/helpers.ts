@@ -7,13 +7,13 @@ import * as _ from 'underscore';
 
 // TODO: Make these functions able to use loaders for caching.
 
-export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
+export const sequenceGetPageUrl = function(sequence: SequencesPageTitleFragment, isAbsolute: boolean = false){
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   return `${prefix}/s/${sequence._id}`;
 };
 
-export const getCollectionOrSequenceUrl = function (sequence, isAbsolute = false) {
+export const getCollectionOrSequenceUrl = function (sequence: SequencesPageTitleFragment, isAbsolute: boolean = false) {
   if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence, isAbsolute)
   
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
