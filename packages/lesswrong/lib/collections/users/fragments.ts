@@ -120,7 +120,6 @@ registerFragment(`
       ...RevisionEdit
     }
     showHideKarmaOption
-    showPostAuthorCard
     markDownPostEditor
     hideElicitPredictions
     hideAFNonMemberInitialWarning
@@ -300,7 +299,6 @@ registerFragment(`
     noCollapseCommentsFrontpage
     noSingleLineComments
     beta
-    showPostAuthorCard
 
     # Emails
     email
