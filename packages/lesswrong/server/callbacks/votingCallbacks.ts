@@ -32,7 +32,7 @@ voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDo
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     const owners = getDocumentOwners({newDocument, vote});
-    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {"karma": vote.power}});
+    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {karma: vote.power}});
   }
 });
 
@@ -40,7 +40,7 @@ voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: Vote
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
     const owners = getDocumentOwners({newDocument, vote});
-    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {"karma": -vote.power}});
+    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {karma: -vote.power}});
   }
 });
 

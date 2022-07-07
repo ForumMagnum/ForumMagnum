@@ -42,12 +42,15 @@ const schema: SchemaType<DbVote> = {
     canRead: [userOwns, docIsTagRel, 'admins'],
     foreignKey: 'Users',
   },
-  
-  // The ID of the author of the document that was voted on
-  authorId: {
-    type: String,
+
+  // The IDs of the authors of the document that was voted on
+  authorIds: {
+    type: Array,
     denormalized: true, // Can be inferred from documentId
     canRead: ['guests'],
+  },
+  'authorIds.$': {
+    type: String,
     foreignKey: 'Users',
   },
 

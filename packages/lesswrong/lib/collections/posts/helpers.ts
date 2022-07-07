@@ -267,7 +267,7 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }
 
-export const postCoauthorIsPending = (post: PostsList|PostsDetails, coauthorUserId: string) => {
+export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coauthorUserId: string) => {
   const status = post.coauthorStatuses.find(({ userId }) => coauthorUserId === userId);
   return status && !status.confirmed;
 }
