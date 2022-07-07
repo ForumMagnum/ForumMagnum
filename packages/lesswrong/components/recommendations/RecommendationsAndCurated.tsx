@@ -75,6 +75,8 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
+const isLW = forumTypeSetting.get() === 'LessWrong'
+
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -92,7 +94,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CuratedSequences, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -146,11 +148,9 @@ const RecommendationsAndCurated = ({
 
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
         <div className={classes.largeScreenLoggedOutSequences}>
-          <SequencesGridWrapper
-            terms={{'view':'curatedSequences', limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-          />
+          <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
+            <CuratedSequences />
+          </AnalyticsContext>
         </div>
         <div className={classes.smallScreenLoggedOutSequences}>
           <ContinueReadingList continueReading={continueReading} />
@@ -159,11 +159,14 @@ const RecommendationsAndCurated = ({
 
       <div className={classes.subsection}>
         <div className={classes.posts}>
-          {!settings.hideFrontpage &&
+          {!settings.hideFrontpage && !isLW && 
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
+          {isLW && <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
+            <CuratedSequences />
+          </AnalyticsContext>}
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
