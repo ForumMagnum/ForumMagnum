@@ -3,6 +3,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { useSingle } from '../../lib/crud/withSingle';
+import { Link } from '../../lib/reactRouterWrapper';
+import { sequenceGetCollectionPageUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -54,7 +56,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   
   return <Card className={classes.root}>
     {!sequence && <Loading/>}
-    <div className={classes.title}>{sequence?.title}</div>
+    <Link to={sequenceGetCollectionPageUrl(sequence)}><div className={classes.title}>{sequence?.title}</div></Link>
     { showAuthor && sequence?.user &&
       <div className={classes.author}>
         by <UsersName user={sequence?.user} />
