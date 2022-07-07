@@ -64,6 +64,7 @@ import EditorWatchdog from '@ckeditor/ckeditor5-watchdog/src/editorwatchdog';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 import Footnote from './ckeditor5-footnote/src/footnote';
+import MediaEmbedUICustom from './custom-media-embed/index';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
@@ -136,6 +137,7 @@ const postEditorPlugins = [
 	Spoilers,
 	AutoLink,
 	Footnote,
+	MediaEmbedUICustom,
 ];
 
 PostEditor.builtinPlugins = [
@@ -218,7 +220,8 @@ const postEditorConfig = {
 		'insertTable',
 		'horizontalLine',
 		'mathDisplay',
-		'mediaEmbed',
+		// 'mediaEmbed',
+		'mediaEmbedCustom',
 		'footnote',
 	],
 	toolbar: [
