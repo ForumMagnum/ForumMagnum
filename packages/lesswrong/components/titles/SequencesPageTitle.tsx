@@ -26,7 +26,7 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
       <Link to={getCollectionOrSequenceUrl(sequence)}>
-        {sequence.canonicalCollectionSlug || sequence.title}
+        {sequence.canonicalCollection?.title ?? sequence.title}
       </Link>
     </span>);
   } else {
@@ -47,5 +47,9 @@ declare global {
   interface ComponentTypes {
     SequencesPageTitle: typeof SequencesPageTitleComponent
   }
+}
+
+function useMulti(arg0: { documentId: string; collectionName: string; fragmentName: string; fetchPolicy: string; }): { document: any; loading: any; } {
+  throw new Error('Function not implemented.');
 }
 
