@@ -13,9 +13,11 @@ export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
   return `${prefix}/s/${sequence._id}`;
 };
 
-export const sequenceGetCollectionPageUrl = function (sequence) {
-  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence)
-  return `${sequence.canonicalCollectionSlug}#${sequence._id}`
+export const getCollectionOrSequenceUrl = function (sequence, isAbsolute = false) {
+  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence, isAbsolute)
+  
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+  return `${prefix}/${sequence.canonicalCollectionSlug}#${sequence._id}`
 }
 
 export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
