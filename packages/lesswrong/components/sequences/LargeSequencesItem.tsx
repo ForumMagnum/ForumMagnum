@@ -140,8 +140,8 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-  let posts : PostsList[] = []
-  sequence.chapters?.forEach(chapter => chapter.posts?.forEach(post => posts.push(post)))
+
+  const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
 
   const highlight = sequence.contents?.htmlHighlight || ""

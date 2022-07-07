@@ -49,8 +49,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     enableTotal: false,
   });
 
-  let posts : PostsList[] = []
-  chapters?.forEach(chapter => chapter.posts?.forEach(post => posts.push(post)))
+  const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
   
   return <Card className={classes.root}>
