@@ -1514,13 +1514,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Revisions",
       foreignTypeName: "revision",
       foreignFieldName: "userId",
-      filterFn: async revision => {
-        if (revision.collectionName !== "Tags") {
-          return false;
-        }
-        const tag = await Tags.findOne({ _id: revision.documentId });
-        return tag && !tag.deleted;
-      },
+      filterFn: revision => revision.collectionName === "Tags"
     }),
     canRead: ['guests']
   },

@@ -1,6 +1,7 @@
 import { combineUrls, Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
@@ -13,15 +14,15 @@ import LocationIcon from '@material-ui/icons/LocationOn'
 import InfoIcon from '@material-ui/icons/Info'
 import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
-import classNames from 'classnames';
-import { useCurrentUser } from '../../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import {AnalyticsContext} from "../../../lib/analyticsEvents";
+import Button from '@material-ui/core/Button';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { separatorBulletStyles } from '../../common/SectionFooter';
 import { taglineSetting } from '../../common/HeadTags';
+import { useCurrentUser } from '../../common/withUser';
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
-import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
 import { getBrowserLocalStorage } from '../../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/schema';
 import { useUpdate } from '../../../lib/crud/withUpdate';
@@ -81,9 +82,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: '700',
   },
   inactiveGroup: {
-    // fontSize: 12,
     color: theme.palette.grey[500],
     marginRight: 6,
+  },
+  showSectionBtn: {
+    marginBottom: 24,
   },
   
   profileImage: {
@@ -119,12 +122,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     lineHeight: '14px',
     marginTop: 10,
+    '& a': {
+      color: theme.palette.grey[600],
+      '&:hover': {
+        color: theme.palette.grey[600],
+      }
+    }
   },
   userMetaInfo: {
     display: 'flex',
     alignItems: 'center',
     columnGap: 5,
-    color: theme.palette.grey[600], // TODO: fix this color
   },
   userMetaInfoIcon: {
     fontSize: 18,
@@ -141,19 +149,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   website: {
     display: 'inline-flex',
     justifyContent: 'center',
-    color: theme.palette.primary.main,
     wordBreak: 'break-all',
     lineHeight: '20px',
   },
   websiteIcon: {
     flex: 'none',
     height: 20,
-    fill: theme.palette.primary.dark,
+    fill: theme.palette.grey[600],
     marginRight: 4
   },
   btns: {
     display: 'flex',
-    columnGap: 10,
+    columnGap: 20,
     marginTop: 20,
   },
   messageBtn: {
@@ -198,20 +205,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
     marginBottom: 20
   },
-  
-  
-  userInfo: {
-    display: "flex",
-    flexWrap: "wrap",
-    color: theme.palette.lwTertiary.main,
-    marginTop: 8,
-    ...separatorBulletStyles(theme)
-  },
-  actions: {
-    marginLeft: 20,
-  },
-
-  
   reportUserSection: {
     marginTop: 60
   },
@@ -275,6 +268,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     }
   }, [currentUser, user, query.from])
   
+  const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(currentUser && user?._id === currentUser._id)
   const [showSettings, setShowSettings] = useState(false)
   
   const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
@@ -354,7 +348,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   
   const privateSectionTabs: Array<any> = [{
     id: 'drafts',
-    label: 'My Drafts',
+    label: `${ownPage ? 'My' : `${username}'s`} Drafts`,
     secondaryNode: <LWTooltip title="This section is only visible to you and site admins.">
       <InfoIcon className={classes.privateSectionIcon} />
     </LWTooltip>,
@@ -438,20 +432,29 @@ const EAUsersProfile = ({terms, slug, classes}: {
       collapsable: true
     })
   }
-  if (user.organizerOfGroupIds) {
+  if (user.organizerOfGroupIds || user.programParticipation) {
     bioSectionTabs.push({
       id: 'participation',
       label: 'Participation',
-      count: user.organizerOfGroupIds.length,
+      count: (user.organizerOfGroupIds?.length || 0) + (user.programParticipation?.length || 0),
       body: <>
         <ContentStyles contentType="post">
-          {user.organizerOfGroups.map(group => {
-            return <div key={group._id}>
-              Organizer of <Link to={`/groups/${group._id}`}>
-                {group.name}
-              </Link>
-            </div>
-          })}
+          <ul>
+            {user.organizerOfGroups?.map(group => {
+              return <li key={group._id}>
+                Organizer of <Link to={`/groups/${group._id}`}>
+                  {group.name}
+                </Link>
+              </li>
+            })}
+            {user.programParticipation?.map(participation => {
+              const label = PROGRAM_PARTICIPATION.find(program => program.value === participation)?.label
+              if (!label) return null
+              return <li key={participation}>
+                {label}
+              </li>
+            })}
+          </ul>
         </ContentStyles>
       </>
     })
@@ -582,10 +585,18 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <SunshineNewUsersProfileInfo userId={user._id} />
           </div>}
           
-          {(ownPage || currentUser?.isAdmin) && <EAUsersProfileTabbedSection
-            user={user}
-            currentUser={currentUser}
-            tabs={privateSectionTabs} />}
+          {(ownPage || currentUser?.isAdmin) && (
+            draftsSectionExpanded ? <EAUsersProfileTabbedSection
+              user={user}
+              currentUser={currentUser}
+              tabs={privateSectionTabs}
+            /> : <Button color="primary"
+              onClick={() => setDraftsSectionExpanded(true)}
+              className={classes.showSectionBtn}
+            >
+              Click to view drafts
+            </Button>)
+          }
           
           <EAUsersProfileTabbedSection user={user} currentUser={currentUser} tabs={bioSectionTabs} />
           
