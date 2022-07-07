@@ -1260,6 +1260,11 @@ interface SequencesPageTitleFragment { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
   readonly canonicalCollectionSlug: string,
+  readonly canonicalCollection: SequencesPageTitleFragment_canonicalCollection|null,
+}
+
+interface SequencesPageTitleFragment_canonicalCollection { // fragment on Collections
+  readonly title: string,
 }
 
 interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment on Sequences
