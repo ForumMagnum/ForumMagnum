@@ -36,7 +36,7 @@ const SequencesSmallPostLink = ({classes, post}: {
   classes: ClassesType,
   post: PostsList,
 }) => {
-  const { LWTooltip, PostsPreviewTooltip, } = Components
+  const { LWTooltip, PostsPreviewTooltip } = Components
 
   const icon = !!post.lastVisitedAt ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
