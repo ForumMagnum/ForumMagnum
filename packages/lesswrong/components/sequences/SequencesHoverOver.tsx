@@ -22,6 +22,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   author: {
     color: theme.palette.text.dim
+  },
+  wordcount: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[500],
+    marginTop: 12,
+    fontSize: "1rem"
   }
 });
 
@@ -30,7 +36,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
 }) => {
-  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName } = Components
+  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
 
   const { results: chapters, loading } = useMulti({
     terms: {
@@ -42,6 +48,9 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     fragmentName: 'ChaptersFragment',
     enableTotal: false,
   });
+
+  const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
+  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
   
   return <Card className={classes.root}>
     {!sequence && <Loading/>}
@@ -62,14 +71,15 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
       />
     </ContentStyles>
     {!chapters && loading && <Loading />}
-    {chapters?.map((chapter) => <span key={chapter._id}>
-      {chapter.posts?.map(post => 
-        <SequencesSmallPostLink 
-          key={chapter._id + post._id} 
-          post={post}
-        />
-      )}
-     </span>)}
+    {posts.map(post => 
+      <SequencesSmallPostLink 
+        key={sequence?._id + post._id} 
+        post={post}
+      />
+    )}
+    <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
+      <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+    </LWTooltip>
   </Card>;
 }
 

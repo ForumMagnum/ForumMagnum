@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const shadow = theme => `0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}`
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,19 +35,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariant: "small-caps",
     color: theme.palette.grey[900],
     display: "block",
-    textShadow: shadow(theme)
+    textShadow: `0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}, 0 0 25px ${theme.palette.panelBackground.default}`,
+    '&:hover': {
+      opacity: 1,
+      color: theme.palette.grey[600],
+    }
   },
   description: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    textShadow: shadow(theme)
+    marginBottom: 12
   },
   author: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     color: theme.palette.text.dim,
-    fontStyle: "italic",
-    textShadow: shadow(theme)
+    fontStyle: "italic"
   },
   sequenceImage: {
     position: "absolute",
@@ -57,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     left: 0,
     height: 125,
     width: "45%",
-    opacity: .6,
+    opacity: .85,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
@@ -115,6 +116,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 16,
       paddingTop: 0
     }
+  },
+  wordcount: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[500],
+    fontSize: "1rem"
+  },
+  imageLink: {
+    '&:hover': {
+      opacity: 1
+    }
   }
 });
 
@@ -123,53 +134,60 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
   showAuthor?: boolean,
   classes: ClassesType,
 }) => {
-  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated } = Components
+  const { UsersName, ContentStyles, SequencesSmallPostLink, ContentItemTruncated, LWTooltip } = Components
   
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 
+  const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
+  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
+
+  const highlight = sequence.contents?.htmlHighlight || ""
+
   return <div className={classes.root} >
 
     <div className={classes.columns}>
       <div className={classes.left}>
-        <div className={classes.sequenceImage}>
-          <img className={classes.sequenceImageImg}
-            src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
-              sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"
-            }`}
-            />
-        </div>
+        <Link className={classes.imageLink} to={`/s/${sequence._id}`}>
+          <div className={classes.sequenceImage}>
+            <img className={classes.sequenceImageImg}
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+              }`}
+              />
+          </div>
+        </Link>
         <div className={classes.text}>
           <div className={classes.titleAndAuthor}>
-            <Link to={'/s/' + sequence._id} className={classes.title}>{sequence.title}</Link>
+            <Link to={`/s/${sequence._id}`} className={classes.title}>{sequence.title}</Link>
           { showAuthor && sequence.user &&
             <div className={classes.author}>
               by <UsersName user={sequence.user} />
             </div>}
           </div>
-          <ContentStyles contentType="postHighlight" className={classes.description}>
+          {(highlight.length > 0) && <ContentStyles contentType="postHighlight" className={classes.description}>
             <ContentItemTruncated
               maxLengthWords={100}
               graceWords={20}
               rawWordCount={sequence.contents?.wordCount || 0}
               expanded={expanded}
               getTruncatedSuffix={() => null}
-              dangerouslySetInnerHTML={{__html: sequence.contents?.htmlHighlight || ""}}
+              dangerouslySetInnerHTML={{__html: highlight}}
               description={`sequence ${sequence._id}`}
             />
-          </ContentStyles>
+          </ContentStyles>}
+          <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
+            <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+          </LWTooltip>
         </div>
       </div>
       <div className={classes.right}>
-        {sequence.chapters?.map((chapter) => <span key={chapter._id}>
-            {chapter.posts?.map(post => <SequencesSmallPostLink 
-                                          key={chapter._id + post._id} 
-                                          post={post}
-                                        />
-            )}
-          </span>
+        {posts.map(post => <SequencesSmallPostLink 
+            key={sequence._id + post._id} 
+            post={post}
+          />
         )}
       </div>
     </div>
