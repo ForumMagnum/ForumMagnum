@@ -544,6 +544,7 @@ importComponent("CoreSequences", () => require('../components/sequences/CoreSequ
 importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
 importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
+importComponent("CuratedSequences", () => require('../components/sequences/CuratedSequences'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
