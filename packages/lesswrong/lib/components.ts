@@ -564,6 +564,7 @@ importComponent("CoreSequences", () => require('../components/sequences/CoreSequ
 importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
 importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
+importComponent("CuratedSequences", () => require('../components/sequences/CuratedSequences'));
 
 importComponent("FormCheckbox", () => require('../components/forms/FormCheckbox'));
 importComponent("FormDate", () => require('../components/forms/FormDate'));
