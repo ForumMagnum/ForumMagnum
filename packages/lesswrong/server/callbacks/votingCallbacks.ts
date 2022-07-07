@@ -5,6 +5,22 @@ import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
 
 /**
+ * Retrieve the ids of all users who will receive karma for a vote on a given document
+ */
+const getDocumentOwners = ({newDocument, vote}: VoteDocTuple): string[] => {
+  let owners = [newDocument.userId];
+  if (vote.collectionName === "Posts") {
+    const { coauthorStatuses = [], hasCoauthorPermission = true } = newDocument as DbPost;
+    owners = owners.concat(
+      coauthorStatuses
+        .filter(({ confirmed }) => hasCoauthorPermission || confirmed)
+        .map(({ userId }) => userId)
+    );
+  }
+  return owners;
+}
+
+/**
  * @summary Update the karma of the item's owner
  * @param {object} item - The item being operated on
  * @param {object} user - The user doing the operation
@@ -15,14 +31,16 @@ const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": vote.power}});
+    const owners = getDocumentOwners({newDocument, vote});
+    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {"karma": vote.power}});
   }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateOne({_id: newDocument.userId}, {$inc: {"karma": -vote.power}});
+    const owners = getDocumentOwners({newDocument, vote});
+    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {"karma": -vote.power}});
   }
 });
 
