@@ -27,11 +27,11 @@ const AlignmentForumHome = ({classes}: {
       <SingleColumnSection>
         <SectionTitle title="Recommended Sequences"/>
         <SequencesGridWrapper
-            terms={{view:"curatedSequences", limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-            className={classes.frontpageSequencesGridList}
-          />
+          terms={{view:"curatedSequences", limit:3}}
+          showAuthor={true}
+          showLoadMore={false}
+          className={classes.frontpageSequencesGridList}
+        />
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="AI Alignment Posts">

@@ -75,6 +75,8 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
+const isLW = forumTypeSetting.get() === 'LessWrong'
+
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -146,11 +148,13 @@ const RecommendationsAndCurated = ({
 
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
         <div className={classes.largeScreenLoggedOutSequences}>
-          <SequencesGridWrapper
-            terms={{'view':'curatedSequences', limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-          />
+          <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
+            <SequencesGridWrapper
+              terms={{'view':'curatedSequences', limit:3}}
+              showAuthor={true}
+              showLoadMore={false}
+            />
+          </AnalyticsContext>
         </div>
         <div className={classes.smallScreenLoggedOutSequences}>
           <ContinueReadingList continueReading={continueReading} />
@@ -159,11 +163,18 @@ const RecommendationsAndCurated = ({
 
       <div className={classes.subsection}>
         <div className={classes.posts}>
-          {!settings.hideFrontpage &&
+          {!settings.hideFrontpage && !isLW && 
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
+          {isLW && <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
+            <SequencesGridWrapper
+              terms={{'view':'curatedSequences', limit:3}}
+              showAuthor={true}
+              showLoadMore={false}
+            />
+          </AnalyticsContext>}
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
