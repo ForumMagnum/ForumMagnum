@@ -1259,6 +1259,7 @@ interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
 interface SequencesPageTitleFragment { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
+  readonly canonicalCollectionSlug: string,
 }
 
 interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment on Sequences
