@@ -94,7 +94,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { SequencesGridWrapper, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CuratedSequences, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -149,11 +149,7 @@ const RecommendationsAndCurated = ({
       {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
         <div className={classes.largeScreenLoggedOutSequences}>
           <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
-            <SequencesGridWrapper
-              terms={{'view':'curatedSequences', limit:3}}
-              showAuthor={true}
-              showLoadMore={false}
-            />
+            <CuratedSequences />
           </AnalyticsContext>
         </div>
         <div className={classes.smallScreenLoggedOutSequences}>
@@ -169,11 +165,7 @@ const RecommendationsAndCurated = ({
             </AnalyticsContext>
           }
           {isLW && <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
-            <SequencesGridWrapper
-              terms={{'view':'curatedSequences', limit:3}}
-              showAuthor={true}
-              showLoadMore={false}
-            />
+            <CuratedSequences />
           </AnalyticsContext>}
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
