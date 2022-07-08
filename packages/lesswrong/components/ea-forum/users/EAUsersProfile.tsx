@@ -1,13 +1,25 @@
+import React, { useEffect, useState } from 'react';
 import { combineUrls, Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
-import { Link } from '../../../lib/reactRouterWrapper';
+import { useCurrentUser } from '../../common/withUser';
 import { useLocation } from '../../../lib/routeUtil';
+import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useMessages } from '../../common/withMessages';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
+import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../../lib/vulcan-users/helpers';
+import { separatorBulletStyles } from '../../common/SectionFooter';
+import { taglineSetting } from '../../common/HeadTags';
+import { getBrowserLocalStorage } from '../../async/localStorageHandlers';
+import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
+import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/schema';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
+import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
+import { UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
+import { getUserFromResults } from '../../users/UsersProfile';
 import StarIcon from '@material-ui/icons/Star'
 import CalendarIcon from '@material-ui/icons/Today'
 import LocationIcon from '@material-ui/icons/LocationOn'
@@ -16,30 +28,20 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
-import { separatorBulletStyles } from '../../common/SectionFooter';
-import { taglineSetting } from '../../common/HeadTags';
-import { useCurrentUser } from '../../common/withUser';
-import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
-import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
-import { getBrowserLocalStorage } from '../../async/localStorageHandlers';
-import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/schema';
-import { useUpdate } from '../../../lib/crud/withUpdate';
-import { useMessages } from '../../common/withMessages';
 
+
+export const EAUsersProfileSectionStyles = (theme: ThemeType) => ({
+  background: theme.palette.grey[0],
+  padding: '24px 32px',
+  marginBottom: 24,
+  [theme.breakpoints.down('xs')]: {
+    padding: 16,
+  }
+})
 
 const styles = (theme: ThemeType): JssStyles => ({
-  profilePage: {
-  },
-  
   section: {
-    background: theme.palette.grey[0],
-    padding: '24px 32px',
-    marginBottom: 24,
-    [theme.breakpoints.down('xs')]: {
-      padding: 16,
-    }
+    ...EAUsersProfileSectionStyles(theme)
   },
   sunshineSection: {
     marginBottom: 24
@@ -90,9 +92,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   profileImage: {
-    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
-    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
-    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
+    '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
+    '-moz-box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
     borderRadius: '50%',
     marginBottom: 14,
   },
@@ -220,11 +222,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
-  // HOTFIX: Filtering out invalid users
-  return results?.find(user => !!user.displayName) || results?.[0] || null
-}
-
 const EAUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
@@ -268,8 +265,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
     }
   }, [currentUser, user, query.from])
   
+  // although both the owner and admins can see the drafts section,
+  // admins need to click a button to view it (so it's not distracting)
   const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(currentUser && user?._id === currentUser._id)
-  const [showSettings, setShowSettings] = useState(false)
+  // show/hide the "Posts" section sort/filter settings
+  const [showPostSettings, setShowPostSetttings] = useState(false)
   
   const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
     terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
@@ -285,16 +285,14 @@ const EAUsersProfile = ({terms, slug, classes}: {
     flash({messageString: "Your report has been sent to the moderators"})
   }
 
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, LWTooltip,
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
     SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
     RecentComments, SectionButton, SequencesGridWrapper } = Components
 
   if (loading) {
-    return <div className={classNames("page", "users-profile", classes.profilePage)}>
-      <Loading/>
-    </div>
+    return <Loading/>
   }
 
   if (!user || !user._id || user.deleted) {
@@ -321,13 +319,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
     }
   }
   
-  const userKarma = user.karma || 0
-
   const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
-  const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
+  const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
-  // maintain backward compatibility with bookmarks
+  // posts list sort settings
   const currentSorting = query.sortedBy || query.view ||  "new"
   const currentFilter = query.filter ||  "all"
   const ownPage = currentUser?._id === user._id
@@ -337,6 +333,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
 
   const username = userGetDisplayName(user)
   const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
+  const userKarma = user.karma || 0
   
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
   const socialMediaIcon = (field) => {
@@ -346,24 +343,24 @@ const EAUsersProfile = ({terms, slug, classes}: {
     </a>
   }
   
-  const privateSectionTabs: Array<any> = [{
+  const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
     label: `${ownPage ? 'My' : `${username}'s`} Drafts`,
     secondaryNode: <LWTooltip title="This section is only visible to you and site admins.">
       <InfoIcon className={classes.privateSectionIcon} />
     </LWTooltip>,
     body: <>
+      <div className={classes.sectionSubHeadingRow}>
+        <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
+        {ownPage && <Link to="/newPost">
+          <SectionButton>
+            <DescriptionIcon /> New Post
+          </SectionButton>
+        </Link>}
+      </div>
       <AnalyticsContext listContext="userPageDrafts">
-        <div className={classes.sectionSubHeadingRow}>
-          <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
-          {ownPage && <Link to="/newPost">
-            <SectionButton>
-              <DescriptionIcon /> New Post
-            </SectionButton>
-          </Link>}
-        </div>
-        <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>
-        <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+        <PostsList2 hideAuthor showDraftTag={false} terms={draftTerms} boxShadow={false} />
+        <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>
       <div className={classes.sectionSubHeadingRow}>
         <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
@@ -400,7 +397,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     })
   }
   
-  const bioSectionTabs: Array<any> = []
+  const bioSectionTabs: Array<UserProfileTabType> = []
   if (user.biography || user.howOthersCanHelpMe || user.howICanHelpOthers) {
     bioSectionTabs.push({
       id: 'bio',
@@ -460,21 +457,15 @@ const EAUsersProfile = ({terms, slug, classes}: {
     })
   }
   
-  const commentsSectionTabs: Array<any> = []
+  const commentsSectionTabs: Array<UserProfileTabType> = []
   if (user.commentCount) {
     commentsSectionTabs.push({
       id: 'comments',
       label: 'Comments',
       count: user.commentCount,
-      body: <RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
-    })
-  }
-  if (user.sequenceCount) {
-    commentsSectionTabs.push({
-      id: 'sequences',
-      label: 'Sequences',
-      count: user.sequenceCount,
-      body: <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
+      body: <AnalyticsContext pageSectionContext="commentsSection">
+        <RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
+      </AnalyticsContext>
     })
   }
   if (user.tagRevisionCount) {
@@ -489,157 +480,152 @@ const EAUsersProfile = ({terms, slug, classes}: {
   }
 
 
-  return (
-    <div className={classNames("page", "users-profile", classes.profilePage)}>
-      <HeadTags
-        description={metaDescription}
-        noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
-        image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-      />
-      <AnalyticsContext pageContext="userPage">
-        <SingleColumnSection>
-          <div className={classes.section}>
-            {user.profileImageId && <Components.CloudinaryImage2
-              height={96}
-              width={96}
-              imgProps={{q: '100'}}
-              publicId={user.profileImageId}
-              className={classes.profileImage}
-            />}
-            <Typography variant="headline" className={classes.username}>{username}</Typography>
-            {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
-              {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
-            </ContentStyles>}
-            {!!user.careerStage?.length && <ContentStyles contentType="comment" className={classes.careerStage}>
-              {user.careerStage.map(stage => {
-                return <div key={stage}>
-                  {CAREER_STAGES.find(s => s.value === stage)?.label}
-                </div>
-              })}
-            </ContentStyles>}
-            <ContentStyles contentType="comment" className={classes.iconsRow}>
-              <Tooltip title={`${userKarma} karma`}>
-                <span className={classes.userMetaInfo}>
-                  <StarIcon className={classes.userMetaInfoIcon} />
-                  {userKarma}
-                </span>
-              </Tooltip>
-              {user.mapLocation && <Link to="/community#individuals" className={classes.userMetaInfo}>
-                <LocationIcon className={classes.userMetaInfoIcon} />
-                {user.mapLocation.formatted_address}
-              </Link>}
+  return <div>
+    <HeadTags
+      description={metaDescription}
+      noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+      image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
+    />
+    <AnalyticsContext pageContext="userPage">
+      <SingleColumnSection>
+        <div className={classes.section}>
+          {user.profileImageId && <Components.CloudinaryImage2
+            height={96}
+            width={96}
+            imgProps={{q: '100'}}
+            publicId={user.profileImageId}
+            className={classes.profileImage}
+          />}
+          <Typography variant="headline" className={classes.username}>{username}</Typography>
+          {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
+            {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
+          </ContentStyles>}
+          {!!user.careerStage?.length && <ContentStyles contentType="comment" className={classes.careerStage}>
+            {user.careerStage.map(stage => {
+              return <div key={stage}>
+                {CAREER_STAGES.find(s => s.value === stage)?.label}
+              </div>
+            })}
+          </ContentStyles>}
+          <ContentStyles contentType="comment" className={classes.iconsRow}>
+            <Tooltip title={`${userKarma} karma`}>
               <span className={classes.userMetaInfo}>
-                <CalendarIcon className={classes.userMetaInfoIcon} />
-                <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
+                <StarIcon className={classes.userMetaInfoIcon} />
+                {userKarma}
               </span>
-              {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-                {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
-              </div>}
-              {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
-                <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
-                {user.website}
-              </a>}
-            </ContentStyles>
-            <div className={classes.btns}>
-              {currentUser?._id != user._id && <NewConversationButton
-                user={user}
-                currentUser={currentUser}
-              >
-                <a tabIndex={0} className={classes.messageBtn}>
-                  Message
-                </a>
-              </NewConversationButton>}
-              {currentUser?._id != user._id && <NotifyMeButton
-                document={user}
-                className={classes.subscribeBtn}
-                subscribeMessage="Subscribe to posts"
-                unsubscribeMessage="Unsubscribe"
-                asButton
-              />}
-            </div>
-            <Typography variant="body2" className={classes.links}>
-              {currentUser?.isAdmin &&
-                <div className={classes.registerRssLink}>
-                  <DialogGroup
-                    actions={[]}
-                    trigger={<span>Register RSS</span>}
-                  >
-                    { /*eslint-disable-next-line react/jsx-pascal-case*/ }
-                    <div><Components.newFeedButton user={user} /></div>
-                  </DialogGroup>
-                </div>
-              }
-              {userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
-                Edit Profile
-              </Link>}
-              {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                Manage Subscriptions
-              </Link>}
-              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Account Settings
-              </Link>}
-            </Typography>
-          </div>
-          
-          {userCanDo(currentUser, 'posts.moderate.all') && <div className={classes.sunshineSection}>
-            <SunshineNewUsersProfileInfo userId={user._id} />
-          </div>}
-          
-          {(ownPage || currentUser?.isAdmin) && (
-            draftsSectionExpanded ? <EAUsersProfileTabbedSection
+            </Tooltip>
+            {user.mapLocation && <Link to="/community#individuals" className={classes.userMetaInfo}>
+              <LocationIcon className={classes.userMetaInfoIcon} />
+              {user.mapLocation.formatted_address}
+            </Link>}
+            <span className={classes.userMetaInfo}>
+              <CalendarIcon className={classes.userMetaInfoIcon} />
+              <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
+            </span>
+            {userHasSocialMedia && <div className={classes.socialMediaIcons}>
+              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
+            </div>}
+            {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
+              <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
+              {user.website}
+            </a>}
+          </ContentStyles>
+          <div className={classes.btns}>
+            {currentUser?._id != user._id && <NewConversationButton
               user={user}
               currentUser={currentUser}
-              tabs={privateSectionTabs}
-            /> : <Button color="primary"
-              onClick={() => setDraftsSectionExpanded(true)}
-              className={classes.showSectionBtn}
             >
-              Click to view drafts
-            </Button>)
-          }
-          
-          <EAUsersProfileTabbedSection user={user} currentUser={currentUser} tabs={bioSectionTabs} />
-          
-          {user.postCount && <div className={classes.section}>
-            <div className={classes.sectionHeadingRow}>
-              <Typography variant="headline" className={classes.sectionHeading}>
-                Posts <div className={classes.sectionHeadingCount}>{user.postCount}</div>
-              </Typography>
-              <SettingsButton onClick={() => setShowSettings(!showSettings)}
-                label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
-            </div>
-            {showSettings && <PostsListSettings
-              hidden={false}
-              currentSorting={currentSorting}
-              currentFilter={currentFilter}
-              currentShowLowKarma={currentShowLowKarma}
-              currentIncludeEvents={currentIncludeEvents}
+              <a tabIndex={0} className={classes.messageBtn}>
+                Message
+              </a>
+            </NewConversationButton>}
+            {currentUser?._id != user._id && <NotifyMeButton
+              document={user}
+              className={classes.subscribeBtn}
+              subscribeMessage="Subscribe to posts"
+              unsubscribeMessage="Unsubscribe"
+              asButton
             />}
-            <AnalyticsContext listContext="userPagePosts">
-              <PostsList2 terms={postTerms} hideAuthor />
-            </AnalyticsContext>
-          </div>}
-          
-          <EAUsersProfileTabbedSection user={user} currentUser={currentUser} tabs={commentsSectionTabs} />
-          
-          {/* {!!user.commentCount && <AnalyticsContext pageSectionContext="commentsSection">
-            <div className={classes.section}>
-              <Link to={`${userGetProfileUrl(user)}/replies`} className={classes.sectionHeadingRow}>
-                <Typography variant="headline" className={classes.sectionHeading}>Comments</Typography>
-              </Link>
-              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
-            </div>
-          </AnalyticsContext>} */}
-        </SingleColumnSection>
+          </div>
+          <Typography variant="body2" className={classes.links}>
+            {currentUser?.isAdmin &&
+              <div className={classes.registerRssLink}>
+                <DialogGroup
+                  actions={[]}
+                  trigger={<span>Register RSS</span>}
+                >
+                  { /*eslint-disable-next-line react/jsx-pascal-case*/ }
+                  <div><Components.newFeedButton user={user} /></div>
+                </DialogGroup>
+              </div>
+            }
+            {userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
+              Edit Profile
+            </Link>}
+            {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
+              Manage Subscriptions
+            </Link>}
+            {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
+              Account Settings
+            </Link>}
+          </Typography>
+        </div>
+        
+        {userCanDo(currentUser, 'posts.moderate.all') && <div className={classes.sunshineSection}>
+          <SunshineNewUsersProfileInfo userId={user._id} />
+        </div>}
+        
+        {(ownPage || currentUser?.isAdmin) && (draftsSectionExpanded ?
+          <EAUsersProfileTabbedSection tabs={privateSectionTabs} /> :
+          <Button color="primary"
+            onClick={() => setDraftsSectionExpanded(true)}
+            className={classes.showSectionBtn}
+          >
+            Click to view drafts
+          </Button>
+        )}
+        
+        <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
+        
+        {!!user.postCount && <div className={classes.section}>
+          <div className={classes.sectionHeadingRow}>
+            <Typography variant="headline" className={classes.sectionHeading}>
+              Posts <div className={classes.sectionHeadingCount}>{user.postCount}</div>
+            </Typography>
+            <SettingsButton onClick={() => setShowPostSetttings(!showPostSettings)}
+              label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
+          </div>
+          {showPostSettings && <PostsListSettings
+            hidden={false}
+            currentSorting={currentSorting}
+            currentFilter={currentFilter}
+            currentShowLowKarma={currentShowLowKarma}
+            currentIncludeEvents={currentIncludeEvents}
+          />}
+          <AnalyticsContext listContext="userPagePosts">
+            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor />
+          </AnalyticsContext>
+        </div>}
+        
+        {!!user.sequenceCount && <div className={classes.section}>
+          <div className={classes.sectionHeadingRow}>
+            <Typography variant="headline" className={classes.sectionHeading}>
+              Sequences <div className={classes.sectionHeadingCount}>{user.sequenceCount}</div>
+            </Typography>
+          </div>
+          <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
+        </div>}
+        
+        <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
+      </SingleColumnSection>
 
-        {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
-          <SingleColumnSection className={classes.reportUserSection}>
-            <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
-          </SingleColumnSection>
-        }
-      </AnalyticsContext>
-    </div>
-  )
+      {currentUser && user.karma < 50 && !user.needsReview && (currentUser._id !== user._id) &&
+        <SingleColumnSection className={classes.reportUserSection}>
+          <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
+        </SingleColumnSection>
+      }
+    </AnalyticsContext>
+  </div>
 }
 
 const EAUsersProfileComponent = registerComponent(
