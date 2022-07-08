@@ -100,7 +100,7 @@ export type CompleteTestGroupAllocation = Record<string,string>
 // RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
 // which group a user is in, which is pruned to only the tests which affected
 // a particular page render.
-export type RelevantTestGroupAllocation<T extends string = string> = Record<string,T>
+export type RelevantTestGroupAllocation = Record<string,string>
 
 // Used for tracking which A/B test groups were relevant to the page rendering
 export const ABTestGroupsUsedContext = React.createContext<RelevantTestGroupAllocation>({});
@@ -125,16 +125,18 @@ export function getUserABTestKey(user: UsersCurrent|DbUser|null, clientId: strin
   }
 }
 
-export function getUserABTestGroup<T extends string>(user: UsersCurrent|DbUser|null, clientId: string, abTest: ABTest<T>): T {
+export function getUserABTestGroup<Groups extends string>(user: UsersCurrent|DbUser|null, clientId: string, abTest: ABTest<Groups>): Groups {
   const abTestKey = getUserABTestKey(user, clientId);
-  let groupWeights: Record<string,number> = {};
-  for (let group of Object.keys(abTest.groups))
-    groupWeights[group] = abTest.groups[group].weight;
-  
+  const groupWeights = Object.fromEntries(
+    Object
+      .entries(abTest.groups)
+      .map(([groupName, group]: [Groups, ABTestGroup]) => [groupName, group.weight] as const)
+  ) as Record<Groups, number>;
+
   if (user?.abTestOverrides && user.abTestOverrides[abTest.name]) {
     return user.abTestOverrides[abTest.name];
   } else {
-    return weightedRandomPick<T>(groupWeights, `${abTest.name}-${abTestKey}`);
+    return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey}`);
   }
 }
 
