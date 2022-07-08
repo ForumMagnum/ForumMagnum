@@ -109,7 +109,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'highlights',
       title: 'Sequence Highlights',
       link: '/highlights',
-      tooltip: "A curated selection of Eliezer's sequences, covering important background material for participating in the LessWrong Community (50 posts, approx. 7 hour read)",
+      tooltip: "A curated selection of Eliezer's sequences, covering important background material for participating in the LessWrong community (50 posts, approx. 7 hour read)",
       subItem: true,
     }, {
       id: 'r-az',
