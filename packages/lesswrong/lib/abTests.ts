@@ -48,4 +48,4 @@ export const booksProgressBarABTest = new ABTest({
       weight: 1
     }
   }
-})
+});
