@@ -40,7 +40,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
 }) => {
   const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
 
-  const { results: chapters, loading } = useMulti({
+  const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
       view: "SequenceChapters",
       sequenceId: sequence?._id,
@@ -55,7 +55,6 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
   
   return <Card className={classes.root}>
-    {!sequence && <Loading/>}
     {sequence && <Link to={getCollectionOrSequenceUrl(sequence)}>
       <div className={classes.title}>{sequence.title}</div>
     </Link>}
@@ -74,11 +73,13 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
         description={`sequence ${sequence?._id}`}
       />
     </ContentStyles>
-    {!chapters && loading && <Loading />}
-    {posts.map(post => 
+    {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
+    {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
+    {sequence && posts.map(post => 
       <SequencesSmallPostLink 
-        key={sequence?._id + post._id} 
+        key={sequence._id + post._id} 
         post={post}
+        sequenceId={sequence._id}
       />
     )}
     <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>

@@ -187,6 +187,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         {posts.map(post => <SequencesSmallPostLink 
             key={sequence._id + post._id} 
             post={post}
+            sequenceId={sequence._id}
           />
         )}
       </div>

@@ -106,6 +106,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
+      id: 'highlights',
+      title: 'Sequence Highlights',
+      link: '/highlights',
+      tooltip: "A curated selection of Eliezer's sequences, covering important background material for participating in the LessWrong community (50 posts, approx. 7 hour read)",
+      subItem: true,
+    }, {
       id: 'r-az',
       title: 'Rationality: A-Z',
       link: '/rationality',
