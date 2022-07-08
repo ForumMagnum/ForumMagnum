@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useABTest } from '../../lib/abTestImpl';
 import { booksProgressBarABTest, collectionsPageABTest } from '../../lib/abTests';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -30,10 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const BooksItem = ({ book, canEdit, classes }: {
+const BooksItem = ({ book, canEdit, classes, refetch }: {
   book: BookPageFragment,
   canEdit: boolean,
   classes: ClassesType,
+  refetch?: () => void
 }) => {
   const [edit,setEdit] = useState(false);
 
@@ -50,6 +51,10 @@ const BooksItem = ({ book, canEdit, classes }: {
 
   const useLargeSequencesItem = useABTest(collectionsPageABTest) === "largeSequenceItemGroup";
   const useProgressBar = useABTest(booksProgressBarABTest) === "progressBar";
+
+  useEffect(() => {
+    refetch?.();
+  });
 
   if (edit) {
     return <Components.BooksEditForm
