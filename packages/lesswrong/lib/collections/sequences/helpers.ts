@@ -7,11 +7,18 @@ import * as _ from 'underscore';
 
 // TODO: Make these functions able to use loaders for caching.
 
-export const sequenceGetPageUrl = function(sequence, isAbsolute = false){
+export const sequenceGetPageUrl = function(sequence: SequencesPageTitleFragment, isAbsolute = false){
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   return `${prefix}/s/${sequence._id}`;
 };
+
+export const getCollectionOrSequenceUrl = function (sequence: SequencesPageTitleFragment, isAbsolute = false) {
+  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence, isAbsolute)
+  
+  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+  return `${prefix}/${sequence.canonicalCollectionSlug}#${sequence._id}`
+}
 
 export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
   const chapters = await mongoFind("Chapters", {sequenceId: sequenceId}, {sort: {number: 1}});

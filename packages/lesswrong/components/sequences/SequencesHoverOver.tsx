@@ -3,6 +3,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { useSingle } from '../../lib/crud/withSingle';
+import { Link } from '../../lib/reactRouterWrapper';
+import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -53,7 +55,9 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
   
   return <Card className={classes.root}>
-    <div className={classes.title}>{sequence?.title}</div>
+    {sequence && <Link to={getCollectionOrSequenceUrl(sequence)}>
+      <div className={classes.title}>{sequence.title}</div>
+    </Link>}
     { showAuthor && sequence?.user &&
       <div className={classes.author}>
         by <UsersName user={sequence?.user} />

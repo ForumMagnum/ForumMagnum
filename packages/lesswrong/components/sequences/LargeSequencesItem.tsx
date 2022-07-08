@@ -146,7 +146,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
-  return <div className={classes.root} >
+  return <div className={classes.root} id={sequence._id}>
 
     <div className={classes.columns}>
       <div className={classes.left}>
