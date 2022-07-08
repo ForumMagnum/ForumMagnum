@@ -18,7 +18,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/view
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/schema';
 import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/custom_fields';
 import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
-import { UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
+import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
 import StarIcon from '@material-ui/icons/Star'
 import CalendarIcon from '@material-ui/icons/Today'
@@ -30,18 +30,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 
 
-export const EAUsersProfileSectionStyles = (theme: ThemeType) => ({
-  background: theme.palette.grey[0],
-  padding: '24px 32px',
-  marginBottom: 24,
-  [theme.breakpoints.down('xs')]: {
-    padding: 16,
-  }
-})
-
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
-    ...EAUsersProfileSectionStyles(theme)
+    ...eaUsersProfileSectionStyles(theme)
   },
   sunshineSection: {
     marginBottom: 24

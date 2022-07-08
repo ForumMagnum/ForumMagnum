@@ -1,15 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { EAUsersProfileSectionStyles } from '../EAUsersProfile';
 import Button from '@material-ui/core/Button';
 
 
 const COLLAPSED_SECTION_HEIGHT = 200
 
+export const eaUsersProfileSectionStyles = (theme: ThemeType) => ({
+  background: theme.palette.grey[0],
+  padding: '24px 32px',
+  marginBottom: 24,
+  [theme.breakpoints.down('xs')]: {
+    padding: 16,
+  }
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
-    ...EAUsersProfileSectionStyles(theme)
+    ...eaUsersProfileSectionStyles(theme)
   },
   tabsRow: {
     display: 'flex',
