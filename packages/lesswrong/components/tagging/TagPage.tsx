@@ -6,7 +6,7 @@ import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
-import { truncate } from '../../lib/editor/ellipsize';
+import { getTruncationCharCount, truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
@@ -15,6 +15,7 @@ import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { html } from "cheerio";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -242,9 +243,26 @@ const TagPage = ({classes}: {
   }
 
   const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  const description = (truncated && !tag.wikiOnly && !isEAForum)
+  let description;
+  if(isEAForum) {
+    /**
+     * The `truncate` method used below uses a complicated criterion for what
+     * counts as a character. Here, we want to truncate at a known index in
+     * the string. So rather than using `truncate`, we can slice the string
+     * at the desired index, use `parseFromString` to clean up the HTML,
+     * and then append our footer 'read more' element.
+     */
+    const truncationLength = htmlWithAnchors.includes('id="Further_reading"') ? 
+      htmlWithAnchors.indexOf('id="Further_reading"') :
+      htmlWithAnchors.indexOf('id="Bibliography"');
+    description = truncated && truncationLength !== -1 ?
+      new DOMParser().parseFromString(htmlWithAnchors.slice(0, truncationLength), 'text/html').body.innerHTML +  "<span>...<p><a>(Read More)</a></p></span>" :
+      htmlWithAnchors;
+  } else {
+    description = (truncated && !tag.wikiOnly && !isEAForum)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
+  }
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
