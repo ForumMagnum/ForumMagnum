@@ -526,7 +526,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
               user={user}
               currentUser={currentUser}
             >
-              <a tabIndex={0} className={classes.messageBtn}>
+              <a tabIndex={0} className={classes.messageBtn} data-cy="message">
                 Message
               </a>
             </NewConversationButton>}
