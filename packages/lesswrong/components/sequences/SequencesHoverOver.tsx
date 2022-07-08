@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   classes: ClassesType,
-  sequence: SequencesPageFragment,
+  sequence: SequencesPageFragment|null,
   showAuthor?: boolean
 }) => {
   const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
@@ -53,7 +53,6 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
   
   return <Card className={classes.root}>
-    {!sequence && <Loading/>}
     <div className={classes.title}>{sequence?.title}</div>
     { showAuthor && sequence?.user &&
       <div className={classes.author}>
@@ -70,8 +69,8 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
         description={`sequence ${sequence?._id}`}
       />
     </ContentStyles>
-    {!chapters && loading && <Loading />}
-    {posts.map(post => 
+    {!sequence || (!chapters && loading) && <Loading/>}
+    {sequence && posts.map(post => 
       <SequencesSmallPostLink 
         key={sequence._id + post._id} 
         post={post}
