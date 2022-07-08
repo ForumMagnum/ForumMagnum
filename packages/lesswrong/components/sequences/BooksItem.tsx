@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { useABTest } from '../../lib/abTestImpl';
 import { collectionsPageABTest } from '../../lib/abTests';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { LargeSequencesItem } from './LargeSequencesItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,7 +38,7 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
+  const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
     SequencesPostsList, Divider, ContentItemBody, ContentStyles, SequencesGrid } = Components
   
   const showEdit = useCallback(() => {
@@ -63,6 +62,7 @@ const BooksItem = ({ book, canEdit, classes }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
+        <BooksProgressBar book={book} />
         <div className={classes.subtitle}>{book.subtitle}</div>
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
