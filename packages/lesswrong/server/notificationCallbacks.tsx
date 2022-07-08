@@ -471,7 +471,7 @@ const sendCoauthorRequestNotifications = async (post: DbPost) => {
 
   if (hasCoauthorPermission === false && coauthorStatuses?.length) {
     await createNotifications({
-      userIds: coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId),
+      userIds: coauthorStatuses.filter(({requested, confirmed}) => !requested && !confirmed).map(({userId}) => userId),
       notificationType: "coauthorRequestNotification",
       documentType: "post",
       documentId: _id,
