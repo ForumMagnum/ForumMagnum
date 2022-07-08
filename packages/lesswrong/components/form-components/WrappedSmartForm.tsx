@@ -28,9 +28,13 @@ function WrappedSmartForm(props) {
           const { originalContents, updateType, commitMessage } = (data && data[fieldName]) || {}
           return [
             fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
-            (originalContents?.data) ? // Ensure that we have data
-              { originalContents, updateType, commitMessage } : // If so, constrain it to correct shape
-              undefined // If not, set field to undefined
+            // Ensure that we have data. We check for data field presence but
+            // not truthiness, because the empty string is falsy.
+            (typeof originalContents==="object" && "data" in originalContents)
+              // If so, constrain it to correct shape
+              ? { originalContents, updateType, commitMessage }
+              // If not, set field to undefined
+              : undefined
           ]
         }))
         return {...data, ...editableFields}

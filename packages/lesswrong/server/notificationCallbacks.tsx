@@ -453,8 +453,8 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
   const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
-  const coauthors = coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId);
-  const userIds = shareWithUsers.filter((user) => !coauthors.includes(user));
+  const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
+  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
 
@@ -490,7 +490,7 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
-  
+
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 

@@ -139,6 +139,12 @@ export const darkModeTheme: UserThemeSpecification = {
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,
     },
+    editor: {
+      commentPanelBackground: shadePalette.grey[200],
+      sideCommentEditorBackground: shadePalette.grey[100],
+      commentMarker: "#80792e",
+      commentMarkerActive: "#cbc14f",
+    },
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {
