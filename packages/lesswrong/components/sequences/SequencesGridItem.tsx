@@ -3,8 +3,7 @@ import NoSSR from 'react-no-ssr';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
-import { title } from 'process';
-import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -120,7 +119,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   if (sequence.title.length > 26) positionAdjustment -= 17
 
   return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>
-    <LinkCard to={sequenceGetPageUrl(sequence)} tooltip={<div style={{marginTop:positionAdjustment}}><SequencesHoverOver sequence={sequence} showAuthor={showAuthor}/></div>}>
+    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={<div style={{marginTop:positionAdjustment}}><SequencesHoverOver sequence={sequence} showAuthor={showAuthor}/></div>}>
       <div className={classes.image}>
         <NoSSR>
           <Components.CloudinaryImage

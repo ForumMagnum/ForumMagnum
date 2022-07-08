@@ -18,30 +18,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 6
   },
   read: {
-    width: 10,
+    width: 12,
     color: theme.palette.primary.light,
     marginRight: 10,
     position: "relative",
     top: -1
   },
   unread: {
-    width: 10,
+    width: 12,
     color: theme.palette.grey[400],
     marginRight: 10,
     top: -1
   }
 });
 
-const SequencesSmallPostLink = ({classes, post}: {
+const SequencesSmallPostLink = ({classes, post, sequenceId}: {
   classes: ClassesType,
   post: PostsList,
+  sequenceId: string
 }) => {
   const { LWTooltip, PostsPreviewTooltip } = Components
 
   const icon = !!post.lastVisitedAt ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
   return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false}>
-        <Link to={postGetPageUrl(post)} className={classes.title}>
+        <Link to={postGetPageUrl(post, false, sequenceId)} className={classes.title}>
           {icon} {post.title}
         </Link>
       </LWTooltip>
