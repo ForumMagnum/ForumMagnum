@@ -46,9 +46,9 @@ const BooksProgressBar = ({ book, classes }: {
     <div className={classes.sequence}>
       {
         sequencePosts.map(post => (
-          <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+          <LWTooltip key={post._id} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
             <Link to={postGetPageUrl(post)}>
-              <div key={post._id} className={classNames(classes.post, {[classes.read]: post.isRead})} />
+              <div className={classNames(classes.post, {[classes.read]: post.isRead})} />
             </Link>
           </LWTooltip>
           ))
