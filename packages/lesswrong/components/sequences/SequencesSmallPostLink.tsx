@@ -18,14 +18,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 6
   },
   read: {
-    width: 10,
+    width: 12,
     color: theme.palette.primary.light,
     marginRight: 10,
     position: "relative",
     top: -1
   },
   unread: {
-    width: 10,
+    width: 12,
     color: theme.palette.grey[400],
     marginRight: 10,
     top: -1
