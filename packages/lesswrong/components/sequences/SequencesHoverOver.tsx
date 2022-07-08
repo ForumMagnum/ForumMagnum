@@ -33,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   classes: ClassesType,
-  sequence: SequencesPageFragment|null,
+  sequence: SequencesPageFragment,
   showAuthor?: boolean
 }) => {
   const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
@@ -73,8 +73,9 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     {!chapters && loading && <Loading />}
     {posts.map(post => 
       <SequencesSmallPostLink 
-        key={sequence?._id + post._id} 
+        key={sequence._id + post._id} 
         post={post}
+        sequenceId={sequence._id}
       />
     )}
     <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>

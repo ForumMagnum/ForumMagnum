@@ -119,6 +119,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       </div>,
       subItem: true,
     }, {
+      id: 'highlights',
+      title: 'Sequence Highlights',
+      link: '/highlights',
+      tooltip: "An abridged overview of Eliezer's sequences, covering important background material for participating in the LessWrong Community (40 posts, approx. 7 hour read)",
+      subItem: true,
+    }, {
       id: 'codex',
       title: 'The Codex',
       link: '/codex',

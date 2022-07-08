@@ -32,16 +32,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SequencesSmallPostLink = ({classes, post}: {
+const SequencesSmallPostLink = ({classes, post, sequenceId}: {
   classes: ClassesType,
   post: PostsList,
+  sequenceId: string
 }) => {
   const { LWTooltip, PostsPreviewTooltip } = Components
 
   const icon = !!post.lastVisitedAt ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
   return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false}>
-        <Link to={postGetPageUrl(post)} className={classes.title}>
+        <Link to={postGetPageUrl(post, false, sequenceId)} className={classes.title}>
           {icon} {post.title}
         </Link>
       </LWTooltip>
