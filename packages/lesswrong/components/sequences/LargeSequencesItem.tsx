@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     maxWidth: 600,
     marginTop: 90,
-    marginBottom: 90,
+    marginBottom: 30,
     [theme.breakpoints.down('xs')]: {
       marginTop: 60,
       marginBottom: 0
