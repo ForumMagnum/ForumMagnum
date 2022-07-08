@@ -69,7 +69,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
         description={`sequence ${sequence?._id}`}
       />
     </ContentStyles>
-    {!sequence || (!chapters && loading) && <Loading/>}
+    {(!sequence || (!chapters && loading)) && <Loading/>}
     {sequence && posts.map(post => 
       <SequencesSmallPostLink 
         key={sequence._id + post._id} 
