@@ -106,6 +106,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
+      id: 'highlights',
+      title: 'Sequence Highlights',
+      link: '/highlights',
+      tooltip: "A curated selection of Eliezer's sequences, covering important background material for participating in the LessWrong Community (50 posts, approx. 7 hour read)",
+      subItem: true,
+    }, {
       id: 'r-az',
       title: 'Rationality: A-Z',
       link: '/rationality',
@@ -117,12 +123,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
           Those posts have been edited down into this introductory collection, recommended for new users.
         </p>
       </div>,
-      subItem: true,
-    }, {
-      id: 'highlights',
-      title: 'Sequence Highlights',
-      link: '/highlights',
-      tooltip: "An abridged overview of Eliezer's sequences, covering important background material for participating in the LessWrong Community (40 posts, approx. 7 hour read)",
       subItem: true,
     }, {
       id: 'codex',
