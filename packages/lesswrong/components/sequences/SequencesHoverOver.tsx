@@ -38,7 +38,7 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
 }) => {
   const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
 
-  const { results: chapters, loading } = useMulti({
+  const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
       view: "SequenceChapters",
       sequenceId: sequence?._id,
@@ -69,7 +69,8 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
         description={`sequence ${sequence?._id}`}
       />
     </ContentStyles>
-    {(!sequence || (!chapters && loading)) && <Loading/>}
+    {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
+    {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
     {sequence && posts.map(post => 
       <SequencesSmallPostLink 
         key={sequence._id + post._id} 
