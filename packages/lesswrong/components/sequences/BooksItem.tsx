@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useABTest } from '../../lib/abTestImpl';
-import { collectionsPageABTest } from '../../lib/abTests';
+import { booksProgressBarABTest, collectionsPageABTest } from '../../lib/abTests';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -49,6 +49,7 @@ const BooksItem = ({ book, canEdit, classes }: {
   }, []);
 
   const useLargeSequencesItem = useABTest(collectionsPageABTest) === "largeSequenceItemGroup";
+  const useProgressBar = useABTest(booksProgressBarABTest) === "progressBar";
 
   if (edit) {
     return <Components.BooksEditForm
@@ -62,7 +63,7 @@ const BooksItem = ({ book, canEdit, classes }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
-        <BooksProgressBar book={book} />
+        {useProgressBar && <BooksProgressBar book={book} />}
         <div className={classes.subtitle}>{book.subtitle}</div>
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
