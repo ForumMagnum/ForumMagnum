@@ -38,7 +38,6 @@ const BooksProgressBar = ({ book, classes }: {
   const sequencePosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts.flatMap(post => post)));
   const readPosts = sequencePosts.filter(post => post.isRead).length;
   const totalPosts = sequencePosts.length;
-  const percentRead = totalPosts ? (readPosts / totalPosts) * 100 : 100;
 
   const postsReadText = `${readPosts} / ${totalPosts} posts read`;
 
