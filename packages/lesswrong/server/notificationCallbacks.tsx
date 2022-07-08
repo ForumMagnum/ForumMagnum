@@ -458,14 +458,6 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
 
-getCollectionHooks("Posts").newAsync.add(async function CreateCoauthorRequestNotifications(post: DbPost) {
-  await sendCoauthorRequestNotifications(post);
-});
-
-getCollectionHooks("Posts").updateAfter.add(function UpdateCoauthorRequestNotifications(post: DbPost) {
-  return sendCoauthorRequestNotifications(post);
-});
-
 const sendCoauthorRequestNotifications = async (post: DbPost) => {
   const { _id, coauthorStatuses, hasCoauthorPermission } = post;
 
@@ -483,6 +475,9 @@ const sendCoauthorRequestNotifications = async (post: DbPost) => {
 
   return post;
 }
+
+getCollectionHooks("Posts").newAfter.add(sendCoauthorRequestNotifications);
+getCollectionHooks("Posts").updateAfter.add(sendCoauthorRequestNotifications);
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
   const newlyAF = newDocument.af && !oldDocument.af
