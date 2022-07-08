@@ -12,19 +12,27 @@ import Document from '@ckeditor/ckeditor5-engine/src/view/document';
  * Using Publish to Web is necessary because the default view doesn't let you select a document
  * and its footnotes at the same time.
  *
- * Roughly, here's how this works: pasted text gets converted from an html string into view elements,
- * which then get upcasted to model elements. This class gets injected at the view element stage,
+ * Here's how this works: pasted text gets converted from an html string into view elements,
+ * which then get upcasted to model elements. This class's execute method gets run at the view element stage,
  * using the rarely-needed UpcastWriter to transform the data in preparation for the upcasting
- * step. Specifically, this means adding attributes to each element — both element-type-specifying 
+ * step. Specifically, this means adding attributes to each element — both type-specifying
  * attributes like `ATTRIBUTES.footnoteContent`, and context attributes like IDs and indices.
- * From there, the upcast converters can in `converters.js` can do the rest.
+ * From there, the upcast converters in `converters.js` can do the rest.
  */
 export default class GoogleDocsFootnotesNormalizer {
+	/**
+	 * Used by the clipboard pipeline to determine whether to run the execute method
+	 * on paste.
+	 */
 	isActive() {
 		return true;
 	}
+	
 	/**
-	 * 
+	 * preproceses incoming content for upcasting, adding
+	 * identifying attributes to footnoteReferences and footnotebackLinks,
+	 * and adding surrounding footnoteContent, footnoteItem, and footnoteSection
+	 * elements.
 	 * @param {{content: {document: Document}}} data 
 	 */
 	execute(data) {
@@ -148,6 +156,7 @@ export default class GoogleDocsFootnotesNormalizer {
 					[ATTRIBUTES.footnoteId]: id,
 					[ATTRIBUTES.footnoteIndex]: index,
 				},
+
 				// @ts-ignore: startPosition isn't required here.
 				[...footnoteContentRange.getItems({ shallow: true})]
 					.filter(item => item.is('element'))
@@ -163,7 +172,8 @@ export default class GoogleDocsFootnotesNormalizer {
 	}
 
 	/**
-	 * Adds attributes to each footnote reference.
+	 * Adds `footnoteReference` `footnoteIndex`, and `footnoteId`
+	 * attributes to each footnote reference.
 	 * @param {UpcastWriter} writer
 	 * @param {Range} documentRange
 	 * @param {Object.<string, {item: Element, id: string}>} backLinks
@@ -178,8 +188,8 @@ export default class GoogleDocsFootnotesNormalizer {
 	}
 
 	/**
-	 * Generates a new footnoteItem element for each backLink, 
-	 * wraps them in a footnoteSection element then replaces the 
+	 * Generates a new footnoteItem element for each backLink,
+	 * wraps them in a footnoteSection element then replaces the
 	 * original footnote section with the newly
 	 * created element. This clone-and-replace approach is necessary
 	 * because UpcastWriter doesn't have a method to wrap existing
