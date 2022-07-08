@@ -166,7 +166,6 @@ registerFragment(`
   fragment PostsAuthors on Post {
     user {
       ...UsersMinimumInfo
-      showPostAuthorCard
       biography {
         ...RevisionDisplay
       }
@@ -493,7 +492,6 @@ registerFragment(`
     
     user {
       ...UsersMinimumInfo
-      showPostAuthorCard
       biography {
         ...RevisionDisplay
       }

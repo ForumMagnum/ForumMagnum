@@ -458,37 +458,26 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });
 
-getCollectionHooks("Posts").newAsync.add(async function CoauthorRequestNotifications(post: DbPost) {
-  await checkCoauthorRequestNotifications(post);
-});
+const sendCoauthorRequestNotifications = async (post: DbPost) => {
+  const { _id, coauthorStatuses, hasCoauthorPermission } = post;
 
-//TODO: Currently broken, disable so we don't get bad emails
-// getCollectionHooks("Posts").updateAfter.add(async function CoauthorRequestNotifications(post: DbPost) {
-//   return await checkCoauthorRequestNotifications(post);
-// });
-
-async function checkCoauthorRequestNotifications(post: DbPost) {
-  const { _id, coauthorStatuses = [], hasCoauthorPermission } = post;
-
-  if (hasCoauthorPermission) {
-    return post;
-  }
-
-  const userIds = coauthorStatuses.filter(({ requested }) => !requested).map(({ userId }) => userId);
-  if (userIds.length>0) {
-    await createNotifications({userIds, notificationType: "coauthorRequestNotification", documentType: "post", documentId: _id});
-  
-    await updateMutator({
-      collection: Posts,
+  if (hasCoauthorPermission === false && coauthorStatuses?.length) {
+    await createNotifications({
+      userIds: coauthorStatuses.filter(({requested, confirmed}) => !requested && !confirmed).map(({userId}) => userId),
+      notificationType: "coauthorRequestNotification",
+      documentType: "post",
       documentId: _id,
-      data: {
-        coauthorStatuses: coauthorStatuses.map((status) => ({ ...status, requested: true })),
-      },
-      validate: false,
-    })
+    });
+
+    post.coauthorStatuses = coauthorStatuses.map((status) => ({ ...status, requested: true }));
+    await Posts.rawUpdateOne({ _id }, { $set: { coauthorStatuses: post.coauthorStatuses } });
   }
+
   return post;
 }
+
+getCollectionHooks("Posts").newAfter.add(sendCoauthorRequestNotifications);
+getCollectionHooks("Posts").updateAfter.add(sendCoauthorRequestNotifications);
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
   const newlyAF = newDocument.af && !oldDocument.af

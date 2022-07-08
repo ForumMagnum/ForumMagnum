@@ -11,6 +11,7 @@ export const communityPath = '/community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
+const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
@@ -306,6 +307,15 @@ addRoute(
     path: '/highlights',
     title: "Sequences Highlights",
     componentName: 'SequencesHighlightsCollection'
+  },
+  {
+    name: 'highlights.posts.single',
+    path: '/highlights/:slug',
+    componentName: 'PostsSingleSlug',
+    previewComponentName: 'PostLinkPreviewSlug',
+    ...highlightsSubtitle,
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    background: postBackground
   },
   {
     name: 'bookmarks',
