@@ -1,6 +1,6 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { combineUrls, Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -11,13 +11,20 @@ import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
 import PencilIcon from '@material-ui/icons/Create'
+import LocationIcon from '@material-ui/icons/LocationOn'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { socialMediaIconPaths } from '../form-components/PrefixedInput';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../lib/collections/users/custom_fields';
+import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
@@ -32,17 +39,93 @@ export const sectionFooterLeftStyles = {
 
 const styles = (theme: ThemeType): JssStyles => ({
   profilePage: {
+    display: 'grid',
+    gridTemplateColumns: `1fr ${SECTION_WIDTH}px 1fr`,
+    gridTemplateAreas: `
+      '. center right'
+    `,
+    justifyContent: 'center',
+    columnGap: 60,
+    paddingLeft: 10,
+    paddingRight: 10,
     marginLeft: "auto",
+    [theme.breakpoints.down('lg')]: {
+      columnGap: 40,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+      marginTop: -20
+    },
     [theme.breakpoints.down('sm')]: {
-      paddingTop: 10,
+      paddingLeft: 5,
+      paddingRight: 5,
       margin: 0,
     }
   },
+  centerColumnWrapper: {
+    gridArea: 'center'
+  },
+  nameAndProfileWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 25
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  },
+  nameAndProfileWrapperWithImg: {
+    marginBottom: 15,
+  },
+  profileImage: {
+    'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    '-webkit-box-shadow': '0px 0px 2px 0px ' + theme.palette.boxShadowColor(.25),
+    '-moz-box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
+    borderRadius: '50%',
+    marginRight: 20,
+  },
+  flexingNameAndMessage: {
+    'flex-grow': 1
+  },
   usernameTitle: {
+    display: 'flex',
+    justifyContent: 'space-between',
     fontSize: "3rem",
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0,
+  },
+  messageBtnDesktop: {
+    display: 'block',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  messageBtnMobile: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  },
+  messageBtn: {
+    boxShadow: 'none',
+    marginLeft: 20,
+    [theme.breakpoints.down('xs')]: {
+      margin: '5px 0 10px'
+    }
+  },
+  mapLocation: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    columnGap: 4,
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    color: theme.palette.grey[800],
+    marginBottom: 12
+  },
+  locationIcon: {
+    fontSize: 14,
   },
   userInfo: {
     display: "flex",
@@ -71,6 +154,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit*3,
   },
+  helpFieldHeading: {
+    fontFamily: theme.typography.fontFamily,
+    marginTop: theme.spacing.unit*4,
+  },
+  program: {
+    color: theme.palette.grey[600],
+    marginTop: 8
+  },
   primaryColor: {
     color: theme.palette.primary.light
   },
@@ -95,6 +186,88 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       color: theme.palette.primary.dark,
     }
+  },
+  
+  rightSidebar: {
+    gridArea: 'right',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    paddingTop: theme.spacing.unit * 2,
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    }
+  },
+  sidebarDivider: {
+    margin: '40px 15px'
+  },
+  mobileSidebarUpper: {
+    display: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    marginTop: 10,
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+    }
+  },
+  mobileSidebarLower: {
+    display: 'none',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16,
+    color: theme.palette.grey[700],
+    marginTop: 30,
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+    }
+  },
+  currentRole: {
+    lineHeight: '26px',
+    marginBottom: 20
+  },
+  currentRoleSep: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    marginRight: 5
+  },
+  jobTitle: {
+    fontWeight: 'bold',
+    color: theme.palette.grey[800],
+    marginRight: 5
+  },
+  organization: {
+    fontWeight: 'bold',
+    color: theme.palette.grey[800],
+  },
+  careerStages: {
+    marginBottom: 20
+  },
+  careerStage: {
+    fontSize: 15,
+    marginBottom: 10
+  },
+  socialMediaIcons: {
+    display: 'flex',
+    columnGap: 14,
+    marginBottom: 20
+  },
+  socialMediaIcon: {
+    flex: 'none',
+    height: 30,
+    fill: theme.palette.grey[700],
+  },
+  website: {
+    display: 'inline-flex',
+    justifyContent: 'center',
+    color: theme.palette.primary.main,
+    wordBreak: 'break-all',
+    marginLeft: 4,
+  },
+  websiteIcon: {
+    flex: 'none',
+    height: 20,
+    fill: theme.palette.primary.dark,
+    marginRight: 6
   },
 })
 
@@ -126,6 +299,28 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const user = getUserFromResults(results)
   
   const { query } = useLocation()
+  // track profile views in local storage
+  useEffect(() => {
+    const ls = getBrowserLocalStorage()
+    // currently only used on the EA Forum
+    if (forumTypeSetting.get() === 'EAForum' && currentUser && user && currentUser._id !== user._id && ls) {
+      let from = query.from
+      let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      // if the profile user is already in the list, then remove them before re-adding them at the end
+      const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
+      if (profiles && profileUserIndex !== -1) {
+        // remember where we originally saw this profile, if necessary
+        from = from || profiles[profileUserIndex].from
+        profiles.splice(profileUserIndex, 1)
+      }
+      
+      profiles.push({userId: user._id, ...(from && {from})})
+      // we only bother to save the last 10 profiles
+      if (profiles.length > 10) profiles.shift()
+      // save it in local storage
+      ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
+    }
+  }, [currentUser, user, query.from])
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
     if (forumTypeSetting.get() === 'AlignmentForum') {
@@ -199,6 +394,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
         </Tooltip>
       </div>
   }
+  
+  const isEAForum = forumTypeSetting.get() === 'EAForum'
 
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
@@ -235,6 +432,14 @@ const UsersProfileFn = ({terms, slug, classes}: {
         return <Components.Error404/>
       }
     }
+    
+    // on the EA Forum, the user's location links to the Community map
+    let mapLocationNode = (user.mapLocation && isEAForum) ? <div>
+      <Link to="/community#individuals" className={classes.mapLocation}>
+        <LocationIcon className={classes.locationIcon} />
+        {user.mapLocation.formatted_address}
+      </Link>
+    </div> : null
 
     const draftTerms: PostsViewTerms = {view: "drafts", userId: user._id, limit: 4, sortDrafts: currentUser?.sortDrafts || "modifiedAt" }
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
@@ -255,6 +460,48 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
     const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
+    
+    // extra profile data that appears on the EA Forum
+    const jobTitle = user.jobTitle && <span className={classes.jobTitle}>{user.jobTitle}</span>
+    const currentRoleSep = user.organization ? <span className={classes.currentRoleSep}>
+      {!jobTitle && 'Works '}at
+    </span> : ''
+    const org = user.organization && <span className={classes.organization}>{user.organization}</span>
+    const currentRole = (jobTitle || org) && <div className={classes.currentRole}>
+      {jobTitle}<wbr/>{currentRoleSep}<wbr/>{org}
+    </div>
+    const careerStage = user.careerStage?.length ? <div className={classes.careerStages}>
+      {user.careerStage.map(stage => {
+        return <div key={stage} className={classes.careerStage}>
+          {CAREER_STAGES.find(s => s.value === stage)?.label}
+        </div>
+      })}
+    </div> : null
+    // This info is in the righthand sidebar on desktop and moves above the bio on mobile
+    const sidebarInfoUpperNode = isEAForum && <>
+      {currentRole}
+      {careerStage}
+    </>
+    
+    const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
+    const socialMediaIcon = (field) => {
+      if (!user[field]) return null
+      return <a key={field} href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`} target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" className={classes.socialMediaIcon}>{socialMediaIconPaths[field]}</svg>
+      </a>
+    }
+    // This data is in the righthand sidebar on desktop and moves under the bio on mobile
+    const sidebarInfoLowerNode = isEAForum && <>
+      {userHasSocialMedia && <>
+        <div className={classes.socialMediaIcons}>
+          {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(field))}
+        </div>
+      </>}
+      {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
+        <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
+        {user.website}
+      </a>}
+    </>
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -264,10 +511,41 @@ const UsersProfileFn = ({terms, slug, classes}: {
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>
+          <div className={classes.centerColumnWrapper}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>
-              {username}
+            <div className={classNames(classes.nameAndProfileWrapper, {[classes.nameAndProfileWrapperWithImg]: isEAForum && user.profileImageId})}>
+              {isEAForum && user.profileImageId && <Components.CloudinaryImage2
+                height={90}
+                width={90}
+                imgProps={{q: '100'}}
+                publicId={user.profileImageId}
+                className={classes.profileImage}
+              />}
+              <div className={classes.flexingNameAndMessage}>
+                <div className={classes.usernameTitle}>
+                  <div>{username}</div>
+                  {isEAForum && currentUser?._id != user._id && (
+                    <div className={classes.messageBtnDesktop}>
+                      <NewConversationButton user={user} currentUser={currentUser}>
+                        <Button color="primary" variant="contained" className={classes.messageBtn} data-cy="message">
+                          Message
+                        </Button>
+                      </NewConversationButton>
+                    </div>
+                  )}
+                </div>
+                {mapLocationNode}
+                {isEAForum && currentUser?._id != user._id && (
+                  <div className={classes.messageBtnMobile}>
+                    <NewConversationButton user={user} currentUser={currentUser}>
+                      <Button color="primary" variant="contained" className={classes.messageBtn}>
+                        Message
+                      </Button>
+                    </NewConversationButton>
+                  </div>
+                )}
+              </div>
             </div>
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
@@ -275,17 +553,20 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<span>Add RSS</span>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
               }
+              { isEAForum && userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
+                Edit Profile
+              </Link>}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 Manage Subscriptions
               </Link>}
-              { currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
+              { !isEAForum && currentUser?._id != user._id && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
               </NewConversationButton>}
               { <NotifyMeButton
@@ -297,10 +578,53 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 Account Settings
               </Link>}
             </Typography>
+            
+            {isEAForum && <div className={classes.mobileSidebarUpper}>
+              {sidebarInfoUpperNode}
+              {(currentRole || careerStage) && (user.htmlBio || userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
+            </div>}
 
             {user.htmlBio && <ContentStyles contentType="post">
               <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
             </ContentStyles>}
+            {isEAForum && user.howOthersCanHelpMe && <>
+              <h2 className={classes.helpFieldHeading}>How others can help me</h2>
+              <ContentStyles contentType="post">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
+              </ContentStyles>
+            </>}
+            {isEAForum && user.howICanHelpOthers && <>
+              <h2 className={classes.helpFieldHeading}>How I can help others</h2>
+              <ContentStyles contentType="post">
+                <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
+              </ContentStyles>
+            </>}
+            {isEAForum && !!user.organizerOfGroups?.length && <>
+              <h2 className={classes.helpFieldHeading}>Organizer of</h2>
+              <ContentStyles contentType="post">
+                {user.organizerOfGroups.map(group => {
+                  return <div key={group._id}>
+                    <Link to={`/groups/${group._id}`}>
+                      {group.name}
+                    </Link>
+                  </div>
+                })}
+              </ContentStyles>
+            </>}
+            {isEAForum && !!user.programParticipation?.length && <>
+              <h2 className={classes.helpFieldHeading}>Program participation</h2>
+              <ContentStyles contentType="comment">
+                {user.programParticipation.map(program => {
+                  return <div key={program} className={classes.program}>
+                    {PROGRAM_PARTICIPATION.find(s => s.value === program)?.label}
+                  </div>
+                })}
+              </ContentStyles>
+            </>}
+            
+            {isEAForum && <div className={classes.mobileSidebarLower}>
+              {sidebarInfoLowerNode}
+            </div>}
           </SingleColumnSection>
 
           <SingleColumnSection>
@@ -402,6 +726,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <button className={classes.reportUserBtn} onClick={reportUser}>Report user</button>
             </SingleColumnSection>
           }
+          </div>
+          
+          {isEAForum && <div className={classes.rightSidebar}>
+            {sidebarInfoUpperNode}
+            {(currentRole || careerStage) && (userHasSocialMedia || user.website) && <Divider className={classes.sidebarDivider} />}
+            {sidebarInfoLowerNode}
+          </div>}
         </AnalyticsContext>
       </div>
     )
