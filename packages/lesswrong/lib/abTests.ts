@@ -33,3 +33,19 @@ export const collectionsPageABTest = new ABTest({
     },
   }
 });
+
+// A/B test for the new BooksProgressBar
+export const booksProgressBarABTest = new ABTest({
+  name: "booksProgressBarABTest",
+  description: "Tests the new BooksProgressBar, as used in BooksItem (itself used in CollectionsPage)",
+  groups: {
+    control: {
+      description: "Original BooksItem without the progress bar",
+      weight: 1
+    },
+    progressBar: {
+      description: "Progress bar enabled",
+      weight: 1
+    }
+  }
+});
