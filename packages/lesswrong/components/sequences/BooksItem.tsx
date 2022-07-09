@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
+import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -29,16 +28,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const BooksItem = ({ book, canEdit, classes, refetch }: {
+const BooksItem = ({ book, canEdit, classes }: {
   book: BookPageFragment,
   canEdit: boolean,
   classes: ClassesType,
-  refetch?: () => void
 }) => {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
+  const { SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
     SequencesPostsList, Divider, ContentItemBody, ContentStyles } = Components
   
   const showEdit = useCallback(() => {
@@ -47,10 +45,6 @@ const BooksItem = ({ book, canEdit, classes, refetch }: {
   const showBook = useCallback(() => {
     setEdit(false);
   }, []);
-
-  useEffect(() => {
-    refetch?.();
-  });
 
   if (edit) {
     return <Components.BooksEditForm
@@ -64,9 +58,6 @@ const BooksItem = ({ book, canEdit, classes, refetch }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
-        <AnalyticsContext pageElementContext="booksProgressBar">
-          <BooksProgressBar book={book} />
-        </AnalyticsContext>
         <div className={classes.subtitle}>{book.subtitle}</div>
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody

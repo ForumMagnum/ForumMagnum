@@ -54,7 +54,7 @@ const CollectionsPage = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
   const [addingBook, setAddingBook] = useState(false);
-  const { document, loading, refetch } = useSingle({
+  const { document, loading } = useSingle({
     documentId,
     collectionName: "Collections",
     fragmentName: 'CollectionsPageFragment',
@@ -108,7 +108,7 @@ const CollectionsPage = ({ documentId, classes }: {
       </SingleColumnSection>
       <div>
         {/* For each book, print a section with a grid of sequences */}
-        {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} refetch={refetch}/>)}
+        {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
       </div>
       
       {canEdit && <SectionFooter>
