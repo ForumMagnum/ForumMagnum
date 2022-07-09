@@ -22,11 +22,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.link.unmarked,
     }
   },
-  noResults: {
-    marginLeft: theme.spacing.unit,
-    fontStyle: "italic",
-    color: theme.palette.text.dim4,
-  }
 });
 
 const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
