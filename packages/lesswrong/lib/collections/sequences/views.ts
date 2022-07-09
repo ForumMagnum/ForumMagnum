@@ -43,6 +43,26 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
 });
 ensureIndex(Sequences, augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
 
+Sequences.addView("userProfilePrivate", function (terms: SequencesViewTerms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      isDeleted: false,
+      $or: [
+        {draft: true},
+        {hideFromAuthorPage: true}
+      ]
+    },
+    options: {
+      sort: {
+        drafts: -1,
+        userProfileOrder: 1,
+        createdAt: -1,
+      }
+    },
+  };
+});
+
 Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
   return {
     selector: {
