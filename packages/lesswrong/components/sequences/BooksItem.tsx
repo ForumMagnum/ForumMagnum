@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useABTest } from '../../lib/abTestImpl';
-import { booksProgressBarABTest, collectionsPageABTest } from '../../lib/abTests';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -40,7 +39,7 @@ const BooksItem = ({ book, canEdit, classes, refetch }: {
 
   const { html = "" } = book.contents || {}
   const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, Divider, ContentItemBody, ContentStyles, SequencesGrid } = Components
+    SequencesPostsList, Divider, ContentItemBody, ContentStyles } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -48,9 +47,6 @@ const BooksItem = ({ book, canEdit, classes, refetch }: {
   const showBook = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const useLargeSequencesItem = useABTest(collectionsPageABTest) === "largeSequenceItemGroup";
-  const useProgressBar = useABTest(booksProgressBarABTest) === "progressBar";
 
   useEffect(() => {
     refetch?.();
@@ -68,7 +64,9 @@ const BooksItem = ({ book, canEdit, classes, refetch }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
-        {useProgressBar && <BooksProgressBar book={book} />}
+        <AnalyticsContext pageElementContext="booksProgressBar">
+          <BooksProgressBar book={book} />
+        </AnalyticsContext>
         <div className={classes.subtitle}>{book.subtitle}</div>
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody

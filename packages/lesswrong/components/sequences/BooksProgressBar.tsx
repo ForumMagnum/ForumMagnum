@@ -37,7 +37,7 @@ const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType
 }) => {
-  const { LWTooltip, PostsPreviewTooltip, WrappedLoginForm } = Components;
+  const { LWTooltip, PostsPreviewTooltip } = Components;
 
   const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
   const readPosts = bookPosts.filter(post => post.isRead).length;
