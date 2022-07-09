@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
+import { useItemsRead } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,8 +45,12 @@ const BooksProgressBar = ({ book, classes }: {
 }) => {
   const { LWTooltip, PostsPreviewTooltip, LoginPopupButton } = Components;
 
+  const { postsRead: clientPostsRead } = useItemsRead();
+  console.log({ clientPostsRead });
+
   const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
-  const readPosts = bookPosts.filter(post => post.isRead).length;
+  // Check whether the post is marked as read either on the server or in the client-side context
+  const readPosts = bookPosts.filter(post => post.isRead || clientPostsRead[post._id]).length;
   const totalPosts = bookPosts.length;
 
   const postsReadText = `${readPosts} / ${totalPosts} posts read`;
@@ -56,7 +61,7 @@ const BooksProgressBar = ({ book, classes }: {
         bookPosts.map(post => (
           <LWTooltip key={post._id} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
             <Link to={postGetPageUrl(post)}>
-              <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead})} />
+              <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
             </Link>
           </LWTooltip>
           ))

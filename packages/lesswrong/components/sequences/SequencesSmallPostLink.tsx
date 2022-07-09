@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
+import { useItemsRead } from '../common/withRecordPostView';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -39,7 +40,11 @@ const SequencesSmallPostLink = ({classes, post, sequenceId}: {
 }) => {
   const { LWTooltip, PostsPreviewTooltip } = Components
 
-  const icon = !!post.lastVisitedAt ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
+  const { postsRead: clientPostsRead } = useItemsRead();
+
+  const isPostRead = !!post.lastVisitedAt || clientPostsRead[post._id];
+
+  const icon = isPostRead ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
   return  <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement="left-start" inlineBlock={false}>
         <Link to={postGetPageUrl(post, false, sequenceId)} className={classes.title}>

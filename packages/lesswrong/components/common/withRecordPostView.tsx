@@ -39,6 +39,9 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
       // a post id has been found & it's has not been seen yet on this client session
       if (!postsRead[post._id]) {
 
+        // Update the client-side read status cache
+        setPostRead(post._id, true);
+
         // Trigger the asynchronous mutation with postId as an argument
         // Deliberately not awaiting, because this should be fire-and-forget
         await increasePostViewCount({
@@ -47,8 +50,6 @@ export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead
           }
         });
 
-        // Update the client-side read status cache
-        setPostRead(post._id, true);
       }
 
       // Register page-visit event
