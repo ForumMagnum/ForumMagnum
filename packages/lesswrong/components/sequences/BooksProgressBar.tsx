@@ -39,7 +39,7 @@ const BooksProgressBar = ({ book, classes }: {
 }) => {
   const { LWTooltip, PostsPreviewTooltip, WrappedLoginForm } = Components;
 
-  const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts.flatMap(post => post)));
+  const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
   const readPosts = bookPosts.filter(post => post.isRead).length;
   const totalPosts = bookPosts.length;
 
