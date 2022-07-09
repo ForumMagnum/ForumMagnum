@@ -46,7 +46,6 @@ const BooksProgressBar = ({ book, classes }: {
   const { LWTooltip, PostsPreviewTooltip, LoginPopupButton } = Components;
 
   const { postsRead: clientPostsRead } = useItemsRead();
-  console.log({ clientPostsRead });
 
   const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
   // Check whether the post is marked as read either on the server or in the client-side context
