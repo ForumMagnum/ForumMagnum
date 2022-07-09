@@ -30,6 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[500],
     fontSize: "1rem",
+  },
+  loginText: {
+    color: theme.palette.primary.main,
+    marginLeft: 12,
+    fontSize: "1rem"
   }
 });
 
@@ -37,7 +42,7 @@ const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType
 }) => {
-  const { LWTooltip, PostsPreviewTooltip, WrappedLoginForm } = Components;
+  const { LWTooltip, PostsPreviewTooltip, LoginPopupButton } = Components;
 
   const sequencePosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts.flatMap(post => post)));
   const readPosts = sequencePosts.filter(post => post.isRead).length;
@@ -58,7 +63,10 @@ const BooksProgressBar = ({ book, classes }: {
       }
     </div>
     <div className={classNames(classes.sequence, classes.progressText)}>
-      {postsReadText}
+      {postsReadText} 
+      <LoginPopupButton title="LessWrong keeps track of what posts logged in users have read, so you can keep reading wherever you've left off" className={classes.loginText}>
+        login to track progress
+      </LoginPopupButton>
     </div>
   </div>;
 };
