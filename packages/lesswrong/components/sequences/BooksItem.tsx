@@ -81,8 +81,7 @@ const BooksItem = ({ book, canEdit, classes, refetch }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        {useLargeSequencesItem && book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
-        {!useLargeSequencesItem && <SequencesGrid sequences={book.sequences} bookItemStyle/>}
+        {book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
       </SingleColumnSection>
       <Divider />
     </div>

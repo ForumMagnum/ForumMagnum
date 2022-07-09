@@ -146,7 +146,7 @@ const RecommendationsAndCurated = ({
           onChange={(newSettings) => setSettings(newSettings)}
         /> }
 
-      {forumTypeSetting.get() !== 'EAForum' && <div>
+      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
         <div className={classes.largeScreenLoggedOutSequences}>
           <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
             <CuratedSequences />
@@ -159,7 +159,7 @@ const RecommendationsAndCurated = ({
 
       <div className={classes.subsection}>
         <div className={classes.posts}>
-          {!settings.hideFrontpage && !isLW && 
+          {!settings.hideFrontpage && 
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
