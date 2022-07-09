@@ -30,6 +30,17 @@ Localgroups.addDefaultView((terms: LocalgroupsViewTerms) => {
   };
 });
 
+Localgroups.addView("userOrganizesGroups", function (terms: LocalgroupsViewTerms) {
+  return {
+    selector: {
+      organizerIds: terms.userId,
+      inactive: null
+    },
+    options: {sort: {name: 1}}
+  };
+});
+ensureIndex(Localgroups, { organizerIds: 1, deleted: 1, name: 1 })
+
 Localgroups.addView("userActiveGroups", function (terms: LocalgroupsViewTerms) {
   return {
     selector: {
