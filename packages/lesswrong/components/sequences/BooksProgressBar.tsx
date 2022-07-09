@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "inline"
   },
-  post: {
+  postProgressBox: {
     border: theme.palette.border.normal,
     borderRadius: 2,
     width: 12,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.primary.main,
     opacity: .6
   },
-  sequence: {
+  bookProgress: {
     display: "flex",
     flexWrap: "wrap",
   },
@@ -44,19 +44,19 @@ const BooksProgressBar = ({ book, classes }: {
 }) => {
   const { LWTooltip, PostsPreviewTooltip, LoginPopupButton } = Components;
 
-  const sequencePosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts.flatMap(post => post)));
-  const readPosts = sequencePosts.filter(post => post.isRead).length;
-  const totalPosts = sequencePosts.length;
+  const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
+  const readPosts = bookPosts.filter(post => post.isRead).length;
+  const totalPosts = bookPosts.length;
 
   const postsReadText = `${readPosts} / ${totalPosts} posts read`;
 
   return <div key={book._id} className={classes.root}>
-    <div className={classes.sequence}>
+    <div className={classes.bookProgress}>
       {
-        sequencePosts.map(post => (
+        bookPosts.map(post => (
           <LWTooltip key={post._id} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
             <Link to={postGetPageUrl(post)}>
-              <div className={classNames(classes.post, {[classes.read]: post.isRead})} />
+              <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead})} />
             </Link>
           </LWTooltip>
           ))
