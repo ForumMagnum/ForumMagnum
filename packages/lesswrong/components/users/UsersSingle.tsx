@@ -3,7 +3,6 @@ import { slugify } from '../../lib/vulcan-lib/utils';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
-import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const UsersSingle = () => {
   const { params, pathname } = useLocation();
@@ -16,9 +15,7 @@ const UsersSingle = () => {
     // pageload.
     return <Components.PermanentRedirect url={canonicalUrl} />;
   } else {
-    return forumTypeSetting.get() === 'EAForum' ?
-      <Components.EAUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
-      <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
+    return <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }
 };
 
