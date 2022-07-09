@@ -259,7 +259,7 @@ const TagPage = ({classes}: {
       new DOMParser().parseFromString(htmlWithAnchors.slice(0, truncationLength), 'text/html').body.innerHTML +  "<span>...<p><a>(Read More)</a></p></span>" :
       htmlWithAnchors;
   } else {
-    description = (truncated && !tag.wikiOnly && !isEAForum)
+    description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
   }
