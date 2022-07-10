@@ -120,9 +120,9 @@ const UsersMenu = ({classes}: {
                 <MenuItem>New Post</MenuItem>
               </Link>
             </div>
-            {showNewButtons && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-               New Shortform
-            </MenuItem> }
+            {showNewButtons &&<Link to={`/shortform`}>
+              <MenuItem>New Shortform</MenuItem>
+            </Link>}
             {showNewButtons && <Divider/>}
             {showNewButtons &&
               <Link to={`/newPost?eventForm=true`}>
