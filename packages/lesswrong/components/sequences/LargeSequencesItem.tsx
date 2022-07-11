@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-
+import { forumTypeSetting } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -40,6 +41,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
       color: theme.palette.grey[600],
     }
+  },
+  eaTitle: {
+    fontFamily: theme.typography.fontFamily,
+    lineHeight: '1.4em',
   },
   description: {
     ...theme.typography.body2,
@@ -161,7 +166,12 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         </Link>
         <div className={classes.text}>
           <div className={classes.titleAndAuthor}>
-            <Link to={`/s/${sequence._id}`} className={classes.title}>{sequence.title}</Link>
+            <Link
+              to={`/s/${sequence._id}`}
+              className={classNames(classes.title, {[classes.eaTitle]: forumTypeSetting.get() === "EAForum"})}
+            >
+              {sequence.title}
+            </Link>
           { showAuthor && sequence.user &&
             <div className={classes.author}>
               by <UsersName user={sequence.user} />
