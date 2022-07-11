@@ -20,7 +20,6 @@ const RecommendationsPage = ({classes}: {
         <AnalyticsContext listContext={"curatedPosts"}>
           <PostsList2
             terms={{view:"curated", limit: 12}}
-            itemsPerPage={50}
             showNoResults={false}
             boxShadow={false}
             curatedIconLeft={true}
