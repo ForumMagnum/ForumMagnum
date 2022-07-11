@@ -54,7 +54,9 @@ export default class GoogleDocsFootnotesNormalizer {
 	/**
 	 * Returns all elements with an id indicating they're a footnote backLink.
 	 * (See schema.js for terminology definitions.)
-	 * Also generates a random alphanumeric footnote id for each.
+	 * Also generates a random alphanumeric footnote id for each, which facilitates
+	 * footnote reordering, undoing batch operations, and allowing multiple documents
+	 * to coexist on the same page without collisions (e.g. a post and its comments).
 	 * @param {Range} documentRange
 	 * @returns {Object.<string, {item: Element, id: string}>}
 	 */
