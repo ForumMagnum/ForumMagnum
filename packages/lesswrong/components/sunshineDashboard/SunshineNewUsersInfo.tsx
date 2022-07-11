@@ -19,6 +19,7 @@ import * as _ from 'underscore';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import Input from '@material-ui/core/Input';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+import classNames from 'classnames';
 
 const defaultModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultModeratorPMsTagSlug', "moderator-default-responses")
 
@@ -117,6 +118,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     padding:12,
     boxShadow: theme.palette.boxShadow.sunshineSendMessage,
+  },
+  sortButton: {
+    marginLeft: 6,
+    cursor: "pointer"
+  },
+  sortSelected: {
+    color: theme.palette.grey[900]
   }
 })
 const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
@@ -127,6 +135,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   const currentUser = useCurrentUser();
 
   const [notes, setNotes] = useState(user.sunshineNotes || "")
+  const [contentSort, setContentSort] = useState("baseScore")
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
@@ -247,11 +256,10 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     limit: 50
   });
 
+  const commentKarmaPreviews = comments ? _.sortBy(comments, c => c[contentSort]) : []
+  const postKarmaPreviews = posts ? _.sortBy(posts, p=> p[contentSort]) : []
 
-  const commentKarmaPreviews = comments ? _.sortBy(comments, c=>c.baseScore) : []
-  const postKarmaPreviews = posts ? _.sortBy(posts, p=>p.baseScore) : []
-
-  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults } = Components
+  const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper } = Components
 
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount
@@ -287,7 +295,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
-            {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
+            {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
             {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
             <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
             <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
@@ -359,6 +367,15 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
                   { user.bigDownvoteCount || 0 }
                 </span>
               </LWTooltip>
+            </div>
+            <div>
+              Sort by: 
+              <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
+                karma
+              </span>
+              <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
+                postedAt
+              </span>
             </div>
             <div>
               <LWTooltip title="Post count">
