@@ -33,7 +33,7 @@ export default class GoogleDocsFootnotesNormalizer {
 	 * identifying attributes to footnoteReferences and footnotebackLinks,
 	 * and adding surrounding footnoteContent, footnoteItem, and footnoteSection
 	 * elements.
-	 * @param {{content: {document: Document}}} data 
+	 * @param {{content: {document: Document}}} data
 	 */
 	execute(data) {
 		const writer = new UpcastWriter( data.content.document );
@@ -46,8 +46,9 @@ export default class GoogleDocsFootnotesNormalizer {
 		// as TypeScript Ranges, rather than CKEditor Ranges.
 		const documentRange = writer.createRangeIn(data.content);
 		const backLinks = this._getFootnoteBackLinks(documentRange);
-		this._preprocessFootnoteReferences(writer, documentRange, backLinks);
-		this._preprocessFootnoteItems(writer, documentRange, backLinks)
+		const references = this._getFootnoteReferences(documentRange, backLinks);
+		this._preprocessFootnoteReferences(writer, references);
+		this._preprocessFootnoteItems(writer, documentRange, backLinks);
 	}
 
 	/**
@@ -98,24 +99,24 @@ export default class GoogleDocsFootnotesNormalizer {
 		const footnoteReferenceMatcher = new Matcher({
 			name: 'a',
 			attributes: {
-				id: idPattern 
+				id: idPattern
 			}
 		});
 		return [...documentRange]
-		.reduce((acc, { item, type }) => {
-			if (
-				type === 'elementStart' &&
-				footnoteReferenceMatcher.match(item)
-			) {
-				// ensure that a matching footnote exists for this reference
-				// @ts-ignore: matcher above eliminates the null / undefined cases here.
-				const index = item.getAttribute('id').match(idPattern)[1]
-				if(backLinks.hasOwnProperty(index)) {
-					return {...acc, [index]: { item, id: backLinks[index] }};
+			.reduce((acc, { item, type }) => {
+				if (
+					type === 'elementStart' &&
+					footnoteReferenceMatcher.match(item)
+				) {
+					// ensure that a matching footnote exists for this reference
+					// @ts-ignore: matcher above eliminates the null / undefined cases here.
+					const index = item.getAttribute('id').match(idPattern)[1];
+					if(backLinks.hasOwnProperty(index)) {
+						return {...acc, [index]: { item, id: backLinks[index] }};
+					}
 				}
-			}
-			return acc;
-		}, {});
+				return acc;
+			}, {});
 	}
 
 	/**
@@ -125,13 +126,13 @@ export default class GoogleDocsFootnotesNormalizer {
 	 * Presumes a structure s.t. each backlink is wrapped in two elements, the outer of which
 	 * contains the entire contents of the footnote.
 	 * @param {UpcastWriter} writer
-	 * @param {Object.<string, {item: Element, id: string}>} backLinks 
+	 * @param {Object.<string, {item: Element, id: string}>} backLinks
 	 * @returns {Element[]}
 	 */
 	_createFootnoteItems(writer, backLinks) {
 		return Object.entries(backLinks).map(([ index, {item, id}]) => {
 			if(!item.parent || !item.parent.parent || !item.parent.parent.is('element')) {
-				throw new Error("Unexpected Dom structure; expected footnote backLink to be nested within two parent tags.")
+				throw new Error("Unexpected Dom structure; expected footnote backLink to be nested within two parent tags.");
 			}
 			const footnoteContent = item.parent.parent;
 			/**
@@ -145,12 +146,12 @@ export default class GoogleDocsFootnotesNormalizer {
 			const footnoteContentRange = writer.createRange(
 				writer.createPositionAfter(item),
 				writer.createPositionAfter(footnoteContent),
-			)
+			);
 			const newFootnoteBackLink = writer.createElement('span', {
 				[ATTRIBUTES.footnoteBackLink]: '',
 				[ATTRIBUTES.footnoteId]: id,
 			});
-			const newFootnoteContent = writer.createElement('div', 
+			const newFootnoteContent = writer.createElement('div',
 				{
 					[ATTRIBUTES.footnoteContent]: '',
 					[ATTRIBUTES.footnoteId]: id,
@@ -163,7 +164,7 @@ export default class GoogleDocsFootnotesNormalizer {
 					// @ts-ignore: previous line is a type guard.
 					.map(element => writer.clone(element, true)),
 			);
-			return writer.createElement('div', { 
+			return writer.createElement('div', {
 				[ATTRIBUTES.footnoteItem]: '',
 				[ATTRIBUTES.footnoteId]: id,
 				[ATTRIBUTES.footnoteIndex]: index,
@@ -175,11 +176,9 @@ export default class GoogleDocsFootnotesNormalizer {
 	 * Adds `footnoteReference` `footnoteIndex`, and `footnoteId`
 	 * attributes to each footnote reference.
 	 * @param {UpcastWriter} writer
-	 * @param {Range} documentRange
-	 * @param {Object.<string, {item: Element, id: string}>} backLinks
+	 * @param {Object.<string, {item: Element, id: string}>} references
 	 */
-	_preprocessFootnoteReferences(writer, documentRange, backLinks) {
-		const references = this._getFootnoteReferences(documentRange, backLinks);
+	_preprocessFootnoteReferences(writer, references) {
 		for (const [ index, { item, id } ] of Object.entries(references)) {
 			writer.setAttribute(ATTRIBUTES.footnoteReference, '', item);
 			writer.setAttribute(ATTRIBUTES.footnoteIndex, index, item);
@@ -221,7 +220,7 @@ export default class GoogleDocsFootnotesNormalizer {
 		*/
 		// @ts-ignore: null case only happens for unattached elements, which we know isn't true here.
 		const firstFootnoteIndex = firstFootnote.index;
-		const { previousSibling } = firstFootnote; 
+		const { previousSibling } = firstFootnote;
 		/**
 		 * @type {Range}
 		*/
@@ -229,14 +228,14 @@ export default class GoogleDocsFootnotesNormalizer {
 		const footnoteSectionRange = writer.createRange(
  			writer.createPositionBefore(firstFootnote),
  			writer.createPositionAt(documentRange.end),
-		)
+		);
 		const footnoteSectionParent = firstFootnote.parent;
 		if(!footnoteSectionParent) {
 			console.error("Unexpected DOM structure: expected footnote to have a parent element.")
 			return;
 		}
 		try {
-			const footnoteItems = this._createFootnoteItems(writer, backLinks)
+			const footnoteItems = this._createFootnoteItems(writer, backLinks);
 			const footnoteSection = writer.createElement('div', {[ATTRIBUTES.footnoteSection]: ''}, footnoteItems);
 			for(const item of [...footnoteSectionRange.getItems()]) {
 				if (item.is('element')) {
@@ -253,9 +252,9 @@ export default class GoogleDocsFootnotesNormalizer {
 			if(previousSibling && previousSibling.is('element') && previousSibling.name === 'hr') {
 				writer.remove(previousSibling);
 			}
-			writer.insertChild(firstFootnoteIndex, footnoteSection, footnoteSectionParent)
+			writer.insertChild(firstFootnoteIndex, footnoteSection, footnoteSectionParent);
 		} catch(error) {
-			console.error(error);
+			console.log(error);
 		}
 	}
 }
