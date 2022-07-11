@@ -107,7 +107,6 @@ const CollectionsPage = ({ documentId, classes }: {
         </div>
       </SingleColumnSection>
       <div>
-        {/* For each book, print a section with a grid of sequences */}
         {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
       </div>
       
