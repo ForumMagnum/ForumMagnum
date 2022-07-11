@@ -369,8 +369,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
               </LWTooltip>
             </div>
             <div>
-              Sort by: 
-              <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
+              Sort by: <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "baseScore"})} onClick={() => setContentSort("baseScore")}>
                 karma
               </span>
               <span className={classNames(classes.sortButton, {[classes.sortSelected]: contentSort === "postedAt"})} onClick={() => setContentSort("postedAt")}>
