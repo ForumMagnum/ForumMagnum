@@ -15,9 +15,6 @@ const RecommendationsPage = ({classes}: {
 
   return (
     <div>
-      <AnalyticsContext listContext={"recommendationsPage"} capturePostItemOnMount>
-        <ConfigurableRecommendationsList configName="recommendationspage" />
-      </AnalyticsContext>
       {showCurated && <SingleColumnSection>
         <SectionTitle title="Curated Posts"/>
         <AnalyticsContext listContext={"curatedPosts"}>
@@ -29,6 +26,9 @@ const RecommendationsPage = ({classes}: {
           />
         </AnalyticsContext>
       </SingleColumnSection>}
+      <AnalyticsContext listContext={"recommendationsPage"} capturePostItemOnMount>
+        <ConfigurableRecommendationsList configName="recommendationspage" />
+      </AnalyticsContext>
     </div>
   )
 };
