@@ -42,7 +42,7 @@ const SequencesSmallPostLink = ({classes, post, sequenceId}: {
 
   const { postsRead: clientPostsRead } = useItemsRead();
 
-  const isPostRead = !!post.lastVisitedAt || clientPostsRead[post._id];
+  const isPostRead = post.isRead || clientPostsRead[post._id];
 
   const icon = isPostRead ? <CheckBoxTwoToneIcon className={classes.read} /> : <CheckBoxOutlineBlankIcon className={classes.unread}/>
 
