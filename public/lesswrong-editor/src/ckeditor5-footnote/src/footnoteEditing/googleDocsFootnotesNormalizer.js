@@ -255,7 +255,7 @@ export default class GoogleDocsFootnotesNormalizer {
 			}
 			writer.insertChild(firstFootnoteIndex, footnoteSection, footnoteSectionParent)
 		} catch(error) {
-			console.log(error);
+			console.error(error);
 		}
 	}
 }
