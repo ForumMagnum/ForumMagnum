@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     maxWidth: 600,
     marginTop: 90,
-    marginBottom: 90,
+    marginBottom: 30,
     [theme.breakpoints.down('xs')]: {
       marginTop: 60,
       marginBottom: 0
@@ -151,7 +151,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
-  return <div className={classes.root} >
+  return <div className={classes.root} id={sequence._id}>
 
     <div className={classes.columns}>
       <div className={classes.left}>
@@ -197,6 +197,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, classes}: {
         {posts.map(post => <SequencesSmallPostLink 
             key={sequence._id + post._id} 
             post={post}
+            sequenceId={sequence._id}
           />
         )}
       </div>
