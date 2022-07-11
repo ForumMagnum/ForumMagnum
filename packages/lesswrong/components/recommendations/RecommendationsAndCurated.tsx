@@ -146,7 +146,7 @@ const RecommendationsAndCurated = ({
           onChange={(newSettings) => setSettings(newSettings)}
         /> }
 
-      {forumTypeSetting.get() !== 'EAForum' && <div>
+      {!currentUser && forumTypeSetting.get() !== 'EAForum' && <div>
         <div className={classes.largeScreenLoggedOutSequences}>
           <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
             <CuratedSequences />
