@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md.
  */
 
-import CKEditor from './ckeditor.jsx';
-import CKEditorContext from './ckeditorcontext.jsx';
+import CKEditor from './ckeditor';
+import CKEditorContext from './ckeditorcontext';
 
 export { CKEditor, CKEditorContext };
