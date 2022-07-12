@@ -6,7 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditorWatchdog from '../ckeditor5-watchdog/editorwatchdog';
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
+import { v4 as uid } from 'uuid';
 import { ContextWatchdogContext } from './ckeditorcontext.jsx';
 import ContextWatchdog from '../ckeditor5-watchdog/contextwatchdog';
 

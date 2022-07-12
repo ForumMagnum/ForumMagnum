@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import CKEditor from '../editor/ReactCKEditor';
+// import CKEditor from '../editor/ReactCKEditor';
+import { CKEditor } from '../../lib/vendor/ckeditor5-react';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
@@ -140,7 +141,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       onChange={onChange}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={editor => {
+      onReady={editor => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEDItor debugger
           // CKEditorInspector.attach(editor)
