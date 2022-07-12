@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

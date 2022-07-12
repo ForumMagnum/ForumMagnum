@@ -157,6 +157,8 @@ const RecommendationsAndCurated = ({
         </div>
       </div>}
 
+      <ContinueReadingList continueReading={continueReading} />
+
       <div className={classes.subsection}>
         <div className={classes.posts}>
           {!settings.hideFrontpage && 
