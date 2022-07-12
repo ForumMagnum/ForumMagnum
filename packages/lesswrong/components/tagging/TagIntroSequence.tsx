@@ -15,7 +15,7 @@ const TagIntroSequence = ({tag, classes}: {
   tag: TagPageFragment,
   classes: ClassesType
 }) => {
-  const { SectionTitle, Loading, PostsItem2, LoadMore } = Components
+  const { SectionTitle, Loading, PostsItemSequenceStart, PostsItem2, LoadMore } = Components
   const { results: seqChapters, loading } = useMulti({
     terms: {
       view: "SequenceChapters",
@@ -29,7 +29,8 @@ const TagIntroSequence = ({tag, classes}: {
   });
   const [loadedMore, setLoadedMore] = useState(false)
 
-  if (!tag.sequence) return null
+  const sequence = tag.sequence
+  if (!sequence) return null
 
   // Get all the posts together, we're ignoring chapters here
   let posts = seqChapters?.flatMap(chapter => chapter.posts) || []
@@ -42,11 +43,17 @@ const TagIntroSequence = ({tag, classes}: {
     <SectionTitle title={`Introduction to ${tag.name}`} />
     <AnalyticsContext listContext={'tagIntroSequnce'}>
       {loading && <Loading />}
-      {posts.map((post) => <PostsItem2
-        key={post._id}
-        post={post}
-        sequenceId={tag.sequence?._id}
-      />)}
+      {posts.map((post, i) => i === 0 ?
+        <PostsItemSequenceStart
+          key={post._id}
+          post={post}
+          sequence={sequence}
+        /> :
+        <PostsItem2
+          key={post._id}
+          post={post}
+          sequenceId={sequence?._id}
+        />)}
       {totalCount > PREVIEW_N && !loadedMore && <LoadMore
         loadMore={() => setLoadedMore(true)}
         count={PREVIEW_N}
