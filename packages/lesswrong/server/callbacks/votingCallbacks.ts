@@ -1,5 +1,6 @@
 import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
+import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
@@ -8,16 +9,10 @@ import { batchUpdateScore } from '../updateScores';
  * Retrieve the ids of all users who will receive karma for a vote on a given document
  */
 const getDocumentOwners = ({newDocument, vote}: VoteDocTuple): string[] => {
-  let owners = [newDocument.userId];
-  if (vote.collectionName === "Posts") {
-    const { coauthorStatuses = [], hasCoauthorPermission = true } = newDocument as DbPost;
-    owners = owners.concat(
-      coauthorStatuses
-        .filter(({ confirmed }) => hasCoauthorPermission || confirmed)
-        .map(({ userId }) => userId)
-    );
-  }
-  return owners;
+  const coauthors = vote.collectionName === "Posts"
+    ? getConfirmedCoauthorIds(newDocument as DbPost)
+    : [];
+  return [newDocument.userId, ...coauthors];
 }
 
 /**

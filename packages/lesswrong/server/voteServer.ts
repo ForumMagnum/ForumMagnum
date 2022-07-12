@@ -14,7 +14,7 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { postCoauthorIsPending } from '../lib/collections/posts/helpers';
+import { postCoauthorIsPending, getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -81,15 +81,9 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
   if (!document.userId)
     throw new Error("Voted-on document does not have an author userId?");
 
-  let coauthors: string[] = [];
-  if (collectionName === "Posts") {
-    const post = document as DbPost;
-    if (post.coauthorStatuses) {
-      coauthors = post.coauthorStatuses
-        .filter(({ userId }) => !postCoauthorIsPending(post, userId))
-        .map(({ userId }) => userId);
-    }
-  }
+  const coauthors = collectionName === "Posts"
+    ? getConfirmedCoauthorIds(document as DbPost)
+    : [];
 
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
