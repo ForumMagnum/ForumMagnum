@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-// import CKEditor from '../editor/ReactCKEditor';
 import { CKEditor } from '../../lib/vendor/ckeditor5-react';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'

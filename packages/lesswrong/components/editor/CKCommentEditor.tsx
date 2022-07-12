@@ -1,6 +1,5 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
-// import CKEditor from '../editor/ReactCKEditor';
 import { CKEditor } from '../../lib/vendor/ckeditor5-react';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
