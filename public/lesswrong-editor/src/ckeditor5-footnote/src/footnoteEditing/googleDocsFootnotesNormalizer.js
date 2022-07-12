@@ -239,7 +239,12 @@ export default class GoogleDocsFootnotesNormalizer {
 		try {
 			const footnoteItems = this._createFootnoteItems(writer, backLinks);
 			const footnoteSection = writer.createElement('div', {[ATTRIBUTES.footnoteSection]: ''}, footnoteItems);
-			for(const item of footnoteSectionRange.getItems()) {
+			/**
+			 * getItems converted to an array here
+			 * because otherwise the iterator gets out of step
+			 * and misses elements.
+			 */
+			for(const item of [...footnoteSectionRange.getItems()]) {
 				if (item.is('element')) {
 					writer.remove(item);
 				}
