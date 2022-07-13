@@ -6,19 +6,23 @@ import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 
+export const collectionPadding = theme => ({
+  marginBottom: 50,
+  padding: 32,
+  [theme.breakpoints.down('md')]: {
+    paddingTop: 70,
+    marginTop: -50,
+    marginLeft: -4,
+    marginRight: -4
+  }
+})
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: theme.palette.background.pageActiveAreaBackground,
-    padding: 32,
-    [theme.breakpoints.down('md')]: {
-      paddingTop: 70,
-      marginTop: -50,
-      marginLeft: -4,
-      marginRight: -4
-    }
   },
   header: {
-    marginBottom: 50,
+    background: theme.palette.background.pageActiveAreaBackground,
+    ...collectionPadding(theme)
   },
   startReadingButton: {
     background: theme.palette.buttons.startReadingButtonBackground,
@@ -88,8 +92,8 @@ const CollectionsPage = ({ documentId, classes }: {
     const ButtonUntyped = Button as any;
     
     return (<ErrorBoundary><div className={classes.root}>
-      <SingleColumnSection>
-        <div className={classes.header}>
+      <div className={classes.header}>
+        <SingleColumnSection>
           {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}
 
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
@@ -104,8 +108,9 @@ const CollectionsPage = ({ documentId, classes }: {
           >
             {startedReading ? "Continue Reading" : "Start Reading"}
           </ButtonUntyped>
-        </div>
-      </SingleColumnSection>
+        </SingleColumnSection>
+      </div>
+
       <div>
         {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
       </div>

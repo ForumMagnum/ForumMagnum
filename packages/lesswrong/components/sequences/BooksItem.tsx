@@ -1,9 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { collectionPadding } from './CollectionsPage';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    background: theme.palette.background.pageActiveAreaBackground,
+    ...collectionPadding(theme)
   },
   description: {
     marginTop: theme.spacing.unit,
@@ -54,28 +57,30 @@ const BooksItem = ({ book, canEdit, classes }: {
       cancelCallback={showBook}
     />
   } else {
-    return <div className="books-item">
-      <SingleColumnSection>
-        <SectionTitle title={book.title}>
-          {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
-        </SectionTitle>
-        <AnalyticsContext pageElementContext="booksProgressBar">
-          <BooksProgressBar book={book} />
-        </AnalyticsContext>
-        <div className={classes.subtitle}>{book.subtitle}</div>
-        {html  && <ContentStyles contentType="post" className={classes.description}>
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: html}}
-            description={`book ${book._id}`}
-          />
-        </ContentStyles>}
+    return <div>
+      <div className={classes.root}>
+        <SingleColumnSection>
+          <SectionTitle title={book.title}>
+            {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
+          </SectionTitle>
+          <AnalyticsContext pageElementContext="booksProgressBar">
+            <BooksProgressBar book={book} />
+          </AnalyticsContext>
+          <div className={classes.subtitle}>{book.subtitle}</div>
+          {html  && <ContentStyles contentType="post" className={classes.description}>
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: html}}
+              description={`book ${book._id}`}
+            />
+          </ContentStyles>}
 
-        {book.posts && !!book.posts.length && <div className={classes.posts}>
-          <SequencesPostsList posts={book.posts} />
-        </div>}
+          {book.posts && !!book.posts.length && <div className={classes.posts}>
+            <SequencesPostsList posts={book.posts} />
+          </div>}
 
-        {book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
-      </SingleColumnSection>
+          {book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
+        </SingleColumnSection>
+      </div>
       <Divider />
     </div>
   }
