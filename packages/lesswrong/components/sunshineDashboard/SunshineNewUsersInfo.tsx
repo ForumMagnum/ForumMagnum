@@ -135,7 +135,7 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   const currentUser = useCurrentUser();
 
   const [notes, setNotes] = useState(user.sunshineNotes || "")
-  const [contentSort, setContentSort] = useState("baseScore")
+  const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("baseScore")
 
   const canReview = !!(user.maxCommentCount || user.maxPostCount)
 
@@ -256,8 +256,8 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
     limit: 50
   });
 
-  const commentKarmaPreviews = comments ? _.sortBy(comments, c => c[contentSort]) : []
-  const postKarmaPreviews = posts ? _.sortBy(posts, p=> p[contentSort]) : []
+  const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
+  const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
 
   const { MetaInfo, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList, CommentKarmaWithPreview, PostKarmaWithPreview, LWTooltip, Loading, Typography, SunshineSendMessageWithDefaults, UsersNameWrapper } = Components
 
