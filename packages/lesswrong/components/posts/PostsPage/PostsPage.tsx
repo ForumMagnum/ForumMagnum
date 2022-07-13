@@ -190,8 +190,8 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
 
-  const welcomeBox = forumSelect(welcomeBoxes);
-  const welcomeBoxProp = welcomeBox ? { newHere: <WelcomeBox {...welcomeBox} /> } : {};
+  const welcomeBoxProps = forumSelect(welcomeBoxes);
+  const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
@@ -221,7 +221,7 @@ const PostsPage = ({post, refetch, classes}: {
           </div>
         </div></AnalyticsContext>
       </>}
-      {...welcomeBoxProp}
+      welcomeBox={welcomeBox}
     >
       <div className={classes.centralColumn}>
         {/* Body */}

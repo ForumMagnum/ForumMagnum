@@ -32,7 +32,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       `,
       gridTemplateAreas: `
         "... ... .... title   .... ....... ..."
-        "... toc gap1 content gap2 newhere ..."
+        "... toc gap1 content gap2 welcome ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
@@ -98,20 +98,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
-  newHere: {
-    gridArea: 'newhere',
+  welcomeBox: {
+    gridArea: 'welcome',
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   }
 });
 
-export const ToCColumn = ({tableOfContents, header, newHere, children, classes}: {
+export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
   tableOfContents: React.ReactNode|null,
   header: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
-  newHere?: React.ReactNode
+  welcomeBox: React.ReactNode|null
 }) => {
   return (
     <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents})}>
@@ -130,8 +130,8 @@ export const ToCColumn = ({tableOfContents, header, newHere, children, classes}:
         {children}
       </div>
       <div className={classes.gap2}/>
-      {newHere && <div className={classes.newHere}>
-        {newHere}
+      {welcomeBox && <div className={classes.welcomeBox}>
+        {welcomeBox}
       </div>}
     </div>
   );
