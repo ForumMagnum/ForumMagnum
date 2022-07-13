@@ -11,9 +11,10 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 
+const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({
@@ -53,10 +54,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 2,
     paddingRight: 2
   },
+  rightContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    flexGrow: 1,
+    "& *": {
+      marginLeft: 4,
+    },
+  },
+  defaultLabel: {
+    color: theme.palette.primary.main,
+    userSelect: "none",
+    cursor: "help",
+  },
   removeLabel: {
     color: theme.palette.grey[600],
-    flexGrow: 1,
-    textAlign: "right"
+    userSelect: "none",
   },
   filterButton: {
     marginRight: 16,
@@ -129,19 +142,21 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   // case they continue to type.
   const [inputTime, setInputTime] = useState(0);
 
+  const setMode = (mode: FilterMode, inputTime = 0) => {
+    onChangeMode(mode);
+    setInputTime(inputTime);
+  }
+
   const handleCustomInput = (input: string) => {
     const parsed = parseFloat(input);
     if (Number.isNaN(parsed)) {
-      onChangeMode(0);
-      setInputTime(0);
+      setMode(0);
     } else {
       const value = parsed <= 0 || parsed >= 1
         ? Math.round(parsed)
         : Math.floor(parsed * 100) / 100;
-      onChangeMode(value);
-
       const now = Date.now();
-      setInputTime(now);
+      setMode(value, now);
       if (standardFilterModes.includes(value)) {
         setTimeout(() => {
           setInputTime((inputTime) => inputTime === now ? 0 : inputTime);
@@ -155,6 +170,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
       ? mode
       : "";
 
+  const defaultLabel = label === "Personal" ? "personal blogposts" : `the ${label} ${taggingNameSetting.get()}`;
+
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?
@@ -167,44 +184,44 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
         <div className={classes.filtering}>
           <div className={classes.filterRow}>
             <LWTooltip title={filterModeToTooltip("Hidden")}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => setMode("Hidden")}>
                 Hidden
               </span>
             </LWTooltip>
             <LWTooltip title={filterModeToTooltip(reducedVal)}>
               <span
                 className={classNames(classes.filterButton, {[classes.selected]: [0.5, "Reduced"].includes(mode)})}
-                onClick={ev => onChangeMode(reducedVal)}
+                onClick={ev => setMode(reducedVal)}
               >
                 {reducedName}
               </span>
             </LWTooltip>
             {!userHasNewTagSubscriptions(currentUser) && <>
               <LWTooltip title={filterModeToTooltip(-25)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: -25 === mode})} onClick={ev => onChangeMode(-25)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: -25 === mode})} onClick={ev => setMode(-25)}>
                   -25
                 </span>
               </LWTooltip>
               <LWTooltip title={filterModeToTooltip(-10)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => onChangeMode(-10)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===-10})} onClick={ev => setMode(-10)}>
                   -10
                 </span>
               </LWTooltip>
               <LWTooltip
                 title={filterModeToTooltip("Default")}
               >
-              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => onChangeMode(0)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Default" || mode===0})} onClick={ev => setMode(0)}>
                 +0
               </span>
               </LWTooltip>
               <LWTooltip title={filterModeToTooltip(10)}>
-                <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => onChangeMode(10)}>
+                <span className={classNames(classes.filterButton, {[classes.selected]: mode===10})} onClick={ev => setMode(10)}>
                   +10
                 </span>
               </LWTooltip>
             </>}
             <LWTooltip title={filterModeToTooltip(25)}>
-              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => onChangeMode(25)}>
+              <span className={classNames(classes.filterButton, {[classes.selected]: [25, "Subscribed"].includes(mode)})} onClick={ev => setMode(25)}>
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
               </span>
             </LWTooltip>
@@ -219,12 +236,20 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
                 onChange={ev => handleCustomInput(ev.target.value || "")}
               />
             </LWTooltip>
-            {canRemove && !tag?.suggestedAsFilter &&
-              <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
-                <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
-                  <a>Remove</a>
-                </LWTooltip>
-              </div>}
+            <div className={classes.rightContainer}>
+              {userHasNewTagSubscriptions(currentUser) && mode === 0 &&
+                <div className={classes.defaultLabel}>
+                  <LWTooltip title={`This filter is set to default. Use the controls on the left to customize how much you see ${defaultLabel} in ${LATEST_POSTS_NAME}.`}>
+                    Default
+                  </LWTooltip>
+                </div>}
+              {canRemove && !tag?.suggestedAsFilter &&
+                <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
+                  <LWTooltip title={<div><div>This filter will no longer appear in {LATEST_POSTS_NAME}.</div><div>You can add it back later if you want</div></div>}>
+                    <a>Remove</a>
+                  </LWTooltip>
+                </div>}
+            </div>
           </div>
           {description && <ContentStyles contentType="comment" className={classes.description}>
             {description}
@@ -247,9 +272,9 @@ function filterModeToTooltip(mode: FilterMode): React.ReactNode {
   }
   switch (modeWithoutFloat) {
     case "Required":
-      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in Latest Posts.</div>
+      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in {LATEST_POSTS_NAME}.</div>
     case "Hidden":
-      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in Latest Posts.</div>
+      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in {LATEST_POSTS_NAME}.</div>
     case "Reduced":
       return <div><em>Reduced.</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
     case "0.5":
