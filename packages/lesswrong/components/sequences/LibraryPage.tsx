@@ -21,10 +21,6 @@ const LibraryPage = ({classes}: {
 }) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper, Typography } = Components
 
-  const continueReading = useContinueReading()
-  console.log(continueReading)
-
-  // TODO: decide on terms for community sequences
   return <React.Fragment>
     <AnalyticsContext pageContext="sequencesHome">
       <SingleColumnSection>
