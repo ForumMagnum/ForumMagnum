@@ -9,7 +9,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   linkCard: {
     display: "flex",
-    background: "white",
     boxShadow: theme.palette.boxShadow.default,
     justifyContent: "space-between",
     minHeight: 140,
@@ -18,6 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   content: {
+    background: theme.palette.panelBackground.default,
     padding: 16,
     paddingRight: 50,
   },

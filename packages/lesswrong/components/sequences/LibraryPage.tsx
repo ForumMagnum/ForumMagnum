@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SequencesHome = ({classes}: {
+const LibraryPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper, Typography } = Components
@@ -63,11 +63,11 @@ const SequencesHome = ({classes}: {
   </React.Fragment>;
 };
 
-const SequencesHomeComponent = registerComponent('SequencesHome', SequencesHome, {styles});
+const LibraryPageComponent = registerComponent('LibraryPage', LibraryPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesHome: typeof SequencesHomeComponent
+    LibraryPage: typeof LibraryPageComponent
   }
 }
 
