@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line no-restricted-imports
-import { Link, NavLink, LinkProps } from 'react-router-dom';
+import { Link, LinkProps } from 'react-router-dom';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 
@@ -95,10 +95,6 @@ export function HashLink(props: HashLinkProps) {
   return genericHashLink(props);
 }
 
-// export function NavHashLink(props: HashLinkProps<NavLink>) {
-//   return genericHashLink(props, "NavLink");
-// }
-
 const propTypes = {
   onClick: PropTypes.func,
   children: PropTypes.any,
@@ -107,4 +103,3 @@ const propTypes = {
 };
 
 HashLink.propTypes = propTypes;
-// NavHashLink.propTypes = propTypes;
