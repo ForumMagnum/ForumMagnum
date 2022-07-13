@@ -199,7 +199,7 @@ const PostActions = ({post, closeMenu, classes}: {
             <ListItemIcon>
               <EditIcon />
             </ListItemIcon>
-            Use As Template
+            Duplicate Event
           </MenuItem>
         </Link>}
         { postCanEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>

@@ -108,8 +108,6 @@ const prefillFromTemplate = (template: PostsEdit) => {
       "localEndTime",
       "eventRegistrationLink",
       "joinEventLink",
-      "facebookLink",
-      "meetupLink",
       "website",
       "contactInfo",
       "isEvent",
@@ -119,8 +117,10 @@ const prefillFromTemplate = (template: PostsEdit) => {
       "groupId",
       "group",
       "title",
-      "af",
-  ])
+      "coauthorStatuses",
+      "hasCoauthorPermission",
+    ]
+  )
 }
 
 const PostsNewForm = ({classes}: {
@@ -145,14 +145,14 @@ const PostsNewForm = ({classes}: {
     documentId: query && query.groupId,
     skip: !query || !query.groupId
   });
-  const { document: templateDocument } = useSingle({
+  const { document: templateDocument, loading: templateLoading } = useSingle({
     documentId: templateId,
     collectionName: "Posts",
     fragmentName: 'PostsEdit',
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, Loading } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
@@ -172,6 +172,10 @@ const PostsNewForm = ({classes}: {
   if (!Posts.options.mutations.new.check(currentUser)) {
     return (<WrappedLoginForm />);
   }
+  if (templateLoading) {
+    return <Loading />
+  }
+
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
