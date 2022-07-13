@@ -13,6 +13,8 @@ import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
 import Button from '@material-ui/core/Button';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import { welcomeBoxes } from './WelcomeBox';
 
 export const MAX_COLUMN_WIDTH = 720
 
@@ -190,7 +192,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs, 
     AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles, Typography } = Components
 
   useEffect(() => {
@@ -227,6 +229,9 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
 
+  const welcomeBox = forumSelect(welcomeBoxes);
+  const welcomeBoxProp = welcomeBox ? { newHere: <WelcomeBox {...welcomeBox} /> } : {};
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
       tableOfContents={
@@ -255,19 +260,7 @@ const PostsPage = ({post, refetch, classes}: {
           </div>
         </div></AnalyticsContext>
       </>}
-      newHere={
-        <div className={classes.welcomeModal}>
-          <Button className={classes.welcomeModalCloseButton}>
-            <CloseIcon className={classes.welcomeModalCloseIcon}/>
-          </Button>
-          <div className={classes.welcomeModalContents}>
-            <span className={classes.welcomeModalHeaderSeparator}><Typography variant="title" className={classes.welcomeModalHeader}>New to LessWrong?</Typography></span>
-            <Typography variant="body1" className={classes.welcomeModalLink}>Getting Started</Typography>
-            <Typography variant="body1" className={classes.welcomeModalLink}>About</Typography>
-            <Typography variant="body1" className={classes.welcomeModalLink}>FAQ</Typography>
-          </div>
-        </div>
-      }
+      {...welcomeBoxProp}
     >
       <div className={classes.centralColumn}>
         {/* Body */}
