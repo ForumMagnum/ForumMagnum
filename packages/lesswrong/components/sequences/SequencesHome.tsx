@@ -1,20 +1,36 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useContinueReading } from '../recommendations/withContinueReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  pageTitle: {
+    ...theme.typography.headerStyle,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    borderTopStyle: "solid",
+    borderTopWidth: 4,
+    paddingTop: 10,
+    lineHeight: 1,
+    marginTop: 0,
+  }
 });
 
 const SequencesHome = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper } = Components
+  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton, LWCoreReading, SequencesGridWrapper, Typography } = Components
+
+  const continueReading = useContinueReading()
+  console.log(continueReading)
+
   // TODO: decide on terms for community sequences
   return <React.Fragment>
     <AnalyticsContext pageContext="sequencesHome">
-
       <SingleColumnSection>
-        <SectionTitle title="Core Reading" />
+        <Typography variant="display3" className={classes.pageTitle}>The Library</Typography>
+      </SingleColumnSection>
+      <SingleColumnSection>
         <LWCoreReading />
       </SingleColumnSection>
       <Divider />
