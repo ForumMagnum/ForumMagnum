@@ -233,7 +233,7 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
     // Filtered by: is a self-vote
     { $match: {
       $expr: {
-        $eq: ["$userId", "$authorIds"]
+        $in: ["$userId", "$authorIds"]
       }
     }}
   ]).toArray();

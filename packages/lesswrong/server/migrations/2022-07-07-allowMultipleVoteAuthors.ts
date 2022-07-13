@@ -8,14 +8,14 @@ registerMigration({
   action: async () => {
     await forEachDocumentBatchInCollection({
       collection: Votes,
-      batchSize: 100,
+      batchSize: 1000,
       filter: {
         authorIds: { $exists: false },
       },
       callback: async (votes: Array<DbVote>) => {
         // eslint-disable-next-line no-console
         console.log("Migrating vote batch");
-        // @ts-ignore
+        // @ts-ignore authorId used to exist in the schema but no longer does giving us an error
         const changes = votes.map(({ _id, authorId }) => ({
           updateOne: {
             filter: { _id },

@@ -8,7 +8,7 @@ registerMigration({
   action: async () => {
     await forEachDocumentBatchInCollection({
       collection: Votes,
-      batchSize: 100,
+      batchSize: 1000,
       filter: {
         authorId: { $exists: true },
         authorIds: { $exists: true },
