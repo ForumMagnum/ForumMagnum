@@ -8,7 +8,7 @@ import { batchUpdateScore } from '../updateScores';
 /**
  * Retrieve the ids of all users who will receive karma for a vote on a given document
  */
-const getDocumentOwners = ({newDocument, vote}: VoteDocTuple): string[] => {
+const getAllDocumentAuthors = ({newDocument, vote}: VoteDocTuple): string[] => {
   const coauthors = vote.collectionName === "Posts"
     ? getConfirmedCoauthorIds(newDocument as DbPost)
     : [];
@@ -26,16 +26,16 @@ const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    const owners = getDocumentOwners({newDocument, vote});
-    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {karma: vote.power}});
+    const authors = getAllDocumentAuthors({newDocument, vote});
+    void Users.rawUpdateMany({_id: {$in: authors}}, {$inc: {karma: vote.power}});
   }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    const owners = getDocumentOwners({newDocument, vote});
-    void Users.rawUpdateMany({_id: {$in: owners}}, {$inc: {karma: -vote.power}});
+    const authors = getAllDocumentAuthors({newDocument, vote});
+    void Users.rawUpdateMany({_id: {$in: authors}}, {$inc: {karma: -vote.power}});
   }
 });
 
