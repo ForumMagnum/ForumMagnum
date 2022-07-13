@@ -10,7 +10,7 @@ import { useTracking } from '../lib/analyticsEvents';
 import * as reactRouter from 'react-router';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
-import { HashLink } from "../components/common/HashLink";
+import { HashLink, HashLinkProps } from "../components/common/HashLink";
 import { parseQuery } from './routeUtil'
 import qs from 'qs'
 
@@ -28,7 +28,7 @@ export const withRouter = (WrappedComponent) => {
 }
 
 
-export const Link = (props) => {
+export const Link = (props: HashLinkProps) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
   const handleClick = (e) => {
     captureEvent(undefined, {buttonPressed: e.button})

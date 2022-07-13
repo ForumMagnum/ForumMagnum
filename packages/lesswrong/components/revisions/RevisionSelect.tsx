@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
-  getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
+  getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
   classes: ClassesType,
