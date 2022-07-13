@@ -11,6 +11,8 @@ import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
+import CloseIcon from '@material-ui/icons/Close';
+import Button from '@material-ui/core/Button';
 
 export const MAX_COLUMN_WIDTH = 720
 
@@ -78,6 +80,43 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
+  },
+  welcomeModal: {
+    padding: 24,
+    display: 'flex',
+    flexDirection: 'column',
+    border: theme.palette.border.normal,
+    borderRadius: 3
+  },
+  welcomeModalCloseButton: {
+    padding: '.25em',
+    margin: "-1.75em -1.75em 0 0",
+    minHeight: '.75em',
+    minWidth: '.75em',
+    alignSelf: 'end',
+  },
+  welcomeModalCloseIcon: {
+    width: '.6em',
+    height: '.6em',
+    color: theme.palette.icon.dim6,
+  },
+  welcomeModalContents: {
+    
+  },
+  welcomeModalHeader: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: "1.8rem",
+    fontWeight: 400,
+    paddingBottom: 8,
+    borderBottom: theme.palette.border.faint,
+    marginBottom: 6
+  },
+  welcomeModalHeaderSeparator: {
+    display: 'flex'
+  },
+  welcomeModalLink: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: "1.2rem"
   },
   postContent: {}, //Used by a Cypress test
   commentsSection: {
@@ -152,7 +191,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
+    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles, Typography } = Components
 
   useEffect(() => {
     recordPostView({
@@ -216,6 +255,19 @@ const PostsPage = ({post, refetch, classes}: {
           </div>
         </div></AnalyticsContext>
       </>}
+      newHere={
+        <div className={classes.welcomeModal}>
+          <Button className={classes.welcomeModalCloseButton}>
+            <CloseIcon className={classes.welcomeModalCloseIcon}/>
+          </Button>
+          <div className={classes.welcomeModalContents}>
+            <span className={classes.welcomeModalHeaderSeparator}><Typography variant="title" className={classes.welcomeModalHeader}>New to LessWrong?</Typography></span>
+            <Typography variant="body1" className={classes.welcomeModalLink}>Getting Started</Typography>
+            <Typography variant="body1" className={classes.welcomeModalLink}>About</Typography>
+            <Typography variant="body1" className={classes.welcomeModalLink}>FAQ</Typography>
+          </div>
+        </div>
+      }
     >
       <div className={classes.centralColumn}>
         {/* Body */}

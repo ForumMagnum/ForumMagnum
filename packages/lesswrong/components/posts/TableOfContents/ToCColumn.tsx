@@ -27,11 +27,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+        minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
         1.5fr
       `,
       gridTemplateAreas: `
-        "... ... .... title   .... ..."
-        "... toc gap1 content gap2 ..."
+        "... ... .... title   .... ....... ..."
+        "... toc gap1 content gap2 newhere ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
@@ -97,13 +98,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
+  newHere: {
+    gridArea: 'newhere',
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  }
 });
 
-export const ToCColumn = ({tableOfContents, header, children, classes}: {
+export const ToCColumn = ({tableOfContents, header, newHere, children, classes}: {
   tableOfContents: React.ReactNode|null,
   header: React.ReactNode,
   children: React.ReactNode,
-  classes: ClassesType
+  classes: ClassesType,
+  newHere?: React.ReactNode
 }) => {
   return (
     <div className={classNames(classes.root, {[classes.tocActivated]: !!tableOfContents})}>
@@ -122,6 +130,9 @@ export const ToCColumn = ({tableOfContents, header, children, classes}: {
         {children}
       </div>
       <div className={classes.gap2}/>
+      {newHere && <div className={classes.newHere}>
+        {newHere}
+      </div>}
     </div>
   );
 }
