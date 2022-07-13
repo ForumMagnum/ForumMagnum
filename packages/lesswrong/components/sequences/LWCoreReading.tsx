@@ -1,6 +1,4 @@
 import React, { ReactChild } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
-import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -101,29 +99,10 @@ const LWCoreReading = ({classes}: {
   minimal?: boolean,
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, CollectionsItem, CollectionsCardContainer, BigCollectionsCard, CollectionsCard } = Components
+  const { SingleColumnSection, CollectionsItem } = Components
 
-  const { results: collections, loading } = useMulti({
-    terms: {views: "allCollections"},
-    collectionName: "Collections",
-    fragmentName: 'CollectionsMinimumInfo'
-  })
-
-  // return <CollectionsCardContainer>
-  //   <div className={classes.razLargeVersion}>
-  //     <BigCollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
-  //   </div>
-  //   <div className={classes.razSmallVersion}>
-  //     <CollectionsCard collection={coreReadingCollections[0]} url={coreReadingCollections[0].url}/>
-  //   </div>
-
-  //   <CollectionsCard collection={coreReadingCollections[1]} url={coreReadingCollections[1].url}/>
-  //   <CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url}/>
-  //   <CollectionsCard collection={coreReadingCollections[3]} url={coreReadingCollections[3].url}/>
-  //   <CollectionsCard collection={coreReadingCollections[4]} url={coreReadingCollections[4].url}/>
-  // </CollectionsCardContainer>
-    return <SingleColumnSection>
-    {collections?.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
+  return <SingleColumnSection>
+    {coreReadingCollections.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
   </SingleColumnSection>
 }
 
