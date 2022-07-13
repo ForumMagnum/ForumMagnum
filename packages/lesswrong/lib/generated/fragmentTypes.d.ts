@@ -313,6 +313,11 @@ interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
   readonly qualitativeScore: number,
 }
 
+interface PostsIsRead { // fragment on Posts
+  readonly _id: string,
+  readonly isRead: boolean,
+}
+
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly url: string,
   readonly postedAt: Date,
@@ -1252,6 +1257,10 @@ interface ChaptersFragment { // fragment on Chapters
   readonly posts: Array<PostsList>,
 }
 
+interface ChaptersMinimumFragment { // fragment on Chapters
+  readonly posts: Array<PostsIsRead>,
+}
+
 interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
   readonly contents: RevisionEdit|null,
 }
@@ -1288,6 +1297,10 @@ interface SequencesPageWithChaptersFragment extends SequencesPageFragment { // f
   readonly chapters: Array<ChaptersFragment>,
 }
 
+interface SequencesChaptersMinimumFragment { // fragment on Sequences
+  readonly chapters: Array<ChaptersMinimumFragment>,
+}
+
 interface SequencesEdit extends SequencesPageFragment { // fragment on Sequences
   readonly contents: RevisionEdit|null,
 }
@@ -1306,20 +1319,40 @@ interface BookPageFragment { // fragment on Books
   readonly collectionId: string,
 }
 
+interface BooksMinimumFragment { // fragment on Books
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly title: string,
+  readonly number: number,
+  readonly subtitle: string,
+  readonly sequenceIds: Array<string>,
+  readonly sequences: Array<SequencesPageWithChaptersFragment>,
+  readonly postIds: Array<string>,
+  readonly posts: Array<PostsList>,
+  readonly collectionId: string,
+}
+
 interface BookEdit extends BookPageFragment { // fragment on Books
   readonly contents: RevisionEdit|null,
 }
 
-interface CollectionsPageFragment { // fragment on Collections
+interface CollectionsMinimumInfo { // fragment on Collections
   readonly _id: string,
   readonly createdAt: Date,
   readonly slug: string,
   readonly userId: string,
-  readonly user: UsersMinimumInfo|null,
   readonly title: string,
-  readonly contents: RevisionDisplay|null,
   readonly firstPageLink: string,
   readonly gridImageId: string,
+  readonly books: Array<BooksMinimumFragment>,
+}
+
+interface CollectionsItemFragment extends CollectionsMinimumInfo { // fragment on Collections
+}
+
+interface CollectionsPageFragment extends CollectionsMinimumInfo { // fragment on Collections
+  readonly user: UsersMinimumInfo|null,
+  readonly contents: RevisionDisplay|null,
   readonly books: Array<BookPageFragment>,
 }
 
@@ -1944,6 +1977,7 @@ interface FragmentTypes {
   TagsDefaultFragment: TagsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
+  PostsIsRead: PostsIsRead
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
@@ -2015,13 +2049,18 @@ interface FragmentTypes {
   localGroupsEdit: localGroupsEdit
   localGroupsIsOnline: localGroupsIsOnline
   ChaptersFragment: ChaptersFragment
+  ChaptersMinimumFragment: ChaptersMinimumFragment
   ChaptersEdit: ChaptersEdit
   SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageFragment: SequencesPageFragment
   SequencesPageWithChaptersFragment: SequencesPageWithChaptersFragment
+  SequencesChaptersMinimumFragment: SequencesChaptersMinimumFragment
   SequencesEdit: SequencesEdit
   BookPageFragment: BookPageFragment
+  BooksMinimumFragment: BooksMinimumFragment
   BookEdit: BookEdit
+  CollectionsMinimumInfo: CollectionsMinimumInfo
+  CollectionsItemFragment: CollectionsItemFragment
   CollectionsPageFragment: CollectionsPageFragment
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
@@ -2091,6 +2130,7 @@ interface CollectionNamesByFragmentName {
   TagsDefaultFragment: "Tags"
   RevisionsDefaultFragment: "Revisions"
   PostsMinimumInfo: "Posts"
+  PostsIsRead: "Posts"
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
@@ -2162,13 +2202,18 @@ interface CollectionNamesByFragmentName {
   localGroupsEdit: "Localgroups"
   localGroupsIsOnline: "Localgroups"
   ChaptersFragment: "Chapters"
+  ChaptersMinimumFragment: "Chapters"
   ChaptersEdit: "Chapters"
   SequencesPageTitleFragment: "Sequences"
   SequencesPageFragment: "Sequences"
   SequencesPageWithChaptersFragment: "Sequences"
+  SequencesChaptersMinimumFragment: "Sequences"
   SequencesEdit: "Sequences"
   BookPageFragment: "Books"
+  BooksMinimumFragment: "Books"
   BookEdit: "Books"
+  CollectionsMinimumInfo: "Collections"
+  CollectionsItemFragment: "Collections"
   CollectionsPageFragment: "Collections"
   CollectionsEditFragment: "Collections"
   SuggestAlignmentPost: "Posts"

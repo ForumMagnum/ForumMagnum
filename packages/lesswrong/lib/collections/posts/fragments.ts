@@ -19,6 +19,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsIsRead on Post {
+    _id
+    isRead
+  }
+`);
+
+
+
+registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
     

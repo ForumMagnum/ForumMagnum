@@ -23,6 +23,25 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment BooksMinimumFragment on Book {
+    _id
+    createdAt
+    title
+    number
+    subtitle
+    sequenceIds
+    sequences {
+      ...SequencesPageWithChaptersFragment
+    }
+    postIds
+    posts {
+      ...PostsList
+    }
+    collectionId
+  }
+`);
+
+registerFragment(`
   fragment BookEdit on Book {
     ...BookPageFragment
     contents {

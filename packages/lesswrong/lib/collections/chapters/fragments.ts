@@ -19,6 +19,14 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment ChaptersMinimumFragment on Chapter {
+    posts {
+      ...PostsIsRead
+    }
+  }
+`);
+
+registerFragment(`
   fragment ChaptersEdit on Chapter {
     ...ChaptersFragment
     contents {

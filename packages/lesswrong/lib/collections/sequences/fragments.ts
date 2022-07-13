@@ -45,6 +45,14 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment SequencesChaptersMinimumFragment on Sequence {
+    chapters {
+      ...ChaptersMinimumFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
     contents { 

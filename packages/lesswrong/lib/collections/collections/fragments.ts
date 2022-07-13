@@ -1,20 +1,36 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment CollectionsPageFragment on Collection {
+  fragment CollectionsMinimumInfo on Collection {
     _id
     createdAt
     slug
     userId
+    title
+    firstPageLink
+    gridImageId
+    books {
+      ...BooksMinimumFragment
+    }
+  }
+`)
+
+
+registerFragment(`
+  fragment CollectionsItemFragment on Collection {
+    ...CollectionsMinimumInfo
+  }
+`)
+
+registerFragment(`
+  fragment CollectionsPageFragment on Collection {
+    ...CollectionsMinimumInfo
     user {
       ...UsersMinimumInfo
     }
-    title
     contents {
       ...RevisionDisplay
     }
-    firstPageLink
-    gridImageId
     books {
       ...BookPageFragment
     }
