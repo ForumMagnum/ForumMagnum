@@ -20,4 +20,16 @@ makeEditable({
 })
 addUniversalFields({collection: Collections})
 
+makeEditable({
+  collection: Collections,
+  options: {
+    fieldName: "highlight",
+    permissions: {
+      viewableBy: ['guests'],
+      editableBy: ['sunshineRegiment', 'admins'],
+      insertableBy: ['sunshineRegiment', 'admins'],
+    },
+  }
+})
+
 export default Collections;

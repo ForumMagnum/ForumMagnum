@@ -1,6 +1,31 @@
+import { schemaDefaultValue } from '../../collectionUtils';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbCollection> = {
+  title: {
+    type: String,
+    optional: false,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    order: 1,
+  },
+  subtitle: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    order: 2,
+  },
+  slug: {
+    type: String,
+    optional: false,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+    order: 3,
+  },
 
   // default properties
 
@@ -11,6 +36,14 @@ const schema: SchemaType<DbCollection> = {
     editableBy: ['admins'],
     insertableBy: ['admins'],
     onInsert: () => new Date(),
+  },
+
+  order: {
+    type: Number,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    insertableBy: ['admins']
   },
 
   userId: {
@@ -27,17 +60,11 @@ const schema: SchemaType<DbCollection> = {
 
   // Custom Properties
 
-  title: {
-    type: String,
-    optional: false,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
-  },
 
-  slug: {
-    type: String,
-    optional: false,
+  deleted: {
+    type: Boolean,
+    optional: true,
+    ...schemaDefaultValue(false),
     viewableBy: ['guests'],
     editableBy: ['admins'],
     insertableBy: ['admins'],
@@ -65,6 +92,15 @@ const schema: SchemaType<DbCollection> = {
   },
 
   gridImageId: {
+    type: String,
+    // Corresponds to a Cloudinary ID
+    optional: true,
+    viewableBy: ["guests"],
+    editableBy: ['admins'],
+    insertableBy: ['admins'],
+  },
+
+  libraryImageUrl: {
     type: String,
     // Corresponds to a Cloudinary ID
     optional: true,

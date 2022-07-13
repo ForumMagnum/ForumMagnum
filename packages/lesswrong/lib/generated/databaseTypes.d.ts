@@ -59,10 +59,14 @@ interface DbCollection extends DbObject {
   createdAt: Date
   userId: string
   title: string
+  subtitle: string
+  deleted: boolean
   slug: string
   gridImageId: string
+  libraryImageUrl: string
   firstPageLink: string
   contents: EditableFieldContents
+  highlight: EditableFieldContents
 }
 
 interface CommentsCollection extends CollectionBase<DbComment, "Comments"> {

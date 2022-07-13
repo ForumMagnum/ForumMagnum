@@ -10,6 +10,12 @@ declare global {
 Collections.addView("allCollections", (terms) => {
   return {
     selector: {
+      deleted: false
+    },
+    options: {
+      sort: {
+        order: 1
+      }
     }
   }
 });

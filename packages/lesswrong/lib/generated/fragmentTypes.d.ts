@@ -1168,8 +1168,11 @@ interface CollectionsDefaultFragment { // fragment on Collections
   readonly createdAt: Date,
   readonly userId: string,
   readonly title: string,
+  readonly subtitle: string,
+  readonly deleted: boolean,
   readonly slug: string,
   readonly gridImageId: string,
+  readonly libraryImageUrl: string,
   readonly firstPageLink: string,
 }
 
@@ -1342,12 +1345,15 @@ interface CollectionsMinimumInfo { // fragment on Collections
   readonly slug: string,
   readonly userId: string,
   readonly title: string,
+  readonly subtitle: string,
+  readonly deleted: boolean,
   readonly firstPageLink: string,
+  readonly libraryImageUrl: string,
   readonly gridImageId: string,
-  readonly books: Array<BooksMinimumFragment>,
 }
 
 interface CollectionsItemFragment extends CollectionsMinimumInfo { // fragment on Collections
+  readonly highlight: RevisionDisplay|null,
 }
 
 interface CollectionsPageFragment extends CollectionsMinimumInfo { // fragment on Collections

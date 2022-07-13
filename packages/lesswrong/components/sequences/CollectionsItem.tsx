@@ -44,27 +44,28 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const CollectionsItem = ({classes, collection}: {
-  collection: CoreReadingCollection,
+  collection: CollectionsItemFragment,
   classes: ClassesType,
 }) => {
   const { Typography, LinkCard, ContentStyles, ContentItemBody } = Components
+  const url = `/${collection.slug}`
   return <div className={classes.root}>
-    <LinkCard to={collection.url} className={classes.linkCard}>
+    <LinkCard to={url} className={classes.linkCard}>
       <div className={classes.content}>
         <Typography variant="title" className={classes.title}>
-          <Link to={collection.url}>{collection.title}</Link>
+          <Link to={url}>{collection.title}</Link>
         </Typography>
         <div  className={classes.subtitle}>
           {collection.subtitle}
         </div>
         <ContentStyles contentType="postHighlight" className={classes.description}>
           <ContentItemBody
-            dangerouslySetInnerHTML={{__html: collection.summary}}
-            description={`sequence ${collection.id}`}
+            dangerouslySetInnerHTML={{__html: collection.highlight?.html}}
+            description={`sequence ${collection._id}`}
           />
         </ContentStyles>
       </div>
-      {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}
+      {collection.libraryImageUrl && <img src={collection.libraryImageUrl} className={classes.image} />}
     </LinkCard>
   </div>
 }

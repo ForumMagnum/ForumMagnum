@@ -3,15 +3,16 @@ import { registerFragment } from '../../vulcan-lib';
 registerFragment(`
   fragment CollectionsMinimumInfo on Collection {
     _id
+    order
     createdAt
     slug
     userId
     title
+    subtitle
+    deleted
     firstPageLink
+    libraryImageUrl
     gridImageId
-    books {
-      ...BooksMinimumFragment
-    }
   }
 `)
 
@@ -19,6 +20,9 @@ registerFragment(`
 registerFragment(`
   fragment CollectionsItemFragment on Collection {
     ...CollectionsMinimumInfo
+    highlight {
+      ...RevisionDisplay
+    }
   }
 `)
 

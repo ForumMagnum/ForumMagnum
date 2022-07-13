@@ -1,4 +1,5 @@
 import React, { ReactChild } from 'react';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -105,8 +106,16 @@ const LWCoreReading = ({classes}: {
 }) => {
   const { SingleColumnSection, CollectionsItem } = Components
 
+  const { results: collections } = useMulti({
+    terms: {view:"allCollections"},
+    collectionName: "Collections",
+    fragmentName: 'CollectionsItemFragment',
+  })
+
+  console.log(collections)
+
   return <SingleColumnSection>
-    {coreReadingCollections.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
+    {collections?.map(collection => <CollectionsItem key={collection._id} collection={collection}/>)}
   </SingleColumnSection>
 }
 
