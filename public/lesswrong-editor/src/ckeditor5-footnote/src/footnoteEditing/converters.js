@@ -231,47 +231,6 @@ export const defineConverters = (editor) => {
 		model: ELEMENTS.footnoteBackLink,
 		view: createFootnoteBackLinkViewElement,
 	});
-
-	/**
-	 * For reasons still unclear to me, certain elementToElement conversions fail when upcasting from the
-	 * clipboard, but not when upcasting from file. Using upcastDispatcher circumvents this issue.
-	 */
-	editor.data.upcastDispatcher.on('element', (_, data, conversionApi) => {
-		const { consumable, writer } = conversionApi
-		if(!consumable.test(data.viewItem, {name: true}) || !data.viewItem.hasAttribute) {
-			return;
-		}
-		let modelElement;
-		for (const attribute of [
-			ATTRIBUTES.footnoteItem,
-			ATTRIBUTES.footnoteBackLink,
-			ATTRIBUTES.footnoteContent,
-		]) {
-			if (data.viewItem.hasAttribute(attribute)) {
-				const index = data.viewItem.getAttribute(ATTRIBUTES.footnoteIndex);
-				const id = data.viewItem.getAttribute(ATTRIBUTES.footnoteId);
-				if(!id || (!index && attribute !== ATTRIBUTES.footnoteBackLink)) {
-					return;
-				}
-				const key = Object.keys(ATTRIBUTES).find(key => ATTRIBUTES[key] === attribute)
-				modelElement = writer.createElement(ELEMENTS[key], {
-					[attribute]: '',
-					...(index && {[ATTRIBUTES.footnoteIndex]: index}),
-					[ATTRIBUTES.footnoteId]: id,
-				});
-				break;
-			}
-		}
-		if(!modelElement) {
-			return
-		}
-		conversionApi.convertChildren( data.viewItem, modelElement );
-		if ( !conversionApi.safeInsert( modelElement, data.modelCursor ) ) {
-			return;
-		}
-		consumable.consume( data.viewItem, { name: true } );
-		conversionApi.updateConversionResult( modelElement, data );
-	});
 };
 
 /**
