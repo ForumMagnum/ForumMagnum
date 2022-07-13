@@ -28,7 +28,7 @@ import { getBrowserLocalStorage } from '../async/localStorageHandlers';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
-import { userCanStartConversations } from '../../lib/collections/conversations/collection';
+import { userCanPost } from '../../lib/collections/posts';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -504,7 +504,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </a>}
     </>
 
-    const showMessageButton = currentUser?._id != user._id && userCanStartConversations(currentUser)
+    const showMessageButton = currentUser?._id != user._id
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -647,11 +647,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
           {/* Drafts Section */}
           { ownPage && <SingleColumnSection>
             <SectionTitle title="My Drafts">
-              <Link to={"/newPost"}>
+              {currentUser && userCanPost(currentUser) && <Link to={"/newPost"}>
                 <SectionButton>
                   <DescriptionIcon /> New Blog Post
                 </SectionButton>
-              </Link>
+              </Link>}
             </SectionTitle>
             <AnalyticsContext listContext={"userPageDrafts"}>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={draftTerms}/>

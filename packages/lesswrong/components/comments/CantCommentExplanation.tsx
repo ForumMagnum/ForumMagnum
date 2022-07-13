@@ -26,7 +26,7 @@ const CantCommentExplanation = ({post, classes}: {
   const author = post.user;
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
-      { userBlockedCommentingReason(currentUser, post, author)}
+      { userBlockedCommentingReason(currentUser, post, author)}{" "}
       { forumTypeSetting.get() !== 'AlignmentForum' && <span>
         (Questions? Send an email to <a className={classes.emailLink} href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
       </span> }
