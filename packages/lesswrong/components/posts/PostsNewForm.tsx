@@ -172,7 +172,7 @@ const PostsNewForm = ({classes}: {
   if (!Posts.options.mutations.new.check(currentUser)) {
     return (<WrappedLoginForm />);
   }
-  if (templateLoading) {
+  if (templateId && templateLoading) {
     return <Loading />
   }
 
