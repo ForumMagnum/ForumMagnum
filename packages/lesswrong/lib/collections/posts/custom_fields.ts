@@ -18,6 +18,8 @@ import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 
+const MINIMUM_COAUTHOR_KARMA = 10;
+
 export const EVENT_TYPES = [
   {value: 'presentation', label: 'Presentation'},
   {value: 'discussion', label: 'Discussion'},
@@ -227,27 +229,47 @@ addFieldsDict(Posts, {
     group: formGroups.canonicalSequence,
   },
 
-  coauthorUserIds: {
-    ...arrayOfForeignKeysField({
-      idFieldName: "coauthorUserIds",
-      resolverName: "coauthors",
-      collectionName: "Users",
-      type: "User"
-    }),
+  coauthorStatuses: {
+    type: Array,
+    resolveAs: {
+      fieldName: 'coauthors',
+      type: '[User!]!',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
+        const loader = context.loaders['Users'];
+        const resolvedDocs = await loader.loadMany(
+          post.coauthorStatuses?.map(({ userId }) => userId) || []
+        );
+        return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
+      },
+      addOriginalField: true,
+    },
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
-    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(100)],
+    editableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
+    insertableBy: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
     label: "Co-Authors",
-    control: "UsersListEditor",
+    control: "CoauthorsListEditor",
     group: formGroups.advancedOptions,
   },
-  'coauthorUserIds.$': {
-    type: String,
-    foreignKey: 'Users',
-    optional: true
+  'coauthorStatuses.$': {
+    type: new SimpleSchema({
+      userId: String,
+      confirmed: Boolean,
+      requested: Boolean,
+    }),
+    optional: true,
   },
-  
+
+  hasCoauthorPermission: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    editableBy: ['members'],
+    insertableBy: ['members'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(true),
+  },
+
   // Cloudinary image id for an image that will be used as the OpenGraph image
   socialPreviewImageId: {
     type: String,

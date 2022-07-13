@@ -82,7 +82,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
           <div className={classes.postTitle}>{post.title}</div>
           <div className={classes.meta}>
             <span className={classes.metaEntry}>{commentCount} comments</span>
-            <span className={classes.metaEntry}>{post.baseScore} points</span>
+            <span className={classes.metaEntry}>{post.baseScore} karma</span>
           </div>
         </div>
       </Link>

@@ -399,7 +399,8 @@ interface DbPost extends DbObject {
   suggestForCuratedUserIds: Array<string>
   frontpageDate: Date
   collectionTitle: string
-  coauthorUserIds: Array<string>
+  coauthorStatuses: Array<any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_cleanOptions":{"autoConvert":true,"extendAutoValueContext":{},"filter":true,"getAutoValues":true,"removeEmptyStrings":true,"removeNullsFromArrays":false,"trimStrings":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_schema":{"userId":{"type":{"definitions":[{}]},"optional":false,"label":"User ID"},"confirmed":{"type":{"definitions":[{}]},"optional":false,"label":"Confirmed"},"requested":{"type":{"definitions":[{}]},"optional":false,"label":"Requested"}},"_depsLabels":{},"_schemaKeys":["userId","confirmed","requested"],"_autoValues":[],"_blackboxKeys":{},"_firstLevelSchemaKeys":["userId","confirmed","requested"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/>
+  hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
   canonicalSequenceId: string
@@ -682,6 +683,7 @@ interface DbUser extends DbObject {
   commentSorting: string
   sortDrafts: string
   showHideKarmaOption: boolean
+  showPostAuthorCard: boolean
   hideIntercom: boolean
   markDownPostEditor: boolean
   hideElicitPredictions: boolean
@@ -707,6 +709,7 @@ interface DbUser extends DbObject {
   bannedUserIds: Array<string>
   bannedPersonalUserIds: Array<string>
   bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
+  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
   legacyId: string
   deleted: boolean
   voteBanned: boolean
@@ -798,9 +801,12 @@ interface DbUser extends DbObject {
   usernameUnset: boolean
   paymentEmail: string
   paymentInfo: string
+  profileImageId: string
   jobTitle: string
   organization: string
   careerStage: Array<string>
+  organizerOfGroupIds: Array<string>
+  programParticipation: Array<string>
   website: string
   linkedinProfileURL: string
   facebookProfileURL: string

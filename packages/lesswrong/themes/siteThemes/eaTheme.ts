@@ -209,8 +209,8 @@ export const eaForumTheme: SiteThemeSpecification = {
             marginBottom: -8,
           },
           title: {
-            marginTop: -5,
-            textTransform: 'lowercase',
+            textTransform: 'uppercase',
+            fontSize: 18,
             color: 'rgba(0,0,0,.7)',
             fontWeight: 500,
           }

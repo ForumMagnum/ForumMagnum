@@ -1,5 +1,5 @@
 /* global cloudinary */
-import React, { Component, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent } from '../../lib/vulcan-lib';
 import { Helmet } from 'react-helmet';
@@ -9,9 +9,12 @@ import classNames from 'classnames';
 import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { useTheme } from '../themes/useTheme';
 import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import { userHasDefaultProfilePhotos } from '../../lib/betas';
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetGridImage', 'tz0mgw2s')
 const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>('cloudinary.uploadPresetBanner', 'navcjwf7')
+const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetProfile', null)
 const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetSocialPreview', null)
 const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEventImage', null)
 
@@ -56,6 +59,13 @@ const cloudinaryArgsByImageType = {
     croppingDefaultSelectionRatio: 1,
     uploadPreset: cloudinaryUploadPresetBannerSetting.get(),
   },
+  profileImageId: {
+    minImageHeight: 170,
+    minImageWidth: 170,
+    croppingAspectRatio: 1,
+    croppingDefaultSelectionRatio: 1,
+    uploadPreset: cloudinaryUploadPresetProfileSetting.get(),
+  },
   socialPreviewImageId: {
     minImageHeight: 400,
     minImageWidth: 700,
@@ -78,7 +88,11 @@ const formPreviewSizeByImageType = {
   },
   bannerImageId: {
     width: "auto",
-    height: 380
+    height: 280
+  },
+  profileImageId: {
+    width: 90,
+    height: 90
   },
   socialPreviewImageId: {
     width: 153,
@@ -177,7 +191,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
         <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"/>
       </Helmet>
       {imageId &&
-        <Components.CloudinaryImage
+        <Components.CloudinaryImage2
           publicId={imageId}
           {...formPreviewSize}
         /> }
@@ -193,6 +207,18 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cl
         onClick={() => openDialog({
           componentName: "ImageUploadDefaultsDialog",
           componentProps: {onSelect: chooseDefaultImg}
+        })}
+        className={classes.chooseButton}
+      >
+        Choose from ours
+      </Button>}
+      {userHasDefaultProfilePhotos(useCurrentUser()) && (name === 'profileImageId') && <Button
+        variant="outlined"
+        onClick={() => openDialog({
+          componentName: "ImageUploadDefaultsDialog",
+          componentProps: {
+            onSelect: chooseDefaultImg,
+            type: "Profile"}
         })}
         className={classes.chooseButton}
       >

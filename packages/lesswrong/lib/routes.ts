@@ -11,12 +11,12 @@ export const communityPath = '/community';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
+const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
-const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
-const walledGardenPortalSubtitle = { subtitleLink: '/walledGarden', subtitle: "Walled Garden"};
+
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 const reviewSubtitle = { subtitleLink: "/reviewVoting", subtitle: `${REVIEW_NAME_IN_SITU} Dashboard`}
 
@@ -246,6 +246,7 @@ addRoute(
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequences.single',
@@ -253,6 +254,7 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
+    previewComponentName: 'SequencePreview'
   },
   {
     name: 'sequencesEdit',
@@ -291,6 +293,21 @@ addRoute(
     name: 'collections',
     path: '/collections/:_id',
     componentName: 'CollectionsSingle'
+  },
+  {
+    name: 'highlights',
+    path: '/highlights',
+    title: "Sequences Highlights",
+    componentName: 'SequencesHighlightsCollection'
+  },
+  {
+    name: 'highlights.posts.single',
+    path: '/highlights/:slug',
+    componentName: 'PostsSingleSlug',
+    previewComponentName: 'PostLinkPreviewSlug',
+    ...highlightsSubtitle,
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    background: postBackground
   },
   {
     name: 'bookmarks',
@@ -631,6 +648,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       ...communitySubtitle
     },
     {
+      name: 'CommunityMembersFullMap',
+      path: '/community/map',
+      componentName: 'CommunityMembersFullMap',
+      title: 'Community Members',
+      ...communitySubtitle
+    },
+    {
       name: 'EditMyProfile',
       path: '/profile/edit',
       componentName: 'EditProfileForm',
@@ -643,6 +667,23 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EditProfileForm',
       title: 'Edit Profile',
       background: 'white',
+    },
+    {
+      name: 'ImportProfile',
+      path: '/profile/import',
+      componentName: 'EAGApplicationImportForm',
+      title: 'Import Profile',
+      background: 'white',
+    },
+    {
+      name: 'EAGApplicationData',
+      path: '/api/eag-application-data'
+    },
+    {
+      name: 'IntroCurriculum',
+      path: '/curriculum',
+      componentName: 'EAIntroCurriculum',
+      title: 'Intro Curriculum',
     },
   ],
   LessWrong: [
@@ -687,8 +728,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Meta',
       path: '/meta',
-      componentName: 'Meta',
-      title: "Meta"
+      redirect: () => `/tag/site-meta`,
     },
     {
       name: 'bestoflesswrong',
@@ -705,6 +745,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       ...hpmorSubtitle,
     },
     {
+      name: 'Curated',
+      path: '/curated',
+      redirect: () => `/recommendations`,
+    },
+    {
       name: 'Walled Garden',
       path: '/walledGarden',
       componentName: 'WalledGardenHome',
@@ -713,10 +758,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Walled Garden Portal',
       path: '/walledGardenPortal',
-      componentName: 'WalledGardenPortal',
-      title: "Walled Garden Portal",
-      ...walledGardenPortalSubtitle,
-      disableAutoRefresh: true,
+      redirect: () => `/walledGarden`,
     },
     {
       name: 'HPMOR.posts.single',
@@ -886,9 +928,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Meta',
       path: '/meta',
-      componentName: 'Meta',
-      title: "Meta",
-      ...metaSubtitle
+      redirect: () => `/tag/site-meta`,
     },
     // Can remove these probably - no one is likely visiting on AF, but maybe not worth a 404
     {

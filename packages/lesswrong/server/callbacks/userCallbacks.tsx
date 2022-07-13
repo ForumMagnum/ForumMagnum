@@ -1,8 +1,9 @@
+import React from 'react';
 import fetch from "node-fetch";
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
-import { updateMutator } from '../vulcan-lib/mutators';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
@@ -18,6 +19,13 @@ import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import { userGetLocation } from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
+import { getAdminTeamAccount } from './commentCallbacks';
+import { wrapAndSendEmail } from '../emails/renderEmail';
+import { DatabaseServerSetting } from "../databaseSettings";
+import { EventDebouncer } from '../debouncer';
+import { Components } from '../../lib/vulcan-lib/components';
+import { Conversations } from '../../lib/collections/conversations/collection';
+import { Messages } from '../../lib/collections/messages/collection';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -85,9 +93,12 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
 getCollectionHooks("Users").editAsync.add(function mapLocationMayTriggerReview(newUser: DbUser, oldUser: DbUser) {
   // on the EA Forum, we are testing out reviewing all unreviewed users who add a bio
   const addedBio = !oldUser.biography?.html && newUser.biography?.html && forumTypeSetting.get() === 'EAForum'
+  
+  // on the EA Forum, we are reviewing all unreviewed users who add a profile photo
+  const addedProfilePhoto = !oldUser.profileImageId && newUser.profileImageId && forumTypeSetting.get() === 'EAForum'
 
   // if the user has a mapLocation and they have not been reviewed, mark them for review
-  if ((addedBio || newUser.mapLocation) && !newUser.reviewedByUserId && !newUser.needsReview) {
+  if ((addedBio || addedProfilePhoto || newUser.mapLocation) && !newUser.reviewedByUserId && !newUser.needsReview) {
     void Users.rawUpdateOne({_id: newUser._id}, {$set: {needsReview: true}})
   }
 })
@@ -299,3 +310,98 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     console.log(e);
   });
 });
+
+
+const welcomeMessageDelayer = new EventDebouncer<string,{}>({
+  name: "welcomeMessageDelay",
+  
+  // Delay 60 minutes between when you create an account, and when we send the
+  // welcome email. (You can still see the welcome post immediately, which on
+  // LW is the same thing, if you want). The theory is that users creating new
+  // accounts are often doing so because they're about to write a comment or
+  // something, and derailing them with a bunch of stuff to read at that
+  // particular moment could be bad.
+  defaultTiming: {type: "delayed", delayMinutes: 60 },
+  
+  callback: (userId: string) => {
+    void sendWelcomeMessageTo(userId);
+  },
+});
+
+getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
+  await welcomeMessageDelayer.recordEvent({
+    key: user._id,
+    data: {},
+  });
+});
+
+const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
+const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
+
+async function sendWelcomeMessageTo(userId: string) {
+  const postId = welcomeEmailPostId.get();
+  if (!postId || !postId.length) {
+    // eslint-disable-next-line no-console
+    console.log("Not sending welcome email, welcomeEmailPostId setting is not configured");
+    return;
+  }
+  const welcomePost = await Posts.findOne({_id: postId});
+  if (!welcomePost) {
+    // eslint-disable-next-line no-console
+    console.error(`Not sending welcome email, welcomeEmailPostId of ${postId} does not match any post`);
+    return;
+  }
+  
+  const user = await Users.findOne(userId);
+  if (!user) throw new Error(`Could not find ${userId}`);
+  
+  // try to use forumTeamUserId as the sender,
+  // and default to the admin account if not found
+  const adminUserId = forumTeamUserId.get()
+  let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
+  if (!adminsAccount) {
+    adminsAccount = await getAdminTeamAccount()
+  }
+  
+  const subjectLine = welcomePost.title;
+  const welcomeMessageBody = welcomePost.contents.html;
+  
+  const conversationData = {
+    participantIds: [user._id, adminsAccount._id],
+    title: subjectLine,
+  }
+  const conversation = await createMutator({
+    collection: Conversations,
+    document: conversationData,
+    currentUser: adminsAccount,
+    validate: false
+  });
+  
+  const messageDocument = {
+    userId: adminsAccount._id,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: welcomeMessageBody,
+      }
+    },
+    conversationId: conversation.data._id,
+    noEmail: true,
+  }
+  await createMutator({
+    collection: Messages,
+    document: messageDocument,
+    currentUser: adminsAccount,
+    validate: false
+  })
+  
+  // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
+  // so we're not sending the email notification for this welcome PM
+  if (forumTypeSetting.get() !== 'EAForum') {
+    await wrapAndSendEmail({
+      user,
+      subject: subjectLine,
+      body: <Components.EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+    })
+  }
+}

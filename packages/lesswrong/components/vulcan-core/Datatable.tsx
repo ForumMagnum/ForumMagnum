@@ -7,6 +7,7 @@ import { getSchema } from '../../lib/utils/getSchema';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
+import classNames from 'classnames';
 
 /*
 
@@ -218,6 +219,8 @@ const DatatableContents = (props) => {
     count, totalCount, networkStatus, currentUser, emptyState, 
     toggleSort, currentSort } = props;
 
+  const { DatatableHeader, DatatableContentsHeadLayout, DatatableTitle, DatatableContentsLayout, DatatableContentsInnerLayout, DatatableContentsBodyLayout, LoadMore } = Components
+
   if (loading) {
     return <div className="datatable-list datatable-list-loading"><Components.Loading /></div>;
   } else if (!results || !results.length) {
@@ -228,36 +231,34 @@ const DatatableContents = (props) => {
   const hasMore = totalCount > results.length;
   const sortedColumns = _sortBy(columns, column => column.order);
   return (
-    <Components.DatatableContentsLayout>
-      {title && <Components.DatatableTitle title={title}/>}
-      <Components.DatatableContentsInnerLayout>
-        <Components.DatatableContentsHeadLayout>
+    <DatatableContentsLayout>
+      {title && <DatatableTitle title={title}/>}
+      <DatatableContentsInnerLayout>
+        <DatatableContentsHeadLayout>
           {
             sortedColumns
               .map((column, index) => (
-                <Components.DatatableHeader
+                <DatatableHeader
                   key={index} collection={collection} column={column}
                   toggleSort={toggleSort} currentSort={currentSort} />)
               )
           }
-        </Components.DatatableContentsHeadLayout>
-        <Components.DatatableContentsBodyLayout>
+        </DatatableContentsHeadLayout>
+        <DatatableContentsBodyLayout>
           {results.map((document, index) => <Components.DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} currentUser={currentUser} />)}
-        </Components.DatatableContentsBodyLayout>
-      </Components.DatatableContentsInnerLayout>
+        </DatatableContentsBodyLayout>
+      </DatatableContentsInnerLayout>
       {hasMore &&
         <Components.DatatableContentsMoreLayout>
           {isLoadingMore
             ? <Components.Loading />
             : (
-            <Components.DatatableLoadMoreButton onClick={e => { e.preventDefault(); loadMore(); }}>
-                Load More ({count}/{totalCount})
-            </Components.DatatableLoadMoreButton>
+            <LoadMore count={count} totalCount={totalCount} loadMore={loadMore} />
             )
           }
         </Components.DatatableContentsMoreLayout>
       }
-    </Components.DatatableContentsLayout>
+    </DatatableContentsLayout>
   );
 };
 DatatableContents.propTypes = {
@@ -294,10 +295,6 @@ const DatatableContentsMoreLayout = ({ children }) => (
   </div>
 );
 const DatatableContentsMoreLayoutComponent = registerComponent('DatatableContentsMoreLayout', DatatableContentsMoreLayout);
-const DatatableLoadMoreButton = ({ count, totalCount, children, ...otherProps }) => (
-  <Components.Button variant="primary" {...otherProps}>{children}</Components.Button>
-);
-const DatatableLoadMoreButtonComponent = registerComponent('DatatableLoadMoreButton', DatatableLoadMoreButton);
 
 /*
 
@@ -350,20 +347,26 @@ const DatatableRowLayoutComponent = registerComponent('DatatableRowLayout', Data
 DatatableCell Component
 
 */
-const DatatableCell = ({ column, document, currentUser }) => {
+
+const cellStyles = theme => ({
+  cell: {
+    padding: 4
+  }
+})
+const DatatableCell = ({ classes, column, document, currentUser }) => {
   const Component = column.component 
   || (column.componentName && Components[column.componentName])
   || Components.DatatableDefaultCell;
   const columnName = getColumnName(column);
   return (
-    <Components.DatatableCellLayout className={`datatable-item-${columnName.toLowerCase().replace(/\s/g, '-')}`}>
+    <Components.DatatableCellLayout className={classNames(`datatable-item-${columnName.toLowerCase().replace(/\s/g, '-')}`, classes.cell)}>
       <Component column={column} document={document} currentUser={currentUser} />
     </Components.DatatableCellLayout>
   );
 };
 DatatableCell.propTypes = {
 };
-const DatatableCellComponent = registerComponent('DatatableCell', DatatableCell);
+const DatatableCellComponent = registerComponent('DatatableCell', DatatableCell, {styles: cellStyles});
 
 const DatatableCellLayout = ({ children, ...otherProps }) => (
   <td {...otherProps}>{children}</td>
@@ -394,7 +397,6 @@ declare global {
     DatatableContentsHeadLayout: typeof DatatableContentsHeadLayoutComponent,
     DatatableContentsBodyLayout: typeof DatatableContentsBodyLayoutComponent,
     DatatableContentsMoreLayout: typeof DatatableContentsMoreLayoutComponent,
-    DatatableLoadMoreButton: typeof DatatableLoadMoreButtonComponent,
     DatatableTitle: typeof DatatableTitleComponent,
     DatatableRow: typeof DatatableRowComponent,
     DatatableRowLayout: typeof DatatableRowLayoutComponent,

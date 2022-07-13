@@ -11,6 +11,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumAllPostsNumDaysSetting, DatabasePublicSetting } from '../../lib/publicSettings';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
+import { AllowHidingFrontPagePostsContext } from './PostsPage/PostActions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -105,16 +106,19 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
         terms={postListParameters}
         capturePostItemOnMount
       >
-        <PostsTimeframeList
-          timeframe={currentTimeframe}
-          postListParameters={postListParameters}
-          numTimeBlocks={numTimeBlocks}
-          dimWhenLoading={showSettings}
-          after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone, before: query.before})}
-          before={query.before  || getBeforeDefault({timeBlock, timezone, after: query.after})}
-          reverse={query.reverse === "true"}
-          displayShortform={query.includeShortform !== "false"}
-        />
+        {/* Allow unhiding posts from all posts menu to allow recovery of hiding the wrong post*/}
+        <AllowHidingFrontPagePostsContext.Provider value={true}>
+          <PostsTimeframeList
+            timeframe={currentTimeframe}
+            postListParameters={postListParameters}
+            numTimeBlocks={numTimeBlocks}
+            dimWhenLoading={showSettings}
+            after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone, before: query.before})}
+            before={query.before  || getBeforeDefault({timeBlock, timezone, after: query.after})}
+            reverse={query.reverse === "true"}
+            displayShortform={query.includeShortform !== "false"}
+          />
+        </AllowHidingFrontPagePostsContext.Provider>
       </AnalyticsContext>
     </div>
   }

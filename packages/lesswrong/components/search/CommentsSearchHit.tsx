@@ -7,10 +7,11 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    padding: 10,
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
     display: 'flex',
     alignItems: 'center',
-    borderBottom: theme.palette.border.faint
   },
   icon: {
     width: 20,
@@ -21,7 +22,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   snippet: {
     overflowWrap: "break-word",
     ...theme.typography.body2,
-    wordBreak: "break-word"
+    wordBreak: "break-word",
+    color: theme.palette.grey[600],
   }
 })
 
@@ -45,7 +47,7 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
     <Link to={url} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
-        <Components.MetaInfo>{comment.baseScore} points </Components.MetaInfo>
+        <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>
         <Components.MetaInfo>
           <Components.FormatDate date={comment.postedAt}/>
         </Components.MetaInfo>

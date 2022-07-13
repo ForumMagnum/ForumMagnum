@@ -143,13 +143,11 @@ SyncedCron.add = async function(entry: {
 SyncedCron.start = function() {
   var self = this;
 
-  onStartup(async function() {
-    // Schedule each job with later.js
-    _.each(self._entries, function(entry) {
-      scheduleEntry(entry);
-    });
-    self.running = true;
+  // Schedule each job with later.js
+  _.each(self._entries, function(entry) {
+    scheduleEntry(entry);
   });
+  self.running = true;
 }
 
 // Return the next scheduled date of the first matching entry or undefined

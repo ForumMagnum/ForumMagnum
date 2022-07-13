@@ -37,7 +37,8 @@ export const userOwnsAndInGroup = (group: string) => {
 
 export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsList|DbPost): boolean => {
   if (!currentUser) return false;
-  return document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)
+  return document.shareWithUsers?.includes(currentUser._id) ||
+    document.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0;
 }
 
 export const userCanCollaborate = (currentUser: UsersCurrent|null, document: PostsList): boolean => {
@@ -447,4 +448,8 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
   } else {
     return user.commentCount;
   }
+}
+
+export const isMod = (user: UsersProfile|DbUser): boolean => {
+  return user.isAdmin || user.groups?.includes('sunshineRegiment')
 }

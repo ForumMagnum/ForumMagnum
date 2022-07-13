@@ -90,14 +90,6 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon}: {
       </LWTooltip>
     </span>}
 
-    {post.meta && <span className={classes.postIcon}>
-      <LWTooltip title={<div>Meta <div><em>(Click to view all meta content)</em></div></div>} placement="right">
-        <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/site-meta`}>
-          <DetailsIcon className={classes.icon}/>
-        </Link>
-      </LWTooltip>
-    </span>}
-
     {forumTypeSetting.get() !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
         <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">

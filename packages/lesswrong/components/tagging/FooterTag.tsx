@@ -127,7 +127,7 @@ const FooterTag = ({tagRel, tag, hideScore=false, classes, smallText, isTopTag=f
         <span className={classes.name}>{tag.name}</span>
         {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
       </Link>
-      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} modifiers={{flip:{enabled:false}}}>
+      {tagRel && <PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
         <div className={classes.hovercard}>
           <TagRelCard tagRel={tagRel} />
         </div>

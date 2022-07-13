@@ -205,12 +205,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltip post={post} hash={hash} />
       </LWPopper>
@@ -245,12 +240,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
+        allowOverflow
       >
         <PostsPreviewTooltip post={post} comment={comment} />
       </LWPopper>
@@ -261,6 +251,43 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
 const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
   styles,
 });
+
+const SequencePreview = ({classes, targetLocation, href, innerHTML}: {
+  classes: ClassesType,
+  targetLocation: any,
+  href: string,
+  innerHTML: string
+}) => {
+  const { LWPopper, SequencesHoverOver } = Components
+  const sequenceId = targetLocation.params._id;
+  const { eventHandlers, anchorEl, hover } = useHover();
+
+  const { document: sequence } = useSingle({
+    documentId: sequenceId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesPageFragment',
+    fetchPolicy: 'cache-then-network' as any,
+  });
+
+  return (
+    <span {...eventHandlers}>
+      <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="bottom-start"
+        allowOverflow
+      >
+        <SequencesHoverOver sequence={sequence || null} />
+      </LWPopper>
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={sequenceId}/>
+    </span>
+  )
+}
+
+const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview, {
+  styles,
+});
+
 
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
@@ -318,12 +345,7 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
+        allowOverflow
       >
         <Card>
           <div className={classes.hovercard}>
@@ -766,5 +788,6 @@ declare global {
     ArbitalPreview: typeof ArbitalPreviewComponent,
     FootnotePreview: typeof FootnotePreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
+    SequencePreview: typeof SequencePreviewComponent
   }
 }

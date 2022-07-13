@@ -123,6 +123,7 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent: "rgba(0,0,0,.87)",
       translucent2: "rgba(0,0,0,.8)",
       translucent3: "rgba(0,0,0,.75)",
+      translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
       commentModeratorHat: "#202719",
     },
@@ -140,6 +141,12 @@ export const darkModeTheme: UserThemeSpecification = {
     },
   }),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
+    postImageStyles: {
+      // Override image background color to white (so that transparent isn't
+      // black). Necessary because there are a handful of posts with images that
+      // have black-on-transparent text in them.
+      background: "#ffffff",
+    },
     rawCSS: [
       safeColorFallbacks,
       generateColorOverrides()

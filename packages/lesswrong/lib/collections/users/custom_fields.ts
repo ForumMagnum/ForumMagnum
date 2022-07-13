@@ -7,11 +7,13 @@ import { forumTypeSetting, hasEventsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, addFieldsDict, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import Users from "./collection";
+import Tags from "../tags/collection";
 import { userOwnsAndInGroup } from "./helpers";
 import { userOwns, userIsAdmin } from '../../vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
+import uniqBy from 'lodash/uniqBy'
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -145,6 +147,20 @@ export const CAREER_STAGES = [
   {value: 'retired', label: "Retired"},
 ]
 
+export const PROGRAM_PARTICIPATION = [
+  {value: 'vpIntro', label: "Completed the Introductory EA VP"},
+  {value: 'vpInDepth', label: "Completed the In-Depth EA VP"},
+  {value: 'vpPrecipice', label: "Completed the Precipice Reading Group"},
+  {value: 'vpLegal', label: "Completed the Legal Topics in EA VP"},
+  {value: 'vpAltProtein', label: "Completed the Alt Protein Fundamentals VP"},
+  {value: 'vpAGISafety', label: "Completed the AGI Safety Fundamentals VP"},
+  {value: 'vpMLSafety', label: "Completed the ML Safety Scholars VP"},
+  {value: 'eag', label: "Attended an EA Global conference"},
+  {value: 'eagx', label: "Attended an EAGx conference"},
+  {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
+  {value: '80k', label: "Received career coaching from 80,000 Hours"},
+]
+
 export const SOCIAL_MEDIA_PROFILE_FIELDS = {
   linkedinProfileURL: 'linkedin.com/in/',
   facebookProfileURL: 'facebook.com/',
@@ -238,10 +254,25 @@ addFieldsDict(Users, {
     group: formGroups.siteCustomizations,
     order: 69,
   },
+  
+  // We tested this on the EA Forum and it didn't encourage more PMs, but it led to some profile views.
+  // Hiding for now, will probably delete or test another version in the future.
+  showPostAuthorCard: {
+    type: Boolean,
+    optional: true,
+    label: "Show my bio at the end of my posts",
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    hidden: true,
+    control: 'checkbox',
+    group: formGroups.siteCustomizations,
+    order: 70,
+  },
 
   // Intercom: Will the user display the intercom while logged in?
   hideIntercom: {
-    order: 70,
+    order: 71,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -256,7 +287,7 @@ addFieldsDict(Users, {
   // This field-name is no longer accurate, but is here because we used to have that field
   // around and then removed `markDownCommentEditor` and merged it into this field.
   markDownPostEditor: {
-    order: 71,
+    order: 72,
     type: Boolean,
     optional: true,
     defaultValue: false,
@@ -539,6 +570,42 @@ addFieldsDict(Users, {
     optional: true
   },
 
+  // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
+  // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead
+  // model this closer to ReadStatuses: an object per hidden thread + user pair, and exposing the hidden status
+  // as a property on thread. 
+  //
+  // That said, this is likely fine given this is a power use feature, but if it ever gives anyone any problems
+  // feel free to change it!
+  hiddenPostsMetadata: {
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.hiddenPostsMetadata) {
+        return uniqBy(data?.hiddenPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "hiddenPostsMetadata",
+      resolverName: "hiddenPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "hiddenPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "hiddenPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
+    optional: true
+  },
+
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     type: String,
@@ -659,7 +726,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(true),
   },
   autoSubscribeAsOrganizer: {
-    label: "Auto-subscribe to posts and meetups in groups I organize",
+    label: `Auto-subscribe to posts/events in groups I organize`,
     group: formGroups.notifications,
     type: Boolean,
     optional: true,
@@ -672,7 +739,7 @@ addFieldsDict(Users, {
   },
 
   notificationCommentsOnSubscribedPost: {
-    label: "Comments on posts I'm subscribed to",
+    label: `Comments on posts/events I'm subscribed to`,
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
@@ -714,7 +781,7 @@ addFieldsDict(Users, {
     ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationEventInRadius: {
-    label: "New Events in my notification radius",
+    label: "New events in my notification radius",
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
@@ -852,7 +919,7 @@ addFieldsDict(Users, {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: sequence => !sequence.draft && !sequence.isDeleted
+      filterFn: sequence => !sequence.draft && !sequence.isDeleted && !sequence.hideFromAuthorPage
     }),
     canRead: ['guests'],
   },
@@ -924,7 +991,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: forumTypeSetting.get() === "EAForum" ? 7 : 101,
+    order: forumTypeSetting.get() === "EAForum" ? 9 : 101,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -1476,7 +1543,7 @@ addFieldsDict(Users, {
     tooltip: "Restore the old Draft-JS based editor",
     group: formGroups.siteCustomizations,
     label: "Restore the previous WYSIWYG editor",
-    order: 72,
+    order: 73,
   },
   walledGardenInvite: {
     type: Boolean,
@@ -1534,6 +1601,20 @@ addFieldsDict(Users, {
     group: formGroups.paymentInfo,
   },
   
+  // Cloudinary image id for the profile image (high resolution)
+  profileImageId: {
+    hidden: true,
+    order: forumTypeSetting.get() === "EAForum" ? 1 : 40,
+    group: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: [userOwns, "admins", "sunshineRegiment"],
+    label: "Profile Image",
+    tooltip: "This will only be shown on your profile page",
+    control: "ImageUpload"
+  },
+  
   jobTitle: {
     type: String,
     hidden: true,
@@ -1542,7 +1623,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.aboutMe,
-    order: 1,
+    order: 2,
     label: 'Role'
   },
   
@@ -1554,7 +1635,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.aboutMe,
-    order: 2,
+    order: 3,
   },
   
   careerStage: {
@@ -1565,7 +1646,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.aboutMe,
-    order: 3,
+    order: 4,
     control: 'FormComponentMultiSelect',
     placeholder: "Career stage",
     form: {
@@ -1577,7 +1658,7 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
   },
-  
+
   bio: {
     type: String,
     viewableBy: ['guests'],
@@ -1589,6 +1670,58 @@ addFieldsDict(Users, {
     viewableBy: ['guests'],
     optional: true,
     hidden: true,
+  },
+  
+  // These are the groups displayed in the user's profile (i.e. this field is informational only).
+  // This does NOT affect permissions - use the organizerIds field on localgroups for that.
+  organizerOfGroupIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "organizerOfGroupIds",
+      resolverName: "organizerOfGroups",
+      collectionName: "Localgroups",
+      type: "Localgroup"
+    }),
+    hidden: true,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    group: formGroups.aboutMe,
+    order: 7,
+    control: "SelectLocalgroup",
+    label: "Organizer of",
+    tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
+    form: {
+      useDocumentAsUser: true,
+      separator: '\r\n',
+      multiselect: true
+    },
+  },
+  'organizerOfGroupIds.$': {
+    type: String,
+    foreignKey: "Localgroups",
+    optional: true,
+  },
+  
+  programParticipation: {
+    type: Array,
+    hidden: true,
+    optional: true,
+    canCreate: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    group: formGroups.aboutMe,
+    order: 8,
+    control: 'FormComponentMultiSelect',
+    placeholder: "Which of these programs have you participated in?",
+    form: {
+      separator: '\r\n',
+      options: PROGRAM_PARTICIPATION
+    },
+  },
+  'programParticipation.$': {
+    type: String,
+    optional: true,
   },
 
   website: {
@@ -1603,7 +1736,7 @@ addFieldsDict(Users, {
       inputPrefix: 'https://'
     },
     group: formGroups.aboutMe,
-    order: 8
+    order: 9
   },
   
   linkedinProfileURL: {

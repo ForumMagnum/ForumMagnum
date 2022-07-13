@@ -192,6 +192,7 @@ declare global {
       translucent: ColorString,
       translucent2: ColorString,
       translucent3: ColorString,
+      translucent4: ColorString,
       hoverHighlightGrey: ColorString,
       postsItemHover: ColorString,
       formErrors: ColorString,
@@ -382,6 +383,7 @@ declare global {
     },
     zIndexes: any,
     overrides: any,
+    postImageStyles: JssStyles,
     voting: {strongVoteDelay: number},
     secondary: any,
     

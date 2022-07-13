@@ -36,11 +36,16 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      html
+      ...RevisionEdit
     }
     howICanHelpOthers {
-      html
+      ...RevisionEdit
     }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
     website
     linkedinProfileURL
     facebookProfileURL
@@ -54,6 +59,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
+    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -149,6 +155,7 @@ registerFragment(`
       ...PostsList
     }
 
+    hiddenPostsMetadata
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -272,6 +279,9 @@ registerFragment(`
 registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
+    biography {
+      ...RevisionEdit
+    }
     # Moderation Guidelines editor information
     moderationGuidelines {
       ...RevisionEdit
@@ -389,6 +399,7 @@ registerFragment(`
     jobTitle
     organization
     careerStage
+    profileImageId
     biography {
       ...RevisionEdit
     }
@@ -398,6 +409,11 @@ registerFragment(`
     howICanHelpOthers {
       ...RevisionEdit
     }
+    organizerOfGroupIds
+    organizerOfGroups {
+      ...localGroupsBase
+    }
+    programParticipation
     mapLocation
     website
     linkedinProfileURL

@@ -42,8 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
-    padding: theme.spacing.unit*1.5,
-    paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
     },
@@ -58,11 +56,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postPreview: {
     maxHeight: 450,
+    padding: theme.spacing.unit*1.5,
+    paddingBottom: 0,
+    paddingTop: 0
   },
   header: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    padding: theme.spacing.unit*1.5,
+    paddingBottom: 0,
   },
   title: {
     marginBottom: -6,
@@ -80,9 +83,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   comment: {
     marginTop: theme.spacing.unit,
-    marginLeft: -13,
-    marginRight: -13,
-    marginBottom: -commentsNodeRootMarginBottom
   },
   bookmark: {
     marginTop: -4,
@@ -113,7 +113,6 @@ const getPostCategory = (post: PostsBase) => {
   if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.meta) categories.push(`Meta Post`)
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
 
   if (categories.length > 0)

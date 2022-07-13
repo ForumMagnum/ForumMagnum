@@ -8,22 +8,22 @@ import DescriptionIcon from '@material-ui/icons/Description';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    padding: 10,
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
     display: 'flex',
-    alignItems: 'center',
-    borderBottom: theme.palette.border.faint,
     overflowWrap: "break-word"
   },
   icon: {
     width: 20,
     color: theme.palette.grey[500],
     marginRight: 12,
-    marginLeft: 4
+    marginLeft: 4,
+    marginTop: 5
   },
   snippet: {
     ...theme.typography.postStyle,
     lineHeight: "1.3rem",
-    marginTop: 4,
     wordBreak: "break-word"
   },
   title: {
@@ -62,13 +62,17 @@ const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
             {post.authorDisplayName}
           </Components.MetaInfo>}
           <Components.MetaInfo>
-            {post.baseScore} points
+            {post.baseScore} karma
           </Components.MetaInfo>
           {post.postedAt && <Components.MetaInfo>
             <Components.FormatDate date={post.postedAt}/>
           </Components.MetaInfo>}
         </div>
-        {showSnippet && <div className={classes.snippet}><Snippet attribute="body" hit={post} tagName="mark" /></div>}
+        {showSnippet && <div className={classes.snippet}>
+          <Components.MetaInfo>
+            <Snippet attribute="body" hit={post} tagName="mark" />
+          </Components.MetaInfo>
+        </div>}
     </Link>
   </div>
 }

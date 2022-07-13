@@ -54,7 +54,11 @@ export const renderWithCache = async (req: Request, res: Response) => {
   const startTime = new Date();
   const user = await getUserFromReq(req);
   
-  const ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'];
+  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
+  let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
+  if (ip.indexOf(",")>=0)
+    ip = ip.split(",")[0];
+  
   const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
@@ -90,6 +94,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: rendered.timings,
       cached: false,
       abTestGroups: rendered.allAbTestGroups,
+      ip
     });
     // eslint-disable-next-line no-console
     console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
@@ -118,8 +123,9 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      abTestGroups: rendered.relevantAbTestGroups,
+      abTestGroups: rendered.allAbTestGroups,
       cached: rendered.cached,
+      ip
     });
     
     return {
