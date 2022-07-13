@@ -41,7 +41,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
       title: "Most Important Century",
       id: "most-important",
       userId: "9Fg4woeMPHoGa6kDA",
-      summary: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
+      summary: "<div>Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.",
       imageId: "jacob-mejicanos-P6s8EbcSgmA-unsplash.jpg",
       color: "#d96704",
       big: false,

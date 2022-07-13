@@ -9,7 +9,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   linkCard: {
     display: "flex",
-    background: "white",
     boxShadow: theme.palette.boxShadow.default,
     justifyContent: "space-between",
     minHeight: 140,
@@ -18,32 +17,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   content: {
-    padding: 16
+    background: theme.palette.panelBackground.default,
+    padding: 16,
+    paddingRight: 50,
   },
-  titleAuthor: {
-    display: "flex",
-    justifyContent: "space-between"
+  description: {
+    ...theme.typography.body2,
+    ...theme.typography.postStyle
   },
-  text: {
-    ...theme.typography.postStyle,
+  title: {
+    ...theme.typography.headerStyle,
+    fontWeight: "bold",
+    textTransform: "uppercase"
   },
   subtitle: {
+    ...theme.typography.body2,
     ...theme.typography.postStyle,
     display: "inline-block",
-    fontStyle: "italic",
-    paddingBottom: 12
-  },
-  ui: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    fontSize: "1rem",
-    padding: 16,
-    width: 160,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center"
+    opacity: .6,
+    paddingBottom: 16,
   },
   image: {
     width: 140,
@@ -52,31 +44,27 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export const CollectionsItem = ({classes, collection}: {
-  collection: CollectionsMinimumInfo,
+  collection: CoreReadingCollection,
   classes: ClassesType,
 }) => {
-  const { CloudinaryImage, Typography, LinkCard } = Components
-  const url = `/${collection.slug}`
+  const { Typography, LinkCard, ContentStyles, ContentItemBody } = Components
   return <div className={classes.root}>
-    <LinkCard to={url} className={classes.linkCard}>
-      {collection.gridImageId && <img src={collection.gridImageId} className={classes.image} />}
+    <LinkCard to={collection.url} className={classes.linkCard}>
       <div className={classes.content}>
         <Typography variant="title" className={classes.title}>
-          <Link to={url}>{collection.title}</Link>
+          <Link to={collection.url}>{collection.title}</Link>
         </Typography>
         <div  className={classes.subtitle}>
           {collection.subtitle}
         </div>
-        <Typography variant="body2" className={classes.text}>
-          {collection.summary}
-        </Typography>
+        <ContentStyles contentType="postHighlight" className={classes.description}>
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: collection.summary}}
+            description={`sequence ${collection.id}`}
+          />
+        </ContentStyles>
       </div>
-      {/* {collection.imageUrl && <img src={collection.imageUrl} className={classes.imageRight} />} */}
-
-      <div className={classes.ui}>
-        <div>0/300</div>
-        <div>read</div>
-      </div>
+      {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} />}
     </LinkCard>
   </div>
 }
