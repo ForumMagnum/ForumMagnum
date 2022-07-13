@@ -2,7 +2,7 @@ import { testStartup } from './testMain';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
-import { createDummyUser, createDummyPost, createDummyComment } from './utils'
+import { createDummyUser, createDummyPost, createDummyComment, createDummyVote } from './utils'
 import { Users } from '../lib/collections/users/collection'
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -201,6 +201,31 @@ describe('Voting', function() {
       const updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
       (updatedAuthor.karma as any).should.be.equal(1);
       (updatedCoauthor.karma as any).should.be.equal(1);
+    });
+  })
+  describe('checkRateLimit', () => {
+    it('limits votes on posts', async () => {
+      const voter = await createDummyUser();
+      const author = await createDummyUser();
+      const post = await createDummyPost(author);
+      const maxVotesPerHour = 100;
+      const thirtyMinsAgo = Date.now() - (30 * 60 * 1000);
+      for (let i = 0; i < maxVotesPerHour; i++) {
+        await createDummyVote(voter, { votedAt: new Date(thirtyMinsAgo + i) });
+      }
+      await expect(async () => {
+        await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      }).rejects.toThrow("Voting rate limit exceeded: too many votes in one hour");
+    });
+    it('self-votes don\'t count towards rate limit', async () => {
+      const voter = await createDummyUser();
+      const post = await createDummyPost(voter);
+      const maxVotesPerHour = 100;
+      const thirtyMinsAgo = Date.now() - (30 * 60 * 1000);
+      for (let i = 0; i < maxVotesPerHour; i++) {
+        await createDummyVote(voter, { votedAt: new Date(thirtyMinsAgo + i) });
+      }
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
     });
   })
   describe('getKarmaChanges', () => {
