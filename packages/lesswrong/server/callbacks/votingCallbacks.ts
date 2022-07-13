@@ -1,19 +1,8 @@
 import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
-import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { batchUpdateScore } from '../updateScores';
-
-/**
- * Retrieve the ids of all users who will receive karma for a vote on a given document
- */
-const getAllDocumentAuthors = ({newDocument, vote}: VoteDocTuple): string[] => {
-  const coauthors = vote.collectionName === "Posts"
-    ? getConfirmedCoauthorIds(newDocument as DbPost)
-    : [];
-  return [newDocument.userId, ...coauthors];
-}
 
 /**
  * @summary Update the karma of the item's owner
@@ -26,16 +15,14 @@ const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    const authors = getAllDocumentAuthors({newDocument, vote});
-    void Users.rawUpdateMany({_id: {$in: authors}}, {$inc: {karma: vote.power}});
+    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // only update karma is the operation isn't done by the item's author
   if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    const authors = getAllDocumentAuthors({newDocument, vote});
-    void Users.rawUpdateMany({_id: {$in: authors}}, {$inc: {karma: -vote.power}});
+    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
   }
 });
 

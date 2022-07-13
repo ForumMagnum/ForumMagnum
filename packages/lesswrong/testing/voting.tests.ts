@@ -1,4 +1,5 @@
 import { testStartup } from './testMain';
+import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
@@ -201,6 +202,39 @@ describe('Voting', function() {
       const updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
       (updatedAuthor.karma as any).should.be.equal(1);
       (updatedCoauthor.karma as any).should.be.equal(1);
+    });
+    it('cancelling an old vote after a new co-author is added doesn\'t affect their karma', async () => {
+      const author = await createDummyUser({ karma: 0 });
+      const coauthor = await createDummyUser({ karma: 0 });
+      const voter = await createDummyUser();
+      const yesterday = new Date().getTime() - (1 * 24 * 60 * 60 * 1000);
+      const post = await createDummyPost(author, {
+        postedAt: yesterday,
+      });
+
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await waitUntilCallbacksFinished();
+
+      let updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
+      let updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
+      expect(updatedAuthor.karma).toBe(1);
+      expect(updatedCoauthor.karma).toBe(0);
+
+      await updateMutator({
+        collection: Posts,
+        documentId: post._id,
+        set: { coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ] },
+        unset: {},
+        validate: false,
+      });
+
+      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter });
+      await waitUntilCallbacksFinished();
+
+      updatedAuthor = (await Users.find({_id: author._id}).fetch())[0];
+      updatedCoauthor = (await Users.find({_id: coauthor._id}).fetch())[0];
+      expect(updatedAuthor.karma).toBe(0);
+      expect(updatedCoauthor.karma).toBe(0);
     });
   })
   describe('checkRateLimit', () => {
