@@ -1620,6 +1620,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly goodHeartTokens: number,
   readonly postingDisabled: boolean,
   readonly commentingDisabled: boolean,
+  readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
 }
 

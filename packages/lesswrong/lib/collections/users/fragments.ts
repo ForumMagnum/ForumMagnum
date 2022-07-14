@@ -84,6 +84,7 @@ registerFragment(`
     goodHeartTokens
     postingDisabled
     commentingDisabled
+    commentingOnOtherUsersDisabled
     conversationsDisabled
   }
 `);

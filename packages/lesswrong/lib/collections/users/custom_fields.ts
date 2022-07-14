@@ -1811,6 +1811,16 @@ addFieldsDict(Users, {
     group: formGroups.disabledPrivileges,
     order: 69,
   },
+  commentingOnOtherUsersDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 70,
+  },
   conversationsDisabled: {
     type: Boolean,
     optional: true,

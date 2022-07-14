@@ -814,6 +814,7 @@ interface DbUser extends DbObject {
   githubProfileURL: string
   postingDisabled: boolean
   commentingDisabled: boolean
+  commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   moderationGuidelines: EditableFieldContents
   howOthersCanHelpMe: EditableFieldContents
