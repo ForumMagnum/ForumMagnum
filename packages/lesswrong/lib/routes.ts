@@ -678,7 +678,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
-    }
+    },
+    {
+      name: 'recommendations',
+      path: '/recommendations',
+      componentName: 'RecommendationsPage',
+      title: "Recommendations",
+    },
   ],
   LessWrong: [
     {
@@ -741,7 +747,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Curated',
       path: '/curated',
-      redirect: () => `/recommendations`,
+      componentName: 'LWCuratedPage',
+      title: "Curated Posts",
+    },
+    {
+      name: 'recommendations',
+      path: '/recommendations',
+      redirect: () => `/curated`,
     },
     {
       name: 'Walled Garden',
@@ -1261,12 +1273,6 @@ addRoute(
     path: '/questions',
     componentName: 'QuestionsPage',
     title: "All Questions",
-  },
-  {
-    name: 'recommendations',
-    path: '/recommendations',
-    componentName: 'RecommendationsPage',
-    title: "Recommendations",
   },
   {
     name: 'emailToken',
