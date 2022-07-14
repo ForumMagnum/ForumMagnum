@@ -1,7 +1,7 @@
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
 import moment from 'moment';
-import React, { ComponentProps, PropsWithoutRef } from 'react';
+import React, { ComponentProps } from 'react';
 import { useCookies } from 'react-cookie';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
@@ -49,9 +49,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const HIDE_WELCOME_BOX_COOKIE = 'hide_welcome_box';
 
-const WelcomeBox = ({ title, linksProps, classes }: {
+const WelcomeBox = ({ title, contents, classes }: {
   title: string,
-  linksProps: HashLinkProps[],
+  contents: HashLinkProps[],
   classes: ClassesType
 }) => {
   const [cookies, setCookie] = useCookies([HIDE_WELCOME_BOX_COOKIE]);
@@ -76,12 +76,14 @@ const WelcomeBox = ({ title, linksProps, classes }: {
         <span className={classes.welcomeBoxHeaderSeparator}>
           <Typography variant="title" className={classes.welcomeBoxHeader}>{title}</Typography>
         </span>
-        {linksProps.map((linkProps, idx) => {
+        {contents.map((linkProps, idx) => {
           const { children, ...otherProps } = linkProps;
           return (
-            <Link key={`welcomeBoxLink_${idx}`} {...otherProps}>
-              <Typography variant="body1" className={classes.welcomeBoxLink}>{children}</Typography>
-            </Link>
+            <Typography key={`welcomeBoxContent_${idx}`} variant="body1" className={classes.welcomeBoxLink}>
+              <Link {...otherProps}>
+                {children}
+              </Link>
+            </Typography>
           );
         })}
       </div>
@@ -95,11 +97,10 @@ const WelcomeBoxComponent = registerComponent('WelcomeBox', WelcomeBox, { styles
 export const welcomeBoxes: ForumOptions<ComponentProps<typeof WelcomeBoxComponent> | null> = {
   LessWrong: {
     title: "New to LessWrong?",
-    linksProps: [
-      // TODO - different getting started link?
+    contents: [
       { to: "/about", children: "Getting Started" },
-      { to: "/about", children: "About" },
-      { to: "/faq", children: "FAQ" }
+      { to: "/faq", children: "FAQ" },
+      { to: "/library", children: "Library" }
     ]
   },
   default: null

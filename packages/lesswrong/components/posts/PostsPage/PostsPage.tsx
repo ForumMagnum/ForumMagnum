@@ -6,13 +6,15 @@ import { commentGetDefaultView } from '../../../lib/collections/comments/helpers
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
+import { useABTest } from '../../../lib/abTestImpl';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 
 export const MAX_COLUMN_WIDTH = 720
 
@@ -135,6 +137,8 @@ const PostsPage = ({post, refetch, classes}: {
   const location = useLocation();
   const currentUser = useCurrentUser();
   const { recordPostView } = useRecordPostView(post);
+
+  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
   
   const getSequenceId = () => {
     const { params } = location;
@@ -154,7 +158,7 @@ const PostsPage = ({post, refetch, classes}: {
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs, 
-    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles, Typography } = Components
+    AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
 
   useEffect(() => {
     recordPostView({
@@ -190,7 +194,8 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
 
-  const welcomeBoxProps = forumSelect(welcomeBoxes);
+  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
+  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
   const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
