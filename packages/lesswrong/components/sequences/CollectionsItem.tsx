@@ -11,6 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   linkCard: {
     display: "flex",
     boxShadow: theme.palette.boxShadow.default,
+    background: theme.palette.panelBackground.default,
     justifyContent: "space-between",
     width: "100%",
     '&:hover': {
@@ -18,7 +19,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   content: {
-    background: theme.palette.panelBackground.default,
     padding: 16,
     paddingRight: 35,
     paddingBottom: 12
@@ -48,7 +48,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     objectFit: "cover"
   },
   small: {
-    width: 'calc(50% - 8px)'
+    width: 'calc(50% - 8px)',
+    [theme.breakpoints.down('sm')]: {
+      width: "100%"
+    }
   }
 });
 
