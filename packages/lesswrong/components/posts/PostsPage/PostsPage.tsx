@@ -194,38 +194,40 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
 
+  const tableOfContents = sectionData
+    ? <TableOfContents sectionData={sectionData} title={post.title} />
+    : null;
+  
+  const header = <>
+    {!commentId && <HeadTags
+      ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+      title={post.title} description={description} noIndex={post.noIndex}
+    />}
+    {/* Header/Title */}
+    <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
+      <div className={classes.centralColumn}>
+        {commentId && <CommentPermalink documentId={commentId} post={post} />}
+        {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
+          <CloudinaryImage2
+            publicId={post.eventImageId}
+            imgProps={{ar: '16:9', w: '682', q: '100'}}
+            className={classes.headerImage}
+          />
+        </div>}
+        <PostCoauthorRequest post={post} currentUser={currentUser} />
+        <PostsPagePostHeader post={post}/>
+      </div>
+    </div></AnalyticsContext>
+  </>;
+
   const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
   const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
   const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
-      tableOfContents={
-        sectionData
-          ? <TableOfContents sectionData={sectionData} title={post.title} />
-          : null
-      }
-      header={<>
-        {!commentId && <HeadTags
-          ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-          title={post.title} description={description} noIndex={post.noIndex}
-        />}
-        {/* Header/Title */}
-        <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-          <div className={classes.centralColumn}>
-            {commentId && <CommentPermalink documentId={commentId} post={post} />}
-            {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
-              <CloudinaryImage2
-                publicId={post.eventImageId}
-                imgProps={{ar: '16:9', w: '682', q: '100'}}
-                className={classes.headerImage}
-              />
-            </div>}
-            <PostCoauthorRequest post={post} currentUser={currentUser} />
-            <PostsPagePostHeader post={post}/>
-          </div>
-        </div></AnalyticsContext>
-      </>}
+      tableOfContents={tableOfContents}
+      header={header}
       welcomeBox={welcomeBox}
     >
       <div className={classes.centralColumn}>
