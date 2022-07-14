@@ -107,6 +107,8 @@ module.exports = {
       ignoreVoid: true
     }],
 
+    "@typescript-eslint/no-irregular-whitespace": 0,
+
     // Like no-implicit-any, but specifically for things that are exported. Turn
     // on some day, but not yet.
     "@typescript-eslint/explicit-module-boundary-types": 0,
