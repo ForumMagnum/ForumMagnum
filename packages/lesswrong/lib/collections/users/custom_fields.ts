@@ -1809,7 +1809,7 @@ addFieldsDict(Users, {
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.disabledPrivileges,
-    order: 69,
+    order: 70,
   },
   commentingOnOtherUsersDisabled: {
     type: Boolean,
@@ -1819,7 +1819,7 @@ addFieldsDict(Users, {
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.disabledPrivileges,
-    order: 70,
+    order: 71,
   },
   conversationsDisabled: {
     type: Boolean,
@@ -1829,7 +1829,7 @@ addFieldsDict(Users, {
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.disabledPrivileges,
-    order: 69,
+    order: 72,
   },
 });
 
