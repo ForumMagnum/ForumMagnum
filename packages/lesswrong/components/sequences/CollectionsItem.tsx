@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
@@ -5,13 +6,13 @@ import { CoreReadingCollection } from './LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   linkCard: {
     display: "flex",
     boxShadow: theme.palette.boxShadow.default,
     justifyContent: "space-between",
-    minHeight: 140,
+    width: "100%",
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     }
@@ -19,11 +20,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     background: theme.palette.panelBackground.default,
     padding: 16,
-    paddingRight: 50,
+    paddingRight: 35,
+    paddingBottom: 12
   },
   description: {
+    marginTop: 16,
     ...theme.typography.body2,
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    '& p': {
+      marginTop: '0.5em',
+      marginBottom: '0.5em'
+    },
   },
   title: {
     ...theme.typography.headerStyle,
@@ -34,12 +41,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     display: "inline-block",
-    opacity: .6,
-    paddingBottom: 16,
+    opacity: .6
   },
   image: {
-    width: 140,
+    width: 130,
     objectFit: "cover"
+  },
+  small: {
+    width: 'calc(50% - 8px)'
   }
 });
 
@@ -48,15 +57,15 @@ export const CollectionsItem = ({classes, collection}: {
   classes: ClassesType,
 }) => {
   const { Typography, LinkCard, ContentStyles, ContentItemBody } = Components
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, {[classes.small]:collection.small})}>
     <LinkCard to={collection.url} className={classes.linkCard}>
       <div className={classes.content}>
         <Typography variant="title" className={classes.title}>
           <Link to={collection.url}>{collection.title}</Link>
         </Typography>
-        <div  className={classes.subtitle}>
+        {collection.subtitle && <div  className={classes.subtitle}>
           {collection.subtitle}
-        </div>
+        </div>}
         <ContentStyles contentType="postHighlight" className={classes.description}>
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: collection.summary}}
@@ -68,21 +77,6 @@ export const CollectionsItem = ({classes, collection}: {
     </LinkCard>
   </div>
 }
-
-// return <LinkCard className={classes.root} to={url}>
-// <div className={classes.card}>
-//   <div className={classes.content} style={cardContentStyle}>
-//     <div className={classes.thumbnailImage}>
-
-//     </div>
-
-
-//   </div>
-//   <div className={classes.media}>
-//     <CloudinaryImage publicId={collection.imageId} width={307} height={86} />
-//   </div>
-// </div>
-// </LinkCard>
 
 const CollectionsItemComponent = registerComponent('CollectionsItem', CollectionsItem, {styles});
 
