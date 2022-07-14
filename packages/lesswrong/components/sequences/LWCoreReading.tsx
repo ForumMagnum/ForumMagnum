@@ -48,7 +48,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     },
     {
       title: "Sequence Highlights",
-      // subtitle: "An overview of key rationality concepts",
+      subtitle: "An overview of key rationality concepts",
       id: "dummyId4",
       userId: "nmk3nLpQE89dMRzzN",
       summary: `<div>
@@ -76,7 +76,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
       title: "The Codex",
       // subtitle: "Collected writings of Scott Alexander",
       small: true,
-      // summary: "<div>Essays illustrating good thinking - exploring science, medicine, philosophy, politics, and futurism. (There’s also one post about hallucinatory cactus-people, but it’s not representative)</div>",
+      // summary: "<div>Essays illustrating good thinking, exploring science, medicine, philosophy, politics, and futurism. (There’s also one post about hallucinatory cactus-people, but it’s not representative)</div>",
       id: "dummyId2",
       userId: "XgYW5s8njaYrtyP7q",
       summary: "<div>Essays by Scott Alexander exploring science, medicine, philosophy, futurism, and hallucinatory cactus people.</div>",
