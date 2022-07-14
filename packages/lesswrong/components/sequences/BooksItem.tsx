@@ -29,11 +29,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const BooksItem = ({ book, canEdit, classes, refetch }: {
+const BooksItem = ({ book, canEdit, classes }: {
   book: BookPageFragment,
   canEdit: boolean,
   classes: ClassesType,
-  refetch?: () => void
 }) => {
   const [edit,setEdit] = useState(false);
 
@@ -47,10 +46,6 @@ const BooksItem = ({ book, canEdit, classes, refetch }: {
   const showBook = useCallback(() => {
     setEdit(false);
   }, []);
-
-  useEffect(() => {
-    refetch?.();
-  });
 
   if (edit) {
     return <Components.BooksEditForm

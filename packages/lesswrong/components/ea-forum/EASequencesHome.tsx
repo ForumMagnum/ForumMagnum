@@ -10,12 +10,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const EASequencesHome = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, CoreReading, ContentStyles } = Components
+  const { SingleColumnSection, SectionTitle, SequencesNewButton, Typography, EACoreReading, ContentStyles } = Components
   
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>
       <SectionTitle title="Core Reading" />
-      <CoreReading />
+      <EACoreReading />
       <SectionTitle  title="Sequences" >
         <SequencesNewButton />
       </SectionTitle>

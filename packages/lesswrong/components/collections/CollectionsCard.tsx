@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import type { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -88,13 +88,13 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
       <div className={classes.content} style={cardContentStyle}>
-        <div className={classes.thumbnailImage}>
+        {collection.imageId && <div className={classes.thumbnailImage}>
           <CloudinaryImage
             publicId={collection.imageId}
             width={50}
             height={41}
           />
-        </div>
+        </div>}
         <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
           <Link to={url}>{collection.title}</Link>
         </Typography>
@@ -105,9 +105,9 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
           {collection.summary}
         </Typography>
       </div>
-      <div className={classes.media}>
+      {collection.imageId && <div className={classes.media}>
         <CloudinaryImage publicId={collection.imageId} width={307} height={86} />
-      </div>
+      </div>}
     </div>
   </LinkCard>
 }

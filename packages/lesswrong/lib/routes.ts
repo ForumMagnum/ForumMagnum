@@ -685,6 +685,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'RecommendationsPage',
       title: "Recommendations",
     },
+    {
+      name: 'IntroCurriculum',
+      path: '/curriculum',
+      componentName: 'EAIntroCurriculum',
+      title: 'Intro Curriculum',
+    },
   ],
   LessWrong: [
     {
@@ -882,9 +888,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'SequencesHome',
+      componentName: 'LibraryPage',
       title: "The Library"
     },
     {
@@ -995,7 +1001,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'sequencesHome',
       path: '/library',
-      componentName: 'SequencesHome',
+      componentName: 'LibraryPage',
       title: "The Library"
     },
     {
