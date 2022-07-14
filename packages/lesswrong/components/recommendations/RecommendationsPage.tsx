@@ -2,15 +2,26 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  curated: {
+    position: "absolute",
+    right: 0,
+    top: 65,
+    width: 210,
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
+  }
 });
 
 const RecommendationsPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { ConfigurableRecommendationsList, PostsList2, SingleColumnSection, SectionTitle } = Components;
+  const { ConfigurableRecommendationsList, PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
 
+  const currentUser = useCurrentUser()
   const showCurated = forumTypeSetting.get() === 'LessWrong'
 
   return (
@@ -29,6 +40,9 @@ const RecommendationsPage = ({classes}: {
       <AnalyticsContext listContext={"recommendationsPage"} capturePostItemOnMount>
         <ConfigurableRecommendationsList configName="recommendationspage" />
       </AnalyticsContext>
+      {showCurated && currentUser?.isAdmin && <div className={classes.curated}>
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
+      </div>}
     </div>
   )
 };
