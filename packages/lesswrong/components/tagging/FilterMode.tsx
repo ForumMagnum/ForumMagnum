@@ -12,6 +12,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 
 const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
@@ -170,7 +171,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
       ? mode
       : "";
 
-  const defaultLabel = label === "Personal" ? "personal blogposts" : `the ${label} ${taggingNameSetting.get()}`;
+  const { name: personalBlogpostName } = usePersonalBlogpostInfo();
+  const defaultLabel = label === personalBlogpostName ? "personal blogposts" : `the ${label} ${taggingNameSetting.get()}`;
 
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
