@@ -27,14 +27,21 @@ export const withRouter = (WrappedComponent) => {
   return reactRouter.withRouter(WithRouterWrapper);
 }
 
+type LinkProps = Omit<HashLinkProps, 'to'> & {
+  to: HashLinkProps['to'] | null
+};
 
-export const Link = (props: HashLinkProps) => {
+const isLinkValid = (props: LinkProps): props is HashLinkProps => {
+  return typeof props.to === "string" || typeof props.to === "object";
+};
+
+export const Link = (props: LinkProps) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
   const handleClick = (e) => {
     captureEvent(undefined, {buttonPressed: e.button})
   }
 
-  if (!(typeof props.to === "string" || typeof props.to === "object")) {
+  if (!isLinkValid(props)) {
     // eslint-disable-next-line no-console
     console.error("Props 'to' for Link components only accepts strings or objects, passed type: ", typeof props.to)
     return <span>Broken Link</span>

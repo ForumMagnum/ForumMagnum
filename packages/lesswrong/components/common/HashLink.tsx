@@ -7,9 +7,8 @@ import { Link, LinkProps } from 'react-router-dom';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 
-export type HashLinkProps = Omit<LinkProps, 'to'> & {
+export type HashLinkProps = LinkProps & {
   scroll?: ScrollFunction,
-  to: LinkProps['to'] | null,
   smooth?: boolean
 };
 
@@ -83,9 +82,9 @@ export function genericHashLink(props: HashLinkProps) {
       hashLinkScroll();
     }
   }
-  const { scroll, smooth, children, to, ...filteredProps } = props;
+  const { scroll, smooth, children, ...filteredProps } = props;
   return (
-    <Link {...filteredProps} onClick={handleClick} to={to ?? ''}>
+    <Link {...filteredProps} onClick={handleClick}>
       {props.children}
     </Link>
   );
