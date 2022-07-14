@@ -3,6 +3,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { useSingle } from '../../lib/crud/withSingle';
+import { Link } from '../../lib/reactRouterWrapper';
+import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,6 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   author: {
     color: theme.palette.text.dim
+  },
+  wordcount: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[500],
+    marginTop: 12,
+    fontSize: "1rem"
   }
 });
 
@@ -30,9 +38,9 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
 }) => {
-  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName } = Components
+  const { SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated, UsersName, LWTooltip } = Components
 
-  const { results: chapters, loading } = useMulti({
+  const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
       view: "SequenceChapters",
       sequenceId: sequence?._id,
@@ -42,10 +50,14 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
     fragmentName: 'ChaptersFragment',
     enableTotal: false,
   });
+
+  const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
+  const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
   
   return <Card className={classes.root}>
-    {!sequence && <Loading/>}
-    <div className={classes.title}>{sequence?.title}</div>
+    {sequence && <Link to={getCollectionOrSequenceUrl(sequence)}>
+      <div className={classes.title}>{sequence.title}</div>
+    </Link>}
     { showAuthor && sequence?.user &&
       <div className={classes.author}>
         by <UsersName user={sequence?.user} />
@@ -61,15 +73,18 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
         description={`sequence ${sequence?._id}`}
       />
     </ContentStyles>
-    {!chapters && loading && <Loading />}
-    {chapters?.map((chapter) => <span key={chapter._id}>
-      {chapter.posts?.map(post => 
-        <SequencesSmallPostLink 
-          key={chapter._id + post._id} 
-          post={post}
-        />
-      )}
-     </span>)}
+    {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
+    {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
+    {sequence && posts.map(post => 
+      <SequencesSmallPostLink 
+        key={sequence._id + post._id} 
+        post={post}
+        sequenceId={sequence._id}
+      />
+    )}
+    <LWTooltip title={<div> ({totalWordcount.toLocaleString("en-US")} words)</div>}>
+      <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
+    </LWTooltip>
   </Card>;
 }
 

@@ -42,7 +42,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsVote, BottomNavigation, PingbacksList, FooterTagList, PostAuthorCard } = Components;
+  const { PostsVote, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
   
   return <>
@@ -68,8 +68,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
     {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">
       <PingbacksList postId={post._id}/>
     </AnalyticsContext>}
-    
-    {!sequenceId && !post.isEvent && post.user?.showPostAuthorCard && <PostAuthorCard author={post.user} currentUser={currentUser} />}
   </>
 }
 

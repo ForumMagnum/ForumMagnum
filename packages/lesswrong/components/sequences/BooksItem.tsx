@@ -1,8 +1,6 @@
-import React, { useState, useCallback } from 'react';
-import { useABTest } from '../../lib/abTestImpl';
-import { collectionsPageABTest } from '../../lib/abTests';
+import React, { useState, useCallback, useEffect } from 'react';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { LargeSequencesItem } from './LargeSequencesItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,8 +37,8 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, Divider, ContentItemBody, ContentStyles, SequencesGrid } = Components
+  const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
+    SequencesPostsList, Divider, ContentItemBody, ContentStyles } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -48,8 +46,6 @@ const BooksItem = ({ book, canEdit, classes }: {
   const showBook = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const useLargeSequencesItem = useABTest(collectionsPageABTest) === "largeSequenceItemGroup";
 
   if (edit) {
     return <Components.BooksEditForm
@@ -63,6 +59,9 @@ const BooksItem = ({ book, canEdit, classes }: {
         <SectionTitle title={book.title}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
+        <AnalyticsContext pageElementContext="booksProgressBar">
+          <BooksProgressBar book={book} />
+        </AnalyticsContext>
         <div className={classes.subtitle}>{book.subtitle}</div>
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
@@ -75,8 +74,7 @@ const BooksItem = ({ book, canEdit, classes }: {
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        {useLargeSequencesItem && book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
-        {!useLargeSequencesItem && <SequencesGrid sequences={book.sequences} bookItemStyle/>}
+        {book.sequences.map(sequence => <LargeSequencesItem key={sequence._id} sequence={sequence} />)}
       </SingleColumnSection>
       <Divider />
     </div>

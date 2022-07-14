@@ -38,13 +38,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 // described in https://www.sarasoueidan.com/blog/nested-links/, we make the
 // card background and card contents siblings rather than nested, then use
 // z-index to control which is clickable.
-const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
+const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable}: {
   children?: React.ReactNode,
   to: string,
   tooltip?: any,
   className?: string,
   classes: ClassesType,
-  onClick?: any
+  onClick?: any,
+  clickable?: boolean
 }) => {
   const { LWTooltip } = Components
   const card = (
@@ -57,7 +58,7 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick}: {
   );
   
   if (tooltip) {
-    return <LWTooltip className={classNames(className, classes.root)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false} clickable>
+    return <LWTooltip className={classNames(className, classes.root)} title={tooltip} placement="bottom-start" tooltip={false} inlineBlock={false} clickable={clickable} flip={false}>
       {card}
     </LWTooltip>;
   } else {

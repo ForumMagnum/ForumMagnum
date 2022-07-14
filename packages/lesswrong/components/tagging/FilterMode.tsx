@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import type { FilterMode } from '../../lib/filterSettings';
+import { FilterMode, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -13,6 +13,8 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
+
+const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({
   paddingLeft: 16,
@@ -62,6 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallText,
     display: "inline-block",
     cursor: "pointer",
+    userSelect: "none",
   },
   selected: {
     color: theme.palette.text.maxIntensity,
@@ -103,6 +106,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     skip: !tagId
   })
 
+  const standardFilterModes = getStandardFilterModes(currentUser);
+
   if (mode === "TagDefault" && defaultVisibilityTags.get().find(t => t.tagId === tagId)) {
     // We just found it, it's guaranteed to be in the defaultVisibilityTags list
     mode = defaultVisibilityTags.get().find(t => t.tagId === tagId)!.filterMode
@@ -117,7 +122,39 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     </span>
   </span>
 
-  const otherValue = ["Hidden", -25,-10,0,10,25,"Required"].includes(mode) ? "" : (mode || "")
+  // When entering a standard value such as 0.5 for "reduced" or 25 for "subscribed" we
+  // want to select the button rather than show the input text. This makes it impossible
+  // to type, for instance, 0.55 or 250. To avoid this problem we delay for a small amount
+  // of time after the user inputs one of these values before we clear the input field in
+  // case they continue to type.
+  const [inputTime, setInputTime] = useState(0);
+
+  const handleCustomInput = (input: string) => {
+    const parsed = parseFloat(input);
+    if (Number.isNaN(parsed)) {
+      onChangeMode(0);
+      setInputTime(0);
+    } else {
+      const value = parsed <= 0 || parsed >= 1
+        ? Math.round(parsed)
+        : Math.floor(parsed * 100) / 100;
+      onChangeMode(value);
+
+      const now = Date.now();
+      setInputTime(now);
+      if (standardFilterModes.includes(value)) {
+        setTimeout(() => {
+          setInputTime((inputTime) => inputTime === now ? 0 : inputTime);
+        }, INPUT_PAUSE_MILLISECONDS);
+      }
+    }
+  }
+
+  const otherValue =
+    isCustomFilterMode(currentUser, mode) || (standardFilterModes.includes(mode) && inputTime > 0)
+      ? mode
+      : "";
+
   return <span {...eventHandlers} className={classNames(classes.tag, {[classes.noTag]: !tagId})}>
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
       {(tag && !isMobile()) ?
@@ -171,16 +208,17 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
               {userHasNewTagSubscriptions(currentUser) ? "Subscribed" : "+25"}
               </span>
             </LWTooltip>
-            <Input 
-              className={classes.filterInput} 
-              placeholder="Other" 
-              type="number" 
-              disableUnderline
-              classes={{input:classes.input}}
-              value={otherValue}
-
-              onChange={ev => onChangeMode(parseInt(ev.target.value || "0"))}
-            />
+            <LWTooltip title={"Enter a custom karma filter. Values between 0 and 1 are multiplicative, other values are absolute changes to the karma of the post."}>
+              <Input
+                className={classes.filterInput}
+                placeholder="Other"
+                type="number"
+                disableUnderline
+                classes={{input:classes.input}}
+                value={otherValue}
+                onChange={ev => handleCustomInput(ev.target.value || "")}
+              />
+            </LWTooltip>
             {canRemove && !tag?.suggestedAsFilter &&
               <div className={classes.removeLabel} onClick={ev => {if (onRemove) onRemove()}}>
                 <LWTooltip title={<div><div>This filter will no longer appear in Latest Posts.</div><div>You can add it back later if you want</div></div>}>
@@ -235,7 +273,8 @@ function filterModeToStr(mode: FilterMode, currentUser: UsersCurrent | null): st
       Math.abs(0.5 - mode) < .000000001 &&
       userHasNewTagSubscriptions(currentUser)
     ) return "Reduced"
-    if (mode > 0) return `+${mode}`
+    if (mode >= 1) return `+${mode}`
+    if (mode > 0) return `-${Math.round((1 - mode) * 100)}%`
     if (mode === 0) return ""
     return `${mode}`
   } else switch(mode) {

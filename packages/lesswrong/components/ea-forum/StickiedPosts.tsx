@@ -18,10 +18,12 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2, SectionTitle } = Components;
+  const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip } = Components;
 
   return <SingleColumnSection>
-    <SectionTitle title="Pinned Posts" noTopMargin className={classes.title} />
+    <LWTooltip title="The Forum Team thinks these posts and threads should stay at the top of the Frontpage for a while" placement="left">
+      <SectionTitle title="Pinned Posts" noTopMargin className={classes.title} />
+    </LWTooltip>
     <PostsList2
       terms={{view:"stickied", limit:100}}
       showNoResults={false}

@@ -63,7 +63,7 @@ interface PostSubmitProps {
 }
 
 const requestFeedbackKarmaLevel = forumSelect({
-  EAForum: 300,
+  EAForum: 200,
   default: 100,
 })
 

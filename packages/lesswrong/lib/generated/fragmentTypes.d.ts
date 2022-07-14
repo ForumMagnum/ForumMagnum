@@ -250,6 +250,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
+  readonly descriptionHtmlWithToc: string,
   readonly postCount: number,
   readonly userId: string,
   readonly adminOnly: boolean,
@@ -430,7 +431,6 @@ interface PostsAuthors { // fragment on Posts
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
-  readonly showPostAuthorCard: boolean,
   readonly biography: RevisionDisplay|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
@@ -652,7 +652,6 @@ interface SunshinePostsList_contents { // fragment on Revisions
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
-  readonly showPostAuthorCard: boolean,
   readonly biography: RevisionDisplay|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
@@ -1260,6 +1259,12 @@ interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
 interface SequencesPageTitleFragment { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
+  readonly canonicalCollectionSlug: string,
+  readonly canonicalCollection: SequencesPageTitleFragment_canonicalCollection|null,
+}
+
+interface SequencesPageTitleFragment_canonicalCollection { // fragment on Collections
+  readonly title: string,
 }
 
 interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment on Sequences
@@ -1434,6 +1439,10 @@ interface TagFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly version: string,
+}
+
+interface TagWithTocFragment extends TagFragment { // fragment on Tags
+  readonly descriptionHtmlWithToc: string,
 }
 
 interface TagHistoryFragment extends TagBasicInfo { // fragment on Tags
@@ -1640,7 +1649,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly moderationStyle: string,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly showHideKarmaOption: boolean,
-  readonly showPostAuthorCard: boolean,
   readonly markDownPostEditor: boolean,
   readonly hideElicitPredictions: boolean,
   readonly hideAFNonMemberInitialWarning: boolean,
@@ -1764,7 +1772,6 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
   readonly beta: boolean,
-  readonly showPostAuthorCard: boolean,
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
@@ -2031,6 +2038,7 @@ interface FragmentTypes {
   TagBasicInfo: TagBasicInfo
   TagDetailsFragment: TagDetailsFragment
   TagFragment: TagFragment
+  TagWithTocFragment: TagWithTocFragment
   TagHistoryFragment: TagHistoryFragment
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
@@ -2177,6 +2185,7 @@ interface CollectionNamesByFragmentName {
   TagBasicInfo: "Tags"
   TagDetailsFragment: "Tags"
   TagFragment: "Tags"
+  TagWithTocFragment: "Tags"
   TagHistoryFragment: "Tags"
   TagCreationHistoryFragment: "Tags"
   TagRevisionFragment: "Tags"
