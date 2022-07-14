@@ -109,7 +109,7 @@ const ColoredNumber = ({n, classes}: {
 const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   karmaChanges: any,
   classes: ClassesType,
-  handleClose: (ev: MouseEvent)=>any,
+  handleClose: (ev: React.MouseEvent)=>any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
   const currentUser = useCurrentUser();

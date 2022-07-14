@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const isLeftClick = (event: MouseEvent): boolean => {
+const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
@@ -37,7 +37,7 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
     {showIcon && <LWTooltip title="User">
       <PersonIcon className={classes.icon} />
     </LWTooltip>}
-    <Link to={userGetProfileUrl(user)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={userGetProfileUrl(user)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <MetaInfo>
         {user.displayName}
       </MetaInfo>
