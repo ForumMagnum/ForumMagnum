@@ -27,12 +27,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
-        minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
+        220px
+        10px
         1.5fr
       `,
       gridTemplateAreas: `
-        "... ... .... title   .... ....... ..."
-        "... toc gap1 content gap2 welcome ..."
+        "... ... .... title   .... ....... .... ..."
+        "... toc gap1 content gap2 welcome gap3 ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
@@ -103,7 +104,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
-  }
+  },
+  gap3: { gridArea: 'gap3' }
 });
 
 export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
@@ -133,6 +135,7 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
       {welcomeBox && <div className={classes.welcomeBox}>
         {welcomeBox}
       </div>}
+      <div className={classes.gap3}/>
     </div>
   );
 }

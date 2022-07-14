@@ -11,18 +11,20 @@ import { HashLinkProps } from '../../common/HashLink';
 
 const styles = (theme: ThemeType): JssStyles => ({
   welcomeBox: {
-    padding: 24,
+    paddingTop: 14,
+    paddingLeft: 24,
+    paddingRight: 16,
+    paddingBottom: 16,
     display: 'flex',
     flexDirection: 'column',
     border: theme.palette.border.normal,
-    borderRadius: 3
+    borderRadius: 3,
   },
   welcomeBoxCloseButton: {
-    padding: '.25em',
-    margin: "-1.75em -1.75em 0 0",
+    padding: 0,
+    marginBottom: 14,
     minHeight: '.75em',
     minWidth: '.75em',
-    alignSelf: 'end',
   },
   welcomeBoxCloseIcon: {
     width: '.6em',
@@ -30,19 +32,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim6,
   },
   welcomeBoxHeader: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: "1.8rem",
+    ...theme.typography.body2,
     fontWeight: 400,
     paddingBottom: 8,
     borderBottom: theme.palette.border.faint,
     marginBottom: 6
   },
   welcomeBoxHeaderSeparator: {
-    display: 'flex'
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   welcomeBoxLink: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: "1.2rem",
+    fontFamily: theme.typography.body2.fontFamily,
+    fontSize: theme.typography.body2.fontSize,
     color: theme.palette.primary.main
   },
 });
@@ -70,11 +73,11 @@ const WelcomeBox = ({ title, contents, classes }: {
   return (
     <AnalyticsContext pageElementContext="welcomeBox">
       <div className={classes.welcomeBox}>
-        <Button className={classes.welcomeBoxCloseButton} onClick={hideBox}>
-          <CloseIcon className={classes.welcomeBoxCloseIcon}/>
-        </Button>
         <span className={classes.welcomeBoxHeaderSeparator}>
           <Typography variant="title" className={classes.welcomeBoxHeader}>{title}</Typography>
+          <Button className={classes.welcomeBoxCloseButton} onClick={hideBox}>
+            <CloseIcon className={classes.welcomeBoxCloseIcon}/>
+          </Button>
         </span>
         {contents.map((linkProps, idx) => {
           const { children, ...otherProps } = linkProps;
