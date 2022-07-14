@@ -119,7 +119,7 @@ const UsersMenu = ({classes}: {
                 <MenuItem>New Post</MenuItem>
               </Link>}
             </div>
-            {showNewButtons && !currentUser.commentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
+            {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                New Shortform
             </MenuItem> }
             {showNewButtons && <Divider/>}

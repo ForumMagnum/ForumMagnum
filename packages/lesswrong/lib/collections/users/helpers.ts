@@ -163,7 +163,7 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
 export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   if (!user) return false
   if (user.deleted) return false
-  if (user.commentingDisabled) return false
+  if (user.allCommentingDisabled) return false
   if (user.commentingOnOtherUsersDisabled && (post.userId && (post.userId != user._id))) return false // this has to check for post.userId because that isn't provided to shorform components, which are meant to be allowed
   if (!post) return true
   if (post.commentsLocked) return false

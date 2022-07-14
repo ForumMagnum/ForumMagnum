@@ -83,7 +83,7 @@ registerFragment(`
     paymentInfo
     goodHeartTokens
     postingDisabled
-    commentingDisabled
+    allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
   }

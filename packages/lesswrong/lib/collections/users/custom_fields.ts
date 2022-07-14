@@ -1801,7 +1801,7 @@ addFieldsDict(Users, {
     group: formGroups.disabledPrivileges,
     order: 69,
   },
-  commentingDisabled: {
+  allCommentingDisabled: {
     type: Boolean,
     optional: true,
     canRead: ['members'],

@@ -813,7 +813,7 @@ interface DbUser extends DbObject {
   twitterProfileURL: string
   githubProfileURL: string
   postingDisabled: boolean
-  commentingDisabled: boolean
+  allCommentingDisabled: boolean
   commentingOnOtherUsersDisabled: boolean
   conversationsDisabled: boolean
   moderationGuidelines: EditableFieldContents

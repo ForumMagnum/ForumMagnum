@@ -1619,7 +1619,7 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly paymentInfo: string,
   readonly goodHeartTokens: number,
   readonly postingDisabled: boolean,
-  readonly commentingDisabled: boolean,
+  readonly allCommentingDisabled: boolean,
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
 }
