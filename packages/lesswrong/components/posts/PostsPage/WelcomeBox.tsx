@@ -63,11 +63,7 @@ const WelcomeBox = ({ title, contents, classes }: {
     return null;
   }
 
-  const hideBox = () => setCookie(
-    HIDE_WELCOME_BOX_COOKIE,
-    "true", {
-    expires: moment().add(30, 'days').toDate(),
-  });
+  const hideBox = () => setCookie(HIDE_WELCOME_BOX_COOKIE, "true");
 
   const { Typography } = Components;
   return (

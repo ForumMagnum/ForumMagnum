@@ -204,20 +204,22 @@ const PostsPage = ({post, refetch, classes}: {
       title={post.title} description={description} noIndex={post.noIndex}
     />}
     {/* Header/Title */}
-    <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-      <div className={classes.centralColumn}>
-        {commentId && <CommentPermalink documentId={commentId} post={post} />}
-        {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
-          <CloudinaryImage2
-            publicId={post.eventImageId}
-            imgProps={{ar: '16:9', w: '682', q: '100'}}
-            className={classes.headerImage}
-          />
-        </div>}
+    <AnalyticsContext pageSectionContext="postHeader">
+      <div className={classes.title}>
+        <div className={classes.centralColumn}>
+          {commentId && <CommentPermalink documentId={commentId} post={post} />}
+          {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
+            <CloudinaryImage2
+              publicId={post.eventImageId}
+              imgProps={{ar: '16:9', w: '682', q: '100'}}
+              className={classes.headerImage}
+            />
+          </div>}
         <PostCoauthorRequest post={post} currentUser={currentUser} />
         <PostsPagePostHeader post={post}/>
+        </div>
       </div>
-    </div></AnalyticsContext>
+    </AnalyticsContext>
   </>;
 
   const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
