@@ -1,6 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
 import { VoteableCollections, VoteableCollectionOptions, collectionIsVoteable } from '../lib/make_voteable';
+import { userGetGroups } from '../lib/vulcan-users/permissions';
 
 export function createVoteableUnionType() {
   const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
@@ -58,6 +59,18 @@ const voteResolver = {
 
 addGraphQLResolvers(voteResolver);
 
+const throwIfUserCannotVoteOn = (user: DbUser, {canVote}: VoteableType) => {
+  if (canVote) {
+    const userGroups = userGetGroups(user);
+    for (const group of canVote) {
+      if (userGroups.includes(group)) {
+        return;
+      }
+    }
+    throw new Error("You do not have permission to vote on this");
+  }
+}
+
 function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
   const typeName = collection.options.typeName;
   const mutationName = `setVote${typeName}`;
@@ -73,11 +86,7 @@ function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
         
         if (!currentUser) throw new Error("Error casting vote: Not logged in.");
         if (!document) throw new Error("No such document ID");
-
-        const { userCanVoteOn } = VoteableCollectionOptions[collection.collectionName] ?? {};
-        if (userCanVoteOn && !(await userCanVoteOn(currentUser, document))) {
-          throw new Error("You do not have permission to vote on this document");
-        }
+        throwIfUserCannotVoteOn(currentUser, document);
 
         if (!voteType && !extendedVote) {
           return await clearVotesServer({document, user: currentUser, collection, context});

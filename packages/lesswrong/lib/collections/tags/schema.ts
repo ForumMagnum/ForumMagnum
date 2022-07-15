@@ -379,6 +379,8 @@ export const schema: SchemaType<DbTag> = {
     denormalized: true,
   },
 
+  // Optional array of groups who have permission to vote on the relevancy of
+  // this tag to a particular post
   canVoteOnRels: {
     type: Array,
     canRead: ['admins', 'sunshineRegiment'],

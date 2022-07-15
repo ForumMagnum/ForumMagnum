@@ -4,8 +4,7 @@ import GraphQLJSON from 'graphql-type-json';
 
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
-  customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean,
-  userCanVoteOn?: (user: DbUser, document: DbVoteableType) => boolean|Promise<boolean>,
+  customBaseScoreReadAccess?: (user: DbUser|null, object: any) => boolean
 }
 
 export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
@@ -184,6 +183,18 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       type: Boolean,
       optional: true,
       onInsert: () => false
+    },
+    // Optional array of groups who have permission to vote on this document
+    canVote: {
+      type: Array,
+      canRead: ['admins', 'sunshineRegiment'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      canCreate: ['admins', 'sunshineRegiment'],
+      optional: true,
+      hidden: true,
+    },
+    'canVote.$': {
+      type: String,
     },
   });
 }

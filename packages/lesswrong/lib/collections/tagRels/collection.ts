@@ -3,8 +3,6 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
-import { userGetGroups } from '../../vulcan-users/permissions';
-import { Tags } from '../tags/collection';
 import GraphQLJSON from 'graphql-type-json';
 
 const schema: SchemaType<DbTagRel> = {
@@ -100,24 +98,6 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 addUniversalFields({collection: TagRels})
 makeVoteable(TagRels, {
   timeDecayScoresCronjob: true,
-  userCanVoteOn: async (user: DbUser, document: DbTagRel) => {
-    const tag = await Tags.findOne({_id: document.tagId}, {slug: 1});
-    if (!tag) {
-      return false;
-    }
-    if (!tag.canVoteOnRels) {
-      return true;
-    }
-
-    const userGroups = userGetGroups(user);
-    for (const group of tag.canVoteOnRels) {
-      if (userGroups.includes(group)) {
-        return true;
-      }
-    }
-
-    return false;
-  },
 });
 
 export default TagRels;

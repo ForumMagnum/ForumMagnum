@@ -117,6 +117,7 @@ interface DbComment extends DbObject {
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  canVote: Array<string>
   af: boolean
   afBaseScore: number
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
@@ -389,6 +390,7 @@ interface DbPost extends DbObject {
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  canVote: Array<string>
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -553,6 +555,7 @@ interface DbRevision extends DbObject {
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  canVote: Array<string>
 }
 
 interface SequencesCollection extends CollectionBase<DbSequence, "Sequences"> {
@@ -620,6 +623,7 @@ interface DbTagRel extends DbObject {
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
+  canVote: Array<string>
 }
 
 interface TagsCollection extends CollectionBase<DbTag, "Tags"> {
