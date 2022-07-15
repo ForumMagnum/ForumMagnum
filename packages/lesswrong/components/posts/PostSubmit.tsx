@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import {forumTypeSetting} from "../../lib/instanceSettings";
+import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -48,6 +48,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     
   }
 });
+
+const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const coauthorTooltip = 'Your post will be scheduled so your co-authors can give their permission. If they do not respond, your post will be automatically published in 24 hours.';
 
@@ -103,23 +105,28 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <Button type="submit"//treat as draft when draft is null
-          className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
-          onClick={() => {
-            captureEvent("feedbackRequestButtonClicked")
-            if (!!document.title) {
-              updateCurrentValues({draft: true});
-              // eslint-disable-next-line
-              window.Intercom(
-                'trackEvent',
-                'requested-feedback',
-                {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
-              )
-            }
-          }}
+        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+          // EA Forum title is Effective Altruism Forum, which is unecessarily long
+          title={`Request feedback from the ${isEAForum ? "EA Forum" : forumTitleSetting.get()} team.`}
         >
-          {feedbackLabel}
-        </Button>}
+          <Button type="submit"//treat as draft when draft is null
+            className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
+            onClick={() => {
+              captureEvent("feedbackRequestButtonClicked")
+              if (!!document.title) {
+                updateCurrentValues({draft: true});
+                // eslint-disable-next-line
+                window.Intercom(
+                  'trackEvent',
+                  'requested-feedback',
+                  {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
+                )
+              }
+            }}
+          >
+            {feedbackLabel}
+          </Button>
+        </LWTooltip>}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
           onClick={() => updateCurrentValues({draft: true})}
