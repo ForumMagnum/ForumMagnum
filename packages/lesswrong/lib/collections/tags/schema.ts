@@ -378,7 +378,19 @@ export const schema: SchemaType<DbTag> = {
     hidden: true,
     denormalized: true,
   },
-  
+
+  canVoteOnRels: {
+    type: Array,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    hidden: true,
+  },
+  'canVoteOnRels.$': {
+    type: String,
+  },
+
   // See resolver in tagResolvers.ts. Takes optional limit and version arguments.
   // Returns a list of contributors and the total karma of their contributions
   // (counting only up to the specified revision, if a revision is specified).

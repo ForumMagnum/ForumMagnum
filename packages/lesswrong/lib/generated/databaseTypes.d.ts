@@ -652,6 +652,7 @@ interface DbTag extends DbObject {
   lesswrongWikiImportSlug: string
   lesswrongWikiImportCompleted: boolean
   htmlWithContributorAnnotations: string
+  canVoteOnRels: Array<string>
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string

@@ -95,3 +95,4 @@ import './2022-06-02-updateCoauthorsSchema'
 import './2022-06-30-migrateCommunityFilterSettings'
 import './2022-07-07-allowMultipleVoteAuthors'
 import './2022-07-07-removeVoteAuthorId'
+import './2022-07-15-onlyAdminsCanVoteOnCommunityTopic';
