@@ -28,6 +28,7 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
+import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -398,6 +399,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: user.htmlBio }}
             description={`user ${user._id} bio`}
+            nofollow={userKarma < nofollowKarmaThreshold.get()}
           />
         </ContentStyles>}
         {user.howOthersCanHelpMe && <>
@@ -405,7 +407,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
           </div>
           <ContentStyles contentType="post">
-            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
         {user.howICanHelpOthers && <>
@@ -413,7 +415,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
           </div>
           <ContentStyles contentType="post">
-            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
       </>,
