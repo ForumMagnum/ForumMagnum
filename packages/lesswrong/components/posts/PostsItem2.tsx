@@ -95,7 +95,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
       height: "unset",
       maxWidth: "unset",
       width: "100%",
-      paddingRight: theme.spacing.unit
+      paddingRight: theme.spacing.unit,
+      flex: "unset",
     },
     '&:hover': {
       opacity: 1,
@@ -103,6 +104,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   spacer: {
     flex: 1,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
   },
   author: {
     justifyContent: "flex",
