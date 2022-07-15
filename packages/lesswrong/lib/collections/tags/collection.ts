@@ -34,13 +34,13 @@ export const Tags: ExtendedTagsCollection = createCollection({
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
-      if (user?.karma ?? 0 < tagMinimumKarmaPermissions['new']) {
+      if ((user?.karma ?? 0) < tagMinimumKarmaPermissions['new']) {
         return false
       }
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
-      if (user?.karma ?? 0 < tagMinimumKarmaPermissions['edit']) {
+      if ((user?.karma ?? 0) < tagMinimumKarmaPermissions['edit']) {
         return false
       }
       return userCanCreateTags(user);
