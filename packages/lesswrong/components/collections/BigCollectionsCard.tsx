@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -74,9 +74,9 @@ const BigCollectionsCard = ({ collection, url, classes }: {
 
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
-      <div className={classes.media}>
+      {collection.imageId && <div className={classes.media}>
         <Components.CloudinaryImage publicId={collection.imageId} width={326} height={280} />
-      </div>
+      </div>}
       <div className={classes.content} style={cardContentStyle}>
         <Typography variant="title" className={classes.title}>
           <Link to={url}>{collection.title}</Link>

@@ -884,9 +884,9 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "2019 Reviews",
     },
     {
-      name: 'sequencesHome',
+      name: 'library',
       path: '/library',
-      componentName: 'SequencesHome',
+      componentName: 'LibraryPage',
       title: "The Library"
     },
     {
@@ -997,7 +997,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'sequencesHome',
       path: '/library',
-      componentName: 'SequencesHome',
+      componentName: 'LibraryPage',
       title: "The Library"
     },
     {
