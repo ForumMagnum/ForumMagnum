@@ -40,7 +40,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
-      if (user?.karma ?? 0 < tagMinimumKarmaPermissions['edit']) {
+      if ((user?.karma ?? 0) < tagMinimumKarmaPermissions['edit']) {
         return false
       }
       return userCanCreateTags(user);
