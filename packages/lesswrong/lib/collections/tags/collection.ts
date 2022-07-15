@@ -4,6 +4,19 @@ import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import { schema } from './schema';
+import { forumSelect } from '../../forumTypeUtils';
+
+const tagMinimumKarmaPermissions = forumSelect({
+  EAForum: {
+    new: 10,
+    edit: 10,
+  },
+  // Default is to allow all users to create/edit tags
+  default: {
+    new: -1000,
+    edit: -1000,
+  }
+})
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -21,9 +34,15 @@ export const Tags: ExtendedTagsCollection = createCollection({
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
+      if (user?.karma ?? 0 < tagMinimumKarmaPermissions['new']) {
+        return false
+      }
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
+      if (user?.karma ?? 0 < tagMinimumKarmaPermissions['edit']) {
+        return false
+      }
       return userCanCreateTags(user);
     },
     removeCheck: (user: DbUser|null, tag: DbTag|null) => {
