@@ -279,7 +279,7 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     console.log("from: " + renderedEmail.from); //eslint-disable-line
     
-    return sendEmailSmtp(renderedEmail); // From meteor's 'email' package
+    return sendEmailSmtp(renderedEmail);
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line

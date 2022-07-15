@@ -41,7 +41,10 @@ const AllTagsAlphabetical = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <SectionTitle title={`All ${taggingNamePluralCapitalSetting.get()} (${loading ? "loading" : results?.length})`}>
+      <SectionTitle
+        title={`All ${taggingNamePluralCapitalSetting.get()} (${loading ? "loading" : results?.length})`}
+        anchor={`all-${taggingNamePluralSetting.get()}`}
+      >
         {userCanCreateTags(currentUser) && <SectionButton>
           <AddBoxIcon/>
           <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>

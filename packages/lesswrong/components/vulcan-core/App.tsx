@@ -13,7 +13,7 @@ import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 
-const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1503704344/sequencesgrid/h6vrwdypijqgsop7xwa0.jpg') // An image used to represent the site on social media
+const siteImageSetting = new DatabasePublicSetting<string | null>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
 interface ExternalProps {
   apolloClient: any

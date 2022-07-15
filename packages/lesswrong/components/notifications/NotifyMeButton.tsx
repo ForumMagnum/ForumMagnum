@@ -23,7 +23,10 @@ import { useDialog } from '../common/withDialog';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    '&:hover': {
+      opacity: 0.5
+    }
   },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
@@ -47,6 +50,7 @@ const NotifyMeButton = ({
   hideLabel = false,
   hideLabelOnMobile = false,
   hideIfNotificationsDisabled = false,
+  asButton = false,
   componentIfSubscribed,
 }: {
   document: any,
@@ -61,6 +65,8 @@ const NotifyMeButton = ({
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
   hideIfNotificationsDisabled?: boolean,
+  // uses <a> by default, set this to use <button>
+  asButton?: boolean,
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
   componentIfSubscribed?: JSX.Element,
 }) => {
@@ -167,13 +173,16 @@ const NotifyMeButton = ({
     {icon}
     {message}
   </>
-  
+    
   const maybeMenuItemButton = asMenuItem ?
     <MenuItem onClick={onSubscribe}>
       <a className={classNames(classes.root, className)}>
         {button}
       </a>
-    </MenuItem> :
+    </MenuItem> : asButton ?
+    <button onClick={onSubscribe} className={classNames(className, classes.root)}>
+      {button}
+    </button> :
     <a onClick={onSubscribe} className={classNames(className, classes.root)}>
       {button}
     </a>

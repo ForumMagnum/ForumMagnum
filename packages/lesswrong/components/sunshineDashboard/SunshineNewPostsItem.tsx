@@ -12,6 +12,7 @@ import Button from '@material-ui/core/Button';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
+import { Posts } from '../../lib/collections/posts';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -28,6 +29,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   moderation: {
     marginBottom: 12
+  },
+  vote: {
+    marginBottom: 8
   }
 })
 
@@ -101,7 +105,7 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography, ContentStyles } = Components
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -131,6 +135,7 @@ const SunshineNewPostsItem = ({post, classes}: {
                 { post.title }
               </Link>
             </Typography>
+            <div className={classes.vote}><SmallSideVote document={post} collection={Posts}/></div>
             {moderationSection && <div className={classes.moderation}>
               {(post.moderationStyle || post.user?.moderationStyle) && <div>
                 <MetaInfo>

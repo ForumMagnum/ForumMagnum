@@ -19,7 +19,7 @@ import { ensureIndex } from '../../lib/collectionUtils';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-let adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
+const adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
   {
     username: "AdminTeam",
     email: "forum@effectivealtruism.org"
@@ -29,7 +29,7 @@ let adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
     email: "lesswrong@lesswrong.com"
   }
 
-const getLessWrongAccount = async () => {
+export const getAdminTeamAccount = async () => {
   let account = await Users.findOne({username: adminTeamUserData.username});
   if (!account) {
     const newAccount = await createMutator({
@@ -252,7 +252,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
         : null
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
-    const lwAccount = await getLessWrongAccount();
+    const lwAccount = await getAdminTeamAccount();
 
     const conversationData = {
       participantIds: [comment.userId, lwAccount._id],
@@ -337,10 +337,6 @@ getCollectionHooks("Comments").editSync.add(async function validateDeleteOperati
     if (deleted || deletedPublic || deletedReason) {
       if (deletedPublic && !deleted) {
         throw new Error("You cannot publicly delete a comment without also deleting it")
-      }
-
-      if (deletedPublic && !deletedReason) {
-        throw new Error("Publicly deleted comments need to have a deletion reason");
       }
 
       if (

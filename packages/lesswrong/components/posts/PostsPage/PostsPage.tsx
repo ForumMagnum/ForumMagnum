@@ -6,11 +6,15 @@ import { commentGetDefaultView } from '../../../lib/collections/comments/helpers
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../common/withRecordPostView';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import { welcomeBoxes } from './WelcomeBox';
+import { useABTest } from '../../../lib/abTestImpl';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -134,6 +138,8 @@ const PostsPage = ({post, refetch, classes}: {
   const location = useLocation();
   const currentUser = useCurrentUser();
   const { recordPostView } = useRecordPostView(post);
+
+  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
   
   const getSequenceId = () => {
     const { params } = location;
@@ -151,8 +157,8 @@ const PostsPage = ({post, refetch, classes}: {
 
   const { query, params } = location;
   const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, TableOfContents, RSVPs, 
+    PostsCommentsThread, ContentItemBody, PostsPageQuestionContent, PostCoauthorRequest,
+    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs, 
     AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles } = Components
 
   useEffect(() => {
@@ -189,33 +195,43 @@ const PostsPage = ({post, refetch, classes}: {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_16:9/${post.eventImageId}`
   }
 
+  const tableOfContents = sectionData
+    ? <TableOfContents sectionData={sectionData} title={post.title} />
+    : null;
+  
+  const header = <>
+    {!commentId && <HeadTags
+      ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
+      title={post.title} description={description} noIndex={post.noIndex}
+    />}
+    {/* Header/Title */}
+    <AnalyticsContext pageSectionContext="postHeader">
+      <div className={classes.title}>
+        <div className={classes.centralColumn}>
+          {commentId && <CommentPermalink documentId={commentId} post={post} />}
+          {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
+            <CloudinaryImage2
+              publicId={post.eventImageId}
+              imgProps={{ar: '16:9', w: '682', q: '100'}}
+              className={classes.headerImage}
+            />
+          </div>}
+        <PostCoauthorRequest post={post} currentUser={currentUser} />
+        <PostsPagePostHeader post={post}/>
+        </div>
+      </div>
+    </AnalyticsContext>
+  </>;
+
+  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
+  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
+  const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <ToCColumn
-      tableOfContents={
-        sectionData
-          ? <TableOfContents sectionData={sectionData} title={post.title} />
-          : null
-      }
-      header={<>
-        {!commentId && <HeadTags
-          ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-          title={post.title} description={description} noIndex={post.noIndex}
-        />}
-        {/* Header/Title */}
-        <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-          <div className={classes.centralColumn}>
-            {commentId && <CommentPermalink documentId={commentId} post={post} />}
-            {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
-              <CloudinaryImage2
-                publicId={post.eventImageId}
-                imgProps={{ar: '16:9', w: '682', q: '100'}}
-                className={classes.headerImage}
-              />
-            </div>}
-            <PostsPagePostHeader post={post}/>
-          </div>
-        </div></AnalyticsContext>
-      </>}
+      tableOfContents={tableOfContents}
+      header={header}
+      welcomeBox={welcomeBox}
     >
       <div className={classes.centralColumn}>
         {/* Body */}

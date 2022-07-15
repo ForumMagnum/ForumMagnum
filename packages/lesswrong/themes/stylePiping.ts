@@ -221,7 +221,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     fontWeight:600,
   },
   '& img': {
-    maxWidth: "100%"
+    maxWidth: "100%",
+    ...theme.postImageStyles,
   },
   '& sup': {
     verticalAlign: 'baseline',
@@ -453,6 +454,9 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& hr': {
           ...hrStyles(theme)
         },
+      },
+      '& .ck-placeholder:before': {
+        whiteSpace: 'break-spaces'
       },
       '&.ck-sidebar, &.ck-presence-list': {
         '& li': {

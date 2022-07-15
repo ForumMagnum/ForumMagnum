@@ -291,6 +291,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     translucent: "rgba(255,255,255,.87)",
     translucent2: "rgba(255,255,255,.8)",
     translucent3: "rgba(255,255,255,.75)",
+    translucent4: "rgba(255,255,255,.5)",
     hoverHighlightGrey: shades.greyAlpha(.1),
     postsItemHover: shades.grey[50],
     formErrors: shades.greyAlpha(0.25),

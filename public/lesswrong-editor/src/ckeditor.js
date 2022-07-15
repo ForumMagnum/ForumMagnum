@@ -36,19 +36,13 @@ import ListStyle from '@ckeditor/ckeditor5-list/src/liststyle';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+import Mention from './ckeditor5-mention/src/mention';
 import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
 
-// The following plugin enables real-time collaborative comments.
-// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
-
-// The following plugin enables real-time collaborative track changes and is optional.
-// You do not need to import it if you do not want to integrate it.
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
-
-// The following plugin enables users presence list and is optional.
-// You do not need to import it if you do not want to integrate it.
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
+
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Table from '@ckeditor/ckeditor5-table/src/table';
@@ -74,13 +68,8 @@ export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
 export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
-// NOTE: If you make changes to this file, you must:
-// 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
-// 2. 'yarn run build'
-// 3. navigate back to main folder (i.e. 'cd ../..')
-// 4. run 'yarn add ./public/lesswrong-editor'.
-//
-// alternately, you could run `yarn rebuild-reinstall-ckeditor` to do all of the above at once
+// NOTE: If you make changes to this file, you must then run:
+// `yarn run rebuild-ckeditor`
 
 const sharedPlugins = [
 	Autosave,
@@ -125,6 +114,7 @@ const sharedPlugins = [
 	AutoLink,
 	RestyledCommentButton,
 	Footnote,
+  	Mention,
 ];
 
 const postEditorPlugins = [

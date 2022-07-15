@@ -31,6 +31,7 @@ const PostsEditForm = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
+
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags } = Components
   
   const saveDraftLabel: string = ((post) => {

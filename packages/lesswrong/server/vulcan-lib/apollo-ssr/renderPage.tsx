@@ -94,6 +94,7 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: rendered.timings,
       cached: false,
       abTestGroups: rendered.allAbTestGroups,
+      ip
     });
     // eslint-disable-next-line no-console
     console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
@@ -122,8 +123,9 @@ export const renderWithCache = async (req: Request, res: Response) => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
-      abTestGroups: rendered.relevantAbTestGroups,
+      abTestGroups: rendered.allAbTestGroups,
       cached: rendered.cached,
+      ip
     });
     
     return {

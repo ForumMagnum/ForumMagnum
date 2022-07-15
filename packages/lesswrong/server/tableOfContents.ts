@@ -2,18 +2,27 @@ import cheerio from 'cheerio';
 import htmlToText from 'html-to-text';
 import * as _ from 'underscore';
 import { Comments } from '../lib/collections/comments/collection';
-import { questionAnswersSort } from '../lib/collections/comments/views';
+import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
-import { updateDenormalizedHtmlAttributions } from './resolvers/tagResolvers';
+import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
+
+export interface ToCAnswer {
+  baseScore: number,
+  voteCount: number,
+  postedAt: Date | string, // Date on server, string on client
+  author: string,
+  highlight: string, 
+  shortHighlight: string,
+} 
 
 export interface ToCSection {
   title?: string
-  answer?: any
+  answer?: ToCAnswer
   anchor: string
   level: number
   divider?: boolean,
@@ -166,20 +175,49 @@ function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): stri
 // `<b>` and `<strong>` tags are headings iff they are the only thing in their
 // paragraph. Return whether the given tag name is a tag with that property
 // (ie, is `<strong>` or `<b>`).
+// See tagIsWholeParagraph
 function tagIsHeadingIfWholeParagraph(tagName: string): boolean
 {
   return tagName.toLowerCase() in headingIfWholeParagraph;
 }
 
-function tagIsWholeParagraph(tag): boolean {
-  if (!tag) return false;
-  let parents = cheerio(tag).parent();
-  if (!parents || !parents.length) return false;
-  let parent = parents[0];
-  if (parent.type !== 'tag') return false;
-  if (parent.tagName.toLowerCase() !== 'p') return false;
-  let selfAndSiblings = cheerio(parent).contents();
-  if (selfAndSiblings.length != 1) return false;
+const tagIsAlien = (baseTag: cheerio.TagElement, potentialAlienTag: cheerio.Element): boolean => {
+  switch (potentialAlienTag.type) {
+    case 'tag':
+      return baseTag.name !== potentialAlienTag.name;
+    case 'text':
+      return (potentialAlienTag.data?.trim().length ?? 0) > 0;
+    default:
+      return true;
+  }
+}
+
+// `<b>` and `<strong>` tags are headings iff they are the only thing in their
+// paragraph. Return whether or not the given cheerio tag satisfies these heuristics.
+// See tagIsHeadingIfWholeParagraph
+const tagIsWholeParagraph = (tag?: cheerio.TagElement): boolean => {
+  if (!tag) {
+    return false;
+  }
+
+  // Ensure the tag's parent is valid
+  const parents = cheerio(tag).parent();
+  if (!parents || !parents.length || parents[0].type !== 'tag') {
+    return false;
+  }
+
+  // Ensure that all of the tag's siblings are of the same type as the tag
+  const selfAndSiblings = cheerio(parents[0]).contents();
+  if (selfAndSiblings.toArray().find((elem) => tagIsAlien(tag, elem))) {
+    return false;
+  }
+
+  // Ensure that the tag is inside a 'p' element and that all the text in that 'p' is in tags of
+  // the same type as our base tag
+  const para = cheerio(tag).closest('p');
+  if (para.length < 1 || para.text().trim() !== para.find(tag.name).text().trim()) {
+    return false;
+  }
 
   return true;
 }
@@ -206,7 +244,7 @@ async function getTocAnswers (document: DbPost) {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     answersTerms.af = true
   }
-  const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
+  const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)

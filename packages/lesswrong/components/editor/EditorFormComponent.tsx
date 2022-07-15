@@ -160,7 +160,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || formType==="edit");
   
-  const actualPlaceholder = (editorHintText || hintText || placeholder || label);
+  const actualPlaceholder = (editorHintText || hintText || placeholder);
   
   if (!document) return null;
 
@@ -181,6 +181,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}
+      label={label}
       formType={formType}
       documentId={document?._id}
       collectionName={collectionName}

@@ -9,10 +9,11 @@ import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceS
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    padding: 10,
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
     display: 'flex',
     alignItems: 'center',
-    borderBottom: theme.palette.border.faint
   },
   name: {
     ...theme.typography.body2,
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const isLeftClick = (event: MouseEvent): boolean => {
+const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
@@ -49,7 +50,7 @@ const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
     {showIcon && <LWTooltip title={taggingNameCapitalSetting.get()}>
       <LocalOfferOutlinedIcon className={classes.icon}/>
     </LWTooltip>}
-    <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={tagGetUrl(tag)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
         {tag.name}
       </div>

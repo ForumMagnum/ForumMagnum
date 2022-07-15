@@ -39,10 +39,11 @@ const SequencesGridWrapper = ({
       <Components.Loading/>
     </div>);
   } else {
-    // TODO: Replace with SequencesNoResults
     return (<div className={classNames(className, classes.grid)}>
       <div className={classes.gridContent}>
-        <Components.PostsNoResults/>
+        <Components.Typography variant="body2" className={classes.noResults}>
+          No sequences to display.
+        </Components.Typography>
       </div>
     </div>);
   }
