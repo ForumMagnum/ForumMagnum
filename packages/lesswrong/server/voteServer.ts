@@ -312,7 +312,8 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   ).fetch() || [];
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
-  const usersThatVoted = await context.loaders.Users.loadMany(userIdsThatVoted);
+  // make sure that votes associated with users that no longer exist get ignored for the AF score
+  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted)).filter(u=>!!u);
   const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
