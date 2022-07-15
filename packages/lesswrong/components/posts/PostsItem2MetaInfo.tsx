@@ -33,3 +33,4 @@ declare global {
     PostsItem2MetaInfo: typeof PostsItem2MetaInfoComponent
   }
 }
+
