@@ -60,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "flex-end",
     flexGrow: 1,
     "& *": {
-      marginLeft: 4,
+      marginLeft: 5,
     },
   },
   defaultLabel: {
