@@ -74,24 +74,28 @@ const recomputeCollectionScores = async (collectionName:CollectionNameString, in
 }
 
 const recomputeUserKarma = async () => {
-  const newScores:any[] = await Votes.aggregate([
+  const newScores: {_id: string, karmaTotal: number, afKarmaTotal: number}[] = await Votes.aggregate([
     {
       $match: {
         cancelled: false,
-        collectionName: {$in: ["Posts", "Comments"]}
+        collectionName: {$in: ["Posts", "Comments"]},
+        $expr: {$not: {$in: ["$userId", "$authorIds"]}},
       }
     },
     {
         $project: {
-            authorId: 1,
-            adjustedPower: {$cond: [{$ne: ['$userId', '$authorId']}, '$power', 0]},
-            adjustedAfPower: {$cond: [{$and: [{$ne: ['$userId', '$authorId']}, {$eq: ['$documentIsAf', true]}]}, '$afPower', 0 ]}
+            authorIds: 1,
+            power: 1,
+            adjustedAfPower: {$cond: [{$eq: ['$documentIsAf', true]}, '$afPower', 0]},
         }
     },
     {
+      $unwind: '$authorIds',
+    },
+    {
       $group: {
-        _id: '$authorId',
-        karmaTotal: {$sum: "$adjustedPower"},
+        _id: '$authorIds',
+        karmaTotal: {$sum: "$power"},
         afKarmaTotal: {$sum: "$adjustedAfPower"}
       }
     }

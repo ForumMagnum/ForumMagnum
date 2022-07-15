@@ -14,7 +14,7 @@ registerMigration({
     // First we only get the relevant votes, which are all votes that are not self-votes
     // and are not cancelled. I should also do a sanity check to see how many votes there are that
     // are duplicated (i.e. have the same user-documentId pair but are not cancelled)
-    const voteFields = {_id: 1, documentId: 1, userId: 1, authorId: 1, voteType: 1, collectionName: 1, cancelled: 1, documentIsAf: 1} as const
+    const voteFields = {_id: 1, documentId: 1, userId: 1, authorIds: 1, voteType: 1, collectionName: 1, cancelled: 1, documentIsAf: 1} as const
     const allVotes = await Votes.find({}, {sort: {votedAt: 1}}, voteFields).fetch()
     console.log("Got all the votes")
     const duplicateVotes = findDuplicateVotes(allVotes)
@@ -71,7 +71,7 @@ registerMigration({
 
     let voteCount = 0;
     for (const vote of allUpdatedVotes) {
-      const {_id, userId, authorId, voteType, cancelled, documentIsAf} = vote;
+      const {_id, userId, authorIds, voteType, cancelled, documentIsAf} = vote;
       const votingUserKarma = userKarmaMap.get(userId)
       const votingUserAfKarma = userAfKarmaMap.get(userId)
       if (votingUserKarma === undefined || votingUserAfKarma === undefined) {
@@ -84,15 +84,17 @@ registerMigration({
       const votePower = calculateVotePower(votingUserKarma, voteType)
       const afVotePower = votingUserAfKarma > 0 ? calculateVotePower(votingUserAfKarma, voteType) : 0
 
-      const authorKarma = userKarmaMap.get(authorId)
-      const authorAfKarma = userAfKarmaMap.get(authorId)
-      // If the author of the content that we are voting on doesn't exist, we
-      // still update the power, but we obviously can't update the karma of that user
-      if (authorKarma !== undefined && authorAfKarma !== undefined) {
-        if (doesVoteIncreaseKarma(vote)) userKarmaMap.set(authorId, authorKarma + votePower)
-        if (doesVoteIncreaseKarma(vote) && documentIsAf) userAfKarmaMap.set(authorId, authorAfKarma + afVotePower)
+      for (const authorId of authorIds) {
+        const authorKarma = userKarmaMap.get(authorId)
+        const authorAfKarma = userAfKarmaMap.get(authorId)
+        // If the author of the content that we are voting on doesn't exist, we
+        // still update the power, but we obviously can't update the karma of that user
+        if (authorKarma !== undefined && authorAfKarma !== undefined) {
+          if (doesVoteIncreaseKarma(vote, authorId)) userKarmaMap.set(authorId, authorKarma + votePower)
+          if (doesVoteIncreaseKarma(vote, authorId) && documentIsAf) userAfKarmaMap.set(authorId, authorAfKarma + afVotePower)
+        }
       }
-      
+
       votePowerMap.set(_id, votePower)
       voteAfPowerMap.set(_id, afVotePower)
       voteCount++
@@ -122,7 +124,7 @@ registerMigration({
   }
 })
 
-const doesVoteIncreaseKarma = ({userId, authorId, collectionName, cancelled}:DbVote) => {
+const doesVoteIncreaseKarma = ({userId, collectionName, cancelled}:DbVote, authorId: string) => {
   if (cancelled) return false
   if (userId === authorId) return false
   if (!['Posts', 'Comments'].includes(collectionName)) return false
@@ -140,8 +142,9 @@ const findDuplicateVotes = (allVotes: DbVote[]) => {
 }
 
 const findInvalidVotes = (allVotes: DbVote[], userKarmaMap: Map<string, number>) => {
-  return allVotes.flatMap(({_id, authorId, userId, cancelled}) => {
-    if (!cancelled && userKarmaMap.get(authorId) === undefined) return [_id]
+  return allVotes.flatMap(({_id, authorIds, userId, cancelled}) => {
+    for (const authorId of authorIds)
+      if (!cancelled && userKarmaMap.get(authorId) === undefined) return [_id]
     if (!cancelled && userKarmaMap.get(userId) === undefined) return [_id]
     return []
   })
