@@ -49,7 +49,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     },
     {
       title: "Sequence Highlights",
-      subtitle: "An overview of key rationality concepts",
+      // subtitle: "An overview of key rationality concepts",
       id: "dummyId4",
       userId: "nmk3nLpQE89dMRzzN",
       summary: `<div>
@@ -60,6 +60,18 @@ const coreReadingCollections: Array<CoreReadingCollection> =
       color: "#757AA7",
       big: false,
       url: "/highlights",
+    },
+    {
+      title: "The Codex",
+      // subtitle: "Collected writings of Scott Alexander",
+      // small: true,
+      id: "dummyId2",
+      userId: "XgYW5s8njaYrtyP7q",
+      summary: "<div>Essays by Scott Alexander. Explores science, medicine, philosophy, politics, and futurism. Also one post about hallucinatory cactus people.</div>",
+      imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1657688283/codex_u7ptgt.png",
+      color: "#88ACB8",
+      big: false,
+      url: "/codex",
     },
     {
       title: "Harry Potter and the Methods of Rationality",
@@ -74,25 +86,13 @@ const coreReadingCollections: Array<CoreReadingCollection> =
       url: "/hpmor",
     },
     {
-      title: "The Codex",
-      // subtitle: "Collected writings of Scott Alexander",
-      small: true,
-      id: "dummyId2",
-      userId: "XgYW5s8njaYrtyP7q",
-      summary: "<div>Essays by Scott Alexander exploring science, medicine, philosophy, futurism, and hallucinatory cactus people.</div>",
-      imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1657688283/codex_u7ptgt.png",
-      color: "#88ACB8",
-      big: false,
-      url: "/codex",
-    },
-    {
       title: "Best of LessWrong",
       // subtitle: "Assorted authors",
-      small: true,
+      // small: true,
       id: "dummyId5",
       userId: "nmk3nLpQE89dMRzzN",
-      summary: "<div>Each year, the LessWrong community votes on which posts have stood the tests of time.</div>",
-      // summary: "<div>Each December, the LessWrong community reviews the best posts from the previous year, and votes on which of them have stood the tests of time.</div>",
+      // summary: "<div>Each year, the LessWrong community votes on which posts have stood the tests of time.</div>",
+      summary: "<div>Each December, the LessWrong community reviews the best posts from the previous year, and votes on which of them have stood the tests of time.</div>",
       imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1657778273/DALL_E_2022-07-13_22.57.43_-_Books_and_emerald_compass_displayed_on_a_pedastal_aquarelle_painting_by_da_vinci_and_thomas_shaler_magic_the_gathering_concept_art_as_digital_art_ayufzo.png",
       color: "#757AA7",
       big: false,
@@ -112,8 +112,6 @@ const LWCoreReading = ({classes}: {
     fragmentName: 'CollectionsItemFragment',
   })
 
-  console.log(collections)
-
   return <SingleColumnSection className={classes.root}>
     {coreReadingCollections.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
   </SingleColumnSection>
@@ -126,3 +124,4 @@ declare global {
     LWCoreReading: typeof LWCoreReadingComponent
   }
 }
+

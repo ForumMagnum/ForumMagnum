@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-Collections.addView("allCollections", (terms) => {
+Collections.addView("allCollections", (terms: CollectionsViewTerms) => {
   return {
     selector: {
       deleted: false

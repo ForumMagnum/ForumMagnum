@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12
   },
   description: {
-    marginTop: 16,
+    marginTop: 14,
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     '& p': {
@@ -44,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: .6
   },
   image: {
-    width: 130,
+    width: 115,
     objectFit: "cover"
   },
   small: {
