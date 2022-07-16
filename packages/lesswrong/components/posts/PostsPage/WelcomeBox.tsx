@@ -36,7 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 400,
     paddingBottom: 8,
     borderBottom: theme.palette.border.faint,
-    marginBottom: 6
+    marginBottom: 6,
+    whiteSpace: 'pre'
   },
   welcomeBoxHeaderSeparator: {
     display: 'flex',
@@ -46,7 +47,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   welcomeBoxLink: {
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: theme.typography.body2.fontSize,
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    whiteSpace: 'pre'
   },
 });
 
