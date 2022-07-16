@@ -263,7 +263,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     if (user) {
       setDraftsSectionExpanded(currentUser && user._id === currentUser._id)
     }
-  }, [user])
+  }, [currentUser, user])
   
   // show/hide the "Posts" section sort/filter settings
   const [showPostSettings, setShowPostSetttings] = useState(false)
