@@ -175,7 +175,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
   readonly userId: string,
-  readonly authorId: string,
+  readonly authorIds: Array<string>,
   readonly voteType: string,
   readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly power: number,

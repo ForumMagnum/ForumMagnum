@@ -27,7 +27,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
-        220px
+        min-content
         10px
         1.5fr
       `,
