@@ -37,6 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8,
     borderBottom: theme.palette.border.faint,
     marginBottom: 6,
+    marginRight: 16,
     whiteSpace: 'pre'
   },
   welcomeBoxHeaderSeparator: {
