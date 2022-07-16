@@ -258,7 +258,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
   
   // although both the owner and admins can see the drafts section,
   // admins need to click a button to view it (so it's not distracting)
-  const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(currentUser && user?._id === currentUser._id)
+  const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(!user || (currentUser && user._id === currentUser._id))
+  useEffect(() => {
+    if (user) {
+      setDraftsSectionExpanded(currentUser && user._id === currentUser._id)
+    }
+  }, [user])
+  
   // show/hide the "Posts" section sort/filter settings
   const [showPostSettings, setShowPostSetttings] = useState(false)
   
@@ -267,6 +273,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
+    skip: !user
   })
 
   const { flash } = useMessages()
