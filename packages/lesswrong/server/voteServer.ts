@@ -14,7 +14,7 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { postCoauthorIsPending, getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -317,7 +317,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
   // make sure that votes associated with users that no longer exist get ignored for the AF score
-  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted)).filter(u=>!!u);
+  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted))?.filter(u=>!!u);
   const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));

@@ -274,6 +274,8 @@ export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coaut
 
 export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): string[] => {
   let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
+  if (!coauthorStatuses) return []
+
   if (!hasCoauthorPermission) {
     coauthorStatuses = coauthorStatuses.filter(({ confirmed }) => confirmed);
   }
