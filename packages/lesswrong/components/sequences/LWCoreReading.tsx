@@ -28,7 +28,7 @@ export interface CoreReadingCollection {
   url: string,
 }
 
-const coreReadingCollections: Array<CoreReadingCollection> = 
+export const coreReadingCollections: Array<CoreReadingCollection> = 
   [
     {
       title: "Rationality: A-Z",
@@ -80,7 +80,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
       // subtitle: "Fiction by Eliezer Yudkowsky",
       summary: `<div>
         <p>What if Harry Potter was a scientist? What would you do if the universe had magic in it? <br/>A story that conveys many rationality concepts, making them more visceral and emotionally compelling.</div>`,
-      imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1657774172/DALL_E_2022-07-13_21.49.04_-_11_year_old_wizard_boy_with_short_messy_black_hair_and_glasses_standing_upright_looking_intently_at_the_camera_casting_a_question_spell_glowing_wh_l1ls1k.png",
+      imageUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1657926268/DALL_E_2022-07-15_16.04.08_-_in_a_large_library_a_boy_stands_before_12_books_hovering_and_glowing_chinese_watercolor_by_Thomas_Schaler_and_da_Vinci_as_digital_art_mlmfw4.png",
       color: "#757AA7",
       big: false,
       url: "/hpmor",

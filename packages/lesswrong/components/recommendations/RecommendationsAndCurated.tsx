@@ -8,6 +8,7 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { coreReadingCollections } from '../sequences/LWCoreReading';
 
 export const curatedUrl = "/recommendations"
 
@@ -94,7 +95,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, setShowSettings]);
 
   const render = () => {
-    const { CuratedSequences, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2 } = Components;
+    const { CuratedSequences, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList, RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, PostsList2, CollectionsItem } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -159,11 +160,12 @@ const RecommendationsAndCurated = ({
 
       <div className={classes.subsection}>
         <div className={classes.posts}>
-          {!settings.hideFrontpage && 
+          {!settings.hideFrontpage && forumTypeSetting.get() !== 'LessWrong' &&
             <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
               <RecommendationsList algorithm={frontpageRecommendationSettings} />
             </AnalyticsContext>
           }
+          { forumTypeSetting.get() === 'LessWrong' && <CollectionsItem collection={coreReadingCollections[1]} /> }
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2
               terms={{view:"curated", limit: currentUser ? 3 : 2}}
