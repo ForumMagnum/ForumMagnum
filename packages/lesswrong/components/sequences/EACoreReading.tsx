@@ -1,6 +1,6 @@
 import React from 'react';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import type { CoreReadingCollection } from './LWCoreReading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   razLargeVersion: {
@@ -15,20 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export interface CoreReadingCollection {
-  title: string,
-  id: string,
-  userId: string,
-  summary: string,
-  imageId: string,
-  color: string,
-  big: boolean,
-  url: string,
-}
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
-
-const coreReadingCollections: Array<CoreReadingCollection> = isEAForum ?
+const coreReadingCollections: Array<CoreReadingCollection> = 
   [
     {
       title: "The EA Handbook",
@@ -54,47 +41,15 @@ const coreReadingCollections: Array<CoreReadingCollection> = isEAForum ?
       title: "Most Important Century",
       id: "most-important",
       userId: "9Fg4woeMPHoGa6kDA",
-      summary: `Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.`,
+      summary: "Holden Karnofsky argues that we may be living in the most important century ever — a time when our decisions could shape the future for billions of years to come.",
       imageId: "jacob-mejicanos-P6s8EbcSgmA-unsplash.jpg",
       color: "#d96704",
       big: false,
       url: '/s/isENJuPdB3fhjWYHd',
     }
-  ] :
-  [
-    {
-      title: "Rationality: A-Z",
-      id: "dummyId",
-      userId: "nmk3nLpQE89dMRzzN",
-      summary: 'A set of essays by Eliezer Yudkowsky that serve as a long-form introduction to formative ideas behind Less Wrong, the Machine Intelligence Research Institute, the Center for Applied Rationality, and substantial parts of the effective altruism community.',
-      imageId: "dVXiZtw_xrmvpm.png",
-      color: "#B1D4B4",
-      big: true,
-      url: '/rationality',
-    },
-    {
-      title: "The Codex",
-      id: "dummyId2",
-      userId: "XgYW5s8njaYrtyP7q",
-      summary: "The Codex contains essays about science, medicine, philosophy, politics, and futurism. (There’s also one post about hallucinatory cactus-people, but it’s not representative)",
-      imageId: "ItFKgn4_rrr58y.png",
-      color: "#88ACB8",
-      big: false,
-      url: "/codex",
-    },
-    {
-      title: "Harry Potter and the Methods of Rationality",
-      id: "dummyId3",
-      userId: "nmk3nLpQE89dMRzzN",
-      summary: "What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.",
-      imageId: "uu4fJ5R_zeefim.png",
-      color: "#757AA7",
-      big: false,
-      url: "/hpmor",
-    }
   ]
 
-const CoreReading = ({minimal=false, classes}: {
+const EACoreReading = ({minimal=false, classes}: {
   minimal?: boolean,
   classes: ClassesType,
 }) => (
@@ -107,14 +62,14 @@ const CoreReading = ({minimal=false, classes}: {
     </div>
 
     {!minimal && <Components.CollectionsCard collection={coreReadingCollections[1]} url={coreReadingCollections[1].url}/>}
-    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url} mergeTitle={!isEAForum} />}
+    {!minimal && <Components.CollectionsCard collection={coreReadingCollections[2]} url={coreReadingCollections[2].url} mergeTitle={false} />}
   </Components.CollectionsCardContainer>
 );
 
-const CoreReadingComponent = registerComponent("CoreReading", CoreReading, {styles});
+const EACoreReadingComponent = registerComponent("EACoreReading", EACoreReading, {styles});
 
 declare global {
   interface ComponentTypes {
-    CoreReading: typeof CoreReadingComponent
+    EACoreReading: typeof EACoreReadingComponent
   }
 }

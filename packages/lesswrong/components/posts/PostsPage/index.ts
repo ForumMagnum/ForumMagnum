@@ -20,3 +20,4 @@ importComponent("PostsRevisionsList", () => require('./PostsRevisionsList'));
 importComponent("PostsRevisionMessage", () => require('./PostsRevisionMessage'));
 importComponent("RSVPs", () => require('./RSVPs'));
 importComponent("RSVPForm", () => require('./RSVPForm'));
+importComponent("WelcomeBox", () => require('./WelcomeBox'));

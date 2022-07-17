@@ -7,6 +7,7 @@ import _sortBy from 'lodash/sortBy';
 import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -45,12 +46,15 @@ const AllTagsAlphabetical = ({classes}: {
         title={`All ${taggingNamePluralCapitalSetting.get()} (${loading ? "loading" : results?.length})`}
         anchor={`all-${taggingNamePluralSetting.get()}`}
       >
-        {userCanCreateTags(currentUser) && <SectionButton>
-          <AddBoxIcon/>
-          <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
-            New {taggingNameCapitalSetting.get()}
-          </Link>
-        </SectionButton>}
+        {userCanCreateTags(currentUser) &&
+          (!currentUser || currentUser.karma > tagMinimumKarmaPermissions.new) &&
+          <SectionButton>
+            <AddBoxIcon/>
+            <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}>
+              New {taggingNameCapitalSetting.get()}
+            </Link>
+          </SectionButton>
+        }
       </SectionTitle>
       {loading && <Loading/>}
       <div className={classes.alphabetical}>

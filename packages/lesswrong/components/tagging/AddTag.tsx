@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import Divider from '@material-ui/core/Divider';
-import { Tags } from '../../lib/collections/tags/collection';
+import { tagMinimumKarmaPermissions, Tags } from '../../lib/collections/tags/collection';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
@@ -105,7 +105,7 @@ const AddTag = ({onTagSelected, classes}: {
     <Link target="_blank" to="/tags/all" className={classes.newTag}>
       All {taggingNamePluralCapitalSetting.get()}
     </Link>
-    {userCanCreateTags(currentUser) && <Link
+    {userCanCreateTags(currentUser) && ((currentUser?.karma ?? 0) >= tagMinimumKarmaPermissions.new) && <Link
       target="_blank"
       to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/create`}
       className={classes.newTag}
