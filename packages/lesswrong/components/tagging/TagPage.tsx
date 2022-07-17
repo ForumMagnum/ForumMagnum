@@ -14,7 +14,8 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagMinimumKarmaPermissions } from "../../lib/collections/tags/collection";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -227,6 +228,9 @@ const TagPage = ({classes}: {
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
+  if (editing && currentUser && currentUser.karma < tagMinimumKarmaPermissions.edit) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+  }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
   query.sortedBy = query.sortedBy || tag.postsDefaultSortOrder
@@ -321,6 +325,7 @@ const TagPage = ({classes}: {
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
+        welcomeBox={null}
       >
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">

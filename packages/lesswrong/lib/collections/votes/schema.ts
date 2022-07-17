@@ -42,14 +42,25 @@ const schema: SchemaType<DbVote> = {
     canRead: [userOwns, docIsTagRel, 'admins'],
     foreignKey: 'Users',
   },
-  
-  // The ID of the author of the document that was voted on
-  authorId: {
-    type: String,
-    denormalized: true, // Can be inferred from documentId
+
+  // The IDs of the authors of the document that was voted on
+  authorIds: {
+    type: Array,
     canRead: ['guests'],
+  },
+  'authorIds.$': {
+    type: String,
     foreignKey: 'Users',
   },
+
+  // Resolver-only authorId for backwards compatability after migrating to allow
+  // co-authors to receive karma with authorIds
+  authorId: resolverOnlyField({
+    type: String,
+    graphQLtype: 'String',
+    canRead: ['guests'],
+    resolver: (vote: DbVote): string => vote.authorIds[0],
+  }),
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
   // voteType is the type of the vote that was reversed.

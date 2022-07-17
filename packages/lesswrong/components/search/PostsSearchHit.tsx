@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const isLeftClick = (event: MouseEvent): boolean => {
+const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
@@ -51,7 +51,7 @@ const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
       <DescriptionIcon className={classes.icon} />
     </LWTooltip>}
     <Link
-      onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
+      onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}
       to={postGetPageUrl(post)}
     >
         <Typography variant="title" className={classes.title}>

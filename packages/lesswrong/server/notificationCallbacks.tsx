@@ -453,7 +453,7 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
   const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
-  const coauthors = coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId);
+  const coauthors = coauthorStatuses ? coauthorStatuses.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) : []
   const userIds = shareWithUsers.filter((user) => !coauthors.includes(user));
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 });

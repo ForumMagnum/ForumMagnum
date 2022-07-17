@@ -49,3 +49,18 @@ export const booksProgressBarABTest = new ABTest({
     }
   }
 });
+
+export const welcomeBoxABTest = new ABTest({
+  name: "welcomeBoxABTest",
+  description: "Tests the new Welcome Box on post pages for logged out users",
+  groups: {
+    control: {
+      description: "Don't show Welcome Box on post pages",
+      weight: 1
+    },
+    welcomeBox: {
+      description: "Show Welcome Box on post pages",
+      weight: 1
+    }
+  }
+});

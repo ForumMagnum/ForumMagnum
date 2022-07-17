@@ -834,7 +834,7 @@ interface DbVote extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   userId: string
-  authorId: string
+  authorIds: Array<string>
   voteType: string
   extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/
   power: number
