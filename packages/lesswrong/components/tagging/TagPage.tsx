@@ -15,7 +15,6 @@ import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { html } from "cheerio";
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
