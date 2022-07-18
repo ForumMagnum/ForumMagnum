@@ -6,7 +6,7 @@ import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useMulti } from '../../lib/crud/withMulti';
-import { getTruncationCharCount, truncate } from '../../lib/editor/ellipsize';
+import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
