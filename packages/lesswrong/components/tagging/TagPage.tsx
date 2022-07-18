@@ -244,6 +244,7 @@ const TagPage = ({classes}: {
 
   const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
   let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
   if(isEAForum) {
     description = htmlWithAnchors;
     for (let matchString of [
