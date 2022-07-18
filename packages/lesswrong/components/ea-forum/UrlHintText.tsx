@@ -1,4 +1,6 @@
 import React from 'react';
+// eslint-disable-next-line no-restricted-imports - we're not using Link, just
+// useHistory
 import { useHistory } from 'react-router-dom';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib';
@@ -27,7 +29,6 @@ const UrlHintText = () => {
       }}
       // Clicking should be handled by onMouseDown. Prevent accidental double effects.
       onClick={e => {
-        console.log('onClick')
         e.preventDefault();
       }}
     >
