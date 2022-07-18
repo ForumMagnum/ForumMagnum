@@ -133,6 +133,7 @@ const schema: SchemaType<DbSequence> = {
     control: "text",
     order: 30,
     label: "Collection Slug",
+    tooltip: "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
     resolveAs: {
       fieldName: 'canonicalCollection',
       addOriginalField: true,
