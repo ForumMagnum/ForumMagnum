@@ -151,9 +151,6 @@ registerFragment(`
     recommendationSettings
 
     bookmarkedPostsMetadata
-    bookmarkedPosts {
-      ...PostsList
-    }
 
     hiddenPostsMetadata
     auto_subscribe_to_my_posts
@@ -177,6 +174,15 @@ registerFragment(`
     petrovLaunchCodeDate
     lastUsedTimezone
     ...SharedUserBooleans
+  }
+`);
+
+registerFragment(`
+  fragment UserBookmarkedPosts on User {
+    _id
+    bookmarkedPosts {
+      ...PostsList
+    }
   }
 `);
 

@@ -1,6 +1,7 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
+import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const BookmarksList = ({limit=null}: {
@@ -8,8 +9,15 @@ const BookmarksList = ({limit=null}: {
 }) => {
   const currentUser = useCurrentUser();
   const { PostsItem2 } = Components
+  
+  const {document: userWithBookmarks, loading} = useSingle({
+    collectionName: "Users",
+    fragmentName: "UserBookmarkedPosts",
+    documentId: currentUser?._id,
+    skip: !currentUser?._id,
+  });
 
-  let bookmarkedPosts = currentUser?.bookmarkedPosts || []
+  let bookmarkedPosts = userWithBookmarks?.bookmarkedPosts || []
   let truncated = false;
   bookmarkedPosts = [...bookmarkedPosts].reverse();
   if (limit) {
