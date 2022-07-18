@@ -15,7 +15,7 @@ import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../th
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 
-const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
+const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
   
   const context: any = {};
@@ -40,22 +40,24 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): string => {
   const jssStylesheet = context.sheetsRegistry.toString()
   const theme = getForumTheme(themeOptions);
   
-  return [
+  const mergedCSS = [
     draftjsStyles(theme),
     miscStyles(theme),
     jssStylesheet,
     ...theme.rawCSS,
   ].join("\n");
+  
+  return Buffer.from(mergedCSS, "utf8");
 }
 
 type StylesheetAndHash = {
-  css: string
+  css: Buffer
   hash: string
 }
 
 const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash => {
   const stylesheet = generateMergedStylesheet(theme);
-  const hash = crypto.createHash('sha256').update(stylesheet, 'utf8').digest('hex');
+  const hash = crypto.createHash('sha256').update(stylesheet).digest('hex');
   return {
     css: stylesheet,
     hash: hash,
@@ -65,7 +67,7 @@ const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash
 // Serialized ThemeOptions (string) -> StylesheetAndHash
 const mergedStylesheets: Partial<Record<string, StylesheetAndHash>> = {};
 
-export const getMergedStylesheet = (theme: ThemeOptions): {css: string, url: string, hash: string} => {
+export const getMergedStylesheet = (theme: ThemeOptions): {css: Buffer, url: string, hash: string} => {
   const actualForumType = forumTypeSetting.get();
   const themeKey = JSON.stringify({
     name: theme.name,
