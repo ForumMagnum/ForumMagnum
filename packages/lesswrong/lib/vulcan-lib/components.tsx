@@ -78,7 +78,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,()=>void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
