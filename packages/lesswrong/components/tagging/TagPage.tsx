@@ -243,21 +243,33 @@ const TagPage = ({classes}: {
   }
 
   const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  let description;
+  let description = htmlWithAnchors;
   if(isEAForum) {
-    /**
-     * The `truncate` method used below uses a complicated criterion for what
-     * counts as a character. Here, we want to truncate at a known index in
-     * the string. So rather than using `truncate`, we can slice the string
-     * at the desired index, use `parseFromString` to clean up the HTML,
-     * and then append our footer 'read more' element.
-     */
-    const truncationLength = htmlWithAnchors.includes('id="Further_reading"') ? 
-      htmlWithAnchors.indexOf('id="Further_reading"') :
-      htmlWithAnchors.indexOf('id="Bibliography"');
-    description = truncated && truncationLength !== -1 ?
-      new DOMParser().parseFromString(htmlWithAnchors.slice(0, truncationLength), 'text/html').body.innerHTML +  "<span>...<p><a>(Read More)</a></p></span>" :
-      htmlWithAnchors;
+    description = htmlWithAnchors;
+    for (let matchString of [
+        'id="Further_reading"',
+        'id="Bibliography"',
+        'id="Related_entries"',
+        'class="footnotes"',
+      ]) {
+      if(htmlWithAnchors.includes(matchString)) {
+        const truncationLength = htmlWithAnchors.indexOf(matchString);
+        /**
+         * The `truncate` method used below uses a complicated criterion for what
+         * counts as a character. Here, we want to truncate at a known index in
+         * the string. So rather than using `truncate`, we can slice the string
+         * at the desired index, use `parseFromString` to clean up the HTML,
+         * and then append our footer 'read more' element.
+         */
+        description = truncated ?
+          new DOMParser().parseFromString(
+            htmlWithAnchors.slice(0, truncationLength), 
+            'text/html'
+          ).body.innerHTML + "<span>...<p><a>(Read More)</a></p></span>" :
+          htmlWithAnchors;
+        break;
+      }
+    }
   } else {
     description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
