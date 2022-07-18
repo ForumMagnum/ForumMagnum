@@ -1,6 +1,7 @@
-import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple, resolverOnlyField } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 import GraphQLJSON from 'graphql-type-json';
+import { userGetGroups } from './vulcan-users/permissions';
 
 interface CollectionVoteOptions {
   timeDecayScoresCronjob: boolean,
@@ -187,7 +188,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     // Optional array of groups who have permission to vote on this document
     canVote: {
       type: Array,
-      canRead: ['admins', 'sunshineRegiment'],
+      canRead: ['guests'],
       canUpdate: ['admins', 'sunshineRegiment'],
       canCreate: ['admins', 'sunshineRegiment'],
       optional: true,
@@ -196,5 +197,24 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     'canVote.$': {
       type: String,
     },
+    currentUserCanVote: resolverOnlyField({
+      type: Boolean,
+      graphQLtype: "Boolean",
+      viewableBy: ['guests'],
+      resolver: (document: DbVoteableType, args: void, {currentUser}: ResolverContext) => {
+        // Returning true for a null user may seem strange, but we want to allow them to vote
+        // so we can show them a login/signup prompt
+        if (!document.canVote || !currentUser) {
+          return true;
+        }
+        const userGroups = userGetGroups(currentUser);
+        for (const group of document.canVote) {
+          if (userGroups.includes(group)) {
+            return true;
+          }
+        }
+        return false;
+      }
+    }),
   });
 }

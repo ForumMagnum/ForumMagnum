@@ -1,6 +1,6 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
-import { VoteableCollections, VoteableCollectionOptions, collectionIsVoteable } from '../lib/make_voteable';
+import { VoteableCollections, collectionIsVoteable } from '../lib/make_voteable';
 import { userGetGroups } from '../lib/vulcan-users/permissions';
 
 export function createVoteableUnionType() {

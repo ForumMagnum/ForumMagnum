@@ -1364,6 +1364,7 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly post: PostsList|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly currentUserCanVote: boolean,
 }
 
 interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1388,6 +1389,7 @@ interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly currentUserCanVote: boolean,
 }
 
 interface WithVoteTagRel { // fragment on TagRels

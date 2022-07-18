@@ -383,7 +383,7 @@ export const schema: SchemaType<DbTag> = {
   // this tag to a particular post
   canVoteOnRels: {
     type: Array,
-    canRead: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     optional: true,

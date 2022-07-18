@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { Tags } from '../../lib/collections/tags/collection';
-import { TagRels } from '../../lib/collections/tagrels/collection';
+import { TagRels } from '../../lib/collections/tagRels/collection';
 
 registerMigration({
   name: "onlyAdminsCanVoteOnCommunityTopic",
