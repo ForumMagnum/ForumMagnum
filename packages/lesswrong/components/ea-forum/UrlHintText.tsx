@@ -1,6 +1,6 @@
 import React from 'react';
-// eslint-disable-next-line no-restricted-imports - we're not using Link, just
-// useHistory
+// We're not using Link, just useHistory
+// eslint-disable-next-line no-restricted-imports
 import { useHistory } from 'react-router-dom';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib';
