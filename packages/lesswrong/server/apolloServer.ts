@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, getInstanceSettings } from '../lib/executionEnvironment';
-import { renderWithCache } from './vulcan-lib/apollo-ssr/renderPage';
+import { renderWithCache, getThemeOptions } from './vulcan-lib/apollo-ssr/renderPage';
 
 import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
@@ -38,6 +38,7 @@ import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
+import { getMergedStylesheet } from './styleGeneration';
 
 const loadClientBundle = () => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
@@ -220,6 +221,10 @@ export function startWebserver() {
     });
     const prefetchResources = parsedRoute.currentRoute.enableResourcePrefetch;
     
+    const user = await getUserFromReq(request);
+    const themeOptions = getThemeOptions(request, user);
+    const stylesheet = getMergedStylesheet(themeOptions);
+    
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -229,8 +234,9 @@ export function startWebserver() {
       '<!doctype html>\n'
       + '<html lang="en">\n'
       + '<head>\n'
-        + clientScript
+        + `<link rel="preload" href="${stylesheet.url}" as="style">`
         + instanceSettingsHeader
+        + clientScript
     );
     
     if (prefetchResources) {
@@ -238,9 +244,9 @@ export function startWebserver() {
       response.write(prefetchPrefix);
     }
     
-    const renderResult = await renderWithCache(request, response);
+    const renderResult = await renderWithCache(request, response, user);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, themeOptions, renderedAt, allAbTestGroups} = renderResult;
+    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
@@ -269,6 +275,7 @@ export function startWebserver() {
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
         + serializedApolloState + '\n'
         + '</html>\n')
+      response.end();
     }
   })
 
