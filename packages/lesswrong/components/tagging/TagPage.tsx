@@ -246,9 +246,39 @@ const TagPage = ({classes}: {
   }
 
   const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
-  const description = (truncated && !tag.wikiOnly && !isEAForum)
+  let description = htmlWithAnchors;
+  // EA Forum wants to truncate much less than LW
+  if(isEAForum) {
+    description = htmlWithAnchors;
+    for (let matchString of [
+        'id="Further_reading"',
+        'id="Bibliography"',
+        'id="Related_entries"',
+        'class="footnotes"',
+      ]) {
+      if(htmlWithAnchors.includes(matchString)) {
+        const truncationLength = htmlWithAnchors.indexOf(matchString);
+        /**
+         * The `truncate` method used below uses a complicated criterion for what
+         * counts as a character. Here, we want to truncate at a known index in
+         * the string. So rather than using `truncate`, we can slice the string
+         * at the desired index, use `parseFromString` to clean up the HTML,
+         * and then append our footer 'read more' element.
+         */
+        description = truncated ?
+          new DOMParser().parseFromString(
+            htmlWithAnchors.slice(0, truncationLength), 
+            'text/html'
+          ).body.innerHTML + "<span>...<p><a>(Read More)</a></p></span>" :
+          htmlWithAnchors;
+        break;
+      }
+    }
+  } else {
+    description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
+  }
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType = {
