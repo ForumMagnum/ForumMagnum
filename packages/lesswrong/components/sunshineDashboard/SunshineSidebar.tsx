@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
-import NoSSR from 'react-no-ssr';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -54,7 +53,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   const underbellyName = forumTypeSetting.get() === 'EAForum' ? 'Low Priority' : 'the Underbelly'
 
   return (
-    <div className={classes.root}><NoSSR>
+    <div className={classes.root}>
       {showInitialSidebar && <div className={classes.background}>
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
@@ -109,7 +108,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} />
         </div>}
       </div>}
-    </NoSSR></div>
+    </div>
   )
 }
 
