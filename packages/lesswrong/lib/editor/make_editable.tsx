@@ -139,6 +139,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
+//#ifdef IS_SERVER
         resolver: async (doc: T, args: {version: string}, context: ResolverContext): Promise<DbRevision|null> => {
           const { version } = args;
           const { currentUser, Revisions } = context;
@@ -164,6 +165,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           } as DbRevision;
           //HACK: Pretend that this denormalized field is a DbRevision (even though it's missing an _id and some other fields)
         }
+//#endif
       },
       form: {
         label,
@@ -183,6 +185,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: '[Revision]',
         arguments: 'limit: Int = 5',
+//#ifdef IS_SERVER
         resolver: async (post: T, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
           const { limit } = args;
           const { currentUser, Revisions } = context;
@@ -190,6 +193,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
           const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
           return await accessFilterMultiple(currentUser, Revisions, resolvedDocs, context);
         }
+//#endif
       }
     },
     
@@ -199,9 +203,11 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       optional: true,
       resolveAs: {
         type: 'String',
+//#ifdef IS_SERVER
         resolver: (post: T): string => {
           return post[fieldName || "contents"]?.version
         }
+//#endif
       }
     }
   });

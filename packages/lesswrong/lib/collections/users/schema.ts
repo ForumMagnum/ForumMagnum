@@ -273,9 +273,11 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
+//#ifdef IS_SERVER
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return userGetProfileUrl(user, true);
       },
+//#endif
     },
   },
 
@@ -285,9 +287,11 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
+//#ifdef IS_SERVER
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return userGetProfileUrl(user, false);
       },
+//#endif
     },
   },
 
@@ -297,9 +301,11 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     resolveAs: {
       type: 'String',
+//#ifdef IS_SERVER
       resolver: (user: DbUser, args: void, context: ResolverContext): string => {
         return userGetEditUrl(user, true);
       },
+//#endif
     },
   },
   lwWikiImport: {

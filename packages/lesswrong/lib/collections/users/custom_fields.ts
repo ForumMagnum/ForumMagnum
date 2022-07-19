@@ -682,6 +682,7 @@ addFieldsDict(Users, {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
+//#ifdef IS_SERVER
     resolver: async (user: DbUser, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = await LWEvents.find(
@@ -696,6 +697,7 @@ addFieldsDict(Users, {
       const uniqueIPs = _.uniq(IPs);
       return uniqueIPs
     },
+//#endif
   }),
 
   'IPs.$': {
@@ -1189,7 +1191,9 @@ addFieldsDict(Users, {
   isReviewed: resolverOnlyField({
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
+//#ifdef IS_SERVER
     resolver: (user, args, context: ResolverContext) => !!user.reviewedByUserId,
+//#endif
   }),
 
   reviewedAt: {
@@ -1212,6 +1216,7 @@ addFieldsDict(Users, {
     type: Number,
     graphQLtype: "Float",
     canRead: ['guests'],
+//#ifdef IS_SERVER
     resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
@@ -1231,12 +1236,14 @@ addFieldsDict(Users, {
         return 0.8;
       }
     }
+//#endif
   }),
 
   allVotes: resolverOnlyField({
     type: Array,
     graphQLtype: '[Vote]',
     canRead: ['admins', 'sunshineRegiment'],
+//#ifdef IS_SERVER
     resolver: async (document, args, context: ResolverContext) => {
       const { Votes, currentUser } = context;
       const votes = await Votes.find({
@@ -1246,6 +1253,7 @@ addFieldsDict(Users, {
       if (!votes.length) return [];
       return await accessFilterMultiple(currentUser, Votes, votes, context);
     },
+//#endif
   }),
 
   'allVotes.$': {
@@ -1372,6 +1380,7 @@ addFieldsDict(Users, {
   reviewVoteCount:resolverOnlyField({
     type: Number,
     canRead: ['admins', 'sunshineRegiment'],
+//#ifdef IS_SERVER
     resolver: async (document, args, context: ResolverContext) => {
       const { ReviewVotes } = context;
       const voteCount = await ReviewVotes.find({
@@ -1380,6 +1389,7 @@ addFieldsDict(Users, {
       }).count();
       return voteCount
     }
+//#endif
   }),
   reviewVotesQuadratic2020: {
     type: Boolean,
@@ -1476,12 +1486,14 @@ addFieldsDict(Users, {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
+//#ifdef IS_SERVER
       resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
         const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
         return await accessFilterMultiple(currentUser, Posts, posts, context);
       }
+//#endif
     }
   },
 

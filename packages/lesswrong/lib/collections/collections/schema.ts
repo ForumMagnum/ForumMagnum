@@ -48,6 +48,7 @@ const schema: SchemaType<DbCollection> = {
     type: Array,
     graphQLtype: '[Book]',
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
       const { currentUser, Books } = context;
       const books = await Books.find(
@@ -56,6 +57,7 @@ const schema: SchemaType<DbCollection> = {
       ).fetch();
       return await accessFilterMultiple(currentUser, Books, books, context);
     }
+//#endif
   }),
 
   'books.$': {

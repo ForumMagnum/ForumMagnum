@@ -44,12 +44,14 @@ const schema: SchemaType<DbSequence> = {
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
+//#ifdef IS_SERVER
       resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
         const chapters = await context.Chapters.find(
           {sequenceId: sequence._id},
         ).fetch();
         return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
       }
+//#endif
     }
   },
 
@@ -138,6 +140,7 @@ const schema: SchemaType<DbSequence> = {
       fieldName: 'canonicalCollection',
       addOriginalField: true,
       type: "Collection",
+//#ifdef IS_SERVER
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
       resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
@@ -145,6 +148,7 @@ const schema: SchemaType<DbSequence> = {
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
+//#endif
     }
   },
 

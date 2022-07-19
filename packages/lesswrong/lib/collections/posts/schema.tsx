@@ -97,6 +97,7 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins'],
     control: 'datetime',
     group: formGroups.adminOptions,
+//#ifdef IS_SERVER
     onInsert: (post, currentUser) => {
       // Set the post's postedAt if it's going to be approved
       if (!post.postedAt && postGetDefaultStatus(currentUser!) === postStatuses.STATUS_APPROVED) {
@@ -109,6 +110,7 @@ const schema: SchemaType<DbPost> = {
         return new Date();
       }
     }
+//#endif
   },
   // Timestamp of last post modification
   modifiedAt: {
@@ -165,6 +167,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: async (post) => {
       return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
     },
@@ -173,6 +176,7 @@ const schema: SchemaType<DbPost> = {
         return await Utils.getUnusedSlugByCollectionName("Posts", slugify(modifier.$set.title), false, post._id)
       }
     }
+//#endif
   },
   // Count of how many times the post's page was viewed
   viewCount: {
@@ -188,7 +192,9 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     viewableBy: ['guests'],
     hidden: true,
+//#ifdef IS_SERVER
     onInsert: (post: DbPost) => post.postedAt || new Date(),
+//#endif
   },
   // Count of how many times the post's link was clicked
   clickCount: {
@@ -215,6 +221,7 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins'],
     editableBy: ['admins', 'sunshineRegiment'],
     control: 'select',
+//#ifdef IS_SERVER
     onInsert: (document, currentUser) => {
       if (!document.status) {
         return postGetDefaultStatus(currentUser!);
@@ -226,6 +233,7 @@ const schema: SchemaType<DbPost> = {
         return postGetDefaultStatus(currentUser!);
       }
     },
+//#endif
     options: () => postStatusLabels,
     group: formGroups.adminOptions
   },
@@ -234,6 +242,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: (post) => {
       // Set the post's isFuture to true if necessary
       if (post.postedAt) {
@@ -258,6 +267,7 @@ const schema: SchemaType<DbPost> = {
         }
       }
     }
+//#endif
   },
   // Whether the post is sticky (pinned to the top of posts lists)
   sticky: {
@@ -270,6 +280,7 @@ const schema: SchemaType<DbPost> = {
     control: 'checkbox',
     order: 10,
     group: formGroups.adminOptions,
+//#ifdef IS_SERVER
     onInsert: (post) => {
       if(!post.sticky) {
         return false;
@@ -280,6 +291,7 @@ const schema: SchemaType<DbPost> = {
         return false;
       }
     }
+//#endif
   },
   // Priority of the stickied post. Higher priorities will be sorted before
   // lower priorities.
@@ -320,12 +332,14 @@ const schema: SchemaType<DbPost> = {
     denormalized: true,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onEdit: async (modifier, document, currentUser) => {
       // if userId is changing, change the author name too
       if (modifier.$set && modifier.$set.userId) {
         return await userGetDisplayNameById(modifier.$set.userId)
       }
     }
+//#endif
   },
   // The post author's `_id`.
   userId: {
@@ -351,59 +365,77 @@ const schema: SchemaType<DbPost> = {
   domain: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => getDomain(post.url),
+//#endif
   }),
 
   pageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, true),
+//#endif
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, false),
+//#endif
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => {
       return post.url ? getOutgoingUrl(post.url) : postGetPageUrl(post, true);
     },
+//#endif
   }),
 
   postedAtFormatted: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => {
       return moment(post.postedAt).format('dddd, MMMM Do YYYY');
     }
+//#endif
   }),
 
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetEmailShareUrl(post),
+//#endif
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetTwitterShareUrl(post),
+//#endif
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
+//#endif
   }),
   
   socialPreviewImageUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, context: ResolverContext) => getSocialPreviewImage(post)
+//#endif
   }),
 
   question: {
@@ -430,21 +462,25 @@ const schema: SchemaType<DbPost> = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return 0;
       return contents.wordCount;
     }
+//#endif
   }),
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return "";
       return contents.html;
     }
+//#endif
   }),
 
   submitToFrontpage: {
@@ -454,6 +490,7 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['members', 'admins', 'sunshineRegiment'],
     optional: true,
     hidden: true,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(true),
     onCreate: ({newDocument}: { newDocument: DbPost }) => {
       if (newDocument.isEvent) return false
@@ -465,6 +502,7 @@ const schema: SchemaType<DbPost> = {
       if (updatedDocIsEvent) return false
       return ('submitToFrontpage' in document) ? document.submitToFrontpage : true
     }
+//#endif
   },
 
   hiddenRelatedQuestion: {
@@ -474,7 +512,9 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['members', 'admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
 
   originalPostRelationSourceId: {
@@ -489,10 +529,12 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const result = await PostRelations.find({targetPostId: post._id}).fetch()
       return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
     }
+//#endif
   }),
   'sourcePostRelations.$': {
     type: String,
@@ -503,6 +545,7 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { Posts, currentUser } = context;
       const postRelations = await Posts.aggregate([
@@ -533,6 +576,7 @@ const schema: SchemaType<DbPost> = {
      if (!postRelations || postRelations.length < 1) return []
      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
+//#endif
   }),
   'targetPostRelations.$': {
     type: String,
@@ -549,7 +593,9 @@ const schema: SchemaType<DbPost> = {
     insertableBy: ['admins'],
     editableBy: ['admins'],
     denormalized: true,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
 
   canonicalSource: {
@@ -766,6 +812,7 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "TagRel",
     viewableBy: ['guests'],
     graphqlArguments: 'tagId: String',
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: {tagId: string}, context: ResolverContext) => {
       const { tagId } = args;
       const { currentUser } = context;
@@ -781,12 +828,14 @@ const schema: SchemaType<DbPost> = {
         return filteredTagRels[0]
       }
     }
+//#endif
   }),
 
   tags: resolverOnlyField({
     type: "[Tag]",
     graphQLtype: "[Tag]",
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
@@ -794,6 +843,7 @@ const schema: SchemaType<DbPost> = {
       const tags = await context.loaders.Tags.loadMany(tagIds)
       return await accessFilterMultiple(currentUser, context.Tags, tags, context)
     }
+//#endif
   }),
   
   // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie Record<string,number>.
@@ -814,6 +864,7 @@ const schema: SchemaType<DbPost> = {
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (post, args, context: ResolverContext) => {
       const { currentUser, Comments } = context;
       if (post.lastCommentPromotedAt) {
@@ -821,12 +872,14 @@ const schema: SchemaType<DbPost> = {
         return await accessFilterSingle(currentUser, Comments, comment, context)
       }
     }
+//#endif
   }),
 
   bestAnswer: resolverOnlyField({
     type: "Comment",
     graphQLtype: "Comment",
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser, Comments } = context;
       if (post.question) {
@@ -839,6 +892,7 @@ const schema: SchemaType<DbPost> = {
         }
       }
     }
+//#endif
   }),
 
   // Tell search engines not to index this post. Useful for old posts that were
@@ -889,7 +943,9 @@ const schema: SchemaType<DbPost> = {
     editableBy: ['admins'],
     optional: true,
     hidden: true,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
   
   onlyVisibleToLoggedIn: {
@@ -900,7 +956,9 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     group: formGroups.adminOptions,
     label: "Hide this post from users who are not logged in",
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
   
   onlyVisibleToEstablishedAccounts: {
@@ -911,13 +969,16 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     group: formGroups.adminOptions,
     label: "Hide this post from logged out users and newly created accounts",
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
 
   currentUserReviewVote: resolverOnlyField({
     type: "ReviewVote",
     graphQLtype: "ReviewVote",
     viewableBy: ['members'],
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewVote|null> => {
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
@@ -932,6 +993,7 @@ const schema: SchemaType<DbPost> = {
       const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
       return vote;
     }
+//#endif
   }),
   
   votingSystem: {
@@ -948,7 +1010,9 @@ const schema: SchemaType<DbPost> = {
           .map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
+//#ifdef IS_SERVER
     ...schemaDefaultValue(isLWorAF ? "twoAxis" : "default"),
+//#endif
   },
 };
 

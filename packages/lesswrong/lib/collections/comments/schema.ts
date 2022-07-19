@@ -56,6 +56,7 @@ const schema: SchemaType<DbComment> = {
     type: String,
     optional: true,
     canRead: ['guests'],
+//#ifdef IS_SERVER
     onInsert: async (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
@@ -68,6 +69,7 @@ const schema: SchemaType<DbComment> = {
         return await userGetDisplayNameById(modifier.$set.userId)
       }
     }
+//#endif
   },
   // If this comment is on a post, the _id of that post.
   postId: {
@@ -142,17 +144,21 @@ const schema: SchemaType<DbComment> = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       return await commentGetPageUrlFromDB(comment, true)
     },
+//#endif
   }),
 
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       return await commentGetPageUrlFromDB(comment, false)
     },
+//#endif
   }),
 
   answer: {
@@ -206,11 +212,13 @@ const schema: SchemaType<DbComment> = {
     type: Array,
     graphQLtype: '[Comment]',
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       const { Comments } = context;
       const params = Comments.getParameters({view:"shortformLatestChildren", topLevelCommentId: comment._id})
       return await Comments.find(params.selector, params.options).fetch()
     }
+//#endif
   }),
   'latestChildren.$': {
     type: String,
@@ -226,12 +234,14 @@ const schema: SchemaType<DbComment> = {
     canUpdate: [userOwns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
+//#ifdef IS_SERVER
       getValue: async (comment: DbComment): Promise<boolean> => {
         if (!comment.postId) return false;
         const post = await mongoFindOne("Posts", {_id: comment.postId});
         if (!post) return false;
         return !!post.shortform;
       }
+//#endif
     }),
   },
 
@@ -269,11 +279,13 @@ const schema: SchemaType<DbComment> = {
     type: String,
     optional: true,
     canRead: ['guests'],
+//#ifdef IS_SERVER
     onCreate: async ({newDocument}) => {
       if (!newDocument.postId) return "1.0.0";
       const post = await mongoFindOne("Posts", {_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
+//#endif
   },
 
   promoted: {
@@ -296,6 +308,7 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
+//#ifdef IS_SERVER
     onUpdate: async ({data, currentUser, document, oldDocument, context}: {
       data: Partial<DbComment>,
       currentUser: DbUser|null,
@@ -315,12 +328,14 @@ const schema: SchemaType<DbComment> = {
         return currentUser!._id
       }
     }
+//#endif
   },
 
   promotedAt: {
     type: Date,
     optional: true,
     canRead: ['guests'],
+//#ifdef IS_SERVER
     onUpdate: async ({data, document, oldDocument}) => {
       if (data?.promoted && !oldDocument.promoted) {
         return new Date()
@@ -329,6 +344,7 @@ const schema: SchemaType<DbComment> = {
         return null
       }
     }
+//#endif
   },
   
   // Comments store a duplicate of their post's hideCommentKarma data. The
@@ -346,12 +362,14 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
+//#ifdef IS_SERVER
       getValue: async comment => {
         if (!comment.postId) return false;
         const post = await mongoFindOne("Posts", {_id: comment.postId});
         if (!post) return false;
         return !!post.hideCommentKarma;
       }
+//#endif
     }),
   },
   
@@ -359,26 +377,31 @@ const schema: SchemaType<DbComment> = {
   wordCount: resolverOnlyField({
     type: Number,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;
     }
+//#endif
   }),
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;
     }
+//#endif
   }),
   
   votingSystem: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
       if (!comment?.postId) {
         return "default";
@@ -386,6 +409,7 @@ const schema: SchemaType<DbComment> = {
       const post = await context.loaders.Posts.load(comment.postId);
       return post.votingSystem || "default";
     }
+//#endif
   }),
 };
 

@@ -138,6 +138,7 @@ const schema: SchemaType<DbVote> = {
     type: "TagRel",
     graphQLtype: 'TagRel',
     canRead: [docIsTagRel, 'admins'],
+//#ifdef IS_SERVER
     resolver: async (vote: DbVote, args: void, { TagRels }: ResolverContext): Promise<DbTagRel|null> => {
       if (vote.collectionName === "TagRels") {
         return await TagRels.findOne({_id: vote.documentId});
@@ -145,6 +146,7 @@ const schema: SchemaType<DbVote> = {
         return null;
       }
     }
+//#endif
   }),
 
   // This flag allows us to calculate the baseScore/karma of documents and users using nothing but the votes

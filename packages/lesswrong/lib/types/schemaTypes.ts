@@ -33,7 +33,9 @@ interface CollectionFieldSpecification<T extends DbObject> {
     fieldName?: string,
     addOriginalField?: boolean,
     arguments?: string|null,
+//#ifdef IS_SERVER
     resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
+//#endif
   },
   blackbox?: boolean,
   denormalized?: boolean,
@@ -113,13 +115,14 @@ interface CollectionFieldSpecification<T extends DbObject> {
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
   //
+//#ifdef IS_SERVER
   onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
   onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: SchemaType<T>, fieldName: string}) => any,
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
   onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
-  
-  
+//#endif
+
   viewableBy?: FieldPermissions,
   insertableBy?: FieldCreatePermissions,
   editableBy?: FieldPermissions,

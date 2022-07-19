@@ -116,6 +116,7 @@ addFieldsDict(Posts, {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
@@ -128,11 +129,13 @@ addFieldsDict(Posts, {
       if (!readStatus.length) return null;
       return readStatus[0].lastUpdated;
     }
+//#endif
   }),
   
   isRead: resolverOnlyField({
     type: Boolean,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;
@@ -145,6 +148,7 @@ addFieldsDict(Posts, {
       if (!readStatus.length) return false;
       return readStatus[0].isRead;
     }
+//#endif
   }),
 
   // curatedDate: Date at which the post was promoted to curated (null or false
@@ -181,6 +185,7 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
+//#ifdef IS_SERVER
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string|null> => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
@@ -198,6 +203,7 @@ addFieldsDict(Posts, {
           return null
         }
       },
+//#endif
       addOriginalField: true,
     }
   },
@@ -234,6 +240,7 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'coauthors',
       type: '[User!]!',
+//#ifdef IS_SERVER
       resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
         const loader = context.loaders['Users'];
         const resolvedDocs = await loader.loadMany(
@@ -241,6 +248,7 @@ addFieldsDict(Posts, {
         );
         return await accessFilterMultiple(context.currentUser, context['Users'], resolvedDocs, context);
       },
+//#endif
       addOriginalField: true,
     },
     viewableBy: ['guests'],
@@ -327,6 +335,7 @@ addFieldsDict(Posts, {
       fieldName: 'canonicalCollection',
       addOriginalField: true,
       type: "Collection",
+//#ifdef IS_SERVER
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
@@ -334,6 +343,7 @@ addFieldsDict(Posts, {
         const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
+//#endif
     },
   },
 
@@ -392,6 +402,7 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
@@ -422,6 +433,7 @@ addFieldsDict(Posts, {
 
       return null;
     }
+//#endif
   }),
 
   // The previous post. If a sequenceId is provided, that sequence must contain
@@ -432,6 +444,7 @@ addFieldsDict(Posts, {
     graphQLtype: "Post",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
@@ -465,6 +478,7 @@ addFieldsDict(Posts, {
 
       return null;
     }
+//#endif
   }),
 
   // A sequence this post is part of. Takes an optional sequenceId; if the
@@ -477,6 +491,7 @@ addFieldsDict(Posts, {
     graphQLtype: "Sequence",
     viewableBy: ['guests'],
     graphqlArguments: 'sequenceId: String',
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
       const { sequenceId } = args;
       const { currentUser } = context;
@@ -489,6 +504,7 @@ addFieldsDict(Posts, {
 
       return await accessFilterSingle(currentUser, context.Sequences, sequence, context);
     }
+//#endif
   }),
 
   // unlisted: If true, the post is not featured on the frontpage and is not
@@ -503,7 +519,9 @@ addFieldsDict(Posts, {
     control: "checkbox",
     order: 11,
     group: formGroups.adminOptions,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
 
   // disableRecommendation: If true, this post will never appear as a
@@ -521,7 +539,9 @@ addFieldsDict(Posts, {
     control: "checkbox",
     order: 12,
     group: formGroups.adminOptions,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
 
   // defaultRecommendation: If true, always include this post in the recommendations
@@ -535,7 +555,9 @@ addFieldsDict(Posts, {
     control: "checkbox",
     order: 13,
     group: formGroups.adminOptions,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
 
   // Drafts
@@ -561,7 +583,9 @@ addFieldsDict(Posts, {
     hidden: true,
     label: "Publish to meta",
     control: "checkbox",
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false)
+//#endif
   },
 
   hideFrontpageComments: {
@@ -572,7 +596,9 @@ addFieldsDict(Posts, {
     insertableBy: ['admins'],
     control: 'checkbox',
     group: formGroups.moderationGroup,
+//#ifdef IS_SERVER
     ...schemaDefaultValue(false),
+//#endif
   },
 
   // maxBaseScore: Highest baseScore this post ever had, used for RSS feed generation
@@ -581,49 +607,63 @@ addFieldsDict(Posts, {
     optional: true,
     viewableBy: ['guests'],
     hidden: true,
+//#ifdef IS_SERVER
     onInsert: (document) => document.baseScore || 0,
+//#endif
   },
   // The timestamp when the post's maxBaseScore first exceeded 2
   scoreExceeded2Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: document => document.baseScore >= 2 ? new Date() : null
+//#endif
   },
   // The timestamp when the post's maxBaseScore first exceeded 30
   scoreExceeded30Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: document => document.baseScore >= 30 ? new Date() : null
+//#endif
   },
   // The timestamp when the post's maxBaseScore first exceeded 45
   scoreExceeded45Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: document => document.baseScore >= 45 ? new Date() : null
+//#endif
   },
   // The timestamp when the post's maxBaseScore first exceeded 75
   scoreExceeded75Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: document => document.baseScore >= 75 ? new Date() : null
+//#endif
   },
   // The timestamp when the post's maxBaseScore first exceeded 125
   scoreExceeded125Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: document => document.baseScore >= 125 ? new Date() : null
+//#endif
   },
   // The timestamp when the post's maxBaseScore first exceeded 200
   scoreExceeded200Date: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     onInsert: document => document.baseScore >= 200 ? new Date() : null
+//#endif
   },
   bannedUserIds: {
     type: Array,
@@ -721,6 +761,7 @@ addFieldsDict(Posts, {
     optional: true,
     ...schemaDefaultValue(false),
     
+//#ifdef IS_SERVER
     onCreate: ({newDocument}: {newDocument: DbInsertion<DbPost>}) => {
       // HACK: This replaces the `onCreate` that normally comes with
       // `schemaDefaultValue`. In addition to enforcing that the field must
@@ -734,6 +775,7 @@ addFieldsDict(Posts, {
       else
         return undefined;
     }
+//#endif
   },
 
   reviewedByUserId: {
@@ -860,10 +902,12 @@ addFieldsDict(Posts, {
     optional: true,
     ...denormalizedField({
       needsUpdate: data => ('googleLocation' in data),
+//#ifdef IS_SERVER
       getValue: async (post) => {
         if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation)
         return null
       }
+//#endif
     }),
   },
 
@@ -989,6 +1033,7 @@ addFieldsDict(Posts, {
     editableBy: ['admins'],
     insertableBy: ['admins'],
     control: 'checkbox',
+//#ifdef IS_SERVER
     onInsert: (post) => {
       if(!post.metaSticky) {
         return false;
@@ -999,6 +1044,7 @@ addFieldsDict(Posts, {
         return false;
       }
     }
+//#endif
   },
 
   sharingSettings: {
@@ -1057,6 +1103,7 @@ addFieldsDict(Posts, {
     type: Object,
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
+//#ifdef IS_SERVER
     resolver: async (document: DbPost, args: void, context: ResolverContext) => {
       try {
         return await Utils.getToCforPost({document, version: null, context});
@@ -1065,6 +1112,7 @@ addFieldsDict(Posts, {
         return null;
       }
     },
+//#endif
   }),
 
   tableOfContentsRevision: resolverOnlyField({
@@ -1072,6 +1120,7 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     graphQLtype: GraphQLJSON,
     graphqlArguments: 'version: String',
+//#ifdef IS_SERVER
     resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
       const { version=null } = args;
       try {
@@ -1081,6 +1130,7 @@ addFieldsDict(Posts, {
         return null;
       }
     },
+//#endif
   }),
 
   // GraphQL only field that resolves based on whether the current user has closed
@@ -1091,6 +1141,7 @@ addFieldsDict(Posts, {
     canRead: ['guests'],
     resolveAs: {
       type: 'Boolean',
+//#ifdef IS_SERVER
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
         const { LWEvents, currentUser } = context;
         if(currentUser){
@@ -1111,6 +1162,7 @@ addFieldsDict(Posts, {
           return false
         }
       },
+//#endif
       addOriginalField: false
     }
   },
@@ -1172,6 +1224,7 @@ addFieldsDict(Posts, {
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
+//#ifdef IS_SERVER
     resolver: async (post: DbPost, args: {commentsLimit?: number, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
       const { commentsLimit=5, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
@@ -1189,6 +1242,7 @@ addFieldsDict(Posts, {
       }).fetch();
       return await accessFilterMultiple(currentUser, Comments, comments, context);
     }
+//#endif
   }),
   'recentComments.$': {
     type: Object,

@@ -42,6 +42,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       viewableBy: ['guests'],
       resolveAs: {
         type: 'String',
+//#ifdef IS_SERVER
         resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return null;
@@ -57,6 +58,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           if (!votes.length) return null;
           return votes[0].voteType;
         }
+//#endif
       }
     },
     
@@ -66,6 +68,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       viewableBy: ['guests'],
       resolveAs: {
         type: GraphQLJSON,
+//#ifdef IS_SERVER
         resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return null;
@@ -81,6 +84,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           if (!votes.length) return null;
           return votes[0].extendedVoteType || null;
         }
+//#endif
       },
     },
     
@@ -92,6 +96,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
+//#ifdef IS_SERVER
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           if (!currentUser) return [];
@@ -107,6 +112,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           if (!votes.length) return [];
           return await accessFilterMultiple(currentUser, Votes, votes, context);
         },
+//#endif
       }
     },
     'currentUserVotes.$': {
@@ -120,6 +126,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       viewableBy: ['guests'],
       resolveAs: {
         type: '[Vote]',
+//#ifdef IS_SERVER
         resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
           const { Votes, currentUser } = context;
           const votes = await getWithLoader(context, Votes,
@@ -133,6 +140,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
           if (!votes.length) return [];
           return await accessFilterMultiple(currentUser, Votes, votes, context);
         },
+//#endif
       }
     },
     'allVotes.$': {
@@ -156,10 +164,12 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: customBaseScoreReadAccess || ['guests'],
+//#ifdef IS_SERVER
       onInsert: (document: DbInsertion<T>): number => {
         // default to 0 if empty
         return document.baseScore || 0;
       }
+//#endif
     },
     extendedScore: {
       type: GraphQLJSON,
@@ -172,10 +182,12 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: ['guests'],
+//#ifdef IS_SERVER
       onInsert: (document: DbInsertion<T>): number => {
         // default to 0 if empty
         return document.score || 0;
       }
+//#endif
     },
     // Whether the document is inactive. Inactive documents see their score
     // recalculated less often

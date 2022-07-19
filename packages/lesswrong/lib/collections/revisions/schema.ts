@@ -143,6 +143,7 @@ const schema: SchemaType<DbRevision> = {
     type: "Tag",
     graphQLtype: "Tag",
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
       const {currentUser, Tags} = context;
       if (revision.collectionName !== "Tags")
@@ -150,11 +151,13 @@ const schema: SchemaType<DbRevision> = {
       const tag = await context.loaders.Tags.load(revision.documentId);
       return await accessFilterSingle(currentUser, Tags, tag, context);
     }
+//#endif
   }),
   post: resolverOnlyField({
     type: "Post",
     graphQLtype: "Post",
     viewableBy: ['guests'],
+//#ifdef IS_SERVER
     resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
       const {currentUser, Posts} = context;
       if (revision.collectionName !== "Posts")
@@ -162,6 +165,7 @@ const schema: SchemaType<DbRevision> = {
       const post = await context.loaders.Posts.load(revision.documentId);
       return await accessFilterSingle(currentUser, Posts, post, context);
     }
+//#endif
   }),
 };
 
