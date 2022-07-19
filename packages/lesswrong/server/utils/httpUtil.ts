@@ -58,7 +58,7 @@ export function setCookieOnResponse({req, res, cookieName, cookieValue, maxAge}:
     // The server-side code depends on the cookie existing on the very first request, before the client can send back the cookie we set via header
     untypedReq.cookies = { [cookieName]: cookieValue };
   }
-  
+
   (res as any).setHeader("Set-Cookie", `${cookieName}=${cookieValue}; Max-Age=${maxAge}; Path=/`);
 }
 
@@ -71,9 +71,9 @@ export function getAllCookiesFromReq(req: Request) {
       Object.assign(returnCookies, untypedReq.universalCookies.getAll());
       return new Cookies(returnCookies);
     }
-    return untypedReq.universalCookies
+    return untypedReq.universalCookies;
   }
-  else
+  else {
     return new Cookies(untypedReq.cookies); // req.universalCookies;
-  
+  }
 }
