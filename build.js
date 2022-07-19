@@ -4,6 +4,7 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const fetch = require("node-fetch");
 const crypto = require('crypto');
+const ifdefPlugin = require("esbuild-plugin-ifdef");
 
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;
@@ -92,6 +93,11 @@ build({
     "bundleIsServer": false,
     "global": "window",
   },
+  plugins: [
+    ifdefPlugin({
+      "process.env.IS_CLIENT": true,
+    }),
+  ],
 });
 
 let serverCli = ["node", "-r", "source-map-support/register", "--", "./build/server/js/serverBundle.js", "--settings", settingsFile]
@@ -123,6 +129,11 @@ build({
     "apollo-server", "apollo-server-express", "graphql",
     "bcrypt", "node-pre-gyp", "@lesswrong", "intercom-client",
     "fsevents", "chokidar",
+  ],
+  plugins: [
+    ifdefPlugin({
+      "process.env.IS_CLIENT": true,
+    }),
   ],
 })
 

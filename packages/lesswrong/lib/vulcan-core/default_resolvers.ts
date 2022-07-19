@@ -26,6 +26,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       description: `A list of ${typeName} documents matching a set of query terms`,
 
       async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean} }, context: ResolverContext, { cacheControl }) {
+//#ifdef IS_SERVER
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
 
@@ -73,6 +74,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
 
         // return results
         return data;
+//#endif
       },
     },
 
@@ -82,6 +84,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       description: `A single ${typeName} document fetched by ID or slug`,
 
       async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }) {
+//#ifdef IS_SERVER
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
@@ -150,6 +153,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
 
         // filter out disallowed properties and return resulting document
         return { result: restrictedDoc };
+//#endif
       },
     },
   };
