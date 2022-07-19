@@ -39,6 +39,7 @@ export const Link = (props: LinkProps) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
   const handleClick = (e) => {
     captureEvent(undefined, {buttonPressed: e.button})
+    props.onMouseDown && props.onMouseDown(e)
   }
 
   if (!isLinkValid(props)) {
