@@ -59,13 +59,20 @@ export function setCookieOnResponse({req, res, cookieName, cookieValue, maxAge}:
     untypedReq.cookies = { [cookieName]: cookieValue };
   }
   
-  (res as any).setHeader("Set-Cookie", `${cookieName}=${cookieValue}; Max-Age=${maxAge}`);
+  (res as any).setHeader("Set-Cookie", `${cookieName}=${cookieValue}; Max-Age=${maxAge}; Path=/`);
 }
 
 export function getAllCookiesFromReq(req: Request) {
   const untypedReq: any = req;
-  if (untypedReq.universalCookies)
+
+  if (untypedReq.universalCookies) {
+    if (untypedReq.cookies) {
+      const returnCookies = new Cookies(untypedReq.cookies).getAll();
+      Object.assign(returnCookies, untypedReq.universalCookies.getAll());
+      return new Cookies(returnCookies);
+    }
     return untypedReq.universalCookies
+  }
   else
     return new Cookies(untypedReq.cookies); // req.universalCookies;
   
