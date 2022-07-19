@@ -67,6 +67,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     individual: '#BF577D',
     icon: {
       navigationSidebarIcon: shadePalette.greyAlpha(0.5),
+      newAuthorIcon: '#009816'
     }
   }),
   make: (palette: ThemePalette) => {

@@ -247,6 +247,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
+    newAuthorIcon: '#5f9b65',
     
     commentsBubble: {
       commentCount: "#fff",

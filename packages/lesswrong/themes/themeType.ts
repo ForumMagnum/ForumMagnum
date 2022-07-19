@@ -156,6 +156,7 @@ declare global {
       inverted: ColorString,
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
+      newAuthorIcon: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
