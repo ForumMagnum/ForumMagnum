@@ -4,7 +4,7 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const fetch = require("node-fetch");
 const crypto = require('crypto');
-const ifdefPlugin = require("esbuild-plugin-ifdef");
+const ifdefPlugin = require("./scripts/esbuildPluginIfdef");
 
 let latestCompletedBuildId = generateBuildId();
 let inProgressBuildId = null;

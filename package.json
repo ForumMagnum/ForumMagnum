@@ -162,7 +162,6 @@
     "element-closest": "^2.0.2",
     "enzyme": "3.1.0",
     "enzyme-adapter-react-16": "1.0.1",
-    "esbuild-plugin-ifdef": "^1.0.1",
     "escape-string-regexp": "^1.0.5",
     "estrella": "https://github.com/jimrandomh/estrella#987656e624f6216d2596953f282beee7b6523d2d",
     "express": "5.0.0-alpha.8",

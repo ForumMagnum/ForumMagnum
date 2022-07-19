@@ -7017,11 +7017,6 @@ esbuild-openbsd-64@0.14.49:
   resolved "https://registry.yarnpkg.com/esbuild-openbsd-64/-/esbuild-openbsd-64-0.14.49.tgz#1f8bdc49f8a44396e73950a3fb6b39828563631d"
   integrity sha512-lP06UQeLDGmVPw9Rg437Btu6J9/BmyhdoefnQ4gDEJTtJvKtQaUcOQrhjTq455ouZN4EHFH1h28WOJVANK41kA==
 
-esbuild-plugin-ifdef@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/esbuild-plugin-ifdef/-/esbuild-plugin-ifdef-1.0.1.tgz#64f281879725231b6d1493b0f38ab1ae1ac80313"
-  integrity sha512-dn1sf+WGIUBp4kxN+rJRYIXrmGTwRLyhWASmhl8IKKKPfIlWFE8hloAVnI6mM5jPF3+abDvkndYe+RZDFXItbA==
-
 esbuild-sunos-64@0.14.49:
   version "0.14.49"
   resolved "https://registry.yarnpkg.com/esbuild-sunos-64/-/esbuild-sunos-64-0.14.49.tgz#47d042739365b61aa8ca642adb69534a8eef9f7a"
