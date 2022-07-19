@@ -197,7 +197,7 @@ const RecommendationsAndCurated = ({
           </Link>
         </LWTooltip>
         <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-          <BookmarksList limit={bookmarksLimit} />
+          <BookmarksList limit={bookmarksLimit} hideLoadMore={true}/>
         </AnalyticsContext>
       </div>}
 
