@@ -66,6 +66,13 @@ export function getAllCookiesFromReq(req: Request) {
   const untypedReq: any = req;
 
   if (untypedReq.universalCookies) {
+    /**
+     * Because of the current logic in setCookieOnResponse (for the clientIdMiddleware),
+     * we will have a clientId in cookies but not in universalCookies.
+     * In that case we want to prioritize cookies which exist in universalCookies,
+     * but default to whatever cookies exist in cookies for those that don't exist in universalCookies.
+     * We should be able to delete this after verifying that universalCookies is always present on inbound requests.
+     */
     if (untypedReq.cookies) {
       const returnCookies = new Cookies(untypedReq.cookies).getAll();
       Object.assign(returnCookies, untypedReq.universalCookies.getAll());
