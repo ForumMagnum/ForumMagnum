@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
+import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
@@ -60,6 +61,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
         className={bodyClasses}
         dangerouslySetInnerHTML={{__html: innerHtml }}
         description={`comment ${comment._id}`}
+        nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
       />
     </ContentStyles>
   )
