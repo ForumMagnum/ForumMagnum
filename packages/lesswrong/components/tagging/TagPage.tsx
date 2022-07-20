@@ -245,7 +245,7 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const htmlWithAnchors = tag.tableOfContents?.html || tag.description?.html;
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if(isEAForum) {
