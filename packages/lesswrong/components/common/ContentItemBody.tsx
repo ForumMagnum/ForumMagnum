@@ -302,7 +302,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
 }
 
 const addNofollowToHTML = (html: string): string => {
-  return html.replace('<a ', '<a rel="nofollow" ')
+  return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
 const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {
