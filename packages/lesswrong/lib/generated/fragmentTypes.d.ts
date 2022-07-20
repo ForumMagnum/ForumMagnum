@@ -1714,6 +1714,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly karma: number,
   readonly htmlBio: string,
+  readonly website: string,
   readonly createdAt: Date,
   readonly email: string,
   readonly commentCount: number,
