@@ -12,7 +12,7 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from '../users/helpers';
 import { Posts } from './collection';
-import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost } from '../sequences/helpers';
+import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { postCanEditHideCommentKarma } from './helpers';
 import { captureException } from '@sentry/core';
 import { formGroups } from './formGroups';
@@ -399,9 +399,15 @@ addFieldsDict(Posts, {
         const nextPostID = await sequenceGetNextPostID(sequenceId, post._id, context);
         if (nextPostID) {
           const nextPost = await context.loaders.Posts.load(nextPostID);
-          const nextPostFiltered = await accessFilterSingle(currentUser, Posts, nextPost, context);
-          if (nextPostFiltered)
-            return nextPostFiltered;
+          return accessFilterSingle(currentUser, Posts, nextPost, context);
+        } else {
+          const nextSequencePostId = await getNextPostIdFromNextSequence(sequenceId, post._id, context);
+          if (!nextSequencePostId) {
+            return null;
+          }
+
+          const nextPost = await context.loaders.Posts.load(nextSequencePostId.postId);
+          return accessFilterSingle(currentUser, Posts, nextPost, context);
         }
       }
       if(post.canonicalSequenceId) {
@@ -439,10 +445,15 @@ addFieldsDict(Posts, {
         const prevPostID = await sequenceGetPrevPostID(sequenceId, post._id, context);
         if (prevPostID) {
           const prevPost = await context.loaders.Posts.load(prevPostID);
-          const prevPostFiltered = await accessFilterSingle(currentUser, Posts, prevPost, context);
-          if (prevPostFiltered) {
-            return prevPostFiltered;
+          return accessFilterSingle(currentUser, Posts, prevPost, context);
+        } else {
+          const prevSequencePostId = await getPrevPostIdFromPrevSequence(sequenceId, post._id, context);
+          if (!prevSequencePostId) {
+            return null;
           }
+
+          const prevPost = await context.loaders.Posts.load(prevSequencePostId.postId);
+          return accessFilterSingle(currentUser, Posts, prevPost, context);
         }
       }
       if(post.canonicalSequenceId) {
@@ -476,14 +487,22 @@ addFieldsDict(Posts, {
     type: "Sequence",
     graphQLtype: "Sequence",
     viewableBy: ['guests'],
-    graphqlArguments: 'sequenceId: String',
-    resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
-      const { sequenceId } = args;
+    graphqlArguments: 'sequenceId: String, prevOrNext: String',
+    resolver: async (post: DbPost, args: {sequenceId: string, prevOrNext?: 'prev' | 'next'}, context: ResolverContext) => {
+      const { sequenceId, prevOrNext } = args;
       const { currentUser } = context;
       let sequence: DbSequence|null = null;
       if (sequenceId && await sequenceContainsPost(sequenceId, post._id, context)) {
         sequence = await context.loaders.Sequences.load(sequenceId);
-      } else if (post.canonicalSequenceId) {
+      } else if (sequenceId && prevOrNext) {
+        const sequencePostId = prevOrNext === 'prev'
+          ? await getPrevPostIdFromPrevSequence(sequenceId, post._id, context)
+          : await getNextPostIdFromNextSequence(sequenceId, post._id, context);
+
+        if (sequencePostId) {
+          sequence = await context.loaders.Sequences.load(sequencePostId.sequenceId);
+        }
+      } else if (!sequence && post.canonicalSequenceId) {
         sequence = await context.loaders.Sequences.load(post.canonicalSequenceId);
       }
 
