@@ -67,7 +67,14 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, LWTooltip, MetaInfo } = Components
+
+  const posts = document?.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)));
+
+  const readPosts = posts?.filter(post => post.isRead)
+
+  const totalWordcount = Math.round(posts?.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0) || 0)
+
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -104,6 +111,12 @@ const CollectionsPage = ({ documentId, classes }: {
           >
             {startedReading ? "Continue Reading" : "Start Reading"}
           </ButtonUntyped>
+          <LWTooltip title={`${totalWordcount} words`}>
+            <div>
+              <MetaInfo>{ totalWordcount / 300 }  min read</MetaInfo>
+              <MetaInfo>{ readPosts?.length} / {posts?.length}</MetaInfo>
+            </div>
+          </LWTooltip>
         </div>
       </SingleColumnSection>
       <div>
