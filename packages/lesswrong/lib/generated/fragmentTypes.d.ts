@@ -272,6 +272,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
+  readonly canVoteOnRels: Array<string>,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions

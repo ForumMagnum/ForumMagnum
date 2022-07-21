@@ -429,6 +429,18 @@ export const schema: SchemaType<DbTag> = {
       label: val.label
     })),
   },
+
+  canVoteOnRels: {
+    type: Array,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    hidden: true,
+  },
+  'canVoteOnRels.$': {
+    type: String,
+  },
 }
 
 export const wikiGradeDefinitions: Partial<Record<number,string>> = {
