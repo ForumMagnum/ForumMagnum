@@ -21,6 +21,7 @@ import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/schema';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMessages } from '../common/withMessages';
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -308,7 +309,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </Typography>
 
             {user.htmlBio && <ContentStyles contentType="post">
-              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} />
+              <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} nofollow={(user.karma || 0) < nofollowKarmaThreshold.get()}/>
             </ContentStyles>}
           </SingleColumnSection>
 

@@ -11,6 +11,7 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import Tags, { tagMinimumKarmaPermissions } from '../../lib/collections/tags/collection';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
@@ -113,7 +114,7 @@ const TagPageButtonRow = ({tag, editing, setEditing, className, classes}: {
   </>
   
   return <div className={classNames(classes.buttonsRow, className)}>
-    {!editing && <LWTooltip
+    {!editing && (!currentUser || currentUser.karma >= tagMinimumKarmaPermissions.edit) && <LWTooltip
       className={classes.buttonTooltip}
       title={editTooltip}
     >

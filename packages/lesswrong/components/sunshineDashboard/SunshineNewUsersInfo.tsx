@@ -125,7 +125,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sortSelected: {
     color: theme.palette.grey[900]
-  }
+  },
+  bio: {
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
+  website: {
+    color: theme.palette.primary.main,
+  },
+  info: {
+    '& > * + *': {
+      marginTop: 8,
+    },
+  },
 })
 const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
   user: SunshineUsersList,
@@ -295,20 +308,23 @@ const SunshineNewUsersInfo = ({ user, classes, updateUser }: {
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
-            {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
-            {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
-            <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-            <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-            <div className={classes.notes}>
-              <Input 
-                value={notes} 
-                fullWidth
-                onChange={e => setNotes(e.target.value)}
-                onClick={e => handleClick()}
-                disableUnderline 
-                placeholder="Notes for other moderators"
-                multiline
-              />
+            <div className={classes.info}>
+              {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/></em></p> : null }
+              {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
+              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+              {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+              <div className={classes.notes}>
+                <Input 
+                  value={notes} 
+                  fullWidth
+                  onChange={e => setNotes(e.target.value)}
+                  onClick={e => handleClick()}
+                  disableUnderline 
+                  placeholder="Notes for other moderators"
+                  multiline
+                />
+              </div>
             </div>
             <div className={classes.row}>
               <div className={classes.row}>
