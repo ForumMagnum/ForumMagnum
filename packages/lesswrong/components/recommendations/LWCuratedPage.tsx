@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const LWCuratedPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { ConfigurableRecommendationsList, PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
+  const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
 
   const currentUser = useCurrentUser()
   const showCurated = forumTypeSetting.get() === 'LessWrong'
@@ -38,9 +38,6 @@ const LWCuratedPage = ({classes}: {
             />
           </AnalyticsContext>
         </SingleColumnSection>}
-        <AnalyticsContext pageSectionContext={"archiveRecommendations"} capturePostItemOnMount>
-          <ConfigurableRecommendationsList configName="recommendationspage" />
-        </AnalyticsContext>
         {showCurated && currentUser?.isAdmin && <div className={classes.curated}>
           <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
         </div>}

@@ -227,6 +227,12 @@ addRoute(
     path: '/reviewVoting',
     redirect: () => `/reviewVoting/2020`,
   },
+  {
+    name: 'recommendations',
+    path: '/recommendations',
+    componentName: 'RecommendationsPage',
+    title: "Recommendations",
+  },
   // {
   //   name:'reviewVoting2019',
   //   path: '/reviewVoting/2019',
@@ -680,12 +686,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/api/eag-application-data'
     },
     {
-      name: 'recommendations',
-      path: '/recommendations',
-      componentName: 'RecommendationsPage',
-      title: "Recommendations",
-    },
-    {
       name: 'IntroCurriculum',
       path: '/curriculum',
       componentName: 'EAIntroCurriculum',
@@ -753,13 +753,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Curated',
       path: '/curated',
-      componentName: 'LWCuratedPage',
-      title: "Curated Posts",
-    },
-    {
-      name: 'recommendations',
-      path: '/recommendations',
-      redirect: () => `/curated`,
+      redirect: () => `/recommendations`,
     },
     {
       name: 'Walled Garden',
