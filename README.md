@@ -181,3 +181,5 @@ manual database work, there's no need for you to also do that manual work.
 
 The test user admin credentials are in 1password. You're also welcome to create
 your own admin user.
+
+Occasionally the dev db gets wiped and replaced with a fresh copy of production data. (The same goes for staging.)
