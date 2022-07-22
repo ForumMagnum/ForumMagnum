@@ -3,6 +3,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
+import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
 import GraphQLJSON from 'graphql-type-json';
 
 const schema: SchemaType<DbTagRel> = {
@@ -98,6 +99,7 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 addUniversalFields({collection: TagRels})
 makeVoteable(TagRels, {
   timeDecayScoresCronjob: true,
+  userCanVoteOn: (user: DbUser, document: DbTagRel) => userCanVoteOnTag(user, document.tagId),
 });
 
 export default TagRels;
