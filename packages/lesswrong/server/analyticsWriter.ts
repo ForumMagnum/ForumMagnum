@@ -100,7 +100,7 @@ async function writeEventsToAnalyticsDB(events: {type, timestamp, props}[]) {
       inFlightRequestCounter.inFlightRequests++;
       try {
         await Promise.all([
-          connection.none(query),
+          connection?.none(query),
           mirrorConnection?.none(query)
         ])
       } finally {
