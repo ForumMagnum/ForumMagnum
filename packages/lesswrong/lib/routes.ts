@@ -227,12 +227,6 @@ addRoute(
     path: '/reviewVoting',
     redirect: () => `/reviewVoting/2020`,
   },
-  {
-    name: 'recommendations',
-    path: '/recommendations',
-    componentName: 'RecommendationsPage',
-    title: "Recommendations",
-  },
   // {
   //   name:'reviewVoting2019',
   //   path: '/reviewVoting/2019',
@@ -1273,6 +1267,12 @@ addRoute(
     path: '/questions',
     componentName: 'QuestionsPage',
     title: "All Questions",
+  },
+  {
+    name: 'recommendations',
+    path: '/recommendations',
+    componentName: 'RecommendationsPage',
+    title: "Recommendations",
   },
   {
     name: 'emailToken',
