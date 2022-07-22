@@ -31,5 +31,6 @@ export const userCanVoteOnTag = async (user: DbUser, tagId: string) => {
       return true;
     }
   }
+
   return false;
 }

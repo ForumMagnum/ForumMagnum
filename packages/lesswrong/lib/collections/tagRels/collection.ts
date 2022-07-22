@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
@@ -67,6 +67,16 @@ const schema: SchemaType<DbTagRel> = {
     optional: true,
     viewableBy: ['guests'],
   },
+
+  currentUserCanVote: resolverOnlyField({
+    type: Boolean,
+    graphQLtype: 'Boolean',
+    viewableBy: ['guests'],
+    resolver: (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
+      // Return true for a null user so we can show them a login/signup prompt
+      return currentUser ? userCanVoteOnTag(currentUser, document.tagId) : true;
+    },
+  }),
 };
 
 export const TagRels: TagRelsCollection = createCollection({

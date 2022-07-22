@@ -104,6 +104,40 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly deleted: boolean,
 }
 
+interface TagsDefaultFragment { // fragment on Tags
+  readonly createdAt: Date,
+  readonly name: string,
+  readonly slug: string,
+  readonly oldSlugs: Array<string>,
+  readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
+  readonly defaultOrder: number,
+  readonly descriptionTruncationCount: number,
+  readonly descriptionHtmlWithToc: string,
+  readonly postCount: number,
+  readonly userId: string,
+  readonly adminOnly: boolean,
+  readonly charsAdded: number,
+  readonly charsRemoved: number,
+  readonly deleted: boolean,
+  readonly lastCommentedAt: Date,
+  readonly needsReview: boolean,
+  readonly reviewedByUserId: string,
+  readonly wikiGrade: number,
+  readonly wikiOnly: boolean,
+  readonly bannerImageId: string,
+  readonly tagFlagsIds: Array<string>,
+  readonly lesswrongWikiImportRevision: string,
+  readonly lesswrongWikiImportSlug: string,
+  readonly lesswrongWikiImportCompleted: boolean,
+  readonly htmlWithContributorAnnotations: string,
+  readonly contributors: any /*TagContributorsList*/,
+  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly introSequenceId: string,
+  readonly postsDefaultSortOrder: string,
+  readonly canVoteOnRels: Array<string>,
+}
+
 interface TagRelsDefaultFragment { // fragment on TagRels
   readonly createdAt: Date,
   readonly tagId: string,
@@ -239,40 +273,6 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
   readonly hideFromAuthorPage: boolean,
-}
-
-interface TagsDefaultFragment { // fragment on Tags
-  readonly createdAt: Date,
-  readonly name: string,
-  readonly slug: string,
-  readonly oldSlugs: Array<string>,
-  readonly core: boolean,
-  readonly suggestedAsFilter: boolean,
-  readonly defaultOrder: number,
-  readonly descriptionTruncationCount: number,
-  readonly descriptionHtmlWithToc: string,
-  readonly postCount: number,
-  readonly userId: string,
-  readonly adminOnly: boolean,
-  readonly charsAdded: number,
-  readonly charsRemoved: number,
-  readonly deleted: boolean,
-  readonly lastCommentedAt: Date,
-  readonly needsReview: boolean,
-  readonly reviewedByUserId: string,
-  readonly wikiGrade: number,
-  readonly wikiOnly: boolean,
-  readonly bannerImageId: string,
-  readonly tagFlagsIds: Array<string>,
-  readonly lesswrongWikiImportRevision: string,
-  readonly lesswrongWikiImportSlug: string,
-  readonly lesswrongWikiImportCompleted: boolean,
-  readonly htmlWithContributorAnnotations: string,
-  readonly contributors: any /*TagContributorsList*/,
-  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly introSequenceId: string,
-  readonly postsDefaultSortOrder: string,
-  readonly canVoteOnRels: Array<string>,
 }
 
 interface RevisionsDefaultFragment { // fragment on Revisions
@@ -1364,6 +1364,7 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly post: PostsList|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly currentUserCanVote: boolean,
 }
 
 interface TagRelHistoryFragment extends TagRelBasicInfo { // fragment on TagRels
@@ -1388,6 +1389,7 @@ interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment|null,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly currentUserCanVote: boolean,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
@@ -1937,13 +1939,13 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
+  TagsDefaultFragment: TagsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
-  TagsDefaultFragment: TagsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
@@ -2084,13 +2086,13 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   PostRelationsDefaultFragment: "PostRelations"
   LocalgroupsDefaultFragment: "Localgroups"
+  TagsDefaultFragment: "Tags"
   TagRelsDefaultFragment: "TagRels"
   PostsDefaultFragment: "Posts"
   VotesDefaultFragment: "Votes"
   CommentsDefaultFragment: "Comments"
   RSSFeedsDefaultFragment: "RSSFeeds"
   SequencesDefaultFragment: "Sequences"
-  TagsDefaultFragment: "Tags"
   RevisionsDefaultFragment: "Revisions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
