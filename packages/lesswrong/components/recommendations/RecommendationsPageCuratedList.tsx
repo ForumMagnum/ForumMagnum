@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const LWCuratedPage = ({classes}: {
+const RecommendationsPageCuratedList = ({classes}: {
   classes: ClassesType
 }) => {
   const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
@@ -46,11 +46,11 @@ const LWCuratedPage = ({classes}: {
   )
 };
 
-const LWCuratedPageComponent = registerComponent('LWCuratedPage', LWCuratedPage, {styles});
+const RecommendationsPageCuratedListComponent = registerComponent('RecommendationsPageCuratedList', RecommendationsPageCuratedList, {styles});
 
 declare global {
   interface ComponentTypes {
-    LWCuratedPage: typeof LWCuratedPageComponent
+    RecommendationsPageCuratedList: typeof RecommendationsPageCuratedListComponent
   }
 }
 

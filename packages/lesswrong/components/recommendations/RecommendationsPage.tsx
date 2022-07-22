@@ -6,13 +6,13 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 const RecommendationsPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { ConfigurableRecommendationsList, LWCuratedPage } = Components;
+  const { ConfigurableRecommendationsList, RecommendationsPageCuratedList } = Components;
 
   const isLW = forumTypeSetting.get() === 'LessWrong'
 
   return (
     <AnalyticsContext pageSectionContext={"recommendationsPage"} capturePostItemOnMount>
-      {isLW && <LWCuratedPage/>}
+      {isLW && <RecommendationsPageCuratedList/>}
       <ConfigurableRecommendationsList configName="recommendationspage" />
     </AnalyticsContext>
   )
