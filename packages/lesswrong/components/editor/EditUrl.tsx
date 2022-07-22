@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
@@ -77,18 +77,15 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
 }) => {
   const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>();
+  let HintTextComponent: () => JSX.Element;
+  if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
+    HintTextComponent = Components[hintText]
+  }
 
   const updateValue = (value: string | null) => {
     updateCurrentValues({
       [path]: value,
     });
-  }
-
-  const waitAndWipeFooterContent = async () => {
-    // Delay to let the other click events fire first, so that link clicks can
-    // happen before we remove the link
-    await sleep(300);
-    setFooterContent(null);
   }
 
   const setEditorActive = (value: boolean) => {
@@ -99,13 +96,13 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
       setFooterContent(
         <div className={classes.footer}>
           <Components.Typography variant='body2' className={classes.hintText}>
-            {hintText}
+            {HintTextComponent ? <HintTextComponent /> : hintText}
           </Components.Typography>
         </div>
       );
     } else {
       updateValue(null);
-      void waitAndWipeFooterContent();
+      setFooterContent(null);
     }
     setActive(value);
   }

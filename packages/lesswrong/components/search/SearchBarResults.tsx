@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      top: 48,
+      top: forumTypeSetting.get() === 'EAForum' ? 78 : 48,
     },
     "& .ais-CurrentRefinements": {
       display: 'inline-block',

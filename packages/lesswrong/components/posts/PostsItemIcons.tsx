@@ -15,6 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
     lineHeight: "1.0rem",
+    '&:empty': {
+      display: 'none',
+    },
   },
   postIcon: {
     marginRight: 4,
