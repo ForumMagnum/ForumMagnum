@@ -41,6 +41,7 @@ import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
+import { loggerConstructor } from '../../lib/utils/logging';
 
 /**
  * Create mutation
@@ -271,6 +272,8 @@ export const updateMutator = async <T extends DbObject>({
 }> => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
+  const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}-update`);
+  logger('updateMutator() begin')
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
@@ -326,6 +329,7 @@ export const updateMutator = async <T extends DbObject>({
 
   */
   if (validate) {
+    logger('vadidating')
     let validationErrors: any = [];
 
     validationErrors = validationErrors.concat(validateData(data, document, collection, context));
@@ -362,11 +366,9 @@ export const updateMutator = async <T extends DbObject>({
     let autoValue;
     const schemaField = schema[fieldName];
     if (schemaField.onUpdate) {
-      // eslint-disable-next-line no-await-in-loop
       autoValue = await schemaField.onUpdate({...properties, fieldName});
     } else if (schemaField.onEdit) {
       // OpenCRUD backwards compatibility
-      // eslint-disable-next-line no-await-in-loop
       autoValue = await schemaField.onEdit(
         dataToModifier(clone(data)),
         oldDocument,
@@ -375,6 +377,7 @@ export const updateMutator = async <T extends DbObject>({
       );
     }
     if (typeof autoValue !== 'undefined') {
+      logger(`onUpdate returned a value to update for ${fieldName}: ${autoValue}`)
       data![fieldName] = autoValue;
     }
   }
