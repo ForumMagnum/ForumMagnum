@@ -86,8 +86,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     minHeight: 26,
-    flexGrow: 1,
-    flexShrink: 1,
+    flex: 1500,
+    maxWidth: "fit-content",
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
@@ -100,11 +100,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
       height: "unset",
       maxWidth: "unset",
       width: "100%",
-      paddingRight: theme.spacing.unit
+      paddingRight: theme.spacing.unit,
+      flex: "unset",
     },
     '&:hover': {
       opacity: 1,
     }
+  },
+  spacer: {
+    flex: 1,
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
   },
   author: {
     justifyContent: "flex",
@@ -113,6 +120,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
     zIndex: theme.zIndexes.postItemAuthor,
+    flex: 1000,
+    maxWidth: "fit-content",
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -527,6 +536,9 @@ const PostsItem2 = ({
                   <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 
+                {/* space in-between title and author if there is width remaining */}
+                <span className={classes.spacer} />
+
                 { !post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments()}/>
                 </PostsItem2MetaInfo>}
@@ -611,6 +623,7 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
+  stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",

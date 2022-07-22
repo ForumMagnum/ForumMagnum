@@ -119,8 +119,9 @@ export const getFieldSchema = <T extends DbObject>(fieldName: string, schema: Si
 // right now we support only fields with one type
 export const getSchemaType = schema => schema.type.definitions[0].type;
 
-const getArrayNestedSchema = <T extends DbObject>(fieldName: keyof T, schema: SchemaType<T>) => {
+const getArrayNestedSchema = <T extends DbObject>(fieldName: string&keyof T, schema: SimpleSchemaType<T>) => {
   const arrayItemSchema = schema._schema[`${fieldName}.$`];
+  
   const nestedSchema = arrayItemSchema && getSchemaType(arrayItemSchema);
   return nestedSchema;
 };

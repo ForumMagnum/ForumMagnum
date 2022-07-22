@@ -77,6 +77,7 @@ interface ContentItemBodyProps extends WithStylesProps {
   description?: string,
   // Only Implemented for Tag Hover Previews
   noHoverPreviewPrefetch?: boolean,
+  nofollow?: boolean,
 }
 interface ContentItemBodyState {
   updatedElements: boolean,
@@ -135,11 +136,13 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   }
   
   render() {
+    const html = this.props.nofollow ? addNofollowToHTML(this.props.dangerouslySetInnerHTML.__html) : this.props.dangerouslySetInnerHTML.__html
+    
     return (<React.Fragment>
       <div
         className={this.props.className}
         ref={this.bodyRef}
-        dangerouslySetInnerHTML={this.props.dangerouslySetInnerHTML}
+        dangerouslySetInnerHTML={{__html: html}}
       />
       {
         this.replacedElements.map(replaced => {
@@ -262,7 +265,14 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
           continue;
         const id = linkTag.getAttribute("id");
         const rel = linkTag.getAttribute("rel")
-        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id} rel={rel} noPrefetch={this.props.noHoverPreviewPrefetch}/>
+        const replacementElement = <Components.HoverPreviewLink
+          href={href}
+          innerHTML={tagContentsHTML}
+          contentSourceDescription={this.props.description}
+          id={id}
+          rel={rel}
+          noPrefetch={this.props.noHoverPreviewPrefetch}
+        />
         this.replaceElement(linkTag, replacementElement);
       }
     }
@@ -289,6 +299,10 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
     });
     replacedElement.parentElement.replaceChild(replacementContainer, replacedElement);
   }
+}
+
+const addNofollowToHTML = (html: string): string => {
+  return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
 const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {

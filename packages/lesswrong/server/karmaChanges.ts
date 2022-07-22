@@ -49,7 +49,7 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate=n
     return [
       // Get votes cast on this user's content (including cancelled votes)
       {$match: {
-        authorId: user._id,
+        authorIds: user._id,
         votedAt: {$gte: startDate, $lte: endDate},
         userId: {$ne: user._id}, //Exclude self-votes
         collectionName: collectionName,

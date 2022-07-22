@@ -28,6 +28,7 @@ import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
+import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -258,7 +259,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
   
   // although both the owner and admins can see the drafts section,
   // admins need to click a button to view it (so it's not distracting)
-  const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(currentUser && user?._id === currentUser._id)
+  const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(!user || (currentUser && user._id === currentUser._id))
+  useEffect(() => {
+    if (user) {
+      setDraftsSectionExpanded(currentUser && user._id === currentUser._id)
+    }
+  }, [currentUser, user])
+  
   // show/hide the "Posts" section sort/filter settings
   const [showPostSettings, setShowPostSetttings] = useState(false)
   
@@ -267,6 +274,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
     enableTotal: false,
+    skip: !user
   })
 
   const { flash } = useMessages()
@@ -398,6 +406,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: user.htmlBio }}
             description={`user ${user._id} bio`}
+            nofollow={userKarma < nofollowKarmaThreshold.get()}
           />
         </ContentStyles>}
         {user.howOthersCanHelpMe && <>
@@ -405,7 +414,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionSubHeading}>How others can help me</Typography>
           </div>
           <ContentStyles contentType="post">
-            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howOthersCanHelpMe.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
         {user.howICanHelpOthers && <>
@@ -413,7 +422,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             <Typography variant="headline" className={classes.sectionSubHeading}>How I can help others</Typography>
           </div>
           <ContentStyles contentType="post">
-            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: user.howICanHelpOthers.html }} nofollow={userKarma < nofollowKarmaThreshold.get()}/>
           </ContentStyles>
         </>}
       </>,

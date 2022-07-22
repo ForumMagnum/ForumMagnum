@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative'
   },
   collapsedTabBody: {
-    maxHeight: COLLAPSED_SECTION_HEIGHT,
+    height: COLLAPSED_SECTION_HEIGHT,
     overflow: 'hidden',
     '&::after': {
       position: 'absolute',
@@ -112,7 +112,7 @@ const EAUsersProfileTabbedSection = ({tabs, classes}: {
     if (bodyRef.current) {
       // show/hide the collapse-related buttons depending on whether or not the content all fits
       resizeObserver.current = new ResizeObserver(elements => {
-        setMeritsCollapse(elements[0].contentRect.height >= COLLAPSED_SECTION_HEIGHT)
+        setMeritsCollapse(Math.round(elements[0].contentRect.height) >= COLLAPSED_SECTION_HEIGHT)
       })
       resizeObserver.current.observe(bodyRef.current)
     }

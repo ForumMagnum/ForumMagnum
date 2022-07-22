@@ -2,6 +2,9 @@ import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
+import { Votes } from '../lib/collections/votes'
+import Tags from '../lib/collections/tags/collection'
+import Revisions from '../lib/collections/revisions/collection'
 import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
@@ -263,6 +266,57 @@ export const createDummyLocalgroup = async (data?: any) => {
     validate: false,
   });
   return groupResponse.data
+}
+
+export const createDummyVote = async (user: DbUser, data?: Partial<DbVote>) => {
+  const defaultData = {
+    userId: user._id,
+    authorIds: [],
+    cancelled: false,
+    isUnvote: false,
+  };
+  const voteData = {...defaultData, ...data};
+  const newVoteResponse = await createMutator({
+    collection: Votes,
+    document: voteData,
+    currentUser: user,
+    validate: false,
+  });
+  return newVoteResponse.data;
+}
+
+export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
+  const defaultData = {
+    userId: user._id,
+    deleted: false,
+    adminOnly: false,
+    postCount: 0,
+    createdAt: new Date(Date.now()),
+  };
+  const tagData = {...defaultData, ...data};
+  const newTagResponse = await createMutator({
+    collection: Tags,
+    document: tagData,
+    currentUser: user,
+    validate: false,
+  });
+  return newTagResponse.data;
+}
+
+export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision>) => {
+  const defaultData = {
+    userId: user._id,
+    inactive: false,
+    editedAt: new Date(Date.now()),
+  };
+  const revisionData = {...defaultData, ...data};
+  const newRevisionResponse = await createMutator({
+    collection: Revisions,
+    document: revisionData,
+    currentUser: user,
+    validate: false,
+  });
+  return newRevisionResponse.data;
 }
 
 export const clearDatabase = async () => {

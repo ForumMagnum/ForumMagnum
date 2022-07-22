@@ -149,6 +149,11 @@ async function asyncSleep(durationMs) {
   });
 }
 
+function getClientBundleTimestamp() {
+  const stats = fs.statSync('./build/client/js/bundle.js');
+  return stats.mtime.toISOString();
+}
+
 function generateBuildId() {
   return crypto.randomBytes(12).toString('base64');
 }
@@ -168,7 +173,7 @@ async function initiateRefresh() {
     await waitForServerReady();
     console.log("Notifying connected browser windows to refresh");
     for (let connection of openWebsocketConnections) {
-      connection.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
+      connection.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
     }
     refreshIsPending = false;
   }
@@ -189,7 +194,7 @@ function startWebsocketServer() {
         openWebsocketConnections.splice(connectionIndex, 1);
       }
     });
-    ws.send(`{"latestBuildId": "${latestCompletedBuildId}"}`);
+    ws.send(`{"latestBuildTimestamp": "${getClientBundleTimestamp()}"}`);
   });
 }
 

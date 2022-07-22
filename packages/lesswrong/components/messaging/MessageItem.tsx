@@ -35,7 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   messageBody: {
     '& a': {
       color: theme.palette.primary.light
-    }
+    },
+    '& img': {
+      maxWidth: '100%',
+    },
   }
 })
 

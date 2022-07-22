@@ -263,7 +263,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& figcaption': {
     ...theme.typography.caption,
     ...theme.typography.postStyle
-  }
+  },
+  '& ol > li > ol': {
+    listStyle: 'lower-alpha',
+  },
+  '& ol > li > ol > li > ol': {
+    listStyle: 'lower-roman',
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {
