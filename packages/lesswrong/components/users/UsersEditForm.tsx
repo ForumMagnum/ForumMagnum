@@ -101,7 +101,7 @@ const UsersEditForm = ({terms, classes}: {
         hideFields={["paymentEmail", "paymentInfo"]}
         successCallback={async (user) => {
           flash(`User "${userGetDisplayName(user)}" edited`);
-          await client.resetStore()
+          await client.clearStore()
           history.push(userGetProfileUrl(user));
         }}
         queryFragment={getFragment('UsersEdit')}

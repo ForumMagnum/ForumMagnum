@@ -222,6 +222,12 @@ const schema: SchemaType<DbUser> = {
         }
         return slugLower;
       }
+      if (data.displayName && data.displayName !== oldDocument.displayName) {
+        const slugForNewName = slugify(data.displayName);
+        if (!await Utils.slugIsUsed("Users", slugForNewName)) {
+          return slugForNewName;
+        }
+      }
     }
   },
   

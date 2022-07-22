@@ -14,6 +14,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { formGroups } from './formGroups';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
 import uniqBy from 'lodash/uniqBy'
+import { slugify, Utils } from '../../vulcan-lib';
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const karmaChangeNotifierDefaultSettings = {
@@ -1426,9 +1427,16 @@ addFieldsDict(Users, {
     type: Array,
     optional: true,
     canRead: ['guests'],
-    onUpdate: ({data, oldDocument}) => {
+    onUpdate: async ({data, oldDocument}) => {
       if (data.slug && data.slug !== oldDocument.slug)  {
         return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+      }
+      // The next three lines are copy-pasted from slug.onUpdate
+      if (data.displayName && data.displayName !== oldDocument.displayName) {
+        const slugForNewName = slugify(data.displayName);
+        if (!await Utils.slugIsUsed("Users", slugForNewName)) {
+          return [...(oldDocument.oldSlugs || []), oldDocument.slug]
+        }
       }
     }
   },
