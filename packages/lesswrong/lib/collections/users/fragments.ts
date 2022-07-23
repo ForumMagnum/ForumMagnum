@@ -82,6 +82,10 @@ registerFragment(`
     paymentEmail
     paymentInfo
     goodHeartTokens
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
   }
 `);
 

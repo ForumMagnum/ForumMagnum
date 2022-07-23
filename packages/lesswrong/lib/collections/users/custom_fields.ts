@@ -1791,6 +1791,46 @@ addFieldsDict(Users, {
     },
     group: formGroups.socialMedia
   },
+  postingDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 69,
+  },
+  allCommentingDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 70,
+  },
+  commentingOnOtherUsersDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 71,
+  },
+  conversationsDisabled: {
+    type: Boolean,
+    optional: true,
+    canRead: ['members'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.disabledPrivileges,
+    order: 72,
+  },
 });
 
 makeEditable({
