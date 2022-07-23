@@ -100,3 +100,5 @@ export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "20
 export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null)
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
+
+export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "team@lesswrong.com")
