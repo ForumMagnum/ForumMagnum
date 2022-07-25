@@ -329,7 +329,7 @@ export const updateMutator = async <T extends DbObject>({
 
   */
   if (validate) {
-    logger('vadidating')
+    logger('validating')
     let validationErrors: any = [];
 
     validationErrors = validationErrors.concat(validateData(data, document, collection, context));
