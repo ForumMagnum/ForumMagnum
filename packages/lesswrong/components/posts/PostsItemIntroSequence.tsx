@@ -6,14 +6,16 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../common/withRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
-
+import { KARMA_WIDTH } from './PostsItem2';
 
 export const styles = (theme: ThemeType): JssStyles=> ({
   root: {
     position: "relative",
     [theme.breakpoints.down('xs')]: {
-      width: "100%"
+      width: "100%",
     },
+    display: "flex",
+    alignItems: "center",
   },
   background: {
     width: "100%",
@@ -22,20 +24,20 @@ export const styles = (theme: ThemeType): JssStyles=> ({
   translucentBackground: {
     width: "100%",
     background: theme.palette.panelBackground.translucent,
-    backdropFilter: "blur(1px)"
+    backdropFilter: "blur(1px)",
   },
   postsItem: {
     display: "flex",
     position: "relative",
     paddingTop: 10,
     paddingBottom: 10,
-    paddingLeft: 15,
     alignItems: "center",
     flexWrap: "nowrap",
+    flexGrow: 1,
     [theme.breakpoints.down('xs')]: {
+      flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
-      paddingLeft: 5
     },
   },
   postsItemWithImage: {
@@ -46,6 +48,10 @@ export const styles = (theme: ThemeType): JssStyles=> ({
   },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
+  },
+  karma: {
+    width: KARMA_WIDTH,
+    justifyContent: "center",
   },
   title: {
     minHeight: 26,
@@ -67,7 +73,7 @@ export const styles = (theme: ThemeType): JssStyles=> ({
     },
     '&:hover': {
       opacity: 1,
-    }
+    },
   },
   author: {
     overflow: "hidden",
@@ -79,8 +85,8 @@ export const styles = (theme: ThemeType): JssStyles=> ({
       justifyContent: "flex-end",
       width: "unset",
       marginLeft: 0,
-      flex: "unset"
-    }
+      flex: "unset",
+    },
   },
   mobileSecondRowSpacer: {
     [theme.breakpoints.up('sm')]: {
@@ -90,7 +96,6 @@ export const styles = (theme: ThemeType): JssStyles=> ({
   },
   sequenceImage: {
     position: "absolute",
-    marginLeft: -133,
     height: "100%",
     marginTop: 0,
     marginBottom: 0,
@@ -107,15 +112,15 @@ export const styles = (theme: ThemeType): JssStyles=> ({
       left: 0,
       top: 0,
       background: `linear-gradient(to right, ${theme.palette.panelBackground.default} 0%, ${theme.palette.panelBackground.translucent2} 30%, transparent 100%)`,
-    }
+    },
   },
   sequenceImageImg: {
     height: "100%",
-    width: 'auto'
+    width: 'auto',
   },
   dense: {
     paddingTop: 7,
-    paddingBottom:8
+    paddingBottom:8,
   },
 })
 
@@ -125,7 +130,7 @@ const PostsItemIntroSequence = ({
   // post: The post displayed.
   post,
   // sequenceId, chapter: If set, these will be used for making a nicer URL.
-  sequenceId, 
+  sequenceId,
   chapter,
   sequence,
   showBottomBorder=true,
@@ -154,7 +159,7 @@ const PostsItemIntroSequence = ({
 }) => {
   const { isRead } = useRecordPostView(post);
 
-  const { PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo, PostsItemTooltipWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+  const { PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo, PostsItemTooltipWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
   const postLink = postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -166,9 +171,12 @@ const PostsItemIntroSequence = ({
             [classes.background]: !translucentBackground,
             [classes.translucentBackground]: translucentBackground,
             [classes.bottomBorder]: showBottomBorder,
-            [classes.isRead]: isRead
+            [classes.isRead]: isRead,
           })}
         >
+          <PostsItem2MetaInfo className={classes.karma}>
+            {<PostsItemKarma post={post} />}
+          </PostsItem2MetaInfo>
           <PostsItemTooltipWrapper
             post={post}
             className={classNames(
