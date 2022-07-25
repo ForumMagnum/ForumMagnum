@@ -65,6 +65,7 @@ import './server/acceptCoauthorRequest';
 import './server/bookmarkMutation';
 import './server/hidePostMutation';
 import './server/rss';
+import './server/auth0';
 import './server/akismet';
 import './server/votingCron';
 import './server/votingGraphQL';
