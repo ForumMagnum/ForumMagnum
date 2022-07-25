@@ -26,6 +26,7 @@ import { EventDebouncer } from '../debouncer';
 import { Components } from '../../lib/vulcan-lib/components';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
+import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -50,6 +51,22 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
+});
+
+getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
+  const newEmail = modifier.$set?.email;
+  const oldEmail = user.email;
+  if (newEmail && newEmail !== oldEmail) {
+    await updateAuth0Email(user, newEmail);
+    /**
+     * Here be dragons!
+     * DbUser does NOT includes services, so overwriting modifier.$set.services is
+     * both very easy and very bad (amongst other things, it will destroy the user's
+     * session)
+     */
+    modifier.$set["services.auth0"] = await getAuth0Profile(user);
+  }
+  return modifier;
 });
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)

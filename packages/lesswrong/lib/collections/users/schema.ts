@@ -192,11 +192,6 @@ const schema: SchemaType<DbUser> = {
       if (linkedinEmail) return linkedinEmail;
       return undefined;
     },
-    onUpdate: async ({data, oldDocument}) => {
-      if (data.email && data.email !== oldDocument.email) {
-        console.log("Changing email from", oldDocument.email, "to", data.email);
-      }
-    },
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
   // The user's profile URL slug // TODO: change this when displayName changes

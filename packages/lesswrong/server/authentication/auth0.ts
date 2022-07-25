@@ -1,5 +1,6 @@
-import { DatabaseServerSetting } from "./databaseSettings";
+import { DatabaseServerSetting } from "../databaseSettings";
 import { ManagementClient } from "auth0";
+import Profile from "passport-auth0/lib/Profile";
 
 type Auth0Settings = {
   appId: string;
@@ -35,12 +36,21 @@ const auth0Client = new class {
   }
 }
 
-export const updateUserEmail = (user: DbUser, newEmail: string) => {
+const getAuth0Id = (user: DbUser) => {
   const id = user.services?.auth0?.id ?? user.services?.auth0?.user_id;
   if (!id) {
     throw new Error("User does not have an Auth0 user ID");
   }
+  return id;
+}
 
+export const getAuth0Profile = async (user: DbUser) => {
+  const result = await auth0Client.get().getUser({id: getAuth0Id(user)});
+  return new Profile(result, JSON.stringify(result));
+}
+
+export const updateAuth0Email = (user: DbUser, newEmail: string) => {
+  const id = getAuth0Id(user);
   return new Promise((resolve, reject) => {
     auth0Client.get().updateUser({id}, {email: newEmail}, (error, user) => {
       if (error) {
