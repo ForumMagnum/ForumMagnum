@@ -1618,6 +1618,10 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly paymentEmail: string,
   readonly paymentInfo: string,
   readonly goodHeartTokens: number,
+  readonly postingDisabled: boolean,
+  readonly allCommentingDisabled: boolean,
+  readonly commentingOnOtherUsersDisabled: boolean,
+  readonly conversationsDisabled: boolean,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users

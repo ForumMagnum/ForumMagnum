@@ -58,15 +58,29 @@ export function setCookieOnResponse({req, res, cookieName, cookieValue, maxAge}:
     // The server-side code depends on the cookie existing on the very first request, before the client can send back the cookie we set via header
     untypedReq.cookies = { [cookieName]: cookieValue };
   }
-  
-  (res as any).setHeader("Set-Cookie", `${cookieName}=${cookieValue}; Max-Age=${maxAge}`);
+
+  (res as any).setHeader("Set-Cookie", `${cookieName}=${cookieValue}; Max-Age=${maxAge}; Path=/`);
 }
 
 export function getAllCookiesFromReq(req: Request) {
   const untypedReq: any = req;
-  if (untypedReq.universalCookies)
-    return untypedReq.universalCookies
-  else
+
+  if (untypedReq.universalCookies) {
+    /**
+     * Because of the current logic in setCookieOnResponse (for the clientIdMiddleware),
+     * we will have a clientId in cookies but not in universalCookies.
+     * In that case we want to prioritize cookies which exist in universalCookies,
+     * but default to whatever cookies exist in cookies for those that don't exist in universalCookies.
+     * We should be able to delete this after verifying that universalCookies is always present on inbound requests.
+     */
+    if (untypedReq.cookies) {
+      const returnCookies = new Cookies(untypedReq.cookies).getAll();
+      Object.assign(returnCookies, untypedReq.universalCookies.getAll());
+      return new Cookies(returnCookies);
+    }
+    return untypedReq.universalCookies;
+  }
+  else {
     return new Cookies(untypedReq.cookies); // req.universalCookies;
-  
+  }
 }

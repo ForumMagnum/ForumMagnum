@@ -66,7 +66,9 @@ const WelcomeBox = ({ title, contents, classes }: {
     return null;
   }
 
-  const hideBox = () => setCookie(HIDE_WELCOME_BOX_COOKIE, "true");
+  const hideBox = () => setCookie(HIDE_WELCOME_BOX_COOKIE, "true", {
+    path: "/"
+  });
 
   const { Typography } = Components;
   return (
