@@ -98,11 +98,11 @@ const getSurroundingSequencePostIdTuples = async function (sequenceId: string, c
  * Gets the next post ID from the collection the post belongs to, which is determined by the sequenceId
  */
  export const getNextPostIdFromNextSequence = async function (sequenceId: string, postId: string, context: ResolverContext): Promise<SequencePostId | undefined> {
-  const sequencePostIds = await getSurroundingSequencePostIdTuples(sequenceId, context);
-  if (!sequencePostIds) return;
+  const sequencePostIdTuples = await getSurroundingSequencePostIdTuples(sequenceId, context);
+  if (!sequencePostIdTuples) return;
 
-  const index = sequencePostIds.findIndex((idTuple) => idTuple.postId === postId);
-  return sequencePostIds[index + 1];
+  const index = sequencePostIdTuples.findIndex((idTuple) => idTuple.postId === postId);
+  return sequencePostIdTuples[index + 1];
 }
 
 // Given a post ID and the ID of a sequence which contains that post, return the
@@ -129,11 +129,11 @@ export const sequenceGetNextPostID = async function(sequenceId: string, postId: 
  * Gets the previous post ID from the collection the post belongs to, which is determined by the sequenceId
  */
 export const getPrevPostIdFromPrevSequence = async function (sequenceId: string, postId: string, context: ResolverContext): Promise<SequencePostId | undefined> {
-  const sequencePostIds = await getSurroundingSequencePostIdTuples(sequenceId, context);
-  if (!sequencePostIds) return;
+  const sequencePostIdTuples = await getSurroundingSequencePostIdTuples(sequenceId, context);
+  if (!sequencePostIdTuples) return;
 
-  const index = sequencePostIds.findIndex((idTuple) => idTuple.postId === postId);
-  return sequencePostIds[index - 1];
+  const index = sequencePostIdTuples.findIndex((idTuple) => idTuple.postId === postId);
+  return sequencePostIdTuples[index - 1];
 }
 
 // Given a post ID and the ID of a sequence which contains that post, return the
