@@ -15,7 +15,7 @@ const TagIntroSequence = ({tag, classes}: {
   tag: TagPageFragment,
   classes: ClassesType
 }) => {
-  const { SectionTitle, Loading, PostsItemSequenceStart, PostsItem2, LoadMore } = Components
+  const { SectionTitle, Loading, PostsItemIntroSequence, LoadMore } = Components
   const { results: seqChapters, loading } = useMulti({
     terms: {
       view: "SequenceChapters",
@@ -44,15 +44,16 @@ const TagIntroSequence = ({tag, classes}: {
     <AnalyticsContext listContext={'tagIntroSequnce'}>
       {loading && <Loading />}
       {posts.map((post, i) => i === 0 ?
-        <PostsItemSequenceStart
+        <PostsItemIntroSequence
           key={post._id}
           post={post}
           sequence={sequence}
+          withImage
         /> :
-        <PostsItem2
+        <PostsItemIntroSequence
           key={post._id}
           post={post}
-          sequenceId={sequence?._id}
+          sequence={sequence}
         />)}
       {totalCount > PREVIEW_N && !loadedMore && <LoadMore
         loadMore={() => setLoadedMore(true)}
