@@ -18,6 +18,9 @@ registerFragment(`
     books {
       ...BookPageFragment
     }
+    recommendedSequences {
+      ...SequencesPageFragment
+    }
   }
 `);
 

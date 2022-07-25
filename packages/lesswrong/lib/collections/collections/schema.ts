@@ -79,7 +79,30 @@ const schema: SchemaType<DbCollection> = {
     viewableBy: ["guests"],
     editableBy: ["admins"],
     insertableBy: ["admins"],
-  }
+  },
+
+  // Field that resolves to the array of books that belong to a sequence
+  recommendedSequences: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[Sequence]',
+    canRead: ['guests'],
+    canUpdate: ["admins"],
+    canCreate: ["admins"],
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+      const { currentUser, Sequences } = context;
+      const sequences = await Sequences.find(
+        {collectionId: collection._id},
+        {sort: {number: 1}}
+      ).fetch();
+      return await accessFilterMultiple(currentUser, Sequences, sequences, context);
+    }
+  }),
+
+  'recommendedSequences.$': {
+    type: String,
+    foreignKey: "Sequences",
+    optional: true,
+  },
 }
 
 

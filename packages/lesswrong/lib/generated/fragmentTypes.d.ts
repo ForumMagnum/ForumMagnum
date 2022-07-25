@@ -1321,6 +1321,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly firstPageLink: string,
   readonly gridImageId: string,
   readonly books: Array<BookPageFragment>,
+  readonly recommendedSequences: Array<SequencesPageFragment>,
 }
 
 interface CollectionsEditFragment extends CollectionsPageFragment { // fragment on Collections

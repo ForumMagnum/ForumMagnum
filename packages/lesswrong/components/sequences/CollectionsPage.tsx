@@ -67,7 +67,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, SectionTitle, SequencesGrid } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -87,38 +87,46 @@ const CollectionsPage = ({ documentId, classes }: {
     // props
     const ButtonUntyped = Button as any;
     
-    return (<ErrorBoundary><div className={classes.root}>
-      <SingleColumnSection>
-        <div className={classes.header}>
-          {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}
+    return (<ErrorBoundary>
+      <div className={classes.root}>
+        <SingleColumnSection>
+          <div className={classes.header}>
+            {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}
 
-          {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
+            {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
 
-          <ContentStyles contentType="post" className={classes.description}>
-            {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
-          </ContentStyles>
+            <ContentStyles contentType="post" className={classes.description}>
+              {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
+            </ContentStyles>
 
-          <ButtonUntyped
-            className={classes.startReadingButton}
-            component={Link} to={document.firstPageLink}
-          >
-            {startedReading ? "Continue Reading" : "Start Reading"}
-          </ButtonUntyped>
+            <ButtonUntyped
+              className={classes.startReadingButton}
+              component={Link} to={document.firstPageLink}
+            >
+              {startedReading ? "Continue Reading" : "Start Reading"}
+            </ButtonUntyped>
+          </div>
+        </SingleColumnSection>
+        <div>
+          {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
         </div>
-      </SingleColumnSection>
-      <div>
-        {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
+        
+        {canEdit && <SectionFooter>
+          <SectionButton>
+            <a onClick={() => setAddingBook(true)}>Add Book</a>
+          </SectionButton>
+        </SectionFooter>}
+
+        {addingBook && <SingleColumnSection>
+          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+        </SingleColumnSection>}
+
+        <SingleColumnSection>
+          <SectionTitle title="Further Reading"/>
+          <SequencesGrid sequences={collection.recommendedSequences} />
+        </SingleColumnSection>
       </div>
-      
-      {canEdit && <SectionFooter>
-        <SectionButton>
-          <a onClick={() => setAddingBook(true)}>Add Book</a>
-        </SectionButton>
-      </SectionFooter>}
-      {addingBook && <SingleColumnSection>
-        <BooksNewForm prefilledProps={{collectionId: collection._id}} />
-      </SingleColumnSection>}
-    </div></ErrorBoundary>);
+    </ErrorBoundary>);
   }
 }
 
