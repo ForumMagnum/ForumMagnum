@@ -14,9 +14,9 @@ const UsersAccount = () => {
   }
   
   // note: terms is as the same as a document-shape the SmartForm edit-mode expects to receive
-  const terms: {slug?: string, documentId?: string} = params.slug ? { slug: params.slug } : currentUser ? { documentId: currentUser._id } : {};
+  const terms: {slug?: string, documentId?: string} = params.slug ? { slug: params.slug } : { documentId: currentUser._id };
   return <div>
-    <Components.UsersEditForm currentUser={currentUser} terms={terms} />
+    <Components.UsersEditForm terms={terms} />
   </div>
 };
 
@@ -27,3 +27,5 @@ declare global {
     UsersAccount: typeof UsersAccountComponent
   }
 }
+
+

@@ -153,7 +153,6 @@ importComponent("DraftsPage", () => require('../components/users/DraftsPage'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
 importComponent("NewUsersEditForm", () => require('../components/users/NewUsersEditForm'));
-importComponent("OldUsersEditForm", () => require('../components/users/OldUsersEditForm'));
 importComponent("TabBar", () => require('../components/users/TabBar'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));

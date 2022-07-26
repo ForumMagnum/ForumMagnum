@@ -41,6 +41,8 @@ const passwordResetMutation = gql`
   }
 `
 
+// This is a project Jim began awhile ago which fell on the backburner. 
+// I'm reverting UsersEditForm to it's original version, leaving this here for now in case Jim wants to get back to it someday. (It)
 const NewUsersEditForm = ({currentUser, terms, classes}: {
   currentUser: UsersCurrent,
   terms: {slug?: string, documentId?: string},
