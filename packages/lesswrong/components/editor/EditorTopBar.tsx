@@ -65,7 +65,6 @@ const EditorTopBar = ({presenceListRef, accessLevel, collaborationMode, setColla
   setCollaborationMode: (mode: CollaborationMode)=>void,
   classes: ClassesType
 }) => {
-  const availableModes = ["Viewing","Commenting","Editing"]; //TODO: Filter by permissions
   
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList} ref={presenceListRef}/>
