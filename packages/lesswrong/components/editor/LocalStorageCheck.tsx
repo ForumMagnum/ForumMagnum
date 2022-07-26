@@ -8,6 +8,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
     paddingBottom: 12,
+    
+    border: theme.palette.border.normal,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: theme.palette.panelBackground.restoreSavedContentNotice,
+    margin: 10,
+    
+    "& a": {
+      textDecoration: "underline",
+    }
   },
   restoreLink: {
     color: theme.palette.lwTertiary.main,
