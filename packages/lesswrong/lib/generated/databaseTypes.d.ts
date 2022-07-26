@@ -63,6 +63,7 @@ interface DbCollection extends DbObject {
   slug: string
   gridImageId: string
   firstPageLink: string
+  hideStartReadingButton: boolean
   contents: EditableFieldContents
 }
 
