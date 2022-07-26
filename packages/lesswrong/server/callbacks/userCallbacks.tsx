@@ -58,11 +58,10 @@ getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modif
   const oldEmail = user.email;
   if (newEmail && newEmail !== oldEmail) {
     await updateAuth0Email(user, newEmail);
-    /**
-     * Here be dragons!
-     * DbUser does NOT includes services, so overwriting modifier.$set.services is
-     * both very easy and very bad (amongst other things, it will destroy the user's
-     * session)
+    /*
+     * Be careful here: DbUser does NOT includes services, so overwriting
+     * modifier.$set.services is both very easy and very bad (amongst other
+     * things, it will invalidate the user's session)
      */
     modifier.$set["services.auth0"] = await getAuth0Profile(user);
   }

@@ -51,13 +51,5 @@ export const getAuth0Profile = async (user: DbUser) => {
 
 export const updateAuth0Email = (user: DbUser, newEmail: string) => {
   const id = getAuth0Id(user);
-  return new Promise((resolve, reject) => {
-    auth0Client.get().updateUser({id}, {email: newEmail}, (error, user) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(user);
-      }
-    });
-  });
+  return auth0Client.get().updateUser({id}, {email: newEmail});
 }
