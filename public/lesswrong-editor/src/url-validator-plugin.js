@@ -8,7 +8,7 @@ export default class UrlValidator extends Plugin {
 		this.editor.model.document.on('change:data', (eventInfo) => {
 			for (const change of eventInfo.source.differ.getChanges()) {
 				const { type, attributeKey: key, attributeNewValue: value } = change;
-				if (type === 'attribute' && key === 'linkHref') {
+				if (type === 'attribute' && key === 'linkHref' && value) {
 					this._updateUrlIfInvalid(value);
 				}
 			}
